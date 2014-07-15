@@ -43,6 +43,7 @@
                      </children>
                   </HBox>
                   <Button fx:id="btnRegister" layoutX="150.0" layoutY="117.0" mnemonicParsing="false" onAction="#registerAction" prefHeight="25.0" prefWidth="140.0" text="Register" />
+                  <Button fx:id="btnBack" layoutX="315.0" layoutY="117.0" mnemonicParsing="false" onAction="#goBack" prefHeight="25.0" prefWidth="85.0" text="Back" />
                </children>
             </AnchorPane>
          </children>

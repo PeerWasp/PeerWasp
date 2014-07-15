@@ -30,6 +30,9 @@ public class RegisterController implements Initializable {
 	@FXML
 	private Button btnRegister;
 	
+	@FXML
+	private Button goBack;
+	
 	public void initialize(URL location, ResourceBundle resources) {
 		// TODO Auto-generated method stub
 		
@@ -37,6 +40,11 @@ public class RegisterController implements Initializable {
 	
 	public void registerAction(ActionEvent event) {
 		//TODO
+	}
+	
+	public void goBack(ActionEvent event){
+		System.out.println("Go back.");	
+		MainNavigator.goBack();
 	}
 	
 	
