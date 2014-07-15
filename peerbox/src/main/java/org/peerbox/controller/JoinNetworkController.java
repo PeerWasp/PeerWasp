@@ -18,7 +18,7 @@ public class JoinNetworkController implements Initializable {
 	@FXML
 	private Button btnBackToSelection;
 	
-	public void goBackToSelection(ActionEvent event){
+	public void goBack(ActionEvent event){
 		System.out.println("Go back.");
 		MainNavigator.goBack();
 	}

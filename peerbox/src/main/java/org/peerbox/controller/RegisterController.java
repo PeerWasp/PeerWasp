@@ -30,42 +30,31 @@ public class RegisterController implements Initializable {
 	@FXML
 	private Button btnRegister;
 	
+	@FXML
+	private Button goBack;
+	
 	public void initialize(URL location, ResourceBundle resources) {
 		// TODO Auto-generated method stub
 		
 	}
 	
 	public void registerAction(ActionEvent event) {
-		
-		if(checkCredentials(txtPassword_1, txtPassword_2)){
-			System.out.println("Passwords identical.");
-		} else {
-			System.out.println("Passwords not identical. Please try again");
-		}
-		
-		if(checkCredentials(txtPassword_1, txtPassword_2)){
-			System.out.println("Passwords identical.");
-		} else {
-			System.out.println("Passwords not identical. Please try again");
-		}
-		
-		
-		System.out.println("Register...");
+		//TODO
+	}
+	
+	public void goBack(ActionEvent event){
+		System.out.println("Go back.");	
+		MainNavigator.goBack();
 	}
 	
 	
-public void checkUsername(TextField userName){
+	public void checkUsername(TextField userName){
 		//TODO
 	}
 	
 	public boolean checkCredentials(PasswordField input1, PasswordField input2){
-		
-		boolean check = false;
-		
-		if (input1.getText().equals(input2.getText())){
-			check = true;
-		}
-		return check;
+		//TODO
+		return false;
 	}
 	
 	
