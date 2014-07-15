@@ -24,6 +24,9 @@ public class LoginController implements Initializable {
 	@FXML
 	private Button btnLogin;
 	
+	@FXML
+	private Button btnRegister;
+	
 	
 	public void initialize(URL location, ResourceBundle resources) {
 		// TODO Auto-generated method stub
@@ -32,6 +35,11 @@ public class LoginController implements Initializable {
 	
 	public void loginAction(ActionEvent event) {
 		System.out.println("Login...");
+	}
+	
+	public void registerAction(ActionEvent event) {
+		System.out.println("Register...");
+		MainNavigator.navigate("../RegisterView.fxml");
 	}
 
 }
