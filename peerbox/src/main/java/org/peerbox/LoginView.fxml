@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.paint.*?>
+<?import javafx.scene.text.*?>
+
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="640.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.peerbox.controller.NetworkSelectionController">
+   <children>
+      <VBox alignment="CENTER" layoutX="153.0" layoutY="107.0" prefHeight="400.0" prefWidth="640.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+         <children>
+            <AnchorPane prefHeight="200.0" prefWidth="200.0">
+               <children>
+                  <Label layoutX="14.0" layoutY="14.0" prefHeight="15.0" prefWidth="111.0" text="Username" AnchorPane.leftAnchor="20.0" />
+                  <TextField fx:id="txtUsername" layoutX="149.0" layoutY="9.0" prefHeight="25.0" prefWidth="413.0" AnchorPane.leftAnchor="150.0" AnchorPane.rightAnchor="20.0" />
+                  <Label layoutX="20.0" layoutY="50.0" prefHeight="15.0" prefWidth="111.0" text="Password" AnchorPane.leftAnchor="20.0" />
+                  <PasswordField fx:id="txtPassword" layoutX="150.0" layoutY="45.0" prefHeight="25.0" prefWidth="470.0" AnchorPane.leftAnchor="150.0" AnchorPane.rightAnchor="20.0" />
+                  <PasswordField fx:id="txtPin" layoutX="150.0" layoutY="82.0" prefHeight="25.0" prefWidth="470.0" AnchorPane.leftAnchor="150.0" AnchorPane.rightAnchor="20.0" />
+                  <Label layoutX="20.0" layoutY="87.0" prefHeight="15.0" prefWidth="111.0" text="PIN" AnchorPane.leftAnchor="20.0" />
+                  <Button fx:id="btnLogin" layoutX="150.0" layoutY="161.0" mnemonicParsing="false" onAction="#loginAction" prefHeight="25.0" prefWidth="140.0" text="Login" AnchorPane.bottomAnchor="20.0" AnchorPane.leftAnchor="150.0" />
+                  <CheckBox fx:id="chbAutoLogin" layoutX="150.0" layoutY="117.0" mnemonicParsing="false" prefHeight="18.0" prefWidth="470.0" text="Login automatically in the future" AnchorPane.leftAnchor="150.0" AnchorPane.rightAnchor="20.0" />
+               </children>
+            </AnchorPane>
+         </children>
+      </VBox>
+   </children>
+    </AnchorPane>
