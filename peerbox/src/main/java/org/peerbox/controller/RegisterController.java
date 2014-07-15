@@ -3,6 +3,8 @@ package org.peerbox.controller;
 import java.net.URL;
 import java.util.ResourceBundle;
 
+import org.peerbox.RegisterValidation;
+
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -39,23 +41,13 @@ public class RegisterController implements Initializable {
 	}
 	
 	public void registerAction(ActionEvent event) {
-		//TODO
+		RegisterValidation.checkUsername(txtUsername);
+		RegisterValidation.checkPassword(txtPassword_1, txtPassword_2);
+		RegisterValidation.checkPIN(txtPin_1, txtPin_2);
 	}
 	
 	public void goBack(ActionEvent event){
 		System.out.println("Go back.");	
 		MainNavigator.goBack();
 	}
-	
-	
-	public void checkUsername(TextField userName){
-		//TODO
-	}
-	
-	public boolean checkCredentials(PasswordField input1, PasswordField input2){
-		//TODO
-		return false;
-	}
-	
-	
 }
