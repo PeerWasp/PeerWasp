@@ -24,7 +24,7 @@ public class MainNavigator {
 			mainController.setContent(content);
 			pages.add(content);
 		} catch(IOException e) {
-			System.err.println("Could not load fxml file.");
+			System.err.println(String.format("Could not load fxml file: %s", e.getMessage()));
 		}
 	}
 	
