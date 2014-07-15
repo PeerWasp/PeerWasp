@@ -1,5 +1,7 @@
 package org.peerbox.controller;
 
+import java.net.URL;
+
 import javafx.event.ActionEvent;
 
 import org.junit.Test;
@@ -11,7 +13,6 @@ public class CreateNetworkControllerTest {
 	@Test
 	public void createNetworkTest(){
 		CreateNetworkController controller = new CreateNetworkController();
-		controller.createNetwork(new ActionEvent());
-		assert(controller.getNode() != null);
+		assert(H2HManager.INSTANCE.getNode() != null);
 	}
 }
