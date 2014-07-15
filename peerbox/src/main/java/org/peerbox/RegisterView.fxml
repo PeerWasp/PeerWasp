@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.paint.*?>
+<?import javafx.scene.text.*?>
+
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="640.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.peerbox.controller.NetworkSelectionController">
+   <children>
+      <VBox alignment="CENTER" layoutX="153.0" layoutY="107.0" prefHeight="400.0" prefWidth="640.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+         <children>
+            <AnchorPane prefHeight="200.0" prefWidth="200.0">
+               <children>
+                  <Label layoutX="14.0" layoutY="14.0" prefHeight="15.0" prefWidth="111.0" text="Username" AnchorPane.leftAnchor="20.0" />
+                  <TextField fx:id="txtUsername" layoutX="149.0" layoutY="9.0" prefHeight="25.0" prefWidth="413.0" AnchorPane.leftAnchor="150.0" AnchorPane.rightAnchor="20.0" />
+                  <Label layoutX="20.0" layoutY="50.0" prefHeight="15.0" prefWidth="111.0" text="Password" AnchorPane.leftAnchor="20.0" />
+                  <Label layoutX="20.0" layoutY="87.0" prefHeight="15.0" prefWidth="111.0" text="PIN" AnchorPane.leftAnchor="20.0" />
+                  <HBox layoutX="150.0" layoutY="44.0" prefHeight="25.0" prefWidth="470.0" AnchorPane.leftAnchor="150.0" AnchorPane.rightAnchor="20.0">
+                     <children>
+                        <PasswordField fx:id="txtPassword_1" HBox.hgrow="ALWAYS">
+                           <HBox.margin>
+                              <Insets />
+                           </HBox.margin>
+                        </PasswordField>
+                        <PasswordField fx:id="txtPassword_2" HBox.hgrow="ALWAYS">
+                           <HBox.margin>
+                              <Insets left="10.0" />
+                           </HBox.margin>
+                        </PasswordField>
+                     </children>
+                  </HBox>
+                  <HBox layoutX="150.0" layoutY="79.0" prefHeight="25.0" prefWidth="470.0" AnchorPane.leftAnchor="150.0" AnchorPane.rightAnchor="20.0">
+                     <children>
+                        <PasswordField fx:id="txtPin_1" HBox.hgrow="ALWAYS" />
+                        <PasswordField fx:id="txtPin_2" HBox.hgrow="ALWAYS">
+                           <HBox.margin>
+                              <Insets left="10.0" />
+                           </HBox.margin>
+                        </PasswordField>
+                     </children>
+                  </HBox>
+                  <Button fx:id="btnRegister" layoutX="150.0" layoutY="117.0" mnemonicParsing="false" onAction="#registerAction" prefHeight="25.0" prefWidth="140.0" text="Register" />
+               </children>
+            </AnchorPane>
+         </children>
+      </VBox>
+   </children>
+    </AnchorPane>
