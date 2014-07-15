@@ -1,5 +1,7 @@
 package org.peerbox;
 
+import org.peerbox.controller.H2HManager;
+
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 
@@ -7,6 +9,12 @@ public class RegisterValidation {
 
 	public static void checkUsername(TextField username){
 		//TODO
+		
+		if(H2HManager.INSTANCE.checkIfRegistered(username.getText())){
+			System.out.println("This user is already registered");
+		} else {
+			System.out.println("This user is not registered so far.");
+		}
 	}
 	
 	public static void checkPassword(PasswordField pwd_1, PasswordField pwd_2){

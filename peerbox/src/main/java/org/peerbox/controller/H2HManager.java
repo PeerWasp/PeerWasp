@@ -10,6 +10,7 @@ import org.hive2hive.core.api.H2HNode;
 import org.hive2hive.core.api.configs.FileConfiguration;
 import org.hive2hive.core.api.configs.NetworkConfiguration;
 import org.hive2hive.core.api.interfaces.IH2HNode;
+import org.hive2hive.core.exceptions.NoPeerConnectionException;
 
 public enum H2HManager {
 	
@@ -50,5 +51,14 @@ public enum H2HManager {
 			e.printStackTrace();
 		}
 		return "";
+	}
+	
+	public boolean checkIfRegistered(String userName){
+		try {
+			return node.getUserManager().isRegistered(userName);
+		} catch (NoPeerConnectionException e) {
+			e.printStackTrace();
+		}
+		return false;
 	}
 }
