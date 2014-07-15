@@ -14,7 +14,7 @@
             <Font size="18.0" />
           </font>
         </Label>
-            <Button layoutX="171.0" layoutY="267.0" mnemonicParsing="false" text="Accept" />
+            <Button layoutX="171.0" layoutY="267.0" mnemonicParsing="false" text="Accept" onAction="#createNetwork"/>
             <Button fx:id="btnBackToSelection" layoutX="343.0" layoutY="267.0" mnemonicParsing="false" onAction="#goBackToSelection" text="Back" />
       <Text layoutX="14.0" layoutY="27.0" strokeType="OUTSIDE" strokeWidth="0.0" text="CreateNetworkWindow" />
       <TextField fx:id="ipOutputAddress" layoutX="171.0" layoutY="188.0" prefHeight="25.0" prefWidth="220.0" />
