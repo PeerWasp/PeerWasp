@@ -10,29 +10,42 @@
 
 <AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="640.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.peerbox.controller.RegisterController">
    <children>
-      <GridPane hgap="10.0" vgap="10.0" AnchorPane.leftAnchor="20.0" AnchorPane.rightAnchor="20.0" AnchorPane.topAnchor="100.0">
-        <columnConstraints>
-          <ColumnConstraints halignment="RIGHT" hgrow="SOMETIMES" maxWidth="312.0" minWidth="85.0" prefWidth="85.0" />
-          <ColumnConstraints hgrow="SOMETIMES" maxWidth="524.0" minWidth="10.0" prefWidth="524.0" />
-            <ColumnConstraints hgrow="SOMETIMES" maxWidth="524.0" minWidth="10.0" prefWidth="524.0" />
-        </columnConstraints>
-        <rowConstraints>
-          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-        </rowConstraints>
+      <VBox alignment="CENTER" layoutX="153.0" layoutY="107.0" prefHeight="400.0" prefWidth="640.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <children>
-            <Label text="Username" />
-            <Label text="Password" GridPane.rowIndex="1" />
-            <Label text="Pin" GridPane.rowIndex="2" />
-            <TextField fx:id="txtUsername" GridPane.columnIndex="1" GridPane.columnSpan="2" />
-            <PasswordField fx:id="txtPassword_1" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-            <PasswordField fx:id="txtPassword_2" GridPane.columnIndex="2" GridPane.rowIndex="1" />
-            <PasswordField fx:id="txtPin_1" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-            <PasswordField fx:id="txtPin_2" GridPane.columnIndex="2" GridPane.rowIndex="2" />
-            <Button fx:id="btnRegister" mnemonicParsing="false" onAction="#registerAction" prefWidth="100.0" text="Register" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+            <AnchorPane prefHeight="200.0" prefWidth="200.0">
+               <children>
+                  <Label layoutX="14.0" layoutY="14.0" prefHeight="15.0" prefWidth="111.0" text="Username" AnchorPane.leftAnchor="20.0" />
+                  <TextField fx:id="txtUsername" layoutX="149.0" layoutY="9.0" prefHeight="25.0" prefWidth="413.0" promptText="Enter username" AnchorPane.leftAnchor="150.0" AnchorPane.rightAnchor="20.0" />
+                  <Label layoutX="20.0" layoutY="50.0" prefHeight="15.0" prefWidth="111.0" text="Password" AnchorPane.leftAnchor="20.0" />
+                  <Label layoutX="20.0" layoutY="87.0" prefHeight="15.0" prefWidth="111.0" text="PIN" AnchorPane.leftAnchor="20.0" />
+                  <HBox layoutX="150.0" layoutY="44.0" prefHeight="25.0" prefWidth="470.0" AnchorPane.leftAnchor="150.0" AnchorPane.rightAnchor="20.0">
+                     <children>
+                        <PasswordField fx:id="txtPassword_1" promptText="Enter password" HBox.hgrow="ALWAYS">
+                           <HBox.margin>
+                              <Insets />
+                           </HBox.margin>
+                        </PasswordField>
+                        <PasswordField fx:id="txtPassword_2" promptText="Confirm password" HBox.hgrow="ALWAYS">
+                           <HBox.margin>
+                              <Insets left="10.0" />
+                           </HBox.margin>
+                        </PasswordField>
+                     </children>
+                  </HBox>
+                  <HBox layoutX="150.0" layoutY="79.0" prefHeight="25.0" prefWidth="470.0" AnchorPane.leftAnchor="150.0" AnchorPane.rightAnchor="20.0">
+                     <children>
+                        <PasswordField fx:id="txtPin_1" promptText="Enter PIN" HBox.hgrow="ALWAYS" />
+                        <PasswordField fx:id="txtPin_2" promptText="Confirm PIN" HBox.hgrow="ALWAYS">
+                           <HBox.margin>
+                              <Insets left="10.0" />
+                           </HBox.margin>
+                        </PasswordField>
+                     </children>
+                  </HBox>
+                  <Button fx:id="btnRegister" layoutX="150.0" layoutY="117.0" mnemonicParsing="false" onAction="#registerAction" prefHeight="25.0" prefWidth="140.0" text="Register" />
+               </children>
+            </AnchorPane>
          </children>
-      </GridPane>
+      </VBox>
    </children>
     </AnchorPane>
