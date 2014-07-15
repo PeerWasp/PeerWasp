@@ -16,10 +16,10 @@ public class RegisterValidation {
 				if(pwd_1.getText().equals(pwd_2.getText())){
 					System.out.println("Passwords identical.");
 			} else {
-				System.out.println("Passwords not identical. Try again");
+				System.err.println("Passwords not identical. Try again");
 			}
 		} else {
-			System.out.println("Password too short. Needs at least 6 characters!");
+			System.err.println("Password too short. Needs at least 6 characters!");
 		}
 	}
 	
@@ -30,10 +30,10 @@ public class RegisterValidation {
 				if(pin_1.getText().equals(pin_2.getText())){
 					System.out.println("PINs identical.");
 			} else {
-				System.out.println("PINs not identical. Try again");
+				System.err.println("PINs not identical. Try again");
 			}
 		} else {
-			System.out.println("PIN too short. Needs at least 3 characters!");
+			System.err.println("PIN too short. Needs at least 3 characters!");
 		}
 	}
 }
