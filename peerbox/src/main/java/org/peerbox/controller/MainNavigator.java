@@ -36,7 +36,11 @@ public class MainNavigator {
 	public static void goBack() {
 		if(canGoBack()) {
 			int previous = pages.size()-2;
+			pages.remove(pages.size()-1);
 			mainController.setContent(pages.get(previous));
+		} else {
+			// TODO: what should we do here? Throw exception, do nothgin, log, ... :)
+			System.err.println("Cannot go back.");
 		}
 	}
 }

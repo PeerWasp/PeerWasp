@@ -19,8 +19,8 @@ public class CreateNetworkController implements Initializable {
 	private Button btnBackToSelection;
 	
 	public void goBackToSelection(ActionEvent event){
-		System.out.println("Network created.");	
-		MainNavigator.navigate("../NetworkSelectionWindow.fxml");
+		System.out.println("Go back.");	
+		MainNavigator.goBack();
 	}
 
 }
