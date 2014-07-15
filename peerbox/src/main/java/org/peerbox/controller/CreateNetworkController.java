@@ -18,6 +18,8 @@ public class CreateNetworkController implements Initializable {
 	
 	@FXML
 	private Button btnBackToSelection;
+	
+	@FXML
 	private TextField ipOutputAddress;
 	
 	public void goBackToSelection(ActionEvent event){
