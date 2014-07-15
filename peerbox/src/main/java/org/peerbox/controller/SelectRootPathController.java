@@ -37,7 +37,7 @@ public class SelectRootPathController implements Initializable{
 	}
 	
 	public void goBack(ActionEvent event){
-		MainNavigator.navigate("../CreateNetworkWindow.fxml");
+		MainNavigator.goBack();
 	}
 
 	public void initialize(URL location, ResourceBundle resources) {
