@@ -1,7 +1,9 @@
 package org.peerbox.controller;
 
 import java.math.BigInteger;
+import java.net.InetAddress;
 import java.net.URL;
+import java.net.UnknownHostException;
 import java.util.ResourceBundle;
 import java.util.UUID;
 
@@ -47,6 +49,8 @@ public class CreateNetworkController implements Initializable {
 				FileConfiguration.createCustom(maxFileSize, maxNumOfVersions, maxSizeAllVersions, chunkSize));
 		node.getUserManager().configureAutostart(false);
 		node.getFileManager().configureAutostart(false);
+		
+		ipOutputAddress.setText(getInetAddressAsString());
 	}
 	
 	public IH2HNode getNode(){
@@ -55,6 +59,21 @@ public class CreateNetworkController implements Initializable {
 	
 	private String generateNodeID() {
 		return UUID.randomUUID().toString();
+	}
+	
+	private String getInetAddressAsString(){
+		InetAddress address;
+		try {
+			if(node.getNetworkConfiguration().isInitialPeer()){
+				address = InetAddress.getLocalHost();
+			} else {
+				address = node.getNetworkConfiguration().getBootstrapAddress();
+			}
+			return address.getHostAddress().toString();
+		} catch (UnknownHostException e) {
+			e.printStackTrace();
+		}
+		return "";
 	}
 
 }
