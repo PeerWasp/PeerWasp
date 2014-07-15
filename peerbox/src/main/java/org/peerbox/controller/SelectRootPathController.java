@@ -41,7 +41,8 @@ public class SelectRootPathController implements Initializable{
 	}
 	
 	public void openLoginView(ActionEvent event){
-		MainNavigator.navigate("../LoginView.fxml");
+		System.out.println("Go back.");
+		MainNavigator.goBack();
 	}
 
 
