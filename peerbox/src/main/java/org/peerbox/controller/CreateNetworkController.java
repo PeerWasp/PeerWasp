@@ -22,8 +22,15 @@ import javafx.scene.control.TextField;
 public class CreateNetworkController implements Initializable {
 
 	public void initialize(URL arg0, ResourceBundle arg1) {
-		// TODO Auto-generated method stub
-
+		if(node == null){
+			System.out.println("Try to create network...");
+			node = H2HNode.createNode(NetworkConfiguration.create(generateNodeID()),
+					FileConfiguration.createCustom(maxFileSize, maxNumOfVersions, maxSizeAllVersions, chunkSize));
+			node.getUserManager().configureAutostart(false);
+			node.getFileManager().configureAutostart(false);
+			ipOutputAddress.setText(getInetAddressAsString());
+		}
+		
 	}
 	
 	@FXML
@@ -44,13 +51,7 @@ public class CreateNetworkController implements Initializable {
 	}
 	
 	public void createNetwork(ActionEvent event){
-		System.out.println("Try to create network...");
-		node = H2HNode.createNode(NetworkConfiguration.create(generateNodeID()),
-				FileConfiguration.createCustom(maxFileSize, maxNumOfVersions, maxSizeAllVersions, chunkSize));
-		node.getUserManager().configureAutostart(false);
-		node.getFileManager().configureAutostart(false);
-		
-		ipOutputAddress.setText(getInetAddressAsString());
+		MainNavigator.navigate("../SelectRootPathView.fxml");
 	}
 	
 	public IH2HNode getNode(){

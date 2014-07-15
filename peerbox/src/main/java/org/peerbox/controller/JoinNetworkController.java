@@ -22,5 +22,9 @@ public class JoinNetworkController implements Initializable {
 		System.out.println("Go back.");
 		MainNavigator.goBack();
 	}
+	
+	public void accessNetwork(ActionEvent event){
+		MainNavigator.navigate("SelectRootPathView.fxml");
+	}
 
 }
