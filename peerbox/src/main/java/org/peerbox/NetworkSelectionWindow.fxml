@@ -7,12 +7,9 @@
 <?import javafx.scene.paint.*?>
 <?import javafx.scene.text.*?>
 
-
-    
-    <AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minWidth="-Infinity" minHeight="-Infinity" prefHeight="400.0" prefWidth="640.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.peerbox.controller.Controller">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="640.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.peerbox.controller.Controller">
          <children>
             <Button fx:id="btnCreateNetwork" layoutX="116.0" layoutY="206.0" mnemonicParsing="false" onAction="#createNetwork" text="Create new network" />
-            <Button layoutX="362.0" layoutY="206.0" mnemonicParsing="false" text="Join existing network" />
+            <Button fx:id="btnCreateNetwork" layoutX="362.0" layoutY="206.0" mnemonicParsing="false" onAction="#joinNetwork" text="Join existing network" />
          </children>
     </AnchorPane>
-

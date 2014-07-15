@@ -17,10 +17,15 @@ public class Controller implements Initializable {
 	
 	@FXML
 	private Button btnCreateNetwork;
+	private Button btnJoinNetwork;
 	
 	public void createNetwork(ActionEvent event){
 		System.out.println("Network created.");	
 		MainNavigator.navigate("../CreateNetworkWindow.fxml");
 	}
 
+	public void joinNetwork(ActionEvent event){
+		System.out.println("Network joined.");	
+		MainNavigator.navigate("../JoinNetworkWindow.fxml");
+	}
 }
