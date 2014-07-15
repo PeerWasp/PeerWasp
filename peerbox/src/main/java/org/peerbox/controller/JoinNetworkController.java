@@ -7,9 +7,8 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
-import javafx.scene.control.TextField;
 
-public class CreateNetworkController implements Initializable {
+public class JoinNetworkController implements Initializable {
 
 	public void initialize(URL arg0, ResourceBundle arg1) {
 		// TODO Auto-generated method stub
@@ -18,11 +17,10 @@ public class CreateNetworkController implements Initializable {
 	
 	@FXML
 	private Button btnBackToSelection;
-	private TextField ipOutputAddress;
 	
 	public void goBackToSelection(ActionEvent event){
-		System.out.println("Go back.");	
-		MainNavigator.goBack();
+		System.out.println("Network created.");	
+		MainNavigator.navigate("../NetworkSelectionWindow.fxml");
 	}
 
 }
