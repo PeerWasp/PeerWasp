@@ -45,7 +45,7 @@ public class CreateNetworkController implements Initializable {
 	private BigInteger maxSizeAllVersions = H2HConstants.DEFAULT_MAX_SIZE_OF_ALL_VERSIONS;
 	private int chunkSize = H2HConstants.DEFAULT_CHUNK_SIZE;
 	
-	public void goBackToSelection(ActionEvent event){
+	public void goBack(ActionEvent event){
 		System.out.println("Go back.");	
 		MainNavigator.goBack();
 	}
