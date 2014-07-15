@@ -39,6 +39,11 @@ public class SelectRootPathController implements Initializable{
 	public void goBack(ActionEvent event){
 		MainNavigator.goBack();
 	}
+	
+	public void openLoginView(ActionEvent event){
+		MainNavigator.navigate("../LoginView.fxml");
+	}
+
 
 	public void initialize(URL location, ResourceBundle resources) {
 		// TODO Auto-generated method stub

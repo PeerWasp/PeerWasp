@@ -36,9 +36,37 @@ public class RegisterController implements Initializable {
 	}
 	
 	public void registerAction(ActionEvent event) {
+		
+		if(checkCredentials(txtPassword_1, txtPassword_2)){
+			System.out.println("Passwords identical.");
+		} else {
+			System.out.println("Passwords not identical. Please try again");
+		}
+		
+		if(checkCredentials(txtPassword_1, txtPassword_2)){
+			System.out.println("Passwords identical.");
+		} else {
+			System.out.println("Passwords not identical. Please try again");
+		}
+		
+		
 		System.out.println("Register...");
 	}
 	
 	
-
+public void checkUsername(TextField userName){
+		//TODO
+	}
+	
+	public boolean checkCredentials(PasswordField input1, PasswordField input2){
+		
+		boolean check = false;
+		
+		if (input1.getText().equals(input2.getText())){
+			check = true;
+		}
+		return check;
+	}
+	
+	
 }
