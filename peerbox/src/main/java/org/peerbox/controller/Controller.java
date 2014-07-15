@@ -20,6 +20,7 @@ public class Controller implements Initializable {
 	
 	public void createNetwork(ActionEvent event){
 		System.out.println("Network created.");	
+		MainNavigator.navigate("../CreateNetworkWindow.fxml");
 	}
 
 }
