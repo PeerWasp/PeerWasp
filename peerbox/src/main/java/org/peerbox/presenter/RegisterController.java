@@ -58,11 +58,11 @@ public class RegisterController implements Initializable {
 	
 	public void initialize(URL location, ResourceBundle resources) {
 		// TODO Auto-generated method stub
-		errorMessage.bind(lblError.textProperty());
+		lblError.textProperty().bind(errorMessage); 
 	}
 	
 	public void registerAction(ActionEvent event) {		
-		
+		errorMessage.set("");
 		boolean inputValid = validateUserCredentials();
 		logger.debug("User input is: " + (inputValid == true ? "valid" : "invalid"));
 		boolean autoLogin = chbAutoLogin.isSelected();
@@ -105,28 +105,31 @@ public class RegisterController implements Initializable {
 
 	private boolean validateUserCredentials() {
 		boolean inputValid = true;	
-	
+		StringBuilder sb = new StringBuilder();
 		try {
 			if(!RegisterValidation.checkUsername(txtUsername.getText().trim())) {
 				// TODO: username is not valid, notify user
+				sb.append("The given username is already taken.\n");
 				inputValid = false;
 			}
 		} catch (NoPeerConnectionException e) {
 			// TODO: notify user that no peer connection is available
-			System.err.println("NoPeerConnection");
+			sb.append("No connection to the network established.\n");
 		}
 		
 		if(!RegisterValidation.checkPassword(txtPassword_1.getText(), txtPassword_2.getText())) {
 			// TODO: passwords not valid, notify user
+			sb.append("Passwords do not match.\n");
 			inputValid = false;
 		}
 		
 		if(!RegisterValidation.checkPIN(txtPin_1.getText(), txtPin_2.getText())) {
 			// TODO: pins not valid, notify user
-			
+			sb.append("PINs do not match.\n");
 			inputValid = false;
 		}
 		
+		errorMessage.set(errorMessage.get() + sb.toString());
 		return inputValid;
 	}
 	
