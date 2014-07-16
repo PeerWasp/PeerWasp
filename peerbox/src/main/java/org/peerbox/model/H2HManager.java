@@ -1,5 +1,7 @@
 package org.peerbox.model;
 
+import java.io.File;
+import java.io.IOException;
 import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -24,13 +26,14 @@ public enum H2HManager {
 	private IH2HNode node;
 	
 	private UserCredentials userCredentials;
-	private Path rootDirectory = Paths.get("blablabla");
+	private Path rootDirectory;
 	
 	private BigInteger maxFileSize = H2HConstants.DEFAULT_MAX_FILE_SIZE;
 	private int maxNumOfVersions = H2HConstants.DEFAULT_MAX_NUM_OF_VERSIONS;
 	private BigInteger maxSizeAllVersions = H2HConstants.DEFAULT_MAX_SIZE_OF_ALL_VERSIONS;
 	private int chunkSize = H2HConstants.DEFAULT_CHUNK_SIZE;
 	
+
 	public IH2HNode getNode(){
 		return node;
 	}
@@ -106,5 +109,19 @@ public enum H2HManager {
 			System.out.println("Was not able to join network!");
 			return false;
 		}
+	}
+
+	public void initializeRootDirectory(String rootDirectoryPath) throws IOException {
+		File rootDirectoryFile = new File(rootDirectoryPath);
+		
+		if(rootDirectoryFile.exists()){
+			if(!rootDirectoryFile.isDirectory()){
+				throw new IOException("The provided path leads to a file, not a directory.");
+			}
+		} else {
+			rootDirectoryFile.mkdir();
+		}
+		rootDirectory = Paths.get(rootDirectoryFile.getAbsolutePath());
+		
 	}
 }
