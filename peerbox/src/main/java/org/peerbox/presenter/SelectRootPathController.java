@@ -6,6 +6,9 @@ import java.net.URL;
 import java.util.Date;
 import java.util.ResourceBundle;
 
+import org.controlsfx.control.action.Action;
+import org.controlsfx.dialog.Dialog;
+import org.controlsfx.dialog.Dialogs;
 import org.peerbox.model.H2HManager;
 
 import javafx.event.ActionEvent;
@@ -52,8 +55,18 @@ public class SelectRootPathController implements Initializable{
 	
 	public void okButtonHandler(ActionEvent event){
 		try {
-			H2HManager.INSTANCE.initializeRootDirectory(pathTextField.getText());
-			MainNavigator.navigate("/org/peerbox/view/LoginView.fxml");
+			File path = new File(pathTextField.getText());
+			if(!path.exists()){
+				Action action = Dialogs.create()
+					      .title("Directory does not exist.")
+					      .message( "Create this directory?")
+					      .showConfirm();
+				if(action.equals(Dialog.Actions.YES)){
+					H2HManager.INSTANCE.initializeRootDirectory(pathTextField.getText());
+					MainNavigator.navigate("/org/peerbox/view/LoginView.fxml");
+				}
+			}
+			
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			warningLabel.setText("This is a file, not a directory. Please provide a directory.");
