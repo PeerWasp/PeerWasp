@@ -3,6 +3,7 @@ package org.peerbox.controller;
 import java.net.URL;
 import java.util.ResourceBundle;
 
+import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.peerbox.RegisterValidation;
 
 import javafx.event.ActionEvent;
@@ -41,9 +42,47 @@ public class RegisterController implements Initializable {
 	}
 	
 	public void registerAction(ActionEvent event) {
-		RegisterValidation.checkUsername(txtUsername);
-		RegisterValidation.checkPassword(txtPassword_1, txtPassword_2);
-		RegisterValidation.checkPIN(txtPin_1, txtPin_2);
+		boolean inputValid = true;
+		String username = txtUsername.getText().trim();
+		String password_1 = txtPassword_1.getText();
+		String password_2 = txtPassword_2.getText();
+		String pin_1 = txtPin_1.getText();
+		String pin_2 = txtPin_2.getText();
+		
+		try {
+			if(!RegisterValidation.checkUsername(username)) {
+				// TODO: username is not valid, notify user
+				inputValid = false;
+			}
+		} catch (NoPeerConnectionException e) {
+			// TODO: notify user that no peer connection is available
+		}
+		
+		if(!RegisterValidation.checkPassword(password_1, password_2)) {
+			// TODO: passwords not valid, notify user
+			inputValid = false;
+		}
+		
+		if(RegisterValidation.checkPIN(pin_1, pin_2)) {
+			// TODO: pins not valid, notify user
+			
+			inputValid = false;
+		}
+		
+		if(inputValid) {
+			try {
+				H2HManager.INSTANCE.registerUser(username, password_1, pin_1);
+			} catch (NoPeerConnectionException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		
+		
+		
 	}
 	
 	public void goBack(ActionEvent event){

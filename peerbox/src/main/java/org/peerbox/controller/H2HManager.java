@@ -1,5 +1,6 @@
 package org.peerbox.controller;
 
+import java.io.File;
 import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -12,12 +13,18 @@ import org.hive2hive.core.api.configs.NetworkConfiguration;
 import org.hive2hive.core.api.interfaces.IH2HNode;
 import org.hive2hive.core.api.interfaces.INetworkConfiguration;
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
+import org.hive2hive.core.security.UserCredentials;
+
 
 public enum H2HManager {
 	
 	INSTANCE;
 	
 	private IH2HNode node;
+	
+	private UserCredentials userCredentials;
+	private File rootDirectory = new File("blablabla");
+	
 	private BigInteger maxFileSize = H2HConstants.DEFAULT_MAX_FILE_SIZE;
 	private int maxNumOfVersions = H2HConstants.DEFAULT_MAX_NUM_OF_VERSIONS;
 	private BigInteger maxSizeAllVersions = H2HConstants.DEFAULT_MAX_SIZE_OF_ALL_VERSIONS;
@@ -60,12 +67,16 @@ public enum H2HManager {
 		return "";
 	}
 	
-	public boolean checkIfRegistered(String userName){
-		try {
-			return node.getUserManager().isRegistered(userName);
-		} catch (NoPeerConnectionException e) {
-			e.printStackTrace();
+	public boolean checkIfRegistered(String userName) throws NoPeerConnectionException{
+		return node.getUserManager().isRegistered(userName);
+	}
+
+	public void registerUser(String username, String password, String pin) 
+			throws NoPeerConnectionException, InterruptedException {
+		// TODO: assert that root path is set and exists!
+		userCredentials = new UserCredentials(username, password, pin);
+		if (!node.getUserManager().isRegistered(userCredentials.getUserId())) {
+			node.getUserManager().register(userCredentials).await();
 		}
-		return false;
 	}
 }
