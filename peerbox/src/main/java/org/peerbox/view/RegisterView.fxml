@@ -22,6 +22,7 @@
           <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
             <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
             <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
         </rowConstraints>
          <children>
             <Label text="Username" />
@@ -43,6 +44,7 @@
                </children>
             </HBox>
             <CheckBox fx:id="chbAutoLogin" mnemonicParsing="false" text="Login automatically in the future" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+            <Label fx:id="lblError" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.hgrow="SOMETIMES" GridPane.rowIndex="5" />
          </children>
       </GridPane>
    </children>

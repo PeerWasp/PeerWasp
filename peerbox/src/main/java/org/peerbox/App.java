@@ -5,6 +5,9 @@ import java.io.IOException;
 
 import org.peerbox.presenter.MainController;
 import org.peerbox.presenter.MainNavigator;
+import org.peerbox.presenter.RegisterController;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javafx.application.Application;
 import javafx.event.ActionEvent;
@@ -23,12 +26,12 @@ import org.peerbox.PropertyHandler;
  */
 public class App extends Application
 {
+	private static final Logger logger = LoggerFactory.getLogger("PeerBox");
+	
 	public static void main(String[] args) {
-		
-        PropertyHandler propHandler = new PropertyHandler();
-        
-        if(!propHandler.checkFileExists()){
-        	propHandler.createPropertyFile();
+		logger.info("PeerBox started.");
+        if(!PropertyHandler.checkFileExists()){
+        	PropertyHandler.createPropertyFile();
         	launch(args);
         } else {
         	launch(args);

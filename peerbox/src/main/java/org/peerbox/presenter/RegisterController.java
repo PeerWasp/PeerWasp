@@ -4,18 +4,28 @@ import java.net.URL;
 import java.util.ResourceBundle;
 
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
+import org.hive2hive.core.network.Connection;
+import org.hive2hive.core.processes.framework.exceptions.InvalidProcessStateException;
 import org.peerbox.RegisterValidation;
 import org.peerbox.model.H2HManager;
 
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
+import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class RegisterController implements Initializable {
+	
+	private static final Logger logger = LoggerFactory.getLogger(RegisterController.class);
 
 	@FXML
 	private TextField txtUsername;
@@ -41,38 +51,26 @@ public class RegisterController implements Initializable {
 	@FXML
 	private Button btnBack;
 	
+	@FXML
+	private Label lblError;
+	private final StringProperty errorMessage = new SimpleStringProperty();
+	
+	
 	public void initialize(URL location, ResourceBundle resources) {
 		// TODO Auto-generated method stub
-		
+		lblError.textProperty().bind(errorMessage); 
 	}
 	
-	public void registerAction(ActionEvent event) {
-		
+	public void registerAction(ActionEvent event) {		
+		errorMessage.set("");
 		boolean inputValid = validateUserCredentials();
-		System.out.println("User input is: " + (inputValid == true ? "valid" : "invalid"));
+		logger.debug("User input is: " + (inputValid == true ? "valid" : "invalid"));
 		boolean autoLogin = chbAutoLogin.isSelected();
-		String username = txtUsername.getText().trim();
-		String password_1 = txtPassword_1.getText();
-		String pin_1 = txtPin_1.getText();
-
 		
 		if(inputValid) {
-			boolean registerSuccess = false;
-			try {
-				registerSuccess = H2HManager.INSTANCE.registerUser(username, password_1, pin_1);
-			} catch (NoPeerConnectionException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-				registerSuccess = false;
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-				registerSuccess = false;
-			}
-			
+			boolean registerSuccess = registerNewUser();;
 			System.out.println("Register success: " + registerSuccess);
 			if(registerSuccess) {
-				System.out.println("Registration success: %s" + autoLogin);
 				if(autoLogin) {
 					// TODO: login automatically
 				} else {
@@ -82,36 +80,56 @@ public class RegisterController implements Initializable {
 				// TODO: show some information
 			}
 		}
-		
-		
-		
 	}
 	
 	
+	private boolean registerNewUser() {
+		boolean registerSuccess = false;
+		try {
+			registerSuccess = H2HManager.INSTANCE.registerUser(txtUsername.getText().trim(), txtPassword_1.getText(), txtPin_1.getText());
+		} catch (NoPeerConnectionException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			registerSuccess = false;
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			registerSuccess = false;
+		} catch (InvalidProcessStateException e) {
+			// TODO Auto-generated catch block
+			registerSuccess = false;
+			e.printStackTrace();
+		}
+		return registerSuccess;
+	}
+
 	private boolean validateUserCredentials() {
 		boolean inputValid = true;	
-	
+		StringBuilder sb = new StringBuilder();
 		try {
 			if(!RegisterValidation.checkUsername(txtUsername.getText().trim())) {
 				// TODO: username is not valid, notify user
+				sb.append("The given username is already taken.\n");
 				inputValid = false;
 			}
 		} catch (NoPeerConnectionException e) {
 			// TODO: notify user that no peer connection is available
-			System.err.println("NoPeerConnection");
+			sb.append("No connection to the network established.\n");
 		}
 		
 		if(!RegisterValidation.checkPassword(txtPassword_1.getText(), txtPassword_2.getText())) {
 			// TODO: passwords not valid, notify user
+			sb.append("Passwords do not match.\n");
 			inputValid = false;
 		}
 		
 		if(!RegisterValidation.checkPIN(txtPin_1.getText(), txtPin_2.getText())) {
 			// TODO: pins not valid, notify user
-			
+			sb.append("PINs do not match.\n");
 			inputValid = false;
 		}
 		
+		errorMessage.set(errorMessage.get() + sb.toString());
 		return inputValid;
 	}
 	

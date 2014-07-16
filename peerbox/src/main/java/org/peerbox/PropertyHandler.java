@@ -9,7 +9,7 @@ import java.util.Properties;
 
 public class PropertyHandler {
 
-	public boolean checkFileExists(){
+	public static boolean checkFileExists(){
 		
 		boolean fileExists = true;
 		
@@ -29,7 +29,7 @@ public class PropertyHandler {
 		return fileExists;
 	}
 	
-	public void createPropertyFile(){
+	public static void createPropertyFile(){
 		
 		Properties prop = new Properties();
 
