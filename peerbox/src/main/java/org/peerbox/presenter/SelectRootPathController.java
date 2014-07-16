@@ -30,7 +30,6 @@ public class SelectRootPathController implements Initializable{
 	private Button goBackButton;
 	@FXML
 	private TextField pathTextField;
-	
 	@FXML
 	private Label warningLabel;
 	
@@ -52,22 +51,22 @@ public class SelectRootPathController implements Initializable{
 	public void okButtonHandler(ActionEvent event){
 		try {
 			File path = new File(pathTextField.getText());
+			Action createDirAction = Dialog.Actions.YES;
+			
 			if(!path.exists()){
-				Action action = Dialogs.create()
+				createDirAction = Dialogs.create()
 					      .title("Directory does not exist.")
 					      .message( "Create this directory?")
 					      .showConfirm();
-				if(action.equals(Dialog.Actions.YES)){
-					H2HManager.INSTANCE.initializeRootDirectory(pathTextField.getText());
-					PropertyHandler.setRootPath(pathTextField.getText()); //save path in property file
-					MainNavigator.navigate("/org/peerbox/view/LoginView.fxml");
-				}
+			}
+			if(createDirAction.equals(Dialog.Actions.YES)){
+				H2HManager.INSTANCE.initializeRootDirectory(pathTextField.getText());
+				PropertyHandler.setRootPath(pathTextField.getText()); //save path in property file
+				MainNavigator.navigate("/org/peerbox/view/LoginView.fxml");
 			}
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			warningLabel.setText("This is a file, not a directory. Please provide a directory.");
 		}
-		
 	}
 
 
