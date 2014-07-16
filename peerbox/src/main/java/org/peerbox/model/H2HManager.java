@@ -14,6 +14,7 @@ import org.hive2hive.core.api.interfaces.IH2HNode;
 import org.hive2hive.core.api.interfaces.INetworkConfiguration;
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.hive2hive.core.security.UserCredentials;
+import org.peerbox.presenter.MainNavigator;
 
 
 public enum H2HManager {
@@ -77,6 +78,20 @@ public enum H2HManager {
 		userCredentials = new UserCredentials(username, password, pin);
 		if (!node.getUserManager().isRegistered(userCredentials.getUserId())) {
 			node.getUserManager().register(userCredentials).await();
+		}
+	}
+	
+	public boolean accessNetwork(String bootstrapAddressString) throws UnknownHostException{
+		String nodeID = H2HManager.INSTANCE.generateNodeID();
+		InetAddress bootstrapAddress = InetAddress.getByName(bootstrapAddressString);
+		H2HManager.INSTANCE.createNode(NetworkConfiguration.create(nodeID, bootstrapAddress));
+
+		if(H2HManager.INSTANCE.getNode().connect()){
+			System.out.println("Joined the network.");
+			return true;
+		} else {
+			System.out.println("Was not able to join network!");
+			return false;
 		}
 	}
 }
