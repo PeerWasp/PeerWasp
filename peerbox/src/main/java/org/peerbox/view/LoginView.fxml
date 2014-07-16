@@ -31,5 +31,6 @@
             <Button fx:id="btnRegister" mnemonicParsing="false" onAction="#registerAction" prefWidth="100.0" text="Register" GridPane.columnIndex="1" GridPane.rowIndex="5" />
          </children>
       </GridPane>
+      <Button layoutX="507.0" layoutY="349.0" mnemonicParsing="false" text="Go back" onAction="#goBack"/>
    </children>
 </AnchorPane>

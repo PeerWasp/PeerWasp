@@ -82,5 +82,9 @@ public class LoginController implements Initializable {
 		System.out.println("Register...");
 		MainNavigator.navigate("/org/peerbox/view/RegisterView.fxml");
 	}
+	
+	public void goBack(ActionEvent event){
+		MainNavigator.goBack();
+	}
 
 }

@@ -2,6 +2,8 @@ package org.peerbox.model;
 
 import static org.junit.Assert.*;
 
+import java.io.File;
+import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
@@ -54,5 +56,30 @@ public class H2HManagerTest {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	}
+	
+	@Test(expected=IOException.class)
+	public void initializeRootDirectoryButSelectFile() throws IOException{
+		File testFile = new File("Test.txt");
+		testFile.createNewFile();
+		H2HManager.INSTANCE.initializeRootDirectory("Test.txt");
+		
+	}
+	
+	@Test
+	public void initializeRootDirectoryWithExistingDirectory() throws IOException{
+		File testDir = new File("Test_ExistingDir");
+		testDir.mkdir();
+		H2HManager.INSTANCE.initializeRootDirectory("Test_ExistingDir");
+		testDir.delete();
+	}
+	
+	@Test
+	public void initializeRootDirectoryWithNewDirectory() throws IOException{
+		H2HManager.INSTANCE.initializeRootDirectory("Test_NewDir");
+		File newDir = new File("Test_NewDir");
+		assertTrue(newDir.exists());
+		assertTrue(newDir.isDirectory());
+		newDir.delete();
 	}
 }
