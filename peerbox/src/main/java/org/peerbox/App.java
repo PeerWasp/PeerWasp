@@ -16,6 +16,7 @@ import javafx.scene.control.Button;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
+import org.peerbox.PropertyHandler;
 
 /**
  * This is the first prototype of graphical user interface.
@@ -23,7 +24,16 @@ import javafx.stage.Stage;
 public class App extends Application
 {
 	public static void main(String[] args) {
-        launch(args);
+		
+        PropertyHandler propHandler = new PropertyHandler();
+        
+        if(!propHandler.checkFileExists()){
+        	propHandler.createPropertyFile();
+        	launch(args);
+        } else {
+        	launch(args);
+        }
+        
     }
     
     @Override
