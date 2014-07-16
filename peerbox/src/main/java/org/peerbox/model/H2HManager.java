@@ -98,7 +98,19 @@ public enum H2HManager {
 		
 	}
 	
+	/**
+	 * Tries to access the PeerBox network using a specified node's address or hostname.
+	 * Returns false if the provided String is empty or no node is found at the specified
+	 * address, true if the connection was successful.
+	 * @param bootstrapAddressString contains the host's name or address.
+	 * @throws UnknownHostException if the provided host is rejected (bad format).
+	 */
 	public boolean accessNetwork(String bootstrapAddressString) throws UnknownHostException{
+		if(bootstrapAddressString.isEmpty()){
+			System.out.println("No host provided.");
+			return false;
+		}
+		
 		String nodeID = H2HManager.INSTANCE.generateNodeID();
 		InetAddress bootstrapAddress = InetAddress.getByName(bootstrapAddressString);
 		H2HManager.INSTANCE.createNode(NetworkConfiguration.create(nodeID, bootstrapAddress));
@@ -112,6 +124,12 @@ public enum H2HManager {
 		}
 	}
 
+	/**
+	 * Sets the root directory path to the provided parameter. If the directory does not exist,
+	 * it is created on the fly.
+	 * @param rootDirectoryPath contains the absolute path to the root directory.
+	 * @throws IOException if the provided rootDirectoryPath leads to a real file.
+	 */
 	public void initializeRootDirectory(String rootDirectoryPath) throws IOException {
 		File rootDirectoryFile = new File(rootDirectoryPath);
 		
