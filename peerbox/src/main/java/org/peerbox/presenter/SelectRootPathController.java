@@ -71,8 +71,13 @@ public class SelectRootPathController implements Initializable{
 
 
 	public void initialize(URL location, ResourceBundle resources) {
+		String defaultDir = null;
 		Date now = new Date();
-		String defaultDir = System.getProperty("user.home") + File.separator + "PeerBox_" + now.getTime();
+		if(PropertyHandler.rootPathExists()){
+			defaultDir = PropertyHandler.getRootPath();
+		} else {
+			defaultDir = System.getProperty("user.home") + File.separator + "PeerBox_" + now.getTime();
+		}
 		pathTextField.setText(defaultDir);
 		pathTextField.setPrefWidth(250);
 	}
