@@ -3,14 +3,10 @@ package org.peerbox;
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.peerbox.model.H2HManager;
 
-import javafx.scene.control.PasswordField;
-import javafx.scene.control.TextField;
 
 public class RegisterValidation {
 
-	public static boolean checkUsername(String username) throws NoPeerConnectionException{
-		//TODO
-		
+	public static boolean checkUsername(String username) throws NoPeerConnectionException {
 		if(H2HManager.INSTANCE.checkIfRegistered(username)) {
 			System.out.println("This user is already registered");
 			return false;

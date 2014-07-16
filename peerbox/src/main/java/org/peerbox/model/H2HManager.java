@@ -4,6 +4,8 @@ import java.io.File;
 import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.UUID;
 
 import org.hive2hive.core.H2HConstants;
@@ -23,7 +25,7 @@ public enum H2HManager {
 	private IH2HNode node;
 	
 	private UserCredentials userCredentials;
-	private File rootDirectory = new File("blablabla");
+	private Path rootDirectory = Paths.get("blablabla");
 	
 	private BigInteger maxFileSize = H2HConstants.DEFAULT_MAX_FILE_SIZE;
 	private int maxNumOfVersions = H2HConstants.DEFAULT_MAX_NUM_OF_VERSIONS;
@@ -43,6 +45,7 @@ public enum H2HManager {
 				FileConfiguration.createCustom(maxFileSize, maxNumOfVersions, maxSizeAllVersions, chunkSize));
 		node.getUserManager().configureAutostart(false);
 		node.getFileManager().configureAutostart(false);
+		node.connect();
 
 	}
 	
@@ -71,12 +74,24 @@ public enum H2HManager {
 		return node.getUserManager().isRegistered(userName);
 	}
 
-	public void registerUser(String username, String password, String pin) 
+	public boolean registerUser(String username, String password, String pin) 
 			throws NoPeerConnectionException, InterruptedException {
 		// TODO: assert that root path is set and exists!
 		userCredentials = new UserCredentials(username, password, pin);
 		if (!node.getUserManager().isRegistered(userCredentials.getUserId())) {
-			node.getUserManager().register(userCredentials).await();
+			node.getUserManager().register(userCredentials).await();	
 		}
+		
+		return node.getUserManager().isRegistered(userCredentials.getUserId());
+	}
+	
+	public boolean loginUser(String username, String password, String pin) 
+			throws NoPeerConnectionException, InterruptedException {
+		// TODO: what to do with the user credentials? where to get them?
+		userCredentials = new UserCredentials(username, password, pin);
+		
+		node.getUserManager().login(userCredentials, rootDirectory).await();
+		return node.getUserManager().isLoggedIn(userCredentials.getUserId());
+		
 	}
 }

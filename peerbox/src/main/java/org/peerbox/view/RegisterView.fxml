@@ -21,6 +21,7 @@
           <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
           <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
             <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
         </rowConstraints>
          <children>
             <Label text="Username" />
@@ -31,7 +32,7 @@
             <PasswordField fx:id="txtPassword_2" promptText="Confirm password" GridPane.columnIndex="2" GridPane.rowIndex="1" />
             <PasswordField fx:id="txtPin_1" promptText="Enter PIN" GridPane.columnIndex="1" GridPane.rowIndex="2" />
             <PasswordField fx:id="txtPin_2" promptText="Confirm PIN" GridPane.columnIndex="2" GridPane.rowIndex="2" />
-            <HBox prefHeight="100.0" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="3">
+            <HBox prefHeight="100.0" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="4">
                <children>
                   <Button fx:id="btnRegister" mnemonicParsing="false" onAction="#registerAction" prefWidth="100.0" text="Register" />
                   <Button fx:id="btnBack" mnemonicParsing="false" onAction="#goBack" prefWidth="100.0" text="Back">
@@ -41,6 +42,7 @@
                   </Button>
                </children>
             </HBox>
+            <CheckBox fx:id="chbAutoLogin" mnemonicParsing="false" text="Login automatically in the future" GridPane.columnIndex="1" GridPane.rowIndex="3" />
          </children>
       </GridPane>
    </children>
