@@ -5,6 +5,9 @@ import java.io.IOException;
 
 import org.peerbox.presenter.MainController;
 import org.peerbox.presenter.MainNavigator;
+import org.peerbox.presenter.RegisterController;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javafx.application.Application;
 import javafx.event.ActionEvent;
@@ -22,7 +25,10 @@ import javafx.stage.Stage;
  */
 public class App extends Application
 {
+	private static final Logger logger = LoggerFactory.getLogger("PeerBox");
+	
 	public static void main(String[] args) {
+		logger.info("PeerBox started.");
         launch(args);
     }
     

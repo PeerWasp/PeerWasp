@@ -15,6 +15,7 @@ import org.hive2hive.core.api.configs.NetworkConfiguration;
 import org.hive2hive.core.api.interfaces.IH2HNode;
 import org.hive2hive.core.api.interfaces.INetworkConfiguration;
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
+import org.hive2hive.core.processes.framework.exceptions.InvalidProcessStateException;
 import org.hive2hive.core.security.UserCredentials;
 import org.peerbox.presenter.MainNavigator;
 
@@ -76,11 +77,11 @@ public enum H2HManager {
 	}
 
 	public boolean registerUser(String username, String password, String pin) 
-			throws NoPeerConnectionException, InterruptedException {
+			throws NoPeerConnectionException, InterruptedException, InvalidProcessStateException {
 		// TODO: assert that root path is set and exists!
 		userCredentials = new UserCredentials(username, password, pin);
 		if (!node.getUserManager().isRegistered(userCredentials.getUserId())) {
-			node.getUserManager().register(userCredentials).await();	
+			node.getUserManager().register(userCredentials).start().await();	
 		}
 		
 		return node.getUserManager().isRegistered(userCredentials.getUserId());
