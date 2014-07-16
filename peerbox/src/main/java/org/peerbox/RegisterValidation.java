@@ -52,5 +52,5 @@ public class RegisterValidation {
 		}
 		
 		return false;
-	}
+	} //comment
 }
