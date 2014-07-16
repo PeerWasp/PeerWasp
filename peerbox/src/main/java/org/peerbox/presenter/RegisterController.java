@@ -1,10 +1,11 @@
-package org.peerbox.controller;
+package org.peerbox.presenter;
 
 import java.net.URL;
 import java.util.ResourceBundle;
 
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.peerbox.RegisterValidation;
+import org.peerbox.model.H2HManager;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;

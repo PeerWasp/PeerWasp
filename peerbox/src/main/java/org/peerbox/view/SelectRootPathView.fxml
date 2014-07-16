@@ -5,7 +5,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.layout.AnchorPane?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="640.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.peerbox.controller.SelectRootPathController">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="640.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.peerbox.presenter.SelectRootPathController">
    <children>
       <Button fx:id="changeDirButton" layoutX="439.0" layoutY="152.0" mnemonicParsing="false" onAction="#changeDirectory" text="Change directory" />
       <TextField fx:id="pathTextField" layoutX="127.0" layoutY="152.0" prefHeight="25.0" prefWidth="300.0" />

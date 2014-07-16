@@ -5,6 +5,8 @@ import java.net.URL;
 import javafx.event.ActionEvent;
 
 import org.junit.Test;
+import org.peerbox.model.H2HManager;
+import org.peerbox.presenter.CreateNetworkController;
 
 import junit.framework.TestCase;
 

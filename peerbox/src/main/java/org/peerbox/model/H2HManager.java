@@ -1,4 +1,4 @@
-package org.peerbox.controller;
+package org.peerbox.model;
 
 import java.io.File;
 import java.math.BigInteger;

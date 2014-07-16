@@ -26,6 +26,13 @@
 			<artifactId>org.hive2hive.core</artifactId>
 			<version>1.1.1-SNAPSHOT</version> <!-- TODO how to get latest core? -->
 			<scope>compile</scope>
-		</dependency>
+	</dependency>
+	<dependency>
+    	<groupId>org.mockito</groupId>
+ 		<artifactId>mockito-all</artifactId>
+  		<version>1.9.5</version>
+  		<scope>test</scope>
+ 	</dependency>
   </dependencies>
+
 </project>

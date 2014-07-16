@@ -1,4 +1,4 @@
-package org.peerbox.controller;
+package org.peerbox.presenter;
 
 import java.net.InetAddress;
 import java.net.URL;
@@ -6,6 +6,7 @@ import java.net.UnknownHostException;
 import java.util.ResourceBundle;
 
 import org.hive2hive.core.api.configs.NetworkConfiguration;
+import org.peerbox.model.H2HManager;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -33,7 +34,6 @@ public class JoinNetworkController implements Initializable {
 	
 	public void accessNetwork(ActionEvent event){
 		System.out.println("Try to join network at provided IP address.");
-
 		try {
 			String nodeID = H2HManager.INSTANCE.generateNodeID();
 			InetAddress bootstrapAddress = InetAddress.getByName(bootstrapAddressField.getText());
@@ -45,11 +45,11 @@ public class JoinNetworkController implements Initializable {
 		
 		if(H2HManager.INSTANCE.getNode().connect()){
 			System.out.println("Joined the network.");
-			MainNavigator.navigate("../SelectRootPathView.fxml");
+			MainNavigator.navigate("/org/peerbox/view/SelectRootPathView.fxml");
 		} else {
 			System.out.println("Was not able to join network!");
 		}
-		
+
 	}
 
 }

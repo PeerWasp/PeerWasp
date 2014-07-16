@@ -1,4 +1,4 @@
-package org.peerbox.controller;
+package org.peerbox.presenter;
 
 
 import org.hive2hive.core.api.interfaces.IH2HNode;

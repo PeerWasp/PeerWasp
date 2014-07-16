@@ -1,4 +1,4 @@
-package org.peerbox.controller;
+package org.peerbox.presenter;
 
 import java.io.File;
 import java.net.URL;
@@ -41,7 +41,7 @@ public class SelectRootPathController implements Initializable{
 	}
 	
 	public void openLoginView(ActionEvent event){
-		MainNavigator.navigate("../LoginView.fxml");
+		MainNavigator.navigate("/org/peerbox/view/LoginView.fxml");
 	}
 
 

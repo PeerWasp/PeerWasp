@@ -1,4 +1,4 @@
-package org.peerbox.controller;
+package org.peerbox.presenter;
 
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -21,11 +21,11 @@ public class NetworkSelectionController implements Initializable {
 	
 	public void createNetwork(ActionEvent event){
 		System.out.println("Network created.");	
-		MainNavigator.navigate("../CreateNetworkWindow.fxml");
+		MainNavigator.navigate("/org/peerbox/view/CreateNetworkWindow.fxml");
 	}
 
 	public void joinNetwork(ActionEvent event){
 		System.out.println("Network joined.");	
-		MainNavigator.navigate("../JoinNetworkWindow.fxml");
+		MainNavigator.navigate("/org/peerbox/view/JoinNetworkWindow.fxml");
 	}
 }

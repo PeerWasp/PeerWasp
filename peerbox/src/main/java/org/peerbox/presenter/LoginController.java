@@ -1,4 +1,4 @@
-package org.peerbox.controller;
+package org.peerbox.presenter;
 
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -44,7 +44,7 @@ public class LoginController implements Initializable {
 	
 	public void registerAction(ActionEvent event) {
 		System.out.println("Register...");
-		MainNavigator.navigate("../RegisterView.fxml");
+		MainNavigator.navigate("/org/peerbox/view/RegisterView.fxml");
 	}
 
 }

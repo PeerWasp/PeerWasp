@@ -1,7 +1,7 @@
 package org.peerbox;
 
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
-import org.peerbox.controller.H2HManager;
+import org.peerbox.model.H2HManager;
 
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;

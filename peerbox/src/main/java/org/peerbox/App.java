@@ -3,8 +3,8 @@ package org.peerbox;
 
 import java.io.IOException;
 
-import org.peerbox.controller.MainController;
-import org.peerbox.controller.MainNavigator;
+import org.peerbox.presenter.MainController;
+import org.peerbox.presenter.MainNavigator;
 
 import javafx.application.Application;
 import javafx.event.ActionEvent;
@@ -34,12 +34,12 @@ public class App extends Application
     	Pane root;
     	MainController mainController;
 		try {
-			FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("MainView.fxml"));
+			FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/org/peerbox/view/MainView.fxml"));
 			root = (Pane) fxmlLoader.load();
 			mainController = (MainController)fxmlLoader.getController();
 			
 			MainNavigator.setMainController(mainController);
-			MainNavigator.navigate("../NetworkSelectionWindow.fxml");
+			MainNavigator.navigate("/org/peerbox/view/NetworkSelectionWindow.fxml");
 			
 		} catch (IOException e) {
 			e.printStackTrace();

@@ -1,7 +1,9 @@
-package org.peerbox.controller;
+package org.peerbox.presenter;
 
 import java.net.URL;
 import java.util.ResourceBundle;
+
+import org.peerbox.model.H2HManager;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -32,7 +34,7 @@ public class CreateNetworkController implements Initializable {
 	}
 	
 	public void createNetwork(ActionEvent event){
-		MainNavigator.navigate("../SelectRootPathView.fxml");
+		MainNavigator.navigate("/org/peerbox/view/SelectRootPathView.fxml");
 	}
 
 }
