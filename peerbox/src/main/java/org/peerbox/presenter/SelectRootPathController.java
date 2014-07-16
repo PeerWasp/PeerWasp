@@ -20,6 +20,7 @@ import javafx.scene.layout.VBox;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Popup;
 import javafx.stage.Stage;
+import org.peerbox.PropertyHandler;
 
 public class SelectRootPathController implements Initializable{
 
@@ -54,6 +55,7 @@ public class SelectRootPathController implements Initializable{
 		try {
 			H2HManager.INSTANCE.initializeRootDirectory(pathTextField.getText());
 			MainNavigator.navigate("/org/peerbox/view/LoginView.fxml");
+			PropertyHandler.setRootPath(pathTextField.getText()); //save path in property file
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			warningLabel.setText("This is a file, not a directory. Please provide a directory.");
