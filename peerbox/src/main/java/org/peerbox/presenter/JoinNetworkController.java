@@ -35,21 +35,13 @@ public class JoinNetworkController implements Initializable {
 	public void accessNetwork(ActionEvent event){
 		System.out.println("Try to join network at provided IP address.");
 		try {
-			String nodeID = H2HManager.INSTANCE.generateNodeID();
-			InetAddress bootstrapAddress = InetAddress.getByName(bootstrapAddressField.getText());
-			H2HManager.INSTANCE.createNode(NetworkConfiguration.create(nodeID, bootstrapAddress));
+			if(H2HManager.INSTANCE.accessNetwork(bootstrapAddressField.getText())){
+				MainNavigator.navigate("/org/peerbox/view/SelectRootPathView.fxml");
+			}
 		} catch (UnknownHostException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
-		if(H2HManager.INSTANCE.getNode().connect()){
-			System.out.println("Joined the network.");
-			MainNavigator.navigate("/org/peerbox/view/SelectRootPathView.fxml");
-		} else {
-			System.out.println("Was not able to join network!");
-		}
-
 	}
 
 }
