@@ -1,10 +1,12 @@
 package org.peerbox;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Properties;
 
 public class PropertyHandler {
@@ -12,14 +14,13 @@ public class PropertyHandler {
 	PropertyHandler propHandler = new PropertyHandler();
 	static Properties prop = new Properties();
 
-	
+	//check if property file is already existing in project folder
 	public static void checkFileExists(){
-		
-		boolean fileExists = false;
 		
 		File f = new File("config.properties");
 		if(f.exists() && !f.isDirectory()) { 
-			fileExists = true;
+			//read in property file
+			loadPropertyFile();
 			System.out.println("Existing property file found.");
 		} else {
 			//create new property file if no existing is found
@@ -27,6 +28,25 @@ public class PropertyHandler {
 		}
 	}
 	
+	
+	//load existing property file
+	public static void loadPropertyFile(){
+		
+		InputStream input = null;
+		try {
+			input = new FileInputStream("config.properties");
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}
+		// load a properties file
+		try {
+			prop.load(input);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	//if no property file is found, a new one will be written to the project folder
 	public static void createPropertyFile(){
     	
 		try {
@@ -43,8 +63,8 @@ public class PropertyHandler {
         }
     }
 	
+	//write root path from SelectRootPathController to property file
 	public static void setRootPath(String path){
-
     	try {
     		prop.setProperty("rootpath",path);
     		//save properties to project root folder
@@ -53,6 +73,24 @@ public class PropertyHandler {
     	} catch (IOException ex) {
     		ex.printStackTrace();
         }
+	}
+	
+	//check whether the property file already holds a rootpath property
+	public static boolean rootPathExists(){
+		
+		boolean exists = false;
+		
+		if(prop.getProperty("rootpath") != null){
+			exists = true;
+			System.out.println("using rootpath from property file.");
+		}
+		return exists;
+	}
+	
+	//returns rootpath value from property file
+	public static String getRootPath(){
+		String path = prop.getProperty("rootpath");
+		return path;
 	}
 }
 
