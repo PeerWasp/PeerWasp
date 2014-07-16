@@ -24,11 +24,10 @@ import org.peerbox.PropertyHandler;
 public class App extends Application
 {
 	public static void main(String[] args) {
-		
-        PropertyHandler propHandler = new PropertyHandler();
+	
         
-        if(!propHandler.checkFileExists()){
-        	propHandler.createPropertyFile();
+        if(!PropertyHandler.checkFileExists()){
+        	PropertyHandler.createPropertyFile();
         	launch(args);
         } else {
         	launch(args);
