@@ -11,7 +11,7 @@
 	<!-- Loggers -->
 	<logger name="net.tomp2p" level="OFF" /> <!-- mute tomp2p library -->
 	<logger name="io.netty" level="OFF" /> <!-- mute netty library -->
-	<logger name="org.hive2hive.core" level="OFF" /> <!-- mute hive2hive library -->
+	<!--   <logger name="org.hive2hive.core" level="OFF" /> --> <!-- mute hive2hive library -->
 	
 	<root level="DEBUG">
 		<appender-ref ref="STDOUT" />

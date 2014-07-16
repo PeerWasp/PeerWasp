@@ -13,8 +13,12 @@ import org.hive2hive.core.api.configs.FileConfiguration;
 import org.hive2hive.core.api.configs.NetworkConfiguration;
 import org.hive2hive.core.api.interfaces.IH2HNode;
 import org.hive2hive.core.api.interfaces.INetworkConfiguration;
+import org.hive2hive.core.api.interfaces.IUserManager;
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
+import org.hive2hive.core.processes.framework.RollbackReason;
+import org.hive2hive.core.processes.framework.concretes.ProcessComponentListener;
 import org.hive2hive.core.processes.framework.exceptions.InvalidProcessStateException;
+import org.hive2hive.core.processes.framework.interfaces.IProcessComponent;
 import org.hive2hive.core.security.UserCredentials;
 
 
@@ -77,23 +81,49 @@ public enum H2HManager {
 	public boolean registerUser(String username, String password, String pin) 
 			throws NoPeerConnectionException, InterruptedException, InvalidProcessStateException {
 		// TODO: assert that root path is set and exists!
+				
+		IUserManager userManager = node.getUserManager();
+		System.out.println(String.format("'%s', '%s', '%s'", username, password, pin));
 		userCredentials = new UserCredentials(username, password, pin);
-		if (!node.getUserManager().isRegistered(userCredentials.getUserId())) {
-			node.getUserManager().register(userCredentials).start().await();	
+
+		IProcessComponent registerProcess = userManager.register(userCredentials);
+		ProcessComponentListener listener = new ProcessComponentListener();
+		registerProcess.attachListener(listener);
+		registerProcess.start().await();
+
+		if (listener.hasFailed()) {
+			RollbackReason reason = listener.getRollbackReason();
+			System.out.println((String.format("The process has failed: %s", reason != null ? ": " + reason.getHint() : ".")));
 		}
+	
+		return listener.hasSucceeded() && userManager.isRegistered(userCredentials.getUserId());
 		
-		return node.getUserManager().isRegistered(userCredentials.getUserId());
 	}
 	
 	public boolean loginUser(String username, String password, String pin) 
-			throws NoPeerConnectionException, InterruptedException {
+			throws NoPeerConnectionException, InterruptedException, InvalidProcessStateException {
 		// TODO: what to do with the user credentials? where to get them?
+		System.out.println(String.format("'%s', '%s', '%s'", username, password, pin));
 		userCredentials = new UserCredentials(username, password, pin);
 		
-		node.getUserManager().login(userCredentials, rootDirectory).await();
-		return node.getUserManager().isLoggedIn(userCredentials.getUserId());
+		IProcessComponent process = node.getUserManager().login(userCredentials, rootDirectory);
 		
+		
+		
+		ProcessComponentListener listener = new ProcessComponentListener();
+
+		process.attachListener(listener);
+		process.start().await();
+
+		if (listener.hasFailed()) {
+			RollbackReason reason = listener.getRollbackReason();
+			System.out.println(String.format("The process has failed%s", reason != null ? ": " + reason.getHint() : "."));
+		}
+		
+		System.out.println(node.getUserManager().isLoggedIn(userCredentials.getUserId())); // TODO: why does this return FALSE after login?
+		return listener.hasSucceeded();
 	}
+	
 	
 	public boolean accessNetwork(String bootstrapAddressString) throws UnknownHostException{
 		String nodeID = H2HManager.INSTANCE.generateNodeID();
