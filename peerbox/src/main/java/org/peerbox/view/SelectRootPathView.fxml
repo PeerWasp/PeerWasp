@@ -9,7 +9,7 @@
    <children>
       <Button fx:id="changeDirButton" layoutX="439.0" layoutY="152.0" mnemonicParsing="false" onAction="#changeDirectory" text="Change directory" />
       <TextField fx:id="pathTextField" layoutX="127.0" layoutY="152.0" prefHeight="25.0" prefWidth="300.0" />
-      <Button fx:id="okButton" layoutX="127.0" layoutY="275.0" mnemonicParsing="false" onAction="#openLoginView" prefHeight="25.0" prefWidth="60.0" text="Ok" />
+      <Button fx:id="okButton" layoutX="127.0" layoutY="275.0" mnemonicParsing="false" onAction="#openLoginView" prefHeight="25.0" prefWidth="72.0" text="Ok" />
       <Button fx:id="goBackButton" layoutX="367.0" layoutY="275.0" mnemonicParsing="false" onAction="#goBack" text="Go back" />
    </children>
     </AnchorPane>
