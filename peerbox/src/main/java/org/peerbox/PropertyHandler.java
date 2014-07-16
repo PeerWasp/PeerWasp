@@ -8,45 +8,51 @@ import java.io.IOException;
 import java.util.Properties;
 
 public class PropertyHandler {
+	
+	PropertyHandler propHandler = new PropertyHandler();
+	static Properties prop = new Properties();
 
-	public static boolean checkFileExists(){
+	
+	public static void checkFileExists(){
 		
-		boolean fileExists = true;
+		boolean fileExists = false;
 		
-		File configFile = new File("config.properties");
-		 
-		try {
-		    FileReader reader = new FileReader(configFile);
-		    
-		} catch (FileNotFoundException ex) {
-		    // file does not exist
-			fileExists = false;
-			System.out.println("PeerBox property file not found.");
-		} catch (IOException ex) {
-		    // I/O error
+		File f = new File("config.properties");
+		if(f.exists() && !f.isDirectory()) { 
+			fileExists = true;
+			System.out.println("Existing property file found.");
+		} else {
+			//create new property file if no existing is found
+			createPropertyFile();
 		}
-		
-		return fileExists;
 	}
 	
 	public static void createPropertyFile(){
-		
-		Properties prop = new Properties();
-
-    	try {
+    	
+		try {
     		//Dummy test set
     		prop.setProperty("peerAddress", "localhost");
     		prop.setProperty("username", "myuser");
     		prop.setProperty("password", "mypwd");
     		prop.setProperty("pin", "1234");
-
     		//save properties to project root folder
     		prop.store(new FileOutputStream("config.properties"), null);
     		System.out.println("New property file created.");
-
     	} catch (IOException ex) {
     		ex.printStackTrace();
         }
     }
+	
+	public static void setRootPath(String path){
+
+    	try {
+    		prop.setProperty("rootpath",path);
+    		//save properties to project root folder
+    		prop.store(new FileOutputStream("config.properties"),null);
+    		System.out.println("Root path stored in property file.");
+    	} catch (IOException ex) {
+    		ex.printStackTrace();
+        }
+	}
 }
 

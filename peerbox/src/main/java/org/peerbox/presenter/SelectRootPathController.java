@@ -12,17 +12,13 @@ import org.controlsfx.dialog.Dialogs;
 import org.peerbox.model.H2HManager;
 
 import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
-import javafx.scene.layout.VBox;
 import javafx.stage.DirectoryChooser;
-import javafx.stage.Popup;
-import javafx.stage.Stage;
+import org.peerbox.PropertyHandler;
 
 public class SelectRootPathController implements Initializable{
 
@@ -63,10 +59,10 @@ public class SelectRootPathController implements Initializable{
 					      .showConfirm();
 				if(action.equals(Dialog.Actions.YES)){
 					H2HManager.INSTANCE.initializeRootDirectory(pathTextField.getText());
+					PropertyHandler.setRootPath(pathTextField.getText()); //save path in property file
 					MainNavigator.navigate("/org/peerbox/view/LoginView.fxml");
 				}
 			}
-			
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			warningLabel.setText("This is a file, not a directory. Please provide a directory.");

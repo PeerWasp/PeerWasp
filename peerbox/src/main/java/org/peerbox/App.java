@@ -29,14 +29,10 @@ public class App extends Application
 	private static final Logger logger = LoggerFactory.getLogger("PeerBox");
 	
 	public static void main(String[] args) {
+		
 		logger.info("PeerBox started.");
-        if(!PropertyHandler.checkFileExists()){
-        	PropertyHandler.createPropertyFile();
+		PropertyHandler.checkFileExists();
         	launch(args);
-        } else {
-        	launch(args);
-        }
-        
     }
     
     @Override
