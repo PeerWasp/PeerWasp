@@ -33,7 +33,7 @@ public class RegisterController implements Initializable {
 	private Button btnRegister;
 	
 	@FXML
-	private Button goBack;
+	private Button btnBack;
 	
 	public void initialize(URL location, ResourceBundle resources) {
 		// TODO Auto-generated method stub
