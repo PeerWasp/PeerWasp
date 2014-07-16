@@ -1,11 +1,9 @@
 package org.peerbox.presenter;
 
-import java.net.InetAddress;
 import java.net.URL;
 import java.net.UnknownHostException;
 import java.util.ResourceBundle;
 
-import org.hive2hive.core.api.configs.NetworkConfiguration;
 import org.peerbox.model.H2HManager;
 
 import javafx.event.ActionEvent;

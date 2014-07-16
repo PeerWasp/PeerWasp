@@ -1,6 +1,5 @@
 package org.peerbox.model;
 
-import java.io.File;
 import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -16,7 +15,6 @@ import org.hive2hive.core.api.interfaces.IH2HNode;
 import org.hive2hive.core.api.interfaces.INetworkConfiguration;
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.hive2hive.core.security.UserCredentials;
-import org.peerbox.presenter.MainNavigator;
 
 
 public enum H2HManager {
