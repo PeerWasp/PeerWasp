@@ -29,7 +29,7 @@ public class SelectRootPathController implements Initializable{
 	public void changeDirectory(ActionEvent event){
 		DirectoryChooser chooser = new DirectoryChooser();
 	    chooser.setTitle("Choose your root directory");
-	    chooser.setInitialDirectory(new File(pathTextField.getText()));
+	    chooser.setInitialDirectory(new File(pathTextField.getText()).getParentFile());
 	    File selectedDirectory = chooser.showDialog(okButton.getScene().getWindow());
 	    if (selectedDirectory != null) {
 	        pathTextField.setText(selectedDirectory.getAbsolutePath());
@@ -46,8 +46,8 @@ public class SelectRootPathController implements Initializable{
 
 
 	public void initialize(URL location, ResourceBundle resources) {
-		// TODO Auto-generated method stub
-		pathTextField.setText("C:/Users");
+		String defaultDir = System.getProperty("user.home") + File.separator + "PeerBox";
+		pathTextField.setText(defaultDir);
 		pathTextField.setPrefWidth(250);
 	}
 }
