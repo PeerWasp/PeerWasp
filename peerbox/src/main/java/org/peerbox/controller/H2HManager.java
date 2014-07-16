@@ -10,6 +10,7 @@ import org.hive2hive.core.api.H2HNode;
 import org.hive2hive.core.api.configs.FileConfiguration;
 import org.hive2hive.core.api.configs.NetworkConfiguration;
 import org.hive2hive.core.api.interfaces.IH2HNode;
+import org.hive2hive.core.api.interfaces.INetworkConfiguration;
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
 
 public enum H2HManager {
@@ -26,7 +27,7 @@ public enum H2HManager {
 		return node;
 	}
 	
-	private String generateNodeID() {
+	public String generateNodeID() {
 		return UUID.randomUUID().toString();
 	}
 	
@@ -36,6 +37,12 @@ public enum H2HManager {
 		node.getUserManager().configureAutostart(false);
 		node.getFileManager().configureAutostart(false);
 
+	}
+	
+	public void createNode(INetworkConfiguration configuration){
+		node = H2HNode.createNode(configuration, FileConfiguration.createCustom(maxFileSize, maxNumOfVersions, maxSizeAllVersions, chunkSize));
+		node.getUserManager().configureAutostart(false);
+		node.getFileManager().configureAutostart(false);
 	}
 	
 	public String getInetAddressAsString(){

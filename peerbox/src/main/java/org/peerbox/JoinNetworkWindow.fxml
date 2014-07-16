@@ -9,9 +9,9 @@
 
 <AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.peerbox.controller.JoinNetworkController">
   <children>
-        <TextField layoutX="271.0" layoutY="102.0" prefHeight="25.0" prefWidth="195.0" />
+        <TextField fx:id="bootstrapAddressField" layoutX="271.0" layoutY="102.0" prefHeight="25.0" prefWidth="195.0" />
         <Label layoutX="79.0" layoutY="106.0" text="IPv4 address of well-known peer:" />
-        <Button layoutX="79.0" layoutY="273.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="106.0" text="Access network" />
+        <Button fx:id="accessNetworkButton" onAction="#accessNetwork" layoutX="79.0" layoutY="273.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="106.0" text="Access network" />
         <Button fx:id="btnBackToSelection" layoutX="399.0" layoutY="273.0" mnemonicParsing="false" onAction="#goBack" prefHeight="25.0" prefWidth="67.0" text="Go back" />
       <Label layoutX="360.0" layoutY="127.0" prefHeight="17.0" prefWidth="106.0" text="Format: 192.168.1.1" />
   </children>
