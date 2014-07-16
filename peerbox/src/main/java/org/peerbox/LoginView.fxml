@@ -4,7 +4,6 @@
 <?import java.lang.*?>
 <?import javafx.scene.layout.*?>
 
-
 <AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.peerbox.controller.LoginController">
    <children>
       <GridPane hgap="10.0" vgap="10.0" AnchorPane.leftAnchor="20.0" AnchorPane.rightAnchor="20.0" AnchorPane.topAnchor="100.0">
@@ -24,9 +23,9 @@
             <Label text="Username" />
             <Label text="Password" GridPane.rowIndex="1" />
             <Label text="PIN" GridPane.rowIndex="2" />
-            <TextField fx:id="txtUsername" GridPane.columnIndex="1" />
-            <PasswordField fx:id="txtPassword" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-            <PasswordField fx:id="txtPin" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+            <TextField fx:id="txtUsername" promptText="Enter username" GridPane.columnIndex="1" />
+            <PasswordField fx:id="txtPassword" promptText="Enter password" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+            <PasswordField fx:id="txtPin" promptText="Enter PIN" GridPane.columnIndex="1" GridPane.rowIndex="2" />
             <CheckBox fx:id="chbAutoLogin" mnemonicParsing="false" text="Login automatically in the future" GridPane.columnIndex="1" GridPane.rowIndex="3" />
             <Button fx:id="btnLogin" mnemonicParsing="false" onAction="#loginAction" prefWidth="100.0" text="Login" GridPane.columnIndex="1" GridPane.rowIndex="4" />
             <Button fx:id="btnRegister" mnemonicParsing="false" onAction="#registerAction" prefWidth="100.0" text="Register" GridPane.columnIndex="1" GridPane.rowIndex="5" />
