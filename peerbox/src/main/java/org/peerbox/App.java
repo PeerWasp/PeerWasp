@@ -3,6 +3,7 @@ package org.peerbox;
 
 import java.io.IOException;
 
+import org.peerbox.model.H2HManager;
 import org.peerbox.presenter.MainController;
 import org.peerbox.presenter.MainNavigator;
 import org.peerbox.presenter.RegisterController;
@@ -34,7 +35,10 @@ public class App extends Application
 		
 		logger.info("PeerBox started.");
 		PropertyHandler.checkFileExists();
-        	launch(args);
+		PropertyHandler.loadPropertyFile();
+		H2HManager.INSTANCE.setRootPath(PropertyHandler.getRootPath());
+        
+		launch(args);
     }
     
     @Override
