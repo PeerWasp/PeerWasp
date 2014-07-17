@@ -87,9 +87,10 @@ public class PropertyHandler {
 	
 	//returns rootpath value from property file
 	public static String getRootPath(){
-		String fPath = null;
-		fPath = prop.getProperty("rootpath");
-		return fPath;
+		if(prop.getProperty("rootpath") == null){
+			prop.setProperty("rootpath", "unset");
+		}
+		return prop.getProperty("rootpath");
 	}
 }
 
