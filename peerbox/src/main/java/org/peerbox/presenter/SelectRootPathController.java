@@ -23,24 +23,24 @@ import org.peerbox.PropertyHandler;
 public class SelectRootPathController implements Initializable{
 
 	@FXML
-	private Button changeDirButton;
+	private Button btnChangeDirectory;
 	@FXML
-	private Button okButton;
+	private Button btnContinue;
 	@FXML
-	private Button goBackButton;
+	private Button btnGoBack;
 	@FXML
-	private TextField pathTextField;
+	private TextField txtRootPath;
 	@FXML
-	private Label warningLabel;
+	private Label lblWarning;
 	
 	
 	public void changeDirectory(ActionEvent event){
 		DirectoryChooser chooser = new DirectoryChooser();
 	    chooser.setTitle("Choose your root directory");
-	    chooser.setInitialDirectory(new File(pathTextField.getText()).getParentFile());
-	    File selectedDirectory = chooser.showDialog(okButton.getScene().getWindow());
+	    chooser.setInitialDirectory(new File(txtRootPath.getText()).getParentFile());
+	    File selectedDirectory = chooser.showDialog(btnContinue.getScene().getWindow());
 	    if (selectedDirectory != null) {
-	        pathTextField.setText(selectedDirectory.getAbsolutePath());
+	        txtRootPath.setText(selectedDirectory.getAbsolutePath());
 	    }  
 	}
 	
@@ -50,7 +50,7 @@ public class SelectRootPathController implements Initializable{
 	
 	public void okButtonHandler(ActionEvent event){
 		try {
-			File path = new File(pathTextField.getText());
+			File path = new File(txtRootPath.getText());
 			Action createDirAction = Dialog.Actions.YES;
 			boolean isDirCreated = false;
 			if(!path.exists()){
@@ -58,16 +58,16 @@ public class SelectRootPathController implements Initializable{
 			}
 			//TODO rootpath should be read from H2HManager!
 			if(createDirAction.equals(Dialog.Actions.YES)){
-				isDirCreated = H2HManager.INSTANCE.initializeRootDirectory(pathTextField.getText());
+				isDirCreated = H2HManager.INSTANCE.initializeRootDirectory(txtRootPath.getText());
 				if(isDirCreated){
-					PropertyHandler.setRootPath(pathTextField.getText()); //save path in property file
+					PropertyHandler.setRootPath(txtRootPath.getText()); //save path in property file
 					MainNavigator.navigate("/org/peerbox/view/LoginView.fxml");
 				} else {
 					showPermissionWarning();
 				}
 			}
 		} catch (IOException e) {
-			warningLabel.setText("This is a file, not a directory. Please provide a directory.");
+			lblWarning.setText("This is a file, not a directory. Please provide a directory.");
 		}
 	}
 
@@ -92,7 +92,7 @@ public class SelectRootPathController implements Initializable{
 		} else {
 			defaultDir = System.getProperty("user.home") + File.separator + "PeerBox_" + now.getTime();
 		}
-		pathTextField.setText(defaultDir);
-		pathTextField.setPrefWidth(250);
+		txtRootPath.setText(defaultDir);
+		txtRootPath.setPrefWidth(250);
 	}
 }
