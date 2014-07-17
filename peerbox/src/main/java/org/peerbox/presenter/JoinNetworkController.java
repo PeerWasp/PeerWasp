@@ -34,7 +34,7 @@ public class JoinNetworkController implements Initializable {
 		System.out.println("Try to join network at provided IP address.");
 		try {
 			if(H2HManager.INSTANCE.accessNetwork(bootstrapAddressField.getText())){
-				MainNavigator.navigate("/org/peerbox/view/SelectRootPathView.fxml");
+				MainNavigator.navigate("/org/peerbox/view/LoginView.fxml");
 			}
 		} catch (UnknownHostException e) {
 			// TODO Auto-generated catch block

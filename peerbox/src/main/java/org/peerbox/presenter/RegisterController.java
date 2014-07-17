@@ -74,7 +74,7 @@ public class RegisterController implements Initializable {
 				if(autoLogin) {
 					// TODO: login automatically
 				} else {
-					MainNavigator.navigate("/org/peerbox/view/LoginView.fxml");
+					MainNavigator.navigate("/org/peerbox/view/SelectRootPathView.fxml");
 				}
 			} else {
 				// TODO: show some information

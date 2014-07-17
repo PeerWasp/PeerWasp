@@ -34,7 +34,7 @@ public class CreateNetworkController implements Initializable {
 	}
 	
 	public void createNetwork(ActionEvent event){
-		MainNavigator.navigate("/org/peerbox/view/SelectRootPathView.fxml");
+		MainNavigator.navigate("/org/peerbox/view/RegisterView.fxml");
 	}
 
 }
