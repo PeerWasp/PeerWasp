@@ -54,6 +54,7 @@ public class PropertyHandler {
     		prop.setProperty("username", "myuser");
     		prop.setProperty("password", "mypwd");
     		prop.setProperty("pin", "1234");
+    		prop.setProperty("rootpath", "unset");
     		//save properties to project root folder
     		prop.store(new FileOutputStream("config.properties"), null);
     		System.out.println("New property file created.");

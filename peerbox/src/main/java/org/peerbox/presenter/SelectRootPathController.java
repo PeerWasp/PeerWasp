@@ -87,7 +87,8 @@ public class SelectRootPathController implements Initializable{
 	public void initialize(URL location, ResourceBundle resources) {
 		String defaultDir = null;
 		Date now = new Date();
-		if(PropertyHandler.rootPathExists()){
+
+		if(PropertyHandler.rootPathExists() && !PropertyHandler.getRootPath().equals("unset")){
 			defaultDir = PropertyHandler.getRootPath();
 			H2HManager.INSTANCE.setRootPath(defaultDir);
 		} else {
