@@ -14,5 +14,6 @@
       <Text layoutX="14.0" layoutY="27.0" strokeType="OUTSIDE" strokeWidth="0.0" text="CreateNetworkWindow" />
       <TextField fx:id="txtIPAddress" editable="false" layoutX="233.0" layoutY="188.0" prefHeight="25.0" prefWidth="220.0" />
       <Label layoutX="137.0" layoutY="192.0" text="Your IP Address:" />
+      <Label layoutX="137.0" layoutY="80.0" maxWidth="320.0" text="This option will create a bootstrapping peer for a new PeerBox network on this device. The IP shown below can be used by other users to join your network. As soon as you click &quot;create&quot;, the bootstrapping peer will be started." wrapText="true" />
       </children>
     </AnchorPane>

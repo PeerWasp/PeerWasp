@@ -181,4 +181,9 @@ public enum H2HManager {
 		}
 		return isDirectoryCreated;
 	}
+
+	public void deleteNode() {
+		// TODO Auto-generated method stub
+		node.disconnect();
+	}
 }
