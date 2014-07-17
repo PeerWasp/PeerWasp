@@ -9,7 +9,6 @@ import org.peerbox.model.H2HManager;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 
 public class JoinNetworkController implements Initializable {
@@ -20,10 +19,7 @@ public class JoinNetworkController implements Initializable {
 	}
 	
 	@FXML
-	private Button btnBackToSelection;
-	
-	@FXML
-	private TextField bootstrapAddressField;
+	private TextField txtBootstrapIP;
 	
 	public void goBack(ActionEvent event){
 		System.out.println("Go back.");
@@ -33,7 +29,7 @@ public class JoinNetworkController implements Initializable {
 	public void accessNetwork(ActionEvent event){
 		System.out.println("Try to join network at provided IP address.");
 		try {
-			if(H2HManager.INSTANCE.accessNetwork(bootstrapAddressField.getText())){
+			if(H2HManager.INSTANCE.accessNetwork(txtBootstrapIP.getText())){
 				MainNavigator.navigate("/org/peerbox/view/LoginView.fxml");
 			}
 		} catch (UnknownHostException e) {
