@@ -4,9 +4,7 @@ import java.net.URL;
 import java.util.ResourceBundle;
 
 import javafx.event.ActionEvent;
-import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.Button;
 
 public class NetworkSelectionController implements Initializable {
 
@@ -15,9 +13,6 @@ public class NetworkSelectionController implements Initializable {
 
 	}
 	
-	@FXML
-	private Button btnCreateNetwork;
-	private Button btnJoinNetwork;
 	
 	public void createNetwork(ActionEvent event){
 		System.out.println("Network created.");	
