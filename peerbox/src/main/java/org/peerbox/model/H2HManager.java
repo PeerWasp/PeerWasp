@@ -140,11 +140,9 @@ public enum H2HManager {
 			System.out.println("No host provided.");
 			return false;
 		}
-		
 		String nodeID = H2HManager.INSTANCE.generateNodeID();
 		InetAddress bootstrapAddress = InetAddress.getByName(bootstrapAddressString);
 		H2HManager.INSTANCE.createNode(NetworkConfiguration.create(nodeID, bootstrapAddress));
-
 		if(H2HManager.INSTANCE.getNode().connect()){
 			System.out.println("Joined the network.");
 			return true;
@@ -159,18 +157,21 @@ public enum H2HManager {
 	 * it is created on the fly.
 	 * @param rootDirectoryPath contains the absolute path to the root directory.
 	 * @throws IOException if the provided rootDirectoryPath leads to a real file.
+	 * @return true if File.mkdir() was successful.
 	 */
-	public void initializeRootDirectory(String rootDirectoryPath) throws IOException {
+	public boolean initializeRootDirectory(String rootDirectoryPath) throws IOException {
 		File rootDirectoryFile = new File(rootDirectoryPath);
-		
+		boolean isDirectoryCreated = true;
 		if(rootDirectoryFile.exists()){
 			if(!rootDirectoryFile.isDirectory()){
 				throw new IOException("The provided path leads to a file, not a directory.");
 			}
 		} else {
-			rootDirectoryFile.mkdir();
+			isDirectoryCreated = rootDirectoryFile.mkdir();
+			if(isDirectoryCreated){
+				rootDirectory = Paths.get(rootDirectoryFile.getAbsolutePath());
+			}
 		}
-		rootDirectory = Paths.get(rootDirectoryFile.getAbsolutePath());
-		
+		return isDirectoryCreated;
 	}
 }

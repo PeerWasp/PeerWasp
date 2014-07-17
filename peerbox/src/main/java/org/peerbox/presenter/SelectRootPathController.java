@@ -52,18 +52,28 @@ public class SelectRootPathController implements Initializable{
 		try {
 			File path = new File(pathTextField.getText());
 			Action createDirAction = Dialog.Actions.YES;
-			
+			boolean isDirCreated = false;
 			if(!path.exists()){
 				createDirAction = Dialogs.create()
 					      .title("Directory does not exist.")
 					      .message( "Create this directory?")
 					      .showConfirm();
 			}
+			//TODO rootpath should be read from H2HManager!
 			if(createDirAction.equals(Dialog.Actions.YES)){
-				H2HManager.INSTANCE.initializeRootDirectory(pathTextField.getText());
-				PropertyHandler.setRootPath(pathTextField.getText()); //save path in property file
-				MainNavigator.navigate("/org/peerbox/view/LoginView.fxml");
+				isDirCreated = H2HManager.INSTANCE.initializeRootDirectory(pathTextField.getText());
+
+				if(isDirCreated){
+					PropertyHandler.setRootPath(pathTextField.getText()); //save path in property file
+					MainNavigator.navigate("/org/peerbox/view/LoginView.fxml");
+				} else {
+					createDirAction = Dialogs.create()
+						      .title("Directory creation failed")
+						      .message("Check your permissions")
+						      .showWarning();
+				}
 			}
+
 		} catch (IOException e) {
 			warningLabel.setText("This is a file, not a directory. Please provide a directory.");
 		}
