@@ -2,6 +2,7 @@ package org.peerbox;
 
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.peerbox.model.H2HManager;
+import org.peerbox.Constants;
 
 
 public class RegisterValidation {
@@ -17,7 +18,7 @@ public class RegisterValidation {
 	}
 	
 	public static boolean checkPassword(String pwd_1, String pwd_2){
-		if (pwd_1.length() >= 6){
+		if (pwd_1.length() >= Constants.MIN_PASSWORD_LENGTH){
 			System.out.println("Password length okay");
 			
 				if(pwd_1.equals(pwd_2)){
@@ -34,7 +35,7 @@ public class RegisterValidation {
 	}
 	
 	public static boolean checkPIN(String pin_1, String pin_2){
-		if (pin_1.length() >= 3){
+		if (pin_1.length() >= Constants.MIN_PIN_LENGTH){
 			System.out.println("PIN length okay");
 			
 				if(pin_1.equals(pin_2)){
