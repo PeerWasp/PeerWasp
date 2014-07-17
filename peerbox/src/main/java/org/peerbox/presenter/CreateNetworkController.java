@@ -61,5 +61,4 @@ public class CreateNetworkController implements Initializable {
 		}
 		MainNavigator.navigate("/org/peerbox/view/RegisterView.fxml");
 	}
-
 }

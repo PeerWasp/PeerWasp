@@ -1,6 +1,7 @@
 package org.peerbox.presenter;
 
 import java.net.URL;
+import java.nio.file.Path;
 import java.util.ResourceBundle;
 
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
@@ -41,6 +42,9 @@ public class LoginController implements Initializable {
 	@FXML
 	private Button btnRegister;
 	
+	@FXML
+	private TextField txtRootPath;
+	
 	private final BooleanProperty formEmpty = new SimpleBooleanProperty(true);
 	
 	public void initialize(URL location, ResourceBundle resources) {
@@ -50,6 +54,14 @@ public class LoginController implements Initializable {
 		formEmpty.bind(txtUsername.textProperty().isEmpty().or(
 				txtPassword.textProperty().isEmpty().or(
 						txtPin.textProperty().isEmpty())));
+		
+		Path rootPath = H2HManager.INSTANCE.getRootPath();
+		if(rootPath != null){
+			txtRootPath.setText(rootPath.toString());
+		} else {
+			txtRootPath.setText("rootPath == null, because not read from config file yet!");
+		}
+		
 	}
 	
 	public void loginAction(ActionEvent event) {
@@ -86,5 +98,8 @@ public class LoginController implements Initializable {
 	public void goBack(ActionEvent event){
 		MainNavigator.goBack();
 	}
-
+	
+	public void changeDirectory(ActionEvent event){
+		
+	}
 }

@@ -31,7 +31,7 @@ public class JoinNetworkController implements Initializable {
 		try {
 			if(H2HManager.INSTANCE.accessNetwork(txtBootstrapIP.getText())){
 
-				MainNavigator.navigate("/org/peerbox/view/SelectRootPathView.fxml");
+				MainNavigator.navigate("/org/peerbox/view/LoginView.fxml");
 			}
 		} catch (UnknownHostException e) {
 			// TODO Auto-generated catch block
