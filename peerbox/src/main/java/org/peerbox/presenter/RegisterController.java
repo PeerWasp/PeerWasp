@@ -8,6 +8,7 @@ import org.hive2hive.core.network.Connection;
 import org.hive2hive.core.processes.framework.exceptions.InvalidProcessStateException;
 import org.peerbox.RegisterValidation;
 import org.peerbox.model.H2HManager;
+import org.peerbox.Constants;
 
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
@@ -109,13 +110,25 @@ public class RegisterController implements Initializable {
 			sb.append("No connection to the network established.\n");
 		}
 		
-		if(!RegisterValidation.checkPassword(txtPassword_1.getText(), txtPassword_2.getText())) {
+		if(!RegisterValidation.checkPasswordLength(txtPassword_1.getText())) {
+			// TODO: passwords not valid, notify user
+			sb.append("Password is too short. Needs at least " + Constants.MIN_PASSWORD_LENGTH + " characters.\n");
+			inputValid = false;
+		}
+		
+		if(!RegisterValidation.checkPasswordMatch(txtPassword_1.getText(), txtPassword_2.getText())) {
 			// TODO: passwords not valid, notify user
 			sb.append("Passwords do not match.\n");
 			inputValid = false;
 		}
 		
-		if(!RegisterValidation.checkPIN(txtPin_1.getText(), txtPin_2.getText())) {
+		if(!RegisterValidation.checkPinLength(txtPin_1.getText())) {
+			// TODO: pins not valid, notify user
+			sb.append("PIN is too short. Needs at least " + Constants.MIN_PIN_LENGTH + " characters.\n");
+			inputValid = false;
+		}
+		
+		if(!RegisterValidation.checkPinMatch(txtPin_1.getText(), txtPin_2.getText())) {
 			// TODO: pins not valid, notify user
 			sb.append("PINs do not match.\n");
 			inputValid = false;
