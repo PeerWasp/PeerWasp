@@ -5,13 +5,22 @@ import static org.junit.Assert.*;
 import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
+import java.net.URL;
 import java.net.UnknownHostException;
 
 import org.hive2hive.core.api.configs.NetworkConfiguration;
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
+import org.junit.Before;
 import org.junit.Test;
 
 public class H2HManagerTest {
+	
+	private String path;
+	
+	@Before
+	public void initializeVariables(){
+		path = System.getProperty("user.dir").replace("\\", "/") + "/"; 
+	}
 	
 	@Test(expected=UnknownHostException.class)
 	public void accessNetworkTestUnknownHost() throws UnknownHostException{
@@ -76,10 +85,17 @@ public class H2HManagerTest {
 	
 	@Test
 	public void initializeRootDirectoryWithNewDirectory() throws IOException{
-		H2HManager.INSTANCE.initializeRootDirectory("Test_NewDir");
-		File newDir = new File("Test_NewDir");
+		boolean isSuccessfull = H2HManager.INSTANCE.initializeRootDirectory(path + "Test_NewDir");
+		assertTrue(isSuccessfull);
+		File newDir = new File(path + "Test_NewDir");
 		assertTrue(newDir.exists());
 		assertTrue(newDir.isDirectory());
 		newDir.delete();
+	}
+	
+	@Test
+	public void initializeRootDirectoryWithoutParentDir() throws IOException{
+		boolean isSuccessfull = H2HManager.INSTANCE.initializeRootDirectory(path + "doesnotexist/Test_Dir");
+		assertFalse(isSuccessfull);
 	}
 }

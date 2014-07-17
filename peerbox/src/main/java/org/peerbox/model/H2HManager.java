@@ -166,7 +166,14 @@ public enum H2HManager {
 			if(!rootDirectoryFile.isDirectory()){
 				throw new IOException("The provided path leads to a file, not a directory.");
 			}
+			
 		} else {
+			//check if parent directory exist and is writable
+			File parentDirectory = rootDirectoryFile.getParentFile();
+			if(parentDirectory == null || !parentDirectory.canWrite()){
+				return false;
+			}
+			//create the directory, only set rootDirectory if successful
 			isDirectoryCreated = rootDirectoryFile.mkdir();
 			if(isDirectoryCreated){
 				rootDirectory = Paths.get(rootDirectoryFile.getAbsolutePath());
