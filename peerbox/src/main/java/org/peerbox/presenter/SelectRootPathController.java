@@ -54,31 +54,35 @@ public class SelectRootPathController implements Initializable{
 			Action createDirAction = Dialog.Actions.YES;
 			boolean isDirCreated = false;
 			if(!path.exists()){
-				createDirAction = Dialogs.create()
-					      .title("Directory does not exist.")
-					      .message( "Create this directory?")
-					      .showConfirm();
+				createDirAction = askForDirectoryCreation();
 			}
 			//TODO rootpath should be read from H2HManager!
 			if(createDirAction.equals(Dialog.Actions.YES)){
 				isDirCreated = H2HManager.INSTANCE.initializeRootDirectory(pathTextField.getText());
-
 				if(isDirCreated){
 					PropertyHandler.setRootPath(pathTextField.getText()); //save path in property file
 					MainNavigator.navigate("/org/peerbox/view/LoginView.fxml");
 				} else {
-					createDirAction = Dialogs.create()
-						      .title("Directory creation failed")
-						      .message("Check your permissions")
-						      .showWarning();
+					showPermissionWarning();
 				}
 			}
-
 		} catch (IOException e) {
 			warningLabel.setText("This is a file, not a directory. Please provide a directory.");
 		}
 	}
 
+	private void showPermissionWarning() {
+		Dialogs.create().title("Directory creation failed")
+			.message("Check your permissions")
+			.showWarning();
+	}
+
+	private Action askForDirectoryCreation() {
+		return Dialogs.create()
+			      .title("Directory does not exist.")
+			      .message( "Create this directory?")
+			      .showConfirm();
+	}
 
 	public void initialize(URL location, ResourceBundle resources) {
 		String defaultDir = null;
