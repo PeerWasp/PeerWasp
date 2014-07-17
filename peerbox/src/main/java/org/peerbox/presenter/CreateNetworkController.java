@@ -14,16 +14,16 @@ import javafx.scene.control.TextField;
 public class CreateNetworkController implements Initializable {
 
 	@FXML
-	private Button btnBackToSelection;
+	private Button btnBack;
 	
 	@FXML
-	private TextField ipOutputAddress;
+	private TextField txtIPAddress;
 	
 	public void initialize(URL arg0, ResourceBundle arg1) {
 		if(H2HManager.INSTANCE.getNode() == null){
 			System.out.println("Try to create network...");
 			H2HManager.INSTANCE.createNode();
-			ipOutputAddress.setText(H2HManager.INSTANCE.getInetAddressAsString());
+			txtIPAddress.setText(H2HManager.INSTANCE.getInetAddressAsString());
 		}
 		
 	}
