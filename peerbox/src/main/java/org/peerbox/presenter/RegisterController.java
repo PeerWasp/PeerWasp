@@ -20,6 +20,11 @@ import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
+import jidefx.scene.control.validation.ValidationEvent;
+import jidefx.scene.control.validation.ValidationMode;
+import jidefx.scene.control.validation.ValidationObject;
+import jidefx.scene.control.validation.ValidationUtils;
+import jidefx.scene.control.validation.Validator;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,6 +62,18 @@ public class RegisterController implements Initializable {
 	public void initialize(URL location, ResourceBundle resources) {
 		// TODO Auto-generated method stub
 		lblError.textProperty().bind(fErrorMessage); 
+		
+		
+		Validator pwdEmpty = new Validator() {
+			public ValidationEvent call(ValidationObject param) {
+                if (txtPassword_1.getText().trim().length() < 5) {
+                    return new ValidationEvent(ValidationEvent.VALIDATION_ERROR, 0, "The password cannot be empty!");
+                }
+                else return ValidationEvent.OK;
+            }
+            
+        };
+        ValidationUtils.install(txtPassword_1, pwdEmpty, ValidationMode.ON_FLY);
 	}
 	
 	public void registerAction(ActionEvent event) {		

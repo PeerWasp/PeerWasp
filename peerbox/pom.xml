@@ -50,6 +50,11 @@
 	    <artifactId>controlsfx</artifactId>
 	    <version>8.0.6</version>
  	</dependency>
+ 	<dependency>
+	 	<groupId>com.jidesoft</groupId>
+		<artifactId>jidefx-validation</artifactId>
+		<version>0.9.1</version>
+	</dependency>
   </dependencies>
 
 </project>
