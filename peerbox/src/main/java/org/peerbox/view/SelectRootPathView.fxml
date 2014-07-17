@@ -7,10 +7,10 @@
 
 <AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="640.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.peerbox.presenter.SelectRootPathController">
    <children>
-      <Button fx:id="changeDirButton" layoutX="439.0" layoutY="152.0" mnemonicParsing="false" onAction="#changeDirectory" text="Change directory" />
-      <TextField fx:id="pathTextField" layoutX="127.0" layoutY="152.0" prefHeight="25.0" prefWidth="300.0" />
-      <Button fx:id="okButton" layoutX="127.0" layoutY="275.0" mnemonicParsing="false" onAction="#okButtonHandler" prefHeight="25.0" prefWidth="72.0" text="Ok" />
-      <Button fx:id="goBackButton" layoutX="367.0" layoutY="275.0" mnemonicParsing="false" onAction="#goBack" text="Go back" />
-      <Label fx:id="warningLabel" layoutX="155.0" layoutY="192.0" prefHeight="61.0" prefWidth="273.0" textAlignment="RIGHT" />
+      <Button fx:id="btnChangeDirectory" layoutX="439.0" layoutY="152.0" mnemonicParsing="false" onAction="#changeDirectory" text="Change directory" />
+      <TextField fx:id="txtRootPath" layoutX="127.0" layoutY="152.0" prefHeight="25.0" prefWidth="300.0" />
+      <Button fx:id="btnContinue" layoutX="127.0" layoutY="275.0" mnemonicParsing="false" onAction="#okButtonHandler" prefHeight="25.0" prefWidth="72.0" text="Ok" />
+      <Button fx:id="btnGoBack" layoutX="367.0" layoutY="275.0" mnemonicParsing="false" onAction="#goBack" text="Go back" />
+      <Label fx:id="lblWarning" layoutX="155.0" layoutY="192.0" prefHeight="61.0" prefWidth="273.0" textAlignment="RIGHT" />
    </children>
     </AnchorPane>
