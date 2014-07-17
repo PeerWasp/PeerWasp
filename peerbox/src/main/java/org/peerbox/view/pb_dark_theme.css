@@ -132,6 +132,13 @@
     -fx-background-color: derive(-fx-focus-color,30%);
 }
 
+.button-browse {
+  -fx-background-image: url('browse-directory.png');
+  -fx-background-repeat: no-repeat;
+  -fx-background-position: center;
+}
+
+
 
 
 
