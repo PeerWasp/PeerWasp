@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
@@ -76,21 +75,20 @@ public class PropertyHandler {
 	}
 	
 	//check whether the property file already holds a rootpath property
-	public static boolean rootPathExists(){
-		
-		boolean exists = false;
-		
+	public static boolean rootPathExists(){		
 		if(prop.getProperty("rootpath") != null){
-			exists = true;
 			System.out.println("using rootpath from property file.");
+			return true;
+		} else {
+			return false;
 		}
-		return exists;
 	}
 	
 	//returns rootpath value from property file
 	public static String getRootPath(){
-		String path = prop.getProperty("rootpath");
-		return path;
+		String fPath = null;
+		fPath = prop.getProperty("rootpath");s
+		return fPath;
 	}
 }
 
