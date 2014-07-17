@@ -16,9 +16,11 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.image.Image;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
+
 import org.peerbox.PropertyHandler;
 
 /**
@@ -39,6 +41,7 @@ public class App extends Application
     public void start(Stage primaryStage) {
     	
     	primaryStage.setTitle("PeerBox");
+    	primaryStage.getIcons().add(new Image("/org/peerbox/view/icon.png"));
     	
     	Pane root;
     	MainController mainController;

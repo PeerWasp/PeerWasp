@@ -89,6 +89,7 @@ public class SelectRootPathController implements Initializable{
 		Date now = new Date();
 		if(PropertyHandler.rootPathExists()){
 			defaultDir = PropertyHandler.getRootPath();
+			H2HManager.INSTANCE.setRootPath(defaultDir);
 		} else {
 			defaultDir = System.getProperty("user.home") + File.separator + "PeerBox_" + now.getTime();
 		}

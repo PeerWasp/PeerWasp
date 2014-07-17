@@ -31,7 +31,7 @@ public enum H2HManager {
 	private IH2HNode node;
 	
 	private UserCredentials userCredentials;
-	private Path rootDirectory;
+	private Path rootPath;
 	
 	private BigInteger maxFileSize = H2HConstants.DEFAULT_MAX_FILE_SIZE;
 	private int maxNumOfVersions = H2HConstants.DEFAULT_MAX_NUM_OF_VERSIONS;
@@ -109,7 +109,7 @@ public enum H2HManager {
 		System.out.println(String.format("'%s', '%s', '%s'", username, password, pin));
 		userCredentials = new UserCredentials(username, password, pin);
 		
-		IProcessComponent process = node.getUserManager().login(userCredentials, rootDirectory);
+		IProcessComponent process = node.getUserManager().login(userCredentials, rootPath);
 		
 		
 		
@@ -176,9 +176,22 @@ public enum H2HManager {
 			//create the directory, only set rootDirectory if successful
 			isDirectoryCreated = rootDirectoryFile.mkdir();
 			if(isDirectoryCreated){
-				rootDirectory = Paths.get(rootDirectoryFile.getAbsolutePath());
+				rootPath = Paths.get(rootDirectoryFile.getAbsolutePath());
 			}
 		}
 		return isDirectoryCreated;
+	}
+
+	public Path getRootPath() {
+		return rootPath;
+	}
+
+	public void deleteNode() {
+		// TODO Auto-generated method stub
+		node.disconnect();
+	}
+
+	public void setRootPath(String path) {
+		rootPath = new File(path).toPath();
 	}
 }
