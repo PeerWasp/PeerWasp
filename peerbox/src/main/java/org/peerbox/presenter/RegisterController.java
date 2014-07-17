@@ -43,9 +43,6 @@ public class RegisterController implements Initializable {
 	private PasswordField txtPin_2;
 	
 	@FXML
-	private CheckBox chbAutoLogin;
-	
-	@FXML
 	private Button btnRegister;
 	
 	@FXML
@@ -53,29 +50,24 @@ public class RegisterController implements Initializable {
 	
 	@FXML
 	private Label lblError;
-	private final StringProperty errorMessage = new SimpleStringProperty();
+	private final StringProperty fErrorMessage = new SimpleStringProperty();
 	
 	
 	public void initialize(URL location, ResourceBundle resources) {
 		// TODO Auto-generated method stub
-		lblError.textProperty().bind(errorMessage); 
+		lblError.textProperty().bind(fErrorMessage); 
 	}
 	
 	public void registerAction(ActionEvent event) {		
-		errorMessage.set("");
+		fErrorMessage.set("");
 		boolean inputValid = validateUserCredentials();
 		logger.debug("User input is: " + (inputValid == true ? "valid" : "invalid"));
-		boolean autoLogin = chbAutoLogin.isSelected();
 		
 		if(inputValid) {
 			boolean registerSuccess = registerNewUser();;
 			System.out.println("Register success: " + registerSuccess);
 			if(registerSuccess) {
-				if(autoLogin) {
-					// TODO: login automatically
-				} else {
-					MainNavigator.navigate("/org/peerbox/view/SelectRootPathView.fxml");
-				}
+				MainNavigator.navigate("/org/peerbox/view/SelectRootPathView.fxml");
 			} else {
 				// TODO: show some information
 			}
@@ -129,7 +121,7 @@ public class RegisterController implements Initializable {
 			inputValid = false;
 		}
 		
-		errorMessage.set(errorMessage.get() + sb.toString());
+		fErrorMessage.set(fErrorMessage.get() + sb.toString());
 		return inputValid;
 	}
 	
