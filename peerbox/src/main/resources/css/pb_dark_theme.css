@@ -1,4 +1,4 @@
-/*
+
 .background {
     -fx-background-color: #0099FF;
 }
@@ -134,14 +134,13 @@
 }
 
 .button-browse {
-  -fx-background-image: url('browse-directory.png');
+  -fx-background-image: url('/resources/images/browse-directory.png');
   -fx-background-repeat: no-repeat;
   -fx-background-position: center;
 }
 
 
 
-*/
 
 /*  You can use pseudo-class to change the style for a particular type of nodes. Available pseudo-classes are:
         validation-error
