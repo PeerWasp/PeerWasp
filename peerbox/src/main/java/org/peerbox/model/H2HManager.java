@@ -124,8 +124,7 @@ public enum H2HManager {
 			System.out.println(String.format("The process has failed%s", reason != null ? ": " + reason.getHint() : "."));
 		}
 		
-		System.out.println(node.getUserManager().isLoggedIn(userCredentials.getUserId())); // TODO: why does this return FALSE after login?
-		return listener.hasSucceeded();
+		return listener.hasSucceeded() && node.getUserManager().isLoggedIn(userCredentials.getUserId());
 	}
 	
 	

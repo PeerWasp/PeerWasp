@@ -3,23 +3,34 @@ package org.peerbox.presenter;
 import java.net.URL;
 import java.nio.file.Path;
 import java.util.ResourceBundle;
+import java.util.concurrent.ExecutionException;
 
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.SimpleBooleanProperty;
+import javafx.concurrent.Task;
+import javafx.concurrent.WorkerStateEvent;
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.PasswordField;
+import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.GridPane;
 import javafx.stage.Window;
+import jidefx.scene.control.decoration.DecorationUtils;
+import jidefx.scene.control.decoration.Decorator;
+import jidefx.scene.control.validation.ValidationMode;
+import jidefx.scene.control.validation.ValidationUtils;
+import jidefx.scene.control.validation.Validator;
 
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.hive2hive.core.processes.framework.exceptions.InvalidProcessStateException;
+import org.peerbox.model.H2HManager;
+import org.peerbox.utils.FormValidationUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.peerbox.model.H2HManager;
 
 
 public class LoginController implements Initializable {
@@ -36,6 +47,9 @@ public class LoginController implements Initializable {
 	private PasswordField txtPin;
 	
 	@FXML
+	private TextField txtRootPath;
+	
+	@FXML
 	private CheckBox chbAutoLogin;
 	
 	@FXML
@@ -45,17 +59,12 @@ public class LoginController implements Initializable {
 	private Button btnRegister;
 	
 	@FXML
-	private TextField txtRootPath;
+	private GridPane grdForm;
 	
-	private final BooleanProperty formEmpty = new SimpleBooleanProperty(true);
+	private Decorator<ProgressIndicator> fProgressDecoration = null;
 	
 	public void initialize(URL location, ResourceBundle resources) {
-		
-		// bind login button disable to the "emptyness" of the required credentials
-		btnLogin.disableProperty().bind(formEmpty);
-		formEmpty.bind(txtUsername.textProperty().isEmpty().or(
-				txtPassword.textProperty().isEmpty().or(
-						txtPin.textProperty().isEmpty())));
+		initializeValidations();
 		
 		Path rootPath = H2HManager.INSTANCE.getRootPath();
 		if(rootPath != null){
@@ -66,40 +75,117 @@ public class LoginController implements Initializable {
 		
 	}
 	
+	private void initializeValidations() {
+		addUsernameValidation();
+		addPasswordValidation();
+		addPinValidation();
+	}
+
+	private void addUsernameValidation() {
+		Validator usernameValidator = FormValidationUtils.createEmptyTextFieldValidator(
+				txtUsername, "Please enter a Username.", true);
+		ValidationUtils.install(txtUsername, usernameValidator, ValidationMode.ON_FLY);
+		ValidationUtils.install(txtUsername, usernameValidator, ValidationMode.ON_DEMAND);		
+	}
+
+	private void addPasswordValidation() {
+		Validator passwordValidator = FormValidationUtils.createEmptyTextFieldValidator(
+				txtPassword, "Please enter a password.", false);
+		ValidationUtils.install(txtPassword, passwordValidator, ValidationMode.ON_FLY);
+		ValidationUtils.install(txtPassword, passwordValidator, ValidationMode.ON_DEMAND);
+	}
+
+	private void addPinValidation() {
+		Validator pinValidator = FormValidationUtils.createEmptyTextFieldValidator(
+				txtPin, "Please enter a PIN.", false);
+		ValidationUtils.install(txtPin, pinValidator, ValidationMode.ON_FLY);
+		ValidationUtils.install(txtPin, pinValidator, ValidationMode.ON_DEMAND);
+		
+	}
+
 	public void loginAction(ActionEvent event) {
 		
+		// TODO: some fixing required with verify root path...
 		SelectRootPathUtils.verifyRootPath(txtRootPath.getText());
 		
-		boolean loginSuccess = true;
-		try {
-			loginSuccess = H2HManager.INSTANCE.loginUser(txtUsername.getText().trim(), txtPassword.getText(), txtPin.getText());
-		} catch (NoPeerConnectionException e) {
-			// TODO Auto-generated catch block
-			loginSuccess = false;
-			e.printStackTrace();
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			loginSuccess = false;
-			e.printStackTrace();
-		} catch (InvalidProcessStateException e) {
-			// TODO Auto-generated catch block
-			loginSuccess = false;
-			e.printStackTrace();
-		}
-		
-		if(loginSuccess) {
-			logger.info("Login was successful");
-		} else {
-			logger.warn("Login was not successful");
+		if (ValidationUtils.validateOnDemand(grdForm)) {
+			Task<Boolean> task = createLoginTask();
+			grdForm.disableProperty().bind(task.runningProperty());
+			installProgressIndicator();
+			new Thread(task).start();
 		}
 	}
 	
+	
+	private Task<Boolean> createLoginTask() {
+		Task<Boolean> task = new Task<Boolean>() {
+			@Override
+			public Boolean call() throws NoPeerConnectionException, 
+				InvalidProcessStateException, InterruptedException {
+				return loginUser();
+			}
+		};
+		task.setOnFailed(new EventHandler<WorkerStateEvent>() {
+			@Override
+			public void handle(WorkerStateEvent event) {
+				onLoginFailed();
+			}
+
+		});
+		task.setOnSucceeded(new EventHandler<WorkerStateEvent>() {
+			@Override
+			public void handle(WorkerStateEvent event) {
+				try {
+					if(task.get()) {
+						onLoginSucceeded();
+					} else {
+						onLoginFailed();
+					}
+				} catch (InterruptedException | ExecutionException e) {
+					e.printStackTrace();
+					onLoginFailed();
+				}
+			}
+		});
+		return task;
+	}
+	
+	private void installProgressIndicator() {
+		ProgressIndicator piProgress = new ProgressIndicator();
+		fProgressDecoration = new Decorator<>(piProgress, Pos.CENTER);
+		DecorationUtils.install(grdForm, fProgressDecoration);
+	}
+
+	private void uninstallProgressIndicator() {
+		if(fProgressDecoration != null) {
+			DecorationUtils.uninstall(grdForm, fProgressDecoration);
+		}
+	}
+
+	private void onLoginFailed() {
+		logger.error("Login task failed.");
+		uninstallProgressIndicator();
+		grdForm.disableProperty().unbind();
+	}
+	
+	private void onLoginSucceeded() {
+		logger.debug("Login task succeeded: user {} logged in.", txtUsername.getText().trim());
+		uninstallProgressIndicator();
+		grdForm.disableProperty().unbind();
+		MainNavigator.navigate("/org/peerbox/view/SetupCompleted.fxml");
+	}
+	
+	private boolean loginUser() throws NoPeerConnectionException, InvalidProcessStateException, InterruptedException {
+		return H2HManager.INSTANCE.loginUser(txtUsername.getText().trim(), txtPassword.getText(), txtPin.getText());
+	}
+	
 	public void registerAction(ActionEvent event) {
-		System.out.println("Register...");
+		logger.debug("Navigate to register view.");
 		MainNavigator.navigate("/org/peerbox/view/RegisterView.fxml");
 	}
 	
 	public void goBack(ActionEvent event){
+		logger.debug("Go back.");
 		MainNavigator.goBack();
 	}
 	

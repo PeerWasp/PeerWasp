@@ -47,6 +47,9 @@ public class SelectRootPathUtils {
 				isDirCreated = H2HManager.INSTANCE.initializeRootDirectory(desiredRootPath);
 				if(isDirCreated){
 					PropertyHandler.setRootPath(desiredRootPath); //save path in property file
+					// FIXME: this needs to be handled differently because loading the full view again 
+					// resets all the input of the user
+					// (e.g. user enters all details and path is wrong -> need to enter everything again)
 					MainNavigator.navigate("/org/peerbox/view/LoginView.fxml");
 				} else {
 					SelectRootPathUtils.showPermissionWarning();

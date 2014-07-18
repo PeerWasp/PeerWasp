@@ -2,6 +2,7 @@ package org.peerbox.presenter;
 
 import java.net.URL;
 import java.util.ResourceBundle;
+import java.util.concurrent.ExecutionException;
 
 import javafx.concurrent.Task;
 import javafx.concurrent.WorkerStateEvent;
@@ -55,15 +56,12 @@ public class RegisterController implements Initializable {
 	@FXML
 	private Button btnBack;
 
-	@FXML
-	private ProgressIndicator piProgress;
-	private Decorator<ProgressIndicator> fProgressDecoration;
+	private Decorator<ProgressIndicator> fProgressDecoration = null;
 
 	@FXML
 	private GridPane grdForm;
 
 	public void initialize(URL location, ResourceBundle resources) {
-		fProgressDecoration = new Decorator<>(piProgress, Pos.CENTER);
 		initializeValidations();
 	}
 
@@ -185,21 +183,18 @@ public class RegisterController implements Initializable {
 	public void registerAction(ActionEvent event) {
 		if (ValidationUtils.validateOnDemand(grdForm)) {
 			Task<Boolean> task = createRegisterTask();
+			installProgressIndicator();
 			grdForm.disableProperty().bind(task.runningProperty());
-			DecorationUtils.install(grdForm, fProgressDecoration);
 			new Thread(task).start();
 		}
-	}
-
-	public void goBack(ActionEvent event) {
-		logger.debug("Go back.");
-		MainNavigator.goBack();
 	}
 
 	private boolean registerNewUser() {
 		boolean registerSuccess = false;
 		try {
-			registerSuccess = H2HManager.INSTANCE.registerUser(txtUsername.getText().trim(), txtPassword_1.getText(),
+			registerSuccess = H2HManager.INSTANCE.registerUser(
+					txtUsername.getText().trim(), 
+					txtPassword_1.getText(),
 					txtPin_1.getText());
 		} catch (NoPeerConnectionException | InterruptedException | InvalidProcessStateException ex) {
 			ex.printStackTrace();
@@ -219,21 +214,55 @@ public class RegisterController implements Initializable {
 		task.setOnFailed(new EventHandler<WorkerStateEvent>() {
 			@Override
 			public void handle(WorkerStateEvent event) {
-				logger.error("Registration task failed.");
-				DecorationUtils.uninstall(grdForm, fProgressDecoration);
-				grdForm.disableProperty().unbind();
+				onRegisterFailed();
 			}
 
 		});
 		task.setOnSucceeded(new EventHandler<WorkerStateEvent>() {
 			@Override
 			public void handle(WorkerStateEvent event) {
-				logger.debug("Registration task succeeded: user {} registered.", txtUsername.getText().trim());
-				DecorationUtils.uninstall(grdForm, fProgressDecoration);
-				grdForm.disableProperty().unbind();
-				MainNavigator.navigate("/org/peerbox/view/SelectRootPathView.fxml");
+				try {
+					if(task.get()) {
+						onRegisterSucceeded();
+					} else {
+						onRegisterFailed();
+					}
+				} catch (InterruptedException | ExecutionException e) {
+					e.printStackTrace();
+					onRegisterFailed();
+				}
 			}
 		});
 		return task;
+	}
+	
+	private void onRegisterFailed() {
+		logger.error("Registration task failed.");
+		uninstallProgressIndicator();
+		grdForm.disableProperty().unbind();
+	}
+	
+	private void onRegisterSucceeded() {
+		logger.debug("Registration task succeeded: user {} registered.", txtUsername.getText().trim());
+		uninstallProgressIndicator();
+		grdForm.disableProperty().unbind();
+		MainNavigator.navigate("/org/peerbox/view/SelectRootPathView.fxml");
+	}
+	
+	private void installProgressIndicator() {
+		ProgressIndicator piProgress = new ProgressIndicator();
+		fProgressDecoration = new Decorator<>(piProgress, Pos.CENTER);
+		DecorationUtils.install(grdForm, fProgressDecoration);
+	}
+
+	private void uninstallProgressIndicator() {
+		if(fProgressDecoration != null) {
+			DecorationUtils.uninstall(grdForm, fProgressDecoration);
+		}
+	}
+
+	public void goBack(ActionEvent event) {
+		logger.debug("Go back.");
+		MainNavigator.goBack();
 	}
 }
