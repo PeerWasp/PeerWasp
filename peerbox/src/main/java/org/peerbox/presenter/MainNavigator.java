@@ -3,6 +3,9 @@ package org.peerbox.presenter;
 
 import java.io.IOException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXMLLoader;
@@ -10,6 +13,7 @@ import javafx.scene.Node;
 
 public class MainNavigator {
 	
+	private static final Logger logger = LoggerFactory.getLogger(MainNavigator.class);
 	private static MainController mainController;
 	private static ObservableList<Node> pages = FXCollections.observableArrayList();
 	
@@ -40,7 +44,7 @@ public class MainNavigator {
 			mainController.setContent(pages.get(previous));
 		} else {
 			// TODO: what should we do here? Throw exception, do nothgin, log, ... :)
-			System.err.println("Cannot go back.");
+			logger.warn("Cannot go back (number of pages: {})", pages.size());
 		}
 	}
 }
