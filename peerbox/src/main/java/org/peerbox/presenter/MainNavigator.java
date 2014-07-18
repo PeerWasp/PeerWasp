@@ -10,6 +10,8 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
+import javafx.scene.layout.Pane;
+import jidefx.scene.control.decoration.DecorationPane;
 
 public class MainNavigator {
 	
@@ -22,10 +24,10 @@ public class MainNavigator {
 	}
 	
 	public static void navigate(String fxmlFile) {
-		Node content = null;
+		Pane content = null;
 		try {
 			content = FXMLLoader.load(MainController.class.getResource(fxmlFile));
-			mainController.setContent(content);
+			mainController.setContent(new DecorationPane(content));
 			pages.add(content);
 		} catch(IOException e) {
 			System.err.println(String.format("Could not load fxml file: %s", e.getMessage()));
