@@ -36,14 +36,16 @@ public class CreateNetworkController implements Initializable {
 	}
 	
 	public void goBack(ActionEvent event){
-		Action goBack = Dialogs.create()
+		Action goBack = Dialog.Actions.YES;
+		if(H2HManager.INSTANCE.getNode() != null && H2HManager.INSTANCE.getNode().isConnected()){
+			goBack = Dialogs.create()
 			      .title("Delete the network?")
 			      .message("If you go back, your peer will be shut down "
 			      		+ "and your network deleted. Continue?")
 			      .showConfirm();
-		
+		}
 		if(goBack.equals(Dialog.Actions.YES)){
-			H2HManager.INSTANCE.deleteNode();
+			H2HManager.INSTANCE.disconnectNode();
 			btnCreate.setText("Create");
 			MainNavigator.goBack();
 		}
