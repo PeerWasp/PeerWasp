@@ -134,6 +134,9 @@ public class RegisterController implements Initializable {
 				if (!pin_1.equals(pin_2)) {
 					return new ValidationEvent(ValidationEvent.VALIDATION_ERROR, 0, "The PINs are not the same.");
 				}
+				if (pin_2.isEmpty()) {
+					return new ValidationEvent(ValidationEvent.VALIDATION_ERROR, 1, "Please enter a PIN.");
+				}
 				return ValidationEvent.OK;
 			}
 		};
