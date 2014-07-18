@@ -12,6 +12,7 @@ public class MainController {
 	public void setContent(Node content) {
 		mainPane.getChildren().clear();
 		mainPane.getChildren().add(content);
+		mainPane.requestLayout();
 	}
 	
 	
