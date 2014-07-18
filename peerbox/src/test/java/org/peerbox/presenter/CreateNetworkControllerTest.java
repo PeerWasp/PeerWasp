@@ -16,5 +16,6 @@ public class CreateNetworkControllerTest {
 	public void createNetworkTest(){
 		CreateNetworkController controller = new CreateNetworkController();
 		assert(H2HManager.INSTANCE.getNode() != null);
+		
 	}
 }

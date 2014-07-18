@@ -1,6 +1,5 @@
 package org.peerbox.presenter;
 
-import java.io.File;
 import java.net.URL;
 import java.nio.file.Path;
 import java.util.ResourceBundle;
@@ -14,7 +13,6 @@ import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
-import javafx.stage.DirectoryChooser;
 import javafx.stage.Window;
 
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
@@ -71,7 +69,6 @@ public class LoginController implements Initializable {
 	public void loginAction(ActionEvent event) {
 		
 		SelectRootPathUtils.verifyRootPath(txtRootPath.getText());
-		
 		
 		boolean loginSuccess = true;
 		try {

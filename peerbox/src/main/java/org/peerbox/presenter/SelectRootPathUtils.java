@@ -3,7 +3,6 @@ package org.peerbox.presenter;
 import java.io.File;
 import java.io.IOException;
 
-import javafx.scene.Scene;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Window;
 

@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.UUID;
@@ -157,29 +158,34 @@ public enum H2HManager {
 	 * it is created on the fly.
 	 * @param rootDirectoryPath contains the absolute path to the root directory.
 	 * @throws IOException if the provided rootDirectoryPath leads to a real file.
-	 * @return true if File.mkdir() was successful.
+	 * @return true if the selected directory is valid and can be used. 
+	 * @return false if either the parent directory does not exist or the user does not have write permissions.
 	 */
 	public boolean initializeRootDirectory(String rootDirectoryPath) throws IOException {
 		File rootDirectoryFile = new File(rootDirectoryPath);
-		boolean isDirectoryCreated = true;
+		boolean initializedSuccessfull = true;
 		if(rootDirectoryFile.exists()){
 			if(!rootDirectoryFile.isDirectory()){
 				throw new IOException("The provided path leads to a file, not a directory.");
+			}
+			if(!Files.isWritable(rootDirectoryFile.toPath())){
+				initializedSuccessfull = false;
 			}
 			
 		} else {
 			//check if parent directory exist and is writable
 			File parentDirectory = rootDirectoryFile.getParentFile();
-			if(parentDirectory == null || !parentDirectory.canWrite()){
+			if(parentDirectory == null || !Files.isWritable(parentDirectory.toPath())){
 				return false;
 			}
 			//create the directory, only set rootDirectory if successful
-			isDirectoryCreated = rootDirectoryFile.mkdir();
-			if(isDirectoryCreated){
-				rootPath = Paths.get(rootDirectoryFile.getAbsolutePath());
-			}
+			initializedSuccessfull = rootDirectoryFile.mkdir();
 		}
-		return isDirectoryCreated;
+		
+		if(initializedSuccessfull){
+			rootPath = Paths.get(rootDirectoryFile.getAbsolutePath());
+		}
+		return initializedSuccessfull;
 	}
 
 	public Path getRootPath() {
