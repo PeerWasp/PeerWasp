@@ -34,7 +34,7 @@
          	<Label text="Root Path" GridPane.rowIndex="3" />
          	<TextField fx:id="txtRootPath" prefHeight="25.0" prefWidth="300.0" GridPane.columnIndex="1" GridPane.rowIndex="3" />
          	<Button mnemonicParsing="false" onAction="#goBack" prefWidth="70.0" text="Go back" GridPane.columnIndex="2" GridPane.rowIndex="6" />
-			<Button fx:id="btnChangeDirectory" mnemonicParsing="false" onAction="#changeDirectory" prefWidth="70.0" text="Browse..." GridPane.columnIndex="2" GridPane.rowIndex="3" />         
+			<Button fx:id="btnChangeDirectory" mnemonicParsing="false" onAction="#btnChangeDirectoryHandler" prefWidth="70.0" text="Browse..." GridPane.columnIndex="2" GridPane.rowIndex="3" />         
          </children>
       </GridPane>
       
