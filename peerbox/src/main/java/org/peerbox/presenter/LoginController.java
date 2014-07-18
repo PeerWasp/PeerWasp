@@ -1,19 +1,9 @@
 package org.peerbox.presenter;
 
 import java.io.File;
-import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Path;
 import java.util.ResourceBundle;
-
-import org.controlsfx.control.action.Action;
-import org.controlsfx.dialog.Dialog;
-import org.hive2hive.core.exceptions.NoPeerConnectionException;
-import org.hive2hive.core.processes.framework.exceptions.InvalidProcessStateException;
-import org.peerbox.PropertyHandler;
-import org.peerbox.model.H2HManager;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -25,6 +15,14 @@ import javafx.scene.control.CheckBox;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.stage.DirectoryChooser;
+import javafx.stage.Window;
+
+import org.hive2hive.core.exceptions.NoPeerConnectionException;
+import org.hive2hive.core.processes.framework.exceptions.InvalidProcessStateException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.peerbox.model.H2HManager;
+
 
 public class LoginController implements Initializable {
 
@@ -109,13 +107,10 @@ public class LoginController implements Initializable {
 	}
 	
 	public void btnChangeDirectoryHandler(ActionEvent event){
-		DirectoryChooser chooser = new DirectoryChooser();
-	    chooser.setTitle("Choose your root directory");
-	    chooser.setInitialDirectory(new File(txtRootPath.getText()).getParentFile());
-	    File selectedDirectory = chooser.showDialog(btnRegister.getScene().getWindow());
-	    if (selectedDirectory != null) {
-	        txtRootPath.setText(selectedDirectory.getAbsolutePath());
-	    }  
+		String path = txtRootPath.getText();
+		Window toOpenDialog = btnLogin.getScene().getWindow();
+		path = SelectRootPathUtils.showDirectoryChooser(path, toOpenDialog);
+		txtRootPath.setText(path);
 	}
 	
 }

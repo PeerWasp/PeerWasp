@@ -3,26 +3,20 @@ package org.peerbox;
 
 import java.io.IOException;
 
-import org.peerbox.model.H2HManager;
-import org.peerbox.presenter.MainController;
-import org.peerbox.presenter.MainNavigator;
-import org.peerbox.presenter.RegisterController;
+import javafx.application.Application;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Scene;
+import javafx.scene.image.Image;
+import javafx.scene.layout.Pane;
+import javafx.stage.Stage;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javafx.application.Application;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.image.Image;
-import javafx.scene.layout.Pane;
-import javafx.scene.layout.StackPane;
-import javafx.stage.Stage;
-
 import org.peerbox.PropertyHandler;
+import org.peerbox.model.H2HManager;
+import org.peerbox.presenter.MainController;
+import org.peerbox.presenter.MainNavigator;
 
 /**
  * This is the first prototype of graphical user interface.

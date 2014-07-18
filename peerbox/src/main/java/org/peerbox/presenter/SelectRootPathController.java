@@ -1,15 +1,9 @@
 package org.peerbox.presenter;
 
 import java.io.File;
-import java.io.IOException;
 import java.net.URL;
 import java.util.Date;
 import java.util.ResourceBundle;
-
-import org.controlsfx.control.action.Action;
-import org.controlsfx.dialog.Dialog;
-import org.controlsfx.dialog.Dialogs;
-import org.peerbox.model.H2HManager;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -18,7 +12,11 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.stage.DirectoryChooser;
+import javafx.stage.Window;
+
 import org.peerbox.PropertyHandler;
+import org.peerbox.model.H2HManager;
+
 
 public class SelectRootPathController implements Initializable{
 
@@ -34,14 +32,11 @@ public class SelectRootPathController implements Initializable{
 	private Label lblWarning;
 	
 	
-	public void changeDirectory(ActionEvent event){
-		DirectoryChooser chooser = new DirectoryChooser();
-	    chooser.setTitle("Choose your root directory");
-	    chooser.setInitialDirectory(new File(txtRootPath.getText()).getParentFile());
-	    File selectedDirectory = chooser.showDialog(btnContinue.getScene().getWindow());
-	    if (selectedDirectory != null) {
-	        txtRootPath.setText(selectedDirectory.getAbsolutePath());
-	    }  
+	public void changeDirectory(ActionEvent event){ 
+		String path = txtRootPath.getText();
+		Window toOpenDialog = btnContinue.getScene().getWindow();
+		path = SelectRootPathUtils.showDirectoryChooser(path, toOpenDialog);
+		txtRootPath.setText(path);
 	}
 	
 	public void goBack(ActionEvent event){
