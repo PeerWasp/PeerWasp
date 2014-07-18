@@ -1,3 +1,4 @@
+/*
 .background {
     -fx-background-color: #0099FF;
 }
@@ -140,7 +141,7 @@
 
 
 
-
+*/
 
 /*  You can use pseudo-class to change the style for a particular type of nodes. Available pseudo-classes are:
         validation-error
@@ -165,17 +166,14 @@
 /* you can also use wildcard with pseudo class to change the style for all the nodes with certain validation result */
 *:validation-warning {
     -fx-text-fill: #aaaa00ff;
-    -fx-background-color: #163887;
 }
 
 *:validation-error {
     -fx-text-fill: #aaaa00ff;
-    -fx-background-color: #163887;
 }
 
 *:validation-ok {
     -fx-text-fill: #00aa00ff;
-    -fx-background-color: #163887;
 }
 
 

@@ -48,6 +48,6 @@
         </Menu>
       </menus>
     </MenuBar>
-    <AnchorPane fx:id="mainPane" maxHeight="-1.0" maxWidth="-1.0" prefHeight="-1.0" prefWidth="-1.0" styleClass="background" stylesheets="@pb_dark_theme.css" VBox.vgrow="ALWAYS" />
+    <AnchorPane fx:id="mainPane" maxHeight="-1.0" maxWidth="-1.0" prefHeight="-1.0" prefWidth="-1.0" styleClass="background" stylesheets="css/pb_dark_theme.css" VBox.vgrow="ALWAYS" />
   </children>
 </VBox>
