@@ -192,9 +192,11 @@ public enum H2HManager {
 		return rootPath;
 	}
 
-	public void deleteNode() {
+	public void disconnectNode() {
 		// TODO Auto-generated method stub
-		node.disconnect();
+		if(node != null){
+			node.disconnect();	
+		}
 	}
 
 	public void setRootPath(String path) {
