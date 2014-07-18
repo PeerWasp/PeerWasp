@@ -2,6 +2,7 @@ package org.peerbox;
 
 
 import java.io.IOException;
+import java.net.URL;
 
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -41,7 +42,7 @@ public class App extends Application
     public void start(Stage primaryStage) {
     	
     	primaryStage.setTitle("PeerBox");
-    	primaryStage.getIcons().add(new Image("/org/peerbox/view/icon.png"));
+    	primaryStage.getIcons().add(new Image(getClass().getResourceAsStream("/images/icon.png")));
     	
     	installExitHandler(primaryStage);
     	  	
