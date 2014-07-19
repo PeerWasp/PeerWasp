@@ -1,42 +1,75 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import java.lang.*?>
 <?import javafx.scene.layout.*?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.peerbox.presenter.LoginController">
-   <children>
-      <GridPane fx:id="grdForm" hgap="10.0" vgap="10.0" AnchorPane.leftAnchor="20.0" AnchorPane.rightAnchor="20.0" AnchorPane.topAnchor="20.0">
-        <columnConstraints>
-          <ColumnConstraints halignment="RIGHT" hgrow="SOMETIMES" maxWidth="85.0" minWidth="85.0" prefWidth="85.0" />
-          <ColumnConstraints hgrow="SOMETIMES" maxWidth="380.0" minWidth="10.0" prefWidth="425.0" />
-          <ColumnConstraints hgrow="SOMETIMES" maxWidth="100.0" minWidth="10.0" prefWidth="50.0" />
-        </columnConstraints>
-        <rowConstraints>
-          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-            <RowConstraints />
-        </rowConstraints>
-         <children>
-            <Label text="Username" />
-            <Label text="Password" GridPane.rowIndex="1" />
-            <Label text="PIN" GridPane.rowIndex="2" />
-            <TextField fx:id="txtUsername" prefHeight="25.0" prefWidth="334.0" promptText="Enter username" GridPane.columnIndex="1" GridPane.columnSpan="2" />
-            <PasswordField fx:id="txtPassword" promptText="Enter password" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.rowIndex="1" />
-            <PasswordField fx:id="txtPin" promptText="Enter PIN" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.rowIndex="2" />
-            <CheckBox fx:id="chbAutoLogin" mnemonicParsing="false" text="Login automatically in the future" GridPane.columnIndex="1" GridPane.rowIndex="4" />
-            <Button fx:id="btnLogin" mnemonicParsing="false" onAction="#loginAction" prefWidth="100.0" text="Login" GridPane.columnIndex="1" GridPane.rowIndex="5" />
-            <Button fx:id="btnRegister" mnemonicParsing="false" onAction="#registerAction" prefWidth="100.0" text="Register" GridPane.columnIndex="1" GridPane.rowIndex="6" />
-         	<Label text="Root Path" GridPane.rowIndex="3" />
-         	<TextField fx:id="txtRootPath" prefHeight="25.0" prefWidth="300.0" GridPane.columnIndex="1" GridPane.rowIndex="3" />
-         	<Button mnemonicParsing="false" onAction="#goBack" prefWidth="70.0" text="Go back" GridPane.columnIndex="2" GridPane.rowIndex="6" />
-			<Button fx:id="btnChangeDirectory" mnemonicParsing="false" onAction="#btnChangeDirectoryHandler" prefWidth="70.0" text="Browse..." GridPane.columnIndex="2" GridPane.rowIndex="3" />         
-         </children>
-      </GridPane>
-      
-   </children>
+<AnchorPane maxHeight="-1.0" maxWidth="-1.0" prefHeight="-1.0" prefWidth="-1.0"
+	VBox.vgrow="ALWAYS" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1"
+	fx:controller="org.peerbox.presenter.LoginController">
+	<children>
+		<GridPane fx:id="grdForm" alignment="CENTER" hgap="10.0" vgap="10.0"
+			AnchorPane.leftAnchor="20.0" AnchorPane.rightAnchor="20.0" AnchorPane.topAnchor="20.0">
+			<columnConstraints>
+				<ColumnConstraints halignment="RIGHT" hgrow="SOMETIMES" maxWidth="100.0"
+					minWidth="75.0" />
+				<ColumnConstraints hgrow="SOMETIMES" minWidth="50.0" />
+			</columnConstraints>
+			<rowConstraints>
+				<RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+				<RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+				<RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+				<RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+				<RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+				<RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+				<RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+				<RowConstraints />
+			</rowConstraints>
+			<children>
+				<Label text="Username" />
+				<Label text="Password" GridPane.rowIndex="1" />
+				<Label text="PIN" GridPane.rowIndex="2" />
+				<TextField fx:id="txtUsername" promptText="Enter username" GridPane.columnIndex="1" />
+				<PasswordField fx:id="txtPassword" promptText="Enter password"
+					GridPane.columnIndex="1" GridPane.rowIndex="1" />
+				<PasswordField fx:id="txtPin" promptText="Enter PIN" GridPane.columnIndex="1"
+					GridPane.rowIndex="2" />
+				<CheckBox fx:id="chbAutoLogin" mnemonicParsing="false" text="Login automatically in the future"
+					GridPane.columnIndex="1" GridPane.rowIndex="4" />
+				<Button fx:id="btnLogin" mnemonicParsing="false" onAction="#loginAction" prefWidth="100.0"
+					text="Login" GridPane.columnIndex="1" GridPane.rowIndex="5" />
+				<Label text="Root Path" GridPane.rowIndex="3" />
+				<HBox alignment="CENTER_LEFT" GridPane.columnIndex="1" GridPane.hgrow="ALWAYS"
+					GridPane.rowIndex="3" GridPane.valignment="CENTER">
+					<children>
+						<TextField fx:id="txtRootPath" GridPane.columnIndex="1" GridPane.rowIndex="3"
+							HBox.hgrow="ALWAYS" />
+						<Button fx:id="btnChangeDirectory" mnemonicParsing="false" onAction="#btnChangeDirectoryHandler"
+							prefWidth="100.0" text="Browse..." GridPane.columnIndex="2" GridPane.rowIndex="3">
+							<HBox.margin>
+								<Insets left="10.0" />
+							</HBox.margin>
+						</Button>
+					</children>
+				</HBox>
+				<GridPane GridPane.columnIndex="1" GridPane.rowIndex="6">
+					<columnConstraints>
+						<ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" />
+						<ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" />
+					</columnConstraints>
+					<rowConstraints>
+						<RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
+					</rowConstraints>
+					<children>
+						<Button alignment="CENTER" mnemonicParsing="false" onAction="#goBack" prefWidth="100.0"
+							text="Go back" GridPane.columnIndex="1" GridPane.halignment="RIGHT" />
+						<Button fx:id="btnRegister" alignment="CENTER" mnemonicParsing="false" onAction="#registerAction"
+							prefWidth="100.0" text="Register" />
+					</children>
+				</GridPane>
+			</children>
+		</GridPane>
+
+	</children>
 </AnchorPane>
