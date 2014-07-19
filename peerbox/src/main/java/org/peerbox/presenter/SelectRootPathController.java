@@ -17,6 +17,8 @@ import javafx.stage.Window;
 import org.peerbox.PropertyHandler;
 import org.peerbox.model.H2HManager;
 
+import com.google.inject.Inject;
+
 
 public class SelectRootPathController implements Initializable{
 	
@@ -33,6 +35,10 @@ public class SelectRootPathController implements Initializable{
 	@FXML
 	private Label lblWarning;
 	
+	@Inject
+	public SelectRootPathController(H2HManager h2hManager) {
+		this.h2hManager = h2hManager;
+	}
 	
 	public void changeDirectory(ActionEvent event){ 
 		String path = txtRootPath.getText();

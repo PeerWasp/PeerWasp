@@ -32,6 +32,8 @@ import org.peerbox.utils.FormValidationUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.inject.Inject;
+
 
 public class LoginController implements Initializable {
 
@@ -64,6 +66,11 @@ public class LoginController implements Initializable {
 	private GridPane grdForm;
 	
 	private Decorator<ProgressIndicator> fProgressDecoration = null;
+	
+	@Inject
+	public LoginController(H2HManager h2hManager) {
+		this.h2hManager = h2hManager;
+	}
 	
 	public void initialize(URL location, ResourceBundle resources) {
 		initializeValidations();

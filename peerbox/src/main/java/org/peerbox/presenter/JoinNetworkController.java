@@ -15,8 +15,11 @@ public class JoinNetworkController implements Initializable {
 
 	private H2HManager h2hManager;
 	
+	public JoinNetworkController(H2HManager h2hManager) {
+		this.h2hManager = h2hManager;
+	}
+	
 	public void initialize(URL arg0, ResourceBundle arg1) {
-		// TODO Auto-generated method stub
 
 	}
 	

@@ -21,13 +21,19 @@ import org.peerbox.model.H2HManager;
 import org.peerbox.presenter.MainController;
 import org.peerbox.presenter.MainNavigator;
 
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+
 /**
  * This is the first prototype of graphical user interface.
  */
 public class App extends Application
 {
 	private static final Logger logger = LoggerFactory.getLogger("PeerBox");
-	private H2HManager h2hManager = null;
+	
+	private Injector injector;
+
+	private H2HManager h2hManager; 
 	
 	public static void main(String[] args) {
 		logger.info("PeerBox started.");
@@ -41,7 +47,9 @@ public class App extends Application
     @Override
     public void start(Stage primaryStage) {
     	
-    	h2hManager = new H2HManager();
+    	initializeGuice();
+    	
+    	h2hManager = injector.getInstance(H2HManager.class);
     	h2hManager.setRootPath(PropertyHandler.getRootPath());
     	
     	primaryStage.setTitle("PeerBox");
@@ -70,6 +78,11 @@ public class App extends Application
 		primaryStage.sizeToScene();
 		primaryStage.show();
     }
+
+	private void initializeGuice() {
+		injector = Guice.createInjector(new PeerBoxModule());
+		MainNavigator.setInjector(injector);
+	}
 
 	private void installExitHandler(Stage stage) {
 		stage.setOnCloseRequest(new EventHandler<WindowEvent>() {

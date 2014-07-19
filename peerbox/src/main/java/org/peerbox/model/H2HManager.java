@@ -24,7 +24,9 @@ import org.hive2hive.core.processes.framework.exceptions.InvalidProcessStateExce
 import org.hive2hive.core.processes.framework.interfaces.IProcessComponent;
 import org.hive2hive.core.security.UserCredentials;
 
+import com.google.inject.Singleton;
 
+@Singleton
 public class H2HManager {
 	
 //	INSTANCE;

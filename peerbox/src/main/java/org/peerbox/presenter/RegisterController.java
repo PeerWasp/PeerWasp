@@ -30,6 +30,8 @@ import org.peerbox.model.H2HManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.inject.Inject;
+
 public class RegisterController implements Initializable {
 
 	private static final Logger logger = LoggerFactory.getLogger(RegisterController.class);
@@ -62,6 +64,11 @@ public class RegisterController implements Initializable {
 	@FXML
 	private GridPane grdForm;
 
+	@Inject
+	public RegisterController(H2HManager h2hManager) {
+		this.h2hManager = h2hManager;
+	}
+	
 	public void initialize(URL location, ResourceBundle resources) {
 		initializeValidations();
 	}

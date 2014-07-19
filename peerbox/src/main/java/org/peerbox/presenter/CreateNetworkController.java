@@ -10,6 +10,8 @@ import org.controlsfx.dialog.Dialog;
 import org.controlsfx.dialog.Dialogs;
 import org.peerbox.model.H2HManager;
 
+import com.google.inject.Inject;
+
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -28,6 +30,11 @@ public class CreateNetworkController implements Initializable {
 	
 	@FXML
 	private TextField txtIPAddress;
+	
+	@Inject
+	public CreateNetworkController(H2HManager h2hManager) {
+		this.h2hManager = h2hManager;
+	}
 	
 	public void initialize(URL arg0, ResourceBundle arg1) {
 		try {
