@@ -14,13 +14,6 @@ import org.hive2hive.core.api.configs.FileConfiguration;
 import org.hive2hive.core.api.configs.NetworkConfiguration;
 import org.hive2hive.core.api.interfaces.IH2HNode;
 import org.hive2hive.core.api.interfaces.INetworkConfiguration;
-import org.hive2hive.core.api.interfaces.IUserManager;
-import org.hive2hive.core.exceptions.NoPeerConnectionException;
-import org.hive2hive.core.processes.framework.RollbackReason;
-import org.hive2hive.core.processes.framework.concretes.ProcessComponentListener;
-import org.hive2hive.core.processes.framework.exceptions.InvalidProcessStateException;
-import org.hive2hive.core.processes.framework.interfaces.IProcessComponent;
-import org.hive2hive.core.security.UserCredentials;
 
 import com.google.inject.Singleton;
 
@@ -28,7 +21,7 @@ import com.google.inject.Singleton;
 public class H2HManager {
 
 	private IH2HNode node;
-	private UserCredentials userCredentials;
+//	private UserCredentials userCredentials;
 	private Path rootPath;
 
 	public IH2HNode getNode() {

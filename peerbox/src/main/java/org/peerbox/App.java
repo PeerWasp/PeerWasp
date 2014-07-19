@@ -20,6 +20,7 @@ import org.peerbox.PropertyHandler;
 import org.peerbox.model.H2HManager;
 import org.peerbox.presenter.MainController;
 import org.peerbox.presenter.MainNavigator;
+import org.peerbox.view.ViewNames;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -52,21 +53,17 @@ public class App extends Application
     	h2hManager = injector.getInstance(H2HManager.class);
     	h2hManager.setRootPath(PropertyHandler.getRootPath());
     	
-    	primaryStage.setTitle("PeerBox");
-    	primaryStage.getIcons().add(new Image(getClass().getResourceAsStream("/images/icon.png")));
-    	
     	installExitHandler(primaryStage);
-    	  	
     	
     	Pane root;
     	MainController mainController;
 		try {
-			FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/org/peerbox/view/MainView.fxml"));
-			root = (Pane) fxmlLoader.load();
+			FXMLLoader fxmlLoader = MainNavigator.createGuiceFxmlLoader(ViewNames.MAIN_VIEW);
+			root = fxmlLoader.load();
 			mainController = (MainController)fxmlLoader.getController();
 			
 			MainNavigator.setMainController(mainController);
-			MainNavigator.navigate("/org/peerbox/view/NetworkSelectionWindow.fxml");
+			MainNavigator.navigate(ViewNames.NETWORK_SELECTION_VIEW);
 			
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -74,6 +71,8 @@ public class App extends Application
 		}
 		
 		Scene scene = new Scene(root);
+		primaryStage.setTitle("PeerBox");
+    	primaryStage.getIcons().add(new Image(getClass().getResourceAsStream("/images/icon.png")));
 		primaryStage.setScene(scene);
 		primaryStage.sizeToScene();
 		primaryStage.show();
