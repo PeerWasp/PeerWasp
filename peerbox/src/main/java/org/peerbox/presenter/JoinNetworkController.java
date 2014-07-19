@@ -6,6 +6,8 @@ import java.util.ResourceBundle;
 
 import org.peerbox.model.H2HManager;
 
+import com.google.inject.Inject;
+
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -15,6 +17,7 @@ public class JoinNetworkController implements Initializable {
 
 	private H2HManager h2hManager;
 	
+	@Inject
 	public JoinNetworkController(H2HManager h2hManager) {
 		this.h2hManager = h2hManager;
 	}
