@@ -110,11 +110,10 @@ public class LoginController implements Initializable {
 	}
 
 	public void loginAction(ActionEvent event) {
+		boolean inputValid = ValidationUtils.validateOnDemand(grdForm)
+				&& SelectRootPathUtils.verifyRootPath(h2hManager, txtRootPath.getText());
 		
-		// TODO: some fixing required with verify root path...
-		SelectRootPathUtils.verifyRootPath(h2hManager, txtRootPath.getText());
-		
-		if (ValidationUtils.validateOnDemand(grdForm)) {
+		if (inputValid) {
 			Task<Boolean> task = createLoginTask();
 			grdForm.disableProperty().bind(task.runningProperty());
 			installProgressIndicator();

@@ -33,24 +33,25 @@ public class SelectRootPathUtils {
 		.showInformation();
 	}
 
-	public static void verifyRootPath(H2HManager h2hManager, String desiredRootPath) {
+	public static boolean verifyRootPath(H2HManager h2hManager, String desiredRootPath) {
 		try {
 			File path = new File(desiredRootPath);
 			Action createDirAction = Dialog.Actions.YES;
-			boolean isDirCreated = false;
-			if(!path.exists()){
+			if (!path.exists()) {
 				createDirAction = SelectRootPathUtils.askForDirectoryCreation();
 			}
-			
-			//TODO rootpath should be read from H2HManager!
-			if(createDirAction.equals(Dialog.Actions.YES)){
+
+			// TODO rootpath should be read from H2HManager!
+			boolean isDirCreated = false;
+			if (createDirAction.equals(Dialog.Actions.YES)) {
 				isDirCreated = h2hManager.initializeRootDirectory(desiredRootPath);
-				if(isDirCreated){
-					PropertyHandler.setRootPath(desiredRootPath); //save path in property file
-					// FIXME: this needs to be handled differently because loading the full view again 
+				if (isDirCreated) {
+					PropertyHandler.setRootPath(desiredRootPath); // save path in property file
+					// FIXME: this needs to be handled differently because loading the full view again
 					// resets all the input of the user
 					// (e.g. user enters all details and path is wrong -> need to enter everything again)
-					MainNavigator.navigate("/org/peerbox/view/LoginView.fxml");
+					// MainNavigator.navigate("/org/peerbox/view/LoginView.fxml");
+					return true;
 				} else {
 					SelectRootPathUtils.showPermissionWarning();
 				}
@@ -58,6 +59,7 @@ public class SelectRootPathUtils {
 		} catch (IOException e) {
 			SelectRootPathUtils.showIncorrectSelectionInformation();
 		}
+		return false;
 	}
 
 	public static void showInvalidDirectoryChooserEntryInformation() {

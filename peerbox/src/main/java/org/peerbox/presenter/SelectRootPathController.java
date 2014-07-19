@@ -52,7 +52,10 @@ public class SelectRootPathController implements Initializable{
 	}
 	
 	public void okButtonHandler(ActionEvent event){
-		SelectRootPathUtils.verifyRootPath(h2hManager, txtRootPath.getText());
+		boolean inputValid = SelectRootPathUtils.verifyRootPath(h2hManager, txtRootPath.getText());
+		if(inputValid) {
+			MainNavigator.navigate("/org/peerbox/view/LoginView.fxml");
+		}
 	}
 
 	public void initialize(URL location, ResourceBundle resources) {
