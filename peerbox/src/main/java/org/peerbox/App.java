@@ -27,19 +27,22 @@ import org.peerbox.presenter.MainNavigator;
 public class App extends Application
 {
 	private static final Logger logger = LoggerFactory.getLogger("PeerBox");
+	private H2HManager h2hManager = null;
 	
 	public static void main(String[] args) {
-		
 		logger.info("PeerBox started.");
+		
 		PropertyHandler.checkFileExists();
 		PropertyHandler.loadPropertyFile();
-		H2HManager.INSTANCE.setRootPath(PropertyHandler.getRootPath());
         
 		launch(args);
     }
     
     @Override
     public void start(Stage primaryStage) {
+    	
+    	h2hManager = new H2HManager();
+    	h2hManager.setRootPath(PropertyHandler.getRootPath());
     	
     	primaryStage.setTitle("PeerBox");
     	primaryStage.getIcons().add(new Image(getClass().getResourceAsStream("/images/icon.png")));

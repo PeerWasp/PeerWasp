@@ -13,6 +13,8 @@ import javafx.scene.control.TextField;
 
 public class JoinNetworkController implements Initializable {
 
+	private H2HManager h2hManager;
+	
 	public void initialize(URL arg0, ResourceBundle arg1) {
 		// TODO Auto-generated method stub
 
@@ -30,8 +32,8 @@ public class JoinNetworkController implements Initializable {
 		System.out.println("Try to join network at provided IP address.");
 		try {
 			
-			if(H2HManager.INSTANCE.accessNetwork(txtBootstrapIP.getText())){
-				if(H2HManager.INSTANCE.getRootPath().toString().equals("unset")){
+			if(h2hManager.accessNetwork(txtBootstrapIP.getText())){
+				if(h2hManager.getRootPath().toString().equals("unset")){
 					MainNavigator.navigate("/org/peerbox/view/SelectRootPathView.fxml");
 				} else {
 					MainNavigator.navigate("/org/peerbox/view/LoginView.fxml");

@@ -33,7 +33,7 @@ public class SelectRootPathUtils {
 		.showInformation();
 	}
 
-	public static void verifyRootPath(String desiredRootPath) {
+	public static void verifyRootPath(H2HManager h2hManager, String desiredRootPath) {
 		try {
 			File path = new File(desiredRootPath);
 			Action createDirAction = Dialog.Actions.YES;
@@ -44,7 +44,7 @@ public class SelectRootPathUtils {
 			
 			//TODO rootpath should be read from H2HManager!
 			if(createDirAction.equals(Dialog.Actions.YES)){
-				isDirCreated = H2HManager.INSTANCE.initializeRootDirectory(desiredRootPath);
+				isDirCreated = h2hManager.initializeRootDirectory(desiredRootPath);
 				if(isDirCreated){
 					PropertyHandler.setRootPath(desiredRootPath); //save path in property file
 					// FIXME: this needs to be handled differently because loading the full view again 

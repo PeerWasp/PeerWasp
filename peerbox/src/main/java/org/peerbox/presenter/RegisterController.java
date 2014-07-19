@@ -26,7 +26,6 @@ import jidefx.scene.control.validation.Validator;
 
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.hive2hive.core.processes.framework.exceptions.InvalidProcessStateException;
-import org.peerbox.RegisterValidation;
 import org.peerbox.model.H2HManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,7 +33,9 @@ import org.slf4j.LoggerFactory;
 public class RegisterController implements Initializable {
 
 	private static final Logger logger = LoggerFactory.getLogger(RegisterController.class);
-
+	
+	private H2HManager h2hManager;
+	
 	@FXML
 	private TextField txtUsername;
 
@@ -90,7 +91,7 @@ public class RegisterController implements Initializable {
 					if (username.isEmpty()) {
 						return new ValidationEvent(ValidationEvent.VALIDATION_ERROR, 0, "Please enter a username.");
 					}
-					if (!RegisterValidation.checkUsername(username)) {
+					if (h2hManager.userIsRegistered(username)) {
 						return new ValidationEvent(ValidationEvent.VALIDATION_ERROR, 0, "Username already taken.");
 					}
 				} catch (NoPeerConnectionException e) {
@@ -192,7 +193,7 @@ public class RegisterController implements Initializable {
 	private boolean registerNewUser() {
 		boolean registerSuccess = false;
 		try {
-			registerSuccess = H2HManager.INSTANCE.registerUser(
+			registerSuccess = h2hManager.registerUser(
 					txtUsername.getText().trim(), 
 					txtPassword_1.getText(),
 					txtPin_1.getText());

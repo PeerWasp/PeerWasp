@@ -19,7 +19,9 @@ import org.peerbox.model.H2HManager;
 
 
 public class SelectRootPathController implements Initializable{
-
+	
+	private H2HManager h2hManager;
+	
 	@FXML
 	private Button btnChangeDirectory;
 	@FXML
@@ -44,7 +46,7 @@ public class SelectRootPathController implements Initializable{
 	}
 	
 	public void okButtonHandler(ActionEvent event){
-		SelectRootPathUtils.verifyRootPath(txtRootPath.getText());
+		SelectRootPathUtils.verifyRootPath(h2hManager, txtRootPath.getText());
 	}
 
 	public void initialize(URL location, ResourceBundle resources) {
@@ -53,7 +55,7 @@ public class SelectRootPathController implements Initializable{
 
 		if(PropertyHandler.rootPathExists() && !PropertyHandler.getRootPath().equals("unset")){
 			defaultDir = PropertyHandler.getRootPath();
-			H2HManager.INSTANCE.setRootPath(defaultDir);
+			h2hManager.setRootPath(defaultDir);
 		} else {
 			defaultDir = System.getProperty("user.home") + File.separator + "PeerBox_" + now.getTime();
 		}

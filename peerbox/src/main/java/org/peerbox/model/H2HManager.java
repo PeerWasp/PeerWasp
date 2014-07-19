@@ -25,9 +25,9 @@ import org.hive2hive.core.processes.framework.interfaces.IProcessComponent;
 import org.hive2hive.core.security.UserCredentials;
 
 
-public enum H2HManager {
+public class H2HManager {
 	
-	INSTANCE;
+//	INSTANCE;
 	
 	private IH2HNode node;
 	
@@ -78,7 +78,7 @@ public enum H2HManager {
 		return "";
 	}
 	
-	public boolean checkIfRegistered(String userName) throws NoPeerConnectionException{
+	public boolean userIsRegistered(String userName) throws NoPeerConnectionException{
 		return node.getUserManager().isRegistered(userName);
 	}
 
@@ -140,10 +140,10 @@ public enum H2HManager {
 			System.out.println("No host provided.");
 			return false;
 		}
-		String nodeID = H2HManager.INSTANCE.generateNodeID();
+		String nodeID = generateNodeID();
 		InetAddress bootstrapAddress = InetAddress.getByName(bootstrapAddressString);
-		H2HManager.INSTANCE.createNode(NetworkConfiguration.create(nodeID, bootstrapAddress));
-		if(H2HManager.INSTANCE.getNode().connect()){
+		createNode(NetworkConfiguration.create(nodeID, bootstrapAddress));
+		if(getNode().connect()){
 			System.out.println("Joined the network.");
 			return true;
 		} else {

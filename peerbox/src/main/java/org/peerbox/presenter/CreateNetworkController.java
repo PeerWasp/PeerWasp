@@ -18,6 +18,8 @@ import javafx.scene.control.TextField;
 
 public class CreateNetworkController implements Initializable {
 
+	private H2HManager h2hManager;
+	
 	@FXML
 	private Button btnBack;
 	
@@ -37,7 +39,7 @@ public class CreateNetworkController implements Initializable {
 	
 	public void goBack(ActionEvent event){
 		Action goBack = Dialog.Actions.YES;
-		if(H2HManager.INSTANCE.getNode() != null && H2HManager.INSTANCE.getNode().isConnected()){
+		if(h2hManager.getNode() != null && h2hManager.getNode().isConnected()){
 			goBack = Dialogs.create()
 			      .title("Delete the network?")
 			      .message("If you go back, your peer will be shut down "
@@ -45,17 +47,17 @@ public class CreateNetworkController implements Initializable {
 			      .showConfirm();
 		}
 		if(goBack.equals(Dialog.Actions.YES)){
-			H2HManager.INSTANCE.disconnectNode();
+			h2hManager.disconnectNode();
 			btnCreate.setText("Create");
 			MainNavigator.goBack();
 		}
 	}
 	
 	public void createNetwork(ActionEvent event){
-		if(H2HManager.INSTANCE.getNode() == null || 
-				!H2HManager.INSTANCE.getNode().isConnected()){
+		if(h2hManager.getNode() == null || 
+				!h2hManager.getNode().isConnected()){
 			
-			H2HManager.INSTANCE.createNode();
+			h2hManager.createNode();
 			Dialogs.create().title("New network created!")
 				.message("The bootstrapping peer on " + txtIPAddress.getText() + " is started.")
 				.showInformation();

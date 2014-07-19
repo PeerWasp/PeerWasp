@@ -37,6 +37,8 @@ public class LoginController implements Initializable {
 
 	private static final Logger logger = LoggerFactory.getLogger(LoginController.class);
 	
+	private H2HManager h2hManager;
+	
 	@FXML
 	private TextField txtUsername;
 	
@@ -66,7 +68,7 @@ public class LoginController implements Initializable {
 	public void initialize(URL location, ResourceBundle resources) {
 		initializeValidations();
 		
-		Path rootPath = H2HManager.INSTANCE.getRootPath();
+		Path rootPath = h2hManager.getRootPath();
 		if(rootPath != null){
 			txtRootPath.setText(rootPath.toString());
 		} else {
@@ -106,7 +108,7 @@ public class LoginController implements Initializable {
 	public void loginAction(ActionEvent event) {
 		
 		// TODO: some fixing required with verify root path...
-		SelectRootPathUtils.verifyRootPath(txtRootPath.getText());
+		SelectRootPathUtils.verifyRootPath(h2hManager, txtRootPath.getText());
 		
 		if (ValidationUtils.validateOnDemand(grdForm)) {
 			Task<Boolean> task = createLoginTask();
@@ -176,7 +178,7 @@ public class LoginController implements Initializable {
 	}
 	
 	private boolean loginUser() throws NoPeerConnectionException, InvalidProcessStateException, InterruptedException {
-		return H2HManager.INSTANCE.loginUser(txtUsername.getText().trim(), txtPassword.getText(), txtPin.getText());
+		return h2hManager.loginUser(txtUsername.getText().trim(), txtPassword.getText(), txtPin.getText());
 	}
 	
 	public void registerAction(ActionEvent event) {
