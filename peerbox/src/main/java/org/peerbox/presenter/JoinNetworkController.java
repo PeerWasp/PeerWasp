@@ -5,6 +5,7 @@ import java.net.UnknownHostException;
 import java.util.ResourceBundle;
 
 import org.peerbox.model.H2HManager;
+import org.peerbox.view.ViewNames;
 
 import com.google.inject.Inject;
 
@@ -40,9 +41,9 @@ public class JoinNetworkController implements Initializable {
 			
 			if(h2hManager.accessNetwork(txtBootstrapIP.getText())){
 				if(h2hManager.getRootPath().toString().equals("unset")){
-					MainNavigator.navigate("/org/peerbox/view/SelectRootPathView.fxml");
+					MainNavigator.navigate(ViewNames.SELECT_ROOT_PATH_VIEW);
 				} else {
-					MainNavigator.navigate("/org/peerbox/view/LoginView.fxml");
+					MainNavigator.navigate(ViewNames.LOGIN_VIEW);
 				}
 				
 			}

@@ -27,6 +27,7 @@ import jidefx.scene.control.validation.Validator;
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.hive2hive.core.processes.framework.exceptions.InvalidProcessStateException;
 import org.peerbox.model.UserManager;
+import org.peerbox.view.ViewNames;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -248,7 +249,7 @@ public class RegisterController implements Initializable {
 		logger.debug("Registration task succeeded: user {} registered.", txtUsername.getText().trim());
 		uninstallProgressIndicator();
 		grdForm.disableProperty().unbind();
-		MainNavigator.navigate("/org/peerbox/view/SelectRootPathView.fxml");
+		MainNavigator.navigate(ViewNames.SELECT_ROOT_PATH_VIEW);
 	}
 	
 	private void installProgressIndicator() {

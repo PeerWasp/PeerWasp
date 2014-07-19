@@ -30,6 +30,7 @@ import org.hive2hive.core.processes.framework.exceptions.InvalidProcessStateExce
 import org.peerbox.model.H2HManager;
 import org.peerbox.model.UserManager;
 import org.peerbox.utils.FormValidationUtils;
+import org.peerbox.view.ViewNames;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -177,7 +178,7 @@ public class LoginController implements Initializable {
 		logger.debug("Login task succeeded: user {} logged in.", txtUsername.getText().trim());
 		uninstallProgressIndicator();
 		grdForm.disableProperty().unbind();
-		MainNavigator.navigate("/org/peerbox/view/SetupCompleted.fxml");
+		MainNavigator.navigate(ViewNames.SETUP_COMPLETED_VIEW);
 	}
 	
 	private boolean loginUser() throws NoPeerConnectionException, InvalidProcessStateException, InterruptedException {
@@ -186,7 +187,7 @@ public class LoginController implements Initializable {
 	
 	public void registerAction(ActionEvent event) {
 		logger.debug("Navigate to register view.");
-		MainNavigator.navigate("/org/peerbox/view/RegisterView.fxml");
+		MainNavigator.navigate(ViewNames.REGISTER_VIEW);
 	}
 	
 	public void goBack(ActionEvent event){

@@ -9,6 +9,7 @@ import org.controlsfx.control.action.Action;
 import org.controlsfx.dialog.Dialog;
 import org.controlsfx.dialog.Dialogs;
 import org.peerbox.model.H2HManager;
+import org.peerbox.view.ViewNames;
 
 import com.google.inject.Inject;
 
@@ -70,6 +71,6 @@ public class CreateNetworkController implements Initializable {
 				.showInformation();
 			btnCreate.setText("Continue");
 		}
-		MainNavigator.navigate("/org/peerbox/view/RegisterView.fxml");
+		MainNavigator.navigate(ViewNames.REGISTER_VIEW);
 	}
 }

@@ -16,6 +16,7 @@ import javafx.stage.Window;
 
 import org.peerbox.PropertyHandler;
 import org.peerbox.model.H2HManager;
+import org.peerbox.view.ViewNames;
 
 import com.google.inject.Inject;
 
@@ -54,7 +55,7 @@ public class SelectRootPathController implements Initializable{
 	public void okButtonHandler(ActionEvent event){
 		boolean inputValid = SelectRootPathUtils.verifyRootPath(h2hManager, txtRootPath.getText());
 		if(inputValid) {
-			MainNavigator.navigate("/org/peerbox/view/LoginView.fxml");
+			MainNavigator.navigate(ViewNames.LOGIN_VIEW);
 		}
 	}
 
