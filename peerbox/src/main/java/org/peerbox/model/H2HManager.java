@@ -65,56 +65,7 @@ public class H2HManager {
 		}
 		return "";
 	}
-	
-	public boolean userIsRegistered(String userName) throws NoPeerConnectionException{
-		return node.getUserManager().isRegistered(userName);
-	}
 
-	public boolean registerUser(String username, String password, String pin) 
-			throws NoPeerConnectionException, InterruptedException, InvalidProcessStateException {
-		// TODO: assert that root path is set and exists!
-				
-		IUserManager userManager = node.getUserManager();
-		System.out.println(String.format("'%s', '%s', '%s'", username, password, pin));
-		userCredentials = new UserCredentials(username, password, pin);
-
-		IProcessComponent registerProcess = userManager.register(userCredentials);
-		ProcessComponentListener listener = new ProcessComponentListener();
-		registerProcess.attachListener(listener);
-		registerProcess.start().await();
-
-		if (listener.hasFailed()) {
-			RollbackReason reason = listener.getRollbackReason();
-			System.out.println((String.format("The process has failed: %s", reason != null ? ": " + reason.getHint() : ".")));
-		}
-	
-		return listener.hasSucceeded() && userManager.isRegistered(userCredentials.getUserId());
-		
-	}
-	
-	public boolean loginUser(String username, String password, String pin) 
-			throws NoPeerConnectionException, InterruptedException, InvalidProcessStateException {
-		// TODO: what to do with the user credentials? where to get them?
-		System.out.println(String.format("'%s', '%s', '%s'", username, password, pin));
-		userCredentials = new UserCredentials(username, password, pin);
-		
-		IProcessComponent process = node.getUserManager().login(userCredentials, rootPath);
-		
-		
-		
-		ProcessComponentListener listener = new ProcessComponentListener();
-
-		process.attachListener(listener);
-		process.start().await();
-
-		if (listener.hasFailed()) {
-			RollbackReason reason = listener.getRollbackReason();
-			System.out.println(String.format("The process has failed%s", reason != null ? ": " + reason.getHint() : "."));
-		}
-		
-		return listener.hasSucceeded() && node.getUserManager().isLoggedIn(userCredentials.getUserId());
-	}
-	
 	
 	/**
 	 * Tries to access the PeerBox network using a specified node's address or hostname.

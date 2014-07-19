@@ -28,6 +28,7 @@ import jidefx.scene.control.validation.Validator;
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.hive2hive.core.processes.framework.exceptions.InvalidProcessStateException;
 import org.peerbox.model.H2HManager;
+import org.peerbox.model.UserManager;
 import org.peerbox.utils.FormValidationUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,36 +41,32 @@ public class LoginController implements Initializable {
 	private static final Logger logger = LoggerFactory.getLogger(LoginController.class);
 	
 	private H2HManager h2hManager;
-	
+	private UserManager userManager;
+
 	@FXML
 	private TextField txtUsername;
-	
 	@FXML
 	private PasswordField txtPassword;
-	
 	@FXML
 	private PasswordField txtPin;
-	
 	@FXML
 	private TextField txtRootPath;
-	
 	@FXML
 	private CheckBox chbAutoLogin;
-	
 	@FXML
 	private Button btnLogin;
-	
 	@FXML
 	private Button btnRegister;
-	
 	@FXML
 	private GridPane grdForm;
 	
 	private Decorator<ProgressIndicator> fProgressDecoration = null;
 	
+	
 	@Inject
-	public LoginController(H2HManager h2hManager) {
+	public LoginController(H2HManager h2hManager, UserManager userManager) {
 		this.h2hManager = h2hManager;
+		this.userManager = userManager;
 	}
 	
 	public void initialize(URL location, ResourceBundle resources) {
@@ -185,7 +182,7 @@ public class LoginController implements Initializable {
 	}
 	
 	private boolean loginUser() throws NoPeerConnectionException, InvalidProcessStateException, InterruptedException {
-		return h2hManager.loginUser(txtUsername.getText().trim(), txtPassword.getText(), txtPin.getText());
+		return userManager.loginUser(txtUsername.getText().trim(), txtPassword.getText(), txtPin.getText(), h2hManager.getRootPath());
 	}
 	
 	public void registerAction(ActionEvent event) {

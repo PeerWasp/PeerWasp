@@ -26,7 +26,7 @@ import jidefx.scene.control.validation.Validator;
 
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.hive2hive.core.processes.framework.exceptions.InvalidProcessStateException;
-import org.peerbox.model.H2HManager;
+import org.peerbox.model.UserManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,37 +36,30 @@ public class RegisterController implements Initializable {
 
 	private static final Logger logger = LoggerFactory.getLogger(RegisterController.class);
 	
-	private H2HManager h2hManager;
+	private UserManager fUserManager;
 	
 	@FXML
 	private TextField txtUsername;
-
 	@FXML
 	private PasswordField txtPassword_1;
-
 	@FXML
 	private PasswordField txtPassword_2;
-
 	@FXML
 	private PasswordField txtPin_1;
-
 	@FXML
 	private PasswordField txtPin_2;
-
 	@FXML
 	private Button btnRegister;
-
 	@FXML
 	private Button btnBack;
-
-	private Decorator<ProgressIndicator> fProgressDecoration = null;
-
 	@FXML
 	private GridPane grdForm;
+	
+	private Decorator<ProgressIndicator> fProgressDecoration = null;
 
 	@Inject
-	public RegisterController(H2HManager h2hManager) {
-		this.h2hManager = h2hManager;
+	public RegisterController(UserManager userManager) {
+		fUserManager = userManager;
 	}
 	
 	public void initialize(URL location, ResourceBundle resources) {
@@ -79,6 +72,7 @@ public class RegisterController implements Initializable {
 		addPinValidation();
 	}
 
+	// TODO: any use for that? what if user goes back? 
 	private void resetForm() {
 		txtUsername.clear();
 		txtPassword_1.clear();
@@ -98,7 +92,7 @@ public class RegisterController implements Initializable {
 					if (username.isEmpty()) {
 						return new ValidationEvent(ValidationEvent.VALIDATION_ERROR, 0, "Please enter a username.");
 					}
-					if (h2hManager.userIsRegistered(username)) {
+					if (fUserManager.isRegistered(username)) {
 						return new ValidationEvent(ValidationEvent.VALIDATION_ERROR, 0, "Username already taken.");
 					}
 				} catch (NoPeerConnectionException e) {
@@ -200,7 +194,7 @@ public class RegisterController implements Initializable {
 	private boolean registerNewUser() {
 		boolean registerSuccess = false;
 		try {
-			registerSuccess = h2hManager.registerUser(
+			registerSuccess = fUserManager.registerUser(
 					txtUsername.getText().trim(), 
 					txtPassword_1.getText(),
 					txtPin_1.getText());
