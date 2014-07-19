@@ -2,7 +2,6 @@ package org.peerbox.model;
 
 import java.io.File;
 import java.io.IOException;
-import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.nio.file.Files;
@@ -10,7 +9,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.UUID;
 
-import org.hive2hive.core.H2HConstants;
 import org.hive2hive.core.api.H2HNode;
 import org.hive2hive.core.api.configs.FileConfiguration;
 import org.hive2hive.core.api.configs.NetworkConfiguration;
@@ -28,21 +26,12 @@ import com.google.inject.Singleton;
 
 @Singleton
 public class H2HManager {
-	
-//	INSTANCE;
-	
+
 	private IH2HNode node;
-	
 	private UserCredentials userCredentials;
 	private Path rootPath;
-	
-	private BigInteger maxFileSize = H2HConstants.DEFAULT_MAX_FILE_SIZE;
-	private int maxNumOfVersions = H2HConstants.DEFAULT_MAX_NUM_OF_VERSIONS;
-	private BigInteger maxSizeAllVersions = H2HConstants.DEFAULT_MAX_SIZE_OF_ALL_VERSIONS;
-	private int chunkSize = H2HConstants.DEFAULT_CHUNK_SIZE;
-	
 
-	public IH2HNode getNode(){
+	public IH2HNode getNode() {
 		return node;
 	}
 	
@@ -50,19 +39,16 @@ public class H2HManager {
 		return UUID.randomUUID().toString();
 	}
 	
-	public void createNode(){
-		node = H2HNode.createNode(NetworkConfiguration.create(generateNodeID()),
-				FileConfiguration.createCustom(maxFileSize, maxNumOfVersions, maxSizeAllVersions, chunkSize));
-		node.getUserManager().configureAutostart(false);
-		node.getFileManager().configureAutostart(false);
-		node.connect();
-
+	public boolean createNode() {
+		INetworkConfiguration defaultNetworkConf = NetworkConfiguration.create(generateNodeID());
+		return createNode(defaultNetworkConf);
 	}
 	
-	public void createNode(INetworkConfiguration configuration){
-		node = H2HNode.createNode(configuration, FileConfiguration.createCustom(maxFileSize, maxNumOfVersions, maxSizeAllVersions, chunkSize));
+	public boolean createNode(INetworkConfiguration configuration){
+		node = H2HNode.createNode(configuration, FileConfiguration.createDefault());
 		node.getUserManager().configureAutostart(false);
 		node.getFileManager().configureAutostart(false);
+		return node.connect();
 	}
 	
 	public String getInetAddressAsString(){
@@ -144,14 +130,13 @@ public class H2HManager {
 		}
 		String nodeID = generateNodeID();
 		InetAddress bootstrapAddress = InetAddress.getByName(bootstrapAddressString);
-		createNode(NetworkConfiguration.create(nodeID, bootstrapAddress));
-		if(getNode().connect()){
+		boolean success = createNode(NetworkConfiguration.create(nodeID, bootstrapAddress));
+		if(success){
 			System.out.println("Joined the network.");
-			return true;
 		} else {
 			System.out.println("Was not able to join network!");
-			return false;
 		}
+		return success;
 	}
 
 	/**
@@ -194,7 +179,6 @@ public class H2HManager {
 	}
 
 	public void disconnectNode() {
-		// TODO Auto-generated method stub
 		if(node != null){
 			node.disconnect();	
 		}
