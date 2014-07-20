@@ -4,13 +4,18 @@ import java.nio.file.Path;
 
 import org.hive2hive.core.api.interfaces.IH2HNode;
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
+import org.hive2hive.core.exceptions.NoSessionException;
 import org.hive2hive.core.processes.framework.RollbackReason;
 import org.hive2hive.core.processes.framework.concretes.ProcessComponentListener;
 import org.hive2hive.core.processes.framework.exceptions.InvalidProcessStateException;
 import org.hive2hive.core.processes.framework.interfaces.IProcessComponent;
 import org.hive2hive.core.security.UserCredentials;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class UserManager {
+	
+	private static final Logger logger = LoggerFactory.getLogger(UserManager.class);
 	
 	private IH2HNode node;
 	private UserCredentials userCredentials;
@@ -63,6 +68,21 @@ public class UserManager {
 	
 	public boolean isLoggedIn(String userName) throws NoPeerConnectionException{
 		return node.getUserManager().isLoggedIn(userName);
+	}
+	
+	public boolean logoutUser() 
+			throws InvalidProcessStateException, InterruptedException, NoPeerConnectionException, NoSessionException {
+		IProcessComponent process = node.getUserManager().logout();
+		ProcessComponentListener listener = new ProcessComponentListener();
+		process.attachListener(listener);
+		process.start().await();
+		
+		if(listener.hasFailed()) {
+			RollbackReason reason = listener.getRollbackReason();
+			logger.error("Logout failed: {}", reason.getHint());
+		}
+		
+		return listener.hasSucceeded();
 	}
 	
 }

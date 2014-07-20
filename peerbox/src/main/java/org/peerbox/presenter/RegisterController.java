@@ -18,7 +18,6 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
-import jidefx.scene.control.decoration.DecorationPane;
 import jidefx.scene.control.decoration.DecorationUtils;
 import jidefx.scene.control.decoration.Decorator;
 import jidefx.scene.control.validation.ValidationEvent;
