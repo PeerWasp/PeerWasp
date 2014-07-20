@@ -1,6 +1,5 @@
-/*  
-.background {
-    -fx-background-color: #0099FF;
+ .background {
+    -fx-background-image: url('../images/peerbox-background.jpg');
 }
 
 .label {
@@ -89,8 +88,7 @@
 
 
 
-.button {
-    -fx-padding: 5 22 5 22;   
+.button { 
     -fx-border-color: #3769DD;
     -fx-border-width: 2;
     -fx-background-radius: 0;
@@ -140,7 +138,7 @@
 }
 
 
-*/
+
 
 /*  You can use pseudo-class to change the style for a particular type of nodes. Available pseudo-classes are:
         validation-error

@@ -71,6 +71,6 @@ public class SelectRootPathController implements Initializable{
 			defaultDir = System.getProperty("user.home") + File.separator + "PeerBox_" + now.getTime();
 		}
 		txtRootPath.setText(defaultDir);
-		txtRootPath.setPrefWidth(250);
+		//txtRootPath.setPrefWidth(250);
 	}
 }

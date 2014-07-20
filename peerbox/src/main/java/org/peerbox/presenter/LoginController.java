@@ -96,7 +96,7 @@ public class LoginController implements Initializable {
 	private void wrapDecorationPane() {
 		Pane dp = FormValidationUtils.wrapInDecorationPane((Pane)grdForm.getParent(), grdForm);
 		AnchorPane.setLeftAnchor(dp, 20.0);
-		AnchorPane.setTopAnchor(dp, 20.0);
+		AnchorPane.setTopAnchor(dp, 170.0);
 		AnchorPane.setRightAnchor(dp, 20.0);
 		
 	}

@@ -7,13 +7,12 @@
 <?import javafx.scene.paint.*?>
 <?import javafx.scene.text.*?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="640.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.peerbox.presenter.CreateNetworkController">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="500.0" prefWidth="275.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.peerbox.presenter.CreateNetworkController">
       <children>
-            <Button fx:id="btnCreate" layoutX="171.0" layoutY="267.0" mnemonicParsing="false" onAction="#createNetwork" text="Create" />
-            <Button fx:id="btnBack" layoutX="343.0" layoutY="267.0" mnemonicParsing="false" onAction="#goBack" text="Back" />
-      <Text layoutX="14.0" layoutY="27.0" strokeType="OUTSIDE" strokeWidth="0.0" text="CreateNetworkView" />
-      <TextField fx:id="txtIPAddress" editable="false" layoutX="233.0" layoutY="188.0" prefHeight="25.0" prefWidth="220.0" />
-      <Label layoutX="137.0" layoutY="192.0" text="Your IP Address:" />
-      <Label layoutX="137.0" layoutY="80.0" maxWidth="320.0" text="This option will create a bootstrapping peer for a new PeerBox network on this device. The IP shown below can be used by other users to join your network. As soon as you click &quot;create&quot;, the bootstrapping peer will be started." wrapText="true" />
+            <Button fx:id="btnCreate" layoutX="27.0" layoutY="385.0" mnemonicParsing="false" onAction="#createNetwork" text="Create" />
+            <Button fx:id="btnBack" layoutX="206.0" layoutY="385.0" mnemonicParsing="false" onAction="#goBack" text="Back" />
+      <TextField fx:id="txtIPAddress" editable="false" layoutX="27.0" layoutY="339.0" prefHeight="25.0" prefWidth="220.0" />
+      <Label layoutX="27.0" layoutY="322.0" text="Your IP Address:" />
+      <Label layoutX="27.0" layoutY="182.0" maxWidth="320.0" prefHeight="119.0" prefWidth="220.0" text="This option will create a bootstrapping peer for a new PeerBox network on this device. The IP shown below can be used by other users to join your network. As soon as you click &quot;create&quot;, the bootstrapping peer will be started." wrapText="true" />
       </children>
     </AnchorPane>

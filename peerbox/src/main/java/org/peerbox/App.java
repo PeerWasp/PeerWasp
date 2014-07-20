@@ -11,6 +11,7 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 import javafx.stage.WindowEvent;
 
 import org.slf4j.Logger;
@@ -72,6 +73,7 @@ public class App extends Application
 		Scene scene = new Scene(root);
 		primaryStage.setTitle("PeerBox");
     	primaryStage.getIcons().add(new Image(getClass().getResourceAsStream("/images/icon.png")));
+    	primaryStage.initStyle(StageStyle.TRANSPARENT);
     	installExitHandler(primaryStage);
 		primaryStage.setScene(scene);
 		primaryStage.sizeToScene();
