@@ -17,7 +17,8 @@ public class CreateNetworkControllerTest {
 	
 	@Test
 	public void createNetworkTest(){
-		CreateNetworkController controller = new CreateNetworkController(h2hmanager);
+		// TODO: mock navigation service.
+		CreateNetworkController controller = new CreateNetworkController(null, h2hmanager);
 		assert(h2hmanager.getNode() != null);
 		// TODO: why should the node be != null after constructor?
 	}
