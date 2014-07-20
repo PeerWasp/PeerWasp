@@ -31,6 +31,7 @@ import org.hive2hive.core.processes.framework.exceptions.InvalidProcessStateExce
 import org.peerbox.model.UserManager;
 import org.peerbox.utils.FormValidationUtils;
 import org.peerbox.view.ViewNames;
+import org.peerbox.Constants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -132,7 +133,7 @@ public class RegisterController implements Initializable {
 				}
 				if (pin.length() < 3) {
 					return new ValidationEvent(ValidationEvent.VALIDATION_WARNING, 0, String.format(
-							"The PIN should be at least %d characters long.", 3));
+							"The PIN should be at least %d characters long.", Constants.MIN_PIN_LENGTH));
 				}
 				return ValidationEvent.OK;
 			}
@@ -168,9 +169,9 @@ public class RegisterController implements Initializable {
 				if (password.isEmpty()) {
 					return new ValidationEvent(ValidationEvent.VALIDATION_ERROR, 0, "Please enter a password.");
 				}
-				if (password.length() < 6) {
+				if (password.length() < Constants.MIN_PASSWORD_LENGTH - 1) {
 					return new ValidationEvent(ValidationEvent.VALIDATION_WARNING, 0, String.format(
-							"The password should be at least %d characters long.", 5));
+							"The password should be at least %d characters long.", Constants.MIN_PASSWORD_LENGTH));
 				}
 				return ValidationEvent.OK;
 			}
