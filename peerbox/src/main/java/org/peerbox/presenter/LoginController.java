@@ -43,6 +43,7 @@ public class LoginController implements Initializable {
 
 	private static final Logger logger = LoggerFactory.getLogger(LoginController.class);
 	
+	private NavigationService fNavigationService;
 	private H2HManager h2hManager;
 	private UserManager userManager;
 
@@ -67,7 +68,8 @@ public class LoginController implements Initializable {
 	
 	
 	@Inject
-	public LoginController(H2HManager h2hManager, UserManager userManager) {
+	public LoginController(NavigationService navigationService, H2HManager h2hManager, UserManager userManager) {
+		this.fNavigationService = navigationService;
 		this.h2hManager = h2hManager;
 		this.userManager = userManager;
 	}
@@ -189,7 +191,7 @@ public class LoginController implements Initializable {
 		logger.debug("Login task succeeded: user {} logged in.", txtUsername.getText().trim());
 		uninstallProgressIndicator();
 		grdForm.disableProperty().unbind();
-		MainNavigator.navigate(ViewNames.SETUP_COMPLETED_VIEW);
+		fNavigationService.navigate(ViewNames.SETUP_COMPLETED_VIEW);
 	}
 	
 	private boolean loginUser() throws NoPeerConnectionException, InvalidProcessStateException, InterruptedException {
@@ -198,12 +200,12 @@ public class LoginController implements Initializable {
 	
 	public void registerAction(ActionEvent event) {
 		logger.debug("Navigate to register view.");
-		MainNavigator.navigate(ViewNames.REGISTER_VIEW);
+		fNavigationService.navigate(ViewNames.REGISTER_VIEW);
 	}
 	
 	public void goBack(ActionEvent event){
 		logger.debug("Go back.");
-		MainNavigator.goBack();
+		fNavigationService.goBack();
 	}
 	
 	public void btnChangeDirectoryHandler(ActionEvent event){

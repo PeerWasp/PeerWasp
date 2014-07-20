@@ -11,7 +11,6 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
-import javafx.stage.DirectoryChooser;
 import javafx.stage.Window;
 
 import org.peerbox.PropertyHandler;
@@ -23,6 +22,7 @@ import com.google.inject.Inject;
 
 public class SelectRootPathController implements Initializable{
 	
+	private NavigationService fNavigationService;
 	private H2HManager h2hManager;
 	
 	@FXML
@@ -37,7 +37,8 @@ public class SelectRootPathController implements Initializable{
 	private Label lblWarning;
 	
 	@Inject
-	public SelectRootPathController(H2HManager h2hManager) {
+	public SelectRootPathController(NavigationService navigationService, H2HManager h2hManager) {
+		this.fNavigationService = navigationService;
 		this.h2hManager = h2hManager;
 	}
 	
@@ -49,13 +50,13 @@ public class SelectRootPathController implements Initializable{
 	}
 	
 	public void goBack(ActionEvent event){
-		MainNavigator.goBack();
+		fNavigationService.goBack();
 	}
 	
 	public void okButtonHandler(ActionEvent event){
 		boolean inputValid = SelectRootPathUtils.verifyRootPath(h2hManager, txtRootPath.getText());
 		if(inputValid) {
-			MainNavigator.navigate(ViewNames.LOGIN_VIEW);
+			fNavigationService.navigate(ViewNames.LOGIN_VIEW);
 		}
 	}
 

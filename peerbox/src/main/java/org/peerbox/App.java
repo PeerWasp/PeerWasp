@@ -2,24 +2,23 @@ package org.peerbox;
 
 
 import java.io.IOException;
-import java.net.URL;
 
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
-import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.peerbox.PropertyHandler;
+import org.peerbox.interfaces.INavigatable;
 import org.peerbox.model.H2HManager;
-import org.peerbox.presenter.MainController;
-import org.peerbox.presenter.MainNavigator;
+import org.peerbox.presenter.NavigationService;
 import org.peerbox.view.ViewNames;
 
 import com.google.inject.Guice;
@@ -33,7 +32,7 @@ public class App extends Application
 	private static final Logger logger = LoggerFactory.getLogger("PeerBox");
 	
 	private Injector injector;
-
+	private NavigationService navigationService;
 	private H2HManager h2hManager; 
 	
 	public static void main(String[] args) {
@@ -52,18 +51,18 @@ public class App extends Application
     	
     	h2hManager = injector.getInstance(H2HManager.class);
     	h2hManager.setRootPath(PropertyHandler.getRootPath());
+    	navigationService = injector.getInstance(NavigationService.class);
+    	navigationService.setInjector(injector);
     	
-    	installExitHandler(primaryStage);
-    	
-    	Pane root;
-    	MainController mainController;
+    	Parent root;
+    	INavigatable mainController;
 		try {
-			FXMLLoader fxmlLoader = MainNavigator.createGuiceFxmlLoader(ViewNames.MAIN_VIEW);
+			FXMLLoader fxmlLoader = navigationService.createGuiceFxmlLoader(ViewNames.MAIN_VIEW);
 			root = fxmlLoader.load();
-			mainController = (MainController)fxmlLoader.getController();
+			mainController = (INavigatable)fxmlLoader.getController();
 			
-			MainNavigator.setMainController(mainController);
-			MainNavigator.navigate(ViewNames.NETWORK_SELECTION_VIEW);
+			navigationService.setNavigationController(mainController);
+			navigationService.navigate(ViewNames.NETWORK_SELECTION_VIEW);
 			
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -73,6 +72,7 @@ public class App extends Application
 		Scene scene = new Scene(root);
 		primaryStage.setTitle("PeerBox");
     	primaryStage.getIcons().add(new Image(getClass().getResourceAsStream("/images/icon.png")));
+    	installExitHandler(primaryStage);
 		primaryStage.setScene(scene);
 		primaryStage.sizeToScene();
 		primaryStage.show();
@@ -80,7 +80,6 @@ public class App extends Application
 
 	private void initializeGuice() {
 		injector = Guice.createInjector(new PeerBoxModule());
-		MainNavigator.setInjector(injector);
 	}
 
 	private void installExitHandler(Stage stage) {

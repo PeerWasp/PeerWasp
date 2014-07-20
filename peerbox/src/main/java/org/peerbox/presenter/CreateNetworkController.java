@@ -22,6 +22,7 @@ import javafx.scene.control.TextField;
 public class CreateNetworkController implements Initializable {
 
 	private H2HManager h2hManager;
+	private NavigationService fNavigationService;
 	
 	@FXML
 	private Button btnBack;
@@ -33,7 +34,8 @@ public class CreateNetworkController implements Initializable {
 	private TextField txtIPAddress;
 	
 	@Inject
-	public CreateNetworkController(H2HManager h2hManager) {
+	public CreateNetworkController(NavigationService navigationService, H2HManager h2hManager) {
+		this.fNavigationService = navigationService;
 		this.h2hManager = h2hManager;
 	}
 	
@@ -57,7 +59,7 @@ public class CreateNetworkController implements Initializable {
 		if(goBack.equals(Dialog.Actions.YES)){
 			h2hManager.disconnectNode();
 			btnCreate.setText("Create");
-			MainNavigator.goBack();
+			fNavigationService.goBack();
 		}
 	}
 	
@@ -71,6 +73,6 @@ public class CreateNetworkController implements Initializable {
 				.showInformation();
 			btnCreate.setText("Continue");
 		}
-		MainNavigator.navigate(ViewNames.REGISTER_VIEW);
+		fNavigationService.navigate(ViewNames.REGISTER_VIEW);
 	}
 }

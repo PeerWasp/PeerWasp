@@ -2,10 +2,12 @@ package org.peerbox.presenter;
 
 import java.io.IOException;
 
+import org.peerbox.interfaces.INavigatable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.inject.Injector;
+import com.google.inject.Singleton;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -14,27 +16,28 @@ import javafx.scene.Node;
 import javafx.scene.layout.Pane;
 import javafx.util.Callback;
 
-public class MainNavigator {
+@Singleton
+public class NavigationService {
 
-	private static final Logger logger = LoggerFactory.getLogger(MainNavigator.class);
-	private static MainController mainController;
-	private static ObservableList<Node> pages = FXCollections.observableArrayList();
-	private static Injector injector;
+	private static final Logger logger = LoggerFactory.getLogger(NavigationService.class);
+	private INavigatable fController;
+	private ObservableList<Node> pages = FXCollections.observableArrayList();
+	private Injector injector;
 
-	public static void setMainController(MainController controller) {
-		mainController = controller;
+	public void setNavigationController(INavigatable controller) {
+		fController = controller;
 	}
 
-	public static void setInjector(Injector injector) {
-		MainNavigator.injector = injector;
+	public void setInjector(Injector injector) {
+		this.injector = injector;
 	}
 
-	public static void navigate(String fxmlFile) {
+	public void navigate(String fxmlFile) {
 		Pane content = null;
 		try {
 			FXMLLoader loader = createGuiceFxmlLoader(fxmlFile);
 			content = loader.load();
-			mainController.setContent(content);
+			fController.setContent(content);
 			pages.add(content);
 		} catch (IOException e) {
 			System.err.println(String.format("Could not load fxml file (%s): %s", e.getCause(), e.getMessage()));
@@ -42,7 +45,7 @@ public class MainNavigator {
 		}
 	}
 
-	public static FXMLLoader createGuiceFxmlLoader(String fxmlFile) throws IOException {
+	public FXMLLoader createGuiceFxmlLoader(String fxmlFile) throws IOException {
 		FXMLLoader loader = new FXMLLoader();
 		loader.setLocation(MainController.class.getResource(fxmlFile));
 		loader.setControllerFactory(new Callback<Class<?>, Object>() {
@@ -54,22 +57,22 @@ public class MainNavigator {
 		return loader;
 	}
 
-	public static boolean canGoBack() {
+	public boolean canGoBack() {
 		return pages.size() >= 2;
 	}
 
-	public static void goBack() {
+	public void goBack() {
 		if (canGoBack()) {
 			int previous = pages.size() - 2;
 			pages.remove(pages.size() - 1);
-			mainController.setContent(pages.get(previous));
+			fController.setContent(pages.get(previous));
 		} else {
 			// TODO: what should we do here? Throw exception, do nothgin, log, ... :)
 			logger.warn("Cannot go back (number of pages: {})", pages.size());
 		}
 	}
 
-	public static void clearPages() {
+	public void clearPages() {
 		pages.clear();
 	}
 }

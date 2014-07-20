@@ -17,9 +17,11 @@ import javafx.scene.control.TextField;
 public class JoinNetworkController implements Initializable {
 
 	private H2HManager h2hManager;
+	private NavigationService fNavigationService;
 	
 	@Inject
-	public JoinNetworkController(H2HManager h2hManager) {
+	public JoinNetworkController(NavigationService navigationService, H2HManager h2hManager) {
+		this.fNavigationService = navigationService;
 		this.h2hManager = h2hManager;
 	}
 	
@@ -32,7 +34,7 @@ public class JoinNetworkController implements Initializable {
 	
 	public void goBack(ActionEvent event){
 		System.out.println("Go back.");
-		MainNavigator.goBack();
+		fNavigationService.goBack();
 	}
 	
 	public void accessNetwork(ActionEvent event){
@@ -41,9 +43,9 @@ public class JoinNetworkController implements Initializable {
 			
 			if(h2hManager.accessNetwork(txtBootstrapIP.getText())){
 				if(h2hManager.getRootPath().toString().equals("unset")){
-					MainNavigator.navigate(ViewNames.SELECT_ROOT_PATH_VIEW);
+					fNavigationService.navigate(ViewNames.SELECT_ROOT_PATH_VIEW);
 				} else {
-					MainNavigator.navigate(ViewNames.LOGIN_VIEW);
+					fNavigationService.navigate(ViewNames.LOGIN_VIEW);
 				}
 				
 			}

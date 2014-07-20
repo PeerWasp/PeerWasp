@@ -40,7 +40,7 @@ import com.google.inject.Inject;
 public class RegisterController implements Initializable {
 
 	private static final Logger logger = LoggerFactory.getLogger(RegisterController.class);
-	
+	private NavigationService fNavigationService;
 	private UserManager fUserManager;
 	
 	@FXML
@@ -63,7 +63,8 @@ public class RegisterController implements Initializable {
 	private Decorator<ProgressIndicator> fProgressDecoration = null;
 
 	@Inject
-	public RegisterController(UserManager userManager) {
+	public RegisterController(NavigationService navigationService, UserManager userManager) {
+		fNavigationService = navigationService;
 		fUserManager = userManager;
 	}
 	
@@ -262,7 +263,7 @@ public class RegisterController implements Initializable {
 		logger.debug("Registration task succeeded: user {} registered.", txtUsername.getText().trim());
 		uninstallProgressIndicator();
 		grdForm.disableProperty().unbind();
-		MainNavigator.navigate(ViewNames.SELECT_ROOT_PATH_VIEW);
+		fNavigationService.navigate(ViewNames.SELECT_ROOT_PATH_VIEW);
 	}
 	
 	private void installProgressIndicator() {
@@ -279,6 +280,6 @@ public class RegisterController implements Initializable {
 
 	public void goBack(ActionEvent event) {
 		logger.debug("Go back.");
-		MainNavigator.goBack();
+		fNavigationService.goBack();
 	}
 }
