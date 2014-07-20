@@ -13,7 +13,6 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.layout.Pane;
 import javafx.util.Callback;
-import jidefx.scene.control.decoration.DecorationPane;
 
 public class MainNavigator {
 
@@ -35,7 +34,7 @@ public class MainNavigator {
 		try {
 			FXMLLoader loader = createGuiceFxmlLoader(fxmlFile);
 			content = loader.load();
-			mainController.setContent(new DecorationPane(content));
+			mainController.setContent(content);
 			pages.add(content);
 		} catch (IOException e) {
 			System.err.println(String.format("Could not load fxml file (%s): %s", e.getCause(), e.getMessage()));

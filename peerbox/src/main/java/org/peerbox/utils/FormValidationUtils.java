@@ -1,6 +1,11 @@
 package org.peerbox.utils;
 
+import javafx.scene.Node;
+import javafx.scene.Parent;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.Pane;
+import jidefx.scene.control.decoration.DecorationPane;
 import jidefx.scene.control.validation.ValidationEvent;
 import jidefx.scene.control.validation.ValidationObject;
 import jidefx.scene.control.validation.Validator;
@@ -25,6 +30,14 @@ public class FormValidationUtils {
 			}
 
 		};
+	}
+	
+	
+	public static Pane wrapInDecorationPane(Pane parentNode, Parent nodeToWrap) {
+		parentNode.getChildren().remove(nodeToWrap);
+		Pane dp = new DecorationPane(nodeToWrap);
+		parentNode.getChildren().add(dp);
+		return dp;
 	}
 	
 }

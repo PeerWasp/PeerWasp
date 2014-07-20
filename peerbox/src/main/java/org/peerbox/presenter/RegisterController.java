@@ -15,7 +15,10 @@ import javafx.scene.control.Button;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Pane;
+import jidefx.scene.control.decoration.DecorationPane;
 import jidefx.scene.control.decoration.DecorationUtils;
 import jidefx.scene.control.decoration.Decorator;
 import jidefx.scene.control.validation.ValidationEvent;
@@ -27,6 +30,7 @@ import jidefx.scene.control.validation.Validator;
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.hive2hive.core.processes.framework.exceptions.InvalidProcessStateException;
 import org.peerbox.model.UserManager;
+import org.peerbox.utils.FormValidationUtils;
 import org.peerbox.view.ViewNames;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -68,9 +72,18 @@ public class RegisterController implements Initializable {
 	}
 
 	private void initializeValidations() {
+		wrapDecorationPane();
 		addUsernameValidation();
 		addPasswordValidation();
 		addPinValidation();
+	}
+
+	private void wrapDecorationPane() {
+		Pane dp = FormValidationUtils.wrapInDecorationPane((Pane)grdForm.getParent(), grdForm);
+		AnchorPane.setLeftAnchor(dp, 20.0);
+		AnchorPane.setTopAnchor(dp, 20.0);
+		AnchorPane.setRightAnchor(dp, 20.0);
+		
 	}
 
 	// TODO: any use for that? what if user goes back? 

@@ -17,7 +17,9 @@ import javafx.scene.control.CheckBox;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Pane;
 import javafx.stage.Window;
 import jidefx.scene.control.decoration.DecorationUtils;
 import jidefx.scene.control.decoration.Decorator;
@@ -83,9 +85,18 @@ public class LoginController implements Initializable {
 	}
 	
 	private void initializeValidations() {
+		wrapDecorationPane();
 		addUsernameValidation();
 		addPasswordValidation();
 		addPinValidation();
+	}
+
+	private void wrapDecorationPane() {
+		Pane dp = FormValidationUtils.wrapInDecorationPane((Pane)grdForm.getParent(), grdForm);
+		AnchorPane.setLeftAnchor(dp, 20.0);
+		AnchorPane.setTopAnchor(dp, 20.0);
+		AnchorPane.setRightAnchor(dp, 20.0);
+		
 	}
 
 	private void addUsernameValidation() {
