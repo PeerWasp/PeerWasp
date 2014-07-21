@@ -10,6 +10,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
+import javafx.scene.input.MouseEvent;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.stage.WindowEvent;
@@ -36,6 +37,10 @@ public class App extends Application
 	private NavigationService navigationService;
 	private H2HManager h2hManager; 
 	
+	//offset values are needed for calculating position of application
+	private double xOffset = 0;
+	private double yOffset = 0;
+	
 	public static void main(String[] args) {
 		logger.info("PeerBox started.");
 		
@@ -47,7 +52,7 @@ public class App extends Application
     
     @Override
     public void start(Stage primaryStage) {
-    	
+    	  	
     	initializeGuice();
     	
     	h2hManager = injector.getInstance(H2HManager.class);
@@ -70,7 +75,7 @@ public class App extends Application
 			return;
 		}
 		
-		Scene scene = new Scene(root);
+		Scene scene = new Scene(root, 275, 500);
 		primaryStage.setTitle("PeerBox");
     	primaryStage.getIcons().add(new Image(getClass().getResourceAsStream("/images/icon.png")));
     	primaryStage.initStyle(StageStyle.TRANSPARENT);
@@ -78,7 +83,27 @@ public class App extends Application
 		primaryStage.setScene(scene);
 		primaryStage.sizeToScene();
 		primaryStage.show();
+		
+        //provides ability to move application window wherever the user clicks & drags with the mouse
+		root.setOnMousePressed(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+                xOffset = event.getSceneX();
+                yOffset = event.getSceneY();
+            }
+        });
+		
+		//releases window at position when mouse click is released
+        root.setOnMouseDragged(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+                primaryStage.setX(event.getScreenX() - xOffset);
+                primaryStage.setY(event.getScreenY() - yOffset);
+            }
+        });
     }
+    
+    
 
 	private void initializeGuice() {
 		injector = Guice.createInjector(new PeerBoxModule());

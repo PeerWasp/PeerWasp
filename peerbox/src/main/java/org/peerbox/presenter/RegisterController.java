@@ -131,7 +131,7 @@ public class RegisterController implements Initializable {
 				if (pin.isEmpty()) {
 					return new ValidationEvent(ValidationEvent.VALIDATION_ERROR, 0, "Please enter a pin.");
 				}
-				if (pin.length() < 3) {
+				if (pin.length() < Constants.MIN_PIN_LENGTH) {
 					return new ValidationEvent(ValidationEvent.VALIDATION_WARNING, 0, String.format(
 							"The PIN should be at least %d characters long.", Constants.MIN_PIN_LENGTH));
 				}
@@ -169,7 +169,7 @@ public class RegisterController implements Initializable {
 				if (password.isEmpty()) {
 					return new ValidationEvent(ValidationEvent.VALIDATION_ERROR, 0, "Please enter a password.");
 				}
-				if (password.length() < Constants.MIN_PASSWORD_LENGTH - 1) {
+				if (password.length() < Constants.MIN_PASSWORD_LENGTH) {
 					return new ValidationEvent(ValidationEvent.VALIDATION_WARNING, 0, String.format(
 							"The password should be at least %d characters long.", Constants.MIN_PASSWORD_LENGTH));
 				}
