@@ -2,15 +2,14 @@ package org.peerbox.presenter;
 
 import java.net.URL;
 import java.util.ResourceBundle;
-
 import org.peerbox.view.ViewNames;
-
 import com.google.inject.Inject;
-
 import javafx.event.ActionEvent;
 import javafx.fxml.Initializable;
 
+
 public class NetworkSelectionController implements Initializable {
+
 
 	
 	private NavigationService fNavigationService;
@@ -33,4 +32,14 @@ public class NetworkSelectionController implements Initializable {
 		System.out.println("Network joined.");	
 		fNavigationService.navigate(ViewNames.JOIN_NETWORK_VIEW);
 	}
+	
+	public void closeApp(ActionEvent event){
+		fNavigationService.closeApp();
+	}
+	
+	public void minApp(ActionEvent event){
+		fNavigationService.minApp();
+	}
+	
+
 }

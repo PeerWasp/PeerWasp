@@ -6,7 +6,7 @@
 <?import java.lang.*?>
 <?import javafx.scene.layout.*?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="500.0" prefWidth="275.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="500.0" prefWidth="275.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.peerbox.presenter.SetupCompletedController">
    <children>
       <VBox layoutX="133.0" layoutY="35.0" prefHeight="400.0" prefWidth="600.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <children>
@@ -20,5 +20,7 @@
             </Label>
          </children>
       </VBox>
+      <Button layoutX="226.0" layoutY="-1.0" mnemonicParsing="false" onAction="#minApp" styleClass="button-minimize" stylesheets="css/pb_dark_theme.css" />
+      <Button layoutX="245.0" layoutY="-1.0" mnemonicParsing="false" onAction="#closeApp" styleClass="button-close" stylesheets="css/pb_dark_theme.css" />
    </children>
 </AnchorPane>

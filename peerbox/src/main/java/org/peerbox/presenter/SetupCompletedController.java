@@ -22,11 +22,13 @@ import javafx.fxml.Initializable;
 public class SetupCompletedController implements Initializable {
 
 	private static final Logger logger = LoggerFactory.getLogger(SetupCompletedController.class);
+	private NavigationService fNavigationService;
 	private UserManager fUserManager;
 	
 	@Inject
-	public SetupCompletedController(UserManager userManager) {
-		fUserManager = userManager;
+	public SetupCompletedController(NavigationService navigationService, UserManager userManager) {
+		this.fNavigationService = navigationService;
+		this.fUserManager = userManager;
 	}
 	
 	@Override
@@ -89,6 +91,14 @@ public class SetupCompletedController implements Initializable {
 			}
 		});
 		return task;
+	}
+	
+	public void closeApp(ActionEvent event){
+		fNavigationService.closeApp();
+	}
+	
+	public void minApp(ActionEvent event){
+		fNavigationService.minApp();
 	}
 
 }

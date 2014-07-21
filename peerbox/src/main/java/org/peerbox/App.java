@@ -44,6 +44,7 @@ public class App extends Application
 	public static void main(String[] args) {
 		logger.info("PeerBox started.");
 		
+		//check whether a Configuration file already exists and load it (if it doesn't exist, it will be created automatically)
 		PropertyHandler.checkFileExists();
 		PropertyHandler.loadPropertyFile();
         
@@ -101,6 +102,8 @@ public class App extends Application
                 primaryStage.setY(event.getScreenY() - yOffset);
             }
         });
+        
+
     }
     
     
@@ -120,5 +123,7 @@ public class App extends Application
 
         });
 	}
+	
+	
 }
 

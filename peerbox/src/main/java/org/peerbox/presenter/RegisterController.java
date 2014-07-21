@@ -282,4 +282,12 @@ public class RegisterController implements Initializable {
 		logger.debug("Go back.");
 		fNavigationService.goBack();
 	}
+	
+	public void closeApp(ActionEvent event){
+		fNavigationService.closeApp();
+	}
+	
+	public void minApp(ActionEvent event){
+		fNavigationService.minApp();
+	}
 }

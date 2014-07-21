@@ -85,9 +85,27 @@
     -fx-font-family: "Segoe UI Semibold";
 }
 
+.button-close {
+  -fx-graphic: url('../images/close.png');
+  -fx-background-color: transparent;
+}
 
+.button-close:pressed {
+  -fx-graphic: url('../images/close-pressed.png');
+  -fx-background-color: transparent;
+}
 
+.button-minimize {
+  -fx-graphic: url('../images/minimize.png');
+  -fx-background-color: transparent;
+}
 
+.button-minimize:pressed {
+  -fx-graphic: url('../images/minimize-pressed.png');
+  -fx-background-color: transparent;
+}
+
+/*
 .button { 
     -fx-border-color: #3769DD;
     -fx-border-width: 2;
@@ -131,11 +149,7 @@
     -fx-background-color: derive(-fx-focus-color,30%);
 }
 
-.button-browse {
-  -fx-background-image: url('/resources/images/browse-directory.png');
-  -fx-background-repeat: no-repeat;
-  -fx-background-position: center;
-}
+*/
 
 
 

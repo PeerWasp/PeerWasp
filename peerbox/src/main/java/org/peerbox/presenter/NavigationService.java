@@ -11,6 +11,7 @@ import com.google.inject.Singleton;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.layout.Pane;
@@ -71,8 +72,18 @@ public class NavigationService {
 			logger.warn("Cannot go back (number of pages: {})", pages.size());
 		}
 	}
-
+	
 	public void clearPages() {
 		pages.clear();
+	}
+	
+	public void closeApp(){
+		System.out.println("Application closed.");
+		System.exit(0);
+	}
+	
+	public void minApp(){
+		System.out.println("Application minimized (not yet implemented).");
+		//TODO
 	}
 }
