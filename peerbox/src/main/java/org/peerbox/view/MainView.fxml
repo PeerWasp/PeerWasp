@@ -9,10 +9,10 @@
 
 <VBox prefHeight="500.0" prefWidth="275.0" stylesheets="css/pb_dark_theme.css" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.peerbox.presenter.MainController">
   <children>
-      <HBox prefHeight="18.0" prefWidth="264.0">
+      <HBox prefHeight="18.0" prefWidth="275.0">
          <children>
-            <Button fx:id="btnMinimize" mnemonicParsing="false" />
-            <Button fx:id="btnClose" mnemonicParsing="false" />
+            <Button layoutX="226.0" layoutY="-1.0" mnemonicParsing="false" onAction="#minApp" styleClass="button-minimize" stylesheets="css/pb_dark_theme.css" />
+            <Button layoutX="245.0" layoutY="-1.0" mnemonicParsing="false" onAction="#closeApp" styleClass="button-close" stylesheets="css/pb_dark_theme.css" />
          </children>
       </HBox>
     <AnchorPane fx:id="mainPane" maxHeight="-1.0" maxWidth="-1.0" prefHeight="-1.0" prefWidth="-1.0" styleClass="background" stylesheets="css/pb_dark_theme.css" VBox.vgrow="ALWAYS" />
