@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.*?>
 <?import java.lang.*?>
 <?import java.util.*?>
 <?import javafx.scene.control.*?>
@@ -7,14 +8,17 @@
 <?import javafx.scene.paint.*?>
 <?import javafx.scene.text.*?>
 
-<VBox prefHeight="500.0" prefWidth="275.0" stylesheets="css/pb_dark_theme.css" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.peerbox.presenter.MainController">
+<VBox prefHeight="500.0" prefWidth="275.0" styleClass="background" stylesheets="css/pb_dark_theme.css" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.peerbox.presenter.MainController">
   <children>
       <HBox prefHeight="18.0" prefWidth="275.0">
          <children>
-            <Button layoutX="226.0" layoutY="-1.0" mnemonicParsing="false" onAction="#minApp" styleClass="button-minimize" stylesheets="css/pb_dark_theme.css" />
+            <Button layoutX="226.0" layoutY="-1.0" mnemonicParsing="false" onAction="#minApp" styleClass="button-minimize" stylesheets="css/pb_dark_theme.css">
+               <HBox.margin>
+                  <Insets left="220.0" />
+               </HBox.margin></Button>
             <Button layoutX="245.0" layoutY="-1.0" mnemonicParsing="false" onAction="#closeApp" styleClass="button-close" stylesheets="css/pb_dark_theme.css" />
          </children>
       </HBox>
-    <AnchorPane fx:id="mainPane" maxHeight="-1.0" maxWidth="-1.0" prefHeight="-1.0" prefWidth="-1.0" styleClass="background" stylesheets="css/pb_dark_theme.css" VBox.vgrow="ALWAYS" />
+    <AnchorPane fx:id="mainPane" maxHeight="-1.0" maxWidth="-1.0" prefHeight="-1.0" prefWidth="-1.0" VBox.vgrow="ALWAYS" />
   </children>
 </VBox>
