@@ -13,9 +13,6 @@ public class MainController implements INavigatable {
 
 	@FXML
 	private Pane mainPane;
-	
-	@FXML
-	private VBox mainBox;
 
 	/* (non-Javadoc)
 	 * @see org.peerbox.presenter.INavigatable#setContent(javafx.scene.Node)
@@ -34,7 +31,7 @@ public class MainController implements INavigatable {
 	
 	public void minApp(ActionEvent event){
 		System.out.println("Application minimized.");
-		Stage stage = (Stage) mainBox.getScene().getWindow();
+		Stage stage = (Stage) mainPane.getScene().getWindow();
 		stage.setIconified(true);
 		
 	}
