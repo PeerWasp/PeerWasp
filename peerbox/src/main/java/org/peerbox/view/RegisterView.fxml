@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.paint.*?>
+<?import javafx.scene.text.*?>
+
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="500.0" prefWidth="275.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.peerbox.presenter.RegisterController">
+   <children>
+      <GridPane fx:id="grdForm" hgap="10.0" layoutX="15.0" layoutY="199.0" prefHeight="154.0" prefWidth="246.0" vgap="10.0" AnchorPane.leftAnchor="15.0" AnchorPane.rightAnchor="14.0" AnchorPane.topAnchor="199.0">
+        <columnConstraints>
+          <ColumnConstraints halignment="RIGHT" hgrow="SOMETIMES" maxWidth="312.0" minWidth="0.0" prefWidth="0.0" />
+          <ColumnConstraints hgrow="SOMETIMES" maxWidth="524.0" minWidth="10.0" prefWidth="106.0" />
+            <ColumnConstraints hgrow="SOMETIMES" maxWidth="524.0" minWidth="10.0" prefWidth="116.0" />
+        </columnConstraints>
+        <rowConstraints>
+          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+        </rowConstraints>
+         <children>
+            <TextField fx:id="txtUsername" promptText="Enter username" GridPane.columnIndex="1" GridPane.columnSpan="2" />
+            <PasswordField fx:id="txtPassword_1" promptText="Enter password" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+            <PasswordField fx:id="txtPassword_2" prefHeight="25.0" prefWidth="131.0" promptText="Confirm password" GridPane.columnIndex="2" GridPane.rowIndex="1" />
+            <PasswordField fx:id="txtPin_1" promptText="Enter PIN" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+            <PasswordField fx:id="txtPin_2" promptText="Confirm PIN" GridPane.columnIndex="2" GridPane.rowIndex="2" />
+            <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.rowIndex="3" GridPane.valignment="CENTER">
+               <children>
+                  <Button fx:id="btnRegister" mnemonicParsing="false" onAction="#registerAction" prefWidth="100.0" text="Register" />
+                  <Button fx:id="btnBack" mnemonicParsing="false" onAction="#goBack" prefHeight="25.0" prefWidth="112.0" text="Back">
+                     <HBox.margin>
+                        <Insets left="10.0" />
+                     </HBox.margin>
+                  </Button>
+               </children>
+            </HBox>
+         </children>
+      </GridPane>
+      	<ProgressIndicator fx:id="piProgress" visible="false" />
+      	<Button layoutX="226.0" layoutY="-1.0" mnemonicParsing="false" onAction="#minApp" styleClass="button-minimize" stylesheets="css/pb_dark_theme.css" />
+    	<Button layoutX="245.0" layoutY="-1.0" mnemonicParsing="false" onAction="#closeApp" styleClass="button-close" stylesheets="css/pb_dark_theme.css" />
+   </children>
+    </AnchorPane>
