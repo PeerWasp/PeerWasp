@@ -10,11 +10,11 @@
 
 <VBox prefHeight="500.0" prefWidth="275.0" styleClass="background" stylesheets="css/pb_dark_theme.css" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.peerbox.presenter.MainController">
   <children>
-      <HBox prefHeight="18.0" prefWidth="275.0">
+      <HBox alignment="CENTER_RIGHT" prefHeight="18.0" prefWidth="275.0">
          <children>
-            <Button layoutX="226.0" layoutY="-1.0" mnemonicParsing="false" onAction="#minApp" styleClass="button-minimize" stylesheets="css/pb_dark_theme.css">
+            <Button layoutX="230.0" layoutY="-1.0" mnemonicParsing="false" onAction="#minApp" styleClass="button-minimize" stylesheets="css/pb_dark_theme.css">
                <HBox.margin>
-                  <Insets left="220.0" />
+                  <Insets right="-10.0" />
                </HBox.margin></Button>
             <Button layoutX="245.0" layoutY="-1.0" mnemonicParsing="false" onAction="#closeApp" styleClass="button-close" stylesheets="css/pb_dark_theme.css" />
          </children>
