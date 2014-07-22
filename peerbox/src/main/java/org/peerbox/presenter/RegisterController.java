@@ -164,7 +164,7 @@ public class RegisterController implements Initializable {
 			@Override
 			public ValidationEvent call(ValidationObject param) {
 				String password = txtPassword_1.getText();
-				ValidationUtils.validateOnDemand(txtPassword_2); // refresh validation reuslt of confirm field
+				ValidationUtils.validateOnDemand(txtPassword_2); // refresh validation result of confirm field
 				// as well
 				if (password.isEmpty()) {
 					return new ValidationEvent(ValidationEvent.VALIDATION_ERROR, 0, "Please enter a password.");

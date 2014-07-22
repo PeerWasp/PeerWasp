@@ -35,6 +35,5 @@ public class MainController implements INavigatable {
 		System.out.println("Application minimized.");
 		Stage stage = (Stage) mainPane.getScene().getWindow();
 		stage.setIconified(true);
-		
 	}
 }
