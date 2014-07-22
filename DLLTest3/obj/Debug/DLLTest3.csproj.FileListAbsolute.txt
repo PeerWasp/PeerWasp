@@ -1,0 +1,11 @@
+c:\users\claudio\documents\visual studio 2012\Projects\DLLTest3\DLLTest3\obj\Debug\DLLTest3.csprojResolveAssemblyReference.cache
+c:\users\claudio\documents\visual studio 2012\Projects\DLLTest3\DLLTest3\obj\Debug\DLLTest3.Properties.Resources.resources
+c:\users\claudio\documents\visual studio 2012\Projects\DLLTest3\DLLTest3\obj\Debug\DLLTest3.csproj.GenerateResource.Cache
+c:\users\claudio\documents\visual studio 2012\Projects\DLLTest3\DLLTest3\bin\Debug\DLLTest3.dll
+c:\users\claudio\documents\visual studio 2012\Projects\DLLTest3\DLLTest3\bin\Debug\DLLTest3.pdb
+c:\users\claudio\documents\visual studio 2012\Projects\DLLTest3\DLLTest3\bin\Debug\SharpShell.dll
+c:\users\claudio\documents\visual studio 2012\Projects\DLLTest3\DLLTest3\obj\Debug\DLLTest3.dll
+c:\users\claudio\documents\visual studio 2012\Projects\DLLTest3\DLLTest3\obj\Debug\DLLTest3.pdb
+C:\Users\Claudio\Documents\Visual Studio 2012\Projects\DLLTest3\DLLTest3\bin\Debug\Apex.WinForms.dll
+C:\Users\Claudio\Documents\Visual Studio 2012\Projects\DLLTest3\DLLTest3\bin\Debug\ServerManager.exe
+C:\Users\Claudio\Documents\Visual Studio 2012\Projects\DLLTest3\DLLTest3\bin\Debug\srm.exe

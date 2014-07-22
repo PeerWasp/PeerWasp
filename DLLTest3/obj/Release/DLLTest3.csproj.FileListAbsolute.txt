@@ -1,0 +1,12 @@
+C:\Users\Claudio\documents\visual studio 2012\Projects\DLLTest3\DLLTest3\obj\Release\DLLTest3.csproj.GenerateResource.Cache
+C:\Users\Claudio\documents\visual studio 2012\Projects\DLLTest3\DLLTest3\bin\Release\DLLTest3.dll
+C:\Users\Claudio\documents\visual studio 2012\Projects\DLLTest3\DLLTest3\bin\Release\DLLTest3.pdb
+C:\Users\Claudio\documents\visual studio 2012\Projects\DLLTest3\DLLTest3\bin\Release\SharpShell.dll
+C:\Users\Claudio\documents\visual studio 2012\Projects\DLLTest3\DLLTest3\obj\Release\DLLTest3.Properties.Resources.resources
+C:\Users\Claudio\documents\visual studio 2012\Projects\DLLTest3\DLLTest3\obj\Release\DLLTest3.dll
+C:\Users\Claudio\documents\visual studio 2012\Projects\DLLTest3\DLLTest3\obj\Release\DLLTest3.pdb
+C:\Users\Claudio\Documents\Visual Studio 2012\Projects\DLLTest3\DLLTest3\obj\Release\DLLTest3.csprojResolveAssemblyReference.cache
+C:\Users\Claudio\documents\visual studio 2012\Projects\DLLTest3\DLLTest3\bin\Release\Apex.WinForms.dll
+C:\Users\Claudio\documents\visual studio 2012\Projects\DLLTest3\DLLTest3\bin\Release\ServerManager.exe
+C:\Users\Claudio\documents\visual studio 2012\Projects\DLLTest3\DLLTest3\bin\Release\srm.exe
+C:\Users\Claudio\documents\visual studio 2012\Projects\DLLTest3\DLLTest3\bin\Release\DLLTest3.tlb

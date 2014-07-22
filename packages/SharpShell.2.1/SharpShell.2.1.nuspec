@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
+  <metadata>
+    <id>SharpShell</id>
+    <version>2.1</version>
+    <title>SharpShell</title>
+    <authors>Dave Kerr</authors>
+    <owners>Dave Kerr</owners>
+    <projectUrl>https://github.com/dwmkerr/sharpshell</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>SharpShell is a framework that lets you build Windows Shell Extensions using the .NET Framework.</description>
+    <summary>SharpShell is a framework that lets you build Windows Shell Extensions using the .NET Framework.</summary>
+    <releaseNotes>Release 2.1 adds full support for transparency on context menu icons, a set of bugfixes and extended features for the Server Manager.</releaseNotes>
+    <copyright>Copyright © Dave Kerr 2014</copyright>
+    <tags>Shell SharpShell COM Context Menu Icon Handler</tags>
+    <frameworkAssemblies>
+      <frameworkAssembly assemblyName="System.Windows.Forms" targetFramework="" />
+      <frameworkAssembly assemblyName="System.Drawing" targetFramework="" />
+    </frameworkAssemblies>
+    <references>
+      <reference file="SharpShell.dll" />
+    </references>
+  </metadata>
+</package>
