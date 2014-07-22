@@ -73,12 +73,4 @@ public class SelectRootPathController implements Initializable{
 		txtRootPath.setText(defaultDir);
 		//txtRootPath.setPrefWidth(250);
 	}
-	
-	public void closeApp(ActionEvent event){
-		fNavigationService.closeApp();
-	}
-	
-	public void minApp(ActionEvent event){
-		fNavigationService.minApp();
-	}
 }

@@ -13,8 +13,6 @@
         <Label layoutX="40.0" layoutY="233.0" text="IPv4 address of well-known peer:" />
         <Button fx:id="btnAccessNetwork" layoutX="68.0" layoutY="336.0" mnemonicParsing="false" onAction="#accessNetwork" prefHeight="25.0" prefWidth="140.0" text="Access network" />
         <Button fx:id="btnBack" layoutX="68.0" layoutY="368.0" mnemonicParsing="false" onAction="#goBack" prefHeight="25.0" prefWidth="140.0" text="Go back" />
-       	<Button layoutX="226.0" layoutY="-1.0" mnemonicParsing="false" onAction="#minApp" styleClass="button-minimize" stylesheets="css/pb_dark_theme.css" />
-      	<Button layoutX="245.0" layoutY="-1.0" mnemonicParsing="false" onAction="#closeApp" styleClass="button-close" stylesheets="css/pb_dark_theme.css" />
       <Label layoutX="116.0" layoutY="275.0" prefHeight="17.0" prefWidth="119.0" text="Format: 192.168.1.1" />
   </children>
 </AnchorPane>

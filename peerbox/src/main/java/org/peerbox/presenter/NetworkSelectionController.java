@@ -32,14 +32,4 @@ public class NetworkSelectionController implements Initializable {
 		System.out.println("Network joined.");	
 		fNavigationService.navigate(ViewNames.JOIN_NETWORK_VIEW);
 	}
-	
-	public void closeApp(ActionEvent event){
-		fNavigationService.closeApp();
-	}
-	
-	public void minApp(ActionEvent event){
-		fNavigationService.minApp();
-	}
-	
-
 }

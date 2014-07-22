@@ -20,4 +20,14 @@ public class MainController implements INavigatable {
 		mainPane.getChildren().add(content);
 		mainPane.requestLayout();
 	}
+	
+	public void closeApp(){
+		System.out.println("Application closed.");
+		System.exit(0);
+	}
+	
+	public void minApp(){
+		System.out.println("Application minimized (not yet implemented).");
+		//TODO
+	}
 }

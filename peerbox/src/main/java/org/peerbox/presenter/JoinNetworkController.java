@@ -54,13 +54,4 @@ public class JoinNetworkController implements Initializable {
 			e.printStackTrace();
 		}
 	}
-	
-	public void closeApp(ActionEvent event){
-		fNavigationService.closeApp();
-	}
-	
-	public void minApp(ActionEvent event){
-		fNavigationService.minApp();
-	}
-
 }

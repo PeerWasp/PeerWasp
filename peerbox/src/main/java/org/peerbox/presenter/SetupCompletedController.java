@@ -92,13 +92,4 @@ public class SetupCompletedController implements Initializable {
 		});
 		return task;
 	}
-	
-	public void closeApp(ActionEvent event){
-		fNavigationService.closeApp();
-	}
-	
-	public void minApp(ActionEvent event){
-		fNavigationService.minApp();
-	}
-
 }

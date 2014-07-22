@@ -12,7 +12,5 @@
          <children>
             <Button fx:id="btnCreateNetwork" layoutX="77.0" layoutY="322.0" mnemonicParsing="false" onAction="#createNetwork" text="Create new network" />
             <Button fx:id="btnJoinNetwork" layoutX="74.0" layoutY="366.0" mnemonicParsing="false" onAction="#joinNetwork" text="Join existing network" />
-      <Button layoutX="226.0" layoutY="-1.0" mnemonicParsing="false" onAction="#minApp" styleClass="button-minimize" stylesheets="css/pb_dark_theme.css" />
-      <Button layoutX="245.0" layoutY="-1.0" mnemonicParsing="false" onAction="#closeApp" styleClass="button-close" stylesheets="css/pb_dark_theme.css" />
          </children>
     </AnchorPane>

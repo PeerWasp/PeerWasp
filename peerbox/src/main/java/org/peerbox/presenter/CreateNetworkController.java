@@ -75,12 +75,4 @@ public class CreateNetworkController implements Initializable {
 		}
 		fNavigationService.navigate(ViewNames.REGISTER_VIEW);
 	}
-	
-	public void closeApp(ActionEvent event){
-		fNavigationService.closeApp();
-	}
-	
-	public void minApp(ActionEvent event){
-		fNavigationService.minApp();
-	}
 }

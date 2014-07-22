@@ -33,7 +33,5 @@
       </GridPane>
       <Button fx:id="btnRegister" layoutX="30.0" layoutY="415.0" mnemonicParsing="false" onAction="#registerAction" prefWidth="100.0" text="Register" />
    	<Button layoutX="177.0" layoutY="415.0" mnemonicParsing="false" onAction="#goBack" prefHeight="25.0" prefWidth="84.0" text="Go back" />
-    <Button layoutX="226.0" layoutY="-1.0" mnemonicParsing="false" onAction="#minApp" styleClass="button-minimize" stylesheets="css/pb_dark_theme.css" />
-    <Button layoutX="245.0" layoutY="-1.0" mnemonicParsing="false" onAction="#closeApp" styleClass="button-close" stylesheets="css/pb_dark_theme.css" />
    </children>
 </AnchorPane>

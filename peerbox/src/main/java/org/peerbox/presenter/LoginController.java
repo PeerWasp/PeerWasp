@@ -215,12 +215,4 @@ public class LoginController implements Initializable {
 		txtRootPath.setText(path);
 	}
 	
-	public void closeApp(ActionEvent event){
-		fNavigationService.closeApp();
-	}
-	
-	public void minApp(ActionEvent event){
-		fNavigationService.minApp();
-	}
-	
 }
