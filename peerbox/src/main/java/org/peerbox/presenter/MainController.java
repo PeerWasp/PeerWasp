@@ -2,6 +2,7 @@ package org.peerbox.presenter;
 
 import org.peerbox.interfaces.INavigatable;
 
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
@@ -26,7 +27,8 @@ public class MainController implements INavigatable {
 	
 	public void closeApp(ActionEvent event){
 		System.out.println("Application closed.");
-		System.exit(0);
+		Platform.exit();
+        System.exit(0);
 	}
 	
 	public void minApp(ActionEvent event){
