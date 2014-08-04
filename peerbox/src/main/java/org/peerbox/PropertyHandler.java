@@ -10,8 +10,13 @@ import java.util.Properties;
 
 public class PropertyHandler {
 	
-	PropertyHandler propHandler = new PropertyHandler();
-	static Properties prop = new Properties();
+	private static boolean DEFAULT_AUTO_LOGIN = false;
+	
+	private static String PROPERTY_AUTO_LOGIN = "autologin";
+	private static String PROPERTY_USERNAME = "username";
+	
+//	PropertyHandler propHandler = new PropertyHandler();
+	private static Properties prop = new Properties();
 
 	//check if property file is already existing in project folder
 	public static void checkFileExists(){
@@ -50,11 +55,11 @@ public class PropertyHandler {
     	
 		try {
     		//Dummy test set
-    		prop.setProperty("peerAddress", "localhost");
-    		prop.setProperty("username", "myuser");
-    		prop.setProperty("password", "mypwd");
-    		prop.setProperty("pin", "1234");
-    		prop.setProperty("rootpath", "unset");
+//    		prop.setProperty("peerAddress", "localhost");
+//    		prop.setProperty("username", "myuser");
+//    		prop.setProperty("password", "mypwd");
+//    		prop.setProperty("pin", "1234");
+//    		prop.setProperty("rootpath", "unset");
     		//save properties to project root folder
     		prop.store(new FileOutputStream("config.properties"), null);
     		System.out.println("New property file created.");
@@ -91,6 +96,41 @@ public class PropertyHandler {
 			prop.setProperty("rootpath", "unset");
 		}
 		return prop.getProperty("rootpath");
+	}
+	
+	public static void setUsername(String username) {
+		prop.setProperty(PROPERTY_USERNAME, username);
+	}
+	
+	public static String getUsername() {
+		return prop.getProperty(PROPERTY_USERNAME).trim();
+	}
+	
+	public static boolean hasUsername() {
+		return getUsername() != null && getUsername().length() > 0;
+	}
+	
+	public static void setAutoLogin(boolean enabled) {
+		prop.setProperty(PROPERTY_AUTO_LOGIN, Boolean.toString(enabled));
+		saveProperties();
+	}
+	
+	private static boolean saveProperties() {
+		boolean success = false;
+		
+		try {
+			prop.store(new FileOutputStream("config.properties"), null);
+			success = true;
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return success;
+	}
+
+
+	public static boolean isAutoLoginEnabled() {
+		return Boolean.valueOf(prop.getProperty(PROPERTY_AUTO_LOGIN, 
+				Boolean.valueOf(DEFAULT_AUTO_LOGIN).toString()));
 	}
 }
 
