@@ -1,5 +1,6 @@
 package org.peerbox.presenter;
 
+import java.io.IOException;
 import java.net.URL;
 import java.net.UnknownHostException;
 import java.util.ResourceBundle;
@@ -7,6 +8,8 @@ import java.util.ResourceBundle;
 import org.peerbox.PropertyHandler;
 import org.peerbox.model.H2HManager;
 import org.peerbox.view.ViewNames;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.inject.Inject;
 
@@ -18,6 +21,8 @@ import javafx.scene.control.TextField;
 
 public class JoinNetworkController implements Initializable {
 
+	private static final Logger logger = LoggerFactory.getLogger(JoinNetworkController.class);
+	
 	private H2HManager h2hManager;
 	private NavigationService fNavigationService;
 	
@@ -62,11 +67,16 @@ public class JoinNetworkController implements Initializable {
 	}
 
 	private void udpateAutoJoinConfig() {
-		if(chbAutoJoin.isSelected()) {
-			PropertyHandler.setAutoJoin(true);
-			PropertyHandler.addBootstrapNode(txtBootstrapIP.getText().trim());
-		} else {
-			PropertyHandler.setAutoJoin(false);
+		try {
+			if(chbAutoJoin.isSelected()) {
+				PropertyHandler.setAutoJoin(true);
+				PropertyHandler.addBootstrapNode(txtBootstrapIP.getText().trim());
+			} else {
+				PropertyHandler.setAutoJoin(false);
+			}
+		} catch(IOException ioex) {
+			logger.warn("Could not save settings: {}", ioex.getMessage());
+			// TODO: inform user.
 		}
 	}
 }

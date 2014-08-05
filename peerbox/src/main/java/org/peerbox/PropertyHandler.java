@@ -6,6 +6,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -14,107 +15,89 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 
+import org.peerbox.presenter.settings.Network;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class PropertyHandler {
+	
+	private static final Logger logger = LoggerFactory.getLogger(PropertyHandler.class);
+	
+	private static final String DEFAULT_PROPERTIES_FILENAME = "/properties/default";
+	private static final String FILENAME = "peerbox.properties";
 	
 	private static final String PROPERTY_BOOTSTRAPPING_NODES = "bootstrappingnodes";
 	private static final String PROPERTY_AUTO_JOIN = "autojoin";
 	private static final String PROPERTY_AUTO_LOGIN = "autologin";
 	private static final String PROPERTY_USERNAME = "username";
 	
-	private static final Object LIST_SEPARATOR = ",";
+	private static final String LIST_SEPARATOR = ",";
 	
 	
-//	PropertyHandler propHandler = new PropertyHandler();
-	private static Properties prop = new Properties();
-
-	private static boolean saveProperties() {
-		boolean success = false;
-		
-		try {
-			prop.store(new FileOutputStream("config.properties"), null);
-			success = true;
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		return success;
-	}
-
+	private static Properties prop;
 
 	//check if property file is already existing in project folder
-	public static void checkFileExists(){
+	public static void loadProperties() throws IOException{
+		File f = new File(FILENAME);
+		if(!f.exists()) {
+			createPropertyFile(FILENAME);
+		}
+
+		Properties defaultProp = loadDefaultProperties();
+		prop = new Properties(defaultProp);
+		//read in property file
+		prop = loadCustomProperties(defaultProp);
+		logger.debug("Load existing property file {}", f.getAbsoluteFile());
+	}
 		
-		File f = new File("config.properties");
-		if(f.exists() && !f.isDirectory()) { 
-			//read in property file
-			loadPropertyFile();
-			System.out.println("Existing property file found.");
-		} else {
-			//create new property file if no existing is found
-			createPropertyFile();
+	public static void saveProperties() throws IOException {
+		try(OutputStream out = new FileOutputStream(FILENAME)) {
+			prop.store(out, null);
 		}
 	}
 	
-	
-	//load existing property file
-	public static void loadPropertyFile(){
-		
-		InputStream input = null;
-		try {
-			input = new FileInputStream("config.properties");
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
+	private static Properties loadDefaultProperties() throws IOException {
+		try(InputStream in = PropertyHandler.class.getResourceAsStream(DEFAULT_PROPERTIES_FILENAME)) {
+			Properties defaultProps = new Properties();
+			defaultProps.load(in);
+			return defaultProps;
 		}
-		// load a properties file
-		try {
-			prop.load(input);
-		} catch (IOException e) {
-			e.printStackTrace();
+	}
+
+	//load existing property file
+	private static Properties loadCustomProperties(Properties defaultProp) throws IOException{
+		try(InputStream in = new FileInputStream(FILENAME)) {
+			Properties p = new Properties(defaultProp);
+			p.load(in);
+			return p;
 		}
 	}
 	
 	//if no property file is found, a new one will be written to the project folder
-	public static void createPropertyFile(){
-    	
-		try {
-    		//Dummy test set
-//    		prop.setProperty("peerAddress", "localhost");
-//    		prop.setProperty("username", "myuser");
-//    		prop.setProperty("password", "mypwd");
-//    		prop.setProperty("pin", "1234");
-//    		prop.setProperty("rootpath", "unset");
-    		//save properties to project root folder
-    		prop.store(new FileOutputStream("config.properties"), null);
-    		System.out.println("New property file created.");
-    	} catch (IOException ex) {
-    		ex.printStackTrace();
-        }
-    }
+	private static void createPropertyFile(String filename) throws IOException {
+		try(OutputStream out = new FileOutputStream(filename)) {
+			prop.store(out, null);
+			logger.debug("New property file created: {}", filename);
+		}
+	}
+	
+	
 	
 	//write root path from SelectRootPathController to property file
-	public static void setRootPath(String path){
-    	try {
-    		prop.setProperty("rootpath",path);
-    		//save properties to project root folder
-    		prop.store(new FileOutputStream("config.properties"),null);
-    		System.out.println("Root path stored in property file.");
-    	} catch (IOException ex) {
-    		ex.printStackTrace();
-        }
+	public static void setRootPath(String path) throws IOException{
+		prop.setProperty("rootpath",path);
+		System.out.println("Root path stored in property file.");
+		saveProperties();
 	}
 	
 	//check whether the property file already holds a rootpath property
-	public static boolean rootPathExists(){		
-		if(prop.getProperty("rootpath") != null){
-			System.out.println("using rootpath from property file.");
-			return true;
-		} else {
-			return false;
-		}
+	public static boolean rootPathExists(){
+		return prop.getProperty("rootpath") != null && !prop.getProperty("rootpath").isEmpty();
 	}
 	
 	//returns rootpath value from property file
 	public static String getRootPath(){
-		if(prop.getProperty("rootpath") == null){
+		if(!rootPathExists()){
 			prop.setProperty("rootpath", "unset");
 		}
 		return prop.getProperty("rootpath");
@@ -128,15 +111,16 @@ public class PropertyHandler {
 		return getUsername() != null && getUsername().length() > 0;
 	}
 	
-	public static void setUsername(String username) {
+	public static void setUsername(String username) throws IOException {
 		prop.setProperty(PROPERTY_USERNAME, username);
+		saveProperties();
 	}
 
 	public static boolean isAutoLoginEnabled() {
 		return Boolean.valueOf(prop.getProperty(PROPERTY_AUTO_LOGIN));
 	}
 
-	public static void setAutoLogin(boolean enabled) {
+	public static void setAutoLogin(boolean enabled) throws IOException {
 		prop.setProperty(PROPERTY_AUTO_LOGIN, Boolean.toString(enabled));
 		saveProperties();
 	}
@@ -145,8 +129,9 @@ public class PropertyHandler {
 		return Boolean.valueOf(prop.getProperty(PROPERTY_AUTO_JOIN));
 	}
 
-	public static void setAutoJoin(boolean enabled) {
+	public static void setAutoJoin(boolean enabled) throws IOException {
 		prop.setProperty(PROPERTY_AUTO_JOIN, Boolean.toString(enabled));
+		saveProperties();
 	}
 	
 	public static boolean hasBootstrappingNodes() {
@@ -166,19 +151,19 @@ public class PropertyHandler {
 		return nodes;
 	}
 
-	public static void addBootstrapNode(String node) {
+	public static void addBootstrapNode(String node) throws IOException {
 		List<String> nodes = getBootstrappingNodes();
 		nodes.add(node);
 		setBootstrappingNodes(nodes);
 	}
 	
-	public static void removeBootstrapNode(String node) {
+	public static void removeBootstrapNode(String node) throws IOException {
 		List<String> nodes = getBootstrappingNodes();
 		nodes.remove(node);
 		setBootstrappingNodes(nodes);
 	}
 	
-	public static void setBootstrappingNodes(List<String> nodes) {
+	public static void setBootstrappingNodes(List<String> nodes) throws IOException {
 		StringBuilder nodeList = new StringBuilder();
 		Set<String> uniqueNodes = new HashSet<String>();
 		for(String node : nodes) {

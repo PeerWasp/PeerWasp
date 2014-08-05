@@ -1,5 +1,6 @@
 package org.peerbox.presenter;
 
+import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Path;
 import java.util.ResourceBundle;
@@ -29,6 +30,7 @@ import jidefx.scene.control.validation.Validator;
 
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.hive2hive.core.processes.framework.exceptions.InvalidProcessStateException;
+import org.peerbox.PropertyHandler;
 import org.peerbox.model.H2HManager;
 import org.peerbox.model.UserManager;
 import org.peerbox.utils.FormValidationUtils;
@@ -84,6 +86,8 @@ public class LoginController implements Initializable {
 			txtRootPath.setText("rootPath == null, because not read from config file yet!");
 		}
 		
+		// initialize autologin with current setting
+		chbAutoLogin.setSelected(PropertyHandler.isAutoLoginEnabled());
 	}
 	
 	private void initializeValidations() {
@@ -191,9 +195,24 @@ public class LoginController implements Initializable {
 		logger.debug("Login task succeeded: user {} logged in.", txtUsername.getText().trim());
 		uninstallProgressIndicator();
 		grdForm.disableProperty().unbind();
+		
+		saveLoginConfig();
+		
 		fNavigationService.navigate(ViewNames.SETUP_COMPLETED_VIEW);
 	}
 	
+	private void saveLoginConfig() {
+		try {
+			PropertyHandler.setUsername(txtUsername.getText().trim());
+			if(chbAutoLogin.isSelected()) {
+				PropertyHandler.setAutoLogin(true);
+			}
+		} catch(IOException ioex) {
+			logger.warn("Could not save login settings: {}", ioex.getMessage());
+			// TODO: inform user.
+		}
+	}
+
 	private boolean loginUser() throws NoPeerConnectionException, InvalidProcessStateException, InterruptedException {
 		return userManager.loginUser(txtUsername.getText().trim(), txtPassword.getText(), txtPin.getText(), h2hManager.getRootPath());
 	}

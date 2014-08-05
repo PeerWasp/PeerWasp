@@ -45,9 +45,12 @@ public class App extends Application
 		logger.info("PeerBox started.");
 		
 		//check whether a Configuration file already exists and load it (if it doesn't exist, it will be created automatically)
-		PropertyHandler.checkFileExists();
-		PropertyHandler.loadPropertyFile();
-        
+		try {
+			PropertyHandler.loadProperties();
+		} catch (IOException e) {
+			logger.warn("Could not load application properties.");
+			e.printStackTrace();
+		}
 		launch(args);
     }
     
@@ -73,17 +76,21 @@ public class App extends Application
 			
 		} catch (IOException e) {
 			e.printStackTrace();
+			// TODO handle error properly!
 			return;
 		}
 		
 		Scene scene = new Scene(root, 275, 500);
 		primaryStage.setTitle("PeerBox");
     	primaryStage.getIcons().add(new Image(getClass().getResourceAsStream("/images/icon.png")));
-    	primaryStage.initStyle(StageStyle.TRANSPARENT);
+    	primaryStage.initStyle(StageStyle.DECORATED);
     	installExitHandler(primaryStage);
 		primaryStage.setScene(scene);
 		primaryStage.sizeToScene();
 		primaryStage.show();
+		
+		
+//		new SettingsStage();
 		
         //provides ability to move application window wherever the user clicks & drags with the mouse
 		root.setOnMousePressed(new EventHandler<MouseEvent>() {
@@ -103,7 +110,6 @@ public class App extends Application
             }
         });
         
-
     }
     
     

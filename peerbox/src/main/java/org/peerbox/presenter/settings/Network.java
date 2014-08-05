@@ -1,6 +1,7 @@
 package org.peerbox.presenter.settings;
 
 
+import java.io.IOException;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.Collections;
@@ -105,17 +106,22 @@ public class Network implements Initializable {
 	}
 	
 	public void saveAction(ActionEvent event) {
-		logger.debug("Save bootstrapping nodes.");
-		// update config
-		List<String> nodes = lwBootstrappingNodes.getItems();
-		PropertyHandler.setBootstrappingNodes(nodes);
-		PropertyHandler.setAutoJoin(chbAutoJoin.isSelected());
-		// reload saved config
-		reset();
+		try {
+			// update config
+			List<String> nodes = lwBootstrappingNodes.getItems();
+			PropertyHandler.setBootstrappingNodes(nodes);
+			PropertyHandler.setAutoJoin(chbAutoJoin.isSelected());
+			// reload saved config
+			reset();
+			logger.debug("Saved network settings.");
+		} catch(IOException ioex) {
+			logger.warn("Could not save settings: {}", ioex.getMessage());
+			// TODO: warn user about this....
+		}
 	}
 	
 	public void resetAction(ActionEvent event) {
-		logger.debug("Reset bootstrapping nodes.");
+		logger.debug("Reset network settings.");
 		reset();
 	}
 }
