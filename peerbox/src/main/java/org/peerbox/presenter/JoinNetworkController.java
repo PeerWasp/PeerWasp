@@ -4,6 +4,7 @@ import java.net.URL;
 import java.net.UnknownHostException;
 import java.util.ResourceBundle;
 
+import org.peerbox.PropertyHandler;
 import org.peerbox.model.H2HManager;
 import org.peerbox.view.ViewNames;
 
@@ -12,6 +13,7 @@ import com.google.inject.Inject;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.TextField;
 
 public class JoinNetworkController implements Initializable {
@@ -32,6 +34,9 @@ public class JoinNetworkController implements Initializable {
 	@FXML
 	private TextField txtBootstrapIP;
 	
+	@FXML
+	private CheckBox chbAutoJoin;
+	
 	public void goBack(ActionEvent event){
 		System.out.println("Go back.");
 		fNavigationService.goBack();
@@ -40,18 +45,28 @@ public class JoinNetworkController implements Initializable {
 	public void accessNetwork(ActionEvent event){
 		System.out.println("Try to join network at provided IP address.");
 		try {
-			
-			if(h2hManager.accessNetwork(txtBootstrapIP.getText())){
+			if(h2hManager.accessNetwork(txtBootstrapIP.getText().trim())){
+				
+				udpateAutoJoinConfig();
+				
 				if(h2hManager.getRootPath().toString().equals("unset")){
 					fNavigationService.navigate(ViewNames.SELECT_ROOT_PATH_VIEW);
 				} else {
 					fNavigationService.navigate(ViewNames.LOGIN_VIEW);
 				}
-				
 			}
 		} catch (UnknownHostException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+		}
+	}
+
+	private void udpateAutoJoinConfig() {
+		if(chbAutoJoin.isSelected()) {
+			PropertyHandler.setAutoJoin(true);
+			PropertyHandler.addBootstrapNode(txtBootstrapIP.getText().trim());
+		} else {
+			PropertyHandler.setAutoJoin(false);
 		}
 	}
 }
