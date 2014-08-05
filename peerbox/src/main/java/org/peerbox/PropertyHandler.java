@@ -38,14 +38,13 @@ public class PropertyHandler {
 
 	//check if property file is already existing in project folder
 	public static void loadProperties() throws IOException{
+		Properties defaultProp = loadDefaultProperties();
+		prop = new Properties(defaultProp);
+		//read in property file
 		File f = new File(FILENAME);
 		if(!f.exists()) {
 			createPropertyFile(FILENAME);
 		}
-
-		Properties defaultProp = loadDefaultProperties();
-		prop = new Properties(defaultProp);
-		//read in property file
 		prop = loadCustomProperties(defaultProp);
 		logger.debug("Load existing property file {}", f.getAbsoluteFile());
 	}
@@ -76,7 +75,7 @@ public class PropertyHandler {
 	//if no property file is found, a new one will be written to the project folder
 	private static void createPropertyFile(String filename) throws IOException {
 		try(OutputStream out = new FileOutputStream(filename)) {
-			prop.store(out, null);
+			prop.store(out, "");
 			logger.debug("New property file created: {}", filename);
 		}
 	}
