@@ -5,26 +5,30 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.layout.AnchorPane?>
 
-<!--  stylesheets="css/pb_dark_theme.css"  -->
+<!-- stylesheets="css/pb_dark_theme.css" -->
 <AnchorPane maxHeight="-Infinity" maxWidth="-Infinity"
 	minHeight="-Infinity" minWidth="-Infinity" prefHeight="450.0"
-	prefWidth="600.0" xmlns="http://javafx.com/javafx/8"
-	xmlns:fx="http://javafx.com/fxml/1">
+	prefWidth="600.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
 	<children>
-		<TabPane layoutX="14.0" layoutY="14.0" prefHeight="200.0"
-			prefWidth="200.0" styleClass="settings" tabClosingPolicy="UNAVAILABLE"
+		<TabPane  styleClass="settings" tabClosingPolicy="UNAVAILABLE"
 			AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
 			AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
 			<tabs>
-				<fx:include source="General.fxml" />
-				<fx:include source="Account.fxml" />
-				
+				<Tab styleClass="settings-general" text="General">
+					<content>
+						<fx:include source="General.fxml" />
+					</content>
+				</Tab>
+				<Tab styleClass="settings-account" text="Account">
+					<content>
+						<fx:include source="Account.fxml" />
+					</content>
+				</Tab>
 				<Tab styleClass="settings-account" text="Network">
 					<content>
 						<fx:include source="Network.fxml" />
 					</content>
 				</Tab>
-				
 			</tabs>
 		</TabPane>
 	</children>
