@@ -19,6 +19,7 @@
 	    	<id>hive2hive.org</id>
 	    	<url>http://repo.hive2hive.org</url>
 		</repository>
+		<!--  
 		<repository>
 			<id>sonatype snapshots</id>
 			<snapshots>
@@ -29,6 +30,7 @@
 			</releases>
 			<url>https://oss.sonatype.org/content/repositories/snapshots/</url>
 		</repository>
+		 -->
 	</repositories>
 
 
@@ -78,6 +80,7 @@
 			<artifactId>jidefx-validation</artifactId>
 			<version>0.9.1</version>
 		</dependency>
+		<!-- 
 		<dependency>
 			<groupId>net.java.jemmy</groupId>
 			<artifactId>JemmyFX</artifactId>
@@ -108,6 +111,7 @@
 			<version>0.9.3-SNAPSHOT</version>
 			<scope>test</scope>
 		</dependency>
+		-->
 	</dependencies>
 
 </project>
