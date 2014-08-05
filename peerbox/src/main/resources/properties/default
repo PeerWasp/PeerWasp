@@ -1,2 +1,2 @@
-autologin=false
-autojoin=false
+autologin=true
+autojoin=true

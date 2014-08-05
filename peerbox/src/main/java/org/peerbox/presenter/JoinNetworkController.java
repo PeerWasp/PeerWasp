@@ -26,6 +26,13 @@ public class JoinNetworkController implements Initializable {
 	private H2HManager h2hManager;
 	private NavigationService fNavigationService;
 	
+	@FXML
+	private TextField txtBootstrapIP;
+	
+	@FXML
+	private CheckBox chbAutoJoin;
+	
+	
 	@Inject
 	public JoinNetworkController(NavigationService navigationService, H2HManager h2hManager) {
 		this.fNavigationService = navigationService;
@@ -33,14 +40,10 @@ public class JoinNetworkController implements Initializable {
 	}
 	
 	public void initialize(URL arg0, ResourceBundle arg1) {
-
+		chbAutoJoin.setSelected(PropertyHandler.isAutoJoinEnabled());
 	}
 	
-	@FXML
-	private TextField txtBootstrapIP;
-	
-	@FXML
-	private CheckBox chbAutoJoin;
+
 	
 	public void goBack(ActionEvent event){
 		System.out.println("Go back.");
