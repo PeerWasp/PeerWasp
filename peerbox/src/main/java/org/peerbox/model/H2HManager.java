@@ -7,6 +7,8 @@ import java.net.UnknownHostException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Iterator;
+import java.util.List;
 import java.util.UUID;
 
 import org.hive2hive.core.api.H2HNode;
@@ -14,14 +16,18 @@ import org.hive2hive.core.api.configs.FileConfiguration;
 import org.hive2hive.core.api.configs.NetworkConfiguration;
 import org.hive2hive.core.api.interfaces.IH2HNode;
 import org.hive2hive.core.api.interfaces.INetworkConfiguration;
+import org.peerbox.PropertyHandler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.inject.Singleton;
 
 @Singleton
 public class H2HManager {
 
+	private static final Logger logger = LoggerFactory.getLogger(H2HManager.class);
+	
 	private IH2HNode node;
-//	private UserCredentials userCredentials;
 	private Path rootPath;
 
 	public IH2HNode getNode() {
@@ -130,5 +136,30 @@ public class H2HManager {
 
 	public void setRootPath(String path) {
 		rootPath = new File(path).toPath();
+	}
+
+	public boolean joinNetwork(List<String> bootstrappingNodes) throws UnknownHostException {
+		Iterator<String> nodeIt = bootstrappingNodes.iterator();
+		boolean connected = false;
+		
+		while (nodeIt.hasNext() && !connected) {
+			String node = nodeIt.next();
+			if (accessNetwork(node)) {
+				logger.info("Successfully connected to node {}", node);
+			} else {
+				logger.debug("Could not connect to node {}", node);
+			}
+			connected = isConnected();
+		}
+		
+		if (!connected) {
+			// TODO: notify that join is not possible without saved bootstrapping nodes.
+			logger.info("Could not connect to any node.");
+		}
+		return connected;
+	}
+
+	public boolean isConnected() {
+		return node != null && node.isConnected();
 	}
 }

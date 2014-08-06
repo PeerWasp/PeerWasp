@@ -30,6 +30,8 @@ public class PropertyHandler {
 	private static final String PROPERTY_AUTO_JOIN = "autojoin";
 	private static final String PROPERTY_AUTO_LOGIN = "autologin";
 	private static final String PROPERTY_USERNAME = "username";
+	private static final String PROPERTY_PASSWORD = "password";
+	private static final String PROPERTY_PIN = "pin";
 	
 	private static final String LIST_SEPARATOR = ",";
 	
@@ -46,7 +48,7 @@ public class PropertyHandler {
 			createPropertyFile(FILENAME);
 		}
 		prop = loadCustomProperties(defaultProp);
-		logger.debug("Load existing property file {}", f.getAbsoluteFile());
+		logger.debug("Load property file {}", f.getAbsoluteFile());
 	}
 		
 	public static void saveProperties() throws IOException {
@@ -103,7 +105,8 @@ public class PropertyHandler {
 	}
 	
 	public static String getUsername() {
-		return prop.getProperty(PROPERTY_USERNAME).trim();
+		String n = prop.getProperty(PROPERTY_USERNAME);
+		return n != null ? n.trim() : n;
 	}
 	
 	public static boolean hasUsername() {

@@ -63,6 +63,7 @@ public class JoinNetworkController implements Initializable {
 					fNavigationService.navigate(ViewNames.LOGIN_VIEW);
 				}
 			}
+			// TODO: what is the else case?
 		} catch (UnknownHostException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

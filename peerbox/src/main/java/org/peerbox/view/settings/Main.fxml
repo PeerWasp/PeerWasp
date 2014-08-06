@@ -7,8 +7,7 @@
 
 <!-- stylesheets="css/pb_dark_theme.css" -->
 <AnchorPane maxHeight="-Infinity" maxWidth="-Infinity"
-	minHeight="-Infinity" minWidth="-Infinity" prefHeight="450.0"
-	prefWidth="600.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
+	minHeight="-Infinity" minWidth="-Infinity" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
 	<children>
 		<TabPane  styleClass="settings" tabClosingPolicy="UNAVAILABLE"
 			AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
