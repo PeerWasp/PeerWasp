@@ -6,6 +6,7 @@ import java.nio.file.Path;
 import java.util.ResourceBundle;
 import java.util.concurrent.ExecutionException;
 
+import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.concurrent.WorkerStateEvent;
 import javafx.event.ActionEvent;
@@ -187,14 +188,20 @@ public class LoginController implements Initializable {
 
 	private void onLoginFailed() {
 		logger.error("Login task failed.");
-		uninstallProgressIndicator();
-		grdForm.disableProperty().unbind();
+		Platform.runLater(() -> {
+			uninstallProgressIndicator();
+			grdForm.disableProperty().unbind();
+			grdForm.requestLayout();
+		});
 	}
 	
 	private void onLoginSucceeded() {
 		logger.debug("Login task succeeded: user {} logged in.", txtUsername.getText().trim());
-		uninstallProgressIndicator();
-		grdForm.disableProperty().unbind();
+		Platform.runLater(() -> {
+			uninstallProgressIndicator();
+			grdForm.disableProperty().unbind();
+			grdForm.requestLayout();
+		});
 		
 		saveLoginConfig();
 		
