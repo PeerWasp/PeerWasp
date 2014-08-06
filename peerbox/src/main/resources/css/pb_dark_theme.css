@@ -193,18 +193,3 @@
 }
 
 
-.tab-pane.settings {
-    -fx-tab-max-height: 250; /* this is needed for the tab label to scale */
-}
-
-.tab.settings-general .tab-label  {
-	-fx-content-display: top;
-	-fx-graphic: url('../images/settings-general.png');
-}
-
-.tab.settings-account .tab-label  {
-	-fx-content-display: top;
-	-fx-graphic: url('../images/settings-account.png');
-}
-
-

@@ -5,8 +5,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.layout.AnchorPane?>
 
-<!-- stylesheets="css/pb_dark_theme.css" -->
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity"
+<AnchorPane stylesheets="css/settings.css" maxHeight="-Infinity" maxWidth="-Infinity"
 	minHeight="-Infinity" minWidth="-Infinity" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
 	<children>
 		<TabPane  styleClass="settings" tabClosingPolicy="UNAVAILABLE"
