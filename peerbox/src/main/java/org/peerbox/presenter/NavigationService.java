@@ -7,13 +7,13 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.layout.Pane;
-import javafx.util.Callback;
 
+import org.peerbox.guice.GuiceFxmlLoader;
 import org.peerbox.interfaces.INavigatable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.inject.Injector;
+import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
 @Singleton
@@ -22,40 +22,32 @@ public class NavigationService {
 	private static final Logger logger = LoggerFactory.getLogger(NavigationService.class);
 	private INavigatable fController;
 	private ObservableList<Node> pages = FXCollections.observableArrayList();
-	private Injector injector;
+	private GuiceFxmlLoader guiceFxmlLoader;
 
+	@Inject
+	public NavigationService(GuiceFxmlLoader loader) {
+		this.guiceFxmlLoader = loader;
+	}
 
 	public void setNavigationController(INavigatable controller) {
 		fController = controller;
 	}
-
-	public void setInjector(Injector injector) {
-		this.injector = injector;
+	
+	public FXMLLoader createLoader(String fxmlFile) throws IOException {
+		return guiceFxmlLoader.create(fxmlFile);
 	}
 
 	public void navigate(String fxmlFile) {
 		Pane content = null;
 		try {
-			FXMLLoader loader = createGuiceFxmlLoader(fxmlFile);
+			FXMLLoader loader = createLoader(fxmlFile);
 			content = loader.load();
 			fController.setContent(content);
 			pages.add(content);
 		} catch (IOException e) {
-			System.err.println(String.format("Could not load fxml file (%s): %s", e.getCause(), e.getMessage()));
+			logger.error(String.format("Could not load fxml file (%s): %s", e.getCause(), e.getMessage()));
 			e.printStackTrace();
 		}
-	}
-
-	public FXMLLoader createGuiceFxmlLoader(String fxmlFile) throws IOException {
-		FXMLLoader loader = new FXMLLoader();
-		loader.setLocation(MainController.class.getResource(fxmlFile));
-		loader.setControllerFactory(new Callback<Class<?>, Object>() {
-			@Override
-			public Object call(Class<?> type) {
-				return injector.getInstance(type);
-			}
-		});
-		return loader;
 	}
 
 	public boolean canGoBack() {
@@ -72,9 +64,11 @@ public class NavigationService {
 			logger.warn("Cannot go back (number of pages: {})", pages.size());
 		}
 	}
-	
+
 	public void clearPages() {
 		pages.clear();
 	}
-	
+
+
+
 }

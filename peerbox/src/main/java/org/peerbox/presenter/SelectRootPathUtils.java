@@ -99,24 +99,24 @@ public class SelectRootPathUtils {
 	public static boolean initializeRootDirectory(String rootDirectoryPath) throws IOException {
 		File rootDirectoryFile = new File(rootDirectoryPath);
 		boolean initializedSuccessfull = true;
-		if(rootDirectoryFile.exists()){
-			if(!rootDirectoryFile.isDirectory()){
+		if (rootDirectoryFile.exists()) {
+			if (!rootDirectoryFile.isDirectory()) {
 				throw new IOException("The provided path leads to a file, not a directory.");
 			}
-			if(!Files.isWritable(rootDirectoryFile.toPath())){
+			if (!Files.isWritable(rootDirectoryFile.toPath())) {
 				initializedSuccessfull = false;
 			}
-			
+
 		} else {
-			//check if parent directory exist and is writable
+			// check if parent directory exist and is writable
 			File parentDirectory = rootDirectoryFile.getParentFile();
-			if(parentDirectory == null || !Files.isWritable(parentDirectory.toPath())){
+			if (parentDirectory == null || !Files.isWritable(parentDirectory.toPath())) {
 				return false;
 			}
-			//create the directory, only set rootDirectory if successful
+			// create the directory, only set rootDirectory if successful
 			initializedSuccessfull = rootDirectoryFile.mkdir();
 		}
-		
+
 		return initializedSuccessfull;
 	}
 }

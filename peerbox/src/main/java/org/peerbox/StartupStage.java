@@ -26,7 +26,7 @@ public class StartupStage {
 	private Stage stage;
 	private Parent mainView;
 	private NavigationService navigationService;
-	
+
 	
 	public StartupStage() {
 	}
@@ -73,7 +73,7 @@ public class StartupStage {
 	private void initializeMainView() {   	
 		INavigatable mainController;
 		try {
-			FXMLLoader fxmlLoader = navigationService.createGuiceFxmlLoader(ViewNames.MAIN_VIEW);
+			FXMLLoader fxmlLoader = navigationService.createLoader(ViewNames.MAIN_VIEW);
 			mainView = fxmlLoader.load();
 			mainController = (INavigatable)fxmlLoader.getController();
 			

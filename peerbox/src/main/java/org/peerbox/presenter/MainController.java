@@ -1,16 +1,14 @@
 package org.peerbox.presenter;
 
-import org.peerbox.interfaces.INavigatable;
-
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
-import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+
+import org.peerbox.interfaces.INavigatable;
 
 public class MainController implements INavigatable {
 

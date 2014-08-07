@@ -28,10 +28,10 @@ import jidefx.scene.control.validation.Validator;
 
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.hive2hive.core.processes.framework.exceptions.InvalidProcessStateException;
+import org.peerbox.Constants;
 import org.peerbox.model.UserManager;
 import org.peerbox.utils.FormValidationUtils;
 import org.peerbox.view.ViewNames;
-import org.peerbox.Constants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -2,8 +2,12 @@ package org.peerbox;
 
 
 import java.awt.AWTException;
+import java.io.File;
 import java.io.IOException;
 import java.net.UnknownHostException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -100,14 +104,16 @@ public class App extends Application
 
 	private void launchInForeground() {
 		StartupStage startup = injector.getInstance(StartupStage.class);
-		startup.getNavigationService().setInjector(injector);
 		startup.show();
 	}
 
 	private void launchInBackground() throws NoPeerConnectionException, InvalidProcessStateException, InterruptedException {
 		try {
-			// TODO: 
-			// - check whether root path exists physically
+			
+			Path r = userConfig.getRootPath();
+			boolean rootPathOk = Files.isDirectory(r) && Files.isWritable(r);
+			
+			
 			
 			h2hManager.joinNetwork(userConfig.getBootstrappingNodes());
 			org.peerbox.model.UserManager userManager = injector.getInstance(org.peerbox.model.UserManager.class);

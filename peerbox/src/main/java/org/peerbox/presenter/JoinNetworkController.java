@@ -30,9 +30,6 @@ public class JoinNetworkController implements Initializable {
 	@FXML
 	private TextField txtBootstrapIP;
 	
-	@FXML
-	private CheckBox chbAutoJoin;
-	
 	@Inject
 	public JoinNetworkController(NavigationService navigationService, H2HManager h2hManager) {
 		this.fNavigationService = navigationService;
@@ -42,8 +39,6 @@ public class JoinNetworkController implements Initializable {
 	public void initialize(URL arg0, ResourceBundle arg1) {
 		
 	}
-	
-
 	
 	public void goBack(ActionEvent event){
 		System.out.println("Go back.");
@@ -55,7 +50,7 @@ public class JoinNetworkController implements Initializable {
 		try {
 			if(h2hManager.accessNetwork(txtBootstrapIP.getText().trim())){
 				
-				udpateAutoJoinConfig();
+				udpateUserConfig();
 				
 				if(!userConfig.rootPathExists()) {
 					fNavigationService.navigate(ViewNames.SELECT_ROOT_PATH_VIEW);
@@ -70,7 +65,7 @@ public class JoinNetworkController implements Initializable {
 		}
 	}
 
-	private void udpateAutoJoinConfig() {
+	private void udpateUserConfig() {
 		try {
 			userConfig.addBootstrapNode(txtBootstrapIP.getText().trim());
 		} catch(IOException ioex) {
