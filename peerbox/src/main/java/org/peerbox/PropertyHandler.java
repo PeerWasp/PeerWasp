@@ -23,38 +23,47 @@ public class PropertyHandler {
 	private static final String FILENAME = "peerbox.properties";
 	
 	private static final String PROPERTY_BOOTSTRAPPING_NODES = "bootstrappingnodes";
-	private static final String PROPERTY_AUTO_JOIN = "autojoin";
 	private static final String PROPERTY_AUTO_LOGIN = "autologin";
 	private static final String PROPERTY_USERNAME = "username";
 	private static final String PROPERTY_PASSWORD = "password";
 	private static final String PROPERTY_PIN = "pin";
+	private static final String PROPERTY_ROOTPATH = "rootpath";
 	
 	private static final String LIST_SEPARATOR = ",";
 	
+	private File propertyFile;
+	private Properties prop;
 	
-	private static Properties prop;
+	public PropertyHandler() throws IOException {
+		this(FILENAME);
+	}
+	
+	private PropertyHandler(String filename) throws IOException {
+		this.propertyFile = new File(filename);
+		loadProperties();
+	}
 
 	//check if property file is already existing in project folder
-	public static void loadProperties() throws IOException{
+	private void loadProperties() throws IOException{
+		// first read defaults
 		Properties defaultProp = loadDefaultProperties();
-		prop = new Properties(defaultProp);
-		//read in property file
-		File f = new File(FILENAME);
-		if(!f.exists()) {
-			createPropertyFile(FILENAME);
+//		prop = new Properties(defaultProp);
+		// create empty file if not exists yet
+		if(!propertyFile.exists()) {
+			propertyFile.createNewFile();
 		}
 		prop = loadCustomProperties(defaultProp);
-		logger.debug("Load property file {}", f.getAbsoluteFile());
+		logger.debug("Loaded property file {}", propertyFile.getAbsoluteFile());
 	}
 		
-	public static void saveProperties() throws IOException {
-		try(OutputStream out = new FileOutputStream(FILENAME)) {
+	private void saveProperties() throws IOException {
+		try(OutputStream out = new FileOutputStream(propertyFile)) {
 			prop.store(out, null);
 		}
 	}
 	
-	private static Properties loadDefaultProperties() throws IOException {
-		try(InputStream in = PropertyHandler.class.getResourceAsStream(DEFAULT_PROPERTIES_FILENAME)) {
+	private Properties loadDefaultProperties() throws IOException {
+		try(InputStream in = getClass().getResourceAsStream(DEFAULT_PROPERTIES_FILENAME)) {
 			Properties defaultProps = new Properties();
 			defaultProps.load(in);
 			return defaultProps;
@@ -62,139 +71,130 @@ public class PropertyHandler {
 	}
 
 	//load existing property file
-	private static Properties loadCustomProperties(Properties defaultProp) throws IOException{
-		try(InputStream in = new FileInputStream(FILENAME)) {
+	private Properties loadCustomProperties(Properties defaultProp) throws IOException{
+		try(InputStream in = new FileInputStream(propertyFile)) {
 			Properties p = new Properties(defaultProp);
 			p.load(in);
 			return p;
 		}
 	}
 	
-	//if no property file is found, a new one will be written to the project folder
-	private static void createPropertyFile(String filename) throws IOException {
-		try(OutputStream out = new FileOutputStream(filename)) {
-			prop.store(out, "");
-			logger.debug("New property file created: {}", filename);
-		}
-	}
+//	//if no property file is found, a new one will be written to the project folder
+//	private void createPropertyFile(String filename) throws IOException {
+//		try(OutputStream out = new FileOutputStream(filename)) {
+//			logger.debug("New property file created: {}", filename);
+//			new Properties().store(out, null);
+//		}
+//	}
 	
 	
 	
 	//write root path from SelectRootPathController to property file
-	public static void setRootPath(String path) throws IOException{
-		prop.setProperty("rootpath",path);
-		System.out.println("Root path stored in property file.");
+	public void setRootPath(String path) throws IOException {
+		prop.setProperty(PROPERTY_ROOTPATH, path);
 		saveProperties();
+		System.out.println("Root path stored in property file.");
 	}
 	
 	//check whether the property file already holds a rootpath property
-	public static boolean rootPathExists(){
-		return prop.getProperty("rootpath") != null && !prop.getProperty("rootpath").isEmpty();
+	public boolean rootPathExists(){
+		return prop.getProperty(PROPERTY_ROOTPATH) != null && !prop.getProperty("rootpath").isEmpty();
 	}
 	
 	//returns rootpath value from property file
-	public static String getRootPath(){
+	public String getRootPath(){
 		if(!rootPathExists()){
-			prop.setProperty("rootpath", "unset");
+			prop.setProperty("rootpath", "unset"); // TODO: why set to unset?
 		}
-		return prop.getProperty("rootpath");
+		return prop.getProperty(PROPERTY_ROOTPATH);
 	}
 	
-	public static String getUsername() {
+	public String getUsername() {
 		String n = prop.getProperty(PROPERTY_USERNAME);
 		return n != null ? n.trim() : n;
 	}
 	
-	public static boolean hasUsername() {
+	public boolean hasUsername() {
 		return getUsername() != null && !getUsername().isEmpty();
 	}
 	
-	public static void setUsername(String username) throws IOException {
+	public void setUsername(String username) throws IOException {
 		prop.setProperty(PROPERTY_USERNAME, username);
 		saveProperties();
 	}
 	
-	public static String getPassword() {
+	public String getPassword() {
 		return prop.getProperty(PROPERTY_PASSWORD);
 	}
 	
-	public static boolean hasPassword() {
+	public boolean hasPassword() {
 		return getPassword() != null && !getPassword().isEmpty();
 	}
 	
-	public static void setPassword(String password) throws IOException {
+	public void setPassword(String password) throws IOException {
 		prop.setProperty(PROPERTY_PASSWORD, password);
 		saveProperties();
 	}
 	
-	public static String getPin() {
+	public String getPin() {
 		return prop.getProperty(PROPERTY_PIN);
 	}
 	
-	public static boolean hasPin() {
+	public boolean hasPin() {
 		return getPin() != null && !getPin().isEmpty();
 	}
 	
-	public static void setPin(String pin) throws IOException {
+	public void setPin(String pin) throws IOException {
 		prop.setProperty(PROPERTY_PIN, pin);
 		saveProperties();
 	}
 
-	public static boolean isAutoLoginEnabled() {
+	public boolean isAutoLoginEnabled() {
 		return Boolean.valueOf(prop.getProperty(PROPERTY_AUTO_LOGIN));
 	}
 
-	public static void setAutoLogin(boolean enabled) throws IOException {
+	public void setAutoLogin(boolean enabled) throws IOException {
 		prop.setProperty(PROPERTY_AUTO_LOGIN, Boolean.toString(enabled));
 		saveProperties();
 	}
 	
-	public static boolean isAutoJoinEnabled() {
-		return Boolean.valueOf(prop.getProperty(PROPERTY_AUTO_JOIN));
-	}
-
-	public static void setAutoJoin(boolean enabled) throws IOException {
-		prop.setProperty(PROPERTY_AUTO_JOIN, Boolean.toString(enabled));
-		saveProperties();
-	}
-	
-	public static boolean hasBootstrappingNodes() {
+	public boolean hasBootstrappingNodes() {
 		String s = prop.getProperty(PROPERTY_BOOTSTRAPPING_NODES);
-		return s != null && s.trim().length() > 0;
+		return s != null && !s.trim().isEmpty();
 	}
 	
-	public static List<String> getBootstrappingNodes() {
+	public List<String> getBootstrappingNodes() {
 		List<String> nodes = new ArrayList<String>();
 		if(hasBootstrappingNodes()) {
 			String nodesCsv = prop.getProperty(PROPERTY_BOOTSTRAPPING_NODES);
-			String nodesArray[] = nodesCsv.split(",");
+			String nodesArray[] = nodesCsv.split(LIST_SEPARATOR);
 			for(String n : nodesArray) {
-				if(n.trim().length() > 0) nodes.add(n);
+				if(!n.trim().isEmpty()) nodes.add(n);
 			}		
 		}
 		return nodes;
 	}
 
-	public static void addBootstrapNode(String node) throws IOException {
+	public void addBootstrapNode(String node) throws IOException {
 		List<String> nodes = getBootstrappingNodes();
 		nodes.add(node);
 		setBootstrappingNodes(nodes);
 	}
 	
-	public static void removeBootstrapNode(String node) throws IOException {
+	public void removeBootstrapNode(String node) throws IOException {
 		List<String> nodes = getBootstrappingNodes();
 		nodes.remove(node);
 		setBootstrappingNodes(nodes);
 	}
 	
-	public static void setBootstrappingNodes(List<String> nodes) throws IOException {
+	public void setBootstrappingNodes(List<String> nodes) throws IOException {
 		StringBuilder nodeList = new StringBuilder();
 		Set<String> uniqueNodes = new HashSet<String>();
 		for(String node : nodes) {
 			String n = node.trim();
-			if(n.length() > 0 && !uniqueNodes.contains(node)) {
+			if(!n.isEmpty() && !uniqueNodes.contains(n)) {
 				nodeList.append(n).append(LIST_SEPARATOR);
-				uniqueNodes.add(node);
+				uniqueNodes.add(n);
 			}
 		}
 		// delete trailing separator
