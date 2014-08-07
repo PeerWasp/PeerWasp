@@ -66,7 +66,6 @@ public class StartupStage {
 	        	Platform.exit();
 	            System.exit(0);
 	        }
-	
 	    });
 	}
 	

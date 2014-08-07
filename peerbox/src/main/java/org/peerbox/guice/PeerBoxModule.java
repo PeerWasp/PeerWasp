@@ -1,4 +1,4 @@
-package org.peerbox;
+package org.peerbox.guice;
 
 
 import org.peerbox.model.H2HManager;
@@ -12,6 +12,7 @@ public class PeerBoxModule extends AbstractModule {
 
 	@Override
 	protected void configure() {
+		
 		bind(javafx.stage.Stage.class).annotatedWith(Names.named("PrimaryStage"))
 			.toInstance(org.peerbox.App.getPrimaryStage());
 	}

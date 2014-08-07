@@ -12,9 +12,13 @@ import javafx.application.Platform;
 
 import org.peerbox.SettingsStage;
 
+import com.google.inject.Inject;
+
 
 public class TrayMenu {
-
+	
+	@Inject 
+	private SettingsStage settingsStage;
 	
 	private PopupMenu root;
 	
@@ -45,7 +49,7 @@ public class TrayMenu {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				Platform.runLater(() -> {
-					new SettingsStage().show();
+					settingsStage.show();
 				});
 			}
 		});

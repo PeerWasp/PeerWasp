@@ -15,6 +15,7 @@ import javafx.stage.Stage;
 
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.hive2hive.core.processes.framework.exceptions.InvalidProcessStateException;
+import org.peerbox.guice.PeerBoxModule;
 import org.peerbox.model.H2HManager;
 import org.peerbox.view.tray.SysTray;
 import org.slf4j.Logger;
