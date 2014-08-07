@@ -12,6 +12,7 @@ import org.hive2hive.core.api.configs.NetworkConfiguration;
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.junit.Before;
 import org.junit.Test;
+import org.peerbox.presenter.SelectRootPathUtils;
 
 public class H2HManagerTest {
 	
@@ -73,7 +74,7 @@ public class H2HManagerTest {
 	public void initializeRootDirectoryButSelectFile() throws IOException{
 		File testFile = new File("Test.txt");
 		testFile.createNewFile();
-		h2hManager.initializeRootDirectory("Test.txt");
+		SelectRootPathUtils.initializeRootDirectory("Test.txt");
 		
 	}
 	
@@ -81,13 +82,13 @@ public class H2HManagerTest {
 	public void initializeRootDirectoryWithExistingDirectory() throws IOException{
 		File testDir = new File("Test_ExistingDir");
 		testDir.mkdir();
-		h2hManager.initializeRootDirectory("Test_ExistingDir");
+		SelectRootPathUtils.initializeRootDirectory("Test_ExistingDir");
 		testDir.delete();
 	}
 	
 	@Test
 	public void initializeRootDirectoryWithNewDirectory() throws IOException{
-		boolean isSuccessfull = h2hManager.initializeRootDirectory(path + "Test_NewDir");
+		boolean isSuccessfull = SelectRootPathUtils.initializeRootDirectory(path + "Test_NewDir");
 		assertTrue(isSuccessfull);
 		File newDir = new File(path + "Test_NewDir");
 		assertTrue(newDir.exists());
@@ -97,7 +98,7 @@ public class H2HManagerTest {
 	
 	@Test
 	public void initializeRootDirectoryWithoutParentDir() throws IOException{
-		boolean isSuccessfull = h2hManager.initializeRootDirectory(path + "doesnotexist/Test_Dir");
+		boolean isSuccessfull = SelectRootPathUtils.initializeRootDirectory(path + "doesnotexist/Test_Dir");
 		assertFalse(isSuccessfull);
 	}
 }
