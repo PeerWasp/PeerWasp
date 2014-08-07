@@ -18,7 +18,7 @@ public class PeerBoxModule extends AbstractModule {
 	
 	@Provides
 	UserManager providesUserManager(H2HManager manager) {
-		return new UserManager(manager.getNode());
+		return new UserManager(manager.getNode().getUserManager());
 	}
 
 }
