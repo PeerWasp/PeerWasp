@@ -2,7 +2,6 @@ package org.peerbox.presenter;
 
 import java.io.IOException;
 import java.net.URL;
-import java.nio.file.Path;
 import java.util.ResourceBundle;
 import java.util.concurrent.ExecutionException;
 
@@ -32,7 +31,6 @@ import jidefx.scene.control.validation.Validator;
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.hive2hive.core.processes.framework.exceptions.InvalidProcessStateException;
 import org.peerbox.UserConfig;
-import org.peerbox.model.H2HManager;
 import org.peerbox.model.UserManager;
 import org.peerbox.utils.FormValidationUtils;
 import org.peerbox.view.ViewNames;
@@ -47,7 +45,6 @@ public class LoginController implements Initializable {
 	private static final Logger logger = LoggerFactory.getLogger(LoginController.class);
 	
 	private NavigationService fNavigationService;
-	private H2HManager h2hManager;
 	private UserManager userManager;
 	private UserConfig userConfig; 
 
@@ -72,9 +69,8 @@ public class LoginController implements Initializable {
 	
 	
 	@Inject
-	public LoginController(NavigationService navigationService, H2HManager h2hManager, UserManager userManager) {
+	public LoginController(NavigationService navigationService, UserManager userManager) {
 		this.fNavigationService = navigationService;
-		this.h2hManager = h2hManager;
 		this.userManager = userManager;
 	}
 	
@@ -85,9 +81,8 @@ public class LoginController implements Initializable {
 			txtUsername.setText(userConfig.getUsername());
 		}
 		
-		Path rootPath = h2hManager.getRootPath();
-		if(rootPath != null){
-			txtRootPath.setText(rootPath.toString());
+		if(userConfig.rootPathExists()){
+			txtRootPath.setText(userConfig.getRootPath().toString());
 		} else {
 			txtRootPath.setText("rootPath == null, because not read from config file yet!");
 		}
@@ -135,7 +130,7 @@ public class LoginController implements Initializable {
 
 	public void loginAction(ActionEvent event) {
 		boolean inputValid = ValidationUtils.validateOnDemand(grdForm)
-				&& SelectRootPathUtils.verifyRootPath(h2hManager, userConfig, txtRootPath.getText());
+				&& SelectRootPathUtils.verifyRootPath(userConfig, txtRootPath.getText());
 		
 		if (inputValid) {
 			Task<Boolean> task = createLoginTask();
@@ -228,7 +223,7 @@ public class LoginController implements Initializable {
 	}
 
 	private boolean loginUser() throws NoPeerConnectionException, InvalidProcessStateException, InterruptedException {
-		return userManager.loginUser(txtUsername.getText().trim(), txtPassword.getText(), txtPin.getText(), h2hManager.getRootPath());
+		return userManager.loginUser(txtUsername.getText().trim(), txtPassword.getText(), txtPin.getText(), userConfig.getRootPath());
 	}
 	
 	public void registerAction(ActionEvent event) {

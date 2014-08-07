@@ -33,9 +33,6 @@ public class JoinNetworkController implements Initializable {
 	@FXML
 	private CheckBox chbAutoJoin;
 	
-	
-	
-	
 	@Inject
 	public JoinNetworkController(NavigationService navigationService, H2HManager h2hManager) {
 		this.fNavigationService = navigationService;
@@ -60,7 +57,7 @@ public class JoinNetworkController implements Initializable {
 				
 				udpateAutoJoinConfig();
 				
-				if(h2hManager.getRootPath().toString().equals("unset")){
+				if(!userConfig.rootPathExists()) {
 					fNavigationService.navigate(ViewNames.SELECT_ROOT_PATH_VIEW);
 				} else {
 					fNavigationService.navigate(ViewNames.LOGIN_VIEW);

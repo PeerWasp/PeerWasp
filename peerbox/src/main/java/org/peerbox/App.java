@@ -43,9 +43,6 @@ public class App extends Application
     public void start(Stage stage) {
     	primaryStage = stage;    	
     	initializeGuice();
-//		initializeConfig();
-		
-		h2hManager.setRootPath(userConfig.getRootPath());
 
 		initializeSysTray();
 		
@@ -77,16 +74,6 @@ public class App extends Application
 		injector.injectMembers(this);
 	}
 
-//	private void initializeConfig() {
-//		//check whether a Configuration file already exists and load it (if it doesn't exist, it will be created automatically)
-//		try {
-//			PropertyHandler.loadProperties();
-//		} catch (IOException e) {
-//			logger.warn("Could not load application properties.");
-//			e.printStackTrace();
-//		}
-//	}
-
 	private void initializeSysTray() {
 	    try {
 	    	sysTray.addToTray();
@@ -97,7 +84,6 @@ public class App extends Application
 			logger.warn("Could not initialize systray (image not found?): {}", ioex.getMessage());
 		} 
 	}
-
 
 	private boolean isAutoLoginFeasible() {
 		return
@@ -120,11 +106,14 @@ public class App extends Application
 
 	private void launchInBackground() throws NoPeerConnectionException, InvalidProcessStateException, InterruptedException {
 		try {
+			// TODO: 
+			// - check whether root path exists physically
+			
 			h2hManager.joinNetwork(userConfig.getBootstrappingNodes());
 			org.peerbox.model.UserManager userManager = injector.getInstance(org.peerbox.model.UserManager.class);
 			userManager.loginUser(userConfig.getUsername(), 
 					userConfig.getPassword(),
-					userConfig.getPin(), h2hManager.getRootPath());
+					userConfig.getPin(), userConfig.getRootPath());
 		} catch (UnknownHostException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

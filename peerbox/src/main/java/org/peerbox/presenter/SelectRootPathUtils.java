@@ -2,6 +2,7 @@ package org.peerbox.presenter;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Window;
@@ -10,9 +11,6 @@ import org.controlsfx.control.action.Action;
 import org.controlsfx.dialog.Dialog;
 import org.controlsfx.dialog.Dialogs;
 import org.peerbox.UserConfig;
-import org.peerbox.model.H2HManager;
-
-import com.google.inject.Inject;
 
 public class SelectRootPathUtils {
 
@@ -35,7 +33,7 @@ public class SelectRootPathUtils {
 		.showInformation();
 	}
 
-	public static boolean verifyRootPath(H2HManager h2hManager, UserConfig userConfig, String desiredRootPath) {
+	public static boolean verifyRootPath(UserConfig userConfig, String desiredRootPath) {
 		try {
 			File path = new File(desiredRootPath);
 			Action createDirAction = Dialog.Actions.YES;
@@ -46,7 +44,7 @@ public class SelectRootPathUtils {
 			// TODO rootpath should be read from H2HManager!
 			boolean isDirCreated = false;
 			if (createDirAction.equals(Dialog.Actions.YES)) {
-				isDirCreated = h2hManager.initializeRootDirectory(desiredRootPath);
+				isDirCreated = initializeRootDirectory(desiredRootPath);
 				if (isDirCreated) {
 					userConfig.setRootPath(desiredRootPath); // save path in property file
 					// FIXME: this needs to be handled differently because loading the full view again
@@ -87,5 +85,38 @@ public class SelectRootPathUtils {
 		}
 		return pathAsString;
 
+	}
+	
+	
+	/**
+	 * Sets the root directory path to the provided parameter. If the directory does not exist,
+	 * it is created on the fly.
+	 * @param rootDirectoryPath contains the absolute path to the root directory.
+	 * @throws IOException if the provided rootDirectoryPath leads to a real file.
+	 * @return true if the selected directory is valid and can be used. 
+	 * @return false if either the parent directory does not exist or the user does not have write permissions.
+	 */
+	public static boolean initializeRootDirectory(String rootDirectoryPath) throws IOException {
+		File rootDirectoryFile = new File(rootDirectoryPath);
+		boolean initializedSuccessfull = true;
+		if(rootDirectoryFile.exists()){
+			if(!rootDirectoryFile.isDirectory()){
+				throw new IOException("The provided path leads to a file, not a directory.");
+			}
+			if(!Files.isWritable(rootDirectoryFile.toPath())){
+				initializedSuccessfull = false;
+			}
+			
+		} else {
+			//check if parent directory exist and is writable
+			File parentDirectory = rootDirectoryFile.getParentFile();
+			if(parentDirectory == null || !Files.isWritable(parentDirectory.toPath())){
+				return false;
+			}
+			//create the directory, only set rootDirectory if successful
+			initializedSuccessfull = rootDirectoryFile.mkdir();
+		}
+		
+		return initializedSuccessfull;
 	}
 }

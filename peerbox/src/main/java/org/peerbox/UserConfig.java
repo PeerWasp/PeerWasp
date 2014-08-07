@@ -6,6 +6,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -15,6 +17,9 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.inject.Singleton;
+
+@Singleton
 public class UserConfig {
 
 	private static final Logger logger = LoggerFactory.getLogger(UserConfig.class);
@@ -92,11 +97,9 @@ public class UserConfig {
 	}
 
 	// returns rootpath value from property file
-	public String getRootPath() {
-		if (!rootPathExists()) {
-			prop.setProperty("rootpath", "unset"); // TODO: why set to unset?
-		}
-		return prop.getProperty(PROPERTY_ROOTPATH);
+	public Path getRootPath() {
+		String p = prop.getProperty(PROPERTY_ROOTPATH);
+		return rootPathExists() ? Paths.get(p) : null;
 	}
 
 	public String getUsername() {
