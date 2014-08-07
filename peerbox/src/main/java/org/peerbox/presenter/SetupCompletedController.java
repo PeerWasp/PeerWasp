@@ -17,11 +17,18 @@ import javafx.concurrent.Task;
 import javafx.concurrent.WorkerStateEvent;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.layout.Pane;
+import javafx.stage.Stage;
 
 public class SetupCompletedController implements Initializable {
 
 	private static final Logger logger = LoggerFactory.getLogger(SetupCompletedController.class);
+	
+	@FXML 
+	private Pane pane;
+	
 	private NavigationService fNavigationService;
 	private UserManager fUserManager;
 	
@@ -36,6 +43,12 @@ public class SetupCompletedController implements Initializable {
 		
 	}
 	
+	public void closeWindowAction(ActionEvent event) {
+		// Sample event for closing window -> application should still be running in the tray
+		// TODO: can only do this if tray is supported
+		Stage stage = (Stage) pane.getScene().getWindow();
+		stage.close();
+	}
 	
 	public void logoutAction(ActionEvent event) {
 		Task<Boolean> task = createLogoutTask();

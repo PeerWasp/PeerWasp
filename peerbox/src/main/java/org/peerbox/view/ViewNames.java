@@ -9,4 +9,6 @@ public class ViewNames {
 	public static final String LOGIN_VIEW = "/org/peerbox/view/LoginView.fxml";
 	public static final String SELECT_ROOT_PATH_VIEW = "/org/peerbox/view/SelectRootPathView.fxml";
 	public static final String SETUP_COMPLETED_VIEW = "/org/peerbox/view/SetupCompletedView.fxml";
+	
+	public static final String SETTINGS_MAIN = "/org/peerbox/view/settings/Main.fxml";
 }

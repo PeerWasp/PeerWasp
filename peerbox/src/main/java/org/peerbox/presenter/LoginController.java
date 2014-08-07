@@ -212,6 +212,8 @@ public class LoginController implements Initializable {
 		try {
 			PropertyHandler.setUsername(txtUsername.getText().trim());
 			if(chbAutoLogin.isSelected()) {
+				PropertyHandler.setPassword(txtPassword.getText());
+				PropertyHandler.setPin(txtPin.getText());
 				PropertyHandler.setAutoLogin(true);
 			}
 		} catch(IOException ioex) {

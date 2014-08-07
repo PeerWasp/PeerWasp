@@ -8,6 +8,10 @@ import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
 
+import javafx.application.Platform;
+
+import org.peerbox.SettingsStage;
+
 
 public class TrayMenu {
 
@@ -37,6 +41,14 @@ public class TrayMenu {
 
 	private MenuItem createSettingsMenu() {
 		MenuItem settings = new MenuItem("Settings");
+		settings.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				Platform.runLater(() -> {
+					new SettingsStage().show();
+				});
+			}
+		});
 		return settings;
 	}
 

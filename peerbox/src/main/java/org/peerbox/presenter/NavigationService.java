@@ -2,20 +2,19 @@ package org.peerbox.presenter;
 
 import java.io.IOException;
 
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
+import javafx.scene.layout.Pane;
+import javafx.util.Callback;
+
 import org.peerbox.interfaces.INavigatable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.inject.Injector;
 import com.google.inject.Singleton;
-
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Node;
-import javafx.scene.layout.Pane;
-import javafx.util.Callback;
 
 @Singleton
 public class NavigationService {
@@ -24,6 +23,7 @@ public class NavigationService {
 	private INavigatable fController;
 	private ObservableList<Node> pages = FXCollections.observableArrayList();
 	private Injector injector;
+
 
 	public void setNavigationController(INavigatable controller) {
 		fController = controller;

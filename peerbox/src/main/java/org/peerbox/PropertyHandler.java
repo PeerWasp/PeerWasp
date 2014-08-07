@@ -2,20 +2,16 @@ package org.peerbox;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 
-import org.peerbox.presenter.settings.Network;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -110,11 +106,37 @@ public class PropertyHandler {
 	}
 	
 	public static boolean hasUsername() {
-		return getUsername() != null && getUsername().length() > 0;
+		return getUsername() != null && !getUsername().isEmpty();
 	}
 	
 	public static void setUsername(String username) throws IOException {
 		prop.setProperty(PROPERTY_USERNAME, username);
+		saveProperties();
+	}
+	
+	public static String getPassword() {
+		return prop.getProperty(PROPERTY_PASSWORD);
+	}
+	
+	public static boolean hasPassword() {
+		return getPassword() != null && !getPassword().isEmpty();
+	}
+	
+	public static void setPassword(String password) throws IOException {
+		prop.setProperty(PROPERTY_PASSWORD, password);
+		saveProperties();
+	}
+	
+	public static String getPin() {
+		return prop.getProperty(PROPERTY_PIN);
+	}
+	
+	public static boolean hasPin() {
+		return getPin() != null && !getPin().isEmpty();
+	}
+	
+	public static void setPin(String pin) throws IOException {
+		prop.setProperty(PROPERTY_PIN, pin);
 		saveProperties();
 	}
 

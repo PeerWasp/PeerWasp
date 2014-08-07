@@ -1,24 +1,23 @@
 package org.peerbox.view.tray;
 
 import java.awt.AWTException;
-import java.awt.SystemTray;
 import java.awt.TrayIcon;
 import java.io.IOException;
 
-import javafx.application.Platform;
-
+import com.google.inject.Inject;
 
 public class SysTray {
 	
 	private String tooltip;
-	private TrayIcon trayIcon;
+	private java.awt.TrayIcon trayIcon;
 	private TrayIcons icons;
 	private TrayMenu menu;
 
-	public SysTray() {
-		icons = new TrayIcons();
-		menu = new TrayMenu();
-		tooltip = "PeerBox";
+	@Inject 
+	public SysTray(TrayMenu menu, TrayIcons icons) {
+		this.icons = icons;
+		this.menu = menu;
+		setTooltip(tooltip);
 	}
 	
 	public String getTooltip() {
@@ -27,21 +26,24 @@ public class SysTray {
 	
 	public void setTooltip(String tooltip) {
 		this.tooltip = tooltip;
-		// TODO: maybe update tray here -> we could show some info in the tooltip,
-		// e.g. up to date, synchronizing, offline, ...
-	}
-	
-	public void addToTray() throws AWTException, IOException {
-		if (SystemTray.isSupported()) {
-			Platform.setImplicitExit(false);
-			SystemTray sysTray = SystemTray.getSystemTray();
-			trayIcon = new TrayIcon(icons.getDefaultIcon());
-			trayIcon.setImageAutoSize(true);
-			trayIcon.setToolTip(getTooltip());
-			trayIcon.setPopupMenu(menu.create());
-			sysTray.add(trayIcon);
+		if(trayIcon != null) {
+			trayIcon.setToolTip(this.tooltip);
 		}
 	}
 	
-	
+	public void addToTray() throws AWTException, IOException {
+		trayIcon = create();
+		java.awt.SystemTray sysTray = java.awt.SystemTray.getSystemTray();
+		sysTray.add(trayIcon);
+		
+	}
+
+	private TrayIcon create() throws IOException {
+		TrayIcon tray = new java.awt.TrayIcon(icons.getDefaultIcon());
+		tray.setImageAutoSize(true);
+		tray.setToolTip(getTooltip());
+		tray.setPopupMenu(menu.create());
+		return tray;
+	}
+
 }

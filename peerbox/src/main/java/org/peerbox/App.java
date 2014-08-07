@@ -2,43 +2,22 @@ package org.peerbox;
 
 
 import java.awt.AWTException;
-import java.awt.MenuItem;
-import java.awt.PopupMenu;
-import java.awt.SystemTray;
-import java.awt.Toolkit;
-import java.awt.TrayIcon;
-import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.net.UnknownHostException;
-import java.util.Iterator;
-import java.util.List;
-
-import javax.imageio.ImageIO;
 
 import javafx.application.Application;
 import javafx.application.Platform;
-import javafx.collections.ListChangeListener;
-import javafx.event.EventHandler;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
-import javafx.scene.image.Image;
-import javafx.scene.input.MouseEvent;
 import javafx.stage.Stage;
-import javafx.stage.StageStyle;
-import javafx.stage.WindowEvent;
 
+import org.hive2hive.core.exceptions.NoPeerConnectionException;
+import org.hive2hive.core.processes.framework.exceptions.InvalidProcessStateException;
+import org.peerbox.model.H2HManager;
+import org.peerbox.view.tray.SysTray;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.peerbox.PropertyHandler;
-import org.peerbox.interfaces.INavigatable;
-import org.peerbox.model.H2HManager;
-import org.peerbox.presenter.MainController;
-import org.peerbox.presenter.NavigationService;
-import org.peerbox.view.ViewNames;
-import org.peerbox.view.tray.SysTray;
 
 import com.google.inject.Guice;
+import com.google.inject.Inject;
 import com.google.inject.Injector;
 
 /**
@@ -47,68 +26,54 @@ import com.google.inject.Injector;
 public class App extends Application
 {
 	private static final Logger logger = LoggerFactory.getLogger("PeerBox");
-	
+
 	private Injector injector;
-	private H2HManager h2hManager; 
+	private H2HManager h2hManager;
+	private SysTray sysTray;
+	private static Stage primaryStage;
 	
-	private Parent mainView;
-	private NavigationService navigationService;
-	
+
 	public static void main(String[] args) {
 		logger.info("PeerBox started.");
 		launch(args);
-    }
+	}
     
     @Override
     public void start(Stage stage) {
-    	initializeConfig();
-    	
+    	primaryStage = stage;    	
     	initializeGuice();
-    	
-    	h2hManager = injector.getInstance(H2HManager.class);
-    	h2hManager.setRootPath(PropertyHandler.getRootPath());
-    	
-    	navigationService = injector.getInstance(NavigationService.class);
-    	navigationService.setInjector(injector);
-    	
-    	initializeMainView();
-    	initializeStage(stage);
-    	initializeSysTray();
-    	
-    	
-    	
-		Scene scene = new Scene(mainView, 275, 500);
-    	stage.setScene(scene);
-    	stage.sizeToScene();
-    	navigationService.navigate(ViewNames.NETWORK_SELECTION_VIEW);
-		stage.show();
+		initializeConfig();
+		
+		h2hManager.setRootPath(PropertyHandler.getRootPath());
 
-        
+		initializeSysTray();
+		
+		/*
+    	 * Following situations may occur:
+    	 * - application starts not for the first time + auto login enabled? -> join and login 
+    	 * - Otherwise:
+    	 * 		* load the start screen and show the UI
+    	 */
+	    
+		// TODO: if join/login fails -> action required? e.g. launch in foreground? 
+		// do nothing but indicate with icon?
+		if (isAutoLoginFeasible()) {
+			logger.info("Auto login feasible, try to join and login.");
+			try {
+				launchInBackground();
+			} catch (NoPeerConnectionException | InvalidProcessStateException | InterruptedException e) {
+				logger.error("Could not join and login network.");
+				e.printStackTrace();
+			}
+		} else {
+			logger.info("Loading startup stage (no auto login)");
+			launchInForeground();
+		}     
     }
 
-	private void initializeStage(Stage stage) {
-		stage.setTitle("PeerBox");
-		stage.getIcons().add(new Image(getClass().getResourceAsStream("/images/icon.png")));
-		stage.initStyle(StageStyle.DECORATED);
-		installExitHandler(stage);
-		
-		// Add configuration of stage here
-	}
-
-	private void initializeMainView() {   	
-    	INavigatable mainController;
-		try {
-			FXMLLoader fxmlLoader = navigationService.createGuiceFxmlLoader(ViewNames.MAIN_VIEW);
-			mainView = fxmlLoader.load();
-			mainController = (INavigatable)fxmlLoader.getController();
-			
-			navigationService.setNavigationController(mainController);
-			
-		} catch (IOException e) {
-			logger.error("Could not load initial view (main view and controller): {}", e.getMessage());
-			// TODO handle error properly!
-			return;
-		}
+	private void initializeGuice() {
+		injector = Guice.createInjector(new PeerBoxModule());
+		injector.injectMembers(this);
 	}
 
 	private void initializeConfig() {
@@ -123,42 +88,61 @@ public class App extends Application
 
 	private void initializeSysTray() {
 	    try {
-	    	SysTray sysTray = new SysTray();
-			sysTray.addToTray();
-		} catch (AWTException | IOException ex) {
-			logger.warn("Could not initialize systray: {}", ex.getMessage());
+	    	sysTray.addToTray();
+	    	Platform.setImplicitExit(false);
+		} catch (AWTException awtex) {
+			logger.warn("Could not initialize systray (tray may not be supported?): {}", awtex.getMessage());
+		} catch (IOException ioex) {
+			logger.warn("Could not initialize systray (image not found?): {}", ioex.getMessage());
 		} 
 	}
 
-	private void launchSetupWizard() {
-		// TODO Auto-generated method stub
-		
+
+	private boolean isAutoLoginFeasible() {
+		return
+				/* credentials stored */
+				PropertyHandler.hasUsername() &&
+				PropertyHandler.hasPassword() &&
+				PropertyHandler.hasPin() && 
+				PropertyHandler.rootPathExists() &&
+				/* bootstrap nodes */
+				PropertyHandler.hasBootstrappingNodes() &&
+				/* auto login desired */
+				PropertyHandler.isAutoLoginEnabled();		
 	}
 
-	private void launchInBackground() {
+	private void launchInForeground() {
+		StartupStage startup = injector.getInstance(StartupStage.class);
+		startup.getNavigationService().setInjector(injector);
+		startup.show();
 	}
 
-	private boolean isAppConfigured() {
-		// for now, single user assumed
-		return PropertyHandler.hasUsername();
-	}
-
-	private void initializeGuice() {
-		injector = Guice.createInjector(new PeerBoxModule());
-	}
-
-	private void installExitHandler(Stage stage) {
-		stage.setOnCloseRequest(new EventHandler<WindowEvent>() {
-            @Override
-            public void handle(WindowEvent t) {
-                // TODO: close application properly or hide to tray.
-            	Platform.exit();
-                System.exit(0);
-            }
-
-        });
+	private void launchInBackground() throws NoPeerConnectionException, InvalidProcessStateException, InterruptedException {
+		try {
+			h2hManager.joinNetwork(PropertyHandler.getBootstrappingNodes());
+			org.peerbox.model.UserManager userManager = injector.getInstance(org.peerbox.model.UserManager.class);
+			userManager.loginUser(PropertyHandler.getUsername(), 
+					PropertyHandler.getPassword(),
+					PropertyHandler.getPin(), h2hManager.getRootPath());
+		} catch (UnknownHostException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 	
+	public static Stage getPrimaryStage() {
+		return primaryStage;
+	}
+	
+	@Inject 
+	private void setSysTray(SysTray sysTray) {
+		this.sysTray = sysTray;
+	}
+	
+	@Inject
+	private void setH2HManager(H2HManager manager) {
+		this.h2hManager = manager;
+	}
 	
 }
 
