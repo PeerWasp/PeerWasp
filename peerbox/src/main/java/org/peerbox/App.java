@@ -31,6 +31,7 @@ public class App extends Application
 	private H2HManager h2hManager;
 	private SysTray sysTray;
 	private static Stage primaryStage;
+	private UserConfig userConfig;
 	
 
 	public static void main(String[] args) {
@@ -42,9 +43,9 @@ public class App extends Application
     public void start(Stage stage) {
     	primaryStage = stage;    	
     	initializeGuice();
-		initializeConfig();
+//		initializeConfig();
 		
-		h2hManager.setRootPath(PropertyHandler.getRootPath());
+		h2hManager.setRootPath(userConfig.getRootPath());
 
 		initializeSysTray();
 		
@@ -76,15 +77,15 @@ public class App extends Application
 		injector.injectMembers(this);
 	}
 
-	private void initializeConfig() {
-		//check whether a Configuration file already exists and load it (if it doesn't exist, it will be created automatically)
-		try {
-			PropertyHandler.loadProperties();
-		} catch (IOException e) {
-			logger.warn("Could not load application properties.");
-			e.printStackTrace();
-		}
-	}
+//	private void initializeConfig() {
+//		//check whether a Configuration file already exists and load it (if it doesn't exist, it will be created automatically)
+//		try {
+//			PropertyHandler.loadProperties();
+//		} catch (IOException e) {
+//			logger.warn("Could not load application properties.");
+//			e.printStackTrace();
+//		}
+//	}
 
 	private void initializeSysTray() {
 	    try {
@@ -101,14 +102,14 @@ public class App extends Application
 	private boolean isAutoLoginFeasible() {
 		return
 				/* credentials stored */
-				PropertyHandler.hasUsername() &&
-				PropertyHandler.hasPassword() &&
-				PropertyHandler.hasPin() && 
-				PropertyHandler.rootPathExists() &&
+				userConfig.hasUsername() &&
+				userConfig.hasPassword() &&
+				userConfig.hasPin() && 
+				userConfig.rootPathExists() &&
 				/* bootstrap nodes */
-				PropertyHandler.hasBootstrappingNodes() &&
+				userConfig.hasBootstrappingNodes() &&
 				/* auto login desired */
-				PropertyHandler.isAutoLoginEnabled();		
+				userConfig.isAutoLoginEnabled();		
 	}
 
 	private void launchInForeground() {
@@ -119,11 +120,11 @@ public class App extends Application
 
 	private void launchInBackground() throws NoPeerConnectionException, InvalidProcessStateException, InterruptedException {
 		try {
-			h2hManager.joinNetwork(PropertyHandler.getBootstrappingNodes());
+			h2hManager.joinNetwork(userConfig.getBootstrappingNodes());
 			org.peerbox.model.UserManager userManager = injector.getInstance(org.peerbox.model.UserManager.class);
-			userManager.loginUser(PropertyHandler.getUsername(), 
-					PropertyHandler.getPassword(),
-					PropertyHandler.getPin(), h2hManager.getRootPath());
+			userManager.loginUser(userConfig.getUsername(), 
+					userConfig.getPassword(),
+					userConfig.getPin(), h2hManager.getRootPath());
 		} catch (UnknownHostException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -132,6 +133,11 @@ public class App extends Application
 	
 	public static Stage getPrimaryStage() {
 		return primaryStage;
+	}
+	
+	@Inject
+	private void setUserConfig(UserConfig userConfig) {
+		this.userConfig = userConfig;
 	}
 	
 	@Inject 

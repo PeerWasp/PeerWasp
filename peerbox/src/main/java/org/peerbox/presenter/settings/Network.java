@@ -8,9 +8,11 @@ import java.util.Collections;
 import java.util.List;
 import java.util.ResourceBundle;
 
-import org.peerbox.PropertyHandler;
+import org.peerbox.UserConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.inject.Inject;
 
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
@@ -41,6 +43,8 @@ public class Network implements Initializable {
 	
 	private final Timeline editLastSelection;
 	
+	private UserConfig userConfig; 
+	
 	
 	public Network() {
 		editLastSelection = new Timeline(new KeyFrame(Duration.seconds(.1), new EventHandler<ActionEvent>() {
@@ -64,9 +68,10 @@ public class Network implements Initializable {
 	
 	private void reset() {
 		// auto join setting
-		chbAutoJoin.setSelected(PropertyHandler.isAutoJoinEnabled());
+//		chbAutoJoin.setSelected(userConfig.isAutoJoinEnabled());
+		// TODO auto join is no more
 		// bootstrapping nodes
-		List<String> nodes = PropertyHandler.getBootstrappingNodes();
+		List<String> nodes = userConfig.getBootstrappingNodes();
 		lwBootstrappingNodes.getItems().clear();
 		lwBootstrappingNodes.getItems().addAll(nodes);
 	}
@@ -109,8 +114,8 @@ public class Network implements Initializable {
 		try {
 			// update config
 			List<String> nodes = lwBootstrappingNodes.getItems();
-			PropertyHandler.setBootstrappingNodes(nodes);
-			PropertyHandler.setAutoJoin(chbAutoJoin.isSelected());
+			userConfig.setBootstrappingNodes(nodes);
+//			userConfig.setAutoJoin(chbAutoJoin.isSelected()); // TODO auto join is no more
 			// reload saved config
 			reset();
 			logger.debug("Saved network settings.");
@@ -123,5 +128,10 @@ public class Network implements Initializable {
 	public void resetAction(ActionEvent event) {
 		logger.debug("Reset network settings.");
 		reset();
+	}
+	
+	@Inject
+	public void setUserConfig(UserConfig userConfig) {
+		this.userConfig = userConfig;
 	}
 }

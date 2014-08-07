@@ -16,7 +16,7 @@ import org.hive2hive.core.api.configs.FileConfiguration;
 import org.hive2hive.core.api.configs.NetworkConfiguration;
 import org.hive2hive.core.api.interfaces.IH2HNode;
 import org.hive2hive.core.api.interfaces.INetworkConfiguration;
-import org.peerbox.PropertyHandler;
+import org.peerbox.UserConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

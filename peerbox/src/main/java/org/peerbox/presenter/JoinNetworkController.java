@@ -5,7 +5,7 @@ import java.net.URL;
 import java.net.UnknownHostException;
 import java.util.ResourceBundle;
 
-import org.peerbox.PropertyHandler;
+import org.peerbox.UserConfig;
 import org.peerbox.model.H2HManager;
 import org.peerbox.view.ViewNames;
 import org.slf4j.Logger;
@@ -25,12 +25,15 @@ public class JoinNetworkController implements Initializable {
 	
 	private H2HManager h2hManager;
 	private NavigationService fNavigationService;
+	private UserConfig userConfig; 
 	
 	@FXML
 	private TextField txtBootstrapIP;
 	
 	@FXML
 	private CheckBox chbAutoJoin;
+	
+	
 	
 	
 	@Inject
@@ -40,7 +43,7 @@ public class JoinNetworkController implements Initializable {
 	}
 	
 	public void initialize(URL arg0, ResourceBundle arg1) {
-		chbAutoJoin.setSelected(PropertyHandler.isAutoJoinEnabled());
+		
 	}
 	
 
@@ -72,15 +75,15 @@ public class JoinNetworkController implements Initializable {
 
 	private void udpateAutoJoinConfig() {
 		try {
-			if(chbAutoJoin.isSelected()) {
-				PropertyHandler.setAutoJoin(true);
-				PropertyHandler.addBootstrapNode(txtBootstrapIP.getText().trim());
-			} else {
-				PropertyHandler.setAutoJoin(false);
-			}
+			userConfig.addBootstrapNode(txtBootstrapIP.getText().trim());
 		} catch(IOException ioex) {
 			logger.warn("Could not save settings: {}", ioex.getMessage());
 			// TODO: inform user.
 		}
+	}
+	
+	@Inject
+	public void setUserConfig(UserConfig userConfig) {
+		this.userConfig = userConfig;
 	}
 }

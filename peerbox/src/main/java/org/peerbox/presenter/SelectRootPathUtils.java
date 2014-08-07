@@ -9,8 +9,10 @@ import javafx.stage.Window;
 import org.controlsfx.control.action.Action;
 import org.controlsfx.dialog.Dialog;
 import org.controlsfx.dialog.Dialogs;
-import org.peerbox.PropertyHandler;
+import org.peerbox.UserConfig;
 import org.peerbox.model.H2HManager;
+
+import com.google.inject.Inject;
 
 public class SelectRootPathUtils {
 
@@ -33,7 +35,7 @@ public class SelectRootPathUtils {
 		.showInformation();
 	}
 
-	public static boolean verifyRootPath(H2HManager h2hManager, String desiredRootPath) {
+	public static boolean verifyRootPath(H2HManager h2hManager, UserConfig userConfig, String desiredRootPath) {
 		try {
 			File path = new File(desiredRootPath);
 			Action createDirAction = Dialog.Actions.YES;
@@ -46,7 +48,7 @@ public class SelectRootPathUtils {
 			if (createDirAction.equals(Dialog.Actions.YES)) {
 				isDirCreated = h2hManager.initializeRootDirectory(desiredRootPath);
 				if (isDirCreated) {
-					PropertyHandler.setRootPath(desiredRootPath); // save path in property file
+					userConfig.setRootPath(desiredRootPath); // save path in property file
 					// FIXME: this needs to be handled differently because loading the full view again
 					// resets all the input of the user
 					// (e.g. user enters all details and path is wrong -> need to enter everything again)

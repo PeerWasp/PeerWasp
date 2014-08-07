@@ -13,7 +13,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.stage.Window;
 
-import org.peerbox.PropertyHandler;
+import org.peerbox.UserConfig;
 import org.peerbox.model.H2HManager;
 import org.peerbox.view.ViewNames;
 
@@ -24,6 +24,7 @@ public class SelectRootPathController implements Initializable{
 	
 	private NavigationService fNavigationService;
 	private H2HManager h2hManager;
+	private UserConfig userConfig; 
 	
 	@FXML
 	private Button btnChangeDirectory;
@@ -54,7 +55,7 @@ public class SelectRootPathController implements Initializable{
 	}
 	
 	public void okButtonHandler(ActionEvent event){
-		boolean inputValid = SelectRootPathUtils.verifyRootPath(h2hManager, txtRootPath.getText());
+		boolean inputValid = SelectRootPathUtils.verifyRootPath(h2hManager, userConfig, txtRootPath.getText());
 		if(inputValid) {
 			fNavigationService.navigate(ViewNames.LOGIN_VIEW);
 		}
@@ -64,13 +65,17 @@ public class SelectRootPathController implements Initializable{
 		String defaultDir = null;
 		Date now = new Date();
 
-		if(PropertyHandler.rootPathExists() && !PropertyHandler.getRootPath().equals("unset")){
-			defaultDir = PropertyHandler.getRootPath();
+		if(userConfig.rootPathExists() && !userConfig.getRootPath().equals("unset")){
+			defaultDir = userConfig.getRootPath();
 			h2hManager.setRootPath(defaultDir);
 		} else {
 			defaultDir = System.getProperty("user.home") + File.separator + "PeerBox_" + now.getTime();
 		}
 		txtRootPath.setText(defaultDir);
-		//txtRootPath.setPrefWidth(250);
+	}
+	
+	@Inject
+	public void setUserConfig(UserConfig userConfig) {
+		this.userConfig = userConfig;
 	}
 }

@@ -31,7 +31,7 @@ import jidefx.scene.control.validation.Validator;
 
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.hive2hive.core.processes.framework.exceptions.InvalidProcessStateException;
-import org.peerbox.PropertyHandler;
+import org.peerbox.UserConfig;
 import org.peerbox.model.H2HManager;
 import org.peerbox.model.UserManager;
 import org.peerbox.utils.FormValidationUtils;
@@ -49,6 +49,7 @@ public class LoginController implements Initializable {
 	private NavigationService fNavigationService;
 	private H2HManager h2hManager;
 	private UserManager userManager;
+	private UserConfig userConfig; 
 
 	@FXML
 	private TextField txtUsername;
@@ -80,6 +81,10 @@ public class LoginController implements Initializable {
 	public void initialize(URL location, ResourceBundle resources) {
 		initializeValidations();
 		
+		if(userConfig.hasUsername()) {
+			txtUsername.setText(userConfig.getUsername());
+		}
+		
 		Path rootPath = h2hManager.getRootPath();
 		if(rootPath != null){
 			txtRootPath.setText(rootPath.toString());
@@ -88,7 +93,7 @@ public class LoginController implements Initializable {
 		}
 		
 		// initialize autologin with current setting
-		chbAutoLogin.setSelected(PropertyHandler.isAutoLoginEnabled());
+		chbAutoLogin.setSelected(userConfig.isAutoLoginEnabled());
 	}
 	
 	private void initializeValidations() {
@@ -130,7 +135,7 @@ public class LoginController implements Initializable {
 
 	public void loginAction(ActionEvent event) {
 		boolean inputValid = ValidationUtils.validateOnDemand(grdForm)
-				&& SelectRootPathUtils.verifyRootPath(h2hManager, txtRootPath.getText());
+				&& SelectRootPathUtils.verifyRootPath(h2hManager, userConfig, txtRootPath.getText());
 		
 		if (inputValid) {
 			Task<Boolean> task = createLoginTask();
@@ -210,11 +215,11 @@ public class LoginController implements Initializable {
 	
 	private void saveLoginConfig() {
 		try {
-			PropertyHandler.setUsername(txtUsername.getText().trim());
+			userConfig.setUsername(txtUsername.getText().trim());
 			if(chbAutoLogin.isSelected()) {
-				PropertyHandler.setPassword(txtPassword.getText());
-				PropertyHandler.setPin(txtPin.getText());
-				PropertyHandler.setAutoLogin(true);
+				userConfig.setPassword(txtPassword.getText());
+				userConfig.setPin(txtPin.getText());
+				userConfig.setAutoLogin(true);
 			}
 		} catch(IOException ioex) {
 			logger.warn("Could not save login settings: {}", ioex.getMessage());
@@ -241,6 +246,11 @@ public class LoginController implements Initializable {
 		Window toOpenDialog = btnLogin.getScene().getWindow();
 		path = SelectRootPathUtils.showDirectoryChooser(path, toOpenDialog);
 		txtRootPath.setText(path);
+	}
+	
+	@Inject
+	public void setUserConfig(UserConfig userConfig) {
+		this.userConfig = userConfig;
 	}
 	
 }
