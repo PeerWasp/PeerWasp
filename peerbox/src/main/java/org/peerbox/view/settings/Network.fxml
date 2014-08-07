@@ -10,64 +10,62 @@
 <GridPane hgap="10.0" prefHeight="450.0" prefWidth="600.0" vgap="10.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.peerbox.presenter.settings.Network">
 	<columnConstraints>
 		<ColumnConstraints hgrow="ALWAYS" minWidth="60.0" />
-		<ColumnConstraints maxWidth="0.0" minWidth="0.0" prefWidth="0.0" />
 	</columnConstraints>
 	<rowConstraints>
 		<RowConstraints />
-      <RowConstraints minHeight="-Infinity" prefHeight="150.0" vgrow="SOMETIMES" />
-      <RowConstraints />
-      <RowConstraints />
+		<RowConstraints minHeight="-Infinity" prefHeight="150.0" vgrow="SOMETIMES" />
+		<RowConstraints />
 	</rowConstraints>
 	<children>
-      <VBox>
-         <children>
-      		<Label text="Bootstrapping nodes" GridPane.rowIndex="2">
-               <font>
-                  <Font name="System Bold" size="13.0" />
-               </font>
-               <VBox.margin>
-                  <Insets bottom="10.0" top="10.0" />
-               </VBox.margin>
-            </Label>
-            <Label text="The following list is used to join the network when the application starts. " wrapText="true" />
-         </children>
-      </VBox>
-      <GridPane hgap="10.0" vgap="10.0" GridPane.rowIndex="1">
-        <columnConstraints>
-          <ColumnConstraints hgrow="SOMETIMES" minWidth="50.0" />
-          <ColumnConstraints hgrow="NEVER" minWidth="20.0" prefWidth="100.0" />
-        </columnConstraints>
-        <rowConstraints>
-          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-        </rowConstraints>
-         <children>
-            <ListView fx:id="lwBootstrappingNodes" editable="true" />
-            <VBox GridPane.columnIndex="1">
-               <children>
-                  <Button mnemonicParsing="false" onAction="#addAction" prefWidth="100.0" text="Add">
-                     <VBox.margin>
-                        <Insets />
-                     </VBox.margin>
-                  </Button>
-                  <Button mnemonicParsing="false" onAction="#removeAction" prefWidth="100.0" text="Remove">
-                     <VBox.margin>
-                        <Insets top="10.0" />
-                     </VBox.margin>
-                  </Button>
-                  <Button mnemonicParsing="false" onAction="#upAction" prefWidth="100.0" text="Up">
-                     <VBox.margin>
-                        <Insets top="10.0" />
-                     </VBox.margin>
-                  </Button>
-                  <Button mnemonicParsing="false" onAction="#downAction" prefWidth="100.0" text="Down">
-                     <VBox.margin>
-                        <Insets top="10.0" />
-                     </VBox.margin>
-                  </Button>
-               </children>
-            </VBox>
-         </children>
-      </GridPane>
+		<VBox spacing="10.0" GridPane.rowIndex="0">
+			<children>
+				<Label text="Bootstrapping nodes">
+					<font>
+						<Font name="System Bold" size="13.0" />
+					</font>
+					<VBox.margin>
+						<Insets />
+					</VBox.margin>
+				</Label>
+				<Label text="The following list is used to join the network when the application starts. " wrapText="true" />
+			</children>
+		</VBox>
+		<GridPane hgap="10.0" vgap="10.0" GridPane.rowIndex="1">
+			<columnConstraints>
+				<ColumnConstraints hgrow="SOMETIMES" minWidth="50.0" />
+				<ColumnConstraints hgrow="NEVER" minWidth="20.0" prefWidth="100.0" />
+			</columnConstraints>
+			<rowConstraints>
+				<RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+			</rowConstraints>
+			<children>
+				<ListView fx:id="lwBootstrappingNodes" editable="true" />
+				<VBox GridPane.columnIndex="1">
+					<children>
+						<Button mnemonicParsing="false" onAction="#addAction" prefWidth="100.0" text="Add">
+							<VBox.margin>
+								<Insets />
+							</VBox.margin>
+						</Button>
+						<Button mnemonicParsing="false" onAction="#removeAction" prefWidth="100.0" text="Remove">
+							<VBox.margin>
+								<Insets top="10.0" />
+							</VBox.margin>
+						</Button>
+						<Button mnemonicParsing="false" onAction="#upAction" prefWidth="100.0" text="Up">
+							<VBox.margin>
+								<Insets top="10.0" />
+							</VBox.margin>
+						</Button>
+						<Button mnemonicParsing="false" onAction="#downAction" prefWidth="100.0" text="Down">
+							<VBox.margin>
+								<Insets top="10.0" />
+							</VBox.margin>
+						</Button>
+					</children>
+				</VBox>
+			</children>
+		</GridPane>
 		<HBox alignment="CENTER_LEFT" GridPane.rowIndex="2">
 			<children>
 				<Button defaultButton="true" onAction="#saveAction" text="_OK" />
@@ -77,12 +75,12 @@
 					</HBox.margin>
 				</Button>
 			</children>
-         <padding>
-            <Insets top="20.0" />
-         </padding>
+			<padding>
+				<Insets top="20.0" />
+			</padding>
 		</HBox>
 	</children>
 	<padding>
-		<Insets left="10.0" top="10.0" />
+		<Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
 	</padding>
 </GridPane>
