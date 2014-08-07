@@ -35,9 +35,6 @@ public class Network implements Initializable {
 
 	private static final Logger logger = LoggerFactory.getLogger(Network.class);
 	
-	@FXML 
-	private CheckBox chbAutoJoin;
-	
 	@FXML
 	private ListView<String> lwBootstrappingNodes;
 	
@@ -67,9 +64,6 @@ public class Network implements Initializable {
 	}
 	
 	private void reset() {
-		// auto join setting
-//		chbAutoJoin.setSelected(userConfig.isAutoJoinEnabled());
-		// TODO auto join is no more
 		// bootstrapping nodes
 		List<String> nodes = userConfig.getBootstrappingNodes();
 		lwBootstrappingNodes.getItems().clear();
@@ -115,7 +109,6 @@ public class Network implements Initializable {
 			// update config
 			List<String> nodes = lwBootstrappingNodes.getItems();
 			userConfig.setBootstrappingNodes(nodes);
-//			userConfig.setAutoJoin(chbAutoJoin.isSelected()); // TODO auto join is no more
 			// reload saved config
 			reset();
 			logger.debug("Saved network settings.");
