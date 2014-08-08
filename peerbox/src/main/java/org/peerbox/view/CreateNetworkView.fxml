@@ -7,12 +7,20 @@
 <?import javafx.scene.paint.*?>
 <?import javafx.scene.text.*?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="500.0" prefWidth="275.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.peerbox.presenter.CreateNetworkController">
+<AnchorPane prefWidth="275.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.peerbox.presenter.CreateNetworkController">
       <children>
-            <Button fx:id="btnCreate" layoutX="27.0" layoutY="385.0" mnemonicParsing="false" onAction="#createNetwork" text="Create" />
-            <Button fx:id="btnBack" layoutX="206.0" layoutY="385.0" mnemonicParsing="false" onAction="#goBack" text="Back" />
-      <TextField fx:id="txtIPAddress" editable="false" layoutX="27.0" layoutY="339.0" prefHeight="25.0" prefWidth="220.0" />
-      <Label layoutX="27.0" layoutY="322.0" text="Your IP Address:" />
-      <Label layoutX="27.0" layoutY="182.0" maxWidth="320.0" prefHeight="119.0" prefWidth="220.0" text="This option will create a bootstrapping peer for a new PeerBox network on this device. The IP shown below can be used by other users to join your network. As soon as you click &quot;create&quot;, the bootstrapping peer will be started." wrapText="true" />
+      <VBox layoutX="27.0" layoutY="14.0" spacing="10.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+         <children>
+            <Label text="This option will create a bootstrapping peer for a new PeerBox network on this device. The IP shown below can be used by other users to join your network. As soon as you click &quot;create&quot;, the bootstrapping peer will be started." wrapText="true" />
+            <Label text="Your IP Address:" />
+            <TextField fx:id="txtIPAddress" editable="false" prefHeight="25.0" prefWidth="220.0" />
+            <HBox prefWidth="200.0" spacing="10.0">
+               <children>
+                        <Button fx:id="btnBack" cancelButton="true" mnemonicParsing="false" onAction="#goBack" prefWidth="120.0" text="Back" />
+                        <Button fx:id="btnCreate" defaultButton="true" mnemonicParsing="false" onAction="#createNetwork" prefWidth="120.0" text="Create" />
+               </children>
+            </HBox>
+         </children>
+      </VBox>
       </children>
     </AnchorPane>

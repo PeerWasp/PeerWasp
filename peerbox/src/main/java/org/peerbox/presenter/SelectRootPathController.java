@@ -9,7 +9,6 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
-import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.stage.Window;
 
@@ -32,8 +31,6 @@ public class SelectRootPathController implements Initializable{
 	private Button btnGoBack;
 	@FXML
 	private TextField txtRootPath;
-	@FXML
-	private Label lblWarning;
 	
 	@Inject
 	public SelectRootPathController(NavigationService navigationService) {

@@ -7,12 +7,19 @@
 <?import javafx.scene.paint.*?>
 <?import javafx.scene.text.*?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="500.0" prefWidth="275.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.peerbox.presenter.JoinNetworkController">
+<AnchorPane prefHeight="100.0" prefWidth="250.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.peerbox.presenter.JoinNetworkController">
   <children>
-        <TextField fx:id="txtBootstrapIP" layoutX="40.0" layoutY="250.0" onAction="#accessNetwork" prefHeight="25.0" prefWidth="195.0" />
-        <Label layoutX="40.0" layoutY="233.0" text="IPv4 address of well-known peer:" />
-        <Button fx:id="btnAccessNetwork" layoutX="68.0" layoutY="336.0" mnemonicParsing="false" onAction="#accessNetwork" prefHeight="25.0" prefWidth="140.0" text="Access network" />
-        <Button fx:id="btnBack" layoutX="68.0" layoutY="368.0" mnemonicParsing="false" onAction="#goBack" prefHeight="25.0" prefWidth="140.0" text="Go back" />
-      <Label layoutX="116.0" layoutY="275.0" prefHeight="17.0" prefWidth="119.0" text="Format: 192.168.1.1" />
+      <VBox prefHeight="200.0" prefWidth="100.0" spacing="10.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+         <children>
+              <Label text="Address of well-known peer:" />
+              <TextField fx:id="txtBootstrapIP" onAction="#accessNetwork" prefHeight="25.0" prefWidth="195.0" promptText="Enter address" />
+            <HBox prefHeight="100.0" prefWidth="200.0" spacing="10.0">
+               <children>
+                    <Button fx:id="btnBack" cancelButton="true" mnemonicParsing="false" onAction="#goBack" prefHeight="25.0" prefWidth="120.0" text="Back" />
+                    <Button fx:id="btnAccessNetwork" defaultButton="true" mnemonicParsing="false" onAction="#accessNetwork" prefHeight="25.0" prefWidth="120.0" text="Join network" />
+               </children>
+            </HBox>
+         </children>
+      </VBox>
   </children>
 </AnchorPane>

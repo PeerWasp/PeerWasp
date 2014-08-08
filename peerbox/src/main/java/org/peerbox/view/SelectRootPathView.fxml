@@ -5,12 +5,23 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.layout.AnchorPane?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="500.0" prefWidth="275.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.peerbox.presenter.SelectRootPathController">
+<AnchorPane prefWidth="275.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.peerbox.presenter.SelectRootPathController">
    <children>
-      <Button fx:id="btnChangeDirectory" layoutX="237.0" layoutY="238.0" mnemonicParsing="false" onAction="#changeDirectory" text="..." />
-      <TextField fx:id="txtRootPath" layoutX="13.0" layoutY="238.0" prefHeight="25.0" prefWidth="220.0" />
-      <Button fx:id="btnContinue" layoutX="44.0" layoutY="288.0" mnemonicParsing="false" onAction="#okButtonHandler" prefHeight="25.0" prefWidth="72.0" text="Ok" />
-      <Button fx:id="btnGoBack" layoutX="158.0" layoutY="288.0" mnemonicParsing="false" onAction="#goBack" text="Go back" />
-      <Label fx:id="lblWarning" layoutX="13.0" layoutY="133.0" prefHeight="92.0" prefWidth="205.0" textAlignment="RIGHT" />
+      <VBox spacing="10.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+         <children>
+            <HBox spacing="10.0">
+               <children>
+                  <TextField fx:id="txtRootPath" prefHeight="25.0" HBox.hgrow="SOMETIMES" />
+                  <Button fx:id="btnChangeDirectory" mnemonicParsing="false" onAction="#changeDirectory" text="..." />
+               </children>
+            </HBox>
+            <HBox spacing="10.0">
+               <children>
+                  <Button fx:id="btnGoBack" cancelButton="true" mnemonicParsing="false" onAction="#goBack" prefWidth="100.0" text="Back" />
+                  <Button fx:id="btnContinue" defaultButton="true" mnemonicParsing="false" onAction="#okButtonHandler" prefWidth="100.0" text="Ok" />
+               </children>
+            </HBox>
+         </children>
+      </VBox>
    </children>
     </AnchorPane>

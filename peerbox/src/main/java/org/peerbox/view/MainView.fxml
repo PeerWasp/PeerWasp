@@ -8,9 +8,9 @@
 <?import javafx.scene.paint.*?>
 <?import javafx.scene.text.*?>
 
-<VBox onMouseDragged="#onMouseDragged" onMousePressed="#onMousePressed" prefHeight="500.0" prefWidth="275.0" styleClass="background" stylesheets="css/pb_dark_theme.css" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.peerbox.presenter.MainController">
+<VBox minHeight="-Infinity" minWidth="-Infinity" onMouseDragged="#onMouseDragged" onMousePressed="#onMousePressed" prefHeight="500.0" prefWidth="275.0" styleClass="background" stylesheets="css/pb_dark_theme.css" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.peerbox.presenter.MainController">
   <children>
-      <HBox alignment="CENTER_RIGHT" prefHeight="18.0" prefWidth="275.0">
+      <HBox alignment="CENTER_RIGHT" prefHeight="20.0">
          <children>
             <Button layoutX="230.0" layoutY="-1.0" mnemonicParsing="false" onAction="#minApp" styleClass="button-minimize" stylesheets="css/pb_dark_theme.css">
                <HBox.margin>
@@ -19,6 +19,12 @@
             <Button layoutX="245.0" layoutY="-1.0" mnemonicParsing="false" onAction="#closeApp" styleClass="button-close" stylesheets="css/pb_dark_theme.css" />
          </children>
       </HBox>
-    <AnchorPane fx:id="mainPane" maxHeight="-1.0" maxWidth="-1.0" prefHeight="-1.0" prefWidth="-1.0" VBox.vgrow="ALWAYS" />
+    <StackPane fx:id="mainPane" VBox.vgrow="ALWAYS">
+         <VBox.margin>
+            <Insets top="130.0" />
+         </VBox.margin>
+         <padding>
+            <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+         </padding></StackPane>
   </children>
 </VBox>
