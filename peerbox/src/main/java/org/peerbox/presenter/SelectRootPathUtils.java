@@ -14,6 +14,15 @@ import org.peerbox.UserConfig;
 
 public class SelectRootPathUtils {
 
+	public static Action moveDirectoryConfirm(File newPath) {
+		return Dialogs.create()
+			      .title("Move Path")
+			      .message( String.format(
+			    		  "This will move the directory to a new location: %s.", newPath.toString()))
+	    		  .actions(Dialog.Actions.OK, Dialog.Actions.CANCEL)
+			      .showConfirm();
+	}
+	
 	public static void showPermissionWarning() {
 		Dialogs.create().title("Directory creation failed")
 			.message("Either the selected directory's parent directory does not exist or you don't have permissions to create the directory.")

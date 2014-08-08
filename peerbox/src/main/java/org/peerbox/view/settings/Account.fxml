@@ -6,8 +6,7 @@
 <?import java.lang.*?>
 <?import javafx.scene.layout.*?>
 
-
-<GridPane hgap="10.0" prefHeight="450.0" prefWidth="600.0" vgap="10.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
+<GridPane hgap="10.0" prefHeight="450.0" prefWidth="600.0" vgap="10.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.peerbox.presenter.settings.Account">
    <rowConstraints>
       <RowConstraints />
       <RowConstraints />
@@ -35,18 +34,18 @@
                </font>
             </Label>
             <Label text="Username" GridPane.rowIndex="1" />
-            <TextField editable="false" GridPane.columnIndex="1" GridPane.hgrow="SOMETIMES" GridPane.rowIndex="1" />
+            <TextField fx:id="txtUsername" disable="true" editable="false" GridPane.columnIndex="1" GridPane.hgrow="SOMETIMES" GridPane.rowIndex="1" />
             <Label text="Password" GridPane.rowIndex="2" />
-            <PasswordField editable="false" GridPane.columnIndex="1" GridPane.hgrow="SOMETIMES" GridPane.rowIndex="2" />
+            <PasswordField fx:id="txtPassword" disable="true" editable="false" GridPane.columnIndex="1" GridPane.hgrow="SOMETIMES" GridPane.rowIndex="2" />
             <Label text="Pin" GridPane.rowIndex="3" />
-            <PasswordField editable="false" GridPane.columnIndex="1" GridPane.hgrow="SOMETIMES" GridPane.rowIndex="3" />
+            <PasswordField fx:id="txtPin" disable="true" editable="false" GridPane.columnIndex="1" GridPane.hgrow="SOMETIMES" GridPane.rowIndex="3" />
             <Label text="Auto login" GridPane.rowIndex="4" />
             <VBox spacing="10.0" GridPane.columnIndex="1" GridPane.hgrow="NEVER" GridPane.rowIndex="4">
                <children>
                   <HBox alignment="CENTER_LEFT" spacing="10.0">
                      <children>
-                        <CheckBox disable="true" mnemonicParsing="false" text="Enabled" />
-                        <Button mnemonicParsing="false" text="Disable">
+                        <CheckBox fx:id="chbAutoLogin" disable="true" mnemonicParsing="false" text="Enabled" />
+                        <Button fx:id="btnDisableAutoLogin" mnemonicParsing="false" onAction="#disableAutoLoginAction" text="Disable">
                            <HBox.margin>
                               <Insets />
                            </HBox.margin>
@@ -78,8 +77,8 @@
             </Label>
             <HBox alignment="CENTER_LEFT" GridPane.hgrow="SOMETIMES" GridPane.rowIndex="1">
                <children>
-                  <TextField editable="false" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" HBox.hgrow="SOMETIMES" />
-                  <Button mnemonicParsing="false" text="Change">
+                  <TextField fx:id="txtRootPath" editable="false" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" HBox.hgrow="SOMETIMES" />
+                  <Button fx:id="btnMoveRootPath" mnemonicParsing="false" onAction="#moveRootPathAction" text="Move">
                      <HBox.margin>
                         <Insets left="10.0" />
                      </HBox.margin>
