@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import java.lang.*?>
+<?import javafx.scene.layout.*?>
+
+<fx:root alignment="CENTER_LEFT" spacing="10.0" type="javafx.scene.layout.HBox" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
+	<children>
+		<ImageView fx:id="imgView" pickOnBounds="true" preserveRatio="true">
+			<image>
+				<Image url="/images/error-icon.png" />
+			</image>
+		</ImageView>
+		<Label fx:id="lblMessage" text="" />
+	</children>
+</fx:root>
