@@ -6,7 +6,7 @@
 <?import javafx.scene.layout.AnchorPane?>
 
 <AnchorPane stylesheets="css/settings.css" maxHeight="-Infinity" maxWidth="-Infinity"
-	minHeight="-Infinity" minWidth="-Infinity" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
+	minHeight="-Infinity" minWidth="-Infinity" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.peerbox.presenter.settings.Settings">
 	<children>
 		<TabPane  styleClass="settings" tabClosingPolicy="UNAVAILABLE"
 			AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
@@ -14,17 +14,17 @@
 			<tabs>
 				<Tab styleClass="settings-general" text="General">
 					<content>
-						<fx:include source="General.fxml" />
+						<fx:include fx:id="general" source="General.fxml" />
 					</content>
 				</Tab>
 				<Tab styleClass="settings-account" text="Account">
 					<content>
-						<fx:include source="Account.fxml" />
+						<fx:include fx:id="account" source="Account.fxml" />
 					</content>
 				</Tab>
 				<Tab styleClass="settings-account" text="Network">
 					<content>
-						<fx:include source="Network.fxml" />
+						<fx:include fx:id="network" source="Network.fxml" />
 					</content>
 				</Tab>
 			</tabs>

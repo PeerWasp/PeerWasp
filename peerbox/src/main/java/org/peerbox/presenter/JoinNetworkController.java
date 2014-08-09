@@ -41,7 +41,7 @@ public class JoinNetworkController implements Initializable {
 	
 	public void goBack(ActionEvent event){
 		System.out.println("Go back.");
-		fNavigationService.goBack();
+		fNavigationService.navigateBack();
 	}
 	
 	public void accessNetwork(ActionEvent event){

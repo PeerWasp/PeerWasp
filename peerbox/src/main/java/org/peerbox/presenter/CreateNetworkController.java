@@ -59,7 +59,7 @@ public class CreateNetworkController implements Initializable {
 		if(goBack.equals(Dialog.Actions.YES)){
 			h2hManager.disconnectNode();
 			btnCreate.setText("Create");
-			fNavigationService.goBack();
+			fNavigationService.navigateBack();
 		}
 	}
 	

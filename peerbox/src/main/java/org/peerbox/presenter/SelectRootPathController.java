@@ -45,7 +45,7 @@ public class SelectRootPathController implements Initializable{
 	}
 	
 	public void goBack(ActionEvent event){
-		fNavigationService.goBack();
+		fNavigationService.navigateBack();
 	}
 	
 	public void okButtonHandler(ActionEvent event){

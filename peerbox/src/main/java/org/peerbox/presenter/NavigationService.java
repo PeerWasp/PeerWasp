@@ -21,12 +21,13 @@ public class NavigationService {
 
 	private static final Logger logger = LoggerFactory.getLogger(NavigationService.class);
 	private INavigatable fController;
-	private ObservableList<Node> pages = FXCollections.observableArrayList();
+	private final ObservableList<Node> pages;
 	private GuiceFxmlLoader guiceFxmlLoader;
 
 	@Inject
 	public NavigationService(GuiceFxmlLoader loader) {
 		this.guiceFxmlLoader = loader;
+		pages = FXCollections.observableArrayList();
 	}
 
 	public void setNavigationController(INavigatable controller) {
@@ -50,12 +51,12 @@ public class NavigationService {
 		}
 	}
 
-	public boolean canGoBack() {
+	public boolean canNavigateBack() {
 		return pages.size() >= 2;
 	}
 
-	public void goBack() {
-		if (canGoBack()) {
+	public void navigateBack() {
+		if (canNavigateBack()) {
 			int previous = pages.size() - 2;
 			pages.remove(pages.size() - 1);
 			fController.setContent(pages.get(previous));

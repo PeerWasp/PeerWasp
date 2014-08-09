@@ -2,7 +2,6 @@ package org.peerbox.presenter;
 
 import java.net.URL;
 import java.util.ResourceBundle;
-import java.util.concurrent.ExecutionException;
 
 import javafx.concurrent.Task;
 import javafx.concurrent.WorkerStateEvent;
@@ -29,9 +28,11 @@ import jidefx.scene.control.validation.Validator;
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.hive2hive.core.processes.framework.exceptions.InvalidProcessStateException;
 import org.peerbox.Constants;
+import org.peerbox.ResultStatus;
 import org.peerbox.model.UserManager;
 import org.peerbox.utils.FormValidationUtils;
 import org.peerbox.view.ViewNames;
+import org.peerbox.view.controls.ErrorLabel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -60,6 +61,9 @@ public class RegisterController implements Initializable {
 	@FXML
 	private GridPane grdForm;
 	
+	@FXML 
+	private ErrorLabel lblError;
+	
 	private Decorator<ProgressIndicator> fProgressDecoration = null;
 
 	@Inject
@@ -70,6 +74,18 @@ public class RegisterController implements Initializable {
 	
 	public void initialize(URL location, ResourceBundle resources) {
 		initializeValidations();
+	}
+	
+	private void resetForm() {
+		txtUsername.clear();
+		txtPassword_1.clear();
+		txtPassword_2.clear();
+		txtPin_1.clear();
+		txtPin_2.clear();
+		grdForm.disableProperty().unbind();
+		grdForm.setDisable(false);
+		uninstallProgressIndicator();
+		ValidationUtils.validateOnDemand(grdForm);
 	}
 
 	private void initializeValidations() {
@@ -87,47 +103,86 @@ public class RegisterController implements Initializable {
 		
 	}
 
-	// TODO: any use for that? what if user goes back? 
-	private void resetForm() {
-		txtUsername.clear();
-		txtPassword_1.clear();
-		txtPassword_2.clear();
-		txtPin_1.clear();
-		txtPin_2.clear();
-		grdForm.setDisable(false);
-		DecorationUtils.uninstall(grdForm);
-	}
-
 	private void addUsernameValidation() {
-		Validator usernameValidator = new Validator() {
+		Validator usernameEmptyValidator = new Validator() {
 			@Override
 			public ValidationEvent call(ValidationObject param) {
-				try {
-					String username = txtUsername.getText().trim();
-					if (username.isEmpty()) {
-						return new ValidationEvent(ValidationEvent.VALIDATION_ERROR, 0, "Please enter a username.");
-					}
-					if (fUserManager.isRegistered(username)) {
-						return new ValidationEvent(ValidationEvent.VALIDATION_ERROR, 0, "Username already taken.");
-					}
-				} catch (NoPeerConnectionException e) {
-					return ValidationEvent.OK;
+				final String username = getUsername();
+				if (username.isEmpty()) {
+					return new ValidationEvent(ValidationEvent.VALIDATION_ERROR, 0, "Please enter a username.");
 				}
 				return ValidationEvent.OK;
 			}
-
 		};
-		// ValidationUtils.install(txtUsername, usernameValidator, ValidationMode.ON_FOCUS_LOST); // network
-		// too costly?
-		ValidationUtils.install(txtUsername, usernameValidator, ValidationMode.ON_DEMAND);
+		Validator usernameFullValidator = new Validator() {
+			@Override
+			public ValidationEvent call(ValidationObject param) {
+				try {
+					final String username = getUsername();
+					ValidationEvent usernameEmpty = usernameEmptyValidator.call(param);
+					if(usernameEmpty != ValidationEvent.OK) {
+						return usernameEmpty; 
+					}
+					if (fUserManager.isRegistered(username)) {
+						lblError.setText("This username is already taken.");
+						return new ValidationEvent(ValidationEvent.VALIDATION_ERROR, 0, "Username already taken.");
+					}
+				} catch (NoPeerConnectionException e) {
+					lblError.setText("Network connection failed.");
+					return new ValidationEvent(ValidationEvent.VALIDATION_ERROR, 0, "Network connection failed.");
+				}
+				return ValidationEvent.OK;
+			}
+		};
+		
+		ValidationUtils.install(txtUsername, usernameEmptyValidator, ValidationMode.ON_FLY);
+		ValidationUtils.install(txtUsername, usernameFullValidator, ValidationMode.ON_DEMAND);
 	}
 
 	private void addPasswordValidation() {
+		Validator passwordValidator = new Validator() {
+			@Override
+			public ValidationEvent call(ValidationObject param) {
+				final String password = txtPassword_1.getText();
+				ValidationUtils.validateOnDemand(txtPassword_2); // refresh validation result of confirm field
+				// as well
+				if (password.isEmpty()) {
+					return new ValidationEvent(ValidationEvent.VALIDATION_ERROR, 0, "Please enter a password.");
+				}
+				if (password.length() < Constants.MIN_PASSWORD_LENGTH) {
+					return new ValidationEvent(ValidationEvent.VALIDATION_WARNING, 0, String.format(
+							"The password should be at least %d characters long.", Constants.MIN_PASSWORD_LENGTH));
+				}
+				return ValidationEvent.OK;
+			}
+		};
+		ValidationUtils.install(txtPassword_1, passwordValidator, ValidationMode.ON_FLY);
+		ValidationUtils.install(txtPassword_1, passwordValidator, ValidationMode.ON_DEMAND);
+	
+		Validator passwordMatchValidator = new Validator() {
+			@Override
+			public ValidationEvent call(ValidationObject param) {
+				final String password_1 = txtPassword_1.getText();
+				final String password_2 = txtPassword_2.getText();
+				if (!password_1.equals(password_2)) {
+					return new ValidationEvent(ValidationEvent.VALIDATION_ERROR, 0, "The passwords are not the same.");
+				}
+				if (password_2.isEmpty()) {
+					return new ValidationEvent(ValidationEvent.VALIDATION_ERROR, 0, "Please enter a password.");
+				}
+				return ValidationEvent.OK;
+			}
+		};
+		ValidationUtils.install(txtPassword_2, passwordMatchValidator, ValidationMode.ON_FLY);
+		ValidationUtils.install(txtPassword_2, passwordMatchValidator, ValidationMode.ON_DEMAND);
+	}
+
+	private void addPinValidation() {
 		Validator pinValidator = new Validator() {
 			@Override
 			public ValidationEvent call(ValidationObject param) {
-				String pin = txtPin_1.getText();
-				ValidationUtils.validateOnDemand(txtPin_2);
+				final String pin = txtPin_1.getText();
+				ValidationUtils.validateOnDemand(txtPin_2); // refresh validation result of confirm field
 				if (pin.isEmpty()) {
 					return new ValidationEvent(ValidationEvent.VALIDATION_ERROR, 0, "Please enter a pin.");
 				}
@@ -144,8 +199,8 @@ public class RegisterController implements Initializable {
 		Validator pinMatchValidator = new Validator() {
 			@Override
 			public ValidationEvent call(ValidationObject param) {
-				String pin_1 = txtPin_1.getText();
-				String pin_2 = txtPin_2.getText();
+				final String pin_1 = txtPin_1.getText();
+				final String pin_2 = txtPin_2.getText();
 				if (!pin_1.equals(pin_2)) {
 					return new ValidationEvent(ValidationEvent.VALIDATION_ERROR, 0, "The PINs are not the same.");
 				}
@@ -159,111 +214,83 @@ public class RegisterController implements Initializable {
 		ValidationUtils.install(txtPin_2, pinMatchValidator, ValidationMode.ON_DEMAND);
 	}
 
-	private void addPinValidation() {
-		Validator passwordValidator = new Validator() {
-			@Override
-			public ValidationEvent call(ValidationObject param) {
-				String password = txtPassword_1.getText();
-				ValidationUtils.validateOnDemand(txtPassword_2); // refresh validation result of confirm field
-				// as well
-				if (password.isEmpty()) {
-					return new ValidationEvent(ValidationEvent.VALIDATION_ERROR, 0, "Please enter a password.");
-				}
-				if (password.length() < Constants.MIN_PASSWORD_LENGTH) {
-					return new ValidationEvent(ValidationEvent.VALIDATION_WARNING, 0, String.format(
-							"The password should be at least %d characters long.", Constants.MIN_PASSWORD_LENGTH));
-				}
-				return ValidationEvent.OK;
-			}
-		};
-		ValidationUtils.install(txtPassword_1, passwordValidator, ValidationMode.ON_FLY);
-		ValidationUtils.install(txtPassword_1, passwordValidator, ValidationMode.ON_DEMAND);
-
-		Validator passwordMatchValidator = new Validator() {
-			@Override
-			public ValidationEvent call(ValidationObject param) {
-				String password_1 = txtPassword_1.getText();
-				String password_2 = txtPassword_2.getText();
-				if (!password_1.equals(password_2)) {
-					return new ValidationEvent(ValidationEvent.VALIDATION_ERROR, 0, "The passwords are not the same.");
-				}
-				if (password_2.isEmpty()) {
-					return new ValidationEvent(ValidationEvent.VALIDATION_ERROR, 0, "Please enter a password.");
-				}
-				return ValidationEvent.OK;
-			}
-		};
-		ValidationUtils.install(txtPassword_2, passwordMatchValidator, ValidationMode.ON_FLY);
-		ValidationUtils.install(txtPassword_2, passwordMatchValidator, ValidationMode.ON_DEMAND);
-	}
-
 	public void registerAction(ActionEvent event) {
+		clearError();
 		if (ValidationUtils.validateOnDemand(grdForm)) {
-			Task<Boolean> task = createRegisterTask();
-			installProgressIndicator();
-			grdForm.disableProperty().bind(task.runningProperty());
+			Task<ResultStatus> task = createRegisterTask();
 			new Thread(task).start();
 		}
 	}
-
-	private boolean registerNewUser() {
-		boolean registerSuccess = false;
-		try {
-			registerSuccess = fUserManager.registerUser(
-					txtUsername.getText().trim(), 
-					txtPassword_1.getText(),
-					txtPin_1.getText());
-		} catch (NoPeerConnectionException | InterruptedException | InvalidProcessStateException ex) {
-			ex.printStackTrace();
-			registerSuccess = false;
-		}
-		return registerSuccess;
+	
+	public void backAction(ActionEvent event) {
+		logger.debug("Navigate back.");
+		fNavigationService.navigateBack();
 	}
 
-	private Task<Boolean> createRegisterTask() {
+	public ResultStatus registerUser(final String username, final String password, final String pin) {
+		try {
+			return fUserManager.registerUser(username, password, pin);
+		} catch (NoPeerConnectionException e) {
+			return ResultStatus.error("Could not register user because connection to network failed.");
+		} catch (InvalidProcessStateException | InterruptedException e) {
+			e.printStackTrace();
+		}
+		return ResultStatus.error("Could not register user.");
+	}
 
-		Task<Boolean> task = new Task<Boolean>() {
+	private Task<ResultStatus> createRegisterTask() {
+		Task<ResultStatus> task = new Task<ResultStatus>() {
+			// credentials
+			final String username = getUsername();
+			final String password = txtPassword_1.getText();
+			final String pin = txtPin_1.getText();
 			@Override
-			public Boolean call() {
-				return registerNewUser();
+			public ResultStatus call() {
+				return registerUser(username, password, pin);
 			}
 		};
+		
+		task.setOnScheduled(new EventHandler<WorkerStateEvent>() {
+			@Override
+			public void handle(WorkerStateEvent event) {
+				installProgressIndicator();
+				grdForm.disableProperty().bind(task.runningProperty());
+			}
+		});
+		
 		task.setOnFailed(new EventHandler<WorkerStateEvent>() {
 			@Override
 			public void handle(WorkerStateEvent event) {
-				onRegisterFailed();
+				onRegisterFailed(ResultStatus.error("Could not register user."));
 			}
-
 		});
+		
 		task.setOnSucceeded(new EventHandler<WorkerStateEvent>() {
 			@Override
 			public void handle(WorkerStateEvent event) {
-				try {
-					if(task.get()) {
-						onRegisterSucceeded();
-					} else {
-						onRegisterFailed();
-					}
-				} catch (InterruptedException | ExecutionException e) {
-					e.printStackTrace();
-					onRegisterFailed();
+				ResultStatus result = task.getValue();
+				if(result.isOk()) {
+					onRegisterSucceeded();
+				} else {
+					onRegisterFailed(result);
 				}
 			}
 		});
+		
 		return task;
 	}
 	
-	private void onRegisterFailed() {
-		logger.error("Registration task failed.");
-		uninstallProgressIndicator();
-		grdForm.disableProperty().unbind();
-	}
-	
 	private void onRegisterSucceeded() {
-		logger.debug("Registration task succeeded: user {} registered.", txtUsername.getText().trim());
+		logger.info("Registration task succeeded: user {} registered.", getUsername());
+		resetForm();
+		fNavigationService.navigate(ViewNames.SELECT_ROOT_PATH_VIEW);
+	}
+
+	private void onRegisterFailed(ResultStatus result) {
+		logger.error("Registration task failed: {}", result.getErrorMessage());
 		uninstallProgressIndicator();
 		grdForm.disableProperty().unbind();
-		fNavigationService.navigate(ViewNames.SELECT_ROOT_PATH_VIEW);
+		lblError.setText(result.getErrorMessage());
 	}
 	
 	private void installProgressIndicator() {
@@ -275,11 +302,15 @@ public class RegisterController implements Initializable {
 	private void uninstallProgressIndicator() {
 		if(fProgressDecoration != null) {
 			DecorationUtils.uninstall(grdForm, fProgressDecoration);
+			fProgressDecoration = null;
 		}
 	}
 
-	public void goBack(ActionEvent event) {
-		logger.debug("Go back.");
-		fNavigationService.goBack();
+	private void clearError() {
+		lblError.setText("");
+	}
+
+	private String getUsername() {
+		return txtUsername.getText().trim();
 	}
 }

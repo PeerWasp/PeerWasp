@@ -233,7 +233,7 @@ public class LoginController implements Initializable {
 	
 	public void goBack(ActionEvent event){
 		logger.debug("Go back.");
-		fNavigationService.goBack();
+		fNavigationService.navigateBack();
 	}
 	
 	public void btnChangeDirectoryHandler(ActionEvent event){
