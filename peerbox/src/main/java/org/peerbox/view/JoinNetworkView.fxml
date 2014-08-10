@@ -6,20 +6,31 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.paint.*?>
 <?import javafx.scene.text.*?>
+<?import org.peerbox.view.controls.* ?>
 
-<AnchorPane prefHeight="100.0" prefWidth="250.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.peerbox.presenter.JoinNetworkController">
-  <children>
-      <VBox prefHeight="200.0" prefWidth="100.0" spacing="10.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-         <children>
-              <Label text="Address of well-known peer:" />
-              <TextField fx:id="txtBootstrapIP" onAction="#accessNetwork" prefHeight="25.0" prefWidth="195.0" promptText="Enter address" />
-            <HBox prefHeight="100.0" prefWidth="200.0" spacing="10.0">
-               <children>
-                    <Button fx:id="btnBack" cancelButton="true" mnemonicParsing="false" onAction="#goBack" prefHeight="25.0" prefWidth="120.0" text="Back" />
-                    <Button fx:id="btnAccessNetwork" defaultButton="true" mnemonicParsing="false" onAction="#accessNetwork" prefHeight="25.0" prefWidth="120.0" text="Join network" />
-               </children>
-            </HBox>
-         </children>
-      </VBox>
-  </children>
+<AnchorPane prefHeight="100.0" prefWidth="250.0"
+	xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1"
+	fx:controller="org.peerbox.presenter.JoinNetworkController">
+	<children>
+		<VBox fx:id="vboxForm" prefHeight="200.0" prefWidth="100.0"
+			spacing="10.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
+			AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+			<children>
+				<ErrorLabel fx:id="lblError" iconHeight="20.0" />
+				<Label text="Address of well-known peer:" />
+				<TextField fx:id="txtBootstrapIP" onAction="#joinNetworkAction"
+					prefHeight="25.0" prefWidth="195.0" promptText="Enter address" />
+				<HBox prefHeight="100.0" prefWidth="200.0" spacing="10.0">
+					<children>
+						<Button fx:id="btnBack" cancelButton="true"
+							mnemonicParsing="false" onAction="#navigateBackAction"
+							prefHeight="25.0" prefWidth="120.0" text="Back" />
+						<Button fx:id="btnAccessNetwork" defaultButton="true"
+							mnemonicParsing="false" onAction="#joinNetworkAction" prefHeight="25.0"
+							prefWidth="120.0" text="Join network" />
+					</children>
+				</HBox>
+			</children>
+		</VBox>
+	</children>
 </AnchorPane>

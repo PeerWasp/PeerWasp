@@ -28,19 +28,19 @@ public class H2HManagerTest {
 	@Test(expected=UnknownHostException.class)
 	public void accessNetworkTestUnknownHost() throws UnknownHostException{
 		h2hManager.createNode();
-		h2hManager.accessNetwork("unknownhost");
+		h2hManager.joinNetwork("unknownhost");
 	}
 	
 	@Test
 	public void accessNetworkTestWrongBootstrapAddress() throws UnknownHostException{
 		h2hManager.createNode();
-		assertFalse(h2hManager.accessNetwork("1.2.3.4"));
+		assertFalse(h2hManager.joinNetwork("1.2.3.4"));
 	}
 	
 	@Test
 	public void accessNetworkTestCorrectBootstrapAddress() throws UnknownHostException{
 		h2hManager.createNode();
-		assertTrue(h2hManager.accessNetwork("localhost"));
+		assertTrue(h2hManager.joinNetwork("localhost"));
 	}
 	
 	@Test

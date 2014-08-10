@@ -36,7 +36,7 @@
 				<CheckBox fx:id="chbAutoLogin" mnemonicParsing="false" text="Login automatically" GridPane.columnIndex="0" GridPane.rowIndex="5" />
 				<HBox alignment="CENTER_LEFT" spacing="10.0" GridPane.rowIndex="6">
 					<children>
-						<Button cancelButton="true" mnemonicParsing="false" onAction="#navigateBack" prefWidth="100.0" text="Back" />
+						<Button cancelButton="true" mnemonicParsing="false" onAction="#navigateBackAction" prefWidth="100.0" text="Back" />
 						<Button fx:id="btnLogin" defaultButton="true" mnemonicParsing="false" onAction="#loginAction" prefWidth="100.0" text="Login" />
 					</children>
 				</HBox>

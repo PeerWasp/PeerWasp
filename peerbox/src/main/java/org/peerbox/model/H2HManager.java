@@ -20,33 +20,33 @@ import com.google.inject.Singleton;
 public class H2HManager {
 
 	private static final Logger logger = LoggerFactory.getLogger(H2HManager.class);
-	
+
 	private IH2HNode node;
 
 	public IH2HNode getNode() {
 		return node;
 	}
-	
+
 	public String generateNodeID() {
 		return UUID.randomUUID().toString();
 	}
-	
+
 	public boolean createNode() {
 		INetworkConfiguration defaultNetworkConf = NetworkConfiguration.create(generateNodeID());
 		return createNode(defaultNetworkConf);
 	}
-	
-	public boolean createNode(INetworkConfiguration configuration){
+
+	public boolean createNode(INetworkConfiguration configuration) {
 		node = H2HNode.createNode(configuration, FileConfiguration.createDefault());
 		node.getUserManager().configureAutostart(false);
 		node.getFileManager().configureAutostart(false);
 		return node.connect();
 	}
-	
-	public String getInetAddressAsString(){
+
+	public String getInetAddressAsString() {
 		InetAddress address;
 		try {
-			if(node.getNetworkConfiguration().isInitialPeer()){
+			if (node.getNetworkConfiguration().isInitialPeer()) {
 				address = InetAddress.getLocalHost();
 			} else {
 				address = node.getNetworkConfiguration().getBootstrapAddress();
@@ -58,55 +58,43 @@ public class H2HManager {
 		return "";
 	}
 
-	
 	/**
 	 * Tries to access the PeerBox network using a specified node's address or hostname.
 	 * Returns false if the provided String is empty or no node is found at the specified
 	 * address, true if the connection was successful.
+	 * 
 	 * @param bootstrapAddressString contains the host's name or address.
 	 * @throws UnknownHostException if the provided host is rejected (bad format).
 	 */
-	public boolean accessNetwork(String bootstrapAddressString) throws UnknownHostException{
-		if(bootstrapAddressString.isEmpty()){
-			System.out.println("No host provided.");
-			return false;
+	public boolean joinNetwork(String bootstrapAddressString) throws UnknownHostException {
+		if (bootstrapAddressString.isEmpty()) {
+			throw new IllegalArgumentException("Bootstrap address is empty.");
 		}
 		String nodeID = generateNodeID();
 		InetAddress bootstrapAddress = InetAddress.getByName(bootstrapAddressString);
-		boolean success = createNode(NetworkConfiguration.create(nodeID, bootstrapAddress));
-		if(success){
-			System.out.println("Joined the network.");
-		} else {
-			System.out.println("Was not able to join network!");
-		}
-		return success;
-	}
-
-	public void disconnectNode() {
-		if(node != null){
-			node.disconnect();	
-		}
+		return createNode(NetworkConfiguration.create(nodeID, bootstrapAddress));
 	}
 
 	public boolean joinNetwork(List<String> bootstrappingNodes) throws UnknownHostException {
-		Iterator<String> nodeIt = bootstrappingNodes.iterator();
 		boolean connected = false;
-		
+		Iterator<String> nodeIt = bootstrappingNodes.iterator();
 		while (nodeIt.hasNext() && !connected) {
 			String node = nodeIt.next();
-			if (accessNetwork(node)) {
-				logger.info("Successfully connected to node {}", node);
+			if (joinNetwork(node)) {
+				logger.debug("Successfully connected to node {}", node);
 			} else {
 				logger.debug("Could not connect to node {}", node);
 			}
 			connected = isConnected();
 		}
-		
-		if (!connected) {
-			// TODO: notify that join is not possible without saved bootstrapping nodes.
-			logger.info("Could not connect to any node.");
-		}
 		return connected;
+	}
+
+	public boolean leaveNetwork() {
+		if (node != null) {
+			return node.disconnect();
+		}
+		return false;
 	}
 
 	public boolean isConnected() {

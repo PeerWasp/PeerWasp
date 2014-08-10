@@ -223,7 +223,7 @@ public class RegisterController implements Initializable {
 		}
 	}
 	
-	public void backAction(ActionEvent event) {
+	public void navigateBackAction(ActionEvent event) {
 		logger.debug("Navigate back.");
 		fNavigationService.navigateBack();
 	}

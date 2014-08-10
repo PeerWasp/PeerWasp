@@ -145,6 +145,5 @@ public class App extends Application
 	private void setH2HManager(H2HManager manager) {
 		this.h2hManager = manager;
 	}
-	
 }
 

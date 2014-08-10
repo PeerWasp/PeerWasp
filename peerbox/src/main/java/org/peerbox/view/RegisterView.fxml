@@ -32,7 +32,7 @@
             <PasswordField fx:id="txtPin_2" promptText="Confirm PIN" GridPane.columnIndex="1" GridPane.rowIndex="3" />
             <HBox alignment="CENTER_LEFT" spacing="10.0" GridPane.columnSpan="2" GridPane.rowIndex="4">
                <children>
-                  <Button fx:id="btnBack" cancelButton="true" mnemonicParsing="false" onAction="#backAction" prefWidth="100.0" text="Back">
+                  <Button fx:id="btnBack" cancelButton="true" mnemonicParsing="false" onAction="#navigateBackAction" prefWidth="100.0" text="Back">
                      <HBox.margin>
                         <Insets />
                      </HBox.margin>

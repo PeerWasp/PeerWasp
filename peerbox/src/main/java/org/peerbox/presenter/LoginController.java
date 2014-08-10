@@ -283,7 +283,7 @@ public class LoginController implements Initializable {
 		txtRootPath.setText(path);
 	}
 
-	public void navigateBack(ActionEvent event) {
+	public void navigateBackAction(ActionEvent event) {
 		logger.debug("Navigate back.");
 		fNavigationService.navigateBack();
 	}
