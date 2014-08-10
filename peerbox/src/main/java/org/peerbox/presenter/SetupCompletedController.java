@@ -2,7 +2,6 @@ package org.peerbox.presenter;
 
 import java.net.URL;
 import java.util.ResourceBundle;
-import java.util.concurrent.ExecutionException;
 
 import javafx.concurrent.Task;
 import javafx.concurrent.WorkerStateEvent;
@@ -16,6 +15,7 @@ import javafx.stage.Stage;
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.hive2hive.core.exceptions.NoSessionException;
 import org.hive2hive.core.processes.framework.exceptions.InvalidProcessStateException;
+import org.peerbox.ResultStatus;
 import org.peerbox.model.UserManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,20 +51,17 @@ public class SetupCompletedController implements Initializable {
 	}
 	
 	public void logoutAction(ActionEvent event) {
-		Task<Boolean> task = createLogoutTask();
+		Task<ResultStatus> task = createLogoutTask();
 		new Thread(task).start();
 	}
 
-	private Boolean logoutUser() {
-		boolean success = false;
+	private ResultStatus logoutUser() {
 		try {
-			success = fUserManager.logoutUser();
+			return fUserManager.logoutUser();
 		} catch (InvalidProcessStateException | NoPeerConnectionException | NoSessionException | InterruptedException e) {
 			e.printStackTrace();
-			success = false;
+			return ResultStatus.error(e.getMessage());
 		}
-		return success;
-		
 	}
 	
 	private void onLogoutFailed() {
@@ -75,10 +72,10 @@ public class SetupCompletedController implements Initializable {
 		logger.info("Logout succeeded.");
 	}
 
-	private Task<Boolean> createLogoutTask() {
-		Task<Boolean> task = new Task<Boolean>() {
+	private Task<ResultStatus> createLogoutTask() {
+		Task<ResultStatus> task = new Task<ResultStatus>() {
 			@Override
-			public Boolean call() {
+			public ResultStatus call() {
 				return logoutUser();
 			}
 		};
@@ -91,14 +88,10 @@ public class SetupCompletedController implements Initializable {
 		task.setOnSucceeded(new EventHandler<WorkerStateEvent>() {
 			@Override
 			public void handle(WorkerStateEvent event) {
-				try {
-					if(task.get()) {
-						onLogoutSucceeded();
-					} else {
-						onLogoutFailed();
-					}
-				} catch (InterruptedException | ExecutionException e) {
-					e.printStackTrace();
+				ResultStatus result = task.getValue();
+				if(result.isOk()) {
+					onLogoutSucceeded();
+				} else {
 					onLogoutFailed();
 				}
 			}

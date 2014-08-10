@@ -3,6 +3,7 @@ package org.peerbox.presenter;
 import java.net.URL;
 import java.util.ResourceBundle;
 
+import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.concurrent.WorkerStateEvent;
 import javafx.event.ActionEvent;
@@ -124,11 +125,11 @@ public class RegisterController implements Initializable {
 						return usernameEmpty; 
 					}
 					if (fUserManager.isRegistered(username)) {
-						lblError.setText("This username is already taken.");
+						setError("This username is already taken.");
 						return new ValidationEvent(ValidationEvent.VALIDATION_ERROR, 0, "Username already taken.");
 					}
 				} catch (NoPeerConnectionException e) {
-					lblError.setText("Network connection failed.");
+					setError("Network connection failed.");
 					return new ValidationEvent(ValidationEvent.VALIDATION_ERROR, 0, "Network connection failed.");
 				}
 				return ValidationEvent.OK;
@@ -253,6 +254,7 @@ public class RegisterController implements Initializable {
 		task.setOnScheduled(new EventHandler<WorkerStateEvent>() {
 			@Override
 			public void handle(WorkerStateEvent event) {
+				logger.info("Start registering new user profile");
 				installProgressIndicator();
 				grdForm.disableProperty().bind(task.runningProperty());
 			}
@@ -288,9 +290,12 @@ public class RegisterController implements Initializable {
 
 	private void onRegisterFailed(ResultStatus result) {
 		logger.error("Registration task failed: {}", result.getErrorMessage());
-		uninstallProgressIndicator();
-		grdForm.disableProperty().unbind();
-		lblError.setText(result.getErrorMessage());
+		Platform.runLater(() -> {
+			uninstallProgressIndicator();
+			grdForm.disableProperty().unbind();
+			grdForm.requestLayout();
+			setError(result.getErrorMessage());
+		});
 	}
 	
 	private void installProgressIndicator() {
@@ -304,6 +309,10 @@ public class RegisterController implements Initializable {
 			DecorationUtils.uninstall(grdForm, fProgressDecoration);
 			fProgressDecoration = null;
 		}
+	}
+	
+	private void setError(String error) {
+		lblError.setText(error);
 	}
 
 	private void clearError() {

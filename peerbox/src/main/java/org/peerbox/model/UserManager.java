@@ -35,7 +35,8 @@ public class UserManager {
 
 		if (listener.hasSucceeded() && isRegistered(credentials.getUserId())) {
 			return ResultStatus.ok();
-		} else if (listener.hasFailed()) {
+		}
+		if (listener.hasFailed()) {
 			RollbackReason reason = listener.getRollbackReason();
 			if (reason != null) {
 				return ResultStatus.error(reason.getHint());
@@ -43,48 +44,52 @@ public class UserManager {
 		}
 		return ResultStatus.error("Could not register user.");
 	}
-	
+
 	public boolean isRegistered(final String userName) throws NoPeerConnectionException {
 		return h2hUserManager.isRegistered(userName);
 	}
 
-	public boolean loginUser(String username, String password, String pin, Path rootPath) 
-			throws NoPeerConnectionException, InterruptedException, InvalidProcessStateException {
-		// TODO: what to do with the user credentials? where to get them?
+	public ResultStatus loginUser(final String username, final String password, final String pin,
+			final Path rootPath) throws NoPeerConnectionException, InterruptedException,
+			InvalidProcessStateException {
 		userCredentials = new UserCredentials(username, password, pin);
-		
-		System.out.println("Root path " + rootPath);
-		
-		IProcessComponent process = h2hUserManager.login(userCredentials, rootPath);
+		IProcessComponent loginProcess = h2hUserManager.login(userCredentials, rootPath);
 		ProcessComponentListener listener = new ProcessComponentListener();
-		process.attachListener(listener);
-		process.start().await();
+		loginProcess.attachListener(listener);
+		loginProcess.start().await();
 
+		if (listener.hasSucceeded() && isLoggedIn(userCredentials.getUserId())) {
+			return ResultStatus.ok();
+		}
 		if (listener.hasFailed()) {
 			RollbackReason reason = listener.getRollbackReason();
-			System.out.println(String.format("The process has failed%s", reason != null ? ": " + reason.getHint() : "."));
+			if (reason != null) {
+				return ResultStatus.error(reason.getHint());
+			}
 		}
-		
-		return listener.hasSucceeded() && isLoggedIn(userCredentials.getUserId());
+		return ResultStatus.error("Could not login user.");
 	}
-	
-	public boolean isLoggedIn(String userName) throws NoPeerConnectionException{
+
+	public boolean isLoggedIn(final String userName) throws NoPeerConnectionException {
 		return h2hUserManager.isLoggedIn(userName);
 	}
-	
-	public boolean logoutUser() 
-			throws InvalidProcessStateException, InterruptedException, NoPeerConnectionException, NoSessionException {
-		IProcessComponent process = h2hUserManager.logout();
+
+	public ResultStatus logoutUser() throws InvalidProcessStateException, InterruptedException,
+			NoPeerConnectionException, NoSessionException {
+		IProcessComponent logoutProcess = h2hUserManager.logout();
 		ProcessComponentListener listener = new ProcessComponentListener();
-		process.attachListener(listener);
-		process.start().await();
-		
-		if(listener.hasFailed()) {
-			RollbackReason reason = listener.getRollbackReason();
-			logger.error("Logout failed: {}", reason.getHint());
+		logoutProcess.attachListener(listener);
+		logoutProcess.start().await();
+
+		if (listener.hasSucceeded()) {
+			return ResultStatus.ok();
 		}
-		
-		return listener.hasSucceeded();
+		if (listener.hasFailed()) {
+			RollbackReason reason = listener.getRollbackReason();
+			if (reason != null) {
+				return ResultStatus.error(reason.getHint());
+			}
+		}
+		return ResultStatus.error("Could not logout user.");
 	}
-	
 }

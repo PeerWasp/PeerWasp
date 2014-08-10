@@ -21,7 +21,7 @@
       </HBox>
     <StackPane fx:id="mainPane" VBox.vgrow="ALWAYS">
          <VBox.margin>
-            <Insets top="130.0" />
+            <Insets top="110.0" />
          </VBox.margin>
          <padding>
             <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />

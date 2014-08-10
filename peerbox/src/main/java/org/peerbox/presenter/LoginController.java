@@ -2,8 +2,9 @@ package org.peerbox.presenter;
 
 import java.io.IOException;
 import java.net.URL;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ResourceBundle;
-import java.util.concurrent.ExecutionException;
 
 import javafx.application.Platform;
 import javafx.concurrent.Task;
@@ -30,10 +31,12 @@ import jidefx.scene.control.validation.Validator;
 
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.hive2hive.core.processes.framework.exceptions.InvalidProcessStateException;
+import org.peerbox.ResultStatus;
 import org.peerbox.UserConfig;
 import org.peerbox.model.UserManager;
 import org.peerbox.utils.FormValidationUtils;
 import org.peerbox.view.ViewNames;
+import org.peerbox.view.controls.ErrorLabel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,10 +46,10 @@ import com.google.inject.Inject;
 public class LoginController implements Initializable {
 
 	private static final Logger logger = LoggerFactory.getLogger(LoginController.class);
-	
+
 	private NavigationService fNavigationService;
 	private UserManager userManager;
-	private UserConfig userConfig; 
+	private UserConfig userConfig;
 
 	@FXML
 	private TextField txtUsername;
@@ -64,7 +67,9 @@ public class LoginController implements Initializable {
 	private Button btnRegister;
 	@FXML
 	private GridPane grdForm;
-	
+	@FXML
+	private ErrorLabel lblError;
+
 	private Decorator<ProgressIndicator> fProgressDecoration = null;
 	
 	
@@ -76,19 +81,27 @@ public class LoginController implements Initializable {
 	
 	public void initialize(URL location, ResourceBundle resources) {
 		initializeValidations();
-		
-		if(userConfig.hasUsername()) {
+		loadUserConfig();
+	}
+	
+	private void loadUserConfig() {
+		if (userConfig.hasUsername()) {
 			txtUsername.setText(userConfig.getUsername());
 		}
-		
-		if(userConfig.rootPathExists()){
+		if (userConfig.rootPathExists()) {
 			txtRootPath.setText(userConfig.getRootPath().toString());
-		} else {
-			txtRootPath.setText("rootPath == null, because not read from config file yet!");
 		}
-		
-		// initialize autologin with current setting
 		chbAutoLogin.setSelected(userConfig.isAutoLoginEnabled());
+	}
+
+	private void resetForm() {
+		loadUserConfig();
+		txtPassword.clear();
+		txtPin.clear();
+		grdForm.disableProperty().unbind();
+		grdForm.setDisable(false);
+		uninstallProgressIndicator();
+		ValidationUtils.validateOnDemand(grdForm);
 	}
 	
 	private void initializeValidations() {
@@ -99,18 +112,17 @@ public class LoginController implements Initializable {
 	}
 
 	private void wrapDecorationPane() {
-		Pane dp = FormValidationUtils.wrapInDecorationPane((Pane)grdForm.getParent(), grdForm);
+		Pane dp = FormValidationUtils.wrapInDecorationPane((Pane) grdForm.getParent(), grdForm);
 		AnchorPane.setLeftAnchor(dp, 0.0);
 		AnchorPane.setTopAnchor(dp, 0.0);
 		AnchorPane.setRightAnchor(dp, 0.0);
-		
 	}
 
 	private void addUsernameValidation() {
-		Validator usernameValidator = FormValidationUtils.createEmptyTextFieldValidator(
-				txtUsername, "Please enter a Username.", true);
+		Validator usernameValidator = FormValidationUtils.createEmptyTextFieldValidator(txtUsername,
+				"Please enter a username.", true);
 		ValidationUtils.install(txtUsername, usernameValidator, ValidationMode.ON_FLY);
-		ValidationUtils.install(txtUsername, usernameValidator, ValidationMode.ON_DEMAND);		
+		ValidationUtils.install(txtUsername, usernameValidator, ValidationMode.ON_DEMAND);
 	}
 
 	private void addPasswordValidation() {
@@ -129,51 +141,123 @@ public class LoginController implements Initializable {
 	}
 
 	public void loginAction(ActionEvent event) {
-		boolean inputValid = ValidationUtils.validateOnDemand(grdForm)
-				&& SelectRootPathUtils.verifyRootPath(userConfig, txtRootPath.getText());
-		
+		boolean inputValid = false;
+		try {
+			clearError();
+			inputValid = ValidationUtils.validateOnDemand(grdForm)
+					&& SelectRootPathUtils.verifyRootPath(userConfig, txtRootPath.getText()) 
+					&& checkUserExists();
+		} catch (NoPeerConnectionException e) {
+			setError("Connection to the network failed.");
+		}
+
 		if (inputValid) {
-			Task<Boolean> task = createLoginTask();
-			grdForm.disableProperty().bind(task.runningProperty());
-			installProgressIndicator();
+			Task<ResultStatus> task = createLoginTask();
 			new Thread(task).start();
 		}
 	}
 	
 	
-	private Task<Boolean> createLoginTask() {
-		Task<Boolean> task = new Task<Boolean>() {
+	private boolean checkUserExists() throws NoPeerConnectionException {
+		String username = txtUsername.getText().trim();
+		if (!userManager.isRegistered(username)) {
+			setError("This user profile does not exist.");
+			return false;
+		}
+		return true;
+	}
+
+	public ResultStatus loginUser(final String username, final String password, 
+			final String pin, final Path path) {
+		try {
+			return userManager.loginUser(username, password, pin, path);
+		} catch (NoPeerConnectionException e) {
+			return ResultStatus.error("Could not login user because connection to network failed.");
+		} catch (InvalidProcessStateException | InterruptedException e) {
+			e.printStackTrace();
+		}
+		return ResultStatus.error("Could not login user.");
+	}
+
+	private Task<ResultStatus> createLoginTask() {
+		Task<ResultStatus> task = new Task<ResultStatus>() {
+			// credentials
+			final String username = getUsername();
+			final String password = txtPassword.getText();
+			final String pin = txtPin.getText();
+			final Path path = Paths.get(txtRootPath.getText().trim());
+
 			@Override
-			public Boolean call() throws NoPeerConnectionException, 
-				InvalidProcessStateException, InterruptedException {
-				return loginUser();
+			public ResultStatus call() {
+				return loginUser(username, password, pin, path);
 			}
 		};
+
+		task.setOnScheduled(new EventHandler<WorkerStateEvent>() {
+			@Override
+			public void handle(WorkerStateEvent event) {
+				grdForm.disableProperty().bind(task.runningProperty());
+				installProgressIndicator();
+			}
+		});
+
 		task.setOnFailed(new EventHandler<WorkerStateEvent>() {
 			@Override
 			public void handle(WorkerStateEvent event) {
-				onLoginFailed();
+				onLoginFailed(ResultStatus.error("Could not login user."));
 			}
-
 		});
+
 		task.setOnSucceeded(new EventHandler<WorkerStateEvent>() {
 			@Override
 			public void handle(WorkerStateEvent event) {
-				try {
-					if(task.get()) {
-						onLoginSucceeded();
-					} else {
-						onLoginFailed();
-					}
-				} catch (InterruptedException | ExecutionException e) {
-					e.printStackTrace();
-					onLoginFailed();
+				ResultStatus result = task.getValue();
+				if (result.isOk()) {
+					onLoginSucceeded();
+				} else {
+					onLoginFailed(result);
 				}
 			}
 		});
+
 		return task;
 	}
 	
+	private void onLoginFailed(ResultStatus result) {
+		logger.error("Login task failed: {}", result.getErrorMessage());
+		Platform.runLater(() -> {
+			uninstallProgressIndicator();
+			grdForm.disableProperty().unbind();
+			grdForm.requestLayout();
+			setError(result.getErrorMessage());
+		});
+	}
+	
+	private void onLoginSucceeded() {
+		logger.debug("Login task succeeded: user {} logged in.", getUsername());
+		saveLoginConfig();
+		resetForm();
+		fNavigationService.navigate(ViewNames.SETUP_COMPLETED_VIEW);
+	}
+	
+	private void saveLoginConfig() {
+		try {
+			userConfig.setUsername(getUsername());
+			if (chbAutoLogin.isSelected()) {
+				userConfig.setPassword(txtPassword.getText());
+				userConfig.setPin(txtPin.getText());
+				userConfig.setAutoLogin(true);
+			} else {
+				userConfig.setPassword("");
+				userConfig.setPin("");
+				userConfig.setAutoLogin(false);
+			}
+		} catch (IOException ioex) {
+			logger.warn("Could not save login settings: {}", ioex.getMessage());
+			setError("Could not save login settings.");
+		}
+	}
+
 	private void installProgressIndicator() {
 		ProgressIndicator piProgress = new ProgressIndicator();
 		fProgressDecoration = new Decorator<>(piProgress, Pos.CENTER);
@@ -181,71 +265,44 @@ public class LoginController implements Initializable {
 	}
 
 	private void uninstallProgressIndicator() {
-		if(fProgressDecoration != null) {
+		if (fProgressDecoration != null) {
 			DecorationUtils.uninstall(grdForm, fProgressDecoration);
+			fProgressDecoration = null;
 		}
 	}
 
-	private void onLoginFailed() {
-		logger.error("Login task failed.");
-		Platform.runLater(() -> {
-			uninstallProgressIndicator();
-			grdForm.disableProperty().unbind();
-			grdForm.requestLayout();
-		});
-	}
-	
-	private void onLoginSucceeded() {
-		logger.debug("Login task succeeded: user {} logged in.", txtUsername.getText().trim());
-		Platform.runLater(() -> {
-			uninstallProgressIndicator();
-			grdForm.disableProperty().unbind();
-			grdForm.requestLayout();
-		});
-		
-		saveLoginConfig();
-		
-		fNavigationService.navigate(ViewNames.SETUP_COMPLETED_VIEW);
-	}
-	
-	private void saveLoginConfig() {
-		try {
-			userConfig.setUsername(txtUsername.getText().trim());
-			if(chbAutoLogin.isSelected()) {
-				userConfig.setPassword(txtPassword.getText());
-				userConfig.setPin(txtPin.getText());
-				userConfig.setAutoLogin(true);
-			}
-		} catch(IOException ioex) {
-			logger.warn("Could not save login settings: {}", ioex.getMessage());
-			// TODO: inform user.
-		}
-	}
-
-	private boolean loginUser() throws NoPeerConnectionException, InvalidProcessStateException, InterruptedException {
-		return userManager.loginUser(txtUsername.getText().trim(), txtPassword.getText(), txtPin.getText(), userConfig.getRootPath());
-	}
-	
 	public void registerAction(ActionEvent event) {
 		logger.debug("Navigate to register view.");
 		fNavigationService.navigate(ViewNames.REGISTER_VIEW);
 	}
-	
-	public void goBack(ActionEvent event){
-		logger.debug("Go back.");
-		fNavigationService.navigateBack();
-	}
-	
-	public void btnChangeDirectoryHandler(ActionEvent event){
+
+	public void changeRootPathAction(ActionEvent event) {
 		String path = txtRootPath.getText();
-		Window toOpenDialog = btnLogin.getScene().getWindow();
+		Window toOpenDialog = grdForm.getScene().getWindow();
 		path = SelectRootPathUtils.showDirectoryChooser(path, toOpenDialog);
 		txtRootPath.setText(path);
 	}
-	
+
+	public void navigateBack(ActionEvent event) {
+		logger.debug("Navigate back.");
+		fNavigationService.navigateBack();
+	}
+
+	private String getUsername() {
+		return txtUsername.getText().trim();
+	}
+
+	private void setError(String error) {
+		lblError.setText(error);
+	}
+
+	private void clearError() {
+		lblError.setText("");
+	}
+
 	@Inject
 	public void setUserConfig(UserConfig userConfig) {
 		this.userConfig = userConfig;
 	}
-	
+
 }
