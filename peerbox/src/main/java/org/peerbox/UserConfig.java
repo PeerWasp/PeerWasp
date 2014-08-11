@@ -88,7 +88,6 @@ public class UserConfig {
 	public void setRootPath(String path) throws IOException {
 		prop.setProperty(PROPERTY_ROOTPATH, path);
 		saveProperties();
-		System.out.println("Root path stored in property file.");
 	}
 
 	// check whether the property file already holds a rootpath property

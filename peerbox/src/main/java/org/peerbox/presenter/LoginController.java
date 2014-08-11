@@ -145,7 +145,7 @@ public class LoginController implements Initializable {
 		try {
 			clearError();
 			inputValid = ValidationUtils.validateOnDemand(grdForm)
-					&& SelectRootPathUtils.verifyRootPath(userConfig, txtRootPath.getText()) 
+					&& SelectRootPathUtils.verifyRootPath(txtRootPath.getText()) 
 					&& checkUserExists();
 		} catch (NoPeerConnectionException e) {
 			setError("Connection to the network failed.");
@@ -243,6 +243,7 @@ public class LoginController implements Initializable {
 	private void saveLoginConfig() {
 		try {
 			userConfig.setUsername(getUsername());
+			userConfig.setRootPath(txtRootPath.getText());
 			if (chbAutoLogin.isSelected()) {
 				userConfig.setPassword(txtPassword.getText());
 				userConfig.setPin(txtPin.getText());

@@ -4,21 +4,23 @@
 <?import java.lang.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.layout.AnchorPane?>
+<?import org.peerbox.view.controls.* ?>
 
 <AnchorPane prefWidth="275.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.peerbox.presenter.SelectRootPathController">
    <children>
       <VBox spacing="10.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <children>
+            <ErrorLabel fx:id="lblError" iconHeight="20.0" />
             <HBox spacing="10.0">
                <children>
                   <TextField fx:id="txtRootPath" prefHeight="25.0" HBox.hgrow="SOMETIMES" />
-                  <Button fx:id="btnChangeDirectory" mnemonicParsing="false" onAction="#changeDirectory" text="..." />
+                  <Button fx:id="btnChangeRootPath" mnemonicParsing="false" onAction="#changeRootPathAction" text="..." />
                </children>
             </HBox>
             <HBox spacing="10.0">
                <children>
-                  <Button fx:id="btnGoBack" cancelButton="true" mnemonicParsing="false" onAction="#goBack" prefWidth="100.0" text="Back" />
-                  <Button fx:id="btnContinue" defaultButton="true" mnemonicParsing="false" onAction="#okButtonHandler" prefWidth="100.0" text="Ok" />
+                  <Button fx:id="btnNavigateBack" cancelButton="true" mnemonicParsing="false" onAction="#navigateBackAction" prefWidth="100.0" text="Back" />
+                  <Button fx:id="btnContinue" defaultButton="true" mnemonicParsing="false" onAction="#continueAction" prefWidth="100.0" text="Ok" />
                </children>
             </HBox>
          </children>

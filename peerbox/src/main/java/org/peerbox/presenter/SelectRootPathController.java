@@ -1,7 +1,8 @@
 package org.peerbox.presenter;
 
-import java.io.File;
+import java.io.IOException;
 import java.net.URL;
+import java.nio.file.Paths;
 import java.util.Date;
 import java.util.ResourceBundle;
 
@@ -12,61 +13,91 @@ import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import javafx.stage.Window;
 
+import org.apache.commons.io.FileUtils;
 import org.peerbox.UserConfig;
 import org.peerbox.view.ViewNames;
+import org.peerbox.view.controls.ErrorLabel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.inject.Inject;
 
 
-public class SelectRootPathController implements Initializable{
+public class SelectRootPathController implements Initializable {
 	
+	private static final Logger logger = LoggerFactory.getLogger(SelectRootPathController.class);
 	private NavigationService fNavigationService;
-	private UserConfig userConfig; 
-	
+	private UserConfig userConfig;
+
 	@FXML
-	private Button btnChangeDirectory;
+	private Button btnChangeRootPath;
 	@FXML
 	private Button btnContinue;
 	@FXML
-	private Button btnGoBack;
+	private Button btnNavigateBack;
 	@FXML
 	private TextField txtRootPath;
+	@FXML
+	private ErrorLabel lblError;
 	
 	@Inject
 	public SelectRootPathController(NavigationService navigationService) {
 		this.fNavigationService = navigationService;
 	}
 	
-	public void changeDirectory(ActionEvent event){ 
+	public void initialize(URL location, ResourceBundle resources) {
+		initializePath();
+	}
+
+	private void initializePath() {
+		String defaultDir = "";
+		if (userConfig.rootPathExists()) {
+			defaultDir = userConfig.getRootPath().toString();
+		} else {
+			Date now = new Date();
+			defaultDir = Paths.get(FileUtils.getUserDirectoryPath(),
+					String.format("PeerBox_%s", now.getTime())).toString();
+		}
+		txtRootPath.setText(defaultDir);
+	}
+
+	public void changeRootPathAction(ActionEvent event) {
 		String path = txtRootPath.getText();
 		Window toOpenDialog = btnContinue.getScene().getWindow();
 		path = SelectRootPathUtils.showDirectoryChooser(path, toOpenDialog);
 		txtRootPath.setText(path);
 	}
 	
-	public void goBack(ActionEvent event){
+	public void navigateBackAction(ActionEvent event) {
+		logger.debug("Navigate back.");
+		clearError();
 		fNavigationService.navigateBack();
 	}
 	
-	public void okButtonHandler(ActionEvent event){
-		boolean inputValid = SelectRootPathUtils.verifyRootPath(userConfig, txtRootPath.getText());
-		if(inputValid) {
-			fNavigationService.navigate(ViewNames.LOGIN_VIEW);
+	public void continueAction(ActionEvent event) {
+		clearError();
+		String path = txtRootPath.getText();
+		boolean inputValid = SelectRootPathUtils.verifyRootPath(path);
+		if (inputValid) {
+			try {
+				logger.info("Root path set to '{}'", path);
+				userConfig.setRootPath(path);
+				fNavigationService.navigate(ViewNames.LOGIN_VIEW);
+			} catch (IOException e) {
+				logger.warn("Could not save settings (Exception: {})", e.getMessage());
+				setError("Could not save settings.");
+			}
 		}
-	}
-
-	public void initialize(URL location, ResourceBundle resources) {
-		String defaultDir = null;
-		Date now = new Date();
-
-		if(userConfig.rootPathExists()){
-			defaultDir = userConfig.getRootPath().toString();
-		} else {
-			defaultDir = System.getProperty("user.home") + File.separator + "PeerBox_" + now.getTime();
-		}
-		txtRootPath.setText(defaultDir);
 	}
 	
+	private void setError(String error) {
+		lblError.setText(error);
+	}
+
+	private void clearError() {
+		lblError.setText("");
+	}
+
 	@Inject
 	public void setUserConfig(UserConfig userConfig) {
 		this.userConfig = userConfig;
