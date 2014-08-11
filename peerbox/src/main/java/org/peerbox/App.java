@@ -2,21 +2,24 @@ package org.peerbox;
 
 
 import java.awt.AWTException;
-import java.io.File;
 import java.io.IOException;
 import java.net.UnknownHostException;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.util.List;
 
 import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.concurrent.Task;
+import javafx.concurrent.WorkerStateEvent;
+import javafx.event.EventHandler;
 import javafx.stage.Stage;
 
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.hive2hive.core.processes.framework.exceptions.InvalidProcessStateException;
 import org.peerbox.guice.PeerBoxModule;
 import org.peerbox.model.H2HManager;
+import org.peerbox.model.UserManager;
+import org.peerbox.presenter.SelectRootPathUtils;
 import org.peerbox.view.tray.SysTray;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,7 +33,7 @@ import com.google.inject.Injector;
  */
 public class App extends Application
 {
-	private static final Logger logger = LoggerFactory.getLogger("PeerBox");
+	private static final Logger logger = LoggerFactory.getLogger(App.class);
 
 	private Injector injector;
 	private H2HManager h2hManager;
@@ -47,27 +50,16 @@ public class App extends Application
     @Override
     public void start(Stage stage) {
     	primaryStage = stage;    	
+    	
     	initializeGuice();
 
 		initializeSysTray();
 		
-		/*
-    	 * Following situations may occur:
-    	 * - application starts not for the first time + auto login enabled? -> join and login 
-    	 * - Otherwise:
-    	 * 		* load the start screen and show the UI
-    	 */
-	    
 		// TODO: if join/login fails -> action required? e.g. launch in foreground? 
 		// do nothing but indicate with icon?
 		if (isAutoLoginFeasible()) {
 			logger.info("Auto login feasible, try to join and login.");
-			try {
-				launchInBackground();
-			} catch (NoPeerConnectionException | InvalidProcessStateException | InterruptedException e) {
-				logger.error("Could not join and login network.");
-				e.printStackTrace();
-			}
+			launchInBackground();
 		} else {
 			logger.info("Loading startup stage (no auto login)");
 			launchInForeground();
@@ -97,10 +89,11 @@ public class App extends Application
 				userConfig.hasPassword() &&
 				userConfig.hasPin() && 
 				userConfig.rootPathExists() &&
+				SelectRootPathUtils.isValidRootPath(userConfig.getRootPath()) &&		
 				/* bootstrap nodes */
 				userConfig.hasBootstrappingNodes() &&
 				/* auto login desired */
-				userConfig.isAutoLoginEnabled();		
+				userConfig.isAutoLoginEnabled();
 	}
 
 	private void launchInForeground() {
@@ -108,23 +101,77 @@ public class App extends Application
 		startup.show();
 	}
 
-	private void launchInBackground() throws NoPeerConnectionException, InvalidProcessStateException, InterruptedException {
+	private void launchInBackground() {
+		Task<ResultStatus> task = createJoinLoginTask();
+		new Thread(task).start();
+	}
+	
+	private ResultStatus joinAndLogin(List<String> nodes, 
+			String username, String password, String pin, Path path) {
 		try {
 			
-			Path r = userConfig.getRootPath();
-			boolean rootPathOk = Files.isDirectory(r) && Files.isWritable(r);
+			if (!h2hManager.joinNetwork(nodes)) {
+				return ResultStatus.error("Could not join network.");
+			}
+			UserManager userManager = injector.getInstance(org.peerbox.model.UserManager.class);
+			return userManager.loginUser(username, password, pin, path);
 			
-			
-			
-			h2hManager.joinNetwork(userConfig.getBootstrappingNodes());
-			org.peerbox.model.UserManager userManager = injector.getInstance(org.peerbox.model.UserManager.class);
-			userManager.loginUser(userConfig.getUsername(), 
-					userConfig.getPassword(),
-					userConfig.getPin(), userConfig.getRootPath());
 		} catch (UnknownHostException e) {
-			// TODO Auto-generated catch block
+			return ResultStatus.error("Could not connect to host.");
+		} catch (NoPeerConnectionException e) {
+			logger.debug("Loggin failed: {}", e);
+			return ResultStatus.error("Could not login user because connection to network failed.");
+		} catch (InvalidProcessStateException | InterruptedException e) {
 			e.printStackTrace();
 		}
+		return ResultStatus.error("Could not login user.");
+	}
+	
+	private Task<ResultStatus> createJoinLoginTask() {
+		
+		final List<String> nodes = userConfig.getBootstrappingNodes();
+		// credentials
+		final String username = userConfig.getUsername();
+		final String password = userConfig.getPassword();
+		final String pin = userConfig.getPin();
+		final Path path = userConfig.getRootPath();
+		
+		Task<ResultStatus> task = new Task<ResultStatus>() {
+			@Override
+			public ResultStatus call() {
+				return joinAndLogin(nodes, username, password, pin, path);
+			}
+		};
+
+		task.setOnScheduled(new EventHandler<WorkerStateEvent>() {
+			@Override
+			public void handle(WorkerStateEvent event) {
+				logger.info("Try to join and login using user configuration.");
+				logger.info("{} bootstrapping nodes: ", nodes.size(), nodes);
+				logger.info("Username: {}, Path: {}", username, path);
+			}
+		});
+
+		task.setOnFailed(new EventHandler<WorkerStateEvent>() {
+			@Override
+			public void handle(WorkerStateEvent event) {
+				logger.warn("Auto login failed.");
+			}
+		});
+
+		task.setOnSucceeded(new EventHandler<WorkerStateEvent>() {
+			@Override
+			public void handle(WorkerStateEvent event) {
+				ResultStatus result = task.getValue();
+				if(result.isOk()) {
+					logger.info("Auto login succeeded.");
+				} else {
+					logger.warn("Auto login failed: {}", result.getErrorMessage());
+				}
+			}
+		});
+
+		return task;
 	}
 	
 	public static Stage getPrimaryStage() {

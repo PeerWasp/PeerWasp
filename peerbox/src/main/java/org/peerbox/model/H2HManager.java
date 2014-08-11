@@ -76,6 +76,8 @@ public class H2HManager {
 	}
 
 	public boolean joinNetwork(List<String> bootstrappingNodes) throws UnknownHostException {
+		// TODO: maybe introduce try/catch block within the loop and do not throw exception.
+		// required to finish the loop in all cases?
 		boolean connected = false;
 		Iterator<String> nodeIt = bootstrappingNodes.iterator();
 		while (nodeIt.hasNext() && !connected) {

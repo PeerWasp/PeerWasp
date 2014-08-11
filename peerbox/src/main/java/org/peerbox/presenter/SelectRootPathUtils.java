@@ -3,6 +3,7 @@ package org.peerbox.presenter;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Window;
@@ -118,5 +119,12 @@ public class SelectRootPathUtils {
 			success = rootDirectory.mkdir();
 		}
 		return success;
+	}
+	
+	public static boolean isValidRootPath(Path path) {
+		return path != null 
+				&& Files.exists(path) 
+				&& Files.isDirectory(path) 
+				&& Files.isWritable(path);
 	}
 }
