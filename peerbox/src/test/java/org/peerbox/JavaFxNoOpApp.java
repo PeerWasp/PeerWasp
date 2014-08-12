@@ -10,8 +10,19 @@ import javafx.stage.Stage;
  *
  */
 public class JavaFxNoOpApp extends Application {
+	
+	private static boolean initialized = false;
+	
+	public JavaFxNoOpApp() {
+		initialized = true;
+	}
+	
 	@Override
 	public void start(Stage primaryStage) throws Exception {
 		// NO OP - just here to initialize toolkit
+	}
+	
+	public static boolean isInitialized() {
+		return initialized;
 	}
 }

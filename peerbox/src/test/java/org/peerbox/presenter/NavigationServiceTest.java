@@ -30,29 +30,29 @@ public class NavigationServiceTest {
 	 * Controller instance of the view
 	 */
 	@Mock
-	INavigatable controller;
+	private INavigatable controller;
 
 	/**
 	 * Guice loader, does not do DI in this test.
 	 */
 	@Mock
-	GuiceFxmlLoader guiceFxmlLoader;
+	private GuiceFxmlLoader guiceFxmlLoader;
 	
 	/**
 	 * FXML loader, does not actually load .fxml files
 	 */
 	@Mock
-	FXMLLoader fxmlLoader;
+	private FXMLLoader fxmlLoader;
 
 	/**
 	 * Navigation service under test
 	 */
-	NavigationService navigationService;
+	private NavigationService navigationService;
 
 	/**
 	 * The pages to load for navigation tests
 	 */
-	Label[] elements;
+	private Label[] elements;
 
 	/**
 	 * Initializes the Java FX toolkit by loading an Application instance, which does nothing.
@@ -61,7 +61,9 @@ public class NavigationServiceTest {
 	public static void initJFX() {
 		Thread t = new Thread("JavaFX Init Thread") {
 			public void run() {
-				Application.launch(JavaFxNoOpApp.class, new String[0]);
+				if(!JavaFxNoOpApp.isInitialized()) {
+					Application.launch(JavaFxNoOpApp.class, new String[0]);
+				}
 			}
 		};
 		t.setDaemon(true);
