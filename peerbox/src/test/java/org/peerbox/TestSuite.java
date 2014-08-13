@@ -13,6 +13,7 @@ import org.peerbox.presenter.NavigationServiceTest;
 	H2HManagerTest.class,
 	NavigationServiceTest.class,
 	GuiceFxmlLoaderTest.class,
+	UserConfigTest.class,
 	CreateNetworkControllerTest.class 
 	})
 

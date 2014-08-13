@@ -88,7 +88,7 @@ public class LoginController implements Initializable {
 		if (userConfig.hasUsername()) {
 			txtUsername.setText(userConfig.getUsername());
 		}
-		if (userConfig.rootPathExists()) {
+		if (userConfig.hasRootPath()) {
 			txtRootPath.setText(userConfig.getRootPath().toString());
 		}
 		chbAutoLogin.setSelected(userConfig.isAutoLoginEnabled());

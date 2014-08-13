@@ -19,11 +19,16 @@ import org.slf4j.LoggerFactory;
 
 import com.google.inject.Singleton;
 
+/**
+ * 
+ * @author albrecht
+ *
+ */
 @Singleton
 public class UserConfig {
 
 	private static final Logger logger = LoggerFactory.getLogger(UserConfig.class);
-
+	
 	private static final String DEFAULT_PROPERTIES_FILENAME = "/properties/default";
 	private static final String USER_PROPERTIES_FILENAME = "peerbox.properties";
 
@@ -43,7 +48,7 @@ public class UserConfig {
 		this(USER_PROPERTIES_FILENAME);
 	}
 
-	private UserConfig(String filename) throws IOException {
+	private UserConfig(final String filename) throws IOException {
 		this.propertyFile = new File(filename);
 		loadProperties();
 	}
@@ -61,7 +66,7 @@ public class UserConfig {
 		logger.debug("Loaded property file {}", propertyFile.getAbsoluteFile());
 	}
 
-	private void saveProperties() throws IOException {
+	private synchronized void saveProperties() throws IOException {
 		try (OutputStream out = new FileOutputStream(propertyFile)) {
 			prop.store(out, null);
 		}
@@ -76,7 +81,7 @@ public class UserConfig {
 	}
 
 	// load existing property file
-	private Properties loadCustomProperties(Properties defaultProp) throws IOException {
+	private Properties loadCustomProperties(final Properties defaultProp) throws IOException {
 		try (InputStream in = new FileInputStream(propertyFile)) {
 			Properties p = new Properties(defaultProp);
 			p.load(in);
@@ -84,21 +89,25 @@ public class UserConfig {
 		}
 	}
 
-	// write root path from SelectRootPathController to property file
-	public void setRootPath(String path) throws IOException {
-		prop.setProperty(PROPERTY_ROOTPATH, path);
-		saveProperties();
-	}
-
-	// check whether the property file already holds a rootpath property
-	public boolean rootPathExists() {
-		return prop.getProperty(PROPERTY_ROOTPATH) != null && !prop.getProperty("rootpath").isEmpty();
-	}
-
 	// returns rootpath value from property file
 	public Path getRootPath() {
 		String p = prop.getProperty(PROPERTY_ROOTPATH);
-		return rootPathExists() ? Paths.get(p) : null;
+		return hasRootPath() ? Paths.get(p) : null;
+	}
+
+	// check whether the property file already holds a rootpath property
+	public boolean hasRootPath() {
+		return prop.getProperty(PROPERTY_ROOTPATH) != null && !prop.getProperty("rootpath").isEmpty();
+	}
+
+	// write root path from SelectRootPathController to property file
+	public synchronized void setRootPath(final String path) throws IOException {
+		if (path != null && !path.isEmpty()) {
+			prop.setProperty(PROPERTY_ROOTPATH, path);
+		} else {
+			prop.remove(PROPERTY_ROOTPATH);
+		}
+		saveProperties();
 	}
 
 	public String getUsername() {
@@ -110,8 +119,12 @@ public class UserConfig {
 		return getUsername() != null && !getUsername().isEmpty();
 	}
 
-	public void setUsername(String username) throws IOException {
-		prop.setProperty(PROPERTY_USERNAME, username);
+	public synchronized void setUsername(final String username) throws IOException {
+		if(username != null && !username.isEmpty()) {
+			prop.setProperty(PROPERTY_USERNAME, username.trim());
+		} else {
+			prop.remove(PROPERTY_USERNAME);
+		}
 		saveProperties();
 	}
 
@@ -123,8 +136,12 @@ public class UserConfig {
 		return getPassword() != null && !getPassword().isEmpty();
 	}
 
-	public void setPassword(String password) throws IOException {
-		prop.setProperty(PROPERTY_PASSWORD, password);
+	public synchronized void setPassword(final String password) throws IOException {
+		if (password != null && !password.isEmpty()) {
+			prop.setProperty(PROPERTY_PASSWORD, password);
+		} else {
+			prop.remove(PROPERTY_PASSWORD);
+		}
 		saveProperties();
 	}
 
@@ -136,8 +153,12 @@ public class UserConfig {
 		return getPin() != null && !getPin().isEmpty();
 	}
 
-	public void setPin(String pin) throws IOException {
-		prop.setProperty(PROPERTY_PIN, pin);
+	public synchronized void setPin(final String pin) throws IOException {
+		if(pin != null && !pin.isEmpty()) {
+			prop.setProperty(PROPERTY_PIN, pin);
+		} else {
+			prop.remove(PROPERTY_PIN);
+		}
 		saveProperties();
 	}
 
@@ -145,14 +166,9 @@ public class UserConfig {
 		return Boolean.valueOf(prop.getProperty(PROPERTY_AUTO_LOGIN));
 	}
 
-	public void setAutoLogin(boolean enabled) throws IOException {
+	public synchronized void setAutoLogin(boolean enabled) throws IOException {
 		prop.setProperty(PROPERTY_AUTO_LOGIN, Boolean.toString(enabled));
 		saveProperties();
-	}
-
-	public boolean hasBootstrappingNodes() {
-		String s = prop.getProperty(PROPERTY_BOOTSTRAPPING_NODES);
-		return s != null && !s.trim().isEmpty();
 	}
 
 	public List<String> getBootstrappingNodes() {
@@ -168,24 +184,23 @@ public class UserConfig {
 		return nodes;
 	}
 
-	public void addBootstrapNode(String node) throws IOException {
-		List<String> nodes = getBootstrappingNodes();
-		nodes.add(node);
-		setBootstrappingNodes(nodes);
+	public boolean hasBootstrappingNodes() {
+		String s = prop.getProperty(PROPERTY_BOOTSTRAPPING_NODES);
+		return s != null && !s.trim().isEmpty();
 	}
 
-	public void removeBootstrapNode(String node) throws IOException {
-		List<String> nodes = getBootstrappingNodes();
-		nodes.remove(node);
-		setBootstrappingNodes(nodes);
-	}
-
-	public void setBootstrappingNodes(List<String> nodes) throws IOException {
+	public synchronized void setBootstrappingNodes(final List<String> nodes) throws IOException {
+		if(nodes == null || nodes.isEmpty()) {
+			prop.remove(PROPERTY_BOOTSTRAPPING_NODES);
+			saveProperties();
+			return;
+		}
+		
 		StringBuilder nodeList = new StringBuilder();
 		Set<String> uniqueNodes = new HashSet<String>();
 		for (String node : nodes) {
-			String n = node.trim();
-			if (!n.isEmpty() && !uniqueNodes.contains(n)) {
+			String n = node != null ? node.trim() : null;
+			if (n != null && !n.isEmpty() && !uniqueNodes.contains(n)) {
 				nodeList.append(n).append(LIST_SEPARATOR);
 				uniqueNodes.add(n);
 			}
@@ -196,6 +211,22 @@ public class UserConfig {
 		}
 		prop.setProperty(PROPERTY_BOOTSTRAPPING_NODES, nodeList.toString());
 		saveProperties();
+	}
+
+	public synchronized void addBootstrapNode(final String node) throws IOException {
+		if(node != null && !node.isEmpty()) {
+			List<String> nodes = getBootstrappingNodes();
+			nodes.add(node);
+			setBootstrappingNodes(nodes);
+		}
+	}
+
+	public synchronized void removeBootstrapNode(final String node) throws IOException {
+		if(node != null && !node.isEmpty()) {
+			List<String> nodes = getBootstrappingNodes();
+			nodes.remove(node);
+			setBootstrappingNodes(nodes);
+		}
 	}
 
 }

@@ -83,7 +83,7 @@ public class JoinNetworkController implements Initializable {
 		try {
 			if (h2hManager.joinNetwork(address)) {
 				udpateUserConfig();
-				if (!userConfig.rootPathExists()) {
+				if (!userConfig.hasRootPath()) {
 					fNavigationService.navigate(ViewNames.SELECT_ROOT_PATH_VIEW);
 				} else {
 					fNavigationService.navigate(ViewNames.LOGIN_VIEW);

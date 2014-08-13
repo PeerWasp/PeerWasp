@@ -88,7 +88,7 @@ public class App extends Application
 				userConfig.hasUsername() &&
 				userConfig.hasPassword() &&
 				userConfig.hasPin() && 
-				userConfig.rootPathExists() &&
+				userConfig.hasRootPath() &&
 				SelectRootPathUtils.isValidRootPath(userConfig.getRootPath()) &&		
 				/* bootstrap nodes */
 				userConfig.hasBootstrappingNodes() &&

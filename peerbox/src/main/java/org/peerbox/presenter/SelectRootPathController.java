@@ -51,7 +51,7 @@ public class SelectRootPathController implements Initializable {
 
 	private void initializePath() {
 		String defaultDir = "";
-		if (userConfig.rootPathExists()) {
+		if (userConfig.hasRootPath()) {
 			defaultDir = userConfig.getRootPath().toString();
 		} else {
 			Date now = new Date();

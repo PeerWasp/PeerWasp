@@ -52,6 +52,7 @@ public class UserManager {
 	public ResultStatus loginUser(final String username, final String password, final String pin,
 			final Path rootPath) throws NoPeerConnectionException, InterruptedException,
 			InvalidProcessStateException {
+		// TODO what if already logged in?
 		userCredentials = new UserCredentials(username, password, pin);
 		IProcessComponent loginProcess = h2hUserManager.login(userCredentials, rootPath);
 		ProcessComponentListener listener = new ProcessComponentListener();
