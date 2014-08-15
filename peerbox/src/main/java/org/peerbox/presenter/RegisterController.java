@@ -39,6 +39,11 @@ import org.slf4j.LoggerFactory;
 
 import com.google.inject.Inject;
 
+/**
+ * Controller for user registration form.
+ * @author albrecht
+ *
+ */
 public class RegisterController implements Initializable {
 
 	private static final Logger logger = LoggerFactory.getLogger(RegisterController.class);
@@ -65,6 +70,7 @@ public class RegisterController implements Initializable {
 	@FXML 
 	private ErrorLabel lblError;
 	
+	/* decorator that decorates the UI with a progress indicator during busy tasks */
 	private Decorator<ProgressIndicator> fProgressDecoration = null;
 
 	@Inject
@@ -77,6 +83,9 @@ public class RegisterController implements Initializable {
 		initializeValidations();
 	}
 	
+	/**
+	 * Resets the controller to an initial state
+	 */
 	private void resetForm() {
 		txtUsername.clear();
 		txtPassword_1.clear();
@@ -89,6 +98,9 @@ public class RegisterController implements Initializable {
 		ValidationUtils.validateOnDemand(grdForm);
 	}
 
+	/**
+	 * Installs decorators for field validation
+	 */
 	private void initializeValidations() {
 		wrapDecorationPane();
 		addUsernameValidation();
@@ -96,6 +108,10 @@ public class RegisterController implements Initializable {
 		addPinValidation();
 	}
 
+	/**
+	 * For field validation, a decoration pane is required that installs the UI elements on 
+	 * the form fields. All fields within the decoration pane are covered automatically.
+	 */
 	private void wrapDecorationPane() {
 		Pane dp = FormValidationUtils.wrapInDecorationPane((Pane)grdForm.getParent(), grdForm);
 		AnchorPane.setLeftAnchor(dp, 0.0);
@@ -215,6 +231,10 @@ public class RegisterController implements Initializable {
 		ValidationUtils.install(txtPin_2, pinMatchValidator, ValidationMode.ON_DEMAND);
 	}
 
+	/**
+	 * Register new user action. Validates user input (on demand) first
+	 * @param event
+	 */
 	public void registerAction(ActionEvent event) {
 		clearError();
 		if (ValidationUtils.validateOnDemand(grdForm)) {
@@ -223,11 +243,23 @@ public class RegisterController implements Initializable {
 		}
 	}
 	
+	/**
+	 * Go back to previous page
+	 * @param event
+	 */
 	public void navigateBackAction(ActionEvent event) {
 		logger.debug("Navigate back.");
 		fNavigationService.navigateBack();
 	}
 
+	/**
+	 * Registers a new user given the credentials. 
+	 * All checks regarding the input should happen before (e.g. is registered, password not empty, ...)
+	 * @param username
+	 * @param password
+	 * @param pin
+	 * @return status of the operation
+	 */
 	public ResultStatus registerUser(final String username, final String password, final String pin) {
 		try {
 			return fUserManager.registerUser(username, password, pin);
@@ -239,6 +271,11 @@ public class RegisterController implements Initializable {
 		return ResultStatus.error("Could not register user.");
 	}
 
+	/**
+	 * Creates an asynchronous task that registers an user.
+	 * 
+	 * @return result of operation
+	 */
 	private Task<ResultStatus> createRegisterTask() {
 		Task<ResultStatus> task = new Task<ResultStatus>() {
 			// credentials
@@ -282,12 +319,19 @@ public class RegisterController implements Initializable {
 		return task;
 	}
 	
+	/**
+	 * Callback for the async register task
+	 */
 	private void onRegisterSucceeded() {
 		logger.info("Registration task succeeded: user {} registered.", getUsername());
 		resetForm();
 		fNavigationService.navigate(ViewNames.SELECT_ROOT_PATH_VIEW);
 	}
 
+	/**
+	 * Callback for the async register task
+	 * @param result
+	 */
 	private void onRegisterFailed(ResultStatus result) {
 		logger.error("Registration task failed: {}", result.getErrorMessage());
 		Platform.runLater(() -> {
@@ -298,12 +342,18 @@ public class RegisterController implements Initializable {
 		});
 	}
 	
+	/**
+	 * Adds a progress indicator to the UI
+	 */
 	private void installProgressIndicator() {
 		ProgressIndicator piProgress = new ProgressIndicator();
 		fProgressDecoration = new Decorator<>(piProgress, Pos.CENTER);
 		DecorationUtils.install(grdForm, fProgressDecoration);
 	}
 
+	/**
+	 * Removes the progress indicator from the UI
+	 */
 	private void uninstallProgressIndicator() {
 		if(fProgressDecoration != null) {
 			DecorationUtils.uninstall(grdForm, fProgressDecoration);
@@ -311,14 +361,25 @@ public class RegisterController implements Initializable {
 		}
 	}
 	
+	/**
+	 * Set an error text
+	 * @param error
+	 */
 	private void setError(String error) {
 		lblError.setText(error);
 	}
 
+	/**
+	 * Reset the error text
+	 */
 	private void clearError() {
 		lblError.setText("");
 	}
-
+	
+	/**
+	 * Trimmed username
+	 * @return
+	 */
 	private String getUsername() {
 		return txtUsername.getText().trim();
 	}
