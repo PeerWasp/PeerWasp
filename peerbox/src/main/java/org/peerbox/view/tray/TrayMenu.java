@@ -1,34 +1,35 @@
 package org.peerbox.view.tray;
 
-import java.awt.Menu;
 import java.awt.MenuItem;
 import java.awt.PopupMenu;
-import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.File;
-import java.io.IOException;
 
-import javafx.application.Platform;
-
-import org.peerbox.SettingsStage;
+import org.peerbox.presenter.tray.RecentFilesMenu;
+import org.peerbox.presenter.tray.RootFolderMenu;
+import org.peerbox.presenter.tray.SettingsMenu;
 
 import com.google.inject.Inject;
 
 
 public class TrayMenu {
 	
-	@Inject 
-	private SettingsStage settingsStage;
-	
 	private PopupMenu root;
+	
+	@Inject
+	private RootFolderMenu rootFolder;
+	@Inject 
+	private RecentFilesMenu recentFiles;
+	@Inject
+	private SettingsMenu settings;
+	
 	
 	public PopupMenu create() {
 		root = new PopupMenu();
 		
-		root.add(createOpenFolderMenu());
-		root.add(createFilesMenu());
+		root.add(rootFolder.getMenuItem());
+		root.add(recentFiles.getMenuItem());
         root.addSeparator();
-        root.add(createSettingsMenu());
+        root.add(settings.getMenuItem());
         root.addSeparator();
         root.add(createCloseMenu());
            
@@ -41,60 +42,6 @@ public class TrayMenu {
         closeItem.addActionListener(createCloseListener());
 		return closeItem;
 	}
-
-
-	private MenuItem createSettingsMenu() {
-		MenuItem settings = new MenuItem("Settings");
-		settings.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				Platform.runLater(() -> {
-					settingsStage.show();
-				});
-			}
-		});
-		return settings;
-	}
-
-
-	private MenuItem createFilesMenu() {
-		Menu files = new Menu("Recent Changes");
-		
-		// sample file.
-		MenuItem aFile = new MenuItem("myfile.txt");
-		aFile.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				try {
-					java.awt.Desktop.getDesktop().open(new File("myfile.txt"));
-				} catch (IOException e1) {
-					System.err.println("Could not open the file");
-				}
-			}
-		});
-		
-		files.add(aFile); 
-        // TODO: add a way to add menu items to the files menu such that we can insert recently synced files
-        return files;
-	}
-
-
-	private MenuItem createOpenFolderMenu() {
-		MenuItem open = new MenuItem("Open Folder");
-		open.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				try {
-					java.awt.Desktop.getDesktop().open(new File("bla")); // folder
-				} catch (IOException e1) {
-					System.err.println("Could not open the folder");
-				}
-			}
-		});
-		// TODO: add listener
-		return open;
-	}
-
 
 	private ActionListener createCloseListener() {
 		ActionListener closeListener = new ActionListener() {

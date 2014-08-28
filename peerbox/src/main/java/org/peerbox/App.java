@@ -73,7 +73,7 @@ public class App extends Application
 
 	private void initializeSysTray() {
 	    try {
-	    	sysTray.addToTray();
+	    	sysTray.addToSystemTray();
 	    	Platform.setImplicitExit(false);
 		} catch (AWTException awtex) {
 			logger.warn("Could not initialize systray (tray may not be supported?): {}", awtex.getMessage());

@@ -31,17 +31,16 @@ public class SysTray {
 		}
 	}
 	
-	public void addToTray() throws AWTException, IOException {
+	public void addToSystemTray() throws AWTException, IOException {
 		trayIcon = create();
 		java.awt.SystemTray sysTray = java.awt.SystemTray.getSystemTray();
 		sysTray.add(trayIcon);
-		
 	}
 
 	private TrayIcon create() throws IOException {
 		TrayIcon tray = new java.awt.TrayIcon(icons.getDefaultIcon());
 		tray.setImageAutoSize(true);
-		tray.setToolTip(getTooltip());
+		tray.setToolTip(tooltip);
 		tray.setPopupMenu(menu.create());
 		return tray;
 	}
