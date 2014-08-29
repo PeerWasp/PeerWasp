@@ -20,8 +20,8 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.PriorityQueue;
-import java.util.Queue;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.PriorityBlockingQueue;
 
 import org.hive2hive.core.api.interfaces.IFileObserver;
 import org.hive2hive.core.api.interfaces.IFileObserverListener;
@@ -40,7 +40,10 @@ public class FolderWatchService implements IFileObserver {
     
     private Map<String, FileAction> hashToFileAction;
     private Map<String, FileAction> filenameToFileAction;
-    private Queue<FileAction> actionQueue;
+    private BlockingQueue<FileAction> actionQueue;
+    
+    
+    private Thread actionExecutor;
 	
 	public FolderWatchService(Path rootFolderToWatch) throws IOException {
 		this.rootFolder = rootFolderToWatch;
@@ -49,7 +52,7 @@ public class FolderWatchService implements IFileObserver {
         
         hashToFileAction = new HashMap<String, FileAction>();
         filenameToFileAction = new HashMap<String, FileAction>();
-        actionQueue = new PriorityQueue<FileAction>(new FileActionTimeComparator());
+        actionQueue = new PriorityBlockingQueue<FileAction>(10, new FileActionTimeComparator());
  
         logger.info("Scanning {} ...", rootFolder);
         registerFoldersRecursive(rootFolder);
@@ -64,6 +67,9 @@ public class FolderWatchService implements IFileObserver {
 		eventProcessor = new Thread(new FolderWatchEventProcessor());
 		eventProcessor.setDaemon(false); // keep running 
 		eventProcessor.start();
+		
+		actionExecutor = new Thread(new FileActionExecutor(actionQueue));
+		actionExecutor.start();
 	}
 
 	@Override
@@ -71,6 +77,10 @@ public class FolderWatchService implements IFileObserver {
 		if(eventProcessor != null) {
 			eventProcessor.interrupt();
 			// TODO: maybe reset all buffers, queues, maps, ... -> reset
+		}
+		
+		if(actionExecutor != null) {
+			actionExecutor.interrupt();
 		}
 	}
 
