@@ -5,8 +5,8 @@ public class StartActionState implements FileActionState {
 	//State must be known in order to set the new state
 	private final FileContext _context;
 	
-	public StartActionState(){
-		_context = null;
+	public StartActionState(FileContext context){
+		_context = context;
 	}
 	
 	@Override

@@ -15,13 +15,16 @@ public class FileContext {
 	private FileActionState createState;
 	private FileActionState deleteState;
 	private FileActionState modifyState;
+	private FileActionState initialState;
 		
 	public FileContext(){
 		timestamp = Calendar.getInstance().getTimeInMillis();
-		currentState = new StartActionState();
+
 		createState = new CreateFileAction(this);
 		deleteState = new DeleteFileAction(this);
 		modifyState = new ModifyFileAction(this);
+		initialState = new StartActionState(this);
+		currentState = initialState;
 	}
 	
 	public FileContext(FileActionState initialState){
