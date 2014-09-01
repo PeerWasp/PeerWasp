@@ -3,9 +3,28 @@ package org.peerbox.watchservice;
 public class MoveFileAction implements FileActionState {
 
 	@Override
-	public void executeAction(FileContext context) {
+	public void changeToDeleteState(FileContext context) {
 		// TODO Auto-generated method stub
 		
 	}
+
+	@Override
+	public void changeToCreateState(FileContext context) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void changeToModifyState(FileContext context) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void changeToMoveState(FileContext context) {
+		// TODO Auto-generated method stub
+		
+	}
+
 
 }
