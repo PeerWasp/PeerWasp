@@ -2,36 +2,34 @@ package org.peerbox.watchservice;
 
 public class ModifyFileAction implements FileActionState {
 
-	@Override
-	public void changeToDeleteState(FileContext context) {
-		// TODO Auto-generated method stub
+	//State must be known in order to set the new state
+		private final FileContext _context;
 		
-	}
-
-	@Override
-	public void changeToCreateState(FileContext context) {
-		// TODO Auto-generated method stub
+		public ModifyFileAction(FileContext context){
+			_context = context;
+		}
 		
-	}
+		@Override
+		public void handleCreateEvent() {
+			System.out.println("Create Request denied: Cannot change from Modify to Create State.");
+		}
 
-	@Override
-	public void changeToModifyState(FileContext context) {
-		// TODO Auto-generated method stub
+		@Override
+		public void handleDeleteEvent() {
+			_context.setState(_context.getDeleteState());
+			System.out.println("Delete Request accepted: State changed from Modify to Delete.");
+		}
+
+		@Override
+		public void handleModifyEvent() {
+			System.out.println("Modify Request denied: Already in Modify State.");
+			
+		}
 		
-	}
-
-	@Override
-	public void changeToMoveState(FileContext context) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void execute() {
-		// TODO Auto-generated method stub
-		
-	}
-
-
+		@Override
+		public void execute() {
+			System.out.println("Create State: Execute H2H API call");
+			
+		}
 
 }

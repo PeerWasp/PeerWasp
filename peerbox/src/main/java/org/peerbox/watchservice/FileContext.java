@@ -2,18 +2,39 @@ package org.peerbox.watchservice;
 
 public class FileContext {
 
-	private FileActionState state;
+	private FileActionState currentState;
 	
+	private FileActionState createState;
+	private FileActionState deleteState;
+	private FileActionState modifyState;
+		
 	public FileContext(){
-		state = null;
+		createState = new CreateFileAction(this);
+		deleteState = new DeleteFileAction(this);
+		modifyState = new ModifyFileAction(this);
 	}
 	
-	public void setSate(FileActionState state){
-		this.state = state;
+	//Set current state
+	public void setState(FileActionState state){
+		this.currentState = state;
 	}
 	
-	public FileActionState getState(){
-		return state;
+	//getter for all possible states
+	public FileActionState getCreateState(){
+		return createState;
+	}
+	
+	public FileActionState getDeleteState(){
+		return deleteState;
+	}
+	
+	public FileActionState getModifyState(){
+		return modifyState;
+	}
+	
+	//execute action depending on state
+	public void execute(){
+		currentState.execute();
 	}
 	
 }
