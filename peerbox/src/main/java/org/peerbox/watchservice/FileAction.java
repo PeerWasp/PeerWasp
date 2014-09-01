@@ -7,7 +7,7 @@ import org.slf4j.LoggerFactory;
 
 public class FileAction {
 	
-	private final static Logger logger = LoggerFactory.getLogger(FileAction.class);
+	/*private final static Logger logger = LoggerFactory.getLogger(FileAction.class);
 	private long timestamp = Long.MAX_VALUE;
 	private FileActionState currentState;
 	public FileAction() {
@@ -16,6 +16,10 @@ public class FileAction {
 	
 	public long getTimestamp() {
 		return timestamp;
+	}
+	
+	public FileActionState getCurrentState(){
+		return currentState;
 	}
 
 	public void execute() {
@@ -33,6 +37,6 @@ public class FileAction {
 			//this is clearly an error - but can it even occur?
 		}
 		this.timestamp = timestamp;
-	}
+	}*/
 	
 }

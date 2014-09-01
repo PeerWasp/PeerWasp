@@ -19,10 +19,10 @@ public class FileActionExecutor implements Runnable {
 	 */
 	private final int ACTION_WAIT_TIME_MS = 3000;
 	
-	private BlockingQueue<FileAction> actionQueue;
+	private BlockingQueue<FileContext> actionQueue;
 	private Calendar calendar;
 
-	public FileActionExecutor(BlockingQueue<FileAction> actionQueue) {
+	public FileActionExecutor(BlockingQueue<FileContext> actionQueue) {
 		this.actionQueue = actionQueue;
 		this.calendar = Calendar.getInstance();
 	}
@@ -37,7 +37,7 @@ public class FileActionExecutor implements Runnable {
 	 */
 	private synchronized void processActions() {
 		while(true) {
-			FileAction next = null;
+			FileContext next = null;
 			try {
 				// blocking, waits until queue not empty, returns and removes (!) first element
 				next = actionQueue.take(); 
@@ -62,7 +62,7 @@ public class FileActionExecutor implements Runnable {
 	 * @param action Action to be executed
 	 * @return true if ready to be executed, false otherwise
 	 */
-	private boolean isActionReady(FileAction action) {
+	private boolean isActionReady(FileContext action) {
 		long ageMs = getActionAge(action);
 		return ageMs >= ACTION_WAIT_TIME_MS;
 	}
@@ -72,7 +72,7 @@ public class FileActionExecutor implements Runnable {
 	 * @param action
 	 * @return age in ms
 	 */
-	private long getActionAge(FileAction action) {
+	private long getActionAge(FileContext action) {
 		return calendar.getTimeInMillis() - action.getTimestamp();
 	}
 	

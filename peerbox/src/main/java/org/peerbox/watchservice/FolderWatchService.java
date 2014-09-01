@@ -42,9 +42,9 @@ public class FolderWatchService implements IFileObserver {
     private final Map<WatchKey,Path> keys;
     private boolean trace = false;
     
-    private Map<String, FileAction> hashToFileAction;
-    private Map<String, FileAction> filenameToFileAction;
-    private BlockingQueue<FileAction> actionQueue;
+    private Map<String, FileContext> hashToFileAction;
+    private Map<String, FileContext> filenameToFileAction;
+    private BlockingQueue<FileContext> actionQueue;
     
     
     private Thread actionExecutor;
@@ -54,9 +54,9 @@ public class FolderWatchService implements IFileObserver {
 		this.watcher = FileSystems.getDefault().newWatchService();
         this.keys = new HashMap<WatchKey,Path>();
         
-        hashToFileAction = new HashMap<String, FileAction>();
-        filenameToFileAction = new HashMap<String, FileAction>();
-        actionQueue = new PriorityBlockingQueue<FileAction>(10, new FileActionTimeComparator());
+        hashToFileAction = new HashMap<String, FileContext>();
+        filenameToFileAction = new HashMap<String, FileContext>();
+        actionQueue = new PriorityBlockingQueue<FileContext>(10, new FileActionTimeComparator());
  
         logger.info("Scanning {} ...", rootFolder);
         registerFoldersRecursive(rootFolder);
@@ -157,8 +157,8 @@ public class FolderWatchService implements IFileObserver {
 			    for (File child : directoryListing) {
 			      // Do something with child
 			    	try {
-						hashToFileAction.put(EncryptionUtil.generateMD5Hash(child).toString(), new FileAction());
-						filenameToFileAction.put(child.getPath().toString(), new FileAction());
+						hashToFileAction.put(EncryptionUtil.generateMD5Hash(child).toString(), new FileContext());
+						filenameToFileAction.put(child.getPath().toString(), new FileContext());
 					} catch (IOException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
@@ -230,53 +230,77 @@ public class FolderWatchService implements IFileObserver {
 			}
 		}
 
-		private void handleEvent(WatchEvent<?> event, Path child) {
-			// TODO Auto-generated method stub
+		/**
+		 * Precondition: Event and child must not be null.
+		 * @param event 
+		 * @param filePath Identifies the related file.
+		 */
+		private void handleEvent(WatchEvent<?> event, Path filePath) {
+			
 			Kind<?> eventKind = event.kind();
-			byte[] fileHashRaw;
-			String keyForAction = null;
-			FileAction lastAction = null;
-			// HASH
+			FileContext lastContext = null;
 
 			try {
-				if (eventKind.equals(ENTRY_CREATE)) {
-					fileHashRaw = EncryptionUtil.generateMD5Hash(child.toFile());
-					if (fileHashRaw == null) {
-						// File does not exist
-					} else {
-						// File exists
-						keyForAction = fileHashRaw.toString();
-						lastAction = hashToFileAction.get(keyForAction);
-					}
-				} else if (eventKind.equals(ENTRY_DELETE) || eventKind.equals(ENTRY_MODIFY)) {
-					keyForAction = child.toString();
-					lastAction = filenameToFileAction.get(keyForAction);
+				lastContext = getLastFileAction(eventKind, filePath);
+				
+				if (lastContext == null) {
+					//no matches in the HashMaps, create a new FileContext with initial state
+					lastContext = new FileContext(new StartActionState());
 				} else {
-					// OVERFLOW, maybe error?
-					return;
+					// to update the queue, remove the found context...
+					actionQueue.remove(lastContext);
 				}
-
-				if (lastAction == null) {
-					// not found in hashmap, so it is not in the queue as well -> create it
-					lastAction = new FileAction();
-				} else {
-					// found, everything is ok. remove it from the queue
-					actionQueue.remove(lastAction);
-				}
-				lastAction.setTimeStamp(Calendar.getInstance().getTimeInMillis());
-				actionQueue.add(lastAction);
-
+				//and add it with new timestamp / state
+				lastContext.setTimeStamp(Calendar.getInstance().getTimeInMillis());
+				changeState(lastContext, eventKind);
+				actionQueue.add(lastContext);
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
 	}
 	
+	/**
+	 * @param eventKind Used to determine if an entry was created, deleted, or modified.
+	 * @param filePath Identifies the related file.
+	 * @return null if no FileContext related to the provided Path was found, the corresponding FileContext instance otherwise.
+	 * @throws IOException
+	 */
+	private FileContext getLastFileAction(Kind<?> eventKind, Path filePath) throws IOException{
+		String keyForAction = null;
+		FileContext lastContext = null;
+		
+		if (eventKind.equals(ENTRY_CREATE)) {
+			byte[] fileHashRaw = EncryptionUtil.generateMD5Hash(filePath.toFile());
+			if (fileHashRaw != null) {
+				// File exists
+				keyForAction = fileHashRaw.toString();
+				lastContext = hashToFileAction.get(keyForAction);
+			}
+			
+		} else if (eventKind.equals(ENTRY_DELETE) || eventKind.equals(ENTRY_MODIFY)) {
+			keyForAction = filePath.toString();
+			lastContext = filenameToFileAction.get(keyForAction);
+			
+		} else {
+			System.out.println("Undefined event type!");
+		}
+		return lastContext;
+	}
 	
-	private class FileActionTimeComparator implements Comparator<FileAction> {
+	private void changeState(FileContext action, Kind<?> eventKind){
+		if(eventKind.equals(ENTRY_CREATE)){
+			action.getCurrentState().handleCreateEvent();
+		} else if(eventKind.equals(ENTRY_DELETE)){
+			action.getCurrentState().handleDeleteEvent();
+		} else if(eventKind.equals(ENTRY_MODIFY)){
+			action.getCurrentState().handleModifyEvent();
+		}
+	}
+	
+	private class FileActionTimeComparator implements Comparator<FileContext> {
 		@Override
-		public int compare(FileAction a, FileAction b) {
+		public int compare(FileContext a, FileContext b) {
 			return Long.compare(a.getTimestamp(), b.getTimestamp());
 		}
 		
