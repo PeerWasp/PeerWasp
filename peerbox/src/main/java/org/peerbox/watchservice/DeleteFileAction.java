@@ -11,6 +11,7 @@ public class DeleteFileAction implements FileActionState {
 	
 	@Override
 	public void handleCreateEvent() {
+		_context.setState(_context.getCreateState());
 		System.out.println("Create Request accepted: Move detected.");
 	}
 
