@@ -1,5 +1,7 @@
 package org.peerbox.watchservice;
 
-public abstract class FileActionState {
-
+public interface FileActionState {
+	
+	public void executeAction(FileContext context);
+	
 }
