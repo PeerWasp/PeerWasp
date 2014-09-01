@@ -24,5 +24,13 @@ public class FileAction {
 		// maybe return the IProcessComponent object such that the 
 		// executor can be aware of the status (completion of task etc)
 	}
+
+	public void setTimeStamp(long timestamp) {
+		// TODO Auto-generated method stub
+		if(timestamp < this.timestamp){
+			//this is clearly an error - but can it even occur?
+		}
+		this.timestamp = timestamp;
+	}
 	
 }

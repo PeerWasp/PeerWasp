@@ -35,7 +35,7 @@ public class FileActionExecutor implements Runnable {
 	/**
 	 * Processes the action in the action queue, one by one.
 	 */
-	private void processActions() {
+	private synchronized void processActions() {
 		while(true) {
 			FileAction next = null;
 			try {

@@ -6,6 +6,7 @@ import static java.nio.file.StandardWatchEventKinds.ENTRY_DELETE;
 import static java.nio.file.StandardWatchEventKinds.ENTRY_MODIFY;
 import static java.nio.file.StandardWatchEventKinds.OVERFLOW;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.FileSystems;
 import java.nio.file.FileVisitResult;
@@ -13,9 +14,11 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.WatchEvent;
+import java.nio.file.WatchEvent.Kind;
 import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.Calendar;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -25,6 +28,7 @@ import java.util.concurrent.PriorityBlockingQueue;
 
 import org.hive2hive.core.api.interfaces.IFileObserver;
 import org.hive2hive.core.api.interfaces.IFileObserverListener;
+import org.hive2hive.core.security.EncryptionUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -139,9 +143,32 @@ public class FolderWatchService implements IFileObserver {
 	private class FolderWatchEventProcessor implements Runnable {
 		@Override
 		public void run() {
+			loadFileHashes();
 			processEvents();
 		}
 		
+		private void loadFileHashes() {
+			String myDirectoryPath = "C:/Users/Claudio/Desktop/WatchServiceTest";
+
+			// TODO Auto-generated method stub
+			File dir = new File(myDirectoryPath);
+			  File[] directoryListing = dir.listFiles();
+			  if (directoryListing != null) {
+			    for (File child : directoryListing) {
+			      // Do something with child
+			    	try {
+						hashToFileAction.put(EncryptionUtil.generateMD5Hash(child).toString(), new FileAction());
+						filenameToFileAction.put(child.getPath().toString(), new FileAction());
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+			    }
+			  } else {
+				  
+			  }
+		}
+
 		private void processEvents() {
 			for (;;) {
 
@@ -174,7 +201,7 @@ public class FolderWatchService implements IFileObserver {
 
 					// print out event
 					logger.info("{}: {}", event.kind().name(), child);
-					handleEvent(event);
+					handleEvent(event, child);
 
 					// if directory is created, and watching recursively, then
 					// register it and its sub-directories
@@ -203,13 +230,48 @@ public class FolderWatchService implements IFileObserver {
 			}
 		}
 
-		private void handleEvent(WatchEvent<?> event) {
+		private void handleEvent(WatchEvent<?> event, Path child) {
 			// TODO Auto-generated method stub
-			
-		}
+			Kind<?> eventKind = event.kind();
+			byte[] fileHashRaw;
+			String keyForAction = null;
+			FileAction lastAction = null;
+			// HASH
 
-		
-    }
+			try {
+				if (eventKind.equals(ENTRY_CREATE)) {
+					fileHashRaw = EncryptionUtil.generateMD5Hash(child.toFile());
+					if (fileHashRaw == null) {
+						// File does not exist
+					} else {
+						// File exists
+						keyForAction = fileHashRaw.toString();
+						lastAction = hashToFileAction.get(keyForAction);
+					}
+				} else if (eventKind.equals(ENTRY_DELETE) || eventKind.equals(ENTRY_MODIFY)) {
+					keyForAction = child.toString();
+					lastAction = filenameToFileAction.get(keyForAction);
+				} else {
+					// OVERFLOW, maybe error?
+					return;
+				}
+
+				if (lastAction == null) {
+					// not found in hashmap, so it is not in the queue as well -> create it
+					lastAction = new FileAction();
+				} else {
+					// found, everything is ok. remove it from the queue
+					actionQueue.remove(lastAction);
+				}
+				lastAction.setTimeStamp(Calendar.getInstance().getTimeInMillis());
+				actionQueue.add(lastAction);
+
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+	}
 	
 	
 	private class FileActionTimeComparator implements Comparator<FileAction> {
