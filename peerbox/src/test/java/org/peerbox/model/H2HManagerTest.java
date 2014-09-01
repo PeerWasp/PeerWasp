@@ -5,11 +5,9 @@ import static org.junit.Assert.*;
 import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
-import java.net.URL;
 import java.net.UnknownHostException;
 
 import org.hive2hive.core.api.configs.NetworkConfiguration;
-import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.junit.Before;
 import org.junit.Test;
 import org.peerbox.presenter.SelectRootPathUtils;

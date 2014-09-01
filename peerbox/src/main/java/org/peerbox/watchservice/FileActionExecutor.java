@@ -17,7 +17,7 @@ public class FileActionExecutor implements Runnable {
 	/**
 	 *  amount of time that an action has to be "stable" in order to be executed 
 	 */
-	private final int ACTION_WAIT_TIME_MS = 3000;
+	public static final int ACTION_WAIT_TIME_MS = 3000;
 	
 	private BlockingQueue<FileContext> actionQueue;
 	private Calendar calendar;

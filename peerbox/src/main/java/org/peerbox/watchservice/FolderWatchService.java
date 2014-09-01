@@ -49,6 +49,18 @@ public class FolderWatchService implements IFileObserver {
     
     private Thread actionExecutor;
 	
+	public Map<String, FileContext> getHashToFileAction() {
+		return hashToFileAction;
+	}
+
+	public Map<String, FileContext> getFilenameToFileAction() {
+		return filenameToFileAction;
+	}
+
+	public BlockingQueue<FileContext> getActionQueue() {
+		return actionQueue;
+	}
+
 	public FolderWatchService(Path rootFolderToWatch) throws IOException {
 		this.rootFolder = rootFolderToWatch;
 		this.watcher = FileSystems.getDefault().newWatchService();
@@ -187,13 +199,14 @@ public class FolderWatchService implements IFileObserver {
 				}
 
 				for (WatchEvent<?> event : key.pollEvents()) {
-					WatchEvent.Kind kind = event.kind();
 
 					// TBD - provide example of how OVERFLOW event is handled
-					if (kind == OVERFLOW) {
+					if (event.kind() == OVERFLOW) {
 						continue;
 					}
 
+					Kind<Path> kind = (Kind<Path>) event.kind();
+					
 					// Context for directory entry event is the file name of entry
 					WatchEvent<Path> ev = castWatchEvent(event);
 					Path name = ev.context();
@@ -201,7 +214,7 @@ public class FolderWatchService implements IFileObserver {
 
 					// print out event
 					logger.info("{}: {}", event.kind().name(), child);
-					handleEvent(event, child);
+					handleEvent(kind, child);
 
 					// if directory is created, and watching recursively, then
 					// register it and its sub-directories
@@ -232,28 +245,31 @@ public class FolderWatchService implements IFileObserver {
 
 		/**
 		 * Precondition: Event and child must not be null.
-		 * @param event 
+		 * @param kind 
 		 * @param filePath Identifies the related file.
 		 */
-		private void handleEvent(WatchEvent<?> event, Path filePath) {
+		private void handleEvent(Kind<Path> kind, Path filePath) {
 			
-			Kind<?> eventKind = event.kind();
+			Kind<Path> eventKind = kind;
 			FileContext lastContext = null;
 
 			try {
 				lastContext = getLastFileAction(eventKind, filePath);
 				
+				//no matches in the HashMaps, create a new FileContext with initial state
 				if (lastContext == null) {
-					//no matches in the HashMaps, create a new FileContext with initial state
 					lastContext = new FileContext(new StartActionState());
+				
+				// to update the queue, remove the found context...
 				} else {
-					// to update the queue, remove the found context...
 					actionQueue.remove(lastContext);
 				}
+				
 				//and add it with new timestamp / state
 				lastContext.setTimeStamp(Calendar.getInstance().getTimeInMillis());
 				changeState(lastContext, eventKind);
 				actionQueue.add(lastContext);
+				
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -288,7 +304,7 @@ public class FolderWatchService implements IFileObserver {
 		return lastContext;
 	}
 	
-	private void changeState(FileContext action, Kind<?> eventKind){
+	private void changeState(FileContext action, Kind<Path> eventKind){
 		if(eventKind.equals(ENTRY_CREATE)){
 			action.getCurrentState().handleCreateEvent();
 		} else if(eventKind.equals(ENTRY_DELETE)){
