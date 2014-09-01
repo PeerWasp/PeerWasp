@@ -11,10 +11,15 @@ public class StattePatternTest {
 
 	    //testing Add File state behavior  
 		CreateFileAction createState = new CreateFileAction(context);
-	    createState.handleDeleteEvent();
+	    context.getCurrentState();
+	    System.out.println("--------");
+	    
 	    createState.handleCreateEvent();
-
-	   
+	    context.getCurrentState();
+	    System.out.println("--------");
+	    
+	    createState.handleDeleteEvent();
+	    context.getCurrentState();
 	   }
 	}
 

@@ -70,6 +70,16 @@ public class FileContext {
 	}
 	
 	public FileActionState getCurrentState(){
+		if (currentState == createState){
+			System.out.println("current state: create");
+		} else if (currentState == deleteState){
+			System.out.println("current state: delete");
+		} else if (currentState == modifyState){
+			System.out.println("current state: modify");
+		} else {
+			System.out.println("current state: initial");
+		}
+		
 		return currentState;
 	}
 }
