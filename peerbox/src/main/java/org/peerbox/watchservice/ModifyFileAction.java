@@ -1,28 +1,23 @@
 package org.peerbox.watchservice;
 
 public class ModifyFileAction implements FileActionState {
-
-	//State must be known in order to set the new state
-		private final FileContext _context;
-		
-		public ModifyFileAction(FileContext context){
-			_context = context;
-		}
 		
 		@Override
-		public void handleCreateEvent() {
+		public FileActionState handleCreateEvent() {
 			System.out.println("Create Request denied: Cannot change from Modify to Create State.");
+			return new ModifyFileAction();
 		}
 
 		@Override
-		public void handleDeleteEvent() {
-			_context.setState(_context.getDeleteState());
+		public FileActionState handleDeleteEvent() {
 			System.out.println("Delete Request accepted: State changed from Modify to Delete.");
+			return new DeleteFileAction();
 		}
 
 		@Override
-		public void handleModifyEvent() {
+		public FileActionState handleModifyEvent() {
 			System.out.println("Modify Request denied: Already in Modify State.");
+			return new ModifyFileAction();
 			
 		}
 		

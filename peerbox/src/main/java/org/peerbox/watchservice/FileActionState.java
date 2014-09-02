@@ -2,8 +2,8 @@ package org.peerbox.watchservice;
 
 public interface FileActionState {
 	
-	public void handleCreateEvent();
-	public void handleDeleteEvent();
-	public void handleModifyEvent();
+	public FileActionState handleCreateEvent();
+	public FileActionState handleDeleteEvent();
+	public FileActionState handleModifyEvent();
 	public void execute();
 }

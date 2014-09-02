@@ -8,10 +8,11 @@ public class StatePatternTest {
 		// TODO Auto-generated method stub
 		
 		FileContext context = new FileContext();
-		FileActionState myFile = new StartActionState(context);
+		context.createEvent();
 		context.getCurrentState();
-		myFile.handleCreateEvent();
+		context.deleteEvent();
 		context.getCurrentState();
+		
 		
 	   }
 

@@ -2,29 +2,22 @@ package org.peerbox.watchservice;
 
 public class StartActionState implements FileActionState {
 
-	//State must be known in order to set the new state
-	private final FileContext _context;
-	
-	public StartActionState(FileContext context){
-		_context = context;
-	}
-	
 	@Override
-	public void handleCreateEvent() {
-		_context.setState(_context.getCreateState());
+	public FileActionState handleCreateEvent() {
 		System.out.println("Create Request accepted: State changed from Initial to Create.");
+		return new CreateFileAction();
 	}
 
 	@Override
-	public void handleDeleteEvent() {
-		_context.setState(_context.getDeleteState());
+	public FileActionState handleDeleteEvent() {
 		System.out.println("Delete Request accepted: State changed from Initial to Delete.");
+		return new DeleteFileAction();
 	}
 
 	@Override
-	public void handleModifyEvent() {
-		_context.setState(_context.getModifyState());
+	public FileActionState handleModifyEvent() {
 		System.out.println("Modify Request accepted: State changed from Initial to Modify.");
+		return new ModifyFileAction();
 		
 	}
 	

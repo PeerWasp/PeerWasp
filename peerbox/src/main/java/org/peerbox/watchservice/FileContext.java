@@ -11,20 +11,13 @@ public class FileContext {
 	private long timestamp = Long.MAX_VALUE;
 	
 	private FileActionState currentState;
-	
-	private FileActionState createState;
-	private FileActionState deleteState;
-	private FileActionState modifyState;
-	private FileActionState initialState;
 		
 	public FileContext(){
 		timestamp = Calendar.getInstance().getTimeInMillis();
-
-		createState = new CreateFileAction(this);
-		deleteState = new DeleteFileAction(this);
-		modifyState = new ModifyFileAction(this);
-		initialState = new StartActionState(this);
+		FileActionState initialState = new StartActionState();
 		currentState = initialState;
+		
+
 	}
 	
 	public FileContext(FileActionState initialState){
@@ -40,22 +33,17 @@ public class FileContext {
 		this.timestamp = timestamp;
 	}
 	
-	//Set current state
-	public void setState(FileActionState state){
-		this.currentState = state;
+	
+	public void createEvent(){
+		currentState = currentState.handleCreateEvent();
 	}
 	
-	//getter for all possible states
-	public FileActionState getCreateState(){
-		return createState;
+	public void deleteEvent(){
+		currentState = currentState.handleDeleteEvent();
 	}
 	
-	public FileActionState getDeleteState(){
-		return deleteState;
-	}
-	
-	public FileActionState getModifyState(){
-		return modifyState;
+	public void modifyEvent(){
+		currentState = currentState.handleModifyEvent();
 	}
 	
 	//execute action depending on state
@@ -72,15 +60,17 @@ public class FileContext {
 		return timestamp;
 	}
 	
-	public FileActionState getCurrentState(){
-		if (currentState == createState){
-			System.out.println("current state: create");
-		} else if (currentState == deleteState){
-			System.out.println("current state: delete");
-		} else if (currentState == modifyState){
-			System.out.println("current state: modify");
-		} else {
-			System.out.println("current state: initial");
+	public FileActionState getCurrentState(){	
+		if (currentState.getClass() == CreateFileAction.class){
+			System.out.println("Current State: Create");
+		} else if (currentState.getClass() == DeleteFileAction.class){
+			System.out.println("Current State: Delete");
+		} else if (currentState.getClass() == ModifyFileAction.class){
+			System.out.println("Current State: Modify");
+		} else if (currentState.getClass() == MoveFileAction.class){
+			System.out.println("Current State: Move");
+		} else if (currentState.getClass() == StartActionState.class){
+			System.out.println("Current State: Initial");
 		}
 		
 		return currentState;
