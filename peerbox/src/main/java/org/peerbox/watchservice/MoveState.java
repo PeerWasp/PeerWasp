@@ -1,23 +1,23 @@
 package org.peerbox.watchservice;
 
-public class MoveFileAction implements FileActionState {
+public class MoveState implements ActionState {
 	
 	@Override
-	public FileActionState handleCreateEvent() {
+	public ActionState handleCreateEvent() {
 		System.out.println("Create Request denied: Cannot change from Move to Create.");
-		return new MoveFileAction();
+		return new MoveState();
 	}
 
 	@Override
-	public FileActionState handleDeleteEvent() {
+	public ActionState handleDeleteEvent() {
 		System.out.println("Delete Request denied: Cannot change from Move to Delete.");
-		return new MoveFileAction();
+		return new MoveState();
 	}
 
 	@Override
-	public FileActionState handleModifyEvent() {
+	public ActionState handleModifyEvent() {
 		System.out.println("Modify Request denied: Cannot change from Move to Modify State.");
-		return new MoveFileAction();
+		return new MoveState();
 	}
 	
 	@Override

@@ -1,23 +1,23 @@
 package org.peerbox.watchservice;
 
-public class DeleteFileAction implements FileActionState {
+public class DeleteState implements ActionState {
 	
 	@Override
-	public FileActionState handleCreateEvent() {
+	public ActionState handleCreateEvent() {
 		System.out.println("Create Request accepted: Move detected.");
-		return new MoveFileAction();
+		return new MoveState();
 	}
 
 	@Override
-	public FileActionState handleDeleteEvent() {
+	public ActionState handleDeleteEvent() {
 		System.out.println("Delete Request denied: Already in Delete State.");
-		return new DeleteFileAction();
+		return new DeleteState();
 	}
 
 	@Override
-	public FileActionState handleModifyEvent() {
+	public ActionState handleModifyEvent() {
 		System.out.println("Modify Request denied: Cannot change from Delete to Modify State.");
-		return new DeleteFileAction();
+		return new DeleteState();
 	}
 	
 	

@@ -1,29 +1,29 @@
 package org.peerbox.watchservice;
 
-public class CreateFileAction implements FileActionState {
+public class CreateState implements ActionState {
 
 	//State must be known in order to set the new state
 
-	public CreateFileAction(){
+	public CreateState(){
 
 	}
 	
 	@Override
-	public FileActionState handleCreateEvent() {
+	public ActionState handleCreateEvent() {
 		System.out.println("Create Request denied: Already in Create State.");
-		return new CreateFileAction();
+		return new CreateState();
 	}
 
 	@Override
-	public FileActionState handleDeleteEvent() {
+	public ActionState handleDeleteEvent() {
 		System.out.println("Delete Request accepted: State changed from Create to Delete.");
-		return new DeleteFileAction();
+		return new DeleteState();
 	}
 
 	@Override
-	public FileActionState handleModifyEvent() {
+	public ActionState handleModifyEvent() {
 		System.out.println("Modify Request accepted: State changed from Create to Modify.");
-		return new ModifyFileAction();
+		return new ModifyState();
 		
 	}
 	

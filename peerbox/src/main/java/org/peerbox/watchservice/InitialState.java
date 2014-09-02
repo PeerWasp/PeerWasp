@@ -1,23 +1,23 @@
 package org.peerbox.watchservice;
 
-public class StartActionState implements FileActionState {
+public class InitialState implements ActionState {
 
 	@Override
-	public FileActionState handleCreateEvent() {
+	public ActionState handleCreateEvent() {
 		System.out.println("Create Request accepted: State changed from Initial to Create.");
-		return new CreateFileAction();
+		return new CreateState();
 	}
 
 	@Override
-	public FileActionState handleDeleteEvent() {
+	public ActionState handleDeleteEvent() {
 		System.out.println("Delete Request accepted: State changed from Initial to Delete.");
-		return new DeleteFileAction();
+		return new DeleteState();
 	}
 
 	@Override
-	public FileActionState handleModifyEvent() {
+	public ActionState handleModifyEvent() {
 		System.out.println("Modify Request accepted: State changed from Initial to Modify.");
-		return new ModifyFileAction();
+		return new ModifyState();
 		
 	}
 	

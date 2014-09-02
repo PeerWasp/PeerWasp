@@ -12,17 +12,17 @@ import java.util.concurrent.BlockingQueue;
  * @author albrecht
  *
  */
-public class FileActionExecutor implements Runnable {
+public class ActionExecutor implements Runnable {
 	
 	/**
 	 *  amount of time that an action has to be "stable" in order to be executed 
 	 */
 	public static final int ACTION_WAIT_TIME_MS = 3000;
 	
-	private BlockingQueue<FileContext> actionQueue;
+	private BlockingQueue<Action> actionQueue;
 	private Calendar calendar;
 
-	public FileActionExecutor(BlockingQueue<FileContext> actionQueue) {
+	public ActionExecutor(BlockingQueue<Action> actionQueue) {
 		this.actionQueue = actionQueue;
 		this.calendar = Calendar.getInstance();
 	}
@@ -37,7 +37,7 @@ public class FileActionExecutor implements Runnable {
 	 */
 	private synchronized void processActions() {
 		while(true) {
-			FileContext next = null;
+			Action next = null;
 			try {
 				// blocking, waits until queue not empty, returns and removes (!) first element
 				next = actionQueue.take(); 
@@ -62,7 +62,7 @@ public class FileActionExecutor implements Runnable {
 	 * @param action Action to be executed
 	 * @return true if ready to be executed, false otherwise
 	 */
-	private boolean isActionReady(FileContext action) {
+	private boolean isActionReady(Action action) {
 		long ageMs = getActionAge(action);
 		return ageMs >= ACTION_WAIT_TIME_MS;
 	}
@@ -72,7 +72,7 @@ public class FileActionExecutor implements Runnable {
 	 * @param action
 	 * @return age in ms
 	 */
-	private long getActionAge(FileContext action) {
+	private long getActionAge(Action action) {
 		return calendar.getTimeInMillis() - action.getTimestamp();
 	}
 	

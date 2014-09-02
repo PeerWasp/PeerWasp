@@ -5,22 +5,22 @@ import java.util.Calendar;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class FileContext {
+public class Action {
 	
-	private final static Logger logger = LoggerFactory.getLogger(FileAction.class);
+	private final static Logger logger = LoggerFactory.getLogger(Action.class);
 	private long timestamp = Long.MAX_VALUE;
 	
-	private FileActionState currentState;
+	private ActionState currentState;
 		
-	public FileContext(){
+	public Action(){
 		timestamp = Calendar.getInstance().getTimeInMillis();
-		FileActionState initialState = new StartActionState();
+		ActionState initialState = new InitialState();
 		currentState = initialState;
 		
 
 	}
 	
-	public FileContext(FileActionState initialState){
+	public Action(ActionState initialState){
 		currentState = initialState;
 		timestamp = Calendar.getInstance().getTimeInMillis();
 	}
@@ -60,16 +60,16 @@ public class FileContext {
 		return timestamp;
 	}
 	
-	public FileActionState getCurrentState(){	
-		if (currentState.getClass() == CreateFileAction.class){
+	public ActionState getCurrentState(){	
+		if (currentState.getClass() == CreateState.class){
 			System.out.println("Current State: Create");
-		} else if (currentState.getClass() == DeleteFileAction.class){
+		} else if (currentState.getClass() == DeleteState.class){
 			System.out.println("Current State: Delete");
-		} else if (currentState.getClass() == ModifyFileAction.class){
+		} else if (currentState.getClass() == ModifyState.class){
 			System.out.println("Current State: Modify");
-		} else if (currentState.getClass() == MoveFileAction.class){
+		} else if (currentState.getClass() == MoveState.class){
 			System.out.println("Current State: Move");
-		} else if (currentState.getClass() == StartActionState.class){
+		} else if (currentState.getClass() == InitialState.class){
 			System.out.println("Current State: Initial");
 		}
 		

@@ -59,8 +59,8 @@ public class FolderWatchServiceTest {
 				Thread.sleep(1000);
 				System.out.println(watchService.getActionQueue().size());
 				assertTrue(watchService.getActionQueue().size() == 1);
-				assertTrue(watchService.getActionQueue().peek().getCurrentState() instanceof StartActionState);
-				Thread.sleep(FileActionExecutor.ACTION_WAIT_TIME_MS);
+				assertTrue(watchService.getActionQueue().peek().getCurrentState() instanceof InitialState);
+				Thread.sleep(ActionExecutor.ACTION_WAIT_TIME_MS);
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

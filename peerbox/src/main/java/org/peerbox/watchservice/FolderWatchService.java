@@ -42,22 +42,22 @@ public class FolderWatchService implements IFileObserver {
     private final Map<WatchKey,Path> keys;
     private boolean trace = false;
     
-    private Map<String, FileContext> hashToFileAction;
-    private Map<String, FileContext> filenameToFileAction;
-    private BlockingQueue<FileContext> actionQueue;
+    private Map<String, Action> hashToFileAction;
+    private Map<String, Action> filenameToFileAction;
+    private BlockingQueue<Action> actionQueue;
     
     
     private Thread actionExecutor;
 	
-	public Map<String, FileContext> getHashToFileAction() {
+	public Map<String, Action> getHashToFileAction() {
 		return hashToFileAction;
 	}
 
-	public Map<String, FileContext> getFilenameToFileAction() {
+	public Map<String, Action> getFilenameToFileAction() {
 		return filenameToFileAction;
 	}
 
-	public BlockingQueue<FileContext> getActionQueue() {
+	public BlockingQueue<Action> getActionQueue() {
 		return actionQueue;
 	}
 
@@ -66,9 +66,9 @@ public class FolderWatchService implements IFileObserver {
 		this.watcher = FileSystems.getDefault().newWatchService();
         this.keys = new HashMap<WatchKey,Path>();
         
-        hashToFileAction = new HashMap<String, FileContext>();
-        filenameToFileAction = new HashMap<String, FileContext>();
-        actionQueue = new PriorityBlockingQueue<FileContext>(10, new FileActionTimeComparator());
+        hashToFileAction = new HashMap<String, Action>();
+        filenameToFileAction = new HashMap<String, Action>();
+        actionQueue = new PriorityBlockingQueue<Action>(10, new FileActionTimeComparator());
  
         logger.info("Scanning {} ...", rootFolder);
         registerFoldersRecursive(rootFolder);
@@ -84,7 +84,7 @@ public class FolderWatchService implements IFileObserver {
 		eventProcessor.setDaemon(false); // keep running 
 		eventProcessor.start();
 		
-		actionExecutor = new Thread(new FileActionExecutor(actionQueue));
+		actionExecutor = new Thread(new ActionExecutor(actionQueue));
 		actionExecutor.start();
 	}
 
@@ -169,8 +169,8 @@ public class FolderWatchService implements IFileObserver {
 			    for (File child : directoryListing) {
 			      // Do something with child
 			    	try {
-						hashToFileAction.put(EncryptionUtil.generateMD5Hash(child).toString(), new FileContext());
-						filenameToFileAction.put(child.getPath().toString(), new FileContext());
+						hashToFileAction.put(EncryptionUtil.generateMD5Hash(child).toString(), new Action());
+						filenameToFileAction.put(child.getPath().toString(), new Action());
 					} catch (IOException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
@@ -251,14 +251,14 @@ public class FolderWatchService implements IFileObserver {
 		private void handleEvent(Kind<Path> kind, Path filePath) {
 			
 			Kind<Path> eventKind = kind;
-			FileContext lastContext = null;
+			Action lastContext = null;
 
 			try {
 				lastContext = getLastFileAction(eventKind, filePath);
 				
 				//no matches in the HashMaps, create a new FileContext with initial state
 				if (lastContext == null) {
-					lastContext = new FileContext(new StartActionState());
+					lastContext = new Action(new InitialState());
 				
 				// to update the queue, remove the found context...
 				} else {
@@ -282,9 +282,9 @@ public class FolderWatchService implements IFileObserver {
 	 * @return null if no FileContext related to the provided Path was found, the corresponding FileContext instance otherwise.
 	 * @throws IOException
 	 */
-	private FileContext getLastFileAction(Kind<?> eventKind, Path filePath) throws IOException{
+	private Action getLastFileAction(Kind<Path> eventKind, Path filePath) throws IOException{
 		String keyForAction = null;
-		FileContext lastContext = null;
+		Action lastContext = null;
 		
 		if (eventKind.equals(ENTRY_CREATE)) {
 			byte[] fileHashRaw = EncryptionUtil.generateMD5Hash(filePath.toFile());
@@ -304,7 +304,12 @@ public class FolderWatchService implements IFileObserver {
 		return lastContext;
 	}
 	
-	private void changeState(FileContext action, Kind<Path> eventKind){
+	/**
+	 * Performs the change according to the implemented state pattern
+	 * @param action must not be null
+	 * @param eventKind must not be null
+	 */
+	private void changeState(Action action, Kind<Path> eventKind){
 		if(eventKind.equals(ENTRY_CREATE)){
 			action.getCurrentState().handleCreateEvent();
 		} else if(eventKind.equals(ENTRY_DELETE)){
@@ -314,9 +319,9 @@ public class FolderWatchService implements IFileObserver {
 		}
 	}
 	
-	private class FileActionTimeComparator implements Comparator<FileContext> {
+	private class FileActionTimeComparator implements Comparator<Action> {
 		@Override
-		public int compare(FileContext a, FileContext b) {
+		public int compare(Action a, Action b) {
 			return Long.compare(a.getTimestamp(), b.getTimestamp());
 		}
 		

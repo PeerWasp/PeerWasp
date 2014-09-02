@@ -7,7 +7,7 @@ public class StatePatternTest {
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 		
-		FileContext context = new FileContext();
+		Action context = new Action();
 		context.createEvent();
 		context.getCurrentState();
 		context.deleteEvent();
