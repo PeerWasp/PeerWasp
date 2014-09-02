@@ -34,15 +34,15 @@ public class Action {
 	}
 	
 	
-	public void createEvent(){
+	public void handleCreateEvent(){
 		currentState = currentState.handleCreateEvent();
 	}
 	
-	public void deleteEvent(){
+	public void handleDeleteEvent(){
 		currentState = currentState.handleDeleteEvent();
 	}
 	
-	public void modifyEvent(){
+	public void handleModifyEvent(){
 		currentState = currentState.handleModifyEvent();
 	}
 	
