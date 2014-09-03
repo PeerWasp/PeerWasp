@@ -16,14 +16,14 @@ public class CreateState implements ActionState {
 
 	@Override
 	public ActionState handleDeleteEvent() {
-		System.out.println("Delete Request accepted: State changed from Create to Delete.");
-		return new DeleteState();
+		System.out.println("Delete Request accepted: State changed from Create to Initial State.");
+		return new InitialState();
 	}
 
 	@Override
 	public ActionState handleModifyEvent() {
 		System.out.println("Modify Request accepted: State changed from Create to Modify.");
-		return new ModifyState();
+		return new CreateState();
 		
 	}
 	

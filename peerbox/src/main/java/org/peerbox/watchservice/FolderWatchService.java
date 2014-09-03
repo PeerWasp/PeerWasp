@@ -42,19 +42,19 @@ public class FolderWatchService implements IFileObserver {
     private final Map<WatchKey,Path> keys;
     private boolean trace = false;
     
-    private Map<String, Action> hashToFileAction;
-    private Map<String, Action> filenameToFileAction;
+    private Map<String, Action> contenthashToAction;
+    private Map<String, Action> filenameToAction;
     private BlockingQueue<Action> actionQueue;
     
     
     private Thread actionExecutor;
 	
-	public Map<String, Action> getHashToFileAction() {
-		return hashToFileAction;
+	public Map<String, Action> getContenthashToAction() {
+		return contenthashToAction;
 	}
 
-	public Map<String, Action> getFilenameToFileAction() {
-		return filenameToFileAction;
+	public Map<String, Action> getFilenameToAction() {
+		return filenameToAction;
 	}
 
 	public BlockingQueue<Action> getActionQueue() {
@@ -66,8 +66,8 @@ public class FolderWatchService implements IFileObserver {
 		this.watcher = FileSystems.getDefault().newWatchService();
         this.keys = new HashMap<WatchKey,Path>();
         
-        hashToFileAction = new HashMap<String, Action>();
-        filenameToFileAction = new HashMap<String, Action>();
+        contenthashToAction = new HashMap<String, Action>();
+        filenameToAction = new HashMap<String, Action>();
         actionQueue = new PriorityBlockingQueue<Action>(10, new FileActionTimeComparator());
  
         logger.info("Scanning {} ...", rootFolder);
@@ -169,8 +169,8 @@ public class FolderWatchService implements IFileObserver {
 			    for (File child : directoryListing) {
 			      // Do something with child
 			    	try {
-						hashToFileAction.put(EncryptionUtil.generateMD5Hash(child).toString(), new Action());
-						filenameToFileAction.put(child.getPath().toString(), new Action());
+						contenthashToAction.put(EncryptionUtil.generateMD5Hash(child).toString(), new Action());
+						filenameToAction.put(child.getPath().toString(), new Action());
 					} catch (IOException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
@@ -254,7 +254,7 @@ public class FolderWatchService implements IFileObserver {
 			Action lastContext = null;
 
 			try {
-				lastContext = getLastFileAction(eventKind, filePath);
+				lastContext = getLastAction(eventKind, filePath);
 				
 				//no matches in the HashMaps, create a new FileContext with initial state
 				if (lastContext == null) {
@@ -282,7 +282,7 @@ public class FolderWatchService implements IFileObserver {
 	 * @return null if no FileContext related to the provided Path was found, the corresponding FileContext instance otherwise.
 	 * @throws IOException
 	 */
-	private Action getLastFileAction(Kind<Path> eventKind, Path filePath) throws IOException{
+	private Action getLastAction(Kind<Path> eventKind, Path filePath) throws IOException{
 		String keyForAction = null;
 		Action lastContext = null;
 		
@@ -291,12 +291,12 @@ public class FolderWatchService implements IFileObserver {
 			if (fileHashRaw != null) {
 				// File exists
 				keyForAction = fileHashRaw.toString();
-				lastContext = hashToFileAction.get(keyForAction);
+				lastContext = contenthashToAction.get(keyForAction);
 			}
 			
 		} else if (eventKind.equals(ENTRY_DELETE) || eventKind.equals(ENTRY_MODIFY)) {
 			keyForAction = filePath.toString();
-			lastContext = filenameToFileAction.get(keyForAction);
+			lastContext = filenameToAction.get(keyForAction);
 			
 		} else {
 			System.out.println("Undefined event type!");
@@ -311,11 +311,11 @@ public class FolderWatchService implements IFileObserver {
 	 */
 	private void changeState(Action action, Kind<Path> eventKind){
 		if(eventKind.equals(ENTRY_CREATE)){
-			action.getCurrentState().handleCreateEvent();
+			action.handleCreateEvent();
 		} else if(eventKind.equals(ENTRY_DELETE)){
-			action.getCurrentState().handleDeleteEvent();
+			action.handleDeleteEvent();
 		} else if(eventKind.equals(ENTRY_MODIFY)){
-			action.getCurrentState().handleModifyEvent();
+			action.handleModifyEvent();
 		}
 	}
 	

@@ -13,11 +13,8 @@ public class Action {
 	private ActionState currentState;
 		
 	public Action(){
-		timestamp = Calendar.getInstance().getTimeInMillis();
-		ActionState initialState = new InitialState();
-		currentState = initialState;
-		
-
+		timestamp = Calendar.getInstance().getTimeInMillis(); 
+		currentState = new InitialState();
 	}
 	
 	public Action(ActionState initialState){

@@ -17,14 +17,12 @@ public class ModifyState implements ActionState {
 		@Override
 		public ActionState handleModifyEvent() {
 			System.out.println("Modify Request denied: Already in Modify State.");
-			return new ModifyState();
-			
+			return new ModifyState();	
 		}
 		
 		@Override
 		public void execute() {
 			System.out.println("Create State: Execute H2H API call");
-			
 		}
 
 }

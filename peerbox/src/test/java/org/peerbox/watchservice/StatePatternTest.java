@@ -8,9 +8,9 @@ public class StatePatternTest {
 		// TODO Auto-generated method stub
 		
 		Action context = new Action();
-		context.createEvent();
+		//context.createEvent();
 		context.getCurrentState();
-		context.deleteEvent();
+		//context.deleteEvent();
 		context.getCurrentState();
 		
 		

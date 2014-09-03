@@ -11,7 +11,7 @@ public class MoveState implements ActionState {
 	@Override
 	public ActionState handleDeleteEvent() {
 		System.out.println("Delete Request denied: Cannot change from Move to Delete.");
-		return new MoveState();
+		return new DeleteState();
 	}
 
 	@Override
