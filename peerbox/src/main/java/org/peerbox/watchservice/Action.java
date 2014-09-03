@@ -65,18 +65,18 @@ public class Action {
 	}
 	
 	public ActionState getCurrentState(){	
-		if (currentState.getClass() == CreateState.class){
-			System.out.println("Current State: Create");
-		} else if (currentState.getClass() == DeleteState.class){
-			System.out.println("Current State: Delete");
-		} else if (currentState.getClass() == ModifyState.class){
-			System.out.println("Current State: Modify");
-		} else if (currentState.getClass() == MoveState.class){
-			System.out.println("Current State: Move");
-		} else if (currentState.getClass() == InitialState.class){
-			System.out.println("Current State: Initial");
+			if (currentState.getClass() == CreateState.class){
+				logger.debug("Current State: Create");
+			} else if (currentState.getClass() == DeleteState.class){
+				logger.debug("Current State: Delete");
+			} else if (currentState.getClass() == ModifyState.class){
+				logger.debug("Current State: Modify");
+			} else if (currentState.getClass() == MoveState.class){
+				logger.debug("Current State: Move");
+			} else if (currentState.getClass() == InitialState.class){
+				logger.debug("Current State: Initial");
+			}
+			
+			return currentState;
 		}
-		
-		return currentState;
-	}
 }

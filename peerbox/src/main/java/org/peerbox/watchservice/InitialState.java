@@ -5,24 +5,28 @@ import java.io.File;
 import org.hive2hive.core.exceptions.IllegalFileLocation;
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.hive2hive.core.exceptions.NoSessionException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class InitialState implements ActionState {
 
+	private final static Logger logger = LoggerFactory.getLogger(InitialState.class);
+	
 	@Override
 	public ActionState handleCreateEvent() {
-		System.out.println("Create Request accepted: State changed from Initial to Create.");
+		logger.debug("Create Request accepted: State changed from Initial to Create.");
 		return new CreateState();
 	}
 
 	@Override
 	public ActionState handleDeleteEvent() {
-		System.out.println("Delete Request accepted: State changed from Initial to Delete.");
+		logger.debug("Delete Request accepted: State changed from Initial to Delete.");
 		return new DeleteState();
 	}
 
 	@Override
 	public ActionState handleModifyEvent() {
-		System.out.println("Modify Request accepted: State changed from Initial to Modify.");
+		logger.debug("Modify Request accepted: State changed from Initial to Modify.");
 		return new ModifyState();
 		
 	}
@@ -30,9 +34,6 @@ public class InitialState implements ActionState {
 	@Override
 	public void execute(File file) throws NoSessionException, NoPeerConnectionException,
 			IllegalFileLocation {
-		// TODO Auto-generated method stub
-		System.out.println("Execute method in Initial State not defined.");
+		logger.debug("Execute method in Initial State not defined.");
 	}
-	
-	
 }
