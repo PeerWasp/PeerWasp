@@ -3,6 +3,10 @@ package org.peerbox.watchservice;
 import java.util.Calendar;
 import java.util.concurrent.BlockingQueue;
 
+import org.hive2hive.core.exceptions.IllegalFileLocation;
+import org.hive2hive.core.exceptions.NoPeerConnectionException;
+import org.hive2hive.core.exceptions.NoSessionException;
+
 
 /**
  * The FileActionExecutor service observes a set of file actions in a queue.
@@ -29,13 +33,21 @@ public class ActionExecutor implements Runnable {
 
 	@Override
 	public void run() {
-		processActions();
+		try {
+			processActions();
+		} catch (NoSessionException | NoPeerConnectionException | IllegalFileLocation e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	/**
 	 * Processes the action in the action queue, one by one.
+	 * @throws IllegalFileLocation 
+	 * @throws NoPeerConnectionException 
+	 * @throws NoSessionException 
 	 */
-	private synchronized void processActions() {
+	private synchronized void processActions() throws NoSessionException, NoPeerConnectionException, IllegalFileLocation {
 		while(true) {
 			Action next = null;
 			try {

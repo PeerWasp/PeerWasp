@@ -1,5 +1,11 @@
 package org.peerbox.watchservice;
 
+import java.io.File;
+
+import org.hive2hive.core.exceptions.IllegalFileLocation;
+import org.hive2hive.core.exceptions.NoPeerConnectionException;
+import org.hive2hive.core.exceptions.NoSessionException;
+
 public class InitialState implements ActionState {
 
 	@Override
@@ -20,10 +26,13 @@ public class InitialState implements ActionState {
 		return new ModifyState();
 		
 	}
-	
+
 	@Override
-	public void execute() {
-		System.out.println("Initial State: API call not possible.");
-		
+	public void execute(File file) throws NoSessionException, NoPeerConnectionException,
+			IllegalFileLocation {
+		// TODO Auto-generated method stub
+		System.out.println("Execute method in Initial State not defined.");
 	}
+	
+	
 }

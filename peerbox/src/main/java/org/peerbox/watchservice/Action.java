@@ -1,7 +1,11 @@
 package org.peerbox.watchservice;
 
+import java.io.File;
 import java.util.Calendar;
 
+import org.hive2hive.core.exceptions.IllegalFileLocation;
+import org.hive2hive.core.exceptions.NoPeerConnectionException;
+import org.hive2hive.core.exceptions.NoSessionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -9,6 +13,9 @@ public class Action {
 	
 	private final static Logger logger = LoggerFactory.getLogger(Action.class);
 	private long timestamp = Long.MAX_VALUE;
+	
+	//TODO File path?
+	private File file;
 	
 	private ActionState currentState;
 		
@@ -44,13 +51,13 @@ public class Action {
 	}
 	
 	//execute action depending on state
-	public void execute(){
+	public void execute() throws NoSessionException, NoPeerConnectionException, IllegalFileLocation{
 		logger.debug("Execute action...");
 		// this may be async, i.e. do not wait on completion of the process
 		// maybe return the IProcessComponent object such that the 
 		// executor can be aware of the status (completion of task etc)
 
-		currentState.execute();
+		currentState.execute(file);
 	}
 	
 	public long getTimestamp() {
