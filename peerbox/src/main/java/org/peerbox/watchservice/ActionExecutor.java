@@ -3,6 +3,10 @@ package org.peerbox.watchservice;
 import java.util.Calendar;
 import java.util.concurrent.BlockingQueue;
 
+import org.hive2hive.core.exceptions.IllegalFileLocation;
+import org.hive2hive.core.exceptions.NoPeerConnectionException;
+import org.hive2hive.core.exceptions.NoSessionException;
+
 
 /**
  * The FileActionExecutor service observes a set of file actions in a queue.
@@ -12,32 +16,40 @@ import java.util.concurrent.BlockingQueue;
  * @author albrecht
  *
  */
-public class FileActionExecutor implements Runnable {
+public class ActionExecutor implements Runnable {
 	
 	/**
 	 *  amount of time that an action has to be "stable" in order to be executed 
 	 */
 	public static final int ACTION_WAIT_TIME_MS = 3000;
 	
-	private BlockingQueue<FileContext> actionQueue;
+	private BlockingQueue<Action> actionQueue;
 	private Calendar calendar;
 
-	public FileActionExecutor(BlockingQueue<FileContext> actionQueue) {
+	public ActionExecutor(BlockingQueue<Action> actionQueue) {
 		this.actionQueue = actionQueue;
 		this.calendar = Calendar.getInstance();
 	}
 
 	@Override
 	public void run() {
-		processActions();
+		try {
+			processActions();
+		} catch (NoSessionException | NoPeerConnectionException | IllegalFileLocation e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	/**
 	 * Processes the action in the action queue, one by one.
+	 * @throws IllegalFileLocation 
+	 * @throws NoPeerConnectionException 
+	 * @throws NoSessionException 
 	 */
-	private synchronized void processActions() {
+	private synchronized void processActions() throws NoSessionException, NoPeerConnectionException, IllegalFileLocation {
 		while(true) {
-			FileContext next = null;
+			Action next = null;
 			try {
 				// blocking, waits until queue not empty, returns and removes (!) first element
 				next = actionQueue.take(); 
@@ -62,7 +74,7 @@ public class FileActionExecutor implements Runnable {
 	 * @param action Action to be executed
 	 * @return true if ready to be executed, false otherwise
 	 */
-	private boolean isActionReady(FileContext action) {
+	private boolean isActionReady(Action action) {
 		long ageMs = getActionAge(action);
 		return ageMs >= ACTION_WAIT_TIME_MS;
 	}
@@ -72,7 +84,7 @@ public class FileActionExecutor implements Runnable {
 	 * @param action
 	 * @return age in ms
 	 */
-	private long getActionAge(FileContext action) {
+	private long getActionAge(Action action) {
 		return calendar.getTimeInMillis() - action.getTimestamp();
 	}
 	
