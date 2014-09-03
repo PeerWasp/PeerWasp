@@ -27,13 +27,13 @@ public class CreateState implements ActionState {
 	@Override
 	public ActionState handleDeleteEvent() {
 		logger.debug("Delete Request accepted: State changed from Create to Delete.");
-		return new DeleteState();
+		return new InitialState();
 	}
 
 	@Override
 	public ActionState handleModifyEvent() {
 		logger.debug("Modify Request accepted: State changed from Create to Modify.");
-		return new ModifyState();
+		return new CreateState();
 		
 	}
 	
