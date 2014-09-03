@@ -9,6 +9,15 @@ import org.peerbox.model.H2HManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * the modify state handles all events which would like 
+ * to alter the state from "modify" to another state (or keep the current state) and decides
+ * whether an transition into another state is allowed. 
+ * 
+ * 
+ * @author winzenried
+ *
+ */
 public class ModifyState implements ActionState {
 		
 	private final static Logger logger = LoggerFactory.getLogger(ModifyState.class);

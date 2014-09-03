@@ -9,6 +9,15 @@ import org.peerbox.model.H2HManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * the delete state handles all events which would like 
+ * to alter the state from "delete" to another state (or keep the current state) and decides
+ * whether an transition into another state is allowed. 
+ * 
+ * 
+ * @author winzenried
+ *
+ */
 public class DeleteState implements ActionState {
 	
 	private final static Logger logger = LoggerFactory.getLogger(DeleteState.class);

@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * the create state handles all events which would like 
- * to alter the state to another state (or keep the current state) and decides
+ * to alter the state from "create" to another state (or keep the current state) and decides
  * whether an transition into another state is allowed. 
  * 
  * 

@@ -9,6 +9,14 @@ import org.peerbox.model.H2HManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * if a move or renaming (which actually is a move at the same path location) occurs,
+ * this move state will be assign. The transition to another state except the delete state
+ * will not be accepted.
+ * 
+ * @author winzenried
+ *
+ */
 public class MoveState implements ActionState {
 	
 	private final static Logger logger = LoggerFactory.getLogger(MoveState.class);
