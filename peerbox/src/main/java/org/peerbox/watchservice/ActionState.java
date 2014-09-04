@@ -6,6 +6,12 @@ import org.hive2hive.core.exceptions.IllegalFileLocation;
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.hive2hive.core.exceptions.NoSessionException;
 
+/**
+ * Interface for different states of implemented state pattern
+ * 
+ * @author winzenried
+ *
+ */
 public interface ActionState {
 	
 	public ActionState handleCreateEvent();
