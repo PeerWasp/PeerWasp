@@ -29,7 +29,7 @@ public class CreateState implements ActionState {
 	}
 	
 	/**
-	 * State is already set to Create, therefore this event does change the current state
+	 * State is already set to Create, therefore this event does not change the current state
 	 * 
 	 * @return a new CreateState object
 	 */
@@ -41,10 +41,10 @@ public class CreateState implements ActionState {
 
 	/**
 	 * Delete events will be accepted, however the state will change to Initial
-	 * since a previous create action will not be excuted and therefore there is
+	 * since any previous create action will not be excuted and therefore there is
 	 * nothing to delete
 	 * 
-	 * @return new Initiale state object
+	 * @return new InitialState object
 	 */
 	@Override
 	public ActionState handleDeleteEvent() {
@@ -55,9 +55,9 @@ public class CreateState implements ActionState {
 	/**
 	 * The transition from Create to Modify is valid, but since any preceding create action
 	 * was not yet executed, a modified file will be considered as "new" and therefore handled
-	 * as an create event
+	 * as a create event
 	 * 
-	 * @return new create state object
+	 * @return new creatState object
 	 */
 	@Override
 	public ActionState handleModifyEvent() {
