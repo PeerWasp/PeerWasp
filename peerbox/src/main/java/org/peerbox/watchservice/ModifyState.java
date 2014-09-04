@@ -30,7 +30,8 @@ public class ModifyState implements ActionState {
 	@Override
 	public ActionState handleCreateEvent() {
 		logger.debug("Create Request denied: Cannot change from Modify to Create State.");
-		return new ModifyState();
+		throw new IllegalStateTransissionException();
+		//return new ModifyState();
 	}
 
 	/**
@@ -55,9 +56,9 @@ public class ModifyState implements ActionState {
 		public void execute(Path filePath) throws NoSessionException, IllegalArgumentException, NoPeerConnectionException {
 			logger.debug("Modify State: Execute H2H \"Modify File\" API call");
 			H2HManager manager = new H2HManager();
-			IFileManager fileHandler = manager.getNode().getFileManager();
+		//	IFileManager fileHandler = manager.getNode().getFileManager();
 			
-			fileHandler.update(filePath.toFile());
+		//	fileHandler.update(filePath.toFile());
 			logger.debug("Task \"Update File\" executed.");
 		}
 }

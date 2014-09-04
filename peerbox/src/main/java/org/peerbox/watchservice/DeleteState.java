@@ -31,7 +31,7 @@ public class DeleteState implements ActionState {
 	@Override
 	public ActionState handleCreateEvent() {
 		System.out.println("Create Request accepted: Move detected.");
-		return new MoveState();
+		return new InitialState();
 	}
 
 	/**
@@ -54,7 +54,8 @@ public class DeleteState implements ActionState {
 	@Override
 	public ActionState handleModifyEvent() {
 		logger.debug("Modify Request denied: Cannot change from Delete to Modify State.");
-		return new DeleteState();
+		//return new DeleteState();
+		throw new IllegalStateTransissionException();
 	}
 	
 	/**
@@ -67,9 +68,9 @@ public class DeleteState implements ActionState {
 	public void execute(Path filePath) throws NoSessionException, NoPeerConnectionException {
 		logger.debug("Delete State: Execute H2H \"Delete File\" API call");
 		H2HManager manager = new H2HManager();
-		IFileManager fileHandler = manager.getNode().getFileManager();
+		//IFileManager fileHandler = manager.getNode().getFileManager();
 		
-		fileHandler.delete(filePath.toFile());
+		//fileHandler.delete(filePath.toFile());
 		logger.debug("Task \"Delete File\" executed.");
 	}
 }

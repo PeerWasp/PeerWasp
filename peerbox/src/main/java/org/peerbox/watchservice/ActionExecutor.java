@@ -1,12 +1,12 @@
 package org.peerbox.watchservice;
 
 import java.util.Calendar;
+import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 
 import org.hive2hive.core.exceptions.IllegalFileLocation;
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.hive2hive.core.exceptions.NoSessionException;
-
 
 /**
  * The FileActionExecutor service observes a set of file actions in a queue.
@@ -21,17 +21,19 @@ public class ActionExecutor implements Runnable {
 	/**
 	 *  amount of time that an action has to be "stable" in order to be executed 
 	 */
-	public static final int ACTION_WAIT_TIME_MS = 3000;
+	public static final int ACTION_WAIT_TIME_MS = 10000;
 	
 	private BlockingQueue<Action> actionQueue;
 	private BlockingQueue<Action> deleteQueue;
-	private Calendar calendar;
+	private Map<String, Action> filePathToAction;
+	//private Calendar calendar;
 
-	public ActionExecutor(BlockingQueue<Action> actionQueue, BlockingQueue<Action> deleteQueue) {
+	public ActionExecutor(BlockingQueue<Action> actionQueue, BlockingQueue<Action> deleteQueue, Map<String, Action> filePathToAction) {
 		this.actionQueue = actionQueue;
 		this.deleteQueue = deleteQueue;
-		this.calendar = Calendar.getInstance();
+		this.filePathToAction = filePathToAction;
 	}
+	
 
 	@Override
 	public void run() {
@@ -56,18 +58,24 @@ public class ActionExecutor implements Runnable {
 				//System.out.println("1. actionQueue.size: " + actionQueue.size() + " deleteQueue.size(): " + deleteQueue.size());
 				// blocking, waits until queue not empty, returns and removes (!) first element
 				next = actionQueue.take();
-				if(next.getCurrentState() instanceof DeleteState){
-					deleteQueue.remove(next);
+				if(next.getCurrentState() instanceof DeleteState || next.getCurrentState() instanceof DeleteState){
+					deleteQueue.poll();
 				}
 				
 				if(isActionReady(next)) {
 					System.out.println("Execute Action");
+					
+					//System.out.println("After execution: AQ: " + actionQueue.size() + " DQ: " + deleteQueue.size() + " Map: " + filePathToAction.size());
 					next.execute();
+					//set the state of the action back to initial, because the action was performed
+					next.setCurrentState(new InitialState());
+					filePathToAction.put(next.getFilePath().toString(), next);
 				} else {
+					System.out.println("Not ready yet");
 					// not ready yet, insert action again (no blocking peek, unfortunately)
 					actionQueue.put(next);
 					if(next.getCurrentState() instanceof DeleteState){
-						deleteQueue.add(next);
+						deleteQueue.put(next);
 					}
 					long timeToWait =ACTION_WAIT_TIME_MS - getActionAge(next) + 1;
 					// TODO: does this work? sleep is not so good because it blocks everything...
@@ -95,7 +103,7 @@ public class ActionExecutor implements Runnable {
 	 * @return age in ms
 	 */
 	private long getActionAge(Action action) {
-		return calendar.getTimeInMillis() - action.getTimestamp();
+		return Calendar.getInstance().getTimeInMillis() - action.getTimestamp();
 	}
 	
 }

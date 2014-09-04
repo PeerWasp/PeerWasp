@@ -36,7 +36,8 @@ public class CreateState implements ActionState {
 	@Override
 	public ActionState handleCreateEvent() {
 		logger.debug("Create Request denied: Already in Create State.");
-		return new CreateState();
+		//return new CreateState();
+		throw new IllegalStateTransissionException();
 	}
 
 	/**
@@ -75,10 +76,10 @@ public class CreateState implements ActionState {
 	@Override
 	public void execute(Path filePath) throws NoSessionException, NoPeerConnectionException, IllegalFileLocation {
 		logger.debug("Create State: Execute H2H \"Add File\" API call");
-		H2HManager manager = new H2HManager();
-		IFileManager fileHandler = manager.getNode().getFileManager();
+		//H2HManager manager = new H2HManager();
+		//IFileManager fileHandler = manager.getNode().getFileManager();
 		
-		fileHandler.add(filePath.toFile());
+		//fileHandler.add(filePath.toFile());
 		logger.debug("Task \"Add File\" executed.");
 	}
 }

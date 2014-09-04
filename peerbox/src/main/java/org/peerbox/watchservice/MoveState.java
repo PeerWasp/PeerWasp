@@ -20,7 +20,15 @@ import org.slf4j.LoggerFactory;
 public class MoveState implements ActionState {
 	
 	private final static Logger logger = LoggerFactory.getLogger(MoveState.class);
+	private Path sourcePath;
+
+	public MoveState(Path sourcePath){
+		this.sourcePath = sourcePath;
+	}
 	
+	public Path getSourcePath(){
+		return sourcePath;
+	}
 	/**
 	 * The transition from Move to Create is not possible and will be denied
 	 * 
@@ -29,7 +37,8 @@ public class MoveState implements ActionState {
 	@Override
 	public ActionState handleCreateEvent() {
 		logger.debug("Create Request denied: Cannot change from Move to Create.");
-		return new MoveState();
+		//throw new IllegalStateTransissionException();
+		return new MoveState(getSourcePath());
 	}
 
 	/**
@@ -52,18 +61,19 @@ public class MoveState implements ActionState {
 	@Override
 	public ActionState handleModifyEvent() {
 		logger.debug("Modify Request denied: Cannot change from Move to Modify State.");
-		return new MoveState();
+		//return new MoveState();
+		throw new IllegalStateTransissionException();
 	}
 	
 	@Override
-	public void execute(Path filePath) throws NoSessionException, NoPeerConnectionException {
-		logger.debug("Move State: Execute \"Move File\" H2H API call");
+	public void execute(Path targetPath) throws NoSessionException, NoPeerConnectionException {
+		logger.debug("Move State: Execute \"Move File\" H2H API call: From " + targetPath.toString() + " to " + getSourcePath().toString());
 		H2HManager manager = new H2HManager();
-		IFileManager fileHandler = manager.getNode().getFileManager();
+		//IFileManager fileHandler = manager.getNode().getFileManager();
 		
 		//H2H move needs to be analyzed to make sure how it works
-		fileHandler.move(filePath.toFile(),filePath.toFile());
-		logger.debug("Task \"Add File\" executed.");		
+		//fileHandler.move(filePath.toFile(),filePath.toFile());
+		//logger.debug("Task \"Add File\" executed.");		
 	}
 
 
