@@ -21,6 +21,7 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Calendar;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
@@ -45,6 +46,7 @@ public class FolderWatchService implements IFileObserver {
     private Map<String, Action> contenthashToAction;
     private Map<String, Action> filenameToAction;
     private BlockingQueue<Action> actionQueue;
+    private BlockingQueue<Action> deleteQueue;
     
     
     private Thread actionExecutor;
@@ -69,7 +71,7 @@ public class FolderWatchService implements IFileObserver {
         contenthashToAction = new HashMap<String, Action>();
         filenameToAction = new HashMap<String, Action>();
         actionQueue = new PriorityBlockingQueue<Action>(10, new FileActionTimeComparator());
- 
+        deleteQueue = new PriorityBlockingQueue<Action>(10, new FileActionTimeComparator());
         logger.info("Scanning {} ...", rootFolder);
         registerFoldersRecursive(rootFolder);
         logger.info("Scanning done.");
@@ -84,7 +86,7 @@ public class FolderWatchService implements IFileObserver {
 		eventProcessor.setDaemon(false); // keep running 
 		eventProcessor.start();
 		
-		actionExecutor = new Thread(new ActionExecutor(actionQueue));
+		actionExecutor = new Thread(new ActionExecutor(actionQueue, deleteQueue));
 		actionExecutor.start();
 	}
 
@@ -169,7 +171,7 @@ public class FolderWatchService implements IFileObserver {
 			    for (File child : directoryListing) {
 			      // Do something with child
 			    	try {
-						contenthashToAction.put(EncryptionUtil.generateMD5Hash(child).toString(), new Action());
+						contenthashToAction.put(Action.createStringFromByteArray(EncryptionUtil.generateMD5Hash(child)), new Action());
 						filenameToAction.put(child.getPath().toString(), new Action());
 					} catch (IOException e) {
 						// TODO Auto-generated catch block
@@ -258,7 +260,18 @@ public class FolderWatchService implements IFileObserver {
 				
 				//no matches in the HashMaps, create a new FileContext with initial state
 				if (lastContext == null) {
-					lastContext = new Action(new InitialState());
+					String contentHash = "";
+					if(filePath != null && filePath.toFile() != null){
+						
+						byte[] hash = EncryptionUtil.generateMD5Hash(filePath.toFile());
+						if(hash != null){
+							contentHash = Action.createStringFromByteArray(hash);//.toString();
+						} else {
+							contentHash = Action.createStringFromByteArray(new byte[1]);
+						}
+						
+					}
+					lastContext = new Action(new InitialState(), filePath);
 				
 				// to update the queue, remove the found context...
 				} else {
@@ -268,7 +281,10 @@ public class FolderWatchService implements IFileObserver {
 				//and add it with new timestamp / state
 				lastContext.setTimeStamp(Calendar.getInstance().getTimeInMillis());
 				changeState(lastContext, eventKind);
+
 				actionQueue.add(lastContext);
+				filenameToAction.put(filePath.toString(), lastContext);
+				
 				
 			} catch (IOException e) {
 				e.printStackTrace();
@@ -287,13 +303,14 @@ public class FolderWatchService implements IFileObserver {
 		Action lastAction = null;
 		
 		if (eventKind.equals(ENTRY_CREATE)) {
-			byte[] fileHashRaw = EncryptionUtil.generateMD5Hash(filePath.toFile());
-			if (fileHashRaw != null) {
+			
+			//byte[] fileHashRaw = EncryptionUtil.generateMD5Hash(filePath.toString().getBytes());
+			
+			if (filePath != null) {
 				// File exists
-				keyForAction = fileHashRaw.toString();
+				keyForAction = filePath.toString();
 				lastAction = contenthashToAction.get(keyForAction);
-				//if lastAction was delete -> move
-				//if lastAction was NOT delete -> new file
+			
 			}
 			
 		} else if (eventKind.equals(ENTRY_DELETE) || eventKind.equals(ENTRY_MODIFY)) {
@@ -313,9 +330,41 @@ public class FolderWatchService implements IFileObserver {
 	 */
 	private void changeState(Action action, Kind<Path> eventKind){
 		if(eventKind.equals(ENTRY_CREATE)){
+			//standard event handling (e.g. move from INIT STATE to CREATE STATE
 			action.handleCreateEvent();
+
+			
+			/* Sequentially check all pending deletes for content hash equality.
+			 * On the first match, delete the entry from the pending deletes and from the actionQueue,
+			 * as it is replaced with the new action later. Furthermore, set the new action's state to MOVE
+			 */
+			//System.out.println("deleteQueue.size(): " + deleteQueue.size() );
+			for(Iterator<Action> it = deleteQueue.iterator(); it.hasNext();){
+				Action delete = it.next();
+				if(delete.getContentHash().equals(action.getContentHash())){
+					System.out.println("MOVE: From " + delete.getFilePath() + " to " + action.getFilePath());
+					
+					actionQueue.remove(delete);						
+					action.setCurrentState(new MoveState());
+					it.remove();
+					
+					break;
+				}
+			}
+			
 		} else if(eventKind.equals(ENTRY_DELETE)){
 			action.handleDeleteEvent();
+			
+			deleteQueue.remove(action);
+			try {
+				deleteQueue.put(action);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			System.out.println(deleteQueue.size() + " " + actionQueue.size());
+			
+			//deleteQueue.add(action);
 		} else if(eventKind.equals(ENTRY_MODIFY)){
 			action.handleModifyEvent();
 		}
