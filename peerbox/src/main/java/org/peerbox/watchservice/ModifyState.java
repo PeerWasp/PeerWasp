@@ -1,6 +1,6 @@
 package org.peerbox.watchservice;
 
-import java.io.File;
+import java.nio.file.Path;
 
 import org.hive2hive.core.api.interfaces.IFileManager;
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
@@ -33,12 +33,12 @@ public class ModifyState implements ActionState {
 		}
 		
 		@Override
-		public void execute(File file) throws NoSessionException, IllegalArgumentException, NoPeerConnectionException {
+		public void execute(Path filePath) throws NoSessionException, IllegalArgumentException, NoPeerConnectionException {
 			logger.debug("Modify State: Execute H2H \"Modify File\" API call");
 			H2HManager manager = new H2HManager();
 			IFileManager fileHandler = manager.getNode().getFileManager();
 			
-			fileHandler.update(file);
+			fileHandler.update(filePath.toFile());
 			logger.debug("Task \"Update File\" executed.");
 		}
 }

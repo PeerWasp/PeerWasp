@@ -1,6 +1,6 @@
 package org.peerbox.watchservice;
 
-import java.io.File;
+import java.nio.file.Path;
 
 import org.hive2hive.core.api.interfaces.IFileManager;
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
@@ -33,12 +33,12 @@ public class DeleteState implements ActionState {
 	
 	
 	@Override
-	public void execute(File file) throws NoSessionException, NoPeerConnectionException {
+	public void execute(Path filePath) throws NoSessionException, NoPeerConnectionException {
 		logger.debug("Delete State: Execute H2H \"Delete File\" API call");
 		H2HManager manager = new H2HManager();
 		IFileManager fileHandler = manager.getNode().getFileManager();
 		
-		fileHandler.delete(file);
+		fileHandler.delete(filePath.toFile());
 		logger.debug("Task \"Delete File\" executed.");
 	}
 }

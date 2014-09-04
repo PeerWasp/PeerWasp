@@ -122,7 +122,7 @@ public class FolderWatchServiceTest {
 		}
 	}
 	
-	@Test
+	@Test @Ignore
 	public void changeStateTest(){
 
 		try {
@@ -186,7 +186,7 @@ public class FolderWatchServiceTest {
 		assertTrue(modifyAction.getCurrentState() instanceof ModifyState);
 		
 		method.invoke(watchService, modifyAction, StandardWatchEventKinds.ENTRY_CREATE);
-		assertTrue(modifyAction.getCurrentState() instanceof ModifyState);
+		assertTrue(modifyAction.getCurrentState() instanceof CreateState);
 		
 		method.invoke(watchService, modifyAction, StandardWatchEventKinds.ENTRY_DELETE);
 		assertTrue(modifyAction.getCurrentState() instanceof DeleteState);

@@ -1,6 +1,6 @@
 package org.peerbox.watchservice;
 
-import java.io.File;
+import java.nio.file.Path;
 
 import org.hive2hive.core.api.interfaces.IFileManager;
 import org.hive2hive.core.exceptions.IllegalFileLocation;
@@ -38,12 +38,12 @@ public class CreateState implements ActionState {
 	}
 	
 	@Override
-	public void execute(File file) throws NoSessionException, NoPeerConnectionException, IllegalFileLocation {
+	public void execute(Path filePath) throws NoSessionException, NoPeerConnectionException, IllegalFileLocation {
 		logger.debug("Create State: Execute H2H \"Add File\" API call");
 		H2HManager manager = new H2HManager();
 		IFileManager fileHandler = manager.getNode().getFileManager();
 		
-		fileHandler.add(file);
+		fileHandler.add(filePath.toFile());
 		logger.debug("Task \"Add File\" executed.");
 	}
 }

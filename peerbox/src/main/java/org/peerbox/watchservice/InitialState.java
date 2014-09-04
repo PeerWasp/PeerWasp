@@ -1,6 +1,6 @@
 package org.peerbox.watchservice;
 
-import java.io.File;
+import java.nio.file.Path;
 
 import org.hive2hive.core.exceptions.IllegalFileLocation;
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
@@ -32,7 +32,7 @@ public class InitialState implements ActionState {
 	}
 
 	@Override
-	public void execute(File file) throws NoSessionException, NoPeerConnectionException,
+	public void execute(Path filePath) throws NoSessionException, NoPeerConnectionException,
 			IllegalFileLocation {
 		logger.debug("Execute method in Initial State not defined.");
 	}
