@@ -53,7 +53,7 @@ public class ActionExecutor implements Runnable {
 		while(true) {
 			Action next = null;
 			try {
-				System.out.println("1. actionQueue.size: " + actionQueue.size() + " deleteQueue.size(): " + deleteQueue.size());
+				//System.out.println("1. actionQueue.size: " + actionQueue.size() + " deleteQueue.size(): " + deleteQueue.size());
 				// blocking, waits until queue not empty, returns and removes (!) first element
 				next = actionQueue.take();
 				if(next.getCurrentState() instanceof DeleteState){

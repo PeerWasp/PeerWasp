@@ -267,10 +267,8 @@ public class FolderWatchService implements IFileObserver {
 						if(hash != null){
 							contentHash = Action.createStringFromByteArray(hash);//.toString();
 						} else {
-							contentHash = "";
+							contentHash = Action.createStringFromByteArray(new byte[1]);
 						}
-						
-					} else {
 						
 					}
 					lastContext = new Action(new InitialState(), filePath);
@@ -278,25 +276,13 @@ public class FolderWatchService implements IFileObserver {
 				// to update the queue, remove the found context...
 				} else {
 					actionQueue.remove(lastContext);
-					//deleteQueue.remove(lastContext);
 				}
 				
 				//and add it with new timestamp / state
 				lastContext.setTimeStamp(Calendar.getInstance().getTimeInMillis());
-				/*if(filePath != null && filePath.toFile() != null){
-					lastContext.setContentHash(Action.createStringFromByteArray(EncryptionUtil.generateMD5Hash(filePath.toFile())));
-				}*/
-				//System.out.println(deleteQueue.size() + " " + actionQueue.size());
 				changeState(lastContext, eventKind);
-/*				if(lastContext.getCurrentState() instanceof DeleteState){
-					
-				} else if(lastContext.getCurrentState() instanceof CreateState){
-					
-					
-				}*/
-				//System.out.println(lastContext.getCurrentState().getClass().toString());
+
 				actionQueue.add(lastContext);
-				//System.out.println(deleteQueue.size() + " " + actionQueue.size());
 				filenameToAction.put(filePath.toString(), lastContext);
 				
 				
@@ -351,7 +337,7 @@ public class FolderWatchService implements IFileObserver {
 			 * On the first match, delete the entry from the pending deletes and from the actionQueue,
 			 * as it is replaced with the new action later. Furthermore, set the new action's state to MOVE
 			 */
-			System.out.println("deleteQueue.size(): " + deleteQueue.size() );
+			//System.out.println("deleteQueue.size(): " + deleteQueue.size() );
 			for(Iterator<Action> it = deleteQueue.iterator(); it.hasNext();){
 				Action delete = it.next();
 				if(delete.getContentHash().equals(action.getContentHash())){
