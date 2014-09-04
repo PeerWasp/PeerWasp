@@ -14,8 +14,10 @@ import java.nio.file.StandardWatchEventKinds;
 import java.nio.file.WatchEvent;
 import java.nio.file.WatchEvent.Kind;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
 
+import org.hive2hive.core.security.EncryptionUtil;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -103,19 +105,39 @@ public class FolderWatchServiceTest {
 		//Path createdFilePath = Paths.get("example_path/file.name");
 	    String createdFilePathString = path.concat(File.separator).concat("created");
 	    Path createFilePath = Paths.get(createdFilePathString);
-	    //Map<String, Action> filenameToFileAction;
+	    Map<String, Action> filenameToAction = new HashMap<String, Action>();
+	    Map<String, Action> contenthashToAction = new HashMap<String, Action>();
+	    
 		
 		try {
+			File file = new File(filePaths.get(0));
+			file.createNewFile();
+		    Action fileAction = new Action();
+			contenthashToAction.put(EncryptionUtil.generateMD5Hash(file).toString(), fileAction);
+			filenameToAction.put(filePaths.get(0), fileAction);
+			
 			Class<?> folderWatchService = Class.forName("org.peerbox.watchservice.FolderWatchService");
-			Constructor<?> constructor = folderWatchService.getConstructor(Path.class);
+			//Constructor<?> constructor = folderWatchService.getConstructor(Path.class);
  
 
-			//Field field = service.getClass().getDeclaredField("hashToFileAction");
-			//field.setAccessible(true);
+			
+			Field hashMap = watchService.getClass().getDeclaredField("contenthashToAction");
+			hashMap.setAccessible(true);
+			hashMap.set(watchService, contenthashToAction);
+			
+			Field nameMap = watchService.getClass().getDeclaredField("filenameToAction");
+			nameMap.setAccessible(true);
+			nameMap.set(watchService, filenameToAction);
+			
 			Method method = watchService.getClass().getDeclaredMethod("getLastAction", Kind.class, Path.class);
 			method.setAccessible(true);
 			Action resultAction = (Action)method.invoke(watchService, StandardWatchEventKinds.ENTRY_CREATE, createFilePath);
 			assertNull(resultAction);
+			resultAction = (Action)method.invoke(watchService, StandardWatchEventKinds.ENTRY_MODIFY, Paths.get(filePaths.get(0)));
+			assertNotNull(resultAction);
+			resultAction = (Action)method.invoke(watchService, StandardWatchEventKinds.ENTRY_DELETE, Paths.get(filePaths.get(0)));
+			System.out.println(filePaths.get(0) + " " +  Paths.get(filePaths.get(0)).toString());
+			assertNotNull(resultAction);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

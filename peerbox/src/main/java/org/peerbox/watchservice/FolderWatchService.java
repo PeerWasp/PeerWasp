@@ -284,24 +284,26 @@ public class FolderWatchService implements IFileObserver {
 	 */
 	private Action getLastAction(Kind<Path> eventKind, Path filePath) throws IOException{
 		String keyForAction = null;
-		Action lastContext = null;
+		Action lastAction = null;
 		
 		if (eventKind.equals(ENTRY_CREATE)) {
 			byte[] fileHashRaw = EncryptionUtil.generateMD5Hash(filePath.toFile());
 			if (fileHashRaw != null) {
 				// File exists
 				keyForAction = fileHashRaw.toString();
-				lastContext = contenthashToAction.get(keyForAction);
+				lastAction = contenthashToAction.get(keyForAction);
+				//if lastAction was delete -> move
+				//if lastAction was NOT delete -> new file
 			}
 			
 		} else if (eventKind.equals(ENTRY_DELETE) || eventKind.equals(ENTRY_MODIFY)) {
 			keyForAction = filePath.toString();
-			lastContext = filenameToAction.get(keyForAction);
+			lastAction = filenameToAction.get(keyForAction);
 			
 		} else {
 			System.out.println("Undefined event type!");
 		}
-		return lastContext;
+		return lastAction;
 	}
 	
 	/**
