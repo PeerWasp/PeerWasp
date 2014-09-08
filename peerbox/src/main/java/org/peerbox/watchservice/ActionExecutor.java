@@ -6,6 +6,8 @@ import java.util.concurrent.BlockingQueue;
 import org.hive2hive.core.exceptions.IllegalFileLocation;
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.hive2hive.core.exceptions.NoSessionException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * The FileActionExecutor service observes a set of file actions in a queue.
@@ -17,17 +19,17 @@ import org.hive2hive.core.exceptions.NoSessionException;
  */
 public class ActionExecutor implements Runnable {
 	
+	private static final Logger logger = LoggerFactory.getLogger(ActionExecutor.class);
+	
 	/**
 	 *  amount of time that an action has to be "stable" in order to be executed 
 	 */
-	public static final int ACTION_WAIT_TIME_MS = 10000;
+	public static final int ACTION_WAIT_TIME_MS = 2000;
 	
-	private BlockingQueue<Action> actionQueue;
-	private Map<String, Action> filePathToAction;
+	private FileEventManager fileEventManager;
 
-	public ActionExecutor(BlockingQueue<Action> actionQueue, Map<String, Action> filePathToAction) {
-		this.actionQueue = actionQueue;
-		this.filePathToAction = filePathToAction;
+	public ActionExecutor(FileEventManager eventManager) {
+		this.fileEventManager = eventManager;
 	}
 	
 
@@ -53,19 +55,16 @@ public class ActionExecutor implements Runnable {
 			try {
 				//System.out.println("1. actionQueue.size: " + actionQueue.size() + " deleteQueue.size(): " + deleteQueue.size());
 				// blocking, waits until queue not empty, returns and removes (!) first element
-				next = actionQueue.take();
+				next = fileEventManager.getActionQueue().take();
 				
 				if(isActionReady(next)) {
-					System.out.println("Execute Action");
-					
 					//System.out.println("After execution: AQ: " + actionQueue.size() + " DQ: " + deleteQueue.size() + " Map: " + filePathToAction.size());
 					next.execute();
 					//set the state of the action back to initial, because the action was performed
 					next.setCurrentState(new InitialState());
 				} else {
-					System.out.println("Not ready yet");
 					// not ready yet, insert action again (no blocking peek, unfortunately)
-					actionQueue.put(next);
+					fileEventManager.getActionQueue().put(next);
 					long timeToWait = ACTION_WAIT_TIME_MS - getActionAge(next) + 1;
 					// TODO: does this work? sleep is not so good because it blocks everything...
 					wait(timeToWait);

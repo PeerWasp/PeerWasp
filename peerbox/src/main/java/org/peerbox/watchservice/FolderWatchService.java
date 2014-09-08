@@ -17,55 +17,34 @@ import java.nio.file.WatchEvent.Kind;
 import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.util.Comparator;
+import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.PriorityBlockingQueue;
 
-import org.hive2hive.core.api.interfaces.IFileObserver;
-import org.hive2hive.core.api.interfaces.IFileObserverListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class FolderWatchService implements IFileObserver {
+public class FolderWatchService {
 
 	private static final Logger logger = LoggerFactory.getLogger(FolderWatchService.class);
 	
 	private Path rootFolder;
-	private final WatchService watcher;
 	private Thread eventProcessor;
+	private final WatchService watcher;
     private final Map<WatchKey,Path> keys;
     private boolean trace = false;
     
-    private Map<String, Action> filePathToAction;
-    private Map<String, Set<String>> contentHashToFilePaths;
+    private List<IFileEventListener> eventListeners;
     
-    private BlockingQueue<Action> actionQueue;
-    
-    private Thread actionExecutor;
-	
-	public Map<String, Action> getFilePathToAction() {
-		return filePathToAction;
-	}
 
-
-	public BlockingQueue<Action> getActionQueue() {
-		return actionQueue;
-	}
 
 	public FolderWatchService(Path rootFolderToWatch) throws IOException {
 		this.rootFolder = rootFolderToWatch;
 		this.watcher = FileSystems.getDefault().newWatchService();
-        this.keys = new HashMap<WatchKey,Path>();
+        this.keys = new HashMap<WatchKey, Path>();
+        this.eventListeners = new ArrayList<IFileEventListener>();
         
-        filePathToAction = new HashMap<String, Action>();
-        contentHashToFilePaths = new HashMap<String, Set<String>>();
-
-        actionQueue = new PriorityBlockingQueue<Action>(10, new FileActionTimeComparator());
         logger.info("Scanning {} ...", rootFolder);
         registerFoldersRecursive(rootFolder);
         logger.info("Scanning done.");
@@ -74,101 +53,86 @@ public class FolderWatchService implements IFileObserver {
         this.trace = true;
 	}
 	
-	@Override
 	public void start() throws Exception {
 		eventProcessor = new Thread(new FolderWatchEventProcessor());
-		eventProcessor.setDaemon(false); // keep running 
+		eventProcessor.setDaemon(true); // keep running 
 		eventProcessor.start();
-		
-		actionExecutor = new Thread(new ActionExecutor(actionQueue, filePathToAction));
-		actionExecutor.start();
 	}
 
-	@Override
 	public void stop() throws Exception {
 		if(eventProcessor != null) {
 			eventProcessor.interrupt();
-			// TODO: maybe reset all buffers, queues, maps, ... -> reset
-		}
-		
-		if(actionExecutor != null) {
-			actionExecutor.interrupt();
+			// TODO: maybe reset all buffers, queues, maps, ... -> reset, event?
 		}
 	}
 
-	@Override
-	public void addFileObserverListener(IFileObserverListener listener) {
-		
+	public void addFileEventListener(IFileEventListener listener) {
+		eventListeners.add(listener);
 	}
 
-	@Override
-	public void removeFileObserverListener(IFileObserverListener listener) {
-		
+	public void removeFileEventListener(IFileEventListener listener) {
+		eventListeners.remove(listener);
 	}
 
-	@Override
-	public List<IFileObserverListener> getFileObserverListeners() {
-		return null;
+	public List<IFileEventListener> getFileEventListeners() {
+		return eventListeners;
 	}
 
-	@Override
-	public boolean isRunning() {
-		return false;
+	private void notifyFileCreated(Path path) {
+		for(IFileEventListener l : eventListeners) {
+			l.onFileCreated(path);
+		}
 	}
 	
-    private void registerFoldersRecursive(final Path start) throws IOException {
-        // register recursively all folders and subfolders
-        Files.walkFileTree(start, new SimpleFileVisitor<Path>() {
-            @Override
-            public FileVisitResult preVisitDirectory(Path folder, BasicFileAttributes attrs) throws IOException
-            {
-                registerFolder(folder);
-                return FileVisitResult.CONTINUE;
-            }
-        });
-    }
-    
-    private void registerFolder(Path folder) throws IOException {
-        WatchKey key = folder.register(watcher, ENTRY_CREATE, ENTRY_DELETE, ENTRY_MODIFY);
-        if (trace) {
-            Path prev = keys.get(key);
-            if (prev == null) {
-                logger.debug("register: %s\n", folder);
-            } else {
-                if (!folder.equals(prev)) {
-                	logger.debug("update: %s -> %s\n", prev, folder);
-                }
-            }
-        }
-        keys.put(key, folder);
-    }
-    
-    @SuppressWarnings("unchecked")
-    static <T> WatchEvent<T> castWatchEvent(WatchEvent<?> event) {
+	private void notifyFileModified(Path path) {
+		for(IFileEventListener l : eventListeners) {
+			l.onFileModified(path);
+		}
+	}
+
+	private void notifyFileDeleted(Path path) {
+		for(IFileEventListener l : eventListeners) {
+			l.onFileDeleted(path);
+		}
+	}
+	
+	private void registerFolder(Path folder) throws IOException {
+	    WatchKey key = folder.register(watcher, ENTRY_CREATE, ENTRY_DELETE, ENTRY_MODIFY);
+	    if (trace) {
+	        Path prev = keys.get(key);
+	        if (prev == null) {
+	            logger.debug("register: %s\n", folder);
+	        } else {
+	            if (!folder.equals(prev)) {
+	            	logger.debug("update: %s -> %s\n", prev, folder);
+	            }
+	        }
+	    }
+	    keys.put(key, folder);
+	}
+
+	private void registerFoldersRecursive(final Path start) throws IOException {
+	    // register recursively all folders and subfolders
+	    Files.walkFileTree(start, new SimpleFileVisitor<Path>() {
+	        @Override
+	        public FileVisitResult preVisitDirectory(Path folder, BasicFileAttributes attrs) throws IOException
+	        {
+	            registerFolder(folder);
+	            return FileVisitResult.CONTINUE;
+	        }
+	    });
+	}
+
+	@SuppressWarnings("unchecked")
+    private static <T> WatchEvent<T> castWatchEvent(WatchEvent<?> event) {
         return (WatchEvent<T>)event;
     }
 
 	private class FolderWatchEventProcessor implements Runnable {
 		@Override
 		public void run() {
-			//loadFileHashes();
 			processEvents();
 		}
-		
-		/*private void loadFileHashes() {
-			String myDirectoryPath = "C:/Users/Claudio/Desktop/WatchServiceTest";
-
-			// TODO Auto-generated method stub
-			File dir = new File(myDirectoryPath);
-			File[] directoryListing = dir.listFiles();
-			if (directoryListing != null) {
-				for (File child : directoryListing) {
-					// Do something with child
-					filePathToAction.put(child.getPath().toString(), new Action());
-
-				}
-			}
-		}*/
 
 		private void processEvents() {
 			for (;;) {
@@ -202,7 +166,7 @@ public class FolderWatchService implements IFileObserver {
 					Path child = dir.resolve(name);
 
 					// print out event
-					logger.info("{}: {}", event.kind().name(), child);
+					logger.debug("{}: {}", event.kind().name(), child);
 					handleEvent(kind, child);
 
 					// if directory is created, and watching recursively, then
@@ -238,135 +202,17 @@ public class FolderWatchService implements IFileObserver {
 		 * @param filePath Identifies the related file.
 		 */
 		private void handleEvent(Kind<Path> kind, Path filePath) {
-			
-			Kind<Path> eventKind = kind;
-			Action lastAction = null;
-
-			try {
-				lastAction = getLastAction(eventKind, filePath);
-				
-				actionQueue.remove(lastAction);
-				
-				lastAction.setTimeStamp(System.currentTimeMillis());
-				filePathToAction.put(filePath.toString(), lastAction);
-				if(!contentHashToFilePaths.containsKey(lastAction.getContentHash())) {
-					contentHashToFilePaths.put(lastAction.getContentHash(), new HashSet<String>());
-				}
-				contentHashToFilePaths.get(lastAction.getContentHash()).add(lastAction.getFilePath().toString());
-				
-				changeState(lastAction, eventKind);
-
-				// add it with new timestamp / state
-				actionQueue.add(lastAction);
-				
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-			System.out.println("ActionQueue: " + actionQueue.size() + " Map: " + filePathToAction.size());
-		}
-		
-		
-	}
-	
-	/**
-	 * @param eventKind Used to determine if an entry was created, deleted, or modified.
-	 * @param filePath Identifies the related file.
-	 * @return null if no FileContext related to the provided Path was found, the corresponding FileContext instance otherwise.
-	 * @throws IOException
-	 */
-	private Action getLastAction(Kind<Path> eventKind, Path filePath) throws IOException{
-		String keyForAction = null;
-		
-		keyForAction = filePath.toString();
-		if(!filePathToAction.containsKey(keyForAction)) {
-			filePathToAction.put(keyForAction, new Action(new InitialState(), filePath));
-		}
-		return filePathToAction.get(keyForAction);
-	}
-		
-//		
-//		
-//		if (eventKind.equals(ENTRY_CREATE)) {
-//			
-//			//byte[] fileHashRaw = EncryptionUtil.generateMD5Hash(filePath.toString().getBytes());
-//			
-//			if (filePath != null) {
-//				// File exists
-//				
-//			
-//			}
-//			
-//		} else if (eventKind.equals(ENTRY_DELETE) || eventKind.equals(ENTRY_MODIFY)) {
-//			keyForAction = filePath.toString();
-//			lastAction = filePathToAction.get(keyForAction);
-//			
-//		} else {
-//			System.out.println("Undefined event type!");
-//		}
-//		return lastAction;
-//	}
-	
-	/**
-	 * Performs the change according to the implemented state pattern
-	 * @param action must not be null
-	 * @param eventKind must not be null
-	 */
-	private void changeState(Action action, Kind<Path> eventKind){
-		if(eventKind.equals(ENTRY_CREATE)){
-			//standard event handling (e.g. move from INIT STATE to CREATE STATE
-			boolean isMoveEvent = false;
-			Action deleteAction = null;
-			String contentHash = action.getContentHash();
-			Set<String> filePaths = contentHashToFilePaths.get(contentHash);
-			if(filePaths != null) {
-				long minTimeDiff = Long.MAX_VALUE;
-				for(String path : filePaths) {
-					Action a = filePathToAction.get(path);
-					if(a.getCurrentState() instanceof DeleteState) {
-						long diff = action.getTimestamp() - a.getTimestamp();
-						if(diff < minTimeDiff) {
-							minTimeDiff = diff;
-							deleteAction = a;
-						}
-					}
-				}
-				if(deleteAction != null) {
-					isMoveEvent = true;
-					contentHashToFilePaths.get(contentHash).remove(deleteAction.getFilePath().toString());
-					filePathToAction.remove(deleteAction.getFilePath().toString());
-				}
-			}
-			
-
-			if(isMoveEvent) {
-				action.handleMoveEvent(deleteAction.getFilePath());
+			if(kind.equals(ENTRY_CREATE)) {
+				notifyFileCreated(filePath);
+			} else if(kind.equals(ENTRY_MODIFY)) {
+				notifyFileModified(filePath);
+			} else if(kind.equals(ENTRY_DELETE)){
+				notifyFileDeleted(filePath);
+			} else if(kind.equals(OVERFLOW)) {
+				// TODO: error - overflow... should not happen here (continue if such an event occurs)
 			} else {
-				action.handleCreateEvent();
+				// TODO: unknown event
 			}
-			
-		} else if(eventKind.equals(ENTRY_DELETE)){
-			action.handleDeleteEvent();
-			filePathToAction.remove(action.getFilePath().toString());
-			Set<String> filePaths = contentHashToFilePaths.get(action.getContentHash());
-			filePaths.remove(action.getFilePath().toString());
-			
-		} else if(eventKind.equals(ENTRY_MODIFY)){
-			String oldContentHash = action.getContentHash();
-			action.handleModifyEvent();
-			// update the map
-			Set<String> filePaths = contentHashToFilePaths.get(oldContentHash);
-			filePaths.remove(action.getFilePath().toString());
-			if(!contentHashToFilePaths.containsKey(action.getContentHash())) {
-				contentHashToFilePaths.put(action.getContentHash(), new HashSet<String>());
-			}
-			contentHashToFilePaths.get(action.getContentHash()).add(action.getFilePath().toString());
-		}
-	}
-	
-	private class FileActionTimeComparator implements Comparator<Action> {
-		@Override
-		public int compare(Action a, Action b) {
-			return Long.compare(a.getTimestamp(), b.getTimestamp());
 		}
 	}
 }

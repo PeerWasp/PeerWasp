@@ -3,24 +3,30 @@ package org.peerbox.watchservice;
 import static org.junit.Assert.*;
 
 import java.io.File;
-import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 	
 public class InteractiveFolderWatchServiceTest {
 	
-	 public static void main(String[] args) throws Exception {
-		 String path = System.getProperty("user.home");
-		path = path.concat(File.separator + "PeerBox_FolderWatchServiceTest" + File.separator);
-		
-	 FolderWatchService service = new FolderWatchService(Paths.get(path));
-	 service.start();
-	 System.out.println("Running");
+	private static final Logger logger = LoggerFactory.getLogger(InteractiveFolderWatchServiceTest.class);
 	
-	// Thread.sleep(1000*10);
-	// service.stop();
-	// System.out.println("Stopping");
-	 }
+	public static void main(String[] args) throws Exception {
+		Path path = Paths.get(System.getProperty("user.home"), "PeerBox_FolderWatchServiceTest");
+		logger.info("Path: {}", path.toString());
+		
+		FolderWatchService service = new FolderWatchService(path);
+		FileEventManager eventManager = new FileEventManager();
+		service.addFileEventListener(eventManager);
+		service.start();
+		
+		logger.info("Running");
+
+		// Thread.sleep(1000*10);
+		// service.stop();
+		// System.out.println("Stopping");
+	}
 }

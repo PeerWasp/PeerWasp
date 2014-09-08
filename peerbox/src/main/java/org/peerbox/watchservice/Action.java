@@ -45,7 +45,7 @@ public class Action {
 	 * Initialize with timestamp and set currentState to initial state
 	 */
 	public Action(){
-		timestamp = Calendar.getInstance().getTimeInMillis(); 
+		timestamp = System.currentTimeMillis();
 		currentState = new InitialState();
 		contentHash = new String("");
 	}
@@ -54,20 +54,19 @@ public class Action {
 		currentState = initialState;
 		timestamp = Calendar.getInstance().getTimeInMillis();
 		contentHash = computeContentHash(filePath);
-		//file = getFileFromPath(filePath);
 		this.filePath = filePath;
 		
 		
 	}
-	public Path getFilePath(){
-		return filePath;//.toString();
-	}
-	private File getFileFromPath(Path filePath){
-		if(filePath != null && filePath.toFile() != null){
-			return filePath.toFile();
-		}
-		return null;
-	}
+	
+	
+	
+//	private File getFileFromPath(Path filePath){
+//		if(filePath != null && filePath.toFile() != null){
+//			return filePath.toFile();
+//		}
+//		return null;
+//	}
 	
 	private String computeContentHash(Path filePath) {
 		if(filePath != null && filePath.toFile() != null){
@@ -86,22 +85,6 @@ public class Action {
 	public static String createStringFromByteArray(byte[] bytes){
 		String hashString = Base64.encode(bytes);
 		return hashString;
-	}
-	
-	public String getContentHash(){
-		return contentHash;
-	}
-	
-	public void setContentHash(String contentHash){
-		this.contentHash = contentHash;
-	}
-	
-	public void setTimeStamp(long timestamp) {
-		// TODO Auto-generated method stub
-		if(timestamp < this.timestamp){
-			//this is clearly an error - but can it even occur?
-		}
-		this.timestamp = timestamp;
 	}
 	
 	/**
@@ -127,6 +110,10 @@ public class Action {
 		contentHash = computeContentHash(filePath);
 	}
 	
+	public void handleMoveEvent(Path oldFilePath) {
+		currentState = currentState.handleMoveEvent(oldFilePath);
+	}
+
 	/**
 	 * Each state is able to execute an action as soon the state is considered as stable. 
 	 * The action itself depends on the current state (e.g. add file, delete file, etc.)
@@ -144,10 +131,29 @@ public class Action {
 		currentState.execute(filePath);
 	}
 	
+	public Path getFilePath(){
+		return filePath;//.toString();
+	}
+
+	public String getContentHash(){
+		return contentHash;
+	}
+
+	public void setContentHash(String contentHash){
+		this.contentHash = contentHash;
+	}
+
 	public long getTimestamp() {
 		return timestamp;
 	}
 	
+	public void setTimeStamp(long timestamp) {
+		if(timestamp < this.timestamp){
+			//this is clearly an error - but can it even occur?
+		}
+		this.timestamp = timestamp;
+	}
+
 	/**
 	 * @return current state object
 	 */
@@ -169,9 +175,5 @@ public class Action {
 	
 	public void setCurrentState(ActionState currentState){
 		this.currentState = currentState;
-	}
-
-	public void handleMoveEvent(Path oldFilePath) {
-		currentState.handleMoveEvent(oldFilePath);
 	}
 }
