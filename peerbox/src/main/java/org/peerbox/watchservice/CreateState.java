@@ -6,6 +6,7 @@ import org.hive2hive.core.api.interfaces.IFileManager;
 import org.hive2hive.core.exceptions.IllegalFileLocation;
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.hive2hive.core.exceptions.NoSessionException;
+import org.peerbox.FileManager;
 import org.peerbox.model.H2HManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,12 +21,11 @@ import org.slf4j.LoggerFactory;
  *
  */
 
-public class CreateState implements ActionState {
-
+public class CreateState extends ActionState {
 	private final static Logger logger = LoggerFactory.getLogger(CreateState.class);
 	
-	public CreateState(){
-
+	public CreateState(Action action) {
+		super(action);
 	}
 	
 	/**
@@ -37,7 +37,7 @@ public class CreateState implements ActionState {
 	public ActionState handleCreateEvent() {
 		logger.debug("Create Request denied: Already in Create State.");
 		//return new CreateState();
-		throw new IllegalStateTransissionException();
+		throw new IllegalStateException("Create Request denied: Already in Create State.");
 	}
 
 	/**
@@ -50,7 +50,7 @@ public class CreateState implements ActionState {
 	@Override
 	public ActionState handleDeleteEvent() {
 		logger.debug("Delete Request accepted: State changed from Create to Initial.");
-		return new InitialState();
+		return new InitialState(action);
 	}
 
 	/**
@@ -62,11 +62,15 @@ public class CreateState implements ActionState {
 	 */
 	@Override
 	public ActionState handleModifyEvent() {
-		logger.debug("Modify Request accepted: State changed from Create to Modify.");
-		return new CreateState();
-		
+		logger.debug("Modify Request accepted: State remains Create.");
+		return this;
 	}
 	
+	@Override
+	public ActionState handleMoveEvent(Path oldFilePath) {
+		throw new RuntimeException("Not implemented...");
+	}
+
 	/**
 	 * If the create state is considered as stable, the execute method will be invoked which eventually
 	 * uploads the file with the corresponding Hive2Hive method
@@ -74,17 +78,9 @@ public class CreateState implements ActionState {
 	 * @param file The file which should be uploaded
 	 */
 	@Override
-	public void execute(Path filePath) throws NoSessionException, NoPeerConnectionException, IllegalFileLocation {
-		logger.debug("Create State: Execute H2H \"Add File\" API call");
-		//H2HManager manager = new H2HManager();
-		//IFileManager fileHandler = manager.getNode().getFileManager();
+	public void execute(FileManager fileManager) throws NoSessionException, NoPeerConnectionException, IllegalFileLocation {
+		fileManager.add(action.getFilePath().toFile());
 		
-		//fileHandler.add(filePath.toFile());
 		logger.debug("Task \"Add File\" executed.");
-	}
-
-	@Override
-	public ActionState handleMoveEvent(Path oldFilePath) {
-		throw new RuntimeException("Not implemented...");
 	}
 }

@@ -5,6 +5,7 @@ import java.nio.file.Path;
 import org.hive2hive.core.api.interfaces.IFileManager;
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.hive2hive.core.exceptions.NoSessionException;
+import org.peerbox.FileManager;
 import org.peerbox.model.H2HManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,9 +19,13 @@ import org.slf4j.LoggerFactory;
  * @author winzenried
  *
  */
-public class ModifyState implements ActionState {
+public class ModifyState extends ActionState {
 		
 	private final static Logger logger = LoggerFactory.getLogger(ModifyState.class);
+	
+	public ModifyState(Action action) {
+		super(action);
+	}
 	
 	/**
 	 * The transition from Modify to Create is not allowed
@@ -30,8 +35,7 @@ public class ModifyState implements ActionState {
 	@Override
 	public ActionState handleCreateEvent() {
 		logger.debug("Create Request denied: Cannot change from Modify to Create State.");
-		throw new IllegalStateTransissionException();
-		//return new ModifyState();
+		throw new IllegalStateException("Create Request denied: Cannot change from Modify to Create State.");
 	}
 
 	/**
@@ -42,27 +46,23 @@ public class ModifyState implements ActionState {
 	@Override
 	public ActionState handleDeleteEvent() {
 		logger.debug("Delete Request accepted: State changed from Modify to Delete.");
-		return new DeleteState();
+		return new DeleteState(action);
 	}
 
 	@Override
 	public ActionState handleModifyEvent() {
 		logger.debug("Modify Request denied: Already in Modify State.");
-		return new ModifyState();
-	}
-	
-	@Override
-	public void execute(Path filePath) throws NoSessionException, IllegalArgumentException, NoPeerConnectionException {
-		logger.debug("Modify State: Execute H2H \"Modify File\" API call");
-		H2HManager manager = new H2HManager();
-	//	IFileManager fileHandler = manager.getNode().getFileManager();
-		
-	//	fileHandler.update(filePath.toFile());
-		logger.debug("Task \"Update File\" executed.");
+		return this;
 	}
 	
 	@Override
 	public ActionState handleMoveEvent(Path oldFilePath) {
 		throw new RuntimeException("Not implemented...");
+	}
+
+	@Override
+	public void execute(FileManager fileManager) throws NoSessionException, IllegalArgumentException, NoPeerConnectionException {
+		fileManager.update(action.getFilePath().toFile());
+		logger.debug("Task \"Update File\" executed.");
 	}
 }

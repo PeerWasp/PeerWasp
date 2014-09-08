@@ -6,6 +6,7 @@ import java.util.concurrent.BlockingQueue;
 import org.hive2hive.core.exceptions.IllegalFileLocation;
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.hive2hive.core.exceptions.NoSessionException;
+import org.peerbox.FileManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -59,9 +60,7 @@ public class ActionExecutor implements Runnable {
 				
 				if(isActionReady(next)) {
 					//System.out.println("After execution: AQ: " + actionQueue.size() + " DQ: " + deleteQueue.size() + " Map: " + filePathToAction.size());
-					next.execute();
-					//set the state of the action back to initial, because the action was performed
-					next.setCurrentState(new InitialState());
+					next.execute(fileEventManager.getFileManager());
 				} else {
 					// not ready yet, insert action again (no blocking peek, unfortunately)
 					fileEventManager.getActionQueue().put(next);

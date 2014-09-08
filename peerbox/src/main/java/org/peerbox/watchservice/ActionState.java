@@ -5,6 +5,7 @@ import java.nio.file.Path;
 import org.hive2hive.core.exceptions.IllegalFileLocation;
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.hive2hive.core.exceptions.NoSessionException;
+import org.peerbox.FileManager;
 
 /**
  * Interface for different states of implemented state pattern
@@ -12,11 +13,22 @@ import org.hive2hive.core.exceptions.NoSessionException;
  * @author winzenried
  *
  */
-public interface ActionState {
-	
-	public ActionState handleCreateEvent();
-	public ActionState handleDeleteEvent();
-	public ActionState handleModifyEvent();
-	public ActionState handleMoveEvent(Path filePath);
-	public void execute(Path filePath) throws NoSessionException, NoPeerConnectionException, IllegalFileLocation;
+public abstract class ActionState {
+
+	protected Action action;
+
+	public ActionState(Action action) {
+		this.action = action;
+	}
+
+	public abstract ActionState handleCreateEvent();
+
+	public abstract ActionState handleDeleteEvent();
+
+	public abstract ActionState handleModifyEvent();
+
+	public abstract ActionState handleMoveEvent(Path filePath);
+
+	public abstract void execute(FileManager fileManager) throws NoSessionException,
+			NoPeerConnectionException, IllegalFileLocation;
 }

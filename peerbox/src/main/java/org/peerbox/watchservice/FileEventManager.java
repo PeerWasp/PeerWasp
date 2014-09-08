@@ -9,6 +9,7 @@ import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.PriorityBlockingQueue;
 
+import org.peerbox.FileManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,6 +24,8 @@ public class FileEventManager implements IFileEventListener {
     private Map<Path, Action> filePathToAction;
     private SetMultimap<String, Path> contentHashToFilePaths;
     private Thread actionExecutor;
+    
+    private FileManager fileManager;
     
     public FileEventManager() {
     	actionQueue = new PriorityBlockingQueue<Action>(10, new FileActionTimeComparator());
@@ -55,8 +58,7 @@ public class FileEventManager implements IFileEventListener {
 			filePaths.remove(deleteAction.getFilePath());
 		}
 		
-		// update timestamp and add it to the queue again
-		lastAction.setTimeStamp(System.currentTimeMillis());
+		// add action to the queue again as timestamp was updated
 		actionQueue.add(lastAction);
 	}
 
@@ -94,8 +96,7 @@ public class FileEventManager implements IFileEventListener {
 		
 		// no update of lookup indices - neither path nor content hash changed!
 		
-		// update timestamp and add it to the queue again
-		lastAction.setTimeStamp(System.currentTimeMillis());
+		// add action to the queue again as timestamp was updated
 		actionQueue.add(lastAction);
 	}
 
@@ -119,8 +120,7 @@ public class FileEventManager implements IFileEventListener {
 		Set<Path> newFilePaths = contentHashToFilePaths.get(lastAction.getContentHash());
 		newFilePaths.add(lastAction.getFilePath());
 		
-		// update timestamp and add it to the queue again
-		lastAction.setTimeStamp(System.currentTimeMillis());
+		// add action to the queue again as timestamp was updated
 		actionQueue.add(lastAction);
 	}
 	
@@ -137,7 +137,7 @@ public class FileEventManager implements IFileEventListener {
 	private Action getOrCreateAction(Path filePath) {
 		Action action = null;
 		if(!filePathToAction.containsKey(filePath)) {
-			action = new Action(new InitialState(), filePath);
+			action = new Action(filePath);
 			// add new action to lookup indices
 			filePathToAction.put(filePath, action);
 			Set<Path> filePaths = contentHashToFilePaths.get(action.getContentHash());
@@ -152,5 +152,13 @@ public class FileEventManager implements IFileEventListener {
 		public int compare(Action a, Action b) {
 			return Long.compare(a.getTimestamp(), b.getTimestamp());
 		}
+	}
+	
+	public FileManager getFileManager() {
+		return fileManager;
+	}
+	
+	public void setFileManager(FileManager fileManager) {
+		this.fileManager = fileManager;
 	}
 }

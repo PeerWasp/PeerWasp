@@ -1,21 +1,13 @@
 package org.peerbox.watchservice;
 
-import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.security.MessageDigest;
-import java.util.Arrays;
-import java.util.Calendar;
 
-import org.bouncycastle.crypto.Digest;
-import org.bouncycastle.crypto.io.DigestInputStream;
 import org.hive2hive.core.exceptions.IllegalFileLocation;
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.hive2hive.core.exceptions.NoSessionException;
 import org.hive2hive.core.security.EncryptionUtil;
+import org.peerbox.FileManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,28 +27,18 @@ public class Action {
 	private final static Logger logger = LoggerFactory.getLogger(Action.class);
 	private long timestamp = Long.MAX_VALUE;
 	
-	//TODO File path?
-	//private File file = null;
-	private String contentHash = "";
 	private Path filePath;
+	private String contentHash;
 	private ActionState currentState;
 	
 	/**
 	 * Initialize with timestamp and set currentState to initial state
 	 */
-	public Action(){
-		timestamp = System.currentTimeMillis();
-		currentState = new InitialState();
-		contentHash = new String("");
-	}
-	
-	public Action(ActionState initialState, Path filePath){
-		currentState = initialState;
-		timestamp = Calendar.getInstance().getTimeInMillis();
-		contentHash = computeContentHash(filePath);
+	public Action(Path filePath){
 		this.filePath = filePath;
-		
-		
+		currentState = new InitialState(this);
+		contentHash = computeContentHash(filePath);
+		updateTimestamp();
 	}
 	
 	
@@ -68,6 +50,10 @@ public class Action {
 //		return null;
 //	}
 	
+	private void updateTimestamp() {
+		timestamp = System.currentTimeMillis();
+	}
+
 	private String computeContentHash(Path filePath) {
 		if(filePath != null && filePath.toFile() != null){
 			try {
@@ -93,6 +79,7 @@ public class Action {
 	public void handleCreateEvent(){
 		currentState = currentState.handleCreateEvent();
 		contentHash = computeContentHash(filePath);
+		updateTimestamp();
 	}
 	
 	/**
@@ -100,6 +87,7 @@ public class Action {
 	 */
 	public void handleDeleteEvent(){
 		currentState = currentState.handleDeleteEvent();
+		updateTimestamp();
 	}
 	
 	/**
@@ -108,10 +96,12 @@ public class Action {
 	public void handleModifyEvent(){
 		currentState = currentState.handleModifyEvent();
 		contentHash = computeContentHash(filePath);
+		updateTimestamp();
 	}
 	
 	public void handleMoveEvent(Path oldFilePath) {
 		currentState = currentState.handleMoveEvent(oldFilePath);
+		updateTimestamp();
 	}
 
 	/**
@@ -122,13 +112,14 @@ public class Action {
 	 * @throws IllegalFileLocation
 	 */
 	//execute action depending on state
-	public void execute() throws NoSessionException, NoPeerConnectionException, IllegalFileLocation{
+	public void execute(FileManager fileManager) throws NoSessionException, NoPeerConnectionException, IllegalFileLocation{
 		logger.debug("Execute action...");
 		// this may be async, i.e. do not wait on completion of the process
 		// maybe return the IProcessComponent object such that the 
 		// executor can be aware of the status (completion of task etc)
 
-		currentState.execute(filePath);
+		currentState.execute(fileManager);
+		currentState = new InitialState(this);
 	}
 	
 	public Path getFilePath(){
@@ -139,21 +130,14 @@ public class Action {
 		return contentHash;
 	}
 
-	public void setContentHash(String contentHash){
-		this.contentHash = contentHash;
-	}
+//	public void setContentHash(String contentHash){
+//		this.contentHash = contentHash;
+//	}
 
 	public long getTimestamp() {
 		return timestamp;
 	}
 	
-	public void setTimeStamp(long timestamp) {
-		if(timestamp < this.timestamp){
-			//this is clearly an error - but can it even occur?
-		}
-		this.timestamp = timestamp;
-	}
-
 	/**
 	 * @return current state object
 	 */
@@ -173,7 +157,7 @@ public class Action {
 			return currentState;
 		}
 	
-	public void setCurrentState(ActionState currentState){
-		this.currentState = currentState;
-	}
+//	public void setCurrentState(ActionState currentState){
+//		this.currentState = currentState;
+//	}
 }

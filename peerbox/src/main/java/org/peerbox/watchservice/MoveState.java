@@ -3,8 +3,10 @@ package org.peerbox.watchservice;
 import java.nio.file.Path;
 
 import org.hive2hive.core.api.interfaces.IFileManager;
+import org.hive2hive.core.exceptions.IllegalFileLocation;
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.hive2hive.core.exceptions.NoSessionException;
+import org.peerbox.FileManager;
 import org.peerbox.model.H2HManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,12 +19,14 @@ import org.slf4j.LoggerFactory;
  * @author winzenried
  *
  */
-public class MoveState implements ActionState {
+public class MoveState extends ActionState {
 	
 	private final static Logger logger = LoggerFactory.getLogger(MoveState.class);
+	
 	private Path sourcePath;
 
-	public MoveState(Path sourcePath){
+	public MoveState(Action action, Path sourcePath) {
+		super(action);
 		this.sourcePath = sourcePath;
 	}
 	
@@ -37,8 +41,7 @@ public class MoveState implements ActionState {
 	@Override
 	public ActionState handleCreateEvent() {
 		logger.debug("Create Request denied: Cannot change from Move to Create.");
-		//throw new IllegalStateTransissionException();
-		return new MoveState(getSourcePath());
+		return new MoveState(action, getSourcePath());
 	}
 
 	/**
@@ -50,7 +53,7 @@ public class MoveState implements ActionState {
 	@Override
 	public ActionState handleDeleteEvent() {
 		logger.debug("Delete Request accepted: State changed from Move to Delete.");
-		return new DeleteState();
+		return new DeleteState(action);
 	}
 
 	/**
@@ -62,23 +65,18 @@ public class MoveState implements ActionState {
 	public ActionState handleModifyEvent() {
 		logger.debug("Modify Request denied: Cannot change from Move to Modify State.");
 		//return new MoveState();
-		throw new IllegalStateTransissionException();
-	}
-	
-	@Override
-	public void execute(Path targetPath) throws NoSessionException, NoPeerConnectionException {
-		logger.debug("Move State: Execute \"Move File\" H2H API call: From " + targetPath.toString() + " to " + getSourcePath().toString());
-		H2HManager manager = new H2HManager();
-		//IFileManager fileHandler = manager.getNode().getFileManager();
-		
-		//H2H move needs to be analyzed to make sure how it works
-		//fileHandler.move(filePath.toFile(),filePath.toFile());
-		//logger.debug("Task \"Add File\" executed.");		
+		throw new IllegalStateException("Modify Request denied: Cannot change from Move to Modify State.");
 	}
 	
 	@Override
 	public ActionState handleMoveEvent(Path oldFilePath) {
 		throw new RuntimeException("Not implemented...");
+	}
+
+	@Override
+	public void execute(FileManager fileManager) throws NoSessionException, NoPeerConnectionException {
+		fileManager.move(sourcePath.toFile(), action.getFilePath().toFile());
+		logger.debug("Task \"Move File\" executed.");
 	}
 
 

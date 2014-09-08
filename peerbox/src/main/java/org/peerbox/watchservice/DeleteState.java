@@ -5,6 +5,7 @@ import java.nio.file.Path;
 import org.hive2hive.core.api.interfaces.IFileManager;
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.hive2hive.core.exceptions.NoSessionException;
+import org.peerbox.FileManager;
 import org.peerbox.model.H2HManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,9 +19,13 @@ import org.slf4j.LoggerFactory;
  * @author winzenried
  *
  */
-public class DeleteState implements ActionState {
-	
+public class DeleteState extends ActionState {
+
 	private final static Logger logger = LoggerFactory.getLogger(DeleteState.class);
+	
+	public DeleteState(Action action) {
+		super(action);
+	}
 	
 	/**
 	 * If a Create event is detected while the object is in the Delete state,
@@ -30,8 +35,9 @@ public class DeleteState implements ActionState {
 	 */
 	@Override
 	public ActionState handleCreateEvent() {
+		// FIXME ???
 		System.out.println("Create Request accepted: Move detected.");
-		return new InitialState();
+		return new InitialState(action);
 	}
 
 	/**
@@ -42,7 +48,7 @@ public class DeleteState implements ActionState {
 	@Override
 	public ActionState handleDeleteEvent() {
 		logger.debug("Delete Request denied: Already in Delete State.");
-		return new DeleteState();
+		return this;
 	}
 
 	/**
@@ -55,7 +61,7 @@ public class DeleteState implements ActionState {
 	public ActionState handleModifyEvent() {
 		logger.debug("Modify Request denied: Cannot change from Delete to Modify State.");
 		//return new DeleteState();
-		throw new IllegalStateTransissionException();
+		throw new IllegalStateException("Modify Request denied: Cannot change from Delete to Modify State.");
 	}
 	
 	/**
@@ -65,12 +71,8 @@ public class DeleteState implements ActionState {
 	 * @param file The file which should be deleted
 	 */
 	@Override
-	public void execute(Path filePath) throws NoSessionException, NoPeerConnectionException {
-		logger.debug("Delete State: Execute H2H \"Delete File\" API call");
-		H2HManager manager = new H2HManager();
-		//IFileManager fileHandler = manager.getNode().getFileManager();
-		
-		//fileHandler.delete(filePath.toFile());
+	public void execute(FileManager fileManager) throws NoSessionException, NoPeerConnectionException {
+		fileManager.delete(action.getFilePath().toFile());
 		logger.debug("Task \"Delete File\" executed.");
 	}
 	

@@ -5,6 +5,7 @@ import java.nio.file.Path;
 import org.hive2hive.core.exceptions.IllegalFileLocation;
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.hive2hive.core.exceptions.NoSessionException;
+import org.peerbox.FileManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,9 +18,13 @@ import org.slf4j.LoggerFactory;
  * @author winzenried
  *
  */
-public class InitialState implements ActionState {
+public class InitialState extends ActionState {
 
 	private final static Logger logger = LoggerFactory.getLogger(InitialState.class);
+	
+	public InitialState(Action action) {
+		super(action);
+	}
 	
 	/**
 	 * The transition from Initial to Create will always be granted
@@ -29,7 +34,7 @@ public class InitialState implements ActionState {
 	@Override
 	public ActionState handleCreateEvent() {
 		logger.debug("Create Request accepted: State changed from Initial to Create.");
-		return new CreateState();
+		return new CreateState(action);
 	}
 
 	/**
@@ -40,7 +45,7 @@ public class InitialState implements ActionState {
 	@Override
 	public ActionState handleDeleteEvent() {
 		logger.debug("Delete Request accepted: State changed from Initial to Delete.");
-		return new DeleteState();
+		return new DeleteState(action);
 	}
 
 	/**
@@ -51,8 +56,13 @@ public class InitialState implements ActionState {
 	@Override
 	public ActionState handleModifyEvent() {
 		logger.debug("Modify Request accepted: State changed from Initial to Modify.");
-		return new ModifyState();
+		return new ModifyState(action);
 		
+	}
+
+	@Override
+	public ActionState handleMoveEvent(Path oldFilePath) {
+		throw new RuntimeException("Not implemented...");
 	}
 
 	/**
@@ -60,13 +70,9 @@ public class InitialState implements ActionState {
 	 * 
 	 */
 	@Override
-	public void execute(Path filePath) throws NoSessionException, NoPeerConnectionException,
+	public void execute(FileManager fileManager) throws NoSessionException, NoPeerConnectionException,
 			IllegalFileLocation {
 		logger.debug("Execute method in Initial State not defined.");
-	}
-	
-	@Override
-	public ActionState handleMoveEvent(Path oldFilePath) {
 		throw new RuntimeException("Not implemented...");
 	}
 }
