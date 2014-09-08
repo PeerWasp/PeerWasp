@@ -170,4 +170,8 @@ public class Action {
 	public void setCurrentState(ActionState currentState){
 		this.currentState = currentState;
 	}
+
+	public void handleMoveEvent(Path oldFilePath) {
+		currentState.handleMoveEvent(oldFilePath);
+	}
 }

@@ -49,16 +49,20 @@ public class ModifyState implements ActionState {
 	public ActionState handleModifyEvent() {
 		logger.debug("Modify Request denied: Already in Modify State.");
 		return new ModifyState();
-			
-		}
+	}
+	
+	@Override
+	public void execute(Path filePath) throws NoSessionException, IllegalArgumentException, NoPeerConnectionException {
+		logger.debug("Modify State: Execute H2H \"Modify File\" API call");
+		H2HManager manager = new H2HManager();
+	//	IFileManager fileHandler = manager.getNode().getFileManager();
 		
-		@Override
-		public void execute(Path filePath) throws NoSessionException, IllegalArgumentException, NoPeerConnectionException {
-			logger.debug("Modify State: Execute H2H \"Modify File\" API call");
-			H2HManager manager = new H2HManager();
-		//	IFileManager fileHandler = manager.getNode().getFileManager();
-			
-		//	fileHandler.update(filePath.toFile());
-			logger.debug("Task \"Update File\" executed.");
-		}
+	//	fileHandler.update(filePath.toFile());
+		logger.debug("Task \"Update File\" executed.");
+	}
+	
+	@Override
+	public ActionState handleMoveEvent(Path oldFilePath) {
+		throw new RuntimeException("Not implemented...");
+	}
 }

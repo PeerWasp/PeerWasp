@@ -73,4 +73,9 @@ public class DeleteState implements ActionState {
 		//fileHandler.delete(filePath.toFile());
 		logger.debug("Task \"Delete File\" executed.");
 	}
+	
+	@Override
+	public ActionState handleMoveEvent(Path oldFilePath) {
+		throw new RuntimeException("Not implemented...");
+	}
 }

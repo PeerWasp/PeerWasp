@@ -64,4 +64,9 @@ public class InitialState implements ActionState {
 			IllegalFileLocation {
 		logger.debug("Execute method in Initial State not defined.");
 	}
+	
+	@Override
+	public ActionState handleMoveEvent(Path oldFilePath) {
+		throw new RuntimeException("Not implemented...");
+	}
 }

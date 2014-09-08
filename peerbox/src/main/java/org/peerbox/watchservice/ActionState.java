@@ -17,5 +17,6 @@ public interface ActionState {
 	public ActionState handleCreateEvent();
 	public ActionState handleDeleteEvent();
 	public ActionState handleModifyEvent();
+	public ActionState handleMoveEvent(Path filePath);
 	public void execute(Path filePath) throws NoSessionException, NoPeerConnectionException, IllegalFileLocation;
 }

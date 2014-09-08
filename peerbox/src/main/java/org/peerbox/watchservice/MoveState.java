@@ -75,6 +75,11 @@ public class MoveState implements ActionState {
 		//fileHandler.move(filePath.toFile(),filePath.toFile());
 		//logger.debug("Task \"Add File\" executed.");		
 	}
+	
+	@Override
+	public ActionState handleMoveEvent(Path oldFilePath) {
+		throw new RuntimeException("Not implemented...");
+	}
 
 
 }

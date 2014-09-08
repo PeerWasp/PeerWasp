@@ -82,4 +82,9 @@ public class CreateState implements ActionState {
 		//fileHandler.add(filePath.toFile());
 		logger.debug("Task \"Add File\" executed.");
 	}
+
+	@Override
+	public ActionState handleMoveEvent(Path oldFilePath) {
+		throw new RuntimeException("Not implemented...");
+	}
 }
