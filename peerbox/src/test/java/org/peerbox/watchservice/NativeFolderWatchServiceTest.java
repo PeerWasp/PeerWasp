@@ -5,6 +5,7 @@ import static org.junit.Assert.*;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Random;
@@ -63,8 +64,7 @@ public class NativeFolderWatchServiceTest {
 		eventManager = new FileEventManager();
 		eventManager.setFileManager(fileManager);
 		watchService.addFileEventListener(eventManager);
-		
-		watchService.start();
+
 		logger.info("Running");
 	}
 	
@@ -78,8 +78,11 @@ public class NativeFolderWatchServiceTest {
 		Thread.sleep(SLEEP_TIME);
 	}
 
-	@Test 
-	public void testFileCreate() throws IOException, InterruptedException, NoSessionException, NoPeerConnectionException, IllegalFileLocation {
+	@Test
+	public void testFileCreate() throws Exception {
+		watchService.start();
+		
+		// create new file
 		File add = Paths.get(basePath.toString(), "add_empty.txt").toFile();
 		add.createNewFile();
 		sleep();
@@ -87,8 +90,11 @@ public class NativeFolderWatchServiceTest {
 		Mockito.verify(fileManager, Mockito.times(1)).add(add);
 	}
 	
-	@Test @Ignore
-	public void testSmallFileCreate() throws IOException, InterruptedException, NoSessionException, NoPeerConnectionException, IllegalFileLocation {
+	@Test
+	public void testSmallFileCreate() throws Exception {
+		watchService.start();
+		
+		// create new small file
 		File add = Paths.get(basePath.toString(), "add_small.txt").toFile();
 		
 		FileWriter out = new FileWriter(add);
@@ -99,8 +105,11 @@ public class NativeFolderWatchServiceTest {
 		Mockito.verify(fileManager, Mockito.times(1)).add(add);
 	}
 	
-	@Test 
-	public void testBigFileCreate() throws IOException, InterruptedException, NoSessionException, NoPeerConnectionException, IllegalFileLocation {
+	@Test
+	public void testBigFileCreate() throws Exception {
+		watchService.start();
+		
+		// create new big file
 		File add = Paths.get(basePath.toString(), "add_big.txt").toFile();
 		
 		FileWriter out = new FileWriter(add);
@@ -111,19 +120,44 @@ public class NativeFolderWatchServiceTest {
 		Mockito.verify(fileManager, Mockito.times(1)).add(add);
 	}
 	
-	public void testFileDelete() {
+	@Test
+	public void testFileDelete() throws Exception {
+		// create new file
+		File delete = Paths.get(basePath.toString(), "delete_empty.txt").toFile();
+		delete.createNewFile();
+		sleep();
 		
+		watchService.start();
+		//delete newly created file
+		FileUtils.forceDelete(delete);
+		sleep();
+		
+		Mockito.verify(fileManager, Mockito.times(1)).delete(delete);
 	}
 	
-	public void testFileModify() {
+	@Test
+	public void testFileModify() throws Exception {
+		// create new file
+		File modify = Paths.get(basePath.toString(), "modify_empty.txt").toFile();
+		modify.createNewFile();
+		sleep();
 		
+		watchService.start();
+		
+		// modify newly created file
+		FileWriter out = new FileWriter(modify);
+		WatchServiceTestHelpers.writeRandomData(out, NUM_CHARS_SMALL_FILE);
+		out.close();
+		sleep();
+		
+		Mockito.verify(fileManager, Mockito.times(1)).update(modify);
 	}
 
 	public void testBigFileModify() {
 		
 	}
 	
-	@Test @Ignore
+	@Test
 	public void testFileRename() throws IOException, NoSessionException, NoPeerConnectionException, IllegalFileLocation, InterruptedException {
 		File rename = Paths.get(basePath.toString(), "rename.txt").toFile();
 		File newName = Paths.get(basePath.toString(), "rename_rename.txt").toFile();
