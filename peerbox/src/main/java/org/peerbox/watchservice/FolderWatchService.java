@@ -44,16 +44,17 @@ public class FolderWatchService {
 		this.watcher = FileSystems.getDefault().newWatchService();
         this.keys = new HashMap<WatchKey, Path>();
         this.eventListeners = new ArrayList<IFileEventListener>();
-        
+	}
+	
+	public void start() throws Exception {
+		
         logger.info("Scanning {} ...", rootFolder);
         registerFoldersRecursive(rootFolder);
         logger.info("Scanning done.");
  
         // enable trace after initial registration
         this.trace = true;
-	}
-	
-	public void start() throws Exception {
+        
 		eventProcessor = new Thread(new FolderWatchEventProcessor());
 		eventProcessor.setDaemon(true); // keep running 
 		eventProcessor.start();
@@ -62,7 +63,11 @@ public class FolderWatchService {
 	public void stop() throws Exception {
 		if(eventProcessor != null) {
 			eventProcessor.interrupt();
+			eventProcessor.join();
 			// TODO: maybe reset all buffers, queues, maps, ... -> reset, event?
+		}
+		if(watcher != null) {
+			watcher.close();
 		}
 	}
 
@@ -101,10 +106,10 @@ public class FolderWatchService {
 	    if (trace) {
 	        Path prev = keys.get(key);
 	        if (prev == null) {
-	            logger.debug("register: %s\n", folder);
+	            logger.debug("register: {}\n", folder);
 	        } else {
 	            if (!folder.equals(prev)) {
-	            	logger.debug("update: %s -> %s\n", prev, folder);
+	            	logger.debug("update: {} -> {}\n", prev, folder);
 	            }
 	        }
 	    }
@@ -179,6 +184,7 @@ public class FolderWatchService {
 						} catch (IOException x) {
 							// TODO: handle exception
 							// ignore to keep sample readbale
+							logger.warn("Exception: {}", x.getMessage());
 						}
 					}
 				}
@@ -210,6 +216,7 @@ public class FolderWatchService {
 				notifyFileDeleted(filePath);
 			} else if(kind.equals(OVERFLOW)) {
 				// TODO: error - overflow... should not happen here (continue if such an event occurs)
+				logger.warn("Overflow event from watch service. Too many events?");
 			} else {
 				// TODO: unknown event
 			}
