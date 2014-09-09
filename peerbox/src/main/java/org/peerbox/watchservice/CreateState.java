@@ -1,5 +1,6 @@
 package org.peerbox.watchservice;
 
+import java.io.File;
 import java.nio.file.Path;
 
 import org.hive2hive.core.api.interfaces.IFileManager;
@@ -68,7 +69,8 @@ public class CreateState extends ActionState {
 	
 	@Override
 	public ActionState handleMoveEvent(Path oldFilePath) {
-		throw new RuntimeException("Not implemented...");
+		return new MoveState(action, oldFilePath);
+		//throw new RuntimeException("Not implemented...");
 	}
 
 	/**
@@ -79,7 +81,9 @@ public class CreateState extends ActionState {
 	 */
 	@Override
 	public void execute(FileManager fileManager) throws NoSessionException, NoPeerConnectionException, IllegalFileLocation {
-		fileManager.add(action.getFilePath().toFile());
+		Path filePath = action.getFilePath();
+		File file = filePath.toFile();
+		fileManager.add(file);
 		
 		logger.debug("Task \"Add File\" executed.");
 	}
