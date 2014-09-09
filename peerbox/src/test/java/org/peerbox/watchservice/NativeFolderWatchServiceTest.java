@@ -34,10 +34,10 @@ public class NativeFolderWatchServiceTest {
 	@Mock
 	private FileManager fileManager;
 	private static Path basePath;
-	private static Random rnd;
+	
 	
 	private static final int NUM_CHARS_SMALL_FILE = 50*1024;
-	private static final int NUM_CHARS_BIG_FILE = 5*1024*1024;
+	private static final int NUM_CHARS_BIG_FILE = 50*1024*1024;
 	private static final int SLEEP_TIME = 4000;
 	
 	@BeforeClass
@@ -46,7 +46,6 @@ public class NativeFolderWatchServiceTest {
 		basePath.toFile().mkdir();
 		logger.info("Path: {}", basePath);
 		
-		rnd = new Random();
 	}
 	
 	@AfterClass
@@ -88,24 +87,24 @@ public class NativeFolderWatchServiceTest {
 		Mockito.verify(fileManager, Mockito.times(1)).add(add);
 	}
 	
-	@Test 
+	@Test @Ignore
 	public void testSmallFileCreate() throws IOException, InterruptedException, NoSessionException, NoPeerConnectionException, IllegalFileLocation {
 		File add = Paths.get(basePath.toString(), "add_small.txt").toFile();
 		
 		FileWriter out = new FileWriter(add);
-		writeRandomData(out, NUM_CHARS_SMALL_FILE);
+		WatchServiceTestHelpers.writeRandomData(out, NUM_CHARS_SMALL_FILE);
 		out.close();
 		sleep();
 		
 		Mockito.verify(fileManager, Mockito.times(1)).add(add);
 	}
 	
-	@Test @Ignore
+	@Test 
 	public void testBigFileCreate() throws IOException, InterruptedException, NoSessionException, NoPeerConnectionException, IllegalFileLocation {
 		File add = Paths.get(basePath.toString(), "add_big.txt").toFile();
 		
 		FileWriter out = new FileWriter(add);
-		writeRandomData(out, NUM_CHARS_BIG_FILE);
+		WatchServiceTestHelpers.writeRandomData(out, NUM_CHARS_BIG_FILE);
 		out.close();
 		sleep();
 		
@@ -124,13 +123,13 @@ public class NativeFolderWatchServiceTest {
 		
 	}
 	
-	@Test
+	@Test @Ignore
 	public void testFileRename() throws IOException, NoSessionException, NoPeerConnectionException, IllegalFileLocation, InterruptedException {
 		File rename = Paths.get(basePath.toString(), "rename.txt").toFile();
 		File newName = Paths.get(basePath.toString(), "rename_rename.txt").toFile();
 		
 		FileWriter out = new FileWriter(rename);
-		writeRandomData(out, NUM_CHARS_SMALL_FILE);
+		WatchServiceTestHelpers.writeRandomData(out, NUM_CHARS_SMALL_FILE);
 		out.close();
 		sleep();
 		
@@ -158,16 +157,6 @@ public class NativeFolderWatchServiceTest {
 		
 	}
 	
-	private void writeRandomData(FileWriter out, int numCharacters) throws IOException {
-		for(int i = 0; i < numCharacters; ++i) {
-			out.write(getRandomCharacter());
-			out.flush();
-		}
-	}
-	
-	private char getRandomCharacter() {
-		char c = (char)(rnd.nextInt(26) + 'a');
-		return c;
-	}
+
 
 }
