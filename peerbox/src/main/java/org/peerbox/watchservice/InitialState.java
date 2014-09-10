@@ -62,7 +62,8 @@ public class InitialState extends ActionState {
 
 	@Override
 	public ActionState handleMoveEvent(Path oldFilePath) {
-		throw new RuntimeException("Not implemented...");
+		return new MoveState(action, oldFilePath);
+		//throw new RuntimeException("Not implemented...");
 	}
 
 	/**

@@ -60,8 +60,8 @@ public class DeleteState extends ActionState {
 	@Override
 	public ActionState handleModifyEvent() {
 		logger.debug("Modify Request denied: Cannot change from Delete to Modify State.");
-		//return new DeleteState();
-		throw new IllegalStateException("Modify Request denied: Cannot change from Delete to Modify State.");
+		return this;
+		//throw new IllegalStateException("Modify Request denied: Cannot change from Delete to Modify State.");
 	}
 	
 	/**

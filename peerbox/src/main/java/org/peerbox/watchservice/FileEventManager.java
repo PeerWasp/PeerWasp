@@ -22,8 +22,9 @@ public class FileEventManager implements IFileEventListener {
 	
     private BlockingQueue<Action> actionQueue;
     private Map<Path, Action> filePathToAction;
-    private SetMultimap<String, Path> contentHashToFilePaths;
-    private Thread actionExecutor;
+	private SetMultimap<String, Path> contentHashToFilePaths;
+
+	private Thread actionExecutor;
     
     private FileManager fileManager;
     
@@ -50,6 +51,7 @@ public class FileEventManager implements IFileEventListener {
 			// regular create event
 			lastAction.handleCreateEvent();
 		} else {
+			actionQueue.remove(deleteAction);
 			// found matching delete event -> move
 			lastAction.handleMoveEvent(deleteAction.getFilePath());
 			// update lookup indices - remove mappings
@@ -98,6 +100,7 @@ public class FileEventManager implements IFileEventListener {
 		
 		// add action to the queue again as timestamp was updated
 		actionQueue.add(lastAction);
+		System.out.println("Last element: " + getOrCreateAction(path).getCurrentState().getClass());
 	}
 
 	@Override
@@ -144,6 +147,7 @@ public class FileEventManager implements IFileEventListener {
 			filePaths.add(action.getFilePath());
 		}
 		action = filePathToAction.get(filePath);
+		System.out.println("Found action with state: " + action.getCurrentState());
 		return action;
 	}
 	

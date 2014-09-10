@@ -16,15 +16,15 @@ public class StatePatternTest {
 		// TODO Auto-generated method stub
 		
 
-		Action context = new Action();
-		//context.createEvent();
-		context.handleModifyEvent();
-		context.getCurrentState();
-		//context.deleteEvent();
-		context.getCurrentState();
-		
-		context.execute();
-		
+//		Action context = new Action();
+//		//context.createEvent();
+//		context.handleModifyEvent();
+//		context.getCurrentState();
+//		//context.deleteEvent();
+//		context.getCurrentState();
+//		
+//		context.execute();
+//		
 	   }
 
 	}
