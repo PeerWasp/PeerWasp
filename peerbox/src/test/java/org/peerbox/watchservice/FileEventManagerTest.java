@@ -9,6 +9,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.BlockingQueue;
@@ -83,7 +84,7 @@ public class FileEventManagerTest {
 	 * that only one element is stored in the action queue. This element
 	 * has to be still in the create state after this two events are processed.
 	 */
-	@Test @Ignore
+	@Test
 	public void onFileCreatedTest(){
 		
 		long start = System.currentTimeMillis();
@@ -109,7 +110,7 @@ public class FileEventManagerTest {
 	 * time for the event to be handled. After that, a move is simulated using a delete event on
 	 * the same file and a create event on a new file with the same content (but different name).
 	 */
-	@Test @Ignore
+	@Test
 	public void fromDeleteToModifyTest(){
 		//handle artificial create event, wait for handling
 		manager.onFileCreated(Paths.get(filePaths.get(0)));
@@ -140,7 +141,7 @@ public class FileEventManagerTest {
 	 * Simulate a file delete and an additional modify event, check if the file
 	 * remains in the delete state and only one action is stored in the queue.
 	 */
-	@Test @Ignore
+	@Test
 	public void onFileDeletedTest(){
 		long start = System.currentTimeMillis();
 		
@@ -161,14 +162,18 @@ public class FileEventManagerTest {
 		sleepMillis(ActionExecutor.ACTION_WAIT_TIME_MS * 2);
 	}
 	
-	@Test @Ignore
+	/**
+	 * This test issues several modify events for the same file over a long
+	 * period to check if the events are aggregated accordingly.
+	 */
+	@Test
 	public void onFileModifiedTest(){
 		long start = System.currentTimeMillis();
 		
 		manager.onFileModified(Paths.get(filePaths.get(0)));
 		BlockingQueue<Action> actionsToCheck = manager.getActionQueue();
 		assertTrue(actionsToCheck.size() == 1);
-		assertTrue(actionsToCheck.peek().getCurrentState() instanceof ModifyState); //Null pointer sometimes
+		assertTrue(actionsToCheck.peek().getCurrentState() instanceof ModifyState); //Occasionally null pointer exception
 		
 		long end = System.currentTimeMillis();
 		assertTrue(end - start <= ActionExecutor.ACTION_WAIT_TIME_MS);
@@ -200,7 +205,7 @@ public class FileEventManagerTest {
 	 * (tail) [move file2 to file3], [delete file0] [create file1] (head)
 	 */
 	
-	@Test @Ignore
+	@Test
 	public void multipleFilesTest(){
 		//measure start time to ensure the testcase runs before the queue is processed
 		long start = System.currentTimeMillis();
@@ -246,19 +251,19 @@ public class FileEventManagerTest {
 		assertTrue(actionsToCheck.peek().getCurrentState() instanceof CreateState);
 		assertTrue(actionsToCheck.peek().getFilePath().toString().equals(filePaths.get(1)));
 		
+		List<Action> actionsList = new ArrayList<Action>(actionsToCheck);
+
 		//poll elements from the queue, check state and file path for each of them
-		Action head = actionsToCheck.poll();
-		assertTrue(actionsToCheck.size() == 2);
+		Action head = actionsList.get(0);
+		assertTrue(actionsToCheck.size() == 3);
 		assertTrue(head.getCurrentState() instanceof CreateState);
 		assertTrue(head.getFilePath().toString().equals(filePaths.get(1)));
 		
-		head = actionsToCheck.poll();
-		assertTrue(actionsToCheck.size() == 1);
+		head = actionsList.get(1);
 		assertTrue(head.getCurrentState() instanceof DeleteState);
 		assertTrue(head.getFilePath().toString().equals(filePaths.get(0)));
 		
-		head = actionsToCheck.poll();
-		assertTrue(actionsToCheck.size() == 0);
+		head = actionsList.get(2);
 		assertTrue(head.getCurrentState() instanceof MoveState);
 		assertTrue(head.getFilePath().toString().equals(filePaths.get(3)));
 		
@@ -276,27 +281,27 @@ public class FileEventManagerTest {
 	 * be pushed as a create.
 	 */
 	
-	@Test @Ignore
+	@Test
 	public void remoteCreateOnLocalMove(){
 		
-		Class<?> c = manager.getClass();
-		try {
-			Field map = c.getDeclaredField("filePathToAction");
-			map.setAccessible(true);
-			Map<Path, Action> filePathToAction = (HashMap<Path, Action>) map.get(manager);
-			for(Path p: filePathToAction.keySet()){
-				System.out.println("Entry: " + filePathToAction.get(p).getFilePath() + " " + filePathToAction.get(p).getCurrentState());
-			}
-		} catch (NoSuchFieldException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (SecurityException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IllegalAccessException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+//		Class<?> c = manager.getClass();
+//		try {
+//			Field map = c.getDeclaredField("filePathToAction");
+//			map.setAccessible(true);
+//			Map<Path, Action> filePathToAction = (HashMap<Path, Action>) map.get(manager);
+//			for(Path p: filePathToAction.keySet()){
+//				System.out.println("Entry: " + filePathToAction.get(p).getFilePath() + " " + filePathToAction.get(p).getCurrentState());
+//			}
+//		} catch (NoSuchFieldException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		} catch (SecurityException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		} catch (IllegalAccessException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
 		
 		sleepMillis(ActionExecutor.ACTION_WAIT_TIME_MS*3);
 		System.out.println("Start");
@@ -310,19 +315,15 @@ public class FileEventManagerTest {
 		//move the file LOCALLY
 		manager.onFileDeleted(Paths.get(filePaths.get(4)));
 		sleepMillis(10);
-		System.out.println("size: " + actionsToCheck.size());
 		manager.onFileCreated(Paths.get(filePaths.get(5)));
-		System.out.println("size: " + actionsToCheck.size());
 		
-		System.out.println("size: " + actionsToCheck.size());
-		//assertTrue(actionsToCheck.size() == 1);
+		List<Action> actionsList = new ArrayList<Action>(actionsToCheck);
 		
-		Action head = actionsToCheck.poll();
+		Action head = actionsList.get(0);
 		assertTrue(head.getCurrentState() instanceof InitialState);
 		assertTrue(head.getFilePath().toString().equals(filePaths.get(4)));
 		
-		head = actionsToCheck.poll();
-		System.out.println("head: " + head.getCurrentState().getClass());
+		head = actionsList.get(1);
 		assertTrue(head.getCurrentState() instanceof CreateState);
 		assertTrue(head.getFilePath().toString().equals(filePaths.get(5)));
 		

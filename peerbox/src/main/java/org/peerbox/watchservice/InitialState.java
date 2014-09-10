@@ -74,6 +74,7 @@ public class InitialState extends ActionState {
 	public void execute(FileManager fileManager) throws NoSessionException, NoPeerConnectionException,
 			IllegalFileLocation {
 		logger.debug("Execute method in Initial State not defined.");
-		throw new RuntimeException("Not implemented...");
+		//throw new RuntimeException("Not implemented...");
+		
 	}
 }
