@@ -137,15 +137,19 @@ public class NativeFolderWatchServiceTest {
 	
 	@Test
 	public void testFileModify() throws Exception {
-		// create new file
-		File modify = Paths.get(basePath.toString(), "modify_empty.txt").toFile();
-		modify.createNewFile();
-		sleep();
-		
 		watchService.start();
 		
-		// modify newly created file
+		// create new small file
+		File modify = Paths.get(basePath.toString(), "modify_small.txt").toFile();
+		
 		FileWriter out = new FileWriter(modify);
+		WatchServiceTestHelpers.writeRandomData(out, NUM_CHARS_SMALL_FILE);
+		out.close();
+		sleep();
+		Mockito.verify(fileManager, Mockito.times(1)).add(modify);
+		
+		// modify newly created file
+		out = new FileWriter(modify);
 		WatchServiceTestHelpers.writeRandomData(out, NUM_CHARS_SMALL_FILE);
 		out.close();
 		sleep();
@@ -153,6 +157,7 @@ public class NativeFolderWatchServiceTest {
 		Mockito.verify(fileManager, Mockito.times(1)).update(modify);
 	}
 
+	@Test
 	public void testBigFileModify() {
 		
 	}
