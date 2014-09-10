@@ -78,6 +78,12 @@ public class NativeFolderWatchServiceTest {
 		Thread.sleep(SLEEP_TIME);
 	}
 
+	/**
+	 * Create a file and test whether it gets handled by the 
+	 * handleCreateEvent and eventually send over to H2H.add
+	 * 
+	 * @throws Exception
+	 */
 	@Test
 	public void testFileCreate() throws Exception {
 		watchService.start();
@@ -90,6 +96,12 @@ public class NativeFolderWatchServiceTest {
 		Mockito.verify(fileManager, Mockito.times(1)).add(add);
 	}
 	
+	/**
+	 * Create a file with some data in it and test whether
+	 * it gets handled by the handleCreateEvent
+	 * 
+	 * @throws Exception
+	 */
 	@Test
 	public void testSmallFileCreate() throws Exception {
 		watchService.start();
@@ -105,6 +117,12 @@ public class NativeFolderWatchServiceTest {
 		Mockito.verify(fileManager, Mockito.times(1)).add(add);
 	}
 	
+	/**
+	 * Create a file which contains a large portion of data and test
+	 * whether it gets handled by the handleCreateEvent
+	 * 
+	 * @throws Exception
+	 */
 	@Test
 	public void testBigFileCreate() throws Exception {
 		watchService.start();
@@ -120,6 +138,12 @@ public class NativeFolderWatchServiceTest {
 		Mockito.verify(fileManager, Mockito.times(1)).add(add);
 	}
 	
+	/**
+	 * Test whether a file which already was added to H2H gets 
+	 * deleted successfully after a handleDeleteEvent
+	 * 
+	 * @throws Exception
+	 */
 	@Test
 	public void testFileDelete() throws Exception {
 		// create new file
@@ -135,6 +159,12 @@ public class NativeFolderWatchServiceTest {
 		Mockito.verify(fileManager, Mockito.times(1)).delete(delete);
 	}
 	
+	/**
+	 * Test whether a modify event will be detected when a file
+	 * gets altered
+	 * 
+	 * @throws Exception
+	 */
 	@Test
 	public void testFileModify() throws Exception {
 		watchService.start();
@@ -157,13 +187,43 @@ public class NativeFolderWatchServiceTest {
 		Mockito.verify(fileManager, Mockito.times(1)).update(modify);
 	}
 
+	/**
+	 * Test whether a modify event of a big file gets detected when a file
+	 *  gets altered
+	 *  
+	 * @throws Exception
+	 */
 	@Test
-	public void testBigFileModify() {
+	public void testBigFileModify() throws Exception {
+		watchService.start();
+		
+		// create new small file
+		File modify = Paths.get(basePath.toString(), "modify_big.txt").toFile();
+		
+		FileWriter out = new FileWriter(modify);
+		WatchServiceTestHelpers.writeRandomData(out, NUM_CHARS_BIG_FILE);
+		out.close();
+		sleep();
+		Mockito.verify(fileManager, Mockito.times(1)).add(modify);
+		
+		// modify newly created file
+		out = new FileWriter(modify);
+		WatchServiceTestHelpers.writeRandomData(out, NUM_CHARS_BIG_FILE);
+		out.close();
+		sleep();
+		
+		Mockito.verify(fileManager, Mockito.times(1)).update(modify);
 		
 	}
 	
+	/**
+	 * Test whether renaming a file gets recognized as an move event
+	 * @throws Exception
+	 */
 	@Test
-	public void testFileRename() throws IOException, NoSessionException, NoPeerConnectionException, IllegalFileLocation, InterruptedException {
+	public void testFileRename() throws Exception {
+		watchService.start();
+	
 		File rename = Paths.get(basePath.toString(), "rename.txt").toFile();
 		File newName = Paths.get(basePath.toString(), "rename_rename.txt").toFile();
 		
@@ -180,20 +240,62 @@ public class NativeFolderWatchServiceTest {
 		
 	}
 	
-	public void testFileMove() {
+	/**
+	 * Test whether the movement of a file to a sub directory gets recognized
+	 * as an move event
+	 * 
+	 * @throws Exception
+	 */
+	@Test
+	public void testFileMove() throws Exception {
+		watchService.start();
 		
+		File file = Paths.get(basePath.toString(), "move.txt").toFile();
+		File newFile = Paths.get(basePath.toString(), "\\subfolder\\move.txt").toFile();
+		
+		FileWriter out = new FileWriter(file);
+		WatchServiceTestHelpers.writeRandomData(out, NUM_CHARS_SMALL_FILE);
+		out.close();
+		sleep();
+		
+		Mockito.verify(fileManager, Mockito.times(1)).add(file);
+		
+		FileUtils.moveFile(file, newFile);
+		sleep();
+		Mockito.verify(fileManager, Mockito.times(1)).move(file, newFile);
 	}
 	
-	public void testFileCopy() {
+	/**
+	 * Copy an existing file to another location and check whether 
+	 * the appropriate event gets triggered
+	 * 
+	 * @throws Exception
+	 */
+	@Test
+	public void testFileCopy() throws Exception {
+		watchService.start();
 		
+		File file = Paths.get(basePath.toString(), "move.txt").toFile();
+		File newFile = Paths.get(basePath.toString(), "\\subfolder").toFile();
+		
+		FileWriter out = new FileWriter(file);
+		WatchServiceTestHelpers.writeRandomData(out, NUM_CHARS_SMALL_FILE);
+		out.close();
+		sleep();
+		
+		Mockito.verify(fileManager, Mockito.times(1)).add(file);
+		
+		FileUtils.copyFileToDirectory(file, newFile);
+		sleep();
+		Mockito.verify(fileManager, Mockito.times(1)).add(newFile);
 	}
 	
 	public void testBigFileCopy() {
 		
 	}
 	
-	public void testManySimultaneousEvents() {
-		
+	@Test
+	public void testManySimultaneousEvents() throws IOException {
 	}
 	
 
