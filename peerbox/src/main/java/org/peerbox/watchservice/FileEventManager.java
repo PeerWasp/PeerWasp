@@ -53,6 +53,8 @@ public class FileEventManager implements IFileEventListener {
 		} else {
 			actionQueue.remove(deleteAction);
 			// found matching delete event -> move
+			
+			System.out.println("Delete time: " + deleteAction.getTimestamp() + " Create time: " + lastAction.getTimestamp());
 			lastAction.handleMoveEvent(deleteAction.getFilePath());
 			// update lookup indices - remove mappings
 			filePathToAction.remove(deleteAction.getFilePath());
