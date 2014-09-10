@@ -299,5 +299,23 @@ public class NativeFolderWatchServiceTest {
 	}
 	
 
+	@Test
+	public void createManyFiles() throws Exception{
+		watchService.start();
+		File file = null;
+		
+		for (int i = 0; i < 50; i++){
+			
+			String randomFileName = WatchServiceTestHelpers.getRandomString(5, "abcdfg1234");
+			
+			file = Paths.get(basePath.toString(), randomFileName + ".txt").toFile();
+			FileWriter out = new FileWriter(file);
+			WatchServiceTestHelpers.writeRandomData(out, NUM_CHARS_SMALL_FILE);
+			out.close();
+		}
+		sleep();
+		
+		Mockito.verify(fileManager, Mockito.times(50)).add(file);
+	}
 
 }
