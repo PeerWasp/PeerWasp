@@ -57,7 +57,6 @@ public class ActionExecutor implements Runnable {
 				//System.out.println("1. actionQueue.size: " + actionQueue.size() + " deleteQueue.size(): " + deleteQueue.size());
 				// blocking, waits until queue not empty, returns and removes (!) first element
 				next = fileEventManager.getActionQueue().take();
-				
 				if(isActionReady(next)) {
 					//System.out.println("After execution: AQ: " + actionQueue.size() + " DQ: " + deleteQueue.size() + " Map: " + filePathToAction.size());
 					next.execute(fileEventManager.getFileManager());

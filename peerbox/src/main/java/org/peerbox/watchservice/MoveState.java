@@ -65,7 +65,8 @@ public class MoveState extends ActionState {
 	public ActionState handleModifyEvent() {
 		logger.debug("Modify Request denied: Cannot change from Move to Modify State.");
 		//return new MoveState();
-		throw new IllegalStateException("Modify Request denied: Cannot change from Move to Modify State.");
+		//throw new IllegalStateException("Modify Request denied: Cannot change from Move to Modify State.");
+		return this;
 	}
 	
 	@Override

@@ -18,4 +18,25 @@ public class WatchServiceTestHelpers {
 		char c = (char)(rnd.nextInt(26) + 'a');
 		return c;
 	}
+	
+	
+	public static String getRandomString(int len, String charSet) {
+		String result = "";
+	 
+		while (result.length() < len) {
+			result = result + getChar(charSet);
+		}
+	 
+		return result;
+	}
+	
+	public static char getChar(String charSet) {
+		int s = getInt(charSet.length());
+		return charSet.charAt(s - 1);
+	}
+	 
+	public static int getInt(int max) {
+		return (int) (Math.ceil(Math.random() * max));
+	}
+	
 }
