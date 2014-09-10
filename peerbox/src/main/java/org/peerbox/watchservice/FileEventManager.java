@@ -167,4 +167,8 @@ public class FileEventManager implements IFileEventListener {
 	public void setFileManager(FileManager fileManager) {
 		this.fileManager = fileManager;
 	}
+	
+	public FileEventManager getThis(){
+		return this;
+	}
 }

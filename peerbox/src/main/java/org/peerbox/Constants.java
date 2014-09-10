@@ -7,4 +7,6 @@ public interface Constants {
 	
 	//User PIN length
 	public static final int MIN_PIN_LENGTH = 3;
+	
+	public static final int FILESYSTEM_POLL_INTERVAL_MS = 5000;
 }
