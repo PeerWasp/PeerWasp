@@ -1,6 +1,7 @@
 package org.peerbox.watchservice;
 
 import static org.junit.Assert.*;
+import static org.mockito.Matchers.anyObject;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -16,6 +17,7 @@ import java.nio.file.WatchEvent;
 import java.nio.file.WatchEvent.Kind;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
@@ -29,6 +31,7 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+import org.mockito.internal.matchers.Any;
 import org.peerbox.model.H2HManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -228,6 +231,20 @@ public class FolderWatchServiceTest {
 	
 	@Test 
 	public void testFolderCopyEvent() {
+		
+	}
+	
+	@Test 
+	public void testHighLoad() throws Exception {
+		watchService.start();
+		List<Path> files = new ArrayList<Path>();
+		for(int i = 0; i < 10000; ++i) {
+			Path p = Paths.get(basePath.toString(), String.format("%s.txt", i));
+			assertTrue(p.toFile().createNewFile());
+			files.add(p);
+		}
+		sleep();
+		Mockito.verify(fileEventListener, Mockito.times(files.size())).onFileCreated(anyObject());
 		
 	}
 	

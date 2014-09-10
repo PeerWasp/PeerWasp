@@ -37,8 +37,6 @@ public class FolderWatchService {
     
     private List<IFileEventListener> eventListeners;
     
-
-
 	public FolderWatchService(Path rootFolderToWatch) throws IOException {
 		this.rootFolder = rootFolderToWatch;
 		this.watcher = FileSystems.getDefault().newWatchService();
@@ -71,32 +69,31 @@ public class FolderWatchService {
 		}
 	}
 
-	public void addFileEventListener(IFileEventListener listener) {
+	public synchronized void addFileEventListener(IFileEventListener listener) {
 		eventListeners.add(listener);
 	}
 
-	public void removeFileEventListener(IFileEventListener listener) {
+	public synchronized void removeFileEventListener(IFileEventListener listener) {
 		eventListeners.remove(listener);
 	}
 
-	public List<IFileEventListener> getFileEventListeners() {
-		return eventListeners;
-	}
-
 	private void notifyFileCreated(Path path) {
-		for(IFileEventListener l : eventListeners) {
+		List<IFileEventListener> listeners = new ArrayList<IFileEventListener>(eventListeners);
+		for(IFileEventListener l : listeners) {
 			l.onFileCreated(path);
 		}
 	}
 	
 	private void notifyFileModified(Path path) {
-		for(IFileEventListener l : eventListeners) {
+		List<IFileEventListener> listeners = new ArrayList<IFileEventListener>(eventListeners);
+		for(IFileEventListener l : listeners) {
 			l.onFileModified(path);
 		}
 	}
 
 	private void notifyFileDeleted(Path path) {
-		for(IFileEventListener l : eventListeners) {
+		List<IFileEventListener> listeners = new ArrayList<IFileEventListener>(eventListeners);
+		for(IFileEventListener l : listeners) {
 			l.onFileDeleted(path);
 		}
 	}
@@ -152,7 +149,7 @@ public class FolderWatchService {
 
 				Path dir = keys.get(key);
 				if (dir == null) {
-					System.err.println("WatchKey not recognized!!");
+					logger.error("WatchKey not recognized!!");
 					continue;
 				}
 
@@ -160,6 +157,7 @@ public class FolderWatchService {
 
 					// TBD - provide example of how OVERFLOW event is handled
 					if (event.kind() == OVERFLOW) {
+						logger.warn("OVERFLOW");
 						continue;
 					}
 
