@@ -84,7 +84,7 @@ public class FileEventManagerTest {
 	 * that only one element is stored in the action queue. This element
 	 * has to be still in the create state after this two events are processed.
 	 */
-	@Test @Ignore
+	@Test
 	public void onFileCreatedTest(){
 		
 		long start = System.currentTimeMillis();
@@ -110,7 +110,7 @@ public class FileEventManagerTest {
 	 * time for the event to be handled. After that, a move is simulated using a delete event on
 	 * the same file and a create event on a new file with the same content (but different name).
 	 */
-	@Test @Ignore
+	@Test
 	public void fromDeleteToModifyTest(){
 		//handle artificial create event, wait for handling
 		manager.onFileCreated(Paths.get(filePaths.get(0)));
@@ -141,7 +141,7 @@ public class FileEventManagerTest {
 	 * Simulate a file delete and an additional modify event, check if the file
 	 * remains in the delete state and only one action is stored in the queue.
 	 */
-	@Test @Ignore
+	@Test
 	public void onFileDeletedTest(){
 		long start = System.currentTimeMillis();
 		
@@ -208,7 +208,7 @@ public class FileEventManagerTest {
 	 * (tail) [move file2 to file3], [delete file0] [create file1] (head)
 	 */
 	
-	@Test @Ignore
+	@Test
 	public void multipleFilesTest(){
 		//measure start time to ensure the testcase runs before the queue is processed
 		long start = System.currentTimeMillis();
@@ -284,7 +284,7 @@ public class FileEventManagerTest {
 	 * be pushed as a create.
 	 */
 	
-	@Test @Ignore
+	@Test
 	public void remoteCreateOnLocalMove(){
 		
 //		Class<?> c = manager.getClass();
@@ -341,7 +341,7 @@ public class FileEventManagerTest {
 	 * for a cleaned action queue if ActionExecutor.ACTION_TIME_TO_WAIT * 2 is passed
 	 * as millisToSleep
 	 */
-	private void sleepMillis(long millisToSleep){
+	public static void sleepMillis(long millisToSleep){
 		try {
 			Thread.sleep(millisToSleep);
 		} catch (InterruptedException e) {

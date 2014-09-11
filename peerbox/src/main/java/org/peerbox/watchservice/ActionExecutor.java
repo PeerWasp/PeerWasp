@@ -60,6 +60,10 @@ public class ActionExecutor implements Runnable {
 				if(isActionReady(next)) {
 					//System.out.println("After execution: AQ: " + actionQueue.size() + " DQ: " + deleteQueue.size() + " Map: " + filePathToAction.size());
 					next.execute(fileEventManager.getFileManager());
+					System.out.println("State: " + next.getCurrentState().getClass());
+					if(next.getCurrentState() instanceof DeleteState){
+						fileEventManager.getFilePathToAction().remove(next);
+					}
 				} else {
 					// not ready yet, insert action again (no blocking peek, unfortunately)
 					fileEventManager.getActionQueue().put(next);

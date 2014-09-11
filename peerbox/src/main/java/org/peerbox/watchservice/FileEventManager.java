@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.PriorityBlockingQueue;
 
 import org.peerbox.FileManager;
@@ -22,6 +23,10 @@ public class FileEventManager implements IFileEventListener {
 	
     private BlockingQueue<Action> actionQueue;
     private Map<Path, Action> filePathToAction;
+	public Map<Path, Action> getFilePathToAction() {
+		return filePathToAction;
+	}
+
 	private SetMultimap<String, Path> contentHashToFilePaths;
 
 	private Thread actionExecutor;
@@ -30,7 +35,7 @@ public class FileEventManager implements IFileEventListener {
     
     public FileEventManager() {
     	actionQueue = new PriorityBlockingQueue<Action>(10, new FileActionTimeComparator());
-        filePathToAction = new HashMap<Path, Action>();
+        filePathToAction = new ConcurrentHashMap<Path, Action>();
         contentHashToFilePaths = HashMultimap.create();
         
 		actionExecutor = new Thread(new ActionExecutor(this));
