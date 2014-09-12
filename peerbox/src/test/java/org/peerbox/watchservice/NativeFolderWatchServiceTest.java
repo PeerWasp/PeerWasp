@@ -8,7 +8,12 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Random;
+import java.util.Set;
 
 import org.apache.commons.io.FileUtils;
 import org.hive2hive.core.exceptions.IllegalFileLocation;
@@ -20,6 +25,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
@@ -251,7 +257,7 @@ public class NativeFolderWatchServiceTest {
 		watchService.start();
 		
 		File file = Paths.get(basePath.toString(), "move.txt").toFile();
-		File newFile = Paths.get(basePath.toString(), "\\subfolder\\move.txt").toFile();
+		File newFile = Paths.get(basePath.toString(), "subfolder", "move.txt").toFile();
 		
 		FileWriter out = new FileWriter(file);
 		WatchServiceTestHelpers.writeRandomData(out, NUM_CHARS_SMALL_FILE);
@@ -272,26 +278,37 @@ public class NativeFolderWatchServiceTest {
 	 * @throws Exception
 	 */
 	@Test
-	public void testFileCopy() throws Exception {
-		watchService.start();
-		
-		File file = Paths.get(basePath.toString(), "move.txt").toFile();
-		File newFile = Paths.get(basePath.toString(), "\\subfolder").toFile();
+	public void testSmallFileCopy() throws Exception {
+		File file = Paths.get(basePath.toString(), "original.txt").toFile();
+		File newFile = Paths.get(basePath.toString(), "copy.txt").toFile();
 		
 		FileWriter out = new FileWriter(file);
 		WatchServiceTestHelpers.writeRandomData(out, NUM_CHARS_SMALL_FILE);
 		out.close();
-		sleep();
 		
-		Mockito.verify(fileManager, Mockito.times(1)).add(file);
-		
-		FileUtils.copyFileToDirectory(file, newFile);
+		watchService.start();
+		FileUtils.copyFile(file, newFile);
 		sleep();
 		Mockito.verify(fileManager, Mockito.times(1)).add(newFile);
+		Mockito.verify(fileManager, Mockito.never()).delete(file);
+		Mockito.verify(fileManager, Mockito.never()).move(file, newFile);
 	}
 	
-	public void testBigFileCopy() {
+	@Test
+	public void testBigFileCopy() throws Exception {
+		File file = Paths.get(basePath.toString(), "original_big.txt").toFile();
+		File newFile = Paths.get(basePath.toString(), "copy_big.txt").toFile();
 		
+		FileWriter out = new FileWriter(file);
+		WatchServiceTestHelpers.writeRandomData(out, NUM_CHARS_BIG_FILE);
+		out.close();
+		
+		watchService.start();
+		FileUtils.copyFile(file, newFile);
+		sleep();
+		Mockito.verify(fileManager, Mockito.times(1)).add(newFile);
+		Mockito.verify(fileManager, Mockito.never()).delete(file);
+		Mockito.verify(fileManager, Mockito.never()).move(file, newFile);
 	}
 	
 	@Test
@@ -301,21 +318,62 @@ public class NativeFolderWatchServiceTest {
 
 	@Test
 	public void createManyFiles() throws Exception{
+		int numFiles = 1000;
 		watchService.start();
-		File file = null;
+		List<Path> files = new ArrayList<Path>();
 		
-		for (int i = 0; i < 50; i++){
-			
+		while(numFiles > 0) {
 			String randomFileName = WatchServiceTestHelpers.getRandomString(5, "abcdfg1234");
-			
-			file = Paths.get(basePath.toString(), randomFileName + ".txt").toFile();
-			FileWriter out = new FileWriter(file);
+			Path file = Paths.get(basePath.toString(), randomFileName + ".txt");
+			FileWriter out = new FileWriter(file.toFile());
 			WatchServiceTestHelpers.writeRandomData(out, NUM_CHARS_SMALL_FILE);
 			out.close();
+			files.add(file);
+			--numFiles;
 		}
 		sleep();
 		
-		Mockito.verify(fileManager, Mockito.times(50)).add(file);
+		Iterator<Path> it = files.iterator();
+		while(it.hasNext()) {
+			Mockito.verify(fileManager, Mockito.times(1)).add(it.next().toFile());
+		}
+	}
+	
+	
+	@Test
+	public void testCopyFolder() throws Exception {
+		// create folder with files
+		int numFiles = 100;
+		Path original = Paths.get(basePath.toString(), "original_folder");
+		Files.createDirectory(original);
+		
+		List<Path> files = new ArrayList<Path>();
+		for(int i = 0; i < numFiles; ++i) {
+			Path f = Paths.get(original.toString(), String.format("file_%s.txt", i));
+			FileWriter out = new FileWriter(f.toFile());
+			WatchServiceTestHelpers.writeRandomData(out, NUM_CHARS_SMALL_FILE);
+			out.close();
+			files.add(f);
+		}
+		
+		watchService.start();
+		
+		// copy folder
+		Path copy = Paths.get(basePath.toString(), "copy_folder");
+		FileUtils.copyDirectory(original.toFile(), copy.toFile());
+		sleep();
+		
+		Iterator<Path> it = files.iterator();
+		while(it.hasNext()) {
+			Path oldFile = it.next();
+			Path newFile = Paths.get(copy.toString(), oldFile.getFileName().toString());
+			assertTrue(Files.exists(newFile));
+//			Mockito.verify(fileManager, Mockito.times(1)).add(newFile.toFile());
+//			Mockito.verify(fileManager, Mockito.never()).delete(oldFile.toFile());
+//			Mockito.verify(fileManager, Mockito.never()).move(oldFile.toFile(), newFile.toFile());
+		}
+		
+		fail();
 	}
 
 }
