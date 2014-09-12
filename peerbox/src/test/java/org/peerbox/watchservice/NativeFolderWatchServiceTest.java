@@ -8,6 +8,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 import org.apache.commons.io.FileUtils;
@@ -20,6 +22,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
@@ -241,7 +244,7 @@ public class NativeFolderWatchServiceTest {
 	}
 	
 	/**
-	 * Test whether the movement of a file to a sub directory gets recognized
+	 * Test whether the movement of a file to an existing sub directory gets recognized
 	 * as an move event
 	 * 
 	 * @throws Exception
@@ -250,8 +253,15 @@ public class NativeFolderWatchServiceTest {
 	public void testFileMove() throws Exception {
 		watchService.start();
 		
+		// create new sub directory
+		String subDirString = "\\subDir\\";
+		File subDir = Paths.get(basePath.toString(), subDirString).toFile();
+		FileUtils.forceMkdir(subDir);
+		
+		// create new file
 		File file = Paths.get(basePath.toString(), "move.txt").toFile();
-		File newFile = Paths.get(basePath.toString(), "\\subfolder\\move.txt").toFile();
+		// target file path
+		File newFile = Paths.get(basePath.toString(), subDirString + "move.txt").toFile();
 		
 		FileWriter out = new FileWriter(file);
 		WatchServiceTestHelpers.writeRandomData(out, NUM_CHARS_SMALL_FILE);
@@ -260,6 +270,7 @@ public class NativeFolderWatchServiceTest {
 		
 		Mockito.verify(fileManager, Mockito.times(1)).add(file);
 		
+		// move file to new target path
 		FileUtils.moveFile(file, newFile);
 		sleep();
 		Mockito.verify(fileManager, Mockito.times(1)).move(file, newFile);
@@ -275,7 +286,7 @@ public class NativeFolderWatchServiceTest {
 	public void testFileCopy() throws Exception {
 		watchService.start();
 		
-		File file = Paths.get(basePath.toString(), "move.txt").toFile();
+		File file = Paths.get(basePath.toString(), "copy.txt").toFile();
 		File newFile = Paths.get(basePath.toString(), "\\subfolder").toFile();
 		
 		FileWriter out = new FileWriter(file);
@@ -290,32 +301,107 @@ public class NativeFolderWatchServiceTest {
 		Mockito.verify(fileManager, Mockito.times(1)).add(newFile);
 	}
 	
-	public void testBigFileCopy() {
+	@Test
+	public void testBigFileCopy() throws Exception {
+		watchService.start();
 		
+		File file = Paths.get(basePath.toString(), "big_copy.txt").toFile();
+		File newFile = Paths.get(basePath.toString(), "\\subfolder").toFile();
+		
+		FileWriter out = new FileWriter(file);
+		WatchServiceTestHelpers.writeRandomData(out, NUM_CHARS_BIG_FILE);
+		out.close();
+		sleep();
+		
+		Mockito.verify(fileManager, Mockito.times(1)).add(file);
+		
+		FileUtils.copyFileToDirectory(file, newFile);
+		sleep();
+		Mockito.verify(fileManager, Mockito.times(1)).add(newFile);
 	}
 	
 	@Test
-	public void testManySimultaneousEvents() throws IOException {
+	public void testManySimultaneousEvents() throws Exception {
+		watchService.start();
+		
+		List<File> folderList = new ArrayList<File>();
+		List<File> fileList = new ArrayList<File>();
+		
+		int numberOfFolders = WatchServiceTestHelpers.randomInt(5, 50);
+		int numberOfFiles = WatchServiceTestHelpers.randomInt(200, 1000);
+		
+		// create random folders & save files(paths) in list
+		String folderName = null;
+		
+		for (int i = 1; i <= numberOfFolders; i++){
+			
+			folderName = WatchServiceTestHelpers.getRandomString(15, "abcdefghijklmnopqrstuvwxyz123456789");
+			String subDirString = "\\" + folderName  +"\\";
+			File subDir = Paths.get(basePath.toString(), subDirString).toFile();
+			FileUtils.forceMkdir(subDir);
+			
+			folderList.add(subDir);
+		}
+		
+		// create random files in base path & save files(paths) in list
+		File randomFile;
+		
+		for (int i = 1; i <= numberOfFiles; i++){
+			
+			String randomFileName = WatchServiceTestHelpers.getRandomString(15, "abcdefghijklmnopqrstuvwxyz123456789");
+			
+			randomFile = Paths.get(basePath.toString(), randomFileName + ".txt").toFile();
+			FileWriter out = new FileWriter(randomFile);
+			WatchServiceTestHelpers.writeRandomData(out, NUM_CHARS_SMALL_FILE);
+			out.close();
+			
+			fileList.add(randomFile);
+		}
+		
+		// pick a random number of files and move them randomly to folders
+		int randomNumberOfMovements = WatchServiceTestHelpers.randomInt(1, numberOfFiles);
+		
+		for (int i = 1; i <= randomNumberOfMovements; i++){
+			
+			// randomly pick a file from the fileList
+			int randomFilePick = WatchServiceTestHelpers.randomInt(0, fileList.size()-1);
+			File randomFileToMove = fileList.get(randomFilePick);
+			
+			// randomly pick a target sub directory
+			int randomFolderPick = WatchServiceTestHelpers.randomInt(0, folderList.size()-1);
+			File randomTargetFolder = folderList.get(randomFolderPick);
+			
+			FileUtils.moveFileToDirectory(randomFileToMove, randomTargetFolder, false);
+			
+			// remove moved file from file list
+			fileList.remove(randomFileToMove);
+		}	
+		
+		sleep();
+		
+	//	Mockito.verify(fileManager, Mockito.times(randomNumberOfMovements)).move(Matchers.anyObject(), Matchers.anyObject());
 	}
 	
 
 	@Test
-	public void createManyFiles() throws Exception{
+	public void testCreateManyFiles() throws Exception{
 		watchService.start();
 		File file = null;
+		int fileNumbers = 1000;
 		
-		for (int i = 0; i < 50; i++){
+		for (int i = 1; i <= fileNumbers; i++){
 			
-			String randomFileName = WatchServiceTestHelpers.getRandomString(5, "abcdfg1234");
+			String randomFileName = WatchServiceTestHelpers.getRandomString(9, "abcdefg123456789");
 			
 			file = Paths.get(basePath.toString(), randomFileName + ".txt").toFile();
 			FileWriter out = new FileWriter(file);
 			WatchServiceTestHelpers.writeRandomData(out, NUM_CHARS_SMALL_FILE);
 			out.close();
+			// System.out.println("File added: Itemnr.: " + i);
 		}
 		sleep();
 		
-		Mockito.verify(fileManager, Mockito.times(50)).add(file);
+		Mockito.verify(fileManager, Mockito.times(fileNumbers)).add(Matchers.anyObject());
 	}
 
 }

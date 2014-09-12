@@ -39,4 +39,11 @@ public class WatchServiceTestHelpers {
 		return (int) (Math.ceil(Math.random() * max));
 	}
 	
+	public static int randomInt(int min, int max) {
+
+	    int randomNum = rnd.nextInt((max - min) + 1) + min;
+	    
+	    return randomNum;
+	}
+	
 }
