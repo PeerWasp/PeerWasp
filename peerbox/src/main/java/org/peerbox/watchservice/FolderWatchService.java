@@ -19,8 +19,13 @@ import java.nio.file.WatchService;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,45 +33,55 @@ import org.slf4j.LoggerFactory;
 public class FolderWatchService {
 
 	private static final Logger logger = LoggerFactory.getLogger(FolderWatchService.class);
+	private static final long CLEANUP_TASK_DELAY = 5000;
 	
 	private Path rootFolder;
 	private Thread eventProcessor;
-	private final WatchService watcher;
-    private final Map<WatchKey,Path> keys;
-    private boolean trace = false;
+	private WatchService watcher;
+    private Map<WatchKey, Path> keys;
     
     private List<IFileEventListener> eventListeners;
     
+    
+    private Timer timer;
+    
 	public FolderWatchService(Path rootFolderToWatch) throws IOException {
 		this.rootFolder = rootFolderToWatch;
-		this.watcher = FileSystems.getDefault().newWatchService();
         this.keys = new HashMap<WatchKey, Path>();
         this.eventListeners = new ArrayList<IFileEventListener>();
 	}
 	
 	public void start() throws Exception {
+		watcher = FileSystems.getDefault().newWatchService();
+
+		logger.info("Scanning {} ...", rootFolder);
+		keys.clear();
+		registerFoldersRecursive(rootFolder);
+		logger.info("Scanning done.");
 		
-        logger.info("Scanning {} ...", rootFolder);
-        registerFoldersRecursive(rootFolder);
-        logger.info("Scanning done.");
- 
-        // enable trace after initial registration
-        this.trace = true;
-        
 		eventProcessor = new Thread(new FolderWatchEventProcessor());
-		eventProcessor.setDaemon(true); // keep running 
 		eventProcessor.start();
 	}
 
 	public void stop() throws Exception {
+		// event processor thread
 		if(eventProcessor != null) {
 			eventProcessor.interrupt();
 			eventProcessor.join();
-			// TODO: maybe reset all buffers, queues, maps, ... -> reset, event?
+			eventProcessor = null;
 		}
+		// java watch service
 		if(watcher != null) {
 			watcher.close();
+			watcher = null;
 		}
+		// key map
+		keys.clear();
+		// cleanup task / timer
+		if(timer != null) {
+			timer.cancel();
+		}
+		timer = null;
 	}
 
 	public synchronized void addFileEventListener(IFileEventListener listener) {
@@ -98,31 +113,74 @@ public class FolderWatchService {
 		}
 	}
 	
-	private void registerFolder(Path folder) throws IOException {
-	    WatchKey key = folder.register(watcher, ENTRY_CREATE, ENTRY_DELETE, ENTRY_MODIFY);
-	    if (trace) {
-	        Path prev = keys.get(key);
-	        if (prev == null) {
-	            logger.debug("register: {}\n", folder);
-	        } else {
-	            if (!folder.equals(prev)) {
-	            	logger.debug("update: {} -> {}\n", prev, folder);
-	            }
-	        }
-	    }
-	    keys.put(key, folder);
+	private synchronized void registerFolder(final Path folder) throws IOException {
+		// FIXME: containsValue has bad performance in case of many folders. 
+		// maybe bidirectional (e.g. from guava library) map would be a fix for that.
+		if(!keys.containsValue(folder)) {
+			logger.info("Register folder: {}", folder);
+		    WatchKey key = folder.register(watcher, ENTRY_CREATE, ENTRY_DELETE, ENTRY_MODIFY, OVERFLOW);
+		    keys.put(key, folder);
+		}
 	}
 
-	private void registerFoldersRecursive(final Path start) throws IOException {
+	private synchronized void registerFoldersRecursive(final Path start) throws IOException {
 	    // register recursively all folders and subfolders
 	    Files.walkFileTree(start, new SimpleFileVisitor<Path>() {
 	        @Override
-	        public FileVisitResult preVisitDirectory(Path folder, BasicFileAttributes attrs) throws IOException
+	        public FileVisitResult preVisitDirectory(Path folder, BasicFileAttributes attrs)
 	        {
-	            registerFolder(folder);
+	            try {
+					registerFolder(folder);
+				} catch (IOException e) {
+					logger.warn("Could not register folder: {} ({})", folder, e.getMessage());
+				}
 	            return FileVisitResult.CONTINUE;
 	        }
 	    });
+	}
+	
+	private synchronized void unregisterFolder(WatchKey folderKey) {
+		folderKey.cancel();
+		Path p = keys.remove(folderKey);
+		logger.info("Unregister folder: {}", p);
+	}
+	
+	private synchronized void cleanupFolderRegistrations() {
+		// find watch keys of deleted folders
+		Set<Entry<WatchKey, Path>> entrySet = new HashSet<Entry<WatchKey,Path>>(keys.entrySet());
+		Set<WatchKey> keysToCancel = new HashSet<WatchKey>();
+		for(Entry<WatchKey, Path> e : entrySet) {
+			if(!Files.exists(e.getValue(), NOFOLLOW_LINKS)) {
+				keysToCancel.add(e.getKey());
+			}
+		}
+		
+		// unregister folders (cancel watch key)
+		for(WatchKey k : keysToCancel) {
+			unregisterFolder(k);
+		}
+	}
+	
+	private synchronized void scheduleCleanupTask() {
+		if(timer != null) {
+			timer.cancel();
+			timer = null;
+		}
+		
+		timer = new Timer(getClass().getName());
+		timer.schedule(new TimerTask() {
+			@Override
+			public void run() {
+				try {
+					logger.info("Running cleanup for registered folders.");
+					registerFoldersRecursive(rootFolder);
+					cleanupFolderRegistrations();
+				} catch (IOException e) {
+					logger.warn("Could not register folders ({})", e.getMessage());
+				}
+			}
+			
+		}, CLEANUP_TASK_DELAY);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -140,10 +198,11 @@ public class FolderWatchService {
 			for (;;) {
 
 				// wait for key to be signalled
-				WatchKey key;
+				WatchKey key = null;
 				try {
 					key = watcher.take();
 				} catch (InterruptedException x) {
+//					logger.error("Folder Watch Event Processor interrupted.");
 					return;
 				}
 
@@ -190,13 +249,15 @@ public class FolderWatchService {
 				// reset key and remove from set if directory no longer accessible
 				boolean valid = key.reset();
 				if (!valid) {
-					keys.remove(key);
-
+					unregisterFolder(key);
 					// all directories are inaccessible
 					if (keys.isEmpty()) {
 						break;
 					}
 				}
+				
+				// schedule a cleanup task that iterates over all directories and updates watch keys (adds or removes them)
+				scheduleCleanupTask();
 			}
 		}
 

@@ -83,6 +83,7 @@ public class NativeFolderWatchServiceTest {
 	private void sleep() throws InterruptedException {
 		Thread.sleep(SLEEP_TIME);
 	}
+	
 
 	/**
 	 * Create a file and test whether it gets handled by the 

@@ -10,6 +10,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardWatchEventKinds;
@@ -76,6 +77,75 @@ public class FolderWatchServiceTest {
 		FileUtils.cleanDirectory(basePath.toFile());
 	}
 	
+	@Test
+	public void testServiceStart() throws Exception {
+		Path file = addModifyDelete("file_1.txt");
+		// service stopped -> no events should be processed
+		Mockito.verify(fileEventListener, Mockito.never()).onFileCreated(file);
+		Mockito.verify(fileEventListener, Mockito.never()).onFileModified(file);
+		Mockito.verify(fileEventListener, Mockito.never()).onFileDeleted(file);
+		
+		watchService.start();
+		
+		file = addModifyDelete("file_2.txt");
+		// service started -> events should be processed
+		Mockito.verify(fileEventListener, Mockito.times(1)).onFileCreated(file);
+		Mockito.verify(fileEventListener, Mockito.atLeastOnce()).onFileModified(file);
+		Mockito.verify(fileEventListener, Mockito.times(1)).onFileDeleted(file);
+	}
+
+	@Test
+	public void testServiceStop() throws Exception {
+		watchService.start();
+		sleep();
+		watchService.stop();
+		
+		Path file = addModifyDelete("file_1.txt");
+		
+		// service stopped -> no events should be processed
+		Mockito.verify(fileEventListener, Mockito.never()).onFileCreated(file);
+		Mockito.verify(fileEventListener, Mockito.never()).onFileModified(file);
+		Mockito.verify(fileEventListener, Mockito.never()).onFileDeleted(file);
+	}
+	
+	@Test
+	public void testServiceRestart() throws Exception {
+		watchService.start();
+		Path file = addModifyDelete("file_1.txt");
+		// service started -> events should be processed
+		Mockito.verify(fileEventListener, Mockito.times(1)).onFileCreated(file);
+		Mockito.verify(fileEventListener, Mockito.atLeastOnce()).onFileModified(file);
+		Mockito.verify(fileEventListener, Mockito.times(1)).onFileDeleted(file);
+		
+		watchService.stop();
+		file = addModifyDelete("file_2.txt");
+		// service stopped -> no events should be processed
+		Mockito.verify(fileEventListener, Mockito.never()).onFileCreated(file);
+		Mockito.verify(fileEventListener, Mockito.never()).onFileModified(file);
+		Mockito.verify(fileEventListener, Mockito.never()).onFileDeleted(file);
+		watchService.start();
+		// service stopped -> no events should be processed
+		Mockito.verify(fileEventListener, Mockito.never()).onFileCreated(file);
+		Mockito.verify(fileEventListener, Mockito.never()).onFileModified(file);
+		Mockito.verify(fileEventListener, Mockito.never()).onFileDeleted(file);
+	}
+	
+	private Path addModifyDelete(String filename) throws IOException, InterruptedException {
+		// file operations
+		Path file = Paths.get(basePath.toString(), filename);
+		assertTrue(file.toFile().createNewFile());
+		sleep();
+		
+		FileWriter out = new FileWriter(file.toFile());
+		WatchServiceTestHelpers.writeRandomData(out, FILE_SIZE);
+		out.close();
+		sleep();
+		
+		Files.delete(file);
+		sleep();
+		return file;
+	}
+
 	@Test
 	public void testFileAddEvent() throws Exception {
 		watchService.start();
@@ -184,7 +254,6 @@ public class FolderWatchServiceTest {
 		Path copy = Paths.get(basePath.toString(), "copy_of_file.txt");
 		FileUtils.copyFile(original.toFile(), copy.toFile());
 		sleep();
-		// expect 1 delete, 1 create event
 		Mockito.verify(fileEventListener, Mockito.times(1)).onFileCreated(copy);
 	}
 	
