@@ -5,18 +5,6 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
 
-import org.apache.commons.io.FileUtils;
-import org.controlsfx.control.action.Action;
-import org.controlsfx.dialog.Dialog;
-import org.controlsfx.dialog.Dialogs;
-import org.peerbox.UserConfig;
-import org.peerbox.presenter.SelectRootPathUtils;
-import org.peerbox.view.converter.EnabledDisabledStringConverter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.google.inject.Inject;
-
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -25,6 +13,17 @@ import javafx.scene.control.CheckBox;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.stage.Window;
+
+import org.apache.commons.io.FileUtils;
+import org.controlsfx.control.action.Action;
+import org.controlsfx.dialog.Dialog;
+import org.peerbox.UserConfig;
+import org.peerbox.presenter.SelectRootPathUtils;
+import org.peerbox.view.converter.EnabledDisabledStringConverter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.inject.Inject;
 
 public class Account implements Initializable {
 	
@@ -71,8 +70,9 @@ public class Account implements Initializable {
 			txtPin.setText(userConfig.getPin());
 		}
 		chbAutoLogin.setSelected(userConfig.isAutoLoginEnabled());
-		
-		txtRootPath.setText(userConfig.getRootPath().toString());
+		if(userConfig.hasRootPath()) {
+			txtRootPath.setText(userConfig.getRootPath().toString());
+		}
 	}
 	
 	

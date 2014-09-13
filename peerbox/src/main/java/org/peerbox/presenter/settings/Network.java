@@ -8,23 +8,22 @@ import java.util.Collections;
 import java.util.List;
 import java.util.ResourceBundle;
 
-import org.peerbox.UserConfig;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.google.inject.Inject;
-
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.CheckBox;
 import javafx.scene.control.ListView;
 import javafx.scene.control.SelectionMode;
 import javafx.scene.control.cell.TextFieldListCell;
 import javafx.util.Duration;
+
+import org.peerbox.UserConfig;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.inject.Inject;
 
 /**
  * Network settings 

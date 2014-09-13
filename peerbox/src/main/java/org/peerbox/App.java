@@ -1,14 +1,11 @@
 package org.peerbox;
 
 
-import java.awt.AWTException;
-import java.io.IOException;
 import java.net.UnknownHostException;
 import java.nio.file.Path;
 import java.util.List;
 
 import javafx.application.Application;
-import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.concurrent.WorkerStateEvent;
 import javafx.event.EventHandler;
@@ -19,11 +16,14 @@ import org.hive2hive.core.processes.framework.exceptions.InvalidProcessStateExce
 import org.peerbox.guice.PeerBoxModule;
 import org.peerbox.model.H2HManager;
 import org.peerbox.model.UserManager;
+import org.peerbox.notifications.InformationNotification;
 import org.peerbox.presenter.SelectRootPathUtils;
-import org.peerbox.view.tray.SysTray;
+import org.peerbox.presenter.tray.TrayException;
+import org.peerbox.view.tray.AbstractSystemTray;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.eventbus.EventBus;
 import com.google.inject.Guice;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
@@ -36,8 +36,9 @@ public class App extends Application
 	private static final Logger logger = LoggerFactory.getLogger(App.class);
 
 	private Injector injector;
+	private EventBus eventBus;
 	private H2HManager h2hManager;
-	private SysTray sysTray;
+	private AbstractSystemTray systemTray;
 	private static Stage primaryStage;
 	private UserConfig userConfig;
 	
@@ -63,7 +64,9 @@ public class App extends Application
 		} else {
 			logger.info("Loading startup stage (no auto login)");
 			launchInForeground();
-		}     
+		}
+		
+		eventBus.post(new InformationNotification("PeerBox started", "Hello..."));
     }
 
 	private void initializeGuice() {
@@ -72,13 +75,11 @@ public class App extends Application
 	}
 
 	private void initializeSysTray() {
-	    try {
-	    	sysTray.addToSystemTray();
-	    	Platform.setImplicitExit(false);
-		} catch (AWTException awtex) {
-			logger.warn("Could not initialize systray (tray may not be supported?): {}", awtex.getMessage());
-		} catch (IOException ioex) {
-			logger.warn("Could not initialize systray (image not found?): {}", ioex.getMessage());
+		try {
+			systemTray.show();
+			systemTray.showDefaultIcon();
+		} catch (TrayException e) {
+			logger.error("Could not initialize systray");
 		} 
 	}
 
@@ -184,13 +185,18 @@ public class App extends Application
 	}
 	
 	@Inject 
-	private void setSysTray(SysTray sysTray) {
-		this.sysTray = sysTray;
+	private void setSystemTray(AbstractSystemTray systemTray) {
+		this.systemTray = systemTray;
 	}
 	
 	@Inject
 	private void setH2HManager(H2HManager manager) {
 		this.h2hManager = manager;
+	}
+	
+	@Inject
+	private void setEventBus(EventBus eventBus) {
+		this.eventBus = eventBus;
 	}
 }
 
