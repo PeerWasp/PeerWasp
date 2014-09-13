@@ -6,11 +6,6 @@ import java.awt.TrayIcon;
 import java.awt.TrayIcon.MessageType;
 import java.io.IOException;
 
-import javafx.application.Platform;
-import javafx.util.Duration;
-
-import org.controlsfx.control.Notifications;
-import org.peerbox.Constants;
 import org.peerbox.notifications.AggregatedFileEventStatus;
 import org.peerbox.notifications.ITrayNotifications;
 import org.peerbox.notifications.InformationNotification;
@@ -19,7 +14,6 @@ import org.peerbox.presenter.tray.TrayException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.eventbus.Subscribe;
 import com.google.inject.Inject;
 
 public class JSystemTray extends AbstractSystemTray implements ITrayNotifications {
@@ -118,13 +112,7 @@ public class JSystemTray extends AbstractSystemTray implements ITrayNotification
 	public void showFileEvents(AggregatedFileEventStatus event) {
 		String msg = generateAggregatedFileEventStatusMessage(event);
 		logger.debug("Message received: \n[{}]", msg);
-		Platform.runLater(() -> {
-			Notifications.create()
-			.hideAfter(Duration.millis(Constants.NOTIFICATION_HIDE_DELAY_MS))
-			.title("File Synchronization")
-			.text(msg)
-			.showInformation();
-		});
+		trayIcon.displayMessage("File Synchronization", msg, MessageType.INFO);
 	}
 
 	private String generateAggregatedFileEventStatusMessage(AggregatedFileEventStatus e) {
