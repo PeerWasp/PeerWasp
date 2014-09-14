@@ -17,10 +17,8 @@ import java.nio.file.WatchEvent.Kind;
 import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -30,7 +28,7 @@ import java.util.TimerTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class FolderWatchService {
+public class FolderWatchService extends AbstractWatchService {
 
 	private static final Logger logger = LoggerFactory.getLogger(FolderWatchService.class);
 	private static final long CLEANUP_TASK_DELAY = 5000;
@@ -40,17 +38,15 @@ public class FolderWatchService {
 	private WatchService watcher;
     private Map<WatchKey, Path> keys;
     
-    private List<IFileEventListener> eventListeners;
-    
-    
     private Timer timer;
     
 	public FolderWatchService(Path rootFolderToWatch) throws IOException {
+		super();
 		this.rootFolder = rootFolderToWatch;
         this.keys = new HashMap<WatchKey, Path>();
-        this.eventListeners = new ArrayList<IFileEventListener>();
 	}
 	
+	@Override
 	public void start() throws Exception {
 		watcher = FileSystems.getDefault().newWatchService();
 
@@ -63,6 +59,7 @@ public class FolderWatchService {
 		eventProcessor.start();
 	}
 
+	@Override
 	public void stop() throws Exception {
 		// event processor thread
 		if(eventProcessor != null) {
@@ -84,35 +81,6 @@ public class FolderWatchService {
 		timer = null;
 	}
 
-	public synchronized void addFileEventListener(IFileEventListener listener) {
-		eventListeners.add(listener);
-	}
-
-	public synchronized void removeFileEventListener(IFileEventListener listener) {
-		eventListeners.remove(listener);
-	}
-
-	private void notifyFileCreated(Path path) {
-		List<IFileEventListener> listeners = new ArrayList<IFileEventListener>(eventListeners);
-		for(IFileEventListener l : listeners) {
-			l.onFileCreated(path);
-		}
-	}
-	
-	private void notifyFileModified(Path path) {
-		List<IFileEventListener> listeners = new ArrayList<IFileEventListener>(eventListeners);
-		for(IFileEventListener l : listeners) {
-			l.onFileModified(path);
-		}
-	}
-
-	private void notifyFileDeleted(Path path) {
-		List<IFileEventListener> listeners = new ArrayList<IFileEventListener>(eventListeners);
-		for(IFileEventListener l : listeners) {
-			l.onFileDeleted(path);
-		}
-	}
-	
 	private synchronized void registerFolder(final Path folder) throws IOException {
 		// FIXME: containsValue has bad performance in case of many folders. 
 		// maybe bidirectional (e.g. from guava library) map would be a fix for that.
