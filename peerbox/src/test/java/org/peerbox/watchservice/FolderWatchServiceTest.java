@@ -10,6 +10,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.nio.file.CopyOption;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -18,8 +19,11 @@ import java.nio.file.WatchEvent;
 import java.nio.file.WatchEvent.Kind;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.io.FileUtils;
 import org.hive2hive.core.security.EncryptionUtil;
@@ -45,7 +49,7 @@ public class FolderWatchServiceTest {
 	private FolderWatchService watchService;
 	
 	private static final int SLEEP_TIME = 1000;
-	private static final int FILE_SIZE = 5*1024*1024;
+	private static final int FILE_SIZE = 1*1024*1024;
 	
 	@Mock
 	private IFileEventListener fileEventListener;
@@ -74,6 +78,7 @@ public class FolderWatchServiceTest {
 	@After
 	public void cleanup() throws Exception {
 		watchService.stop();
+		watchService = null;
 		FileUtils.cleanDirectory(basePath.toFile());
 	}
 	
@@ -173,7 +178,8 @@ public class FolderWatchServiceTest {
 		out.close();
 		
 		sleep();
-		// expect multiple events
+		// expect multiple modify events
+		Mockito.verify(fileEventListener, Mockito.never()).onFileCreated(modify);
 		Mockito.verify(fileEventListener, Mockito.atLeastOnce()).onFileModified(modify);
 	}
 	
@@ -274,33 +280,99 @@ public class FolderWatchServiceTest {
 		watchService.start();
 		
 		assertTrue(newFolder.toFile().mkdir());
+//		sleep(); -> this sleep shows that create event is fired if we wait a bit (until folder is registered)
 		assertTrue(newFile.toFile().createNewFile());
 		
 		sleep();
-//		Mockito.verify(fileEventListener, Mockito.times(1)).onFileCreated(newFolder);
-//		Mockito.verify(fileEventListener, Mockito.times(1)).onFileCreated(newFile);
-		
-		
+		Mockito.verify(fileEventListener, Mockito.times(1)).onFileCreated(newFolder);
+		Mockito.verify(fileEventListener, Mockito.times(1)).onFileCreated(newFile);
 	}
 	
 	@Test 
-	public void testFolderDeleteEvent() {
-		
+	public void testEmptyFolderDelete() throws Exception {
+		// create folder and delete it
+		Path folder = Paths.get(basePath.toString(), "todelete");
+		Files.createDirectory(folder);
+		watchService.start();
+		Files.delete(folder);
+		sleep();
+		Mockito.verify(fileEventListener, Mockito.times(1)).onFileDeleted(folder);
+	}
+	
+	private List<Path> createFolderWithFiles(Path folder, int numFiles) throws IOException {
+		Files.createDirectory(folder);
+		List<Path> files = new ArrayList<Path>();
+		for(int i = 0; i < numFiles; ++i) {
+			// create file with some content
+			Path file = Paths.get(folder.toString(), String.format("%s.txt", i));
+			Files.createFile(file);
+			FileWriter out = new FileWriter(file.toFile());
+			WatchServiceTestHelpers.writeRandomData(out,  FILE_SIZE);
+			out.close();
+			files.add(file);
+		}
+		return files;
 	}
 	
 	@Test 
-	public void testFolderMoveEvent() {
-		
+	public void testFolderDelete() throws Exception {
+		// create folder and some files in it.
+		Path folder = Paths.get(basePath.toString(), "todelete");
+		List<Path> files = createFolderWithFiles(folder, 200);
+				
+		watchService.start();
+		FileUtils.deleteDirectory(folder.toFile());
+		sleep();
+		Mockito.verify(fileEventListener, Mockito.times(1)).onFileDeleted(folder);
+		Mockito.verify(fileEventListener, Mockito.times(1+files.size())).onFileDeleted(anyObject());
 	}
 	
 	@Test 
-	public void testFolderRenameEvent() {
+	public void testFolderMoveEvent() throws Exception {
+		Path folder = Paths.get(basePath.toString(), "tomove");
+		List<Path> files = createFolderWithFiles(folder, 200);
 		
+		Path newLocation = Paths.get(basePath.toString(), "newlocation");
+		Files.createDirectory(newLocation);
+		newLocation = Paths.get(newLocation.toString(), "tomove");
+		
+		watchService.start();
+		Files.move(folder, newLocation);
+		sleep();
+		Mockito.verify(fileEventListener, Mockito.times(1)).onFileDeleted(folder);
+		Mockito.verify(fileEventListener, Mockito.times(1)).onFileCreated(newLocation);
 	}
 	
 	@Test 
-	public void testFolderCopyEvent() {
+	public void testFolderRenameEvent() throws Exception {
+		Path folder = Paths.get(basePath.toString(), "torename");
+		List<Path> files = createFolderWithFiles(folder, 200);
 		
+		Path rename = Paths.get(basePath.toString(), "torename_rename");
+		
+		watchService.start();
+		Files.move(folder, rename);
+		sleep();
+		Mockito.verify(fileEventListener, Mockito.times(1)).onFileDeleted(folder);
+		Mockito.verify(fileEventListener, Mockito.times(1)).onFileCreated(rename);
+	}
+	
+	@Test 
+	public void testFolderCopyEvent() throws Exception {
+		Path folder = Paths.get(basePath.toString(), "tomove");
+		List<Path> files = createFolderWithFiles(folder, 200);
+		
+		Path copy = Paths.get(basePath.toString(), "copy");
+		
+		watchService.start();
+		Files.copy(folder, copy);
+		sleep();
+		// old folder untouched
+		Mockito.verify(fileEventListener, Mockito.never()).onFileDeleted(folder);
+		Mockito.verify(fileEventListener, Mockito.never()).onFileCreated(folder);
+		Mockito.verify(fileEventListener, Mockito.never()).onFileModified(folder);
+		// new folder
+		Mockito.verify(fileEventListener, Mockito.times(1)).onFileCreated(anyObject());
 	}
 	
 	@Test 
