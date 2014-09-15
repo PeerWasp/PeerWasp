@@ -2,7 +2,6 @@ package org.peerbox.watchservice;
 
 import java.io.IOException;
 import java.nio.file.FileVisitResult;
-import java.nio.file.FileVisitor;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
@@ -10,25 +9,32 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
 
-public class FileWalker {
+public class FileWalker extends AbstractWatchService {
 	
 	private Path rootDirectory;
-	private FileIndexer indexer;
 	private FileEventManager eventManager;
 	private Map<Path, Action> filesystemView = new HashMap<Path, Action>();
 	
 	public FileWalker(Path rootDirectory, FileEventManager eventManager){
 		this.rootDirectory = rootDirectory;
-		this.indexer = new FileIndexer();
 		this.eventManager = eventManager;
 	}
 	
+	@Override
+	public void start() throws Exception {
+		// TODO Auto-generated method stub
+	}
+
+	@Override
+	public void stop() throws Exception {
+		// TODO Auto-generated method stub
+	}
+
 	public void indexDirectoryRecursively(){
 		try {
 			filesystemView = new HashMap<Path, Action>();
-			Files.walkFileTree(rootDirectory, indexer);
+			Files.walkFileTree(rootDirectory, new FileIndexer());
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -59,36 +65,27 @@ public class FileWalker {
 		}
 	}
 	
-	private class FileIndexer extends SimpleFileVisitor<Path>{
-
-		
-		
-
+	private class FileIndexer extends SimpleFileVisitor<Path> {
 		@Override
-		public FileVisitResult postVisitDirectory(Path arg0, IOException arg1) throws IOException {
-			// TODO Auto-generated method stub
-			return super.postVisitDirectory(arg0, arg1);
+		public FileVisitResult postVisitDirectory(Path path, IOException ex) throws IOException {
+			return super.postVisitDirectory(path, ex);
 		}
 
 		@Override
-		public FileVisitResult preVisitDirectory(Path arg0, BasicFileAttributes arg1)
+		public FileVisitResult preVisitDirectory(Path path, BasicFileAttributes attr)
 				throws IOException {
-			// TODO Auto-generated method stub
-			return super.preVisitDirectory(arg0, arg1);
+			return super.preVisitDirectory(path, attr);
 		}
 
 		@Override
-		public FileVisitResult visitFile(Path arg0, BasicFileAttributes arg1) throws IOException {
-			filesystemView.put(arg0, new Action(arg0));
+		public FileVisitResult visitFile(Path path, BasicFileAttributes attr) throws IOException {
+			filesystemView.put(path, new Action(path));
 			return FileVisitResult.CONTINUE;
 		}
 
 		@Override
-		public FileVisitResult visitFileFailed(Path arg0, IOException arg1) throws IOException {
-			// TODO Auto-generated method stub
-			return super.visitFileFailed(arg0, arg1);
+		public FileVisitResult visitFileFailed(Path path, IOException ex) throws IOException {
+			return super.visitFileFailed(path, ex);
 		}
-
-		
 	}
 }
