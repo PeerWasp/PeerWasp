@@ -10,6 +10,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.nio.charset.Charset;
 import java.nio.file.CopyOption;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -387,6 +388,93 @@ public class FolderWatchServiceTest {
 		sleep();
 		Mockito.verify(fileEventListener, Mockito.times(files.size())).onFileCreated(anyObject());
 		
+	}
+	
+	@Test
+	public void testManyFoldersAndEmptyFiles() throws Exception {
+		watchService.start();
+        Path base = basePath;
+        int numFolders = 100;
+        int numFilesPerFolder = 1000;
+        List<Path> files = new ArrayList<Path>(numFolders*numFilesPerFolder);
+		for (int k = 0; k < numFolders; ++k) {
+			Path sub = Paths.get(String.format("%s", k));
+			Files.createDirectory(base.resolve(sub));
+			for (int i = 0; i < numFilesPerFolder; ++i) {
+				Path f = sub.resolve(String.format("%s.txt", i));
+				Path fullPath = base.resolve(f);
+				Files.createFile(fullPath);
+				files.add(f);
+			}
+		}
+		sleep();
+		Mockito.verify(fileEventListener, Mockito.times(numFolders + numFolders*numFilesPerFolder)).onFileCreated(anyObject());
+	}
+	
+	
+	@Test
+	public void testManyEmptyFiles() throws Exception {
+		watchService.start();
+        Path base = basePath;
+        int numFolders = 10;
+        int numFilesPerFolder = 10000;
+        List<Path> files = new ArrayList<Path>(numFolders*numFilesPerFolder);
+		for (int k = 0; k < numFolders; ++k) {
+			Path sub = Paths.get(String.format("%s", k));
+			Files.createDirectory(base.resolve(sub));
+			for (int i = 0; i < numFilesPerFolder; ++i) {
+				Path f = sub.resolve(String.format("%s.txt", i));
+				Path fullPath = base.resolve(f);
+				Files.createFile(fullPath);
+				files.add(f);
+			}
+		}
+		sleep();
+		Mockito.verify(fileEventListener, Mockito.times(numFolders + numFolders*numFilesPerFolder)).onFileCreated(anyObject());
+	}
+	
+	@Test 
+	public void testManyFoldersAndSmallFiles() throws Exception {
+		watchService.start();
+        Path base = basePath;
+        int numFolders = 100;
+        int numFilesPerFolder = 1000;
+        List<Path> files = new ArrayList<Path>(numFolders*numFilesPerFolder);
+		for (int k = 0; k < numFolders; ++k) {
+			Path sub = Paths.get(String.format("%s", k));
+			Files.createDirectory(base.resolve(sub));
+			for (int i = 0; i < numFilesPerFolder; ++i) {
+				Path f = sub.resolve(String.format("%s.txt", i));
+				Path fullPath = base.resolve(f);
+				byte[] bytesToWrite = fullPath.toString().getBytes(Charset.forName("UTF-8"));
+				Files.write(fullPath, bytesToWrite);
+				files.add(f);
+			}
+		}
+		sleep();
+		Mockito.verify(fileEventListener, Mockito.times(numFolders + numFolders*numFilesPerFolder)).onFileCreated(anyObject());
+	}
+	
+	@Test
+	public void testManySmallFiles() throws Exception {
+		watchService.start();
+        Path base = basePath;
+        int numFolders = 10;
+        int numFilesPerFolder = 10000;
+		List<Path> files = new ArrayList<Path>(numFolders*numFilesPerFolder);
+		for (int k = 0; k < numFolders; ++k) {
+			Path sub = Paths.get(String.format("%s", k));
+			Files.createDirectory(base.resolve(sub));
+			for (int i = 0; i < numFilesPerFolder; ++i) {
+				Path f = sub.resolve(String.format("%s.txt", i));
+				Path fullPath = base.resolve(f);
+				byte[] bytesToWrite = fullPath.toString().getBytes(Charset.forName("UTF-8"));
+				Files.write(fullPath, bytesToWrite);
+				files.add(f);
+			}
+		}
+		sleep();
+		Mockito.verify(fileEventListener, Mockito.times(numFolders + numFolders*numFilesPerFolder)).onFileCreated(anyObject());
 	}
 	
 	private void sleep() throws InterruptedException {
