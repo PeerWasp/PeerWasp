@@ -107,7 +107,6 @@ public class FileEventManager implements IFileEventListener {
 		
 		// add action to the queue again as timestamp was updated
 		actionQueue.add(lastAction);
-		System.out.println("Last element: " + getOrCreateAction(path).getCurrentState().getClass());
 	}
 
 	@Override
@@ -154,7 +153,6 @@ public class FileEventManager implements IFileEventListener {
 			filePaths.add(action.getFilePath());
 		}
 		action = filePathToAction.get(filePath);
-		System.out.println("Found action with state: " + action.getCurrentState());
 		return action;
 	}
 	

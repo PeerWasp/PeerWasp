@@ -124,14 +124,13 @@ public class FileEventManagerTest {
 		long start = System.currentTimeMillis();
 		manager.onFileDeleted(Paths.get(filePaths.get(0)));
 		assertTrue(actionsToCheck.size() == 1);
-		System.out.println(actionsToCheck.peek().getCurrentState().getClass().toString());
 		assertTrue(actionsToCheck.peek().getCurrentState() instanceof DeleteState);
 		
 		//initiate re-creation, ensure that all happens in time
 		manager.onFileCreated(Paths.get(filePaths.get(1)));
-		System.out.println("Size: " + actionsToCheck.size());
 		assertTrue(actionsToCheck.size() == 1);
 		assertTrue(actionsToCheck.peek().getCurrentState() instanceof MoveState);
+		
 		long end = System.currentTimeMillis();
 		assertTrue(end - start <= ActionExecutor.ACTION_WAIT_TIME_MS);
 		sleepMillis(ActionExecutor.ACTION_WAIT_TIME_MS * 2);
@@ -307,7 +306,6 @@ public class FileEventManagerTest {
 //		}
 		
 		sleepMillis(ActionExecutor.ACTION_WAIT_TIME_MS*3);
-		System.out.println("Start");
 		long start = System.currentTimeMillis();
 		BlockingQueue<Action> actionsToCheck = manager.getActionQueue();
 		assertTrue(actionsToCheck.size() == 0);

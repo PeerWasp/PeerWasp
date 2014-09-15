@@ -39,6 +39,7 @@ public class FileWalker {
 		indexDirectoryRecursively();
 		
 		Map<Path, Action> filePathToAction = eventManager.getFilePathToAction();
+		
 		//Set<Path> filePathToActionKeys = filePathToAction.keySet();
 		for(Entry<Path, Action> entry : filesystemView.entrySet()){
 			Path key = entry.getKey();
