@@ -8,6 +8,12 @@ import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.hive2hive.core.exceptions.NoSessionException;
 import org.hive2hive.core.security.EncryptionUtil;
 import org.peerbox.FileManager;
+import org.peerbox.watchservice.states.ActionState;
+import org.peerbox.watchservice.states.LocalCreateState;
+import org.peerbox.watchservice.states.LocalDeleteState;
+import org.peerbox.watchservice.states.InitialState;
+import org.peerbox.watchservice.states.LocalModifyState;
+import org.peerbox.watchservice.states.LocalMoveState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,15 +47,6 @@ public class Action {
 		updateTimestamp();
 	}
 	
-	
-	
-//	private File getFileFromPath(Path filePath){
-//		if(filePath != null && filePath.toFile() != null){
-//			return filePath.toFile();
-//		}
-//		return null;
-//	}
-	
 	private void updateTimestamp() {
 		timestamp = System.currentTimeMillis();
 	}
@@ -68,7 +65,7 @@ public class Action {
 		return Action.createStringFromByteArray(new byte[1]);
 	}
 	
-	public static String createStringFromByteArray(byte[] bytes){
+	private static String createStringFromByteArray(byte[] bytes){
 		String hashString = Base64.encode(bytes);
 		return hashString;
 	}
@@ -76,31 +73,31 @@ public class Action {
 	/**
 	 * changes the state of the currentState to Create state if current state allows it.
 	 */
-	public void handleCreateEvent(){
-		currentState = currentState.handleCreateEvent();
+	public void handleLocalCreateEvent(){
+		currentState = currentState.handleLocalCreateEvent();
 		contentHash = computeContentHash(filePath);
-		updateTimestamp();
-	}
-	
-	/**
-	 * changes the state of the currentState to Delete state if current state allows it.
-	 */
-	public void handleDeleteEvent(){
-		currentState = currentState.handleDeleteEvent();
 		updateTimestamp();
 	}
 	
 	/**
 	 * changes the state of the currentState to Modify state if current state allows it.
 	 */
-	public void handleModifyEvent(){
-		currentState = currentState.handleModifyEvent();
+	public void handleLocalModifyEvent(){
+		currentState = currentState.handleLocalModifyEvent();
 		contentHash = computeContentHash(filePath);
 		updateTimestamp();
 	}
+
+	/**
+	 * changes the state of the currentState to Delete state if current state allows it.
+	 */
+	public void handleLocalDeleteEvent(){
+		currentState = currentState.handleLocalDeleteEvent();
+		updateTimestamp();
+	}
 	
-	public void handleMoveEvent(Path oldFilePath) {
-		currentState = currentState.handleMoveEvent(oldFilePath);
+	public void handleLocalMoveEvent(Path oldFilePath) {
+		currentState = currentState.handleLocalMoveEvent(oldFilePath);
 		updateTimestamp();
 	}
 
@@ -123,16 +120,12 @@ public class Action {
 	}
 	
 	public Path getFilePath(){
-		return filePath;//.toString();
+		return filePath;
 	}
 
 	public String getContentHash(){
 		return contentHash;
 	}
-
-//	public void setContentHash(String contentHash){
-//		this.contentHash = contentHash;
-//	}
 
 	public long getTimestamp() {
 		return timestamp;
@@ -141,23 +134,19 @@ public class Action {
 	/**
 	 * @return current state object
 	 */
-	public ActionState getCurrentState(){	
-			if (currentState.getClass() == CreateState.class){
-				logger.debug("Current State: Create");
-			} else if (currentState.getClass() == DeleteState.class){
-				logger.debug("Current State: Delete");
-			} else if (currentState.getClass() == ModifyState.class){
-				logger.debug("Current State: Modify");
-			} else if (currentState.getClass() == MoveState.class){
-				logger.debug("Current State: Move");
-			} else if (currentState.getClass() == InitialState.class){
-				logger.debug("Current State: Initial");
-			}
-			
-			return currentState;
+	public ActionState getCurrentState() {
+		if (currentState.getClass() == LocalCreateState.class) {
+			logger.debug("Current State: Create");
+		} else if (currentState.getClass() == LocalDeleteState.class) {
+			logger.debug("Current State: Delete");
+		} else if (currentState.getClass() == LocalModifyState.class) {
+			logger.debug("Current State: Modify");
+		} else if (currentState.getClass() == LocalMoveState.class) {
+			logger.debug("Current State: Move");
+		} else if (currentState.getClass() == InitialState.class) {
+			logger.debug("Current State: Initial");
 		}
-	
-//	public void setCurrentState(ActionState currentState){
-//		this.currentState = currentState;
-//	}
+
+		return currentState;
+	}
 }

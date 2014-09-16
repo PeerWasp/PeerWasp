@@ -1,4 +1,4 @@
-package org.peerbox.watchservice;
+package org.peerbox.watchservice.states;
 
 import java.nio.file.Path;
 
@@ -6,6 +6,7 @@ import org.hive2hive.core.exceptions.IllegalFileLocation;
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.hive2hive.core.exceptions.NoSessionException;
 import org.peerbox.FileManager;
+import org.peerbox.watchservice.Action;
 
 /**
  * Interface for different states of implemented state pattern
@@ -21,13 +22,13 @@ public abstract class ActionState {
 		this.action = action;
 	}
 
-	public abstract ActionState handleCreateEvent();
+	public abstract ActionState handleLocalCreateEvent();
 
-	public abstract ActionState handleDeleteEvent();
+	public abstract ActionState handleLocalDeleteEvent();
 
-	public abstract ActionState handleModifyEvent();
+	public abstract ActionState handleLocalModifyEvent();
 
-	public abstract ActionState handleMoveEvent(Path filePath);
+	public abstract ActionState handleLocalMoveEvent(Path oldFilePath);
 
 	public abstract void execute(FileManager fileManager) throws NoSessionException,
 			NoPeerConnectionException, IllegalFileLocation;

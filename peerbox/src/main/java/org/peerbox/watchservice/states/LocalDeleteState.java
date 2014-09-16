@@ -1,4 +1,4 @@
-package org.peerbox.watchservice;
+package org.peerbox.watchservice.states;
 
 import java.nio.file.Path;
 
@@ -7,6 +7,7 @@ import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.hive2hive.core.exceptions.NoSessionException;
 import org.peerbox.FileManager;
 import org.peerbox.model.H2HManager;
+import org.peerbox.watchservice.Action;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,11 +20,11 @@ import org.slf4j.LoggerFactory;
  * @author winzenried
  *
  */
-public class DeleteState extends ActionState {
+public class LocalDeleteState extends ActionState {
 
-	private final static Logger logger = LoggerFactory.getLogger(DeleteState.class);
+	private final static Logger logger = LoggerFactory.getLogger(LocalDeleteState.class);
 	
-	public DeleteState(Action action) {
+	public LocalDeleteState(Action action) {
 		super(action);
 	}
 	
@@ -34,7 +35,7 @@ public class DeleteState extends ActionState {
 	 * @return new MoveState object
 	 */
 	@Override
-	public ActionState handleCreateEvent() {
+	public ActionState handleLocalCreateEvent() {
 		// FIXME ???
 		System.out.println("Create Request accepted: Move detected.");
 		return new InitialState(action);
@@ -46,7 +47,7 @@ public class DeleteState extends ActionState {
 	 * @return new DeleteState object
 	 */
 	@Override
-	public ActionState handleDeleteEvent() {
+	public ActionState handleLocalDeleteEvent() {
 		logger.debug("Delete Request denied: Already in Delete State.");
 		return this;
 	}
@@ -58,7 +59,7 @@ public class DeleteState extends ActionState {
 	 * @return new DeleteState object
 	 */
 	@Override
-	public ActionState handleModifyEvent() {
+	public ActionState handleLocalModifyEvent() {
 		logger.debug("Modify Request denied: Cannot change from Delete to Modify State.");
 		return this;
 		//throw new IllegalStateException("Modify Request denied: Cannot change from Delete to Modify State.");
@@ -77,7 +78,7 @@ public class DeleteState extends ActionState {
 	}
 	
 	@Override
-	public ActionState handleMoveEvent(Path oldFilePath) {
+	public ActionState handleLocalMoveEvent(Path oldFilePath) {
 		throw new RuntimeException("Not implemented...");
 	}
 }

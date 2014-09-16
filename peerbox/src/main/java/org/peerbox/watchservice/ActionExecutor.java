@@ -7,6 +7,7 @@ import org.hive2hive.core.exceptions.IllegalFileLocation;
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.hive2hive.core.exceptions.NoSessionException;
 import org.peerbox.FileManager;
+import org.peerbox.watchservice.states.LocalDeleteState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -58,7 +59,7 @@ public class ActionExecutor implements Runnable {
 				// blocking, waits until queue not empty, returns and removes (!) first element
 				next = fileEventManager.getActionQueue().take();
 				if(isActionReady(next)) {
-					if(next.getCurrentState() instanceof DeleteState){
+					if(next.getCurrentState() instanceof LocalDeleteState){
 						fileEventManager.getFilePathToAction().remove(next.getFilePath());
 					}
 					next.execute(fileEventManager.getFileManager());				

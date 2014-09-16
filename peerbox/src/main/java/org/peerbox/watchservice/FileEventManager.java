@@ -11,6 +11,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.PriorityBlockingQueue;
 
 import org.peerbox.FileManager;
+import org.peerbox.watchservice.states.LocalDeleteState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,13 +55,13 @@ public class FileEventManager implements IFileEventListener {
 		Action deleteAction = findDeleteActionOfMoveEvent(lastAction);
 		if(deleteAction == null) {
 			// regular create event
-			lastAction.handleCreateEvent();
+			lastAction.handleLocalCreateEvent();
 		} else {
 			actionQueue.remove(deleteAction);
 			// found matching delete event -> move
 			
 			System.out.println("Delete time: " + deleteAction.getTimestamp() + " Create time: " + lastAction.getTimestamp());
-			lastAction.handleMoveEvent(deleteAction.getFilePath());
+			lastAction.handleLocalMoveEvent(deleteAction.getFilePath());
 			// update lookup indices - remove mappings
 			filePathToAction.remove(deleteAction.getFilePath());
 			Set<Path> filePaths = contentHashToFilePaths.get(deleteAction.getContentHash());
@@ -81,7 +82,7 @@ public class FileEventManager implements IFileEventListener {
 		long minTimeDiff = Long.MAX_VALUE;
 		for(Path path : filePaths) {
 			Action del = filePathToAction.get(path);
-			if(del.getCurrentState() instanceof DeleteState) {
+			if(del.getCurrentState() instanceof LocalDeleteState) {
 				long timeDiff = createAction.getTimestamp() - del.getTimestamp();
 				if(timeDiff < minTimeDiff) {
 					minTimeDiff = timeDiff;
@@ -101,7 +102,7 @@ public class FileEventManager implements IFileEventListener {
 		actionQueue.remove(lastAction);
 		
 		// handle the delete event
-		lastAction.handleDeleteEvent();
+		lastAction.handleLocalDeleteEvent();
 		
 		// no update of lookup indices - neither path nor content hash changed!
 		
@@ -119,7 +120,7 @@ public class FileEventManager implements IFileEventListener {
 		
 		// handle the modified event for this action
 		String oldContentHash = lastAction.getContentHash();
-		lastAction.handleModifyEvent();
+		lastAction.handleLocalModifyEvent();
 		
 		// update the lookup indices
 		// 1. remove old mappings

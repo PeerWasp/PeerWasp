@@ -1,4 +1,4 @@
-package org.peerbox.watchservice;
+package org.peerbox.watchservice.states;
 
 import java.nio.file.Path;
 
@@ -8,6 +8,7 @@ import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.hive2hive.core.exceptions.NoSessionException;
 import org.peerbox.FileManager;
 import org.peerbox.model.H2HManager;
+import org.peerbox.watchservice.Action;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,13 +20,13 @@ import org.slf4j.LoggerFactory;
  * @author winzenried
  *
  */
-public class MoveState extends ActionState {
+public class LocalMoveState extends ActionState {
 	
-	private final static Logger logger = LoggerFactory.getLogger(MoveState.class);
+	private final static Logger logger = LoggerFactory.getLogger(LocalMoveState.class);
 	
 	private Path sourcePath;
 
-	public MoveState(Action action, Path sourcePath) {
+	public LocalMoveState(Action action, Path sourcePath) {
 		super(action);
 		this.sourcePath = sourcePath;
 	}
@@ -39,9 +40,9 @@ public class MoveState extends ActionState {
 	 * @return new MoveState object
 	 */
 	@Override
-	public ActionState handleCreateEvent() {
+	public ActionState handleLocalCreateEvent() {
 		logger.debug("Create Request denied: Cannot change from Move to Create.");
-		return new MoveState(action, getSourcePath());
+		return new LocalMoveState(action, getSourcePath());
 	}
 
 	/**
@@ -51,9 +52,9 @@ public class MoveState extends ActionState {
 	 * @return new DeleteState object
 	 */
 	@Override
-	public ActionState handleDeleteEvent() {
+	public ActionState handleLocalDeleteEvent() {
 		logger.debug("Delete Request accepted: State changed from Move to Delete.");
-		return new DeleteState(action);
+		return new LocalDeleteState(action);
 	}
 
 	/**
@@ -62,7 +63,7 @@ public class MoveState extends ActionState {
 	 * @return new MoveState object
 	 */
 	@Override
-	public ActionState handleModifyEvent() {
+	public ActionState handleLocalModifyEvent() {
 		logger.debug("Modify Request denied: Cannot change from Move to Modify State.");
 		//return new MoveState();
 		//throw new IllegalStateException("Modify Request denied: Cannot change from Move to Modify State.");
@@ -70,7 +71,7 @@ public class MoveState extends ActionState {
 	}
 	
 	@Override
-	public ActionState handleMoveEvent(Path oldFilePath) {
+	public ActionState handleLocalMoveEvent(Path oldFilePath) {
 		throw new RuntimeException("Not implemented...");
 	}
 

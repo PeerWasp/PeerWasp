@@ -1,4 +1,4 @@
-package org.peerbox.watchservice;
+package org.peerbox.watchservice.states;
 
 import java.nio.file.Path;
 
@@ -7,6 +7,7 @@ import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.hive2hive.core.exceptions.NoSessionException;
 import org.peerbox.FileManager;
 import org.peerbox.model.H2HManager;
+import org.peerbox.watchservice.Action;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,11 +20,11 @@ import org.slf4j.LoggerFactory;
  * @author winzenried
  *
  */
-public class ModifyState extends ActionState {
+public class LocalModifyState extends ActionState {
 		
-	private final static Logger logger = LoggerFactory.getLogger(ModifyState.class);
+	private final static Logger logger = LoggerFactory.getLogger(LocalModifyState.class);
 	
-	public ModifyState(Action action) {
+	public LocalModifyState(Action action) {
 		super(action);
 	}
 	
@@ -33,7 +34,7 @@ public class ModifyState extends ActionState {
 	 * @return new ModifyState object
 	 */
 	@Override
-	public ActionState handleCreateEvent() {
+	public ActionState handleLocalCreateEvent() {
 		logger.debug("Create Request denied: Cannot change from Modify to Create State.");
 		throw new IllegalStateException("Create Request denied: Cannot change from Modify to Create State.");
 	}
@@ -44,19 +45,19 @@ public class ModifyState extends ActionState {
 	 * @return new DeleteState object
 	 */
 	@Override
-	public ActionState handleDeleteEvent() {
+	public ActionState handleLocalDeleteEvent() {
 		logger.debug("Delete Request accepted: State changed from Modify to Delete.");
-		return new DeleteState(action);
+		return new LocalDeleteState(action);
 	}
 
 	@Override
-	public ActionState handleModifyEvent() {
+	public ActionState handleLocalModifyEvent() {
 		logger.debug("Modify Request denied: Already in Modify State.");
 		return this;
 	}
 	
 	@Override
-	public ActionState handleMoveEvent(Path oldFilePath) {
+	public ActionState handleLocalMoveEvent(Path oldFilePath) {
 		throw new RuntimeException("Not implemented...");
 	}
 

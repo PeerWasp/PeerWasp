@@ -1,4 +1,4 @@
-package org.peerbox.watchservice;
+package org.peerbox.watchservice.states;
 
 import java.nio.file.Path;
 
@@ -6,6 +6,7 @@ import org.hive2hive.core.exceptions.IllegalFileLocation;
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.hive2hive.core.exceptions.NoSessionException;
 import org.peerbox.FileManager;
+import org.peerbox.watchservice.Action;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,9 +33,9 @@ public class InitialState extends ActionState {
 	 * @return new CreateState object
 	 */
 	@Override
-	public ActionState handleCreateEvent() {
+	public ActionState handleLocalCreateEvent() {
 		logger.debug("Create Request accepted: State changed from Initial to Create.");
-		return new CreateState(action);
+		return new LocalCreateState(action);
 	}
 
 	/**
@@ -43,9 +44,9 @@ public class InitialState extends ActionState {
 	 * @return new DeleteState object
 	 */
 	@Override
-	public ActionState handleDeleteEvent() {
+	public ActionState handleLocalDeleteEvent() {
 		logger.debug("Delete Request accepted: State changed from Initial to Delete.");
-		return new DeleteState(action);
+		return new LocalDeleteState(action);
 	}
 
 	/**
@@ -54,15 +55,15 @@ public class InitialState extends ActionState {
 	 * @return new ModifyState object
 	 */
 	@Override
-	public ActionState handleModifyEvent() {
+	public ActionState handleLocalModifyEvent() {
 		logger.debug("Modify Request accepted: State changed from Initial to Modify.");
-		return new ModifyState(action);
+		return new LocalModifyState(action);
 		
 	}
 
 	@Override
-	public ActionState handleMoveEvent(Path oldFilePath) {
-		return new MoveState(action, oldFilePath);
+	public ActionState handleLocalMoveEvent(Path oldFilePath) {
+		return new LocalMoveState(action, oldFilePath);
 		//throw new RuntimeException("Not implemented...");
 	}
 
