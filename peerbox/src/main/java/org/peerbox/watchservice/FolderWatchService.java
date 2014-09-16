@@ -33,61 +33,63 @@ public class FolderWatchService extends AbstractWatchService {
 	private static final Logger logger = LoggerFactory.getLogger(FolderWatchService.class);
 	private static final long CLEANUP_TASK_DELAY = 5000;
 	
-	private Path rootFolder;
-	private Thread eventProcessor;
+	private Path folderToWatch;
+	private Thread fileEventProcessor;
 	private WatchService watcher;
-    private Map<WatchKey, Path> keys;
+    private Map<WatchKey, Path> watchKeyToPath;
     
     private Timer timer;
     
 	public FolderWatchService(Path rootFolderToWatch) throws IOException {
 		super();
-		this.rootFolder = rootFolderToWatch;
-        this.keys = new HashMap<WatchKey, Path>();
+		this.folderToWatch = rootFolderToWatch;
+        this.watchKeyToPath = new HashMap<WatchKey, Path>();
 	}
 	
 	@Override
 	public void start() throws Exception {
+		super.start();
 		watcher = FileSystems.getDefault().newWatchService();
 
-		logger.info("Scanning {} ...", rootFolder);
-		keys.clear();
-		registerFoldersRecursive(rootFolder);
+		logger.info("Scanning {} ...", folderToWatch);
+		watchKeyToPath.clear();
+		registerFoldersRecursive(folderToWatch);
 		logger.info("Scanning done.");
 		
-		eventProcessor = new Thread(new FolderWatchEventProcessor());
-		eventProcessor.start();
+		fileEventProcessor = new Thread(new FolderWatchEventProcessor());
+		fileEventProcessor.start();
 	}
 
 	@Override
 	public void stop() throws Exception {
+		super.stop();
 		// event processor thread
-		if(eventProcessor != null) {
-			eventProcessor.interrupt();
-			eventProcessor.join();
-			eventProcessor = null;
+		if(fileEventProcessor != null) {
+			fileEventProcessor.interrupt();
+			fileEventProcessor.join();
+			fileEventProcessor = null;
 		}
 		// java watch service
 		if(watcher != null) {
 			watcher.close();
 			watcher = null;
 		}
-		// key map
-		keys.clear();
 		// cleanup task / timer
 		if(timer != null) {
 			timer.cancel();
+			timer = null;
 		}
-		timer = null;
+		// key map
+		watchKeyToPath.clear();
 	}
 
 	private synchronized void registerFolder(final Path folder) throws IOException {
 		// FIXME: containsValue has bad performance in case of many folders. 
 		// maybe bidirectional (e.g. from guava library) map would be a fix for that.
-		if(!keys.containsValue(folder)) {
+		if(!watchKeyToPath.containsValue(folder)) {
 			logger.info("Register folder: {}", folder);
 		    WatchKey key = folder.register(watcher, ENTRY_CREATE, ENTRY_DELETE, ENTRY_MODIFY, OVERFLOW);
-		    keys.put(key, folder);
+		    watchKeyToPath.put(key, folder);
 		}
 	}
 
@@ -109,13 +111,13 @@ public class FolderWatchService extends AbstractWatchService {
 	
 	private synchronized void unregisterFolder(WatchKey folderKey) {
 		folderKey.cancel();
-		Path p = keys.remove(folderKey);
+		Path p = watchKeyToPath.remove(folderKey);
 		logger.info("Unregister folder: {}", p);
 	}
 	
 	private synchronized void cleanupFolderRegistrations() {
 		// find watch keys of deleted folders
-		Set<Entry<WatchKey, Path>> entrySet = new HashSet<Entry<WatchKey,Path>>(keys.entrySet());
+		Set<Entry<WatchKey, Path>> entrySet = new HashSet<Entry<WatchKey,Path>>(watchKeyToPath.entrySet());
 		Set<WatchKey> keysToCancel = new HashSet<WatchKey>();
 		for(Entry<WatchKey, Path> e : entrySet) {
 			if(!Files.exists(e.getValue(), NOFOLLOW_LINKS)) {
@@ -141,7 +143,7 @@ public class FolderWatchService extends AbstractWatchService {
 			public void run() {
 				try {
 					logger.info("Running cleanup for registered folders.");
-					registerFoldersRecursive(rootFolder);
+					registerFoldersRecursive(folderToWatch);
 					cleanupFolderRegistrations();
 				} catch (IOException e) {
 					logger.warn("Could not register folders ({})", e.getMessage());
@@ -169,12 +171,12 @@ public class FolderWatchService extends AbstractWatchService {
 				WatchKey key = null;
 				try {
 					key = watcher.take();
-				} catch (InterruptedException x) {
-//					logger.error("Folder Watch Event Processor interrupted.");
+				} catch (InterruptedException iex) {
+					logger.debug("Folder Watch Event Processor interrupted. Stop processing events.");
 					return;
 				}
 
-				Path dir = keys.get(key);
+				Path dir = watchKeyToPath.get(key);
 				if (dir == null) {
 					logger.error("WatchKey not recognized!!");
 					continue;
@@ -182,7 +184,7 @@ public class FolderWatchService extends AbstractWatchService {
 
 				for (WatchEvent<?> event : key.pollEvents()) {
 
-					// TBD - provide example of how OVERFLOW event is handled
+					// FIXME: how to handle this event?
 					if (event.kind() == OVERFLOW) {
 						logger.warn("OVERFLOW");
 						continue;
@@ -194,11 +196,7 @@ public class FolderWatchService extends AbstractWatchService {
 					WatchEvent<Path> ev = castWatchEvent(event);
 					Path name = ev.context();
 					Path child = dir.resolve(name);
-
-					// print out event
-					logger.debug("{}: {}", event.kind().name(), child);
-					handleEvent(kind, child);
-
+					
 					// if directory is created, and watching recursively, then
 					// register it and its sub-directories
 					if (kind == ENTRY_CREATE) {
@@ -206,12 +204,17 @@ public class FolderWatchService extends AbstractWatchService {
 							if (Files.isDirectory(child, NOFOLLOW_LINKS)) {
 								registerFoldersRecursive(child);
 							}
-						} catch (IOException x) {
+						} catch (IOException ioex) {
 							// TODO: handle exception
-							// ignore to keep sample readbale
-							logger.warn("Exception: {}", x.getMessage());
+							// ignore to keep sample readable
+							logger.warn("Could not register new folder.", ioex);
 						}
 					}
+
+					// print out event
+//					logger.debug("{}: {}", event.kind().name(), child);
+					handleEvent(kind, child);
+					
 				}
 
 				// reset key and remove from set if directory no longer accessible
@@ -219,7 +222,8 @@ public class FolderWatchService extends AbstractWatchService {
 				if (!valid) {
 					unregisterFolder(key);
 					// all directories are inaccessible
-					if (keys.isEmpty()) {
+					if (watchKeyToPath.isEmpty()) {
+						logger.info("No more paths to watch, exit event processing loop.");
 						break;
 					}
 				}
@@ -231,21 +235,25 @@ public class FolderWatchService extends AbstractWatchService {
 
 		/**
 		 * Precondition: Event and child must not be null.
-		 * @param kind 
+		 * @param kind type of the event (create, modify, ...)
 		 * @param filePath Identifies the related file.
 		 */
 		private void handleEvent(Kind<Path> kind, Path filePath) {
-			if(kind.equals(ENTRY_CREATE)) {
-				notifyFileCreated(filePath);
-			} else if(kind.equals(ENTRY_MODIFY)) {
-				notifyFileModified(filePath);
-			} else if(kind.equals(ENTRY_DELETE)){
-				notifyFileDeleted(filePath);
-			} else if(kind.equals(OVERFLOW)) {
-				// TODO: error - overflow... should not happen here (continue if such an event occurs)
-				logger.warn("Overflow event from watch service. Too many events?");
-			} else {
-				// TODO: unknown event
+			try {
+				if (kind.equals(ENTRY_CREATE)) {
+					addNotifyEvent(new NotifyFileCreated(filePath));
+				} else if (kind.equals(ENTRY_MODIFY)) {
+					addNotifyEvent(new NotifyFileModified(filePath));
+				} else if (kind.equals(ENTRY_DELETE)) {
+					addNotifyEvent(new NotifyFileDeleted(filePath));
+				} else if (kind.equals(OVERFLOW)) {
+					// TODO: error - overflow... should not happen here (continue if such an event occurs)
+					logger.warn("Overflow event from watch service. Too many events?");
+				} else {
+					logger.warn("Unknown event received");
+				}
+			} catch (InterruptedException iex) {
+				logger.info("Handling event interrupted.", iex);
 			}
 		}
 	}

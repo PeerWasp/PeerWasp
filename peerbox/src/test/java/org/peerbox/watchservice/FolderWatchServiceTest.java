@@ -281,7 +281,7 @@ public class FolderWatchServiceTest {
 		watchService.start();
 		
 		assertTrue(newFolder.toFile().mkdir());
-//		sleep(); -> this sleep shows that create event is fired if we wait a bit (until folder is registered)
+//		sleep(); //-> this sleep shows that create event is fired if we wait a bit (until folder is registered)
 		assertTrue(newFile.toFile().createNewFile());
 		
 		sleep();
