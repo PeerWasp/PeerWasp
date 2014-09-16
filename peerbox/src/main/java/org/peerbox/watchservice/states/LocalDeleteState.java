@@ -2,11 +2,9 @@ package org.peerbox.watchservice.states;
 
 import java.nio.file.Path;
 
-import org.hive2hive.core.api.interfaces.IFileManager;
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.hive2hive.core.exceptions.NoSessionException;
 import org.peerbox.FileManager;
-import org.peerbox.model.H2HManager;
 import org.peerbox.watchservice.Action;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,7 +18,7 @@ import org.slf4j.LoggerFactory;
  * @author winzenried
  *
  */
-public class LocalDeleteState extends ActionState {
+public class LocalDeleteState extends AbstractActionState {
 
 	private final static Logger logger = LoggerFactory.getLogger(LocalDeleteState.class);
 	
@@ -35,7 +33,7 @@ public class LocalDeleteState extends ActionState {
 	 * @return new MoveState object
 	 */
 	@Override
-	public ActionState handleLocalCreateEvent() {
+	public AbstractActionState handleLocalCreateEvent() {
 		// FIXME ???
 		System.out.println("Create Request accepted: Move detected.");
 		return new InitialState(action);
@@ -47,7 +45,7 @@ public class LocalDeleteState extends ActionState {
 	 * @return new DeleteState object
 	 */
 	@Override
-	public ActionState handleLocalDeleteEvent() {
+	public AbstractActionState handleLocalDeleteEvent() {
 		logger.debug("Delete Request denied: Already in Delete State.");
 		return this;
 	}
@@ -59,12 +57,41 @@ public class LocalDeleteState extends ActionState {
 	 * @return new DeleteState object
 	 */
 	@Override
-	public ActionState handleLocalModifyEvent() {
+	public AbstractActionState handleLocalModifyEvent() {
 		logger.debug("Modify Request denied: Cannot change from Delete to Modify State.");
 		return this;
 		//throw new IllegalStateException("Modify Request denied: Cannot change from Delete to Modify State.");
 	}
 	
+	@Override
+	public AbstractActionState handleLocalMoveEvent(Path oldFilePath) {
+		throw new RuntimeException("Not implemented...");
+	}
+
+	@Override
+	public AbstractActionState handleRemoteCreateEvent() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public AbstractActionState handleRemoteDeleteEvent() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public AbstractActionState handleRemoteModifyEvent() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public AbstractActionState handleRemoteMoveEvent(Path oldFilePath) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 	/**
 	 * If the delete state is considered as stable, the execute method will be invoked which eventually
 	 * deletes the file with the corresponding Hive2Hive method
@@ -75,10 +102,5 @@ public class LocalDeleteState extends ActionState {
 	public void execute(FileManager fileManager) throws NoSessionException, NoPeerConnectionException {
 		fileManager.delete(action.getFilePath().toFile());
 		logger.debug("Task \"Delete File\" executed.");
-	}
-	
-	@Override
-	public ActionState handleLocalMoveEvent(Path oldFilePath) {
-		throw new RuntimeException("Not implemented...");
 	}
 }

@@ -2,11 +2,9 @@ package org.peerbox.watchservice.states;
 
 import java.nio.file.Path;
 
-import org.hive2hive.core.api.interfaces.IFileManager;
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.hive2hive.core.exceptions.NoSessionException;
 import org.peerbox.FileManager;
-import org.peerbox.model.H2HManager;
 import org.peerbox.watchservice.Action;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,7 +18,7 @@ import org.slf4j.LoggerFactory;
  * @author winzenried
  *
  */
-public class LocalModifyState extends ActionState {
+public class LocalModifyState extends AbstractActionState {
 		
 	private final static Logger logger = LoggerFactory.getLogger(LocalModifyState.class);
 	
@@ -34,7 +32,7 @@ public class LocalModifyState extends ActionState {
 	 * @return new ModifyState object
 	 */
 	@Override
-	public ActionState handleLocalCreateEvent() {
+	public AbstractActionState handleLocalCreateEvent() {
 		logger.debug("Create Request denied: Cannot change from Modify to Create State.");
 		throw new IllegalStateException("Create Request denied: Cannot change from Modify to Create State.");
 	}
@@ -45,20 +43,44 @@ public class LocalModifyState extends ActionState {
 	 * @return new DeleteState object
 	 */
 	@Override
-	public ActionState handleLocalDeleteEvent() {
+	public AbstractActionState handleLocalDeleteEvent() {
 		logger.debug("Delete Request accepted: State changed from Modify to Delete.");
 		return new LocalDeleteState(action);
 	}
 
 	@Override
-	public ActionState handleLocalModifyEvent() {
+	public AbstractActionState handleLocalModifyEvent() {
 		logger.debug("Modify Request denied: Already in Modify State.");
 		return this;
 	}
 	
 	@Override
-	public ActionState handleLocalMoveEvent(Path oldFilePath) {
+	public AbstractActionState handleLocalMoveEvent(Path oldFilePath) {
 		throw new RuntimeException("Not implemented...");
+	}
+
+	@Override
+	public AbstractActionState handleRemoteCreateEvent() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public AbstractActionState handleRemoteDeleteEvent() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public AbstractActionState handleRemoteModifyEvent() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public AbstractActionState handleRemoteMoveEvent(Path oldFilePath) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 	@Override

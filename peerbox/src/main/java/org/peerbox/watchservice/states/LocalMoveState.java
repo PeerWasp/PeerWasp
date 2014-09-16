@@ -2,12 +2,9 @@ package org.peerbox.watchservice.states;
 
 import java.nio.file.Path;
 
-import org.hive2hive.core.api.interfaces.IFileManager;
-import org.hive2hive.core.exceptions.IllegalFileLocation;
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.hive2hive.core.exceptions.NoSessionException;
 import org.peerbox.FileManager;
-import org.peerbox.model.H2HManager;
 import org.peerbox.watchservice.Action;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,7 +17,7 @@ import org.slf4j.LoggerFactory;
  * @author winzenried
  *
  */
-public class LocalMoveState extends ActionState {
+public class LocalMoveState extends AbstractActionState {
 	
 	private final static Logger logger = LoggerFactory.getLogger(LocalMoveState.class);
 	
@@ -40,7 +37,7 @@ public class LocalMoveState extends ActionState {
 	 * @return new MoveState object
 	 */
 	@Override
-	public ActionState handleLocalCreateEvent() {
+	public AbstractActionState handleLocalCreateEvent() {
 		logger.debug("Create Request denied: Cannot change from Move to Create.");
 		return new LocalMoveState(action, getSourcePath());
 	}
@@ -52,7 +49,7 @@ public class LocalMoveState extends ActionState {
 	 * @return new DeleteState object
 	 */
 	@Override
-	public ActionState handleLocalDeleteEvent() {
+	public AbstractActionState handleLocalDeleteEvent() {
 		logger.debug("Delete Request accepted: State changed from Move to Delete.");
 		return new LocalDeleteState(action);
 	}
@@ -63,7 +60,7 @@ public class LocalMoveState extends ActionState {
 	 * @return new MoveState object
 	 */
 	@Override
-	public ActionState handleLocalModifyEvent() {
+	public AbstractActionState handleLocalModifyEvent() {
 		logger.debug("Modify Request denied: Cannot change from Move to Modify State.");
 		//return new MoveState();
 		//throw new IllegalStateException("Modify Request denied: Cannot change from Move to Modify State.");
@@ -71,8 +68,32 @@ public class LocalMoveState extends ActionState {
 	}
 	
 	@Override
-	public ActionState handleLocalMoveEvent(Path oldFilePath) {
+	public AbstractActionState handleLocalMoveEvent(Path oldFilePath) {
 		throw new RuntimeException("Not implemented...");
+	}
+
+	@Override
+	public AbstractActionState handleRemoteCreateEvent() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public AbstractActionState handleRemoteDeleteEvent() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public AbstractActionState handleRemoteModifyEvent() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public AbstractActionState handleRemoteMoveEvent(Path oldFilePath) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 	@Override

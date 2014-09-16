@@ -8,7 +8,7 @@ import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.hive2hive.core.exceptions.NoSessionException;
 import org.hive2hive.core.security.EncryptionUtil;
 import org.peerbox.FileManager;
-import org.peerbox.watchservice.states.ActionState;
+import org.peerbox.watchservice.states.AbstractActionState;
 import org.peerbox.watchservice.states.LocalCreateState;
 import org.peerbox.watchservice.states.LocalDeleteState;
 import org.peerbox.watchservice.states.InitialState;
@@ -35,7 +35,7 @@ public class Action {
 	
 	private Path filePath;
 	private String contentHash;
-	private ActionState currentState;
+	private AbstractActionState currentState;
 	
 	/**
 	 * Initialize with timestamp and set currentState to initial state
@@ -134,7 +134,7 @@ public class Action {
 	/**
 	 * @return current state object
 	 */
-	public ActionState getCurrentState() {
+	public AbstractActionState getCurrentState() {
 		if (currentState.getClass() == LocalCreateState.class) {
 			logger.debug("Current State: Create");
 		} else if (currentState.getClass() == LocalDeleteState.class) {

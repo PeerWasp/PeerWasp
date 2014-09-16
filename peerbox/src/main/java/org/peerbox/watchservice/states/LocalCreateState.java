@@ -3,12 +3,10 @@ package org.peerbox.watchservice.states;
 import java.io.File;
 import java.nio.file.Path;
 
-import org.hive2hive.core.api.interfaces.IFileManager;
 import org.hive2hive.core.exceptions.IllegalFileLocation;
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.hive2hive.core.exceptions.NoSessionException;
 import org.peerbox.FileManager;
-import org.peerbox.model.H2HManager;
 import org.peerbox.watchservice.Action;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,7 +21,7 @@ import org.slf4j.LoggerFactory;
  *
  */
 
-public class LocalCreateState extends ActionState {
+public class LocalCreateState extends AbstractActionState {
 	private final static Logger logger = LoggerFactory.getLogger(LocalCreateState.class);
 	
 	public LocalCreateState(Action action) {
@@ -36,7 +34,7 @@ public class LocalCreateState extends ActionState {
 	 * @return a new CreateState object
 	 */
 	@Override
-	public ActionState handleLocalCreateEvent() {
+	public AbstractActionState handleLocalCreateEvent() {
 		logger.debug("Create Request denied: Already in Create State.");
 		//return new CreateState();
 		throw new IllegalStateException("Create Request denied: Already in Create State.");
@@ -50,7 +48,7 @@ public class LocalCreateState extends ActionState {
 	 * @return new InitialState object
 	 */
 	@Override
-	public ActionState handleLocalDeleteEvent() {
+	public AbstractActionState handleLocalDeleteEvent() {
 		logger.debug("Delete Request accepted: State changed from Create to Initial.");
 		return new InitialState(action);
 	}
@@ -63,15 +61,39 @@ public class LocalCreateState extends ActionState {
 	 * @return new creatState object
 	 */
 	@Override
-	public ActionState handleLocalModifyEvent() {
+	public AbstractActionState handleLocalModifyEvent() {
 		logger.debug("Modify Request accepted: State remains Create.");
 		return this;
 	}
 	
 	@Override
-	public ActionState handleLocalMoveEvent(Path oldFilePath) {
+	public AbstractActionState handleLocalMoveEvent(Path oldFilePath) {
 		return new LocalMoveState(action, oldFilePath);
 		//throw new RuntimeException("Not implemented...");
+	}
+
+	@Override
+	public AbstractActionState handleRemoteCreateEvent() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public AbstractActionState handleRemoteDeleteEvent() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public AbstractActionState handleRemoteModifyEvent() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public AbstractActionState handleRemoteMoveEvent(Path oldFilePath) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 	/**

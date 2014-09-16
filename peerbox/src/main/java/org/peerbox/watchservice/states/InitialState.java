@@ -19,7 +19,7 @@ import org.slf4j.LoggerFactory;
  * @author winzenried
  *
  */
-public class InitialState extends ActionState {
+public class InitialState extends AbstractActionState {
 
 	private final static Logger logger = LoggerFactory.getLogger(InitialState.class);
 	
@@ -33,7 +33,7 @@ public class InitialState extends ActionState {
 	 * @return new CreateState object
 	 */
 	@Override
-	public ActionState handleLocalCreateEvent() {
+	public AbstractActionState handleLocalCreateEvent() {
 		logger.debug("Create Request accepted: State changed from Initial to Create.");
 		return new LocalCreateState(action);
 	}
@@ -44,7 +44,7 @@ public class InitialState extends ActionState {
 	 * @return new DeleteState object
 	 */
 	@Override
-	public ActionState handleLocalDeleteEvent() {
+	public AbstractActionState handleLocalDeleteEvent() {
 		logger.debug("Delete Request accepted: State changed from Initial to Delete.");
 		return new LocalDeleteState(action);
 	}
@@ -55,16 +55,40 @@ public class InitialState extends ActionState {
 	 * @return new ModifyState object
 	 */
 	@Override
-	public ActionState handleLocalModifyEvent() {
+	public AbstractActionState handleLocalModifyEvent() {
 		logger.debug("Modify Request accepted: State changed from Initial to Modify.");
 		return new LocalModifyState(action);
 		
 	}
 
 	@Override
-	public ActionState handleLocalMoveEvent(Path oldFilePath) {
+	public AbstractActionState handleLocalMoveEvent(Path oldFilePath) {
 		return new LocalMoveState(action, oldFilePath);
 		//throw new RuntimeException("Not implemented...");
+	}
+
+	@Override
+	public AbstractActionState handleRemoteCreateEvent() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public AbstractActionState handleRemoteDeleteEvent() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public AbstractActionState handleRemoteModifyEvent() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public AbstractActionState handleRemoteMoveEvent(Path oldFilePath) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 	/**
