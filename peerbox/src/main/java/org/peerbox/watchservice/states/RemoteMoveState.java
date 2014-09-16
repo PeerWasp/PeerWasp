@@ -11,7 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class RemoteMoveState extends AbstractActionState {
-	
+
 	private final static Logger logger = LoggerFactory.getLogger(RemoteMoveState.class);
 
 	public RemoteMoveState(Action action) {
@@ -31,7 +31,7 @@ public class RemoteMoveState extends AbstractActionState {
 	}
 
 	@Override
-	public AbstractActionState handleLocalModifyEvent() {
+	public AbstractActionState handleLocalUpdateEvent() {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -55,7 +55,7 @@ public class RemoteMoveState extends AbstractActionState {
 	}
 
 	@Override
-	public AbstractActionState handleRemoteModifyEvent() {
+	public AbstractActionState handleRemoteUpdateEvent() {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -70,7 +70,7 @@ public class RemoteMoveState extends AbstractActionState {
 	public void execute(FileManager fileManager) throws NoSessionException,
 			NoPeerConnectionException, IllegalFileLocation {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 }

@@ -10,11 +10,11 @@ import org.peerbox.watchservice.Action;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class RemoteModifyState extends AbstractActionState {
+public class RemoteUpdateState extends AbstractActionState {
 
-	private final static Logger logger = LoggerFactory.getLogger(RemoteModifyState.class);
-			
-	public RemoteModifyState(Action action) {
+	private final static Logger logger = LoggerFactory.getLogger(RemoteUpdateState.class);
+
+	public RemoteUpdateState(Action action) {
 		super(action);
 	}
 
@@ -31,7 +31,7 @@ public class RemoteModifyState extends AbstractActionState {
 	}
 
 	@Override
-	public AbstractActionState handleLocalModifyEvent() {
+	public AbstractActionState handleLocalUpdateEvent() {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -55,7 +55,7 @@ public class RemoteModifyState extends AbstractActionState {
 	}
 
 	@Override
-	public AbstractActionState handleRemoteModifyEvent() {
+	public AbstractActionState handleRemoteUpdateEvent() {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -70,7 +70,7 @@ public class RemoteModifyState extends AbstractActionState {
 	public void execute(FileManager fileManager) throws NoSessionException,
 			NoPeerConnectionException, IllegalFileLocation {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 }

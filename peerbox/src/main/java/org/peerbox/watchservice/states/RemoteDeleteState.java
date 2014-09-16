@@ -13,7 +13,7 @@ import org.slf4j.LoggerFactory;
 public class RemoteDeleteState extends AbstractActionState {
 
 	private final static Logger logger = LoggerFactory.getLogger(RemoteDeleteState.class);
-			
+
 	public RemoteDeleteState(Action action) {
 		super(action);
 	}
@@ -31,7 +31,7 @@ public class RemoteDeleteState extends AbstractActionState {
 	}
 
 	@Override
-	public AbstractActionState handleLocalModifyEvent() {
+	public AbstractActionState handleLocalUpdateEvent() {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -55,7 +55,7 @@ public class RemoteDeleteState extends AbstractActionState {
 	}
 
 	@Override
-	public AbstractActionState handleRemoteModifyEvent() {
+	public AbstractActionState handleRemoteUpdateEvent() {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -70,7 +70,7 @@ public class RemoteDeleteState extends AbstractActionState {
 	public void execute(FileManager fileManager) throws NoSessionException,
 			NoPeerConnectionException, IllegalFileLocation {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 }

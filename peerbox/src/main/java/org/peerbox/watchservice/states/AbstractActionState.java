@@ -29,7 +29,7 @@ public abstract class AbstractActionState {
 
 	public abstract AbstractActionState handleLocalDeleteEvent();
 
-	public abstract AbstractActionState handleLocalModifyEvent();
+	public abstract AbstractActionState handleLocalUpdateEvent();
 
 	public abstract AbstractActionState handleLocalMoveEvent(Path oldFilePath);
 
@@ -40,7 +40,7 @@ public abstract class AbstractActionState {
 
 	public abstract AbstractActionState handleRemoteDeleteEvent();
 
-	public abstract AbstractActionState handleRemoteModifyEvent();
+	public abstract AbstractActionState handleRemoteUpdateEvent();
 
 	public abstract AbstractActionState handleRemoteMoveEvent(Path oldFilePath);
 

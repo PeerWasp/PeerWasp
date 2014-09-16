@@ -18,89 +18,72 @@ import org.slf4j.LoggerFactory;
  *
  */
 public class LocalMoveState extends AbstractActionState {
-	
+
 	private final static Logger logger = LoggerFactory.getLogger(LocalMoveState.class);
-	
+
 	private Path sourcePath;
 
 	public LocalMoveState(Action action, Path sourcePath) {
 		super(action);
 		this.sourcePath = sourcePath;
 	}
-	
-	public Path getSourcePath(){
+
+	public Path getSourcePath() {
 		return sourcePath;
 	}
-	/**
-	 * The transition from Move to Create is not possible and will be denied
-	 * 
-	 * @return new MoveState object
-	 */
+
 	@Override
 	public AbstractActionState handleLocalCreateEvent() {
-		logger.debug("Create Request denied: Cannot change from Move to Create.");
-		return new LocalMoveState(action, getSourcePath());
+		logger.debug("Local Create Event: not defined");
+		throw new IllegalStateException("Local Create Event: not defined");
 	}
 
-	/**
-	 * If an object gets deleted directly after it has been moved/renamed, the state
-	 * changes to Delete
-	 * 
-	 * @return new DeleteState object
-	 */
 	@Override
 	public AbstractActionState handleLocalDeleteEvent() {
-		logger.debug("Delete Request accepted: State changed from Move to Delete.");
-		return new LocalDeleteState(action);
+		logger.debug("Local Delete Event: not defined");
+		throw new IllegalStateException("Local Delete Event: not defined");
 	}
 
-	/**
-	 * The state transition to Modify is not allowed
-	 * 
-	 * @return new MoveState object
-	 */
 	@Override
-	public AbstractActionState handleLocalModifyEvent() {
-		logger.debug("Modify Request denied: Cannot change from Move to Modify State.");
-		//return new MoveState();
-		//throw new IllegalStateException("Modify Request denied: Cannot change from Move to Modify State.");
-		return this;
+	public AbstractActionState handleLocalUpdateEvent() {
+		logger.debug("Local Update Event: not defined");
+		throw new IllegalStateException("Local Update Event: not defined");
 	}
-	
+
 	@Override
 	public AbstractActionState handleLocalMoveEvent(Path oldFilePath) {
-		throw new RuntimeException("Not implemented...");
+		logger.debug("Local Move Event: not defined");
+		throw new IllegalStateException("Local Move Event: not defined");
 	}
 
 	@Override
 	public AbstractActionState handleRemoteCreateEvent() {
-		// TODO Auto-generated method stub
-		return null;
+		logger.debug("Remote Create Event: Local Move -> Conflict");
+		return new ConflictState(action);
 	}
 
 	@Override
 	public AbstractActionState handleRemoteDeleteEvent() {
-		// TODO Auto-generated method stub
-		return null;
+		logger.debug("Remote Delete Event: Local Move -> Conflict");
+		return new ConflictState(action);
 	}
 
 	@Override
-	public AbstractActionState handleRemoteModifyEvent() {
-		// TODO Auto-generated method stub
-		return null;
+	public AbstractActionState handleRemoteUpdateEvent() {
+		logger.debug("Remote Update Event: Local Move -> Conflict");
+		return new ConflictState(action);
 	}
 
 	@Override
 	public AbstractActionState handleRemoteMoveEvent(Path oldFilePath) {
-		// TODO Auto-generated method stub
-		return null;
+		logger.debug("Remote Move Event: Local Move -> Conflict");
+		return new ConflictState(action);
 	}
 
 	@Override
-	public void execute(FileManager fileManager) throws NoSessionException, NoPeerConnectionException {
+	public void execute(FileManager fileManager) throws NoSessionException,
+			NoPeerConnectionException {
 		fileManager.move(sourcePath.toFile(), action.getFilePath().toFile());
 		logger.debug("Task \"Move File\" executed.");
 	}
-
-
 }

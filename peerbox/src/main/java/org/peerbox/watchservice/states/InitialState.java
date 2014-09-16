@@ -11,10 +11,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * the Inital state is given when a file is considered as new and is not yet
- * uploaded (i.e. not available in DHT) - the transition to another state
- * is always valid and will be therefore accepted.
- * 
+ * the Initial state is given when a file is considered as new, synced or unknown.
+ * The transition to another state is always valid and will be therefore accepted.
  * 
  * @author winzenried
  *
@@ -22,84 +20,63 @@ import org.slf4j.LoggerFactory;
 public class InitialState extends AbstractActionState {
 
 	private final static Logger logger = LoggerFactory.getLogger(InitialState.class);
-	
+
 	public InitialState(Action action) {
 		super(action);
 	}
-	
-	/**
-	 * The transition from Initial to Create will always be granted
-	 * 
-	 * @return new CreateState object
-	 */
+
 	@Override
 	public AbstractActionState handleLocalCreateEvent() {
-		logger.debug("Create Request accepted: State changed from Initial to Create.");
+		logger.debug("Local Create Event: Initial -> Local Create");
 		return new LocalCreateState(action);
 	}
 
-	/**
-	 * The transition from Initial to Delete will always be granted
-	 * 
-	 * @return new DeleteState object
-	 */
 	@Override
 	public AbstractActionState handleLocalDeleteEvent() {
-		logger.debug("Delete Request accepted: State changed from Initial to Delete.");
+		logger.debug("Local Delete Event: Initial -> Local Delete");
 		return new LocalDeleteState(action);
 	}
 
-	/**
-	 * The transition from Initial to Modify will always be granted
-	 * 
-	 * @return new ModifyState object
-	 */
 	@Override
-	public AbstractActionState handleLocalModifyEvent() {
-		logger.debug("Modify Request accepted: State changed from Initial to Modify.");
-		return new LocalModifyState(action);
-		
+	public AbstractActionState handleLocalUpdateEvent() {
+		logger.debug("Local Update Event: Initial -> Local Update");
+		return new LocalUpdateState(action);
+
 	}
 
 	@Override
 	public AbstractActionState handleLocalMoveEvent(Path oldFilePath) {
+		logger.debug("Local Move Event: Initial -> Local Move");
 		return new LocalMoveState(action, oldFilePath);
-		//throw new RuntimeException("Not implemented...");
 	}
 
 	@Override
 	public AbstractActionState handleRemoteCreateEvent() {
-		// TODO Auto-generated method stub
-		return null;
+		logger.debug("Remote Create Event: Initial -> Remote Create");
+		return new RemoteCreateState(action);
 	}
 
 	@Override
 	public AbstractActionState handleRemoteDeleteEvent() {
-		// TODO Auto-generated method stub
-		return null;
+		logger.debug("Remote Delete Event: Initial -> Remote Delete");
+		return new RemoteDeleteState(action);
 	}
 
 	@Override
-	public AbstractActionState handleRemoteModifyEvent() {
-		// TODO Auto-generated method stub
-		return null;
+	public AbstractActionState handleRemoteUpdateEvent() {
+		logger.debug("Remote Update Event: Initial -> Remote Update");
+		return new RemoteUpdateState(action);
 	}
 
 	@Override
 	public AbstractActionState handleRemoteMoveEvent(Path oldFilePath) {
-		// TODO Auto-generated method stub
-		return null;
+		logger.debug("Remote Move Event: Initial -> Remote Move");
+		return new RemoteMoveState(action);
 	}
 
-	/**
-	 * There is no execution method for a file which is currently in the initial state
-	 * 
-	 */
 	@Override
-	public void execute(FileManager fileManager) throws NoSessionException, NoPeerConnectionException,
-			IllegalFileLocation {
-		logger.debug("Execute method in Initial State not defined.");
-		//throw new RuntimeException("Not implemented...");
-		
+	public void execute(FileManager fileManager) throws NoSessionException,
+			NoPeerConnectionException, IllegalFileLocation {
+		logger.warn("Execute method in Initial State not defined.");
 	}
 }

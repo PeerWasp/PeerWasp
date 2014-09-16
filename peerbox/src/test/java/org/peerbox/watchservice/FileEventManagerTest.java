@@ -25,7 +25,7 @@ import org.peerbox.FileManager;
 import org.peerbox.watchservice.states.LocalCreateState;
 import org.peerbox.watchservice.states.LocalDeleteState;
 import org.peerbox.watchservice.states.InitialState;
-import org.peerbox.watchservice.states.LocalModifyState;
+import org.peerbox.watchservice.states.LocalUpdateState;
 import org.peerbox.watchservice.states.LocalMoveState;
 /**
  * 
@@ -180,7 +180,7 @@ public class FileEventManagerTest {
 		assertNotNull(actionsToCheck);
 		assertNotNull(actionsToCheck.peek());
 		assertNotNull(actionsToCheck.peek().getCurrentState());
-		assertTrue(actionsToCheck.peek().getCurrentState() instanceof LocalModifyState); //Occasionally null pointer exception
+		assertTrue(actionsToCheck.peek().getCurrentState() instanceof LocalUpdateState); //Occasionally null pointer exception
 		
 		long end = System.currentTimeMillis();
 		assertTrue(end - start <= ActionExecutor.ACTION_WAIT_TIME_MS);
@@ -191,7 +191,7 @@ public class FileEventManagerTest {
 		sleepMillis(ActionExecutor.ACTION_WAIT_TIME_MS / 2);
 		manager.onFileModified(Paths.get(filePaths.get(0)));
 		sleepMillis(ActionExecutor.ACTION_WAIT_TIME_MS / 2);
-		assertTrue(actionsToCheck.peek().getCurrentState() instanceof LocalModifyState);
+		assertTrue(actionsToCheck.peek().getCurrentState() instanceof LocalUpdateState);
 		assertTrue(actionsToCheck.size() == 1);
 		sleepMillis(ActionExecutor.ACTION_WAIT_TIME_MS * 2);
 	}
@@ -222,13 +222,13 @@ public class FileEventManagerTest {
 		manager.onFileModified(Paths.get(filePaths.get(0)));
 		sleepMillis(10);
 		assertTrue(actionsToCheck.size() == 1);
-		assertTrue(actionsToCheck.peek().getCurrentState() instanceof LocalModifyState);
+		assertTrue(actionsToCheck.peek().getCurrentState() instanceof LocalUpdateState);
 		assertTrue(actionsToCheck.peek().getFilePath().toString().equals(filePaths.get(0)));
 		
 		manager.onFileCreated(Paths.get(filePaths.get(1)));
 		sleepMillis(10);
 		assertTrue(actionsToCheck.size() == 2);
-		assertTrue(actionsToCheck.peek().getCurrentState() instanceof LocalModifyState);
+		assertTrue(actionsToCheck.peek().getCurrentState() instanceof LocalUpdateState);
 		assertTrue(actionsToCheck.peek().getFilePath().toString().equals(filePaths.get(0)));
 		
 		

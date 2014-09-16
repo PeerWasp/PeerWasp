@@ -10,9 +10,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * the delete state handles all events which would like 
+ * the delete state handles all events which would like
  * to alter the state from "delete" to another state (or keep the current state) and decides
- * whether an transition into another state is allowed. 
+ * whether an transition into another state is allowed.
  * 
  * 
  * @author winzenried
@@ -21,75 +21,57 @@ import org.slf4j.LoggerFactory;
 public class LocalDeleteState extends AbstractActionState {
 
 	private final static Logger logger = LoggerFactory.getLogger(LocalDeleteState.class);
-	
+
 	public LocalDeleteState(Action action) {
 		super(action);
 	}
-	
-	/**
-	 * If a Create event is detected while the object is in the Delete state,
-	 * one can assume that it is actually a move (or renaming) event
-	 * 
-	 * @return new MoveState object
-	 */
+
 	@Override
 	public AbstractActionState handleLocalCreateEvent() {
-		// FIXME ???
-		System.out.println("Create Request accepted: Move detected.");
-		return new InitialState(action);
+		logger.debug("Local Create Event: Local Delete -> Local Update");
+		return new LocalUpdateState(action);
 	}
 
-	/**
-	 * State is already set to Delete, therefore this event does not change the current state
-	 * 
-	 * @return new DeleteState object
-	 */
 	@Override
 	public AbstractActionState handleLocalDeleteEvent() {
-		logger.debug("Delete Request denied: Already in Delete State.");
+		logger.debug("Local Delete Event: Stay in Local Delete.");
 		return this;
 	}
 
-	/**
-	 * After deleting a file, any modify action is not possible and cannot be
-	 * accepted.
-	 * 
-	 * @return new DeleteState object
-	 */
 	@Override
-	public AbstractActionState handleLocalModifyEvent() {
-		logger.debug("Modify Request denied: Cannot change from Delete to Modify State.");
+	public AbstractActionState handleLocalUpdateEvent() {
+		logger.debug("Local Update Event: Stay in Local Delete.");
 		return this;
-		//throw new IllegalStateException("Modify Request denied: Cannot change from Delete to Modify State.");
 	}
-	
+
 	@Override
 	public AbstractActionState handleLocalMoveEvent(Path oldFilePath) {
-		throw new RuntimeException("Not implemented...");
+		logger.debug("Local Move Event: not defined");
+		throw new IllegalStateException("Local Move Event: not defined");
 	}
 
 	@Override
 	public AbstractActionState handleRemoteCreateEvent() {
-		// TODO Auto-generated method stub
-		return null;
+		logger.debug("Remote Create Event: Local Delete -> Exception");
+		return new ExceptionState(action);
 	}
 
 	@Override
 	public AbstractActionState handleRemoteDeleteEvent() {
-		// TODO Auto-generated method stub
-		return null;
+		logger.debug("Remote Delete Event: Local Delete -> Initial");
+		return new InitialState(action);
 	}
 
 	@Override
-	public AbstractActionState handleRemoteModifyEvent() {
-		// TODO Auto-generated method stub
-		return null;
+	public AbstractActionState handleRemoteUpdateEvent() {
+		logger.debug("Remote Update Event: Local Delete -> Conflict");
+		return new ConflictState(action);
 	}
 
 	@Override
 	public AbstractActionState handleRemoteMoveEvent(Path oldFilePath) {
-		// TODO Auto-generated method stub
-		return null;
+		logger.debug("Remote Move Event: Local Delete -> Exception");
+		return new ExceptionState(action);
 	}
 
 	/**
@@ -99,7 +81,8 @@ public class LocalDeleteState extends AbstractActionState {
 	 * @param file The file which should be deleted
 	 */
 	@Override
-	public void execute(FileManager fileManager) throws NoSessionException, NoPeerConnectionException {
+	public void execute(FileManager fileManager) throws NoSessionException,
+			NoPeerConnectionException {
 		fileManager.delete(action.getFilePath().toFile());
 		logger.debug("Task \"Delete File\" executed.");
 	}
