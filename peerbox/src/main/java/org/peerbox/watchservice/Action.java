@@ -65,7 +65,16 @@ public class Action {
 		return Action.createStringFromByteArray(new byte[1]);
 	}
 	
-	private static String createStringFromByteArray(byte[] bytes){
+	public String updateContentHash(){
+		contentHash = computeContentHash(getFilePath());
+		return contentHash;
+	}
+	
+	public void setContentHash(String contentHash){
+		this.contentHash = contentHash;
+	}
+	
+	public static String createStringFromByteArray(byte[] bytes){
 		String hashString = Base64.encode(bytes);
 		return hashString;
 	}
@@ -149,4 +158,9 @@ public class Action {
 
 		return currentState;
 	}
+
+//	public void setCurrentState(AbstractActionState initialState) {
+//		// TODO Auto-generated method stub
+//		currentState = initialState;
+//	}
 }

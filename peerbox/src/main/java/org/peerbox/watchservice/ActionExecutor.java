@@ -60,7 +60,7 @@ public class ActionExecutor implements Runnable {
 				next = fileEventManager.getActionQueue().take();
 				if(isActionReady(next)) {
 					if(next.getCurrentState() instanceof LocalDeleteState){
-						fileEventManager.getFilePathToAction().remove(next.getFilePath());
+						//fileEventManager.getFilePathToAction().remove(next.getFilePath());
 					}
 					next.execute(fileEventManager.getFileManager());				
 				} else {

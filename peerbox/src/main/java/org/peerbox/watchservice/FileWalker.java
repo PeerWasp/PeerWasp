@@ -15,6 +15,7 @@ public class FileWalker extends AbstractWatchService {
 	private Path rootDirectory;
 	private FileEventManager eventManager;
 	private Map<Path, Action> filesystemView = new HashMap<Path, Action>();
+	private FileComponent fileTree = new FolderComposite(rootDirectory);
 	
 	public FileWalker(Path rootDirectory, FileEventManager eventManager){
 		this.rootDirectory = rootDirectory;
@@ -55,7 +56,7 @@ public class FileWalker extends AbstractWatchService {
 					eventManager.onFileModified(key);
 				}
 			} else {
-				eventManager.onFileCreated(key);
+				eventManager.onFileCreated(key, false);
 			}
 		}
 		for(Path p : filePathToAction.keySet()){
@@ -80,6 +81,11 @@ public class FileWalker extends AbstractWatchService {
 		@Override
 		public FileVisitResult visitFile(Path path, BasicFileAttributes attr) throws IOException {
 			filesystemView.put(path, new Action(path));
+			if(path.toFile().isDirectory()){
+				eventManager.getFileTree().putComponent(path.toString(), new FolderComposite(path));
+			} else {
+				eventManager.getFileTree().putComponent(path.toString(), new FileLeaf(path));
+			}
 			return FileVisitResult.CONTINUE;
 		}
 

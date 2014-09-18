@@ -24,9 +24,17 @@ public class FileEventManager implements IFileEventListener {
 	
     private BlockingQueue<Action> actionQueue;
     private Map<Path, Action> filePathToAction;
+    private FolderComposite fileTree;
+    
 	public Map<Path, Action> getFilePathToAction() {
 		return filePathToAction;
 	}
+    
+    private SetMultimap<String, FileComponent> deletedFileComponents = HashMultimap.create();
+    
+    public FolderComposite getFileTree(){
+    	return fileTree;
+    }
 
 	private SetMultimap<String, Path> contentHashToFilePaths;
 
@@ -34,9 +42,9 @@ public class FileEventManager implements IFileEventListener {
     
     private FileManager fileManager;
     
-    public FileEventManager() {
+    public FileEventManager(Path rootPath) {
     	actionQueue = new PriorityBlockingQueue<Action>(10, new FileActionTimeComparator());
-        filePathToAction = new ConcurrentHashMap<Path, Action>();
+    	fileTree = new FolderComposite(rootPath);
         contentHashToFilePaths = HashMultimap.create();
         
 		actionExecutor = new Thread(new ActionExecutor(this));
@@ -44,117 +52,123 @@ public class FileEventManager implements IFileEventListener {
     }
 
 	@Override
-	public void onFileCreated(Path path) {
+	public void onFileCreated(Path path, boolean useFileWalker) {
 		logger.debug("onFileCreated: {}", path);
 		
-		// get existing/initial action and remove it from queue (if contained in it)
-		Action lastAction = getOrCreateAction(path);
+		FileComponent createdComponent = createFileComponent(path, useFileWalker);
+		Action lastAction = createdComponent.getAction();
 		actionQueue.remove(lastAction);
 	
 		// detect "move" event by looking at recent deletes
-		Action deleteAction = findDeleteActionOfMoveEvent(lastAction);
-		if(deleteAction == null) {
+		FileComponent deletedComponent = findDeletedComponentOfMoveEvent(createdComponent);
+		//Action deleteAction = findDeleteActionOfMoveEvent(lastAction);
+		if(deletedComponent == null) {
 			// regular create event
-			lastAction.handleLocalCreateEvent();
+			createdComponent.getAction().handleLocalCreateEvent();
+			//lastAction.handleLocalCreateEvent();
 		} else {
-			actionQueue.remove(deleteAction);
+			actionQueue.remove(deletedComponent.getAction());
 			// found matching delete event -> move
 			
-			System.out.println("Delete time: " + deleteAction.getTimestamp() + " Create time: " + lastAction.getTimestamp());
-			lastAction.handleLocalMoveEvent(deleteAction.getFilePath());
+			System.out.println("Delete time: " + deletedComponent.getAction().getTimestamp() + " Create time: " + lastAction.getTimestamp());
+			lastAction.handleLocalMoveEvent(deletedComponent.getAction().getFilePath());
 			// update lookup indices - remove mappings
-			filePathToAction.remove(deleteAction.getFilePath());
-			Set<Path> filePaths = contentHashToFilePaths.get(deleteAction.getContentHash());
-			filePaths.remove(deleteAction.getFilePath());
 		}
 		
 		// add action to the queue again as timestamp was updated
 		actionQueue.add(lastAction);
 	}
-
-	private Action findDeleteActionOfMoveEvent(Action createAction) {
-		// search for a delete action with equal content hash.
-		// if multiple candidates exist, take the one with the smallest time difference (i.e. the 
-		// closest regarding the event times of delete/create)
-		Action deleteAction = null;
-		String contentHash = createAction.getContentHash();
-		Set<Path> filePaths = contentHashToFilePaths.get(contentHash);
+	
+	private FileComponent findDeletedComponentOfMoveEvent(FileComponent createdComponent){
+		FileComponent deletedComponent = null;
+		String contentHash = createdComponent.getAction().getContentHash();
+		Set<FileComponent> deletedComponents = deletedFileComponents.get(contentHash);
 		long minTimeDiff = Long.MAX_VALUE;
-		for(Path path : filePaths) {
-			Action del = filePathToAction.get(path);
-			if(del.getCurrentState() instanceof LocalDeleteState) {
-				long timeDiff = createAction.getTimestamp() - del.getTimestamp();
-				if(timeDiff < minTimeDiff) {
-					minTimeDiff = timeDiff;
-					deleteAction = del;
-				}
+		for(FileComponent candidate : deletedComponents) {
+			long timeDiff = createdComponent.getAction().getTimestamp() - candidate.getAction().getTimestamp();
+			if(timeDiff < minTimeDiff) {
+				minTimeDiff = timeDiff;
+				deletedComponent = candidate;
 			}
 		}
-		return deleteAction;
+		return deletedComponent;
 	}
 
+	//TODO: remove children from actionQueue as well!
 	@Override
 	public void onFileDeleted(Path path) {
 		logger.debug("onFileDeleted: {}", path);
 		
-		// get existing/initial action and remove it from queue (if contained in it)
-		Action lastAction = getOrCreateAction(path);
-		actionQueue.remove(lastAction);
+		//Get the fileComponent and remove it from the action queue
+		FileComponent deletedComponent = deleteFileComponent(path);
+		if(deletedComponent == null){
+			return;
+		}
+		actionQueue.remove(deletedComponent.getAction());
 		
 		// handle the delete event
-		lastAction.handleLocalDeleteEvent();
-		
-		// no update of lookup indices - neither path nor content hash changed!
+		deletedComponent.getAction().handleLocalDeleteEvent();
 		
 		// add action to the queue again as timestamp was updated
-		actionQueue.add(lastAction);
+		actionQueue.add(deletedComponent.getAction());
+		
+		deletedFileComponents.put(deletedComponent.getAction().getContentHash(), deletedComponent);
 	}
 
 	@Override
 	public void onFileModified(Path path) {
 		logger.debug("onFileModified: {}", path);
 		
-		// get existing/initial action and remove it from queue (if contained in it)
-		Action lastAction = getOrCreateAction(path);
-		actionQueue.remove(lastAction);
+		//Get component to modify and remove it from action queue
+		FileComponent toModify = getFileComponent(path);
+		if(toModify == null){
+			return;
+		}
 		
-		// handle the modified event for this action
-		String oldContentHash = lastAction.getContentHash();
+		Action lastAction = toModify.getAction();
+		actionQueue.remove(toModify.getAction());
+		
+		//handle the modify-event
+		//TODO remove hash update from handler!
 		lastAction.handleLocalModifyEvent();
 		
-		// update the lookup indices
-		// 1. remove old mappings
-		Set<Path> oldFilePaths = contentHashToFilePaths.get(oldContentHash);
-		oldFilePaths.remove(lastAction.getFilePath());
-		// 2. add new references
-		Set<Path> newFilePaths = contentHashToFilePaths.get(lastAction.getContentHash());
-		newFilePaths.add(lastAction.getFilePath());
+		//put the component (used to trigger hash updates in whole hierarchy)
+		fileTree.putComponent(path.toString(), toModify);
 		
-		// add action to the queue again as timestamp was updated
 		actionQueue.add(lastAction);
 	}
 	
 	public BlockingQueue<Action> getActionQueue() {
 		return actionQueue;
 	}
+
 	
-	/**
-	 * @param eventKind Used to determine if an entry was created, deleted, or modified.
-	 * @param filePath Identifies the related file.
-	 * @return null if no FileContext related to the provided Path was found, the corresponding FileContext instance otherwise.
-	 * @throws IOException
-	 */
-	private Action getOrCreateAction(Path filePath) {
-		Action action = null;
-		if(!filePathToAction.containsKey(filePath)) {
-			action = new Action(filePath);
-			// add new action to lookup indices
-			filePathToAction.put(filePath, action);
-			Set<Path> filePaths = contentHashToFilePaths.get(action.getContentHash());
-			filePaths.add(action.getFilePath());
+	private FileComponent createFileComponent(Path filePath, boolean useFileWalker){
+		FileComponent createdComponent;
+		// create and add the correct component
+		
+		//if the created component is a directory, we can use the filewalker to add all children recursively
+		if(filePath.toFile().isDirectory()){
+			createdComponent = new FolderComposite(filePath);
+			fileTree.putComponent(filePath.toString(), createdComponent);
+			if(useFileWalker){
+				FileWalker walker = new FileWalker(filePath, this);
+				walker.indexDirectoryRecursively();
+			}
+		//simple file, just add it and return
+		} else {
+			createdComponent = new FileLeaf(filePath);
+			fileTree.putComponent(filePath.toString(), createdComponent);
 		}
-		action = filePathToAction.get(filePath);
-		return action;
+		return createdComponent;
+	}
+	
+	private FileComponent getFileComponent(Path filePath){
+		return fileTree.getComponent(filePath.toString());
+	}
+	
+	private FileComponent deleteFileComponent(Path filePath){
+		return fileTree.deleteComponent(filePath.toString());
 	}
 	
 	private class FileActionTimeComparator implements Comparator<Action> {

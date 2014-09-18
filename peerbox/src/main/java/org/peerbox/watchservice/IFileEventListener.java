@@ -5,7 +5,7 @@ import java.nio.file.Path;
 
 public interface IFileEventListener {
 	
-	public void onFileCreated(Path path);
+	public void onFileCreated(Path path, boolean useFileWalker);
 	public void onFileDeleted(Path path);
 	public void onFileModified(Path path);
 	
