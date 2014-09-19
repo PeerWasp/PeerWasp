@@ -34,7 +34,6 @@ public class Action {
 	private long timestamp = Long.MAX_VALUE;
 	
 	private Path filePath;
-	private String contentHash;
 	private AbstractActionState currentState;
 	
 	/**
@@ -43,7 +42,6 @@ public class Action {
 	public Action(Path filePath){
 		this.filePath = filePath;
 		currentState = new InitialState(this);
-		contentHash = computeContentHash(filePath);
 		updateTimestamp();
 	}
 	
@@ -65,15 +63,6 @@ public class Action {
 		return Action.createStringFromByteArray(new byte[1]);
 	}
 	
-	public String updateContentHash(){
-		contentHash = computeContentHash(getFilePath());
-		return contentHash;
-	}
-	
-	public void setContentHash(String contentHash){
-		this.contentHash = contentHash;
-	}
-	
 	public static String createStringFromByteArray(byte[] bytes){
 		String hashString = Base64.encode(bytes);
 		return hashString;
@@ -84,7 +73,6 @@ public class Action {
 	 */
 	public void handleLocalCreateEvent(){
 		currentState = currentState.handleLocalCreateEvent();
-		contentHash = computeContentHash(filePath);
 		updateTimestamp();
 	}
 	
@@ -93,7 +81,6 @@ public class Action {
 	 */
 	public void handleLocalModifyEvent(){
 		currentState = currentState.handleLocalUpdateEvent();
-		contentHash = computeContentHash(filePath);
 		updateTimestamp();
 	}
 
@@ -131,11 +118,7 @@ public class Action {
 	public Path getFilePath(){
 		return filePath;
 	}
-
-	public String getContentHash(){
-		return contentHash;
-	}
-
+	
 	public long getTimestamp() {
 		return timestamp;
 	}
@@ -158,9 +141,4 @@ public class Action {
 
 		return currentState;
 	}
-
-//	public void setCurrentState(AbstractActionState initialState) {
-//		// TODO Auto-generated method stub
-//		currentState = initialState;
-//	}
 }

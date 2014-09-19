@@ -16,11 +16,14 @@ public class FolderComposite implements FileComponent{
 	private SortedMap<String, FileComponent> children = new TreeMap<String, FileComponent>();
 	private Action action;
 	private Path path;
+	private String contentHash;
+	private FolderComposite parent;
 	
 	public FolderComposite(Path path){
 		this.path = path;
 		this.action = new Action(path);
-		action.setContentHash(computeContentHash());
+		
+		computeContentHash();		
 	}
 	
 	@Override
@@ -39,19 +42,23 @@ public class FolderComposite implements FileComponent{
 		//if we are at the last recursion
 		Path pathToNow = getCompletePath(nextLevelPath);
 		if(newRemainingPath.equals("")){
-			children.put(nextLevelPath, component);
-			computeContentHash();
+			addComponentToChildren(nextLevelPath, component);
 		} else {
 			nextLevelComponent = children.get(nextLevelPath);
 			if(nextLevelComponent == null){
 				nextLevelComponent = new FolderComposite(pathToNow);
-				children.put(nextLevelPath, nextLevelComponent);
+				addComponentToChildren(nextLevelPath, component);
 
 			}
 			nextLevelComponent.putComponent(newRemainingPath, component);
-			computeContentHash();
 		}
 	} 
+
+	private void addComponentToChildren(String nextLevelPath, FileComponent component) {
+		children.put(nextLevelPath, component);
+		component.setParent(this);
+		bubbleContentHashUpdate();
+	}
 
 	@Override
 	public FileComponent deleteComponent(String remainingPath) {
@@ -66,13 +73,14 @@ public class FolderComposite implements FileComponent{
 		FileComponent nextLevelComponent = children.get(nextLevelPath);
 		
 		if(newRemainingPath.equals("")){
-			return children.remove(nextLevelPath);
+			FileComponent removed = children.remove(nextLevelPath);
+			bubbleContentHashUpdate();
+			return removed;
 		} else {
 			if(nextLevelComponent == null){
 				return null;
 			} else {
 				FileComponent deletedComponent = nextLevelComponent.deleteComponent(newRemainingPath);
-				computeContentHash();
 				return deletedComponent;	
 			}
 		}
@@ -92,6 +100,7 @@ public class FolderComposite implements FileComponent{
 		FileComponent nextLevelComponent = children.get(nextLevelPath);
 		
 		if(newRemainingPath.equals("")){
+			nextLevelComponent.bubbleContentHashUpdate();
 			return children.get(nextLevelPath);
 		} else {
 			if(nextLevelComponent == null){
@@ -102,32 +111,22 @@ public class FolderComposite implements FileComponent{
 		}
 	}
 
-	private String computeContentHash() {
+	private boolean computeContentHash() {
 		String tmp = "";
 		for(FileComponent value : children.values()){
-			tmp = tmp.concat(value.getAction().getContentHash());
+			tmp = tmp.concat(value.getContentHash());
 		}
 		
 		byte[] rawHash = EncryptionUtil.generateMD5Hash(tmp.getBytes());
-		String contentHash = Base64.encode(rawHash);
-		getAction().setContentHash(contentHash);
+		String updatedContentHash = Base64.encode(rawHash);
+		if(contentHash.equals(updatedContentHash)){
+			contentHash = Base64.encode(rawHash);
+			return true;
+		}
+		return false;
 		
-		return contentHash;
 	}
 	
-//	private String computeContentHash(Path filePath) {
-//		if(filePath != null && filePath.toFile() != null){
-//			try {
-//				byte[] rawHash = EncryptionUtil.generateMD5Hash(filePath.toFile());
-//				if(rawHash != null){
-//					return Action.createStringFromByteArray(rawHash);
-//				}
-//			} catch (IOException e) {
-//				e.printStackTrace();
-//			}
-//		}
-//		return Action.createStringFromByteArray(new byte[1]);
-//	}
 
 	@Override
 	public Action getAction() {
@@ -141,7 +140,20 @@ public class FolderComposite implements FileComponent{
 
 	@Override
 	public String getContentHash() {
-		return action.getContentHash();
+		return contentHash;
+	}
+
+	@Override
+	public void bubbleContentHashUpdate() {
+		boolean hasChanged = computeContentHash();
+		if(hasChanged){
+			parent.bubbleContentHashUpdate();
+		}
+	}
+
+	@Override
+	public void setParent(FolderComposite parent) {
+		this.parent = parent;
 	}
 
 }

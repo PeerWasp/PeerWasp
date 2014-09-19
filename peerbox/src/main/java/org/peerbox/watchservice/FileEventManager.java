@@ -22,8 +22,10 @@ public class FileEventManager implements IFileEventListener {
 	
 	private static final Logger logger = LoggerFactory.getLogger(FileEventManager.class);
 	
-    private BlockingQueue<Action> actionQueue;
-    private Map<Path, Action> filePathToAction;
+	//TODO delete!
+	private Map<Path, Action> filePathToAction;
+	
+    private BlockingQueue<FileComponent> fileComponentQueue; 
     private FolderComposite fileTree;
     
 	public Map<Path, Action> getFilePathToAction() {
@@ -43,7 +45,7 @@ public class FileEventManager implements IFileEventListener {
     private FileManager fileManager;
     
     public FileEventManager(Path rootPath) {
-    	actionQueue = new PriorityBlockingQueue<Action>(10, new FileActionTimeComparator());
+    	fileComponentQueue = new PriorityBlockingQueue<FileComponent>(10, new FileActionTimeComparator());
     	fileTree = new FolderComposite(rootPath);
         contentHashToFilePaths = HashMultimap.create();
         
@@ -55,33 +57,43 @@ public class FileEventManager implements IFileEventListener {
 	public void onFileCreated(Path path, boolean useFileWalker) {
 		logger.debug("onFileCreated: {}", path);
 		
-		FileComponent createdComponent = createFileComponent(path, useFileWalker);
-		Action lastAction = createdComponent.getAction();
-		actionQueue.remove(lastAction);
+		//Create the component, put it into the file tree.
+		FileComponent createdComponent = createFileComponent(path);
+		fileTree.putComponent(path.toString(), createdComponent);
+		
+		//only use the filewalker to recursively discover components if specified
+		if(useFileWalker){
+			useFileWalkerToUpdateFileTree(path);
+		}
+
+		fileComponentQueue.remove(createdComponent);
 	
 		// detect "move" event by looking at recent deletes
 		FileComponent deletedComponent = findDeletedComponentOfMoveEvent(createdComponent);
-		//Action deleteAction = findDeleteActionOfMoveEvent(lastAction);
+		Action createAction = createdComponent.getAction();
+		
 		if(deletedComponent == null) {
 			// regular create event
-			createdComponent.getAction().handleLocalCreateEvent();
-			//lastAction.handleLocalCreateEvent();
+			createAction.handleLocalCreateEvent();
 		} else {
-			actionQueue.remove(deletedComponent.getAction());
-			// found matching delete event -> move
-			
-			System.out.println("Delete time: " + deletedComponent.getAction().getTimestamp() + " Create time: " + lastAction.getTimestamp());
-			lastAction.handleLocalMoveEvent(deletedComponent.getAction().getFilePath());
-			// update lookup indices - remove mappings
+			Action deleteAction = deletedComponent.getAction();
+			fileComponentQueue.remove(deletedComponent);
+			System.out.println("Delete time: " + deleteAction.getTimestamp() + " Create time: " + createAction.getTimestamp());
+			createAction.handleLocalMoveEvent(deleteAction.getFilePath());
 		}
 		
 		// add action to the queue again as timestamp was updated
-		actionQueue.add(lastAction);
+		fileComponentQueue.add(createdComponent);
 	}
 	
+	private void useFileWalkerToUpdateFileTree(Path filePath) {
+		FileWalker walker = new FileWalker(filePath, this);
+		walker.indexDirectoryRecursively();
+	}
+
 	private FileComponent findDeletedComponentOfMoveEvent(FileComponent createdComponent){
 		FileComponent deletedComponent = null;
-		String contentHash = createdComponent.getAction().getContentHash();
+		String contentHash = createdComponent.getContentHash();
 		Set<FileComponent> deletedComponents = deletedFileComponents.get(contentHash);
 		long minTimeDiff = Long.MAX_VALUE;
 		for(FileComponent candidate : deletedComponents) {
@@ -104,15 +116,15 @@ public class FileEventManager implements IFileEventListener {
 		if(deletedComponent == null){
 			return;
 		}
-		actionQueue.remove(deletedComponent.getAction());
+		fileComponentQueue.remove(deletedComponent);
 		
 		// handle the delete event
 		deletedComponent.getAction().handleLocalDeleteEvent();
 		
 		// add action to the queue again as timestamp was updated
-		actionQueue.add(deletedComponent.getAction());
+		fileComponentQueue.add(deletedComponent);
 		
-		deletedFileComponents.put(deletedComponent.getAction().getContentHash(), deletedComponent);
+		deletedFileComponents.put(deletedComponent.getContentHash(), deletedComponent);
 	}
 
 	@Override
@@ -126,39 +138,34 @@ public class FileEventManager implements IFileEventListener {
 		}
 		
 		Action lastAction = toModify.getAction();
-		actionQueue.remove(toModify.getAction());
+		fileComponentQueue.remove(toModify.getAction());
 		
 		//handle the modify-event
-		//TODO remove hash update from handler!
 		lastAction.handleLocalModifyEvent();
-		
-		//put the component (used to trigger hash updates in whole hierarchy)
-		fileTree.putComponent(path.toString(), toModify);
-		
-		actionQueue.add(lastAction);
+		fileComponentQueue.add(toModify);
 	}
 	
-	public BlockingQueue<Action> getActionQueue() {
-		return actionQueue;
+	public BlockingQueue<FileComponent> getActionQueue() {
+		return fileComponentQueue;
 	}
 
 	
-	private FileComponent createFileComponent(Path filePath, boolean useFileWalker){
+	private FileComponent createFileComponent(Path filePath){
 		FileComponent createdComponent;
 		// create and add the correct component
 		
 		//if the created component is a directory, we can use the filewalker to add all children recursively
 		if(filePath.toFile().isDirectory()){
 			createdComponent = new FolderComposite(filePath);
-			fileTree.putComponent(filePath.toString(), createdComponent);
-			if(useFileWalker){
-				FileWalker walker = new FileWalker(filePath, this);
-				walker.indexDirectoryRecursively();
-			}
+			//fileTree.putComponent(filePath.toString(), createdComponent);
+//			if(useFileWalker){
+//				FileWalker walker = new FileWalker(filePath, this);
+//				walker.indexDirectoryRecursively();
+//			}
 		//simple file, just add it and return
 		} else {
 			createdComponent = new FileLeaf(filePath);
-			fileTree.putComponent(filePath.toString(), createdComponent);
+			//fileTree.putComponent(filePath.toString(), createdComponent);
 		}
 		return createdComponent;
 	}
@@ -171,10 +178,10 @@ public class FileEventManager implements IFileEventListener {
 		return fileTree.deleteComponent(filePath.toString());
 	}
 	
-	private class FileActionTimeComparator implements Comparator<Action> {
+	private class FileActionTimeComparator implements Comparator<FileComponent> {
 		@Override
-		public int compare(Action a, Action b) {
-			return Long.compare(a.getTimestamp(), b.getTimestamp());
+		public int compare(FileComponent a, FileComponent b) {
+			return Long.compare(a.getAction().getTimestamp(), b.getAction().getTimestamp());
 		}
 	}
 	

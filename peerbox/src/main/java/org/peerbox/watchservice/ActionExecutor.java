@@ -53,20 +53,20 @@ public class ActionExecutor implements Runnable {
 	 */
 	private synchronized void processActions() throws NoSessionException, NoPeerConnectionException, IllegalFileLocation {
 		while(true) {
-			Action next = null;
+			FileComponent next = null;
 			try {
 				//System.out.println("1. actionQueue.size: " + actionQueue.size() + " deleteQueue.size(): " + deleteQueue.size());
 				// blocking, waits until queue not empty, returns and removes (!) first element
 				next = fileEventManager.getActionQueue().take();
-				if(isActionReady(next)) {
-					if(next.getCurrentState() instanceof LocalDeleteState){
+				if(isActionReady(next.getAction())) {
+					if(next.getAction().getCurrentState() instanceof LocalDeleteState){
 						//fileEventManager.getFilePathToAction().remove(next.getFilePath());
 					}
-					next.execute(fileEventManager.getFileManager());				
+					next.getAction().execute(fileEventManager.getFileManager());				
 				} else {
 					// not ready yet, insert action again (no blocking peek, unfortunately)
 					fileEventManager.getActionQueue().put(next);
-					long timeToWait = ACTION_WAIT_TIME_MS - getActionAge(next) + 1;
+					long timeToWait = ACTION_WAIT_TIME_MS - getActionAge(next.getAction()) + 1;
 					// TODO: does this work? sleep is not so good because it blocks everything...
 					wait(timeToWait);
 				}

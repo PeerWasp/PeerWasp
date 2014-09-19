@@ -5,7 +5,8 @@ import java.nio.file.Path;
 public class FileLeaf implements FileComponent{
 	private Action action;
 	private Path path;
-	
+	private String contentHash;
+	private FolderComposite parent;
 	
 	public FileLeaf(Path path){
 		this.path = path;
@@ -37,6 +38,17 @@ public class FileLeaf implements FileComponent{
 	
 	@Override
 	public String getContentHash() {
-		return action.getContentHash();
+		return contentHash;
+	}
+
+	@Override
+	public void bubbleContentHashUpdate() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setParent(FolderComposite parent) {
+		this.parent = parent;
 	}
 }
