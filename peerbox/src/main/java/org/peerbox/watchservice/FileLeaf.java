@@ -36,7 +36,7 @@ public class FileLeaf implements FileComponent{
 
 	@Override
 	public FileComponent getComponent(String path) {
-		System.err.println("get  on file not defined");
+		System.err.println("get on file not defined");
 		return null;
 	}
 	
@@ -67,7 +67,8 @@ public class FileLeaf implements FileComponent{
 	 * Computes and updates this FileLeafs contentHash property.
 	 * @return true if the contentHash hash changed, false otherwise
 	 */
-	private boolean computeContentHash() {
+	@Override
+	public boolean computeContentHash() {
 		String newHash = "";
 		if(path != null && path.toFile() != null){
 			try {
@@ -85,5 +86,10 @@ public class FileLeaf implements FileComponent{
 		} else {
 			return false;
 		}
+	}
+
+	@Override
+	public FolderComposite getParent() {
+		return this.parent;
 	}
 }

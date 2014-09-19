@@ -11,6 +11,11 @@ import org.hive2hive.core.security.EncryptionUtil;
 
 import com.sun.org.apache.xml.internal.security.utils.Base64;
 
+/**
+ * 
+ * @author Claudio
+ * Folder composite represents a file system directory.
+ */
 public class FolderComposite implements FileComponent{
 
 	private SortedMap<String, FileComponent> children = new TreeMap<String, FileComponent>();
@@ -27,6 +32,36 @@ public class FolderComposite implements FileComponent{
 	}
 	
 	@Override
+	public FolderComposite getParent() {
+		return this.parent;
+	}
+	
+	@Override
+	public void setParent(FolderComposite parent) {
+		this.parent = parent;
+	}
+
+	@Override
+	public Path getPath() {
+		return path;
+	}
+
+	@Override
+	public Action getAction() {
+		return action;
+	}
+	
+	private Path constructFullPath(String lastPathFragment){
+		String completePath = path + File.separator + lastPathFragment;
+		return Paths.get(completePath);
+	}
+
+	@Override
+	public String getContentHash() {
+		return contentHash;
+	}
+	
+	@Override
 	public void putComponent(String remainingPath, FileComponent component) {
 		
 		//if the path it absolute, cut off the absolute path to the root directory!
@@ -39,26 +74,21 @@ public class FolderComposite implements FileComponent{
 		
 		FileComponent nextLevelComponent;
 		
-		//if we are at the last recursion
-		Path pathToNow = getCompletePath(nextLevelPath);
+		//if we are at the last recursion, perform the add
 		if(newRemainingPath.equals("")){
 			addComponentToChildren(nextLevelPath, component);
 		} else {
 			nextLevelComponent = children.get(nextLevelPath);
+			
+			//create missing directories on the path on the fly
 			if(nextLevelComponent == null){
-				nextLevelComponent = new FolderComposite(pathToNow);
+				Path completePath = constructFullPath(nextLevelPath);
+				nextLevelComponent = new FolderComposite(completePath);
 				addComponentToChildren(nextLevelPath, nextLevelComponent);
-
 			}
 			nextLevelComponent.putComponent(newRemainingPath, component);
 		}
 	} 
-
-	private void addComponentToChildren(String nextLevelPath, FileComponent component) {
-		children.put(nextLevelPath, component);
-		component.setParent(this);
-		bubbleContentHashUpdate();
-	}
 
 	@Override
 	public FileComponent deleteComponent(String remainingPath) {
@@ -113,7 +143,8 @@ public class FolderComposite implements FileComponent{
 		}
 	}
 
-	private boolean computeContentHash() {
+	@Override
+	public boolean computeContentHash() {
 		String tmp = "";
 		for(FileComponent value : children.values()){
 			tmp = tmp.concat(value.getContentHash());
@@ -129,22 +160,6 @@ public class FolderComposite implements FileComponent{
 		
 	}
 	
-
-	@Override
-	public Action getAction() {
-		return action;
-	}
-	
-	private Path getCompletePath(String lastPathFragment){
-		String completePath = action.getFilePath() + File.separator + lastPathFragment;
-		return Paths.get(completePath);
-	}
-
-	@Override
-	public String getContentHash() {
-		return contentHash;
-	}
-
 	@Override
 	public void bubbleContentHashUpdate() {
 		boolean hasChanged = computeContentHash();
@@ -152,15 +167,13 @@ public class FolderComposite implements FileComponent{
 			parent.bubbleContentHashUpdate();
 		}
 	}
-
-	@Override
-	public void setParent(FolderComposite parent) {
-		this.parent = parent;
+	
+	/*
+	 * Because of the new children, the content hash of the directory may change and is propagated
+	 */
+	private void addComponentToChildren(String nextLevelPath, FileComponent component) {
+		children.put(nextLevelPath, component);
+		component.setParent(this);
+		bubbleContentHashUpdate();
 	}
-
-	@Override
-	public Path getPath() {
-		return path;
-	}
-
 }
