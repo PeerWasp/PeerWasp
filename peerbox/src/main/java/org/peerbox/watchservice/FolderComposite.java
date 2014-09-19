@@ -22,7 +22,7 @@ public class FolderComposite implements FileComponent{
 	public FolderComposite(Path path){
 		this.path = path;
 		this.action = new Action(path);
-		
+		this.contentHash = "";
 		computeContentHash();		
 	}
 	
@@ -47,7 +47,7 @@ public class FolderComposite implements FileComponent{
 			nextLevelComponent = children.get(nextLevelPath);
 			if(nextLevelComponent == null){
 				nextLevelComponent = new FolderComposite(pathToNow);
-				addComponentToChildren(nextLevelPath, component);
+				addComponentToChildren(nextLevelPath, nextLevelComponent);
 
 			}
 			nextLevelComponent.putComponent(newRemainingPath, component);
@@ -100,7 +100,9 @@ public class FolderComposite implements FileComponent{
 		FileComponent nextLevelComponent = children.get(nextLevelPath);
 		
 		if(newRemainingPath.equals("")){
-			nextLevelComponent.bubbleContentHashUpdate();
+			if(nextLevelComponent != null){
+				nextLevelComponent.bubbleContentHashUpdate();
+			}
 			return children.get(nextLevelPath);
 		} else {
 			if(nextLevelComponent == null){
@@ -119,7 +121,7 @@ public class FolderComposite implements FileComponent{
 		
 		byte[] rawHash = EncryptionUtil.generateMD5Hash(tmp.getBytes());
 		String updatedContentHash = Base64.encode(rawHash);
-		if(contentHash.equals(updatedContentHash)){
+		if(!contentHash.equals(updatedContentHash)){
 			contentHash = Base64.encode(rawHash);
 			return true;
 		}
@@ -146,7 +148,7 @@ public class FolderComposite implements FileComponent{
 	@Override
 	public void bubbleContentHashUpdate() {
 		boolean hasChanged = computeContentHash();
-		if(hasChanged){
+		if(hasChanged && parent != null){
 			parent.bubbleContentHashUpdate();
 		}
 	}
@@ -154,6 +156,11 @@ public class FolderComposite implements FileComponent{
 	@Override
 	public void setParent(FolderComposite parent) {
 		this.parent = parent;
+	}
+
+	@Override
+	public Path getPath() {
+		return path;
 	}
 
 }

@@ -1,12 +1,11 @@
 package org.peerbox.watchservice;
 
-import java.io.IOException;
 import java.nio.file.Path;
 
 import org.hive2hive.core.exceptions.IllegalFileLocation;
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.hive2hive.core.exceptions.NoSessionException;
-import org.hive2hive.core.security.EncryptionUtil;
+
 import org.peerbox.FileManager;
 import org.peerbox.watchservice.states.AbstractActionState;
 import org.peerbox.watchservice.states.LocalCreateState;
@@ -14,6 +13,7 @@ import org.peerbox.watchservice.states.LocalDeleteState;
 import org.peerbox.watchservice.states.InitialState;
 import org.peerbox.watchservice.states.LocalUpdateState;
 import org.peerbox.watchservice.states.LocalMoveState;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,20 +47,6 @@ public class Action {
 	
 	private void updateTimestamp() {
 		timestamp = System.currentTimeMillis();
-	}
-
-	private String computeContentHash(Path filePath) {
-		if(filePath != null && filePath.toFile() != null){
-			try {
-				byte[] rawHash = EncryptionUtil.generateMD5Hash(filePath.toFile());
-				if(rawHash != null){
-					return Action.createStringFromByteArray(rawHash);
-				}
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
-		return Action.createStringFromByteArray(new byte[1]);
 	}
 	
 	public static String createStringFromByteArray(byte[] bytes){

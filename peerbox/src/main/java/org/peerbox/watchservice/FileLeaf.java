@@ -1,6 +1,9 @@
 package org.peerbox.watchservice;
 
+import java.io.IOException;
 import java.nio.file.Path;
+
+import org.hive2hive.core.security.EncryptionUtil;
 
 public class FileLeaf implements FileComponent{
 	private Action action;
@@ -11,6 +14,7 @@ public class FileLeaf implements FileComponent{
 	public FileLeaf(Path path){
 		this.path = path;
 		this.action = new Action(path);
+		this.contentHash = "";
 	}
 
 	@Override
@@ -43,12 +47,43 @@ public class FileLeaf implements FileComponent{
 
 	@Override
 	public void bubbleContentHashUpdate() {
-		// TODO Auto-generated method stub
-		
+		boolean hasChanged = computeContentHash();
+		if(hasChanged){
+			parent.bubbleContentHashUpdate();
+		}
 	}
 
 	@Override
 	public void setParent(FolderComposite parent) {
 		this.parent = parent;
+	}
+
+	@Override
+	public Path getPath() {
+		return this.path;
+	}
+	
+	/**
+	 * Computes and updates this FileLeafs contentHash property.
+	 * @return true if the contentHash hash changed, false otherwise
+	 */
+	private boolean computeContentHash() {
+		String newHash = "";
+		if(path != null && path.toFile() != null){
+			try {
+				byte[] rawHash = EncryptionUtil.generateMD5Hash(path.toFile());
+				if(rawHash != null){
+					newHash = Action.createStringFromByteArray(rawHash);
+				}
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		if(!contentHash.equals(newHash)){
+			contentHash = newHash;
+			return true;
+		} else {
+			return false;
+		}
 	}
 }

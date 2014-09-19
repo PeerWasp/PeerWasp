@@ -22,8 +22,6 @@ public class FolderCompositeTest {
 
 	private static String parentPath = System.getProperty("user.home") + File.separator + "PeerBox_FolderCompositeTest" + File.separator; 
 	private static File testDirectory;
-	private static ArrayList<String> filePaths = new ArrayList<String>();
-	private static ArrayList<File> files = new ArrayList<File>();
 
 	private static String fileOnRootStr = parentPath + "file.txt";
 	private static String dirOnRootStr = parentPath + "dir";

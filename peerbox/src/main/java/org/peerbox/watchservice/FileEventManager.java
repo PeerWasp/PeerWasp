@@ -138,14 +138,14 @@ public class FileEventManager implements IFileEventListener {
 		}
 		
 		Action lastAction = toModify.getAction();
-		fileComponentQueue.remove(toModify.getAction());
+		fileComponentQueue.remove(toModify);
 		
 		//handle the modify-event
 		lastAction.handleLocalModifyEvent();
 		fileComponentQueue.add(toModify);
 	}
 	
-	public BlockingQueue<FileComponent> getActionQueue() {
+	public BlockingQueue<FileComponent> getFileComponentQueue() {
 		return fileComponentQueue;
 	}
 

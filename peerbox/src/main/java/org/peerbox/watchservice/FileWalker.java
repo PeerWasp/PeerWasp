@@ -43,27 +43,27 @@ public class FileWalker extends AbstractWatchService {
 	}
 	
 	public void alignActionMaps(){
-		indexDirectoryRecursively();
-		
-		Map<Path, Action> filePathToAction = eventManager.getFilePathToAction();
-		
-		//Set<Path> filePathToActionKeys = filePathToAction.keySet();
-		for(Entry<Path, Action> entry : filesystemView.entrySet()){
-			Path key = entry.getKey();
-			Action action = filePathToAction.get(key);
-			if (action != null){
-				if(!action.getContentHash().equals(entry.getValue().getContentHash())){
-					eventManager.onFileModified(key);
-				}
-			} else {
-				eventManager.onFileCreated(key, false);
-			}
-		}
-		for(Path p : filePathToAction.keySet()){
-			if(!filesystemView.containsKey(p)){
-				eventManager.onFileDeleted(p);
-			}
-		}
+//		indexDirectoryRecursively();
+//		
+//		Map<Path, Action> filePathToAction = eventManager.getFilePathToAction();
+//		
+//		//Set<Path> filePathToActionKeys = filePathToAction.keySet();
+//		for(Entry<Path, Action> entry : filesystemView.entrySet()){
+//			Path key = entry.getKey();
+//			Action action = filePathToAction.get(key);
+//			if (action != null){
+//				if(!action.getContentHash().equals(entry.getValue().getContentHash())){
+//					eventManager.onFileModified(key);
+//				}
+//			} else {
+//				eventManager.onFileCreated(key, false);
+//			}
+//		}
+//		for(Path p : filePathToAction.keySet()){
+//			if(!filesystemView.containsKey(p)){
+//				eventManager.onFileDeleted(p);
+//			}
+//		}
 	}
 	
 	private class FileIndexer extends SimpleFileVisitor<Path> {

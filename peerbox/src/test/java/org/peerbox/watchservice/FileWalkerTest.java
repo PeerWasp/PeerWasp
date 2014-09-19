@@ -98,9 +98,9 @@ public class FileWalkerTest {
 			e.printStackTrace();
 		}
 		
-		assertTrue(manager.getActionQueue().size() == 0);
+		assertTrue(manager.getFileComponentQueue().size() == 0);
 		walker.alignActionMaps();
-		assertTrue(manager.getActionQueue().size() == 1);
+		assertTrue(manager.getFileComponentQueue().size() == 1);
 		
 		
 	}
@@ -108,16 +108,16 @@ public class FileWalkerTest {
 	private void handleUnnoticedDeleteEvent(FileWalker walker) {
 		//delete file without notifying the event manager, use file walker to catch the event
 		files.get(0).delete();
-		assertTrue(manager.getActionQueue().size() == 0);
+		assertTrue(manager.getFileComponentQueue().size() == 0);
 		walker.alignActionMaps();
-		assertTrue(manager.getActionQueue().size() == 1);
+		assertTrue(manager.getFileComponentQueue().size() == 1);
 			
 	}
 
 	private void handleMissingCreateEvents(FileWalker walker) {
 		//catch third create using the file walker
 		walker.alignActionMaps();
-		assertTrue(manager.getActionQueue().size() == 1);
+		assertTrue(manager.getFileComponentQueue().size() == 1);
 		assertTrue(manager.getFilePathToAction().size() == 3);
 	}
 
@@ -126,7 +126,7 @@ public class FileWalkerTest {
 		manager.onFileCreated(Paths.get(filePaths.get(0)), false);
 		manager.onFileCreated(Paths.get(filePaths.get(1)), false);
 		FileEventManagerTest.sleepMillis(ActionExecutor.ACTION_WAIT_TIME_MS * 2);
-		assertTrue(manager.getActionQueue().size() == 0);
+		assertTrue(manager.getFileComponentQueue().size() == 0);
 		assertTrue(manager.getFilePathToAction().size() == 2);
 	}
 }
