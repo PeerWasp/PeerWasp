@@ -34,7 +34,7 @@ public class FileEventManager implements IFileEventListener {
     
     private SetMultimap<String, FileComponent> deletedFileComponents = HashMultimap.create();
     
-    public FolderComposite getFileTree(){
+    public FolderComposite getFileTree(){ //maybe synchronize this method?
     	return fileTree;
     }
 
@@ -52,6 +52,10 @@ public class FileEventManager implements IFileEventListener {
 		actionExecutor = new Thread(new ActionExecutor(this));
 		actionExecutor.start();
     }
+    
+    public SetMultimap<String, FileComponent> getDeletedFileComponents(){
+    	return this.deletedFileComponents;
+    }
 
 	@Override
 	public void onFileCreated(Path path, boolean useFileWalker) {
@@ -59,7 +63,7 @@ public class FileEventManager implements IFileEventListener {
 		
 		//Create the component, put it into the file tree.
 		FileComponent createdComponent = createFileComponent(path);
-		fileTree.putComponent(path.toString(), createdComponent);
+		getFileTree().putComponent(path.toString(), createdComponent);
 		
 		//only use the filewalker to recursively discover components if specified
 		if(useFileWalker){
@@ -95,6 +99,7 @@ public class FileEventManager implements IFileEventListener {
 		FileComponent deletedComponent = null;
 		String contentHash = createdComponent.getContentHash();
 		Set<FileComponent> deletedComponents = deletedFileComponents.get(contentHash);
+
 		long minTimeDiff = Long.MAX_VALUE;
 		for(FileComponent candidate : deletedComponents) {
 			long timeDiff = createdComponent.getAction().getTimestamp() - candidate.getAction().getTimestamp();
@@ -103,6 +108,7 @@ public class FileEventManager implements IFileEventListener {
 				deletedComponent = candidate;
 			}
 		}
+		deletedComponents.remove(deletedComponent);
 		return deletedComponent;
 	}
 
@@ -121,10 +127,13 @@ public class FileEventManager implements IFileEventListener {
 		// handle the delete event
 		deletedComponent.getAction().handleLocalDeleteEvent();
 		
-		// add action to the queue again as timestamp was updated
-		fileComponentQueue.add(deletedComponent);
+		//only add the file to the set of deleted files and to the action queue
+		//if it was uploaded to the DHT before.
 		
-		deletedFileComponents.put(deletedComponent.getContentHash(), deletedComponent);
+		if(deletedComponent.getIsUploaded()){
+			deletedFileComponents.put(deletedComponent.getContentHash(), deletedComponent);
+			fileComponentQueue.add(deletedComponent);
+		}
 	}
 
 	@Override
@@ -171,11 +180,11 @@ public class FileEventManager implements IFileEventListener {
 	}
 	
 	private FileComponent getFileComponent(Path filePath){
-		return fileTree.getComponent(filePath.toString());
+		return getFileTree().getComponent(filePath.toString());
 	}
 	
 	private FileComponent deleteFileComponent(Path filePath){
-		return fileTree.deleteComponent(filePath.toString());
+		return getFileTree().deleteComponent(filePath.toString());
 	}
 	
 	private class FileActionTimeComparator implements Comparator<FileComponent> {

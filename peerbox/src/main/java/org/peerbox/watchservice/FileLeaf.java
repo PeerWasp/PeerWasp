@@ -10,11 +10,14 @@ public class FileLeaf implements FileComponent{
 	private Path path;
 	private String contentHash;
 	private FolderComposite parent;
+	private boolean isUploaded;
 	
 	public FileLeaf(Path path){
 		this.path = path;
 		this.action = new Action(path);
 		this.contentHash = "";
+		this.isUploaded = false;
+		computeContentHash();
 	}
 
 	@Override
@@ -91,5 +94,15 @@ public class FileLeaf implements FileComponent{
 	@Override
 	public FolderComposite getParent() {
 		return this.parent;
+	}
+
+	@Override
+	public boolean getIsUploaded() {
+		return this.isUploaded;
+	}
+
+	@Override
+	public void setIsUploaded(boolean isUploaded) {
+		this.isUploaded = isUploaded;
 	}
 }

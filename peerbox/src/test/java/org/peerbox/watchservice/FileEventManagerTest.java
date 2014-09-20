@@ -91,11 +91,11 @@ public class FileEventManagerTest {
 	 */
 	@Test
 	public void onFileCreatedTest(){
+		BlockingQueue<FileComponent> fileComponentsToCheck = manager.getFileComponentQueue();
 		
 		long start = System.currentTimeMillis();
 		
 		manager.onFileCreated(Paths.get(filePaths.get(0)), false);
-		BlockingQueue<FileComponent> fileComponentsToCheck = manager.getFileComponentQueue();
 		assertTrue(fileComponentsToCheck.size() == 1);
 		assertTrue(fileComponentsToCheck.peek().getAction().getCurrentState() instanceof LocalCreateState);
 		
@@ -115,7 +115,7 @@ public class FileEventManagerTest {
 	 * time for the event to be handled. After that, a move is simulated using a delete event on
 	 * the same file and a create event on a new file with the same content (but different name).
 	 */
-	@Test @Ignore
+	@Test
 	public void fromDeleteToModifyTest(){
 		//handle artificial create event, wait for handling
 		manager.onFileCreated(Paths.get(filePaths.get(0)), false);
@@ -127,6 +127,7 @@ public class FileEventManagerTest {
 		
 		//initiate delete event
 		long start = System.currentTimeMillis();
+		
 		manager.onFileDeleted(Paths.get(filePaths.get(0)));
 		assertTrue(actionsToCheck.size() == 1);
 		assertTrue(actionsToCheck.peek().getAction().getCurrentState() instanceof LocalDeleteState);
@@ -145,22 +146,25 @@ public class FileEventManagerTest {
 	 * Simulate a file delete and an additional modify event, check if the file
 	 * remains in the delete state and only one action is stored in the queue.
 	 */
-	//TODO this test is no longer valid, as a delete for an inexistent fileComponent arrives, which is ignored
-	@Test @Ignore
+	@Test
 	public void onFileDeletedTest(){
+		BlockingQueue<FileComponent> actionsToCheck = manager.getFileComponentQueue();
+		
 		manager.onFileCreated(Paths.get(filePaths.get(0)), false);
 		sleepMillis(ActionExecutor.ACTION_WAIT_TIME_MS * 2);
+		
 		long start = System.currentTimeMillis();
 		
 		manager.onFileDeleted(Paths.get(filePaths.get(0)));
-		BlockingQueue<FileComponent> actionsToCheck = manager.getFileComponentQueue();
+
+		System.out.println("queue size: " + actionsToCheck.size());
 		assertTrue(actionsToCheck.size() == 1);
+		System.out.println("queue size: " + actionsToCheck.size());
 		assertTrue(actionsToCheck.peek().getAction().getCurrentState() instanceof LocalDeleteState);
-		
+
 		manager.onFileModified(Paths.get(filePaths.get(0)));
 		assertTrue(actionsToCheck.size() == 1);
 		assertTrue(actionsToCheck.peek().getAction().getCurrentState() instanceof LocalDeleteState);
-		
 		
 		//check if the testcase was run in time
 		long end = System.currentTimeMillis();
@@ -173,25 +177,26 @@ public class FileEventManagerTest {
 	 * This test issues several modify events for the same file over a long
 	 * period to check if the events are aggregated accordingly.
 	 */
-	@Test @Ignore
+	@Test
 	public void onFileModifiedTest(){
+		BlockingQueue<FileComponent> actionsToCheck = manager.getFileComponentQueue();
+		
 		long start = System.currentTimeMillis();
+		
 		manager.onFileCreated(Paths.get(filePaths.get(0)), false);
 		manager.onFileModified(Paths.get(filePaths.get(0)));
-		BlockingQueue<FileComponent> actionsToCheck = manager.getFileComponentQueue();
 		assertTrue(actionsToCheck.size() == 1);
 		assertNotNull(actionsToCheck);
 		assertNotNull(actionsToCheck.peek());
 		assertNotNull(actionsToCheck.peek().getAction().getCurrentState());
-		assertTrue(actionsToCheck.peek().getAction().getCurrentState() instanceof LocalCreateState); //Occasionally null pointer exception
+		assertTrue(actionsToCheck.peek().getAction().getCurrentState() instanceof LocalCreateState); //no null pointers should occur anymore here
 		
 		long end = System.currentTimeMillis();
+		
 		assertTrue(end - start <= ActionExecutor.ACTION_WAIT_TIME_MS);
-		System.out.println("CLASS: " + manager.getFileTree().getComponent(filePaths.get(0)).getAction().getCurrentState().getClass());
-		//actionsToCheck.peek().setCurrentState(new LocalUpdateState(actionsToCheck.peek()));
+
 		//issue continuous modifies over a period longer than the wait time
 		sleepMillis(ActionExecutor.ACTION_WAIT_TIME_MS * 2);
-		System.out.println("CLASS: " + manager.getFileTree().getComponent(filePaths.get(0)).getAction().getCurrentState().getClass());
 		manager.onFileModified(Paths.get(filePaths.get(0)));
 		sleepMillis(ActionExecutor.ACTION_WAIT_TIME_MS / 2);
 		manager.onFileModified(Paths.get(filePaths.get(0)));
@@ -199,6 +204,7 @@ public class FileEventManagerTest {
 		
 		assertTrue(actionsToCheck.peek().getAction().getCurrentState() instanceof LocalUpdateState);
 		assertTrue(actionsToCheck.size() == 1);
+		
 		sleepMillis(ActionExecutor.ACTION_WAIT_TIME_MS * 2);
 	}
 	
@@ -218,7 +224,7 @@ public class FileEventManagerTest {
 	 * (tail) [move file2 to file3], [delete file0] [create file1] (head)
 	 */
 	
-	@Test @Ignore
+	@Test
 	public void multipleFilesTest(){
 		//measure start time to ensure the testcase runs before the queue is processed
 
@@ -226,9 +232,9 @@ public class FileEventManagerTest {
 		
 		//issue all the events, check state of head and if the action corresponds to the correct file
 		manager.onFileCreated(Paths.get(filePaths.get(0)), false);
-		manager.onFileCreated(Paths.get(filePaths.get(1)), false);
+		//manager.onFileCreated(Paths.get(filePaths.get(1)), false);
 		manager.onFileCreated(Paths.get(filePaths.get(2)), false);
-		manager.onFileCreated(Paths.get(filePaths.get(3)), false);
+		//manager.onFileCreated(Paths.get(filePaths.get(3)), false);
 		sleepMillis(ActionExecutor.ACTION_WAIT_TIME_MS * 2);
 		long start = System.currentTimeMillis();
 		manager.onFileModified(Paths.get(filePaths.get(0)));
@@ -266,6 +272,7 @@ public class FileEventManagerTest {
 		
 		manager.onFileCreated(Paths.get(filePaths.get(3)), false);
 		sleepMillis(10);
+
 		assertTrue(actionsToCheck.size() == 3);
 		assertTrue(actionsToCheck.peek().getAction().getCurrentState() instanceof LocalCreateState);
 		assertTrue(actionsToCheck.peek().getAction().getFilePath().toString().equals(filePaths.get(1)));
@@ -301,11 +308,12 @@ public class FileEventManagerTest {
 	 * be pushed as a create.
 	 */
 	
-	@Test @Ignore
-	public void remoteCreateOnLocalMove(){
+	@Test
+	public void createOnLocalMove(){
 
-		sleepMillis(ActionExecutor.ACTION_WAIT_TIME_MS*3);
+		//sleepMillis(ActionExecutor.ACTION_WAIT_TIME_MS*3);
 		long start = System.currentTimeMillis();
+		
 		BlockingQueue<FileComponent> actionsToCheck = manager.getFileComponentQueue();
 		assertTrue(actionsToCheck.size() == 0);
 		
@@ -315,15 +323,10 @@ public class FileEventManagerTest {
 		//move the file LOCALLY
 		manager.onFileDeleted(Paths.get(filePaths.get(4)));
 		sleepMillis(10);
+		
 		manager.onFileCreated(Paths.get(filePaths.get(5)), false);
 		
-		List<FileComponent> actionsList = new ArrayList<FileComponent>(actionsToCheck);
-		
-		FileComponent head = actionsList.get(0);
-		assertTrue(head.getAction().getCurrentState() instanceof InitialState);
-		assertTrue(head.getAction().getFilePath().toString().equals(filePaths.get(4)));
-		
-		head = actionsList.get(1);
+		FileComponent head = actionsToCheck.peek();
 		assertTrue(head.getAction().getCurrentState() instanceof LocalCreateState);
 		assertTrue(head.getAction().getFilePath().toString().equals(filePaths.get(5)));
 		

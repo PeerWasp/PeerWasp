@@ -23,11 +23,13 @@ public class FolderComposite implements FileComponent{
 	private Path path;
 	private String contentHash;
 	private FolderComposite parent;
+	private boolean isUploaded;
 	
 	public FolderComposite(Path path){
 		this.path = path;
 		this.action = new Action(path);
 		this.contentHash = "";
+		this.isUploaded = false;
 		computeContentHash();		
 	}
 	
@@ -172,8 +174,24 @@ public class FolderComposite implements FileComponent{
 	 * Because of the new children, the content hash of the directory may change and is propagated
 	 */
 	private void addComponentToChildren(String nextLevelPath, FileComponent component) {
+		FileComponent removed = children.remove(nextLevelPath);
+		if(removed != null){
+			System.out.println("Removed, new hash : " + component.getContentHash() + " old hash: " + removed.getContentHash());
+		}
+		children.remove(nextLevelPath);
 		children.put(nextLevelPath, component);
 		component.setParent(this);
 		bubbleContentHashUpdate();
+	}
+
+	@Override
+	public boolean getIsUploaded() {
+		// TODO Auto-generated method stub
+		return this.isUploaded;
+	}
+	
+	@Override
+	public void setIsUploaded(boolean isUploaded) {
+		this.isUploaded = isUploaded;
 	}
 }

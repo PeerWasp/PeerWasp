@@ -31,4 +31,7 @@ public interface FileComponent {
 	public boolean computeContentHash();
 	
 	public Path getPath();
+
+	public boolean getIsUploaded();
+	public void setIsUploaded(boolean isUploaded);
 }

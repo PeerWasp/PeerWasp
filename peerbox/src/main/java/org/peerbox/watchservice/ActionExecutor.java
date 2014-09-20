@@ -1,6 +1,8 @@
 package org.peerbox.watchservice;
 
+import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 
 import org.hive2hive.core.exceptions.IllegalFileLocation;
@@ -10,6 +12,8 @@ import org.peerbox.FileManager;
 import org.peerbox.watchservice.states.LocalDeleteState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.collect.SetMultimap;
 
 /**
  * The FileActionExecutor service observes a set of file actions in a queue.
@@ -55,24 +59,44 @@ public class ActionExecutor implements Runnable {
 		while(true) {
 			FileComponent next = null;
 			try {
-				//System.out.println("1. actionQueue.size: " + actionQueue.size() + " deleteQueue.size(): " + deleteQueue.size());
 				// blocking, waits until queue not empty, returns and removes (!) first element
-				next = fileEventManager.getFileComponentQueue().take();
-				if(isActionReady(next.getAction())) {
-					if(next.getAction().getCurrentState() instanceof LocalDeleteState){
-						//fileEventManager.getFilePathToAction().remove(next.getFilePath());
+				// synchronized such that no access to the queue is possible between take()/put() call pairs.
+				synchronized(this){
+					next = fileEventManager.getFileComponentQueue().take();
+					if(isActionReady(next.getAction())) {
+						
+						if(next.getAction().getCurrentState() instanceof LocalDeleteState){
+							removeFromDeleted(next);
+						}
+						next.getAction().execute(fileEventManager.getFileManager());
+						next.setIsUploaded(true);
+					} else {
+						// not ready yet, insert action again (no blocking peek, unfortunately)
+						fileEventManager.getFileComponentQueue().put(next);
+						long timeToWait = ACTION_WAIT_TIME_MS - getActionAge(next.getAction()) + 1;
+						// TODO: does this work? sleep is not so good because it blocks everything...
+						wait(timeToWait);
 					}
-					next.getAction().execute(fileEventManager.getFileManager());				
-				} else {
-					// not ready yet, insert action again (no blocking peek, unfortunately)
-					fileEventManager.getFileComponentQueue().put(next);
-					long timeToWait = ACTION_WAIT_TIME_MS - getActionAge(next.getAction()) + 1;
-					// TODO: does this work? sleep is not so good because it blocks everything...
-					wait(timeToWait);
 				}
+				next = fileEventManager.getFileComponentQueue().take();
+				fileEventManager.getFileComponentQueue().put(next);
+				
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			} 
+		}
+	}
+
+
+	private void removeFromDeleted(FileComponent next) {
+		Set<FileComponent> sameHashDeletes = fileEventManager.getDeletedFileComponents().get(next.getContentHash());
+		Iterator<FileComponent> componentIterator = sameHashDeletes.iterator();
+		while(componentIterator.hasNext()){
+			FileComponent candidate = componentIterator.next();
+			if(candidate.getPath().toString().equals(next.getPath().toString())){
+				componentIterator.remove();
+				break;
+			}
 		}
 	}
 	
