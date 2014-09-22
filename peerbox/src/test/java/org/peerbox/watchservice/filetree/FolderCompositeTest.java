@@ -81,7 +81,7 @@ public class FolderCompositeTest {
 	@Test
 	public void fileTreeOperationsTest(){
 
-		FolderComposite fileTree = new FolderComposite(Paths.get(parentPath));
+		FolderComposite fileTree = new FolderComposite(Paths.get(parentPath), true);
 		fileTree.putComponent(fileOnRootStr, new FileLeaf(Paths.get(fileOnRootStr)));
 		fileTree.putComponent(fileInNewDirStr, new FileLeaf(Paths.get(fileInNewDirStr)));
 		
@@ -101,13 +101,15 @@ public class FolderCompositeTest {
 		component = fileTree.getComponent(dirInDirOnRootStr);
 		assertNull(component);
 
-		fileTree.putComponent(dirInDirOnRootStr, new FolderComposite(Paths.get(dirInDirOnRootStr)));
+		fileTree.putComponent(dirInDirOnRootStr, new FolderComposite(Paths.get(dirInDirOnRootStr), true));
 		component = fileTree.getComponent(dirInDirOnRootStr);
 		assertTrue(component instanceof FolderComposite);
 		assertTrue(component.getPath().toString().equals(dirInDirOnRootStr));
 		
 		bubbleContentHashUpdateTest(fileTree);
 		deleteComponentTest(fileTree);
+		
+		
 		
 	}
 	
@@ -121,6 +123,7 @@ public class FolderCompositeTest {
 		//get old hash of root and file, then modify the file
 		String oldHashRoot = fileTree.getContentHash();
 		String oldHashFile = component.getContentHash();
+		
 		try {
 			PrintWriter writer = new PrintWriter(fileInDirInDirOnRootStr, "UTF-8");
 			writer.println("HelloWorld");
@@ -154,13 +157,31 @@ public class FolderCompositeTest {
 		component = fileTree.getComponent(fileInNewDirStr);
 		assertTrue(component instanceof FileLeaf);
 		
+		String oldContentNamesHashRoot = fileTree.getContentNamesHash();
 		//delete subdirectory, ensure contained files and directories are deleted as well
 		component = fileTree.deleteComponent(dirOnRootStr);
+		assertFalse(fileTree.getContentNamesHash().equals(oldContentNamesHashRoot));
+		oldContentNamesHashRoot = fileTree.getContentNamesHash();
 		assertTrue(component instanceof FolderComposite);
+		
+		
 		component = fileTree.deleteComponent(dirInDirOnRootStr);
 		assertNull(component);
+		assertTrue(fileTree.getContentNamesHash().equals(oldContentNamesHashRoot));
 		component = fileTree.deleteComponent(fileInNewDirStr);
 		assertNull(component);
+		assertTrue(fileTree.getContentNamesHash().equals(oldContentNamesHashRoot));
 	}
+	
+	
+	/**
+	 * This test ensures that create/delete events of components trigger hierarchical updates of
+	 * the contentNamesHash value, which encodes the filenames of all recusively contained components
+	 */
+
+	public void bubbleContentNamesHashUpdateTest(){
+		
+	}
+	
 	
 }

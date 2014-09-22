@@ -334,7 +334,7 @@ public class FileEventManagerTest {
 		assertTrue(end - start <= ActionExecutor.ACTION_WAIT_TIME_MS);
 		sleepMillis(ActionExecutor.ACTION_WAIT_TIME_MS * 2);
 	}
-	
+
 	/**
 	 * Wait the defined time interval. Useful to guarantee different timestamps in
 	 * milliseconds if events are programatically created. Furthermore allows to wait

@@ -45,7 +45,7 @@ public class LocalUpdateState extends AbstractActionState {
 	}
 
 	@Override
-	public AbstractActionState handleLocalMoveEvent(Path oldFilePath) {
+	public AbstractActionState handleLocalMoveEvent(Path oldFilePath, boolean isReversed) {
 		logger.debug("Local Move Event: not defined");
 		throw new RuntimeException("Local Move Event: not defined");
 	}

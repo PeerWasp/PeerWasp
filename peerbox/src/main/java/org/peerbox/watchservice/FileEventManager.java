@@ -23,17 +23,17 @@ public class FileEventManager implements IFileEventListener {
 	private static final Logger logger = LoggerFactory.getLogger(FileEventManager.class);
 	
 	//TODO delete!
-	private Map<Path, Action> filePathToAction;
+	//private Map<Path, Action> filePathToAction;
 	
     private BlockingQueue<FileComponent> fileComponentQueue; 
     private FolderComposite fileTree;
     
-	public Map<Path, Action> getFilePathToAction() {
-		return filePathToAction;
-	}
+//	public Map<Path, Action> getFilePathToAction() {
+//		return filePathToAction;
+//	}
     
     private SetMultimap<String, FileComponent> deletedByContentHash = HashMultimap.create();
-    private Map<String, FileComponent> deletedByContentNamesHash = new HashMap<String, FileComponent>();
+    private Map<String, FolderComposite> deletedByContentNamesHash = new HashMap<String, FolderComposite>();
     
     public FolderComposite getFileTree(){ //maybe synchronize this method?
     	return fileTree;
@@ -84,7 +84,7 @@ public class FileEventManager implements IFileEventListener {
 			Action deleteAction = deletedComponent.getAction();
 			fileComponentQueue.remove(deletedComponent);
 			System.out.println("Delete time: " + deleteAction.getTimestamp() + " Create time: " + createAction.getTimestamp());
-			createAction.handleLocalMoveEvent(deleteAction.getFilePath());
+			createAction.handleLocalMoveEvent(deleteAction.getFilePath(), false);
 		}
 		
 		// add action to the queue again as timestamp was updated
@@ -94,6 +94,12 @@ public class FileEventManager implements IFileEventListener {
 	private void useFileWalkerToUpdateFileTree(Path filePath) {
 		FileWalker walker = new FileWalker(filePath, this);
 		walker.indexDirectoryRecursively();
+		String contentNamesHash = walker.getContentNamesHashOfWalkedFolder();
+		
+		FolderComposite moveCandidate = deletedByContentNamesHash.get(contentNamesHash);
+		if(moveCandidate != null){
+			initiateOptimizedMove(moveCandidate, filePath);
+		}
 	}
 
 	private FileComponent findDeletedComponentOfMoveEvent(FileComponent createdComponent){
@@ -135,7 +141,7 @@ public class FileEventManager implements IFileEventListener {
 			deletedByContentHash.put(deletedComponent.getContentHash(), deletedComponent);
 			if(deletedComponent instanceof FolderComposite){
 				FolderComposite deletedComponentAsFolder = (FolderComposite)deletedComponent;
-				deletedByContentNamesHash.put(deletedComponentAsFolder.getContentNamesHash(), deletedComponent);
+				deletedByContentNamesHash.put(deletedComponentAsFolder.getContentNamesHash(), deletedComponentAsFolder);
 			}
 			
 			fileComponentQueue.add(deletedComponent);
@@ -212,12 +218,12 @@ public class FileEventManager implements IFileEventListener {
 		return this;
 	}
 
-	public Map<String, FileComponent> getDeletedByContentNamesHash() {
+	public Map<String, FolderComposite> getDeletedByContentNamesHash() {
 		return deletedByContentNamesHash;
 	}
 
-	public void initiateOptimizedMove(FileComponent moveCandidate, Path rootDirectory) {
-		//PROBLEM: new path is handled like being old path!
-		moveCandidate.getAction().handleLocalMoveEvent(rootDirectory);
+	public void initiateOptimizedMove(FolderComposite moveCandidate, Path rootDirectory) {
+		System.out.println("Folder Move detected!");
+		moveCandidate.getAction().handleLocalMoveEvent(rootDirectory, true);
 	}
 }

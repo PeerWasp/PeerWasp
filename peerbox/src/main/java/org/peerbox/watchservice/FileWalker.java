@@ -67,19 +67,14 @@ public class FileWalker extends AbstractWatchService {
 //		}
 	}
 	
-	public FileComponent lookForMove(){
-		String namesHash = fileTree.getContentNamesHash();
+	public String getContentNamesHashOfWalkedFolder(){
+		return fileTree.getContentNamesHash();
 		/*
 		 * Create new Map<String, FileComponent> in which deleted components are saved with
 		 * their contentNamesHash as key. if found -> move event!
 		 */
 		//if(eventManager.getDeletedFileComponents().)$
-		Map<String, FileComponent> deletedByContentNamesHash = eventManager.getDeletedByContentNamesHash();
-		FileComponent moveCandidate = deletedByContentNamesHash.get(namesHash);
-		if(moveCandidate != null){
-			eventManager.initiateOptimizedMove(moveCandidate, rootDirectory);
-		}
-		return null;
+		
 	}
 	
 	private class FileIndexer extends SimpleFileVisitor<Path> {

@@ -98,7 +98,7 @@ public class ActionExecutor implements Runnable {
 				break;
 			}
 		}
-		Map<String, FileComponent> deletedByContentNamesHash = fileEventManager.getDeletedByContentNamesHash();
+		Map<String, FolderComposite> deletedByContentNamesHash = fileEventManager.getDeletedByContentNamesHash();
 		if(next instanceof FolderComposite){
 			FolderComposite nextAsFolder = (FolderComposite)next;
 			deletedByContentNamesHash.remove(nextAsFolder.getContentNamesHash());

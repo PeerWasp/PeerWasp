@@ -37,7 +37,7 @@ public class RemoteMoveState extends AbstractActionState {
 	}
 
 	@Override
-	public AbstractActionState handleLocalMoveEvent(Path oldFilePath) {
+	public AbstractActionState handleLocalMoveEvent(Path oldFilePath, boolean isReversed) {
 		// TODO Auto-generated method stub
 		return null;
 	}

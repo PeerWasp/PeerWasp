@@ -45,7 +45,7 @@ public class InitialState extends AbstractActionState {
 	}
 
 	@Override
-	public AbstractActionState handleLocalMoveEvent(Path oldFilePath) {
+	public AbstractActionState handleLocalMoveEvent(Path oldFilePath, boolean isReversed) {
 		logger.debug("Local Move Event: Initial -> Local Move");
 		return new LocalMoveState(action, oldFilePath);
 	}

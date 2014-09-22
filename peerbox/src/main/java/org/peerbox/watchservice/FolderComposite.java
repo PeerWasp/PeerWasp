@@ -88,7 +88,6 @@ public class FolderComposite implements FileComponent{
 		//if we are at the last recursion, perform the add
 		if(newRemainingPath.equals("")){
 			addComponentToChildren(nextLevelPath, component);
-			computeContentNamesHash();
 		} else {
 			nextLevelComponent = children.get(nextLevelPath);
 			
@@ -106,7 +105,7 @@ public class FolderComposite implements FileComponent{
 		String nameHashInput = "";
 		String oldNamesHash = contentNamesHash;
 		for(String childName : children.keySet()){
-			nameHashInput.concat(childName);
+			nameHashInput = nameHashInput.concat(childName);
 		}
 		contentNamesHash = Action.createStringFromByteArray(EncryptionUtil.generateMD5Hash(nameHashInput.getBytes()));
 		if(!contentNamesHash.equals(oldNamesHash)){
@@ -130,7 +129,7 @@ public class FolderComposite implements FileComponent{
 		
 		if(newRemainingPath.equals("")){
 			FileComponent removed = children.remove(nextLevelPath);
-			computeContentNamesHash();
+			//computeContentNamesHash();
 			if(updateHashes){
 				bubbleContentHashUpdate();
 			}
@@ -203,7 +202,7 @@ public class FolderComposite implements FileComponent{
 	private void bubbleContentNamesHashUpdate() {
 		// TODO Auto-generated method stub
 		boolean hasChanged = computeContentNamesHash();
-		if(hasChanged){
+		if(hasChanged && parent != null){
 			parent.bubbleContentNamesHashUpdate();
 		}
 		

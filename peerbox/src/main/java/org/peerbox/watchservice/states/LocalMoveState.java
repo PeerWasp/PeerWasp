@@ -22,11 +22,20 @@ public class LocalMoveState extends AbstractActionState {
 	private final static Logger logger = LoggerFactory.getLogger(LocalMoveState.class);
 
 	private Path sourcePath;
+	private boolean reversePaths;
 
 	public LocalMoveState(Action action, Path sourcePath) {
 		super(action);
 		this.sourcePath = sourcePath;
+		reversePaths = false;
 	}
+	
+	public LocalMoveState(Action action, Path sourcePath, boolean reversePaths) {
+		super(action);
+		this.sourcePath = sourcePath;
+		this.reversePaths = reversePaths;
+	}
+
 
 	public Path getSourcePath() {
 		return sourcePath;
@@ -51,7 +60,7 @@ public class LocalMoveState extends AbstractActionState {
 	}
 
 	@Override
-	public AbstractActionState handleLocalMoveEvent(Path oldFilePath) {
+	public AbstractActionState handleLocalMoveEvent(Path oldFilePath, boolean isReversed) {
 		logger.debug("Local Move Event: not defined");
 		throw new IllegalStateException("Local Move Event: not defined");
 	}
@@ -83,7 +92,12 @@ public class LocalMoveState extends AbstractActionState {
 	@Override
 	public void execute(FileManager fileManager) throws NoSessionException,
 			NoPeerConnectionException {
-		fileManager.move(sourcePath.toFile(), action.getFilePath().toFile());
+		
+		if(reversePaths){
+			fileManager.move(action.getFilePath().toFile(), sourcePath.toFile());
+		} else {
+			fileManager.move(sourcePath.toFile(), action.getFilePath().toFile());
+		}
 		logger.debug("Task \"Move File\" executed.");
 	}
 }
