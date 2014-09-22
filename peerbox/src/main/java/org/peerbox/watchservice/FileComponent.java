@@ -34,4 +34,6 @@ public interface FileComponent {
 
 	public boolean getIsUploaded();
 	public void setIsUploaded(boolean isUploaded);
+
+	
 }

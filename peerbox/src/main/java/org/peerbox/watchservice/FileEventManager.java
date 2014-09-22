@@ -32,7 +32,8 @@ public class FileEventManager implements IFileEventListener {
 		return filePathToAction;
 	}
     
-    private SetMultimap<String, FileComponent> deletedFileComponents = HashMultimap.create();
+    private SetMultimap<String, FileComponent> deletedByContentHash = HashMultimap.create();
+    private Map<String, FileComponent> deletedByContentNamesHash = new HashMap<String, FileComponent>();
     
     public FolderComposite getFileTree(){ //maybe synchronize this method?
     	return fileTree;
@@ -46,7 +47,7 @@ public class FileEventManager implements IFileEventListener {
     
     public FileEventManager(Path rootPath) {
     	fileComponentQueue = new PriorityBlockingQueue<FileComponent>(10, new FileActionTimeComparator());
-    	fileTree = new FolderComposite(rootPath);
+    	fileTree = new FolderComposite(rootPath, true);
         contentHashToFilePaths = HashMultimap.create();
         
 		actionExecutor = new Thread(new ActionExecutor(this));
@@ -54,7 +55,7 @@ public class FileEventManager implements IFileEventListener {
     }
     
     public SetMultimap<String, FileComponent> getDeletedFileComponents(){
-    	return this.deletedFileComponents;
+    	return this.deletedByContentHash;
     }
 
 	@Override
@@ -98,7 +99,7 @@ public class FileEventManager implements IFileEventListener {
 	private FileComponent findDeletedComponentOfMoveEvent(FileComponent createdComponent){
 		FileComponent deletedComponent = null;
 		String contentHash = createdComponent.getContentHash();
-		Set<FileComponent> deletedComponents = deletedFileComponents.get(contentHash);
+		Set<FileComponent> deletedComponents = deletedByContentHash.get(contentHash);
 
 		long minTimeDiff = Long.MAX_VALUE;
 		for(FileComponent candidate : deletedComponents) {
@@ -131,7 +132,12 @@ public class FileEventManager implements IFileEventListener {
 		//if it was uploaded to the DHT before.
 		
 		if(deletedComponent.getIsUploaded()){
-			deletedFileComponents.put(deletedComponent.getContentHash(), deletedComponent);
+			deletedByContentHash.put(deletedComponent.getContentHash(), deletedComponent);
+			if(deletedComponent instanceof FolderComposite){
+				FolderComposite deletedComponentAsFolder = (FolderComposite)deletedComponent;
+				deletedByContentNamesHash.put(deletedComponentAsFolder.getContentNamesHash(), deletedComponent);
+			}
+			
 			fileComponentQueue.add(deletedComponent);
 		}
 	}
@@ -165,7 +171,7 @@ public class FileEventManager implements IFileEventListener {
 		
 		//if the created component is a directory, we can use the filewalker to add all children recursively
 		if(filePath.toFile().isDirectory()){
-			createdComponent = new FolderComposite(filePath);
+			createdComponent = new FolderComposite(filePath, true);
 			//fileTree.putComponent(filePath.toString(), createdComponent);
 //			if(useFileWalker){
 //				FileWalker walker = new FileWalker(filePath, this);
@@ -204,5 +210,14 @@ public class FileEventManager implements IFileEventListener {
 	
 	public FileEventManager getThis(){
 		return this;
+	}
+
+	public Map<String, FileComponent> getDeletedByContentNamesHash() {
+		return deletedByContentNamesHash;
+	}
+
+	public void initiateOptimizedMove(FileComponent moveCandidate, Path rootDirectory) {
+		//PROBLEM: new path is handled like being old path!
+		moveCandidate.getAction().handleLocalMoveEvent(rootDirectory);
 	}
 }

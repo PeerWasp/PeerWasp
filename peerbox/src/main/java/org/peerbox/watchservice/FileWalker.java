@@ -15,10 +15,11 @@ public class FileWalker extends AbstractWatchService {
 	private Path rootDirectory;
 	private FileEventManager eventManager;
 	private Map<Path, Action> filesystemView = new HashMap<Path, Action>();
-	private FileComponent fileTree = new FolderComposite(rootDirectory);
+	private FolderComposite fileTree;
 	
 	public FileWalker(Path rootDirectory, FileEventManager eventManager){
 		this.rootDirectory = rootDirectory;
+		this.fileTree = new FolderComposite(rootDirectory, false);
 		this.eventManager = eventManager;
 	}
 	
@@ -66,6 +67,21 @@ public class FileWalker extends AbstractWatchService {
 //		}
 	}
 	
+	public FileComponent lookForMove(){
+		String namesHash = fileTree.getContentNamesHash();
+		/*
+		 * Create new Map<String, FileComponent> in which deleted components are saved with
+		 * their contentNamesHash as key. if found -> move event!
+		 */
+		//if(eventManager.getDeletedFileComponents().)$
+		Map<String, FileComponent> deletedByContentNamesHash = eventManager.getDeletedByContentNamesHash();
+		FileComponent moveCandidate = deletedByContentNamesHash.get(namesHash);
+		if(moveCandidate != null){
+			eventManager.initiateOptimizedMove(moveCandidate, rootDirectory);
+		}
+		return null;
+	}
+	
 	private class FileIndexer extends SimpleFileVisitor<Path> {
 		@Override
 		public FileVisitResult postVisitDirectory(Path path, IOException ex) throws IOException {
@@ -82,9 +98,9 @@ public class FileWalker extends AbstractWatchService {
 		public FileVisitResult visitFile(Path path, BasicFileAttributes attr) throws IOException {
 			filesystemView.put(path, new Action(path));
 			if(path.toFile().isDirectory()){
-				eventManager.getFileTree().putComponent(path.toString(), new FolderComposite(path));
+				fileTree.putComponent(path.toString(), new FolderComposite(path, false));
 			} else {
-				eventManager.getFileTree().putComponent(path.toString(), new FileLeaf(path));
+				fileTree.putComponent(path.toString(), new FileLeaf(path));
 			}
 			return FileVisitResult.CONTINUE;
 		}

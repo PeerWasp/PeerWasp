@@ -22,15 +22,24 @@ public class FolderComposite implements FileComponent{
 	private Action action;
 	private Path path;
 	private String contentHash;
+	private String contentNamesHash;
 	private FolderComposite parent;
 	private boolean isUploaded;
+	private boolean updateHashes;
 	
-	public FolderComposite(Path path){
+	
+	public FolderComposite(Path path, boolean updateHashes){
 		this.path = path;
 		this.action = new Action(path);
 		this.contentHash = "";
 		this.isUploaded = false;
-		computeContentHash();		
+		this.updateHashes = updateHashes;
+		this.contentNamesHash = "";
+		
+		if(updateHashes){
+			computeContentHash();	
+		}
+	
 	}
 	
 	@Override
@@ -79,18 +88,33 @@ public class FolderComposite implements FileComponent{
 		//if we are at the last recursion, perform the add
 		if(newRemainingPath.equals("")){
 			addComponentToChildren(nextLevelPath, component);
+			computeContentNamesHash();
 		} else {
 			nextLevelComponent = children.get(nextLevelPath);
 			
 			//create missing directories on the path on the fly
 			if(nextLevelComponent == null){
 				Path completePath = constructFullPath(nextLevelPath);
-				nextLevelComponent = new FolderComposite(completePath);
+				nextLevelComponent = new FolderComposite(completePath, updateHashes);
 				addComponentToChildren(nextLevelPath, nextLevelComponent);
 			}
 			nextLevelComponent.putComponent(newRemainingPath, component);
 		}
 	} 
+
+	private boolean computeContentNamesHash() {
+		String nameHashInput = "";
+		String oldNamesHash = contentNamesHash;
+		for(String childName : children.keySet()){
+			nameHashInput.concat(childName);
+		}
+		contentNamesHash = Action.createStringFromByteArray(EncryptionUtil.generateMD5Hash(nameHashInput.getBytes()));
+		if(!contentNamesHash.equals(oldNamesHash)){
+			return true;
+		} else {
+			return false;
+		}
+	}
 
 	@Override
 	public FileComponent deleteComponent(String remainingPath) {
@@ -106,7 +130,11 @@ public class FolderComposite implements FileComponent{
 		
 		if(newRemainingPath.equals("")){
 			FileComponent removed = children.remove(nextLevelPath);
-			bubbleContentHashUpdate();
+			computeContentNamesHash();
+			if(updateHashes){
+				bubbleContentHashUpdate();
+			}
+			bubbleContentNamesHashUpdate();
 			return removed;
 		} else {
 			if(nextLevelComponent == null){
@@ -132,9 +160,10 @@ public class FolderComposite implements FileComponent{
 		FileComponent nextLevelComponent = children.get(nextLevelPath);
 		
 		if(newRemainingPath.equals("")){
-			if(nextLevelComponent != null){
+			if(nextLevelComponent != null && updateHashes){
 				nextLevelComponent.bubbleContentHashUpdate();
 			}
+			bubbleContentNamesHashUpdate();
 			return children.get(nextLevelPath);
 		} else {
 			if(nextLevelComponent == null){
@@ -168,8 +197,18 @@ public class FolderComposite implements FileComponent{
 		if(hasChanged && parent != null){
 			parent.bubbleContentHashUpdate();
 		}
+		
 	}
 	
+	private void bubbleContentNamesHashUpdate() {
+		// TODO Auto-generated method stub
+		boolean hasChanged = computeContentNamesHash();
+		if(hasChanged){
+			parent.bubbleContentNamesHashUpdate();
+		}
+		
+	}
+
 	/*
 	 * Because of the new children, the content hash of the directory may change and is propagated
 	 */
@@ -181,7 +220,11 @@ public class FolderComposite implements FileComponent{
 		children.remove(nextLevelPath);
 		children.put(nextLevelPath, component);
 		component.setParent(this);
-		bubbleContentHashUpdate();
+		if(updateHashes){
+			bubbleContentHashUpdate();			
+		}
+		bubbleContentNamesHashUpdate();
+
 	}
 
 	@Override
@@ -193,5 +236,9 @@ public class FolderComposite implements FileComponent{
 	@Override
 	public void setIsUploaded(boolean isUploaded) {
 		this.isUploaded = isUploaded;
+	}
+	
+	public String getContentNamesHash(){
+		return contentNamesHash;
 	}
 }
