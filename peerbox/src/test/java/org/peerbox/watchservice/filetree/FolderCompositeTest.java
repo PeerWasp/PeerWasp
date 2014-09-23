@@ -107,10 +107,7 @@ public class FolderCompositeTest {
 		assertTrue(component.getPath().toString().equals(dirInDirOnRootStr));
 		
 		bubbleContentHashUpdateTest(fileTree);
-		deleteComponentTest(fileTree);
-		
-		
-		
+		deleteComponentTest(fileTree);	
 	}
 	
 	private void bubbleContentHashUpdateTest(FolderComposite fileTree){
