@@ -1,11 +1,11 @@
 package org.peerbox.watchservice;
 
+import java.io.Serializable;
 import java.nio.file.Path;
 
 import org.hive2hive.core.exceptions.IllegalFileLocation;
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.hive2hive.core.exceptions.NoSessionException;
-
 import org.peerbox.FileManager;
 import org.peerbox.watchservice.states.AbstractActionState;
 import org.peerbox.watchservice.states.LocalCreateState;
@@ -13,7 +13,6 @@ import org.peerbox.watchservice.states.LocalDeleteState;
 import org.peerbox.watchservice.states.InitialState;
 import org.peerbox.watchservice.states.LocalUpdateState;
 import org.peerbox.watchservice.states.LocalMoveState;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,7 +27,7 @@ import com.sun.org.apache.xml.internal.security.utils.Base64;
  *
  */
 
-public class Action {
+public class Action implements Serializable {
 	
 	private final static Logger logger = LoggerFactory.getLogger(Action.class);
 	private long timestamp = Long.MAX_VALUE;
