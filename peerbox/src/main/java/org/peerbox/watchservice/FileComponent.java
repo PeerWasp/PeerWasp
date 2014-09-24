@@ -1,9 +1,8 @@
 package org.peerbox.watchservice;
 
-import java.io.Serializable;
 import java.nio.file.Path;
 
-public interface FileComponent extends Serializable {
+public interface FileComponent {
 	
 	public String getContentHash();
 

@@ -1,6 +1,5 @@
 package org.peerbox.watchservice;
 
-import java.io.Serializable;
 import java.nio.file.Path;
 
 import org.hive2hive.core.exceptions.IllegalFileLocation;
@@ -27,7 +26,7 @@ import com.sun.org.apache.xml.internal.security.utils.Base64;
  *
  */
 
-public class Action implements Serializable {
+public class Action {
 	
 	private final static Logger logger = LoggerFactory.getLogger(Action.class);
 	private long timestamp = Long.MAX_VALUE;

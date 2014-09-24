@@ -1,29 +1,48 @@
 package org.peerbox.watchservice;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
+import org.apache.commons.io.FileUtils;
+
+import com.thoughtworks.xstream.XStream;
+import com.thoughtworks.xstream.io.xml.StaxDriver;
 
 public class SerializeService {
 	
-	 // deserialize to Object from given file
-    public static Object deserialize(String fileName) throws IOException, ClassNotFoundException {
-        FileInputStream fis = new FileInputStream(fileName);
-        ObjectInputStream ois = new ObjectInputStream(fis);
-        Object obj = ois.readObject();
-        ois.close();
-        return obj;
+	private static String fileTreeObj = System.getProperty("user.home") + File.separator + "PeerBoxConfig" + File.separator + "fileTree.dat";
+			
+    public static void serializeToXml(FolderComposite file){
+    	XStream xstream = new XStream(new StaxDriver());
+    	String xml = xstream.toXML(file);
+    	try {
+			FileUtils.writeStringToFile(new File(fileTreeObj), xml);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
     }
- 
-    // serialize the given object and save it to file
-    public static void serialize(Object obj, String fileName)
-            throws IOException {
-        FileOutputStream fos = new FileOutputStream(fileName);
-        ObjectOutputStream oos = new ObjectOutputStream(fos);
-        oos.writeObject(obj);
- 
-        fos.close();
+    
+    public static FolderComposite deserializeFromXml(){
+    	XStream xstream = new XStream(new StaxDriver());
+    	Path xmlPath = Paths.get(fileTreeObj);
+    	File xmlFile = xmlPath.toFile();
+    	String xml = null;
+		try {
+			xml = FileUtils.readFileToString(xmlFile);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+    	FolderComposite fileTree = (FolderComposite)xstream.fromXML(xml);
+    	
+    	return fileTree;
+    	
     }
 }

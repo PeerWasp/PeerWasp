@@ -1,6 +1,5 @@
 package org.peerbox.watchservice.states;
 
-import java.io.Serializable;
 import java.nio.file.Path;
 
 import org.hive2hive.core.exceptions.IllegalFileLocation;
@@ -15,7 +14,7 @@ import org.peerbox.watchservice.Action;
  * @author winzenried
  *
  */
-public abstract class AbstractActionState implements Serializable {
+public abstract class AbstractActionState {
 
 	protected Action action;
 

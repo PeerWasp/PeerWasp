@@ -15,11 +15,10 @@ import org.peerbox.watchservice.FileLeaf;
 import org.peerbox.watchservice.FolderComposite;
 import org.peerbox.watchservice.SerializeService;
 
-public class TreePersistence {
+public class TreePersistenceTest {
 	
 	private static String parentPath = System.getProperty("user.home") + File.separator + "PeerBox_FolderCompositeTest" + File.separator; 
 	private static File testDirectory;
-	String objectFile = parentPath + "FileTree.ser";
 
 	private static String fileOnRootStr = parentPath + "file.txt";
 	private static String dirOnRootStr = parentPath + "dir";
@@ -57,29 +56,33 @@ public class TreePersistence {
 		
 	}
 	
-	//@AfterClass
+	@AfterClass
 	public static void rollBack(){
 		fileInDirInDirOnRoot.delete();
 		dirInDirOnRoot.delete();
 		fileOnRoot.delete();
 		fileInNewDir.delete();
 		dirOnRoot.delete();
-
 		testDirectory.delete();
 		
 	}
 	
 	/**
-	 * This test checks if putComponent calls work by issuing getComponent calls on
-	 * the added components. Furthermore, delete and updates are tested,
+	 * This test checks if a tree which represents the file system can be saved as
+	 * a XML representation and to read from that XML file in order to create an
+	 * identical tree object
 	 * 
 	 * - add a file to the root directory
 	 * - add a file to a sub directory (such that the sub dir is created as well)
 	 * - add a directory
+	 * - write tree to xml file
+	 * - create new tree
+	 * - read from xml file
+	 * 
 	 */
 	
 	@Test
-	public void fileTreeOperationsTest(){
+	public void fileTreeSerializeTest(){
 
 		FolderComposite fileTree = new FolderComposite(Paths.get(parentPath), true);
 		fileTree.putComponent(fileOnRootStr, new FileLeaf(Paths.get(fileOnRootStr)));
@@ -106,13 +109,39 @@ public class TreePersistence {
 		assertTrue(component instanceof FolderComposite);
 		assertTrue(component.getPath().toString().equals(dirInDirOnRootStr));
 		
+		
+		// write fileTree to XML
 		try {
-			SerializeService.serialize(fileTree, objectFile);
-		} catch (IOException e) {
+			SerializeService.serializeToXml(fileTree);
+		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-	}
+	
 		
+		// read from XML file
+		FileComponent reloadeadFileTree = SerializeService.deserializeFromXml();
+		
+		FileComponent newComponent = reloadeadFileTree.getComponent(fileOnRootStr);
+		assertTrue(newComponent instanceof FileLeaf);
+		assertTrue(newComponent.getAction().getFilePath().toString().equals(fileOnRootStr));
+		
+		//check if it is possible to add a file into a new directory
+		newComponent = reloadeadFileTree.getComponent(fileInNewDirStr);
+		assertTrue(newComponent instanceof FileLeaf);
+		assertTrue(newComponent.getPath().toString().equals(fileInNewDirStr));
+		
+		newComponent = reloadeadFileTree.getComponent(dirOnRootStr);
+		assertTrue(newComponent instanceof FolderComposite);
+		assertTrue(newComponent.getPath().toString().equals(dirOnRootStr));
+		
+		newComponent = reloadeadFileTree.getComponent(dirInDirOnRootStr);
+		System.out.println(newComponent);
+	
+		assertTrue(newComponent instanceof FolderComposite);
+		assertTrue(newComponent.getPath().toString().equals(dirInDirOnRootStr));
+	}
+	
+
 
 }
