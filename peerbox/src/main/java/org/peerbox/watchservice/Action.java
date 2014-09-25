@@ -76,8 +76,8 @@ public class Action {
 		updateTimestamp();
 	}
 	
-	public void handleLocalMoveEvent(Path oldFilePath, boolean isReversed) {
-		currentState = currentState.handleLocalMoveEvent(oldFilePath, isReversed);
+	public void handleLocalMoveEvent(Path oldFilePath) {
+		currentState = currentState.handleLocalMoveEvent(oldFilePath);
 		updateTimestamp();
 	}
 

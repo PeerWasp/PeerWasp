@@ -36,7 +36,6 @@ public class FileWalker extends AbstractWatchService {
 	}
 
 	public void indexNamesRecursively(){
-		System.out.println("File walking started.");
 		try {
 			filesystemView = new HashMap<Path, Action>();
 			Files.walkFileTree(rootDirectory, new FileIndexer());
@@ -112,7 +111,6 @@ public class FileWalker extends AbstractWatchService {
 
 	public FolderComposite indexContentRecursively() {
 		computeContentHash = true;
-		System.out.println("Content file walking started.");
 		try {
 			filesystemView = new HashMap<Path, Action>();
 			Files.walkFileTree(rootDirectory, new FileIndexer());

@@ -104,7 +104,7 @@ public class FileEventManager implements IFileEventListener {
 		} else {
 			Action deleteAction = deletedComponent.getAction();
 			fileComponentQueue.remove(deletedComponent);
-			createAction.handleLocalMoveEvent(deleteAction.getFilePath(), false);
+			createAction.handleLocalMoveEvent(deleteAction.getFilePath());
 		}
 		// add action to the queue again as timestamp was updated
 		fileComponentQueue.add(createdComponent);
@@ -188,14 +188,11 @@ public class FileEventManager implements IFileEventListener {
 		
 		//only add the file to the set of deleted files and to the action queue
 		//if it was uploaded to the DHT before.
-		System.out.println("isuploaded: " + deletedComponent.getIsUploaded());
 		if(deletedComponent.getIsUploaded()){
 			deletedByContentHash.put(deletedComponent.getContentHash(), deletedComponent);
 			if(deletedComponent instanceof FolderComposite){
-				System.out.println("deleted is a folder");
 				FolderComposite deletedComponentAsFolder = (FolderComposite)deletedComponent;
 				deletedByContentNamesHash.put(deletedComponentAsFolder.getContentNamesHash(), deletedComponentAsFolder);
-				System.out.println("Added deleted directory to collection with hash: " + deletedComponentAsFolder.getContentNamesHash());
 			}
 			
 			fileComponentQueue.add(deletedComponent);
@@ -274,7 +271,7 @@ public class FileEventManager implements IFileEventListener {
 		getFileTree().putComponent(newPath.toString(), moveCandidate);
 
 		fileComponentQueue.remove(moveCandidate);
-		moveCandidate.getAction().handleLocalMoveEvent(oldPath, true);
+		moveCandidate.getAction().handleLocalMoveEvent(oldPath);
 		fileComponentQueue.add(moveCandidate);
 	}
 }

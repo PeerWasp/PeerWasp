@@ -74,14 +74,16 @@ public class FolderComposite implements FileComponent{
 		return contentHash;
 	}
 	
+	/**
+	 * Appends a new component to the FolderComposite. Inexistent folders are added on the
+	 * fly. Existing items are replaced. Triggers updates of content and name hashes.
+	 */
 	@Override
 	public void putComponent(String remainingPath, FileComponent component) {
 		
 		//if the path it absolute, cut off the absolute path to the root directory!
 		if(remainingPath.startsWith(path.toString())){
 			remainingPath = remainingPath.substring(path.toString().length() + 1);
-		} else {
-			System.out.println("Paths: Rem: " + remainingPath.toString() + " root: " + path.toString());
 		}
 		
 		String nextLevelPath = PathUtils.getNextPathFragment(remainingPath);
@@ -103,6 +105,11 @@ public class FolderComposite implements FileComponent{
 		}
 	} 
 
+	/**
+	 * Computes the content hash for this object by appending the content hashes of contained
+	 * components and hashing over it again. 
+	 * @return
+	 */
 	private boolean computeContentNamesHash() {
 		String nameHashInput = "";
 		String oldNamesHash = contentNamesHash;
@@ -117,9 +124,13 @@ public class FolderComposite implements FileComponent{
 		}
 	}
 
+	/**
+	 * Deletes the FileComponent at location remainingPath. Triggers updates of 
+	 * content and name hashes. 
+	 * @return The deleted component. If it does not exist, null is returned
+	 */
 	@Override
 	public FileComponent deleteComponent(String remainingPath) {
-		//Path parentPath = parent.getPath();
 		if(remainingPath.startsWith(path.toString())){
 			remainingPath = remainingPath.substring(path.toString().length() + 1);
 		}
@@ -131,7 +142,6 @@ public class FolderComposite implements FileComponent{
 		
 		if(newRemainingPath.equals("")){
 			FileComponent removed = children.remove(nextLevelPath);
-			//computeContentNamesHash();
 			if(updateContentHashes){
 				bubbleContentHashUpdate();
 			}
@@ -147,9 +157,12 @@ public class FolderComposite implements FileComponent{
 		}
 	}
 	
+	/**
+	 * Get the FileComponent at the specified location. Triggers updates of content and name hashes.
+	 * @return If it does exist, the requested FileComponent is returned, null otherwise.
+	 */
 	@Override
 	public FileComponent getComponent(String remainingPath){
-		//Path parentPath = parent.getPath();
 		//if the path it absolute, cut off the absolute path to the root directory!
 		if(remainingPath.startsWith(path.toString())){
 			remainingPath = remainingPath.substring(path.toString().length() + 1);
@@ -240,6 +253,12 @@ public class FolderComposite implements FileComponent{
 	}
 	
 
+	/**
+	 * If a subtree is appended, the children of the subtree need to update their paths.
+	 * This function starts a recursive update. Furthermore, the filePath of the action
+	 * related to each FileComponent is updates as well.
+	 * @param parentPath
+	 */
 	public void propagatePathChangetoChildren(Path parentPath){
 		for(FileComponent child : children.values()){
 			child.setPath(parentPath);

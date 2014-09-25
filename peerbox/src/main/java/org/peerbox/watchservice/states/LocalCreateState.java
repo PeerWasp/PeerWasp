@@ -47,7 +47,7 @@ public class LocalCreateState extends AbstractActionState {
 	}
 
 	@Override
-	public AbstractActionState handleLocalMoveEvent(Path oldFilePath, boolean isReversed) {
+	public AbstractActionState handleLocalMoveEvent(Path oldFilePath) {
 		logger.debug("Local Move Event: not defined");
 		throw new IllegalStateException("Local Move Event: not defined");
 	}
@@ -87,7 +87,6 @@ public class LocalCreateState extends AbstractActionState {
 			NoPeerConnectionException, IllegalFileLocation {
 		Path filePath = action.getFilePath();
 		File file = filePath.toFile();
-		System.out.println(filePath.toString());
 		fileManager.add(file);
 
 		logger.debug("Task \"Add File\" executed for " + filePath);

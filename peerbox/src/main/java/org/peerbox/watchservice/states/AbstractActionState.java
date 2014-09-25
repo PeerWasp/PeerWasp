@@ -31,7 +31,7 @@ public abstract class AbstractActionState {
 
 	public abstract AbstractActionState handleLocalUpdateEvent();
 
-	public abstract AbstractActionState handleLocalMoveEvent(Path oldFilePath, boolean isReversed);
+	public abstract AbstractActionState handleLocalMoveEvent(Path oldFilePath);
 
 	/*
 	 * REMOTE event handlers

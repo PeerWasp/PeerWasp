@@ -157,9 +157,7 @@ public class FileEventManagerTest {
 		
 		manager.onFileDeleted(Paths.get(filePaths.get(0)));
 
-		System.out.println("queue size: " + actionsToCheck.size());
 		assertTrue(actionsToCheck.size() == 1);
-		System.out.println("queue size: " + actionsToCheck.size());
 		assertTrue(actionsToCheck.peek().getAction().getCurrentState() instanceof LocalDeleteState);
 
 		manager.onFileModified(Paths.get(filePaths.get(0)));
@@ -273,11 +271,6 @@ public class FileEventManagerTest {
 		manager.onFileCreated(Paths.get(filePaths.get(3)), false);
 		sleepMillis(10);
 
-		System.out.println(actionsToCheck.size() );
-		ArrayList<FileComponent> files = new ArrayList<FileComponent>(actionsToCheck);
-		for(FileComponent f : files){
-			System.out.println(f.getPath() + ": " + f.getAction().getCurrentState());
-		}
 		assertTrue(actionsToCheck.size() == 3);
 		assertTrue(actionsToCheck.peek().getAction().getCurrentState() instanceof LocalCreateState);
 		assertTrue(actionsToCheck.peek().getAction().getFilePath().toString().equals(filePaths.get(1)));

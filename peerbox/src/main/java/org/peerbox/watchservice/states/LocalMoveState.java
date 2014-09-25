@@ -60,7 +60,7 @@ public class LocalMoveState extends AbstractActionState {
 	}
 
 	@Override
-	public AbstractActionState handleLocalMoveEvent(Path oldFilePath, boolean isReversed) {
+	public AbstractActionState handleLocalMoveEvent(Path oldFilePath) {
 		logger.debug("Local Move Event: not defined");
 		throw new IllegalStateException("Local Move Event: not defined");
 	}
@@ -94,7 +94,7 @@ public class LocalMoveState extends AbstractActionState {
 			NoPeerConnectionException {
 	
 		fileManager.move(sourcePath.toFile(), action.getFilePath().toFile());
-		logger.debug("2.) Task \"Move File\" executed from: " + sourcePath.toString() + " to " + action.getFilePath().toFile().toPath());
+		logger.debug("Task \"Move File\" executed from: " + sourcePath.toString() + " to " + action.getFilePath().toFile().toPath());
 		
 	}
 }

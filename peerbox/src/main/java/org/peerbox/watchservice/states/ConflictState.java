@@ -37,7 +37,7 @@ public class ConflictState extends AbstractActionState {
 	}
 
 	@Override
-	public AbstractActionState handleLocalMoveEvent(Path oldFilePath, boolean isReversed) {
+	public AbstractActionState handleLocalMoveEvent(Path oldFilePath) {
 		// TODO Auto-generated method stub
 		return null;
 	}

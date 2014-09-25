@@ -70,7 +70,6 @@ public class ActionExecutor implements Runnable {
 						}
 						next.getAction().execute(fileEventManager.getFileManager());
 						next.setIsUploaded(true);
-						System.out.println("SET UPLOADED");
 					} else {
 						// not ready yet, insert action again (no blocking peek, unfortunately)
 						fileEventManager.getFileComponentQueue().put(next);
