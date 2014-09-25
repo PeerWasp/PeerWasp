@@ -1,17 +1,14 @@
 package org.peerbox.watchservice;
 
-import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.PriorityBlockingQueue;
 
 import org.peerbox.FileManager;
-import org.peerbox.watchservice.states.LocalDeleteState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,63 +19,59 @@ public class FileEventManager implements IFileEventListener {
 	
 	private static final Logger logger = LoggerFactory.getLogger(FileEventManager.class);
 	
-	//TODO delete!
-	//private Map<Path, Action> filePathToAction;
-	
+	private Thread actionExecutor;
+    private FileManager fileManager;
+    
     private BlockingQueue<FileComponent> fileComponentQueue; 
     private FolderComposite fileTree;
-    private boolean maintainContentHashes = true;
-    
-//	public Map<Path, Action> getFilePathToAction() {
-//		return filePathToAction;
-//	}
     
     private SetMultimap<String, FileComponent> deletedByContentHash = HashMultimap.create();
     private Map<String, FolderComposite> deletedByContentNamesHash = new HashMap<String, FolderComposite>();
     
+    private boolean maintainContentHashes = true;
+
+    
     public FolderComposite getFileTree(){ //maybe synchronize this method?
     	return fileTree;
     }
-
-	private SetMultimap<String, Path> contentHashToFilePaths;
-
-	private Thread actionExecutor;
-    
-    private FileManager fileManager;
     
     public FileEventManager(Path rootPath) {
     	fileComponentQueue = new PriorityBlockingQueue<FileComponent>(10, new FileActionTimeComparator());
     	fileTree = new FolderComposite(rootPath, true);
-        contentHashToFilePaths = HashMultimap.create();
-        
+
 		actionExecutor = new Thread(new ActionExecutor(this));
 		actionExecutor.start();
     }
     
+    /**
+     * @param rootPath is the root folder of the tree
+     * @param maintainContentHashes set to true if content hashes have to be maintained. Content hash changes are
+     * then propagated upwards to the parent directory.
+     */
     public FileEventManager(Path rootPath, boolean maintainContentHashes) {
     	fileComponentQueue = new PriorityBlockingQueue<FileComponent>(10, new FileActionTimeComparator());
     	fileTree = new FolderComposite(rootPath, true);
-        contentHashToFilePaths = HashMultimap.create();
         this.maintainContentHashes = maintainContentHashes;
-		actionExecutor = new Thread(new ActionExecutor(this));
+		
+        actionExecutor = new Thread(new ActionExecutor(this));
 		actionExecutor.start();
     }
     
     public SetMultimap<String, FileComponent> getDeletedFileComponents(){
     	return this.deletedByContentHash;
     }
-
-//    public void onFileDiscovered(Path  path){
-//  
-//    	FileComponent createdComponent = createFileComponent(path);
-//    	getFileTree().putComponent(path.toString(), createdComponent);
-//    	
-//    	fileComponentQueue.remove(createdComponent);
-//    	createdComponent.getAction().handleLocalCreateEvent();
-//    	fileComponentQueue.add(createdComponent);
-//    	
-//    }
     
+    /**
+     * Handles incoming create events the following way:
+     * If the created component is a folder, check if it corresponds to a
+     * previous delete, and trigger an optimized move based on the folder's
+     * structure. Otherwise, make a complete content discovery.
+     * 
+     * Furthermore, check if a move based on folder/file content is possible to trigger
+     * a conventional move operation (this is expected in particular when ordinary files 
+     * are moved and the optimized move operation is not possible), otherwise just handle 
+     * the event as a conventional create
+     */
 	@Override
 	public void onFileCreated(Path path, boolean useFileWalker) {
 		logger.debug("onFileCreated: {}", path);
@@ -89,19 +82,17 @@ public class FileEventManager implements IFileEventListener {
 		if(createdComponent instanceof FolderComposite){
 			String moveCandidateHash = null;
 			FolderComposite moveCandidate = null;
-			moveCandidateHash = captureSubTreeStructure(path);
+			moveCandidateHash = discoverSubtreeStructure(path);
 			moveCandidate = deletedByContentNamesHash.get(moveCandidateHash);
 			if(moveCandidate != null){
-				getFileTree().putComponent(path.toString(), moveCandidate);
-
+				System.out.println("Folder Move detected!");
 				initiateOptimizedMove(moveCandidate, path);
 				return;
 			} else {
-				createdComponent = discoverSubtree(path);
+				createdComponent = discoverSubtreeCompletely(path);
 				getFileTree().putComponent(createdComponent.getPath().toString(), createdComponent);
 			}
 		}
-		
 		fileComponentQueue.remove(createdComponent);
 	
 		// detect "move" event by looking at recent deletes
@@ -115,26 +106,46 @@ public class FileEventManager implements IFileEventListener {
 			fileComponentQueue.remove(deletedComponent);
 			createAction.handleLocalMoveEvent(deleteAction.getFilePath(), false);
 		}
-		
 		// add action to the queue again as timestamp was updated
 		fileComponentQueue.add(createdComponent);
 	}
 
-	private FolderComposite discoverSubtree(Path filePath) {
+	/**
+	 * This function runs the FileWalker to discover the complete content of a subtree
+	 * at the given location. The content hash of each file is computed, the content hash
+	 * of a folder consists of a hash over contained files' content hashes. If these hashes 
+	 * change, the change is propagated to the parent folder
+	 * @param filePath represents the root of the subtree
+	 * @return the complete subtree as a FolderComposite
+	 */
+	private FolderComposite discoverSubtreeCompletely(Path filePath) {
 		FileWalker walker = new FileWalker(filePath, this);
+		logger.debug("start complete subtree discovery at : {}", filePath);
 		return walker.indexContentRecursively();
 	}
 
-	private String captureSubTreeStructure(Path filePath) {
+	/**
+	 * This function runs the FileWalker to discover the structure of the subtree
+	 * at the given location. This means, content hashes are neither computed nor
+	 * propagated upwards. The structure is represented using a hash on the names
+	 * of the contained objects of each folder
+	 * @param filePath represents the root of the subtree
+	 * @return the hash representing the folder's structure
+	 */
+	private String discoverSubtreeStructure(Path filePath) {
 		FileWalker walker = new FileWalker(filePath, this);
+		logger.debug("start discovery of subtree structure at : {}", filePath);
 		walker.indexNamesRecursively();
-		String contentNamesHash = walker.getContentNamesHashOfWalkedFolder();
-		System.out.println("hash from walker: " + contentNamesHash);
-		System.out.println("deleted size: " + deletedByContentNamesHash.size());
-		
-		return contentNamesHash;
+		return walker.getContentNamesHashOfWalkedFolder();
 	}
 
+	/**
+	 * Searches the SetMultiMap<String, FileComponent> deletedByContentHash for
+	 * a deleted FileComponent with the same content hash. If several exist, the temporally
+	 * closest is returned.
+	 * @param createdComponent The previously deleted component
+	 * @return
+	 */
 	private FileComponent findDeletedByContent(FileComponent createdComponent){
 		FileComponent deletedComponent = null;
 		String contentHash = createdComponent.getContentHash();
@@ -153,6 +164,14 @@ public class FileEventManager implements IFileEventListener {
 	}
 
 	//TODO: remove children from actionQueue as well!
+	/**
+	 * Handles incoming delete events. The deleted component is added to
+	 * a SetMultiMap<String, FileComponent>, the content hash is used as the key. Using
+	 * this map, future create events can be mapped to previous deletes and indicate 
+	 * a move operation. If the deleted component is a folder, the
+	 * folder is additionally added to the deletedByContentNamesHash map with a hash 
+	 * over the names of contained files as a key to allow optimized folder moves.
+	 */
 	@Override
 	public void onFileDeleted(Path path) {
 		logger.debug("onFileDeleted: {}", path);
@@ -207,23 +226,11 @@ public class FileEventManager implements IFileEventListener {
 
 	
 	private FileComponent createFileComponent(Path filePath){
-		FileComponent createdComponent;
-		// create and add the correct component
-		
-		//if the created component is a directory, we can use the filewalker to add all children recursively
 		if(filePath.toFile().isDirectory()){
-			createdComponent = new FolderComposite(filePath, maintainContentHashes);
-			//fileTree.putComponent(filePath.toString(), createdComponent);
-//			if(useFileWalker){
-//				FileWalker walker = new FileWalker(filePath, this);
-//				walker.indexDirectoryRecursively();
-//			}
-		//simple file, just add it and return
+			return new FolderComposite(filePath, maintainContentHashes);
 		} else {
-			createdComponent = new FileLeaf(filePath, maintainContentHashes);
-			//fileTree.putComponent(filePath.toString(), createdComponent);
+			return new FileLeaf(filePath, maintainContentHashes);
 		}
-		return createdComponent;
 	}
 	
 	private FileComponent getFileComponent(Path filePath){
@@ -257,10 +264,17 @@ public class FileEventManager implements IFileEventListener {
 		return deletedByContentNamesHash;
 	}
 
-	public void initiateOptimizedMove(FolderComposite moveCandidate, Path rootDirectory) {
+	/**
+	 * @param moveCandidate represents the component, which is mostly
+	 * likely the source of the move operation
+	 * @param newPath is the new location to which the moved component is appended.
+	 */
+	public void initiateOptimizedMove(FolderComposite moveCandidate, Path newPath) {
+		Path oldPath = moveCandidate.getPath();
+		getFileTree().putComponent(newPath.toString(), moveCandidate);
+
 		fileComponentQueue.remove(moveCandidate);
-		System.out.println("Folder Move detected!");
-		moveCandidate.getAction().handleLocalMoveEvent(rootDirectory, true);
+		moveCandidate.getAction().handleLocalMoveEvent(oldPath, true);
 		fileComponentQueue.add(moveCandidate);
 	}
 }

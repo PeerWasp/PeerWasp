@@ -31,10 +31,10 @@ public interface FileComponent {
 	public boolean updateContentHash();
 	
 	public Path getPath();
+	public void setPath(Path parent);
 	
 
 	public boolean getIsUploaded();
 	public void setIsUploaded(boolean isUploaded);
 
-	
 }

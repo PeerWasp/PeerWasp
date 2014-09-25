@@ -127,4 +127,8 @@ public class Action {
 
 		return currentState;
 	}
+
+	public void setPath(Path path) {
+		this.filePath = path;
+	}
 }

@@ -8,13 +8,11 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.peerbox.watchservice.FileComponent;
-import org.peerbox.watchservice.FileEventManager;
 import org.peerbox.watchservice.FileLeaf;
 import org.peerbox.watchservice.FolderComposite;
 

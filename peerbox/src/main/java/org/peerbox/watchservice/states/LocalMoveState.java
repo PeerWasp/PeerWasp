@@ -92,14 +92,9 @@ public class LocalMoveState extends AbstractActionState {
 	@Override
 	public void execute(FileManager fileManager) throws NoSessionException,
 			NoPeerConnectionException {
-		
-		if(reversePaths){
-			fileManager.move(action.getFilePath().toFile(), sourcePath.toFile());
-			logger.debug("Task \"Move File\" executed from: " + action.getFilePath().toFile().toPath() + " to " + sourcePath.toString());
-		} else {
-			fileManager.move(sourcePath.toFile(), action.getFilePath().toFile());
-			logger.debug("Task \"Move File\" executed from: " + sourcePath.toString() + " to " + action.getFilePath().toFile().toPath());
-		}
+	
+		fileManager.move(sourcePath.toFile(), action.getFilePath().toFile());
+		logger.debug("2.) Task \"Move File\" executed from: " + sourcePath.toString() + " to " + action.getFilePath().toFile().toPath());
 		
 	}
 }

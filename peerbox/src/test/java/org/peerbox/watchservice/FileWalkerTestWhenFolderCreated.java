@@ -1,14 +1,12 @@
 package org.peerbox.watchservice;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
-import java.nio.file.CopyOption;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 
 import org.apache.commons.io.FileUtils;
 import org.junit.AfterClass;
@@ -159,6 +157,14 @@ public class FileWalkerTestWhenFolderCreated {
 			assertTrue(manager.getDeletedFileComponents().size() == 1);
 			assertTrue(manager.getDeletedByContentNamesHash().size() == 1);
 			assertTrue(manager.getFileComponentQueue().size() == 2);
+			
+			//Ensure old files are removed and new ones appended to the tree
+			assertNull(manager.getFileTree().getComponent(dir1Str));
+			assertNull(manager.getFileTree().getComponent(file1Str));
+			assertNull(manager.getFileTree().getComponent(file2Str));
+			assertNotNull(manager.getFileTree().getComponent(dir2Str + "dir1"));
+			assertNotNull(manager.getFileTree().getComponent(dir2Str  + "dir1" + File.separator + "file1"));
+			assertNotNull(manager.getFileTree().getComponent(dir2Str  + "dir1" + File.separator + "file2"));
 			
 			Thread.sleep(ActionExecutor.ACTION_WAIT_TIME_MS * 2);
 		} catch (Exception e) {

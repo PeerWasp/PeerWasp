@@ -1,20 +1,23 @@
 package org.peerbox.watchservice;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import org.hive2hive.core.security.EncryptionUtil;
 
 public class FileLeaf implements FileComponent{
 	private Action action;
 	private Path path;
+	private Path fileName;
 	private String contentHash;
 	private FolderComposite parent;
 	private boolean isUploaded;
-	private boolean maintainContentHashes;
 	
 	public FileLeaf(Path path){
 		this.path = path;
+		this.fileName = path.getFileName();
 		this.action = new Action(path);
 		this.contentHash = "";
 		this.isUploaded = false;
@@ -23,6 +26,7 @@ public class FileLeaf implements FileComponent{
 	
 	public FileLeaf(Path path, boolean maintainContentHashes){
 		this.path = path;
+		this.fileName = path.getFileName();
 		this.action = new Action(path);
 		this.contentHash = "";
 		this.isUploaded = false;
@@ -39,7 +43,6 @@ public class FileLeaf implements FileComponent{
 
 	@Override
 	public void putComponent(String path, FileComponent component) {
-		// TODO Auto-generated method stub
 		System.err.println("put on file not defined.");
 	}
 
@@ -116,5 +119,12 @@ public class FileLeaf implements FileComponent{
 	@Override
 	public void setIsUploaded(boolean isUploaded) {
 		this.isUploaded = isUploaded;
+	}
+	
+	@Override
+	public void setPath(Path parentPath){	
+		if(parentPath != null){
+			this.path = Paths.get(new File(parentPath.toString(), fileName.toString()).getPath());
+		}
 	}
 }
