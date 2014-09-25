@@ -1,5 +1,6 @@
 package org.peerbox.watchservice.states;
 
+import java.io.Serializable;
 import java.nio.file.Path;
 
 import org.hive2hive.core.exceptions.IllegalFileLocation;
