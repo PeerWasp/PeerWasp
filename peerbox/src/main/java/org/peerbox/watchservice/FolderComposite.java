@@ -20,24 +20,25 @@ public class FolderComposite implements FileComponent{
 
 	private SortedMap<String, FileComponent> children = new TreeMap<String, FileComponent>();
 	private Action action;
-	private Path path;
+	//private Path path;
+	private Path pathFragment;
 	private String contentHash;
 	private String contentNamesHash;
 	private FolderComposite parent;
 	private boolean isUploaded;
-	private boolean updateHashes;
+	private boolean updateContentHashes;
 	
 	
-	public FolderComposite(Path path, boolean updateHashes){
-		this.path = path;
+	public FolderComposite(Path path, boolean updateContentHashes){
+		//this.path = path;
 		this.action = new Action(path);
 		this.contentHash = "";
 		this.isUploaded = false;
-		this.updateHashes = updateHashes;
+		this.updateContentHashes = updateContentHashes;
 		this.contentNamesHash = "";
 		
-		if(updateHashes){
-			computeContentHash();	
+		if(updateContentHashes){
+			updateContentHash();	
 		}
 	
 	}
@@ -54,7 +55,12 @@ public class FolderComposite implements FileComponent{
 
 	@Override
 	public Path getPath() {
-		return path;
+		if(parent == null){
+			return pathFragment;
+		} else {
+			return Paths.get(parent.getPath().toString().concat(pathFragment.toString()));
+		}
+
 	}
 
 	@Override
@@ -63,7 +69,7 @@ public class FolderComposite implements FileComponent{
 	}
 	
 	private Path constructFullPath(String lastPathFragment){
-		String completePath = path + File.separator + lastPathFragment;
+		String completePath = parent.getPath().toString() + File.separator + lastPathFragment;
 		return Paths.get(completePath);
 	}
 
@@ -76,8 +82,9 @@ public class FolderComposite implements FileComponent{
 	public void putComponent(String remainingPath, FileComponent component) {
 		
 		//if the path it absolute, cut off the absolute path to the root directory!
-		if(remainingPath.startsWith(path.toString())){
-			remainingPath = remainingPath.substring(path.toString().length() + 1);
+		Path parentPath = parent.getPath();
+		if(remainingPath.startsWith(parentPath.toString())){
+			remainingPath = remainingPath.substring(parentPath.toString().length() + 1);
 		}
 		
 		String nextLevelPath = PathUtils.getNextPathFragment(remainingPath);
@@ -85,16 +92,14 @@ public class FolderComposite implements FileComponent{
 		
 		FileComponent nextLevelComponent;
 		
-		//if we are at the last recursion, perform the add
+		//if we are at the last recursion, perform the add, else recursively continue
 		if(newRemainingPath.equals("")){
 			addComponentToChildren(nextLevelPath, component);
 		} else {
 			nextLevelComponent = children.get(nextLevelPath);
-			
-			//create missing directories on the path on the fly
 			if(nextLevelComponent == null){
 				Path completePath = constructFullPath(nextLevelPath);
-				nextLevelComponent = new FolderComposite(completePath, updateHashes);
+				nextLevelComponent = new FolderComposite(completePath, updateContentHashes);
 				addComponentToChildren(nextLevelPath, nextLevelComponent);
 			}
 			nextLevelComponent.putComponent(newRemainingPath, component);
@@ -117,9 +122,9 @@ public class FolderComposite implements FileComponent{
 
 	@Override
 	public FileComponent deleteComponent(String remainingPath) {
-		
-		if(remainingPath.startsWith(path.toString())){
-			remainingPath = remainingPath.substring(path.toString().length() + 1);
+		Path parentPath = parent.getPath();
+		if(remainingPath.startsWith(parentPath.toString())){
+			remainingPath = remainingPath.substring(parentPath.toString().length() + 1);
 		}
 		
 		String nextLevelPath = PathUtils.getNextPathFragment(remainingPath);
@@ -130,7 +135,7 @@ public class FolderComposite implements FileComponent{
 		if(newRemainingPath.equals("")){
 			FileComponent removed = children.remove(nextLevelPath);
 			//computeContentNamesHash();
-			if(updateHashes){
+			if(updateContentHashes){
 				bubbleContentHashUpdate();
 			}
 			bubbleContentNamesHashUpdate();
@@ -147,10 +152,10 @@ public class FolderComposite implements FileComponent{
 	
 	@Override
 	public FileComponent getComponent(String remainingPath){
-		
+		Path parentPath = parent.getPath();
 		//if the path it absolute, cut off the absolute path to the root directory!
-		if(remainingPath.startsWith(path.toString())){
-			remainingPath = remainingPath.substring(path.toString().length() + 1);
+		if(remainingPath.startsWith(parentPath.toString())){
+			remainingPath = remainingPath.substring(parentPath.toString().length() + 1);
 		}
 		
 		String nextLevelPath = PathUtils.getNextPathFragment(remainingPath);
@@ -159,7 +164,7 @@ public class FolderComposite implements FileComponent{
 		FileComponent nextLevelComponent = children.get(nextLevelPath);
 		
 		if(newRemainingPath.equals("")){
-			if(nextLevelComponent != null && updateHashes){
+			if(nextLevelComponent != null && updateContentHashes){
 				nextLevelComponent.bubbleContentHashUpdate();
 			}
 			bubbleContentNamesHashUpdate();
@@ -174,7 +179,7 @@ public class FolderComposite implements FileComponent{
 	}
 
 	@Override
-	public boolean computeContentHash() {
+	public boolean updateContentHash() {
 		String tmp = "";
 		for(FileComponent value : children.values()){
 			tmp = tmp.concat(value.getContentHash());
@@ -187,16 +192,14 @@ public class FolderComposite implements FileComponent{
 			return true;
 		}
 		return false;
-		
 	}
 	
 	@Override
 	public void bubbleContentHashUpdate() {
-		boolean hasChanged = computeContentHash();
+		boolean hasChanged = updateContentHash();
 		if(hasChanged && parent != null){
 			parent.bubbleContentHashUpdate();
 		}
-		
 	}
 	
 	private void bubbleContentNamesHashUpdate() {
@@ -205,7 +208,6 @@ public class FolderComposite implements FileComponent{
 		if(hasChanged && parent != null){
 			parent.bubbleContentNamesHashUpdate();
 		}
-		
 	}
 
 	/*
@@ -219,11 +221,10 @@ public class FolderComposite implements FileComponent{
 		children.remove(nextLevelPath);
 		children.put(nextLevelPath, component);
 		component.setParent(this);
-		if(updateHashes){
+		if(updateContentHashes){
 			bubbleContentHashUpdate();			
 		}
 		bubbleContentNamesHashUpdate();
-
 	}
 
 	@Override
@@ -240,4 +241,10 @@ public class FolderComposite implements FileComponent{
 	public String getContentNamesHash(){
 		return contentNamesHash;
 	}
+
+	
+	public void setPathFragment(Path pathFragment){
+		this.pathFragment = pathFragment;
+	}
+	
 }

@@ -11,13 +11,25 @@ public class FileLeaf implements FileComponent{
 	private String contentHash;
 	private FolderComposite parent;
 	private boolean isUploaded;
+	private boolean maintainContentHashes;
 	
 	public FileLeaf(Path path){
 		this.path = path;
 		this.action = new Action(path);
 		this.contentHash = "";
 		this.isUploaded = false;
-		computeContentHash();
+		updateContentHash();
+	}
+	
+	public FileLeaf(Path path, boolean maintainContentHashes){
+		this.path = path;
+		this.action = new Action(path);
+		this.contentHash = "";
+		this.isUploaded = false;
+		if(maintainContentHashes){
+			updateContentHash();
+		}
+
 	}
 
 	@Override
@@ -50,7 +62,7 @@ public class FileLeaf implements FileComponent{
 
 	@Override
 	public void bubbleContentHashUpdate() {
-		boolean hasChanged = computeContentHash();
+		boolean hasChanged = updateContentHash();
 		if(hasChanged){
 			parent.bubbleContentHashUpdate();
 		}
@@ -71,7 +83,7 @@ public class FileLeaf implements FileComponent{
 	 * @return true if the contentHash hash changed, false otherwise
 	 */
 	@Override
-	public boolean computeContentHash() {
+	public boolean updateContentHash() {
 		String newHash = "";
 		if(path != null && path.toFile() != null){
 			try {

@@ -51,7 +51,7 @@ public abstract class AbstractWatchService {
 	private void notifyFileCreated(final Path path) {
 		List<IFileEventListener> listeners = new ArrayList<IFileEventListener>(eventListeners);
 		for(IFileEventListener l : listeners) {
-			l.onFileCreated(path, false);
+			l.onFileCreated(path, true);
 		}
 	}
 

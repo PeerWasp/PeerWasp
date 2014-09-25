@@ -16,6 +16,7 @@ public class FileWalker extends AbstractWatchService {
 	private FileEventManager eventManager;
 	private Map<Path, Action> filesystemView = new HashMap<Path, Action>();
 	private FolderComposite fileTree;
+	private boolean computeContentHash = false;
 	
 	public FileWalker(Path rootDirectory, FileEventManager eventManager){
 		this.rootDirectory = rootDirectory;
@@ -25,6 +26,7 @@ public class FileWalker extends AbstractWatchService {
 	
 	@Override
 	public void start() throws Exception {
+		
 		// TODO Auto-generated method stub
 	}
 
@@ -33,10 +35,12 @@ public class FileWalker extends AbstractWatchService {
 		// TODO Auto-generated method stub
 	}
 
-	public void indexDirectoryRecursively(){
+	public void indexNamesRecursively(){
+		System.out.println("File walking started.");
 		try {
 			filesystemView = new HashMap<Path, Action>();
 			Files.walkFileTree(rootDirectory, new FileIndexer());
+			
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -93,9 +97,9 @@ public class FileWalker extends AbstractWatchService {
 		public FileVisitResult visitFile(Path path, BasicFileAttributes attr) throws IOException {
 			filesystemView.put(path, new Action(path));
 			if(path.toFile().isDirectory()){
-				fileTree.putComponent(path.toString(), new FolderComposite(path, false));
+				fileTree.putComponent(path.toString(), new FolderComposite(path, computeContentHash));
 			} else {
-				fileTree.putComponent(path.toString(), new FileLeaf(path));
+				fileTree.putComponent(path.toString(), new FileLeaf(path, computeContentHash));
 			}
 			return FileVisitResult.CONTINUE;
 		}
@@ -104,5 +108,19 @@ public class FileWalker extends AbstractWatchService {
 		public FileVisitResult visitFileFailed(Path path, IOException ex) throws IOException {
 			return super.visitFileFailed(path, ex);
 		}
+	}
+
+	public FolderComposite indexContentRecursively() {
+		computeContentHash = true;
+		System.out.println("Content file walking started.");
+		try {
+			filesystemView = new HashMap<Path, Action>();
+			Files.walkFileTree(rootDirectory, new FileIndexer());
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		computeContentHash = false;
+		return fileTree;
 	}
 }

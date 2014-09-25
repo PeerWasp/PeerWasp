@@ -22,7 +22,7 @@ public class FileEventObserverListener implements IFileObserverListener {
 	@Override
 	public void onDirectoryCreate(File directory) {
 		// TODO Auto-generated method stub
-		manager.onFileCreated(directory.toPath(), false);
+		manager.onFileCreated(directory.toPath(), true);
 	}
 
 	@Override

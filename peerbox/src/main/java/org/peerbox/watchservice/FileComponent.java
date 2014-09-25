@@ -16,7 +16,7 @@ public interface FileComponent {
 	 * in which this FileComponent is contained.
 	 */
 	public default void bubbleContentHashUpdate(){
-		boolean hasChanged = computeContentHash();
+		boolean hasChanged = updateContentHash();
 		if(hasChanged){
 			getParent().bubbleContentHashUpdate();
 		}
@@ -28,9 +28,10 @@ public interface FileComponent {
 	
 	public FileComponent getComponent(String path);
 	
-	public boolean computeContentHash();
+	public boolean updateContentHash();
 	
 	public Path getPath();
+	
 
 	public boolean getIsUploaded();
 	public void setIsUploaded(boolean isUploaded);

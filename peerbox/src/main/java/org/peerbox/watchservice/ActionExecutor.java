@@ -70,12 +70,16 @@ public class ActionExecutor implements Runnable {
 						}
 						next.getAction().execute(fileEventManager.getFileManager());
 						next.setIsUploaded(true);
+						System.out.println("SET UPLOADED");
 					} else {
 						// not ready yet, insert action again (no blocking peek, unfortunately)
 						fileEventManager.getFileComponentQueue().put(next);
 						long timeToWait = ACTION_WAIT_TIME_MS - getActionAge(next.getAction()) + 1;
 						// TODO: does this work? sleep is not so good because it blocks everything...
-						wait(timeToWait);
+						if(timeToWait > 0){
+							wait(timeToWait);				
+						}
+
 					}
 				}
 				next = fileEventManager.getFileComponentQueue().take();

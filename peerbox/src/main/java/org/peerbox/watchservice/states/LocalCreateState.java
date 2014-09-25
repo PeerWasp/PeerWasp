@@ -87,8 +87,9 @@ public class LocalCreateState extends AbstractActionState {
 			NoPeerConnectionException, IllegalFileLocation {
 		Path filePath = action.getFilePath();
 		File file = filePath.toFile();
+		System.out.println(filePath.toString());
 		fileManager.add(file);
 
-		logger.debug("Task \"Add File\" executed.");
+		logger.debug("Task \"Add File\" executed for " + filePath);
 	}
 }
