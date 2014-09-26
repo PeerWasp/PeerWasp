@@ -6,6 +6,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import org.hive2hive.core.security.EncryptionUtil;
+import org.hive2hive.core.security.HashUtil;
 
 public class FileLeaf implements FileComponent{
 	private Action action;
@@ -90,7 +91,7 @@ public class FileLeaf implements FileComponent{
 		String newHash = "";
 		if(path != null && path.toFile() != null){
 			try {
-				byte[] rawHash = EncryptionUtil.generateMD5Hash(path.toFile());
+				byte[] rawHash = HashUtil.hash(path.toFile());
 				if(rawHash != null){
 					newHash = Action.createStringFromByteArray(rawHash);
 				}

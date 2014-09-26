@@ -27,7 +27,7 @@ import jidefx.scene.control.validation.ValidationUtils;
 import jidefx.scene.control.validation.Validator;
 
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
-import org.hive2hive.core.processes.framework.exceptions.InvalidProcessStateException;
+import org.hive2hive.processframework.exceptions.InvalidProcessStateException;
 import org.peerbox.Constants;
 import org.peerbox.ResultStatus;
 import org.peerbox.model.UserManager;

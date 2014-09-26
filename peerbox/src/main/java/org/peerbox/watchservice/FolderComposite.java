@@ -8,6 +8,7 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 
 import org.hive2hive.core.security.EncryptionUtil;
+import org.hive2hive.core.security.HashUtil;
 
 import com.sun.org.apache.xml.internal.security.utils.Base64;
 
@@ -116,7 +117,7 @@ public class FolderComposite implements FileComponent{
 		for(String childName : children.keySet()){
 			nameHashInput = nameHashInput.concat(childName);
 		}
-		contentNamesHash = Action.createStringFromByteArray(EncryptionUtil.generateMD5Hash(nameHashInput.getBytes()));
+		contentNamesHash = Action.createStringFromByteArray(HashUtil.hash(nameHashInput.getBytes()));
 		if(!contentNamesHash.equals(oldNamesHash)){
 			return true;
 		} else {
@@ -195,7 +196,7 @@ public class FolderComposite implements FileComponent{
 			tmp = tmp.concat(value.getContentHash());
 		}
 		
-		byte[] rawHash = EncryptionUtil.generateMD5Hash(tmp.getBytes());
+		byte[] rawHash = HashUtil.hash(tmp.getBytes());
 		String updatedContentHash = Base64.encode(rawHash);
 		if(!contentHash.equals(updatedContentHash)){
 			contentHash = Base64.encode(rawHash);
