@@ -21,7 +21,7 @@ public class InteractiveFolderWatchServiceTest {
 		logger.info("Path: {}", path.toString());
 		
 		FolderWatchService service = new FolderWatchService(path);
-		FileEventManager eventManager = new FileEventManager();
+		FileEventManager eventManager = new FileEventManager(path);
 		eventManager.setFileManager(new FileManager());
 		service.addFileEventListener(eventManager);
 		service.start();

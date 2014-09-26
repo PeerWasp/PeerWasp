@@ -67,7 +67,7 @@ public class NativeFolderWatchServiceTest {
 		MockitoAnnotations.initMocks(this);
 		
 		watchService = new FolderWatchService(basePath);
-		eventManager = new FileEventManager();
+		eventManager = new FileEventManager(basePath);
 		eventManager.setFileManager(fileManager);
 		watchService.addFileEventListener(eventManager);
 
