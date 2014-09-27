@@ -3,17 +3,14 @@ package org.peerbox.watchservice;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.BlockingQueue;
 
 import org.hive2hive.core.exceptions.IllegalFileLocation;
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.hive2hive.core.exceptions.NoSessionException;
-import org.peerbox.FileManager;
+import org.hive2hive.processframework.exceptions.InvalidProcessStateException;
 import org.peerbox.watchservice.states.LocalDeleteState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.common.collect.SetMultimap;
 
 /**
  * The FileActionExecutor service observes a set of file actions in a queue.
@@ -68,8 +65,15 @@ public class ActionExecutor implements Runnable {
 						if(next.getAction().getCurrentState() instanceof LocalDeleteState){
 							removeFromDeleted(next);
 						}
-						next.getAction().execute(fileEventManager.getFileManager());
-						next.setIsUploaded(true);
+						// execute
+						try {
+							next.getAction().execute(fileEventManager.getFileManager());
+							next.setIsUploaded(true);
+						} catch (InvalidProcessStateException e) {
+							// TODO: what do we do if executing fails?
+							e.printStackTrace();
+						}
+						
 					} else {
 						// not ready yet, insert action again (no blocking peek, unfortunately)
 						fileEventManager.getFileComponentQueue().put(next);

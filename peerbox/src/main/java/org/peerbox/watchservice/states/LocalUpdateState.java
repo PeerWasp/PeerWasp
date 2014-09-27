@@ -4,6 +4,7 @@ import java.nio.file.Path;
 
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.hive2hive.core.exceptions.NoSessionException;
+import org.hive2hive.processframework.exceptions.InvalidProcessStateException;
 import org.peerbox.FileManager;
 import org.peerbox.watchservice.Action;
 import org.slf4j.Logger;
@@ -76,8 +77,9 @@ public class LocalUpdateState extends AbstractActionState {
 
 	@Override
 	public void execute(FileManager fileManager) throws NoSessionException,
-			IllegalArgumentException, NoPeerConnectionException {
-		fileManager.update(action.getFilePath().toFile());
-		logger.debug("Task \"Update File\" executed.");
+			IllegalArgumentException, NoPeerConnectionException, InvalidProcessStateException {
+		Path path = action.getFilePath();
+		logger.debug("Execute LOCAL UPDATE: {}", path);
+		fileManager.update(path.toFile());
 	}
 }

@@ -5,6 +5,7 @@ import java.nio.file.Path;
 import org.hive2hive.core.exceptions.IllegalFileLocation;
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.hive2hive.core.exceptions.NoSessionException;
+import org.hive2hive.processframework.exceptions.InvalidProcessStateException;
 import org.peerbox.FileManager;
 import org.peerbox.watchservice.Action;
 
@@ -45,5 +46,5 @@ public abstract class AbstractActionState {
 	public abstract AbstractActionState handleRemoteMoveEvent(Path oldFilePath);
 
 	public abstract void execute(FileManager fileManager) throws NoSessionException,
-			NoPeerConnectionException, IllegalFileLocation;
+			NoPeerConnectionException, IllegalFileLocation, InvalidProcessStateException;
 }

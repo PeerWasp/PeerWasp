@@ -5,6 +5,7 @@ import java.nio.file.Path;
 import org.hive2hive.core.exceptions.IllegalFileLocation;
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.hive2hive.core.exceptions.NoSessionException;
+import org.hive2hive.processframework.exceptions.InvalidProcessStateException;
 import org.peerbox.FileManager;
 import org.peerbox.watchservice.states.AbstractActionState;
 import org.peerbox.watchservice.states.LocalCreateState;
@@ -87,14 +88,13 @@ public class Action {
 	 * @throws NoSessionException
 	 * @throws NoPeerConnectionException
 	 * @throws IllegalFileLocation
+	 * @throws InvalidProcessStateException 
 	 */
-	//execute action depending on state
-	public void execute(FileManager fileManager) throws NoSessionException, NoPeerConnectionException, IllegalFileLocation{
-		logger.debug("Execute action...");
+	public void execute(FileManager fileManager) throws NoSessionException,
+			NoPeerConnectionException, IllegalFileLocation, InvalidProcessStateException {
 		// this may be async, i.e. do not wait on completion of the process
-		// maybe return the IProcessComponent object such that the 
+		// maybe return the IProcessComponent object such that the
 		// executor can be aware of the status (completion of task etc)
-
 		currentState.execute(fileManager);
 		currentState = new InitialState(this);
 	}

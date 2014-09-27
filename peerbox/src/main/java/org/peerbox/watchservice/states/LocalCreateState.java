@@ -1,11 +1,11 @@
 package org.peerbox.watchservice.states;
 
-import java.io.File;
 import java.nio.file.Path;
 
 import org.hive2hive.core.exceptions.IllegalFileLocation;
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.hive2hive.core.exceptions.NoSessionException;
+import org.hive2hive.processframework.exceptions.InvalidProcessStateException;
 import org.peerbox.FileManager;
 import org.peerbox.watchservice.Action;
 import org.slf4j.Logger;
@@ -81,14 +81,13 @@ public class LocalCreateState extends AbstractActionState {
 	 * uploads the file with the corresponding Hive2Hive method
 	 * 
 	 * @param file The file which should be uploaded
+	 * @throws InvalidProcessStateException 
 	 */
 	@Override
 	public void execute(FileManager fileManager) throws NoSessionException,
-			NoPeerConnectionException, IllegalFileLocation {
-		Path filePath = action.getFilePath();
-		File file = filePath.toFile();
-		fileManager.add(file);
-
-		logger.debug("Task \"Add File\" executed for " + filePath);
+			NoPeerConnectionException, IllegalFileLocation, InvalidProcessStateException {
+		Path path = action.getFilePath();
+		logger.debug("Execute LOCAL CREATE: {}", path);
+		fileManager.add(path.toFile());
 	}
 }
