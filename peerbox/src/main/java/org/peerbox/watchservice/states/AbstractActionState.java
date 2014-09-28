@@ -41,6 +41,7 @@ public abstract class AbstractActionState {
 
 	public abstract AbstractActionState handleRemoteDeleteEvent();
 
+	// TODO: H2H does not distinguish between add/update (file is just downloaded and replaced)
 	public abstract AbstractActionState handleRemoteUpdateEvent();
 
 	public abstract AbstractActionState handleRemoteMoveEvent(Path oldFilePath);

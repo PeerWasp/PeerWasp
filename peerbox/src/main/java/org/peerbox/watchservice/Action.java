@@ -81,6 +81,16 @@ public class Action {
 		currentState = currentState.handleLocalMoveEvent(oldFilePath);
 		updateTimestamp();
 	}
+	
+	public void handleRemoteCreateEvent() {
+		currentState = currentState.handleRemoteCreateEvent();
+		updateTimestamp();
+	}
+	
+	public void handleRemoteDeleteEvent() {
+		currentState = currentState.handleRemoteDeleteEvent();
+		updateTimestamp();
+	}
 
 	/**
 	 * Each state is able to execute an action as soon the state is considered as stable. 

@@ -8,6 +8,11 @@ import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.PriorityBlockingQueue;
 
+import net.engio.mbassy.listener.Handler;
+
+import org.hive2hive.core.events.framework.interfaces.file.IFileDeleteEvent;
+import org.hive2hive.core.events.framework.interfaces.file.IFileDownloadEvent;
+import org.hive2hive.core.events.framework.interfaces.file.IFileMoveEvent;
 import org.peerbox.FileManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,7 +20,7 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.SetMultimap;
 
-public class FileEventManager implements IFileEventListener {
+public class FileEventManager implements IFileEventListener, org.hive2hive.core.events.framework.interfaces.IFileEventListener {
 	
 	private static final Logger logger = LoggerFactory.getLogger(FileEventManager.class);
 	
@@ -273,5 +278,29 @@ public class FileEventManager implements IFileEventListener {
 		fileComponentQueue.remove(moveCandidate);
 		moveCandidate.getAction().handleLocalMoveEvent(oldPath);
 		fileComponentQueue.add(moveCandidate);
+	}
+
+	@Override @Handler
+	public void onFileDelete(IFileDeleteEvent fileEvent) {
+		logger.debug("onFileDelete: {}", fileEvent.getPath());
+	}
+
+	@Override @Handler
+	public void onFileDownload(IFileDownloadEvent fileEvent) {
+		logger.debug("onFileDownload: {}", fileEvent.getPath());
+		
+//		Path path = fileEvent.getPath();
+//		FileComponent createdComponent = createFileComponent(path);
+//		getFileTree().putComponent(path.toString(), createdComponent);
+//		
+//		createdComponent.getAction().handleRemoteCreateEvent();
+		
+	}
+
+	@Override @Handler
+	public void onFileMove(IFileMoveEvent fileEvent) {
+		logger.debug("onFileMove: {}", fileEvent.getPath());
+		// TODO Auto-generated method stub
+		
 	}
 }
