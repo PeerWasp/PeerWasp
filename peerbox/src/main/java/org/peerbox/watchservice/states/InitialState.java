@@ -27,50 +27,50 @@ public class InitialState extends AbstractActionState {
 
 	@Override
 	public AbstractActionState handleLocalCreateEvent() {
-		logger.debug("Local Create Event: Initial -> Local Create");
+		logger.debug("Local Create Event: Initial -> Local Create ({})", action.getFilePath());
 		return new LocalCreateState(action);
 	}
 
 	@Override
 	public AbstractActionState handleLocalUpdateEvent() {
-		logger.debug("Local Update Event: Initial -> Local Update");
+		logger.debug("Local Update Event: Initial -> Local Update ({})", action.getFilePath());
 		return new LocalUpdateState(action);
 	
 	}
 
 	@Override
 	public AbstractActionState handleLocalDeleteEvent() {
-		logger.debug("Local Delete Event: Initial -> Local Delete");
+		logger.debug("Local Delete Event: Initial -> Local Delete ({})", action.getFilePath());
 		return new LocalDeleteState(action);
 	}
 
 	@Override
 	public AbstractActionState handleLocalMoveEvent(Path oldFilePath) {
-		logger.debug("Local Move Event: Initial -> Local Move");
+		logger.debug("Local Move Event: Initial -> Local Move ({})", action.getFilePath());
 		return new LocalMoveState(action, oldFilePath);
 	}
 
 	@Override
 	public AbstractActionState handleRemoteUpdateEvent() {
-		logger.debug("Remote Update Event: Initial -> Remote Update");
+		logger.debug("Remote Update Event: Initial -> Remote Update ({})", action.getFilePath());
 		return new RemoteUpdateState(action);
 	}
 
 	@Override
 	public AbstractActionState handleRemoteDeleteEvent() {
-		logger.debug("Remote Delete Event: Initial -> Remote Delete");
+		logger.debug("Remote Delete Event: Initial -> Remote Delete ({})", action.getFilePath());
 		return new RemoteDeleteState(action);
 	}
 
 	@Override
 	public AbstractActionState handleRemoteMoveEvent(Path oldFilePath) {
-		logger.debug("Remote Move Event: Initial -> Remote Move");
+		logger.debug("Remote Move Event: Initial -> Remote Move ({})", action.getFilePath());
 		return new RemoteMoveState(action);
 	}
 
 	@Override
 	public void execute(FileManager fileManager) throws NoSessionException,
 			NoPeerConnectionException, IllegalFileLocation {
-		logger.warn("Execute is not defined in the initial state.");
+		logger.warn("Execute is not defined in the initial state  ({})", action.getFilePath());
 	}
 }
