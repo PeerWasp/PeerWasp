@@ -44,47 +44,47 @@ public class LocalMoveState extends AbstractActionState {
 
 	@Override
 	public AbstractActionState handleLocalCreateEvent() {
-		logger.debug("Local Create Event: not defined");
+		logger.debug("Local Create Event: not defined ({})", action.getFilePath());
 //		throw new IllegalStateException("Local Create Event: not defined");
 		return new InitialState(action);
 	}
 
 	@Override
 	public AbstractActionState handleLocalUpdateEvent() {
-		logger.debug("Local Update Event: not defined");
+		logger.debug("Local Update Event: not defined ({})", action.getFilePath());
 //		throw new IllegalStateException("Local Update Event: not defined");
 		return new InitialState(action);
 	}
 
 	@Override
 	public AbstractActionState handleLocalDeleteEvent() {
-		logger.debug("Local Delete Event: not defined");
+		logger.debug("Local Delete Event: not defined ({})", action.getFilePath());
 //		throw new IllegalStateException("Local Delete Event: not defined");
 		return new InitialState(action);
 	}
 
 	@Override
 	public AbstractActionState handleLocalMoveEvent(Path oldFilePath) {
-		logger.debug("Local Move Event: not defined");
+		logger.debug("Local Move Event: not defined ({})", action.getFilePath());
 //		throw new IllegalStateException("Local Move Event: not defined");
 		return new InitialState(action);
 	}
 
 	@Override
 	public AbstractActionState handleRemoteUpdateEvent() {
-		logger.debug("Remote Update Event: Local Move -> Conflict");
+		logger.debug("Remote Update Event: Local Move -> Conflict ({})", action.getFilePath());
 		return new ConflictState(action);
 	}
 
 	@Override
 	public AbstractActionState handleRemoteDeleteEvent() {
-		logger.debug("Remote Delete Event: Local Move -> Conflict");
+		logger.debug("Remote Delete Event: Local Move -> Conflict ({})", action.getFilePath());
 		return new ConflictState(action);
 	}
 
 	@Override
 	public AbstractActionState handleRemoteMoveEvent(Path oldFilePath) {
-		logger.debug("Remote Move Event: Local Move -> Conflict");
+		logger.debug("Remote Move Event: Local Move -> Conflict ({})", action.getFilePath());
 		return new ConflictState(action);
 	}
 

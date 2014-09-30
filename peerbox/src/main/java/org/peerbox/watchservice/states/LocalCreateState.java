@@ -30,43 +30,43 @@ public class LocalCreateState extends AbstractActionState {
 
 	@Override
 	public AbstractActionState handleLocalCreateEvent() {
-		logger.debug("Local Create Event: Stay in Local Create");
+		logger.debug("Local Create Event: Stay in Local Create ({})", action.getFilePath());
 		return this;
 	}
 
 	@Override
 	public AbstractActionState handleLocalDeleteEvent() {
-		logger.debug("Local Delete Event: Local Create -> Initial");
+		logger.debug("Local Delete Event: Local Create -> Initial ({})", action.getFilePath());
 		return new InitialState(action);
 	}
 
 	@Override
 	public AbstractActionState handleLocalUpdateEvent() {
-		logger.debug("Local Update Event: Stay in Local Create");
+		logger.debug("Local Update Event: Stay in Local Create ({})", action.getFilePath());
 		return this;
 	}
 
 	@Override
 	public AbstractActionState handleLocalMoveEvent(Path oldFilePath) {
-		logger.debug("Local Move Event: not defined");
+		logger.debug("Local Move Event: not defined ({})", action.getFilePath());
 		throw new IllegalStateException("Local Move Event: not defined");
 	}
 
 	@Override
 	public AbstractActionState handleRemoteUpdateEvent() {
-		logger.debug("Remote Update Event: Local Create -> Conflict");
+		logger.debug("Remote Update Event: Local Create -> Conflict ({})", action.getFilePath());
 		return new ConflictState(action);
 	}
 
 	@Override
 	public AbstractActionState handleRemoteDeleteEvent() {
-		logger.debug("Remote Delete Event: Local Create -> Conflict");
+		logger.debug("Remote Delete Event: Local Create -> Conflict ({})", action.getFilePath());
 		return new ConflictState(action);
 	}
 
 	@Override
 	public AbstractActionState handleRemoteMoveEvent(Path oldFilePath) {
-		logger.debug("Remote Move Event: Local Create -> Conflict");
+		logger.debug("Remote Move Event: Local Create -> Conflict ({})", action.getFilePath());
 		return new ConflictState(action);
 	}
 

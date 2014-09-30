@@ -29,19 +29,19 @@ public class LocalUpdateState extends AbstractActionState {
 
 	@Override
 	public AbstractActionState handleLocalCreateEvent() {
-		logger.debug("Local Create Event: Stay in Local Update");
+		logger.debug("Local Create Event: Stay in Local Update ({})", action.getFilePath());
 		return this;
 	}
 
 	@Override
 	public AbstractActionState handleLocalDeleteEvent() {
-		logger.debug("Local Delete Event: Local Update -> Local Delete");
+		logger.debug("Local Delete Event: Local Update -> Local Delete ({})", action.getFilePath());
 		return new LocalDeleteState(action);
 	}
 
 	@Override
 	public AbstractActionState handleLocalUpdateEvent() {
-		logger.debug("Local Update Event: Stay in Local Update");
+		logger.debug("Local Update Event: Stay in Local Update ({})", action.getFilePath());
 		return this;
 	}
 
@@ -53,19 +53,19 @@ public class LocalUpdateState extends AbstractActionState {
 
 	@Override
 	public AbstractActionState handleRemoteUpdateEvent() {
-		logger.debug("Remote Update Event: Local Update -> Conflict");
+		logger.debug("Remote Update Event: Local Update -> Conflict ({})", action.getFilePath());
 		return new ConflictState(action);
 	}
 
 	@Override
 	public AbstractActionState handleRemoteDeleteEvent() {
-		logger.debug("Remote Delete Event: Local Update -> Conflict");
+		logger.debug("Remote Delete Event: Local Update -> Conflict ({})", action.getFilePath());
 		return new ConflictState(action);
 	}
 
 	@Override
 	public AbstractActionState handleRemoteMoveEvent(Path oldFilePath) {
-		logger.debug("Remote Move Event: Local Update -> Conflict");
+		logger.debug("Remote Move Event: Local Update -> Conflict ({})", action.getFilePath());
 		return new ConflictState(action);
 	}
 

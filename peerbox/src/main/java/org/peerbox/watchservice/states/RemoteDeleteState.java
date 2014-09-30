@@ -20,43 +20,43 @@ public class RemoteDeleteState extends AbstractActionState {
 
 	@Override
 	public AbstractActionState handleLocalCreateEvent() {
-		logger.debug("Local Create Event: ");
+		logger.debug("Local Create Event:  ({})", action.getFilePath());
 		return this;
 	}
 
 	@Override
 	public AbstractActionState handleLocalUpdateEvent() {
-		logger.debug("Local Update Event: ");
+		logger.debug("Local Update Event:  ({})", action.getFilePath());
 		return this;
 	}
 
 	@Override
 	public AbstractActionState handleLocalDeleteEvent() {
-		logger.debug("Local Delete Event: ");
+		logger.debug("Local Delete Event:  ({})", action.getFilePath());
 		return this;
 	}
 
 	@Override
 	public AbstractActionState handleLocalMoveEvent(Path oldFilePath) {
-		logger.debug("Local Move Event: ");
+		logger.debug("Local Move Event:  ({})", action.getFilePath());
 		return this;
 	}
 
 	@Override
 	public AbstractActionState handleRemoteUpdateEvent() {
-		logger.debug("Remote Update Event: ");
+		logger.debug("Remote Update Event:  ({})", action.getFilePath());
 		return this;
 	}
 
 	@Override
 	public AbstractActionState handleRemoteDeleteEvent() {
-		logger.debug("Remote Delete Event: ");
+		logger.debug("Remote Delete Event:  ({})", action.getFilePath());
 		return this;
 	}
 
 	@Override
 	public AbstractActionState handleRemoteMoveEvent(Path oldFilePath) {
-		logger.debug("Remote Move Event: ");
+		logger.debug("Remote Move Event:  ({})", action.getFilePath());
 		return this;
 	}
 
