@@ -82,8 +82,8 @@ public class Action {
 		updateTimestamp();
 	}
 	
-	public void handleRemoteCreateEvent() {
-		currentState = currentState.handleRemoteCreateEvent();
+	public void handleRemoteUpdateEvent() {
+		currentState = currentState.handleRemoteUpdateEvent();
 		updateTimestamp();
 	}
 	

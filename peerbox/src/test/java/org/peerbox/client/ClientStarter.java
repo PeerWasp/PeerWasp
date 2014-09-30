@@ -26,6 +26,8 @@ public class ClientStarter extends AbstractStarter {
 	private static final String PASSWORD = "SecretPassword";
 	private static final String PIN = "AZBY";
 	
+	private static String NODE_NAME;
+	
 	private ClientNode client;
 	
 	public static void main(String[] args) {
@@ -40,7 +42,7 @@ public class ClientStarter extends AbstractStarter {
 	}
 	
 	private static void parseArguments(String[] args) {
-		if(args.length != 2) {
+		if(args.length != 3) {
 			quit(args);
 		}
 		
@@ -62,6 +64,10 @@ public class ClientStarter extends AbstractStarter {
 					BOOTSTRAP_HOST_NAME = elements[1];
 					logger.info("BOOTSTRAP_HOST_NAME={}", BOOTSTRAP_HOST_NAME);
 					break;
+				case "node":
+					NODE_NAME = elements[1];
+					logger.info("NODE_NAME={}", NODE_NAME);
+					break;
 				default:
 					logger.error("Unknown parameter provided.");
 					quit(args);
@@ -76,7 +82,7 @@ public class ClientStarter extends AbstractStarter {
 		for(String a : args) {
 			logger.error("\t{}", a);
 		}
-		logger.error("Usage: initial=[0 or 1] bootstrap=[address to use]");
+		logger.error("Usage: initial=[0 or 1] bootstrap=[address to use] node=[node id]");
 		System.exit(-1);
 	}
 
@@ -102,7 +108,7 @@ public class ClientStarter extends AbstractStarter {
 		IH2HNode node = createNode();
 		credentials = new UserCredentials(USER, PASSWORD, PIN);
 		Path rootPath = Paths.get(BASE_PATH.toString(), String.format("%s-%s", 
-				USER, String.valueOf(System.currentTimeMillis())));
+				USER, NODE_NAME));
 		
 		if(IS_INITIAL_NODE) {
 			registerUser(node, credentials);
@@ -116,9 +122,11 @@ public class ClientStarter extends AbstractStarter {
 		InetAddress bootstrapAddress = InetAddress.getByName(BOOTSTRAP_HOST_NAME); // InetAddress.getLocalHost();
 		INetworkConfiguration networkConf = null;
 		if (IS_INITIAL_NODE) {
-			networkConf = NetworkConfiguration.create("initial");
+			networkConf = NetworkConfiguration.create("node-" 
+					+ BOOTSTRAP_HOST_NAME + "-" + NODE_NAME);
 		} else {
-			networkConf = NetworkConfiguration.create("node-" + BOOTSTRAP_HOST_NAME + "-" + System.currentTimeMillis(),
+			networkConf = NetworkConfiguration.create("node-" 
+					+ BOOTSTRAP_HOST_NAME + "-" + NODE_NAME,
 					bootstrapAddress);
 		}
 		

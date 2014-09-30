@@ -94,6 +94,7 @@ public abstract class AbstractWatchService {
 	
 	protected interface INotifyFileEvent {
 		public void notifyEventListeners();
+		public void logEvent();
 	}
 	
 	protected class NotifyFileCreated implements INotifyFileEvent {
@@ -104,6 +105,10 @@ public abstract class AbstractWatchService {
 		@Override
 		public void notifyEventListeners() {
 			notifyFileCreated(path);
+		}
+		@Override
+		public void logEvent() {
+			logger.debug("Notify CREATED - {}", path);
 		}
 	}
 	
@@ -116,6 +121,10 @@ public abstract class AbstractWatchService {
 		public void notifyEventListeners() {
 			notifyFileModified(path);
 		}
+		@Override
+		public void logEvent() {
+			logger.debug("Notify MODIFIED - {}", path);
+		}
 	}
 	
 	protected class NotifyFileDeleted implements INotifyFileEvent {
@@ -126,6 +135,10 @@ public abstract class AbstractWatchService {
 		@Override
 		public void notifyEventListeners() {
 			notifyFileDeleted(path);
+		}
+		@Override
+		public void logEvent() {
+			logger.debug("Notify DELETED - {}", path);
 		}
 	}
 }

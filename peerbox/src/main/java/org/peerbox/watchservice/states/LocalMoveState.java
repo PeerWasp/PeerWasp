@@ -1,5 +1,6 @@
 package org.peerbox.watchservice.states;
 
+import java.io.File;
 import java.nio.file.Path;
 
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
@@ -44,25 +45,29 @@ public class LocalMoveState extends AbstractActionState {
 	@Override
 	public AbstractActionState handleLocalCreateEvent() {
 		logger.debug("Local Create Event: not defined");
-		throw new IllegalStateException("Local Create Event: not defined");
+//		throw new IllegalStateException("Local Create Event: not defined");
+		return new InitialState(action);
 	}
 
 	@Override
 	public AbstractActionState handleLocalUpdateEvent() {
 		logger.debug("Local Update Event: not defined");
-		throw new IllegalStateException("Local Update Event: not defined");
+//		throw new IllegalStateException("Local Update Event: not defined");
+		return new InitialState(action);
 	}
 
 	@Override
 	public AbstractActionState handleLocalDeleteEvent() {
 		logger.debug("Local Delete Event: not defined");
-		throw new IllegalStateException("Local Delete Event: not defined");
+//		throw new IllegalStateException("Local Delete Event: not defined");
+		return new InitialState(action);
 	}
 
 	@Override
 	public AbstractActionState handleLocalMoveEvent(Path oldFilePath) {
 		logger.debug("Local Move Event: not defined");
-		throw new IllegalStateException("Local Move Event: not defined");
+//		throw new IllegalStateException("Local Move Event: not defined");
+		return new InitialState(action);
 	}
 
 	@Override
