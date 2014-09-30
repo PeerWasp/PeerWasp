@@ -4,6 +4,10 @@ import java.nio.file.Path;
 
 public interface FileComponent {
 	
+	
+	public boolean isFolder();
+	public boolean isFile();
+	
 	public String getContentHash();
 
 	public Action getAction();

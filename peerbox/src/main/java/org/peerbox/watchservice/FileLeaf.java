@@ -8,7 +8,7 @@ import java.nio.file.Paths;
 import org.hive2hive.core.security.EncryptionUtil;
 import org.hive2hive.core.security.HashUtil;
 
-public class FileLeaf implements FileComponent{
+public class FileLeaf extends AbstractFileComponent implements FileComponent{
 	private Action action;
 	private Path path;
 	private Path fileName;
@@ -127,5 +127,10 @@ public class FileLeaf implements FileComponent{
 		if(parentPath != null){
 			this.path = Paths.get(new File(parentPath.toString(), fileName.toString()).getPath());
 		}
+	}
+
+	@Override
+	public boolean isFile() {
+		return true;
 	}
 }

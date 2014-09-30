@@ -17,7 +17,7 @@ import com.sun.org.apache.xml.internal.security.utils.Base64;
  * @author Claudio
  * Folder composite represents a file system directory.
  */
-public class FolderComposite implements FileComponent{
+public class FolderComposite extends AbstractFileComponent implements FileComponent{
 
 	private SortedMap<String, FileComponent> children = new TreeMap<String, FileComponent>();
 	private Action action;
@@ -277,5 +277,10 @@ public class FolderComposite implements FileComponent{
 			this.path = Paths.get(new File(parentPath.toString(), folderName.toString()).getPath());
 			action.setPath(this.path);
 		}
+	}
+
+	@Override
+	public boolean isFile() {
+		return false;
 	}
 }

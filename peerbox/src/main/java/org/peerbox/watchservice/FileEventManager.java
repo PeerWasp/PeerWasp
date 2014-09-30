@@ -121,6 +121,10 @@ public class FileEventManager implements ILocalFileEventListener, org.hive2hive.
 			return;
 		}
 		
+		if(toModify.isFolder()) {
+			 // a folder can have only 1 version in H2H. Hence, we cannot execute an update!
+			return;
+		}
 		Action lastAction = toModify.getAction();
 		fileComponentQueue.remove(toModify);
 		
