@@ -13,13 +13,13 @@ public abstract class AbstractWatchService {
 	
 	private static final Logger logger = LoggerFactory.getLogger(AbstractWatchService.class);
 	
-	private final List<IFileEventListener> eventListeners;
+	private final List<ILocalFileEventListener> eventListeners;
 	private final BlockingQueue<INotifyFileEvent> eventQueue;
 	private Thread notifyThread;
 
 	public AbstractWatchService() {
 		super();
-		this.eventListeners = new ArrayList<IFileEventListener>();
+		this.eventListeners = new ArrayList<ILocalFileEventListener>();
 		this.eventQueue = new LinkedBlockingQueue<INotifyFileEvent>();
 	}
 
@@ -40,32 +40,32 @@ public abstract class AbstractWatchService {
 		logger.info("Watch Service stopped.");
 	}
 
-	public synchronized void addFileEventListener(final IFileEventListener listener) {
+	public synchronized void addFileEventListener(final ILocalFileEventListener listener) {
 		eventListeners.add(listener);
 	}
 
-	public synchronized void removeFileEventListener(final IFileEventListener listener) {
+	public synchronized void removeFileEventListener(final ILocalFileEventListener listener) {
 		eventListeners.remove(listener);
 	}
 
 	private void notifyFileCreated(final Path path) {
-		List<IFileEventListener> listeners = new ArrayList<IFileEventListener>(eventListeners);
-		for(IFileEventListener l : listeners) {
-			l.onFileCreated(path, true);
+		List<ILocalFileEventListener> listeners = new ArrayList<ILocalFileEventListener>(eventListeners);
+		for(ILocalFileEventListener l : listeners) {
+			l.onLocalFileCreated(path, true);
 		}
 	}
 
 	private void notifyFileModified(final Path path) {
-		List<IFileEventListener> listeners = new ArrayList<IFileEventListener>(eventListeners);
-		for(IFileEventListener l : listeners) {
-			l.onFileModified(path);
+		List<ILocalFileEventListener> listeners = new ArrayList<ILocalFileEventListener>(eventListeners);
+		for(ILocalFileEventListener l : listeners) {
+			l.onLocalFileModified(path);
 		}
 	}
 
 	private void notifyFileDeleted(final Path path) {
-		List<IFileEventListener> listeners = new ArrayList<IFileEventListener>(eventListeners);
-		for(IFileEventListener l : listeners) {
-			l.onFileDeleted(path);
+		List<ILocalFileEventListener> listeners = new ArrayList<ILocalFileEventListener>(eventListeners);
+		for(ILocalFileEventListener l : listeners) {
+			l.onLocalFileDeleted(path);
 		}
 	}
 	

@@ -143,10 +143,10 @@ public class FileWalkerTestWhenFolderCreated {
 	@Test
 	public void testFolderMoveDetection() throws InterruptedException{
 		try {
-			manager.onFileCreated(dir1.toPath(), false);
-			manager.onFileCreated(file1.toPath(), false);
-			manager.onFileCreated(file2.toPath(), false);
-			manager.onFileCreated(dir2.toPath(), false);
+			manager.onLocalFileCreated(dir1.toPath(), false);
+			manager.onLocalFileCreated(file1.toPath(), false);
+			manager.onLocalFileCreated(file2.toPath(), false);
+			manager.onLocalFileCreated(dir2.toPath(), false);
 			Thread.sleep(ActionExecutor.ACTION_WAIT_TIME_MS * 2);
 			assertTrue(manager.getDeletedFileComponents().size() == 0);
 			assertTrue(manager.getFileComponentQueue().size() == 0);

@@ -124,8 +124,8 @@ public class FileWalkerTest {
 
 	private void addTwoOfThreeCreateEvents() {
 		//inform event manager about two creates, wait until they're handled
-		manager.onFileCreated(Paths.get(filePaths.get(0)), false);
-		manager.onFileCreated(Paths.get(filePaths.get(1)), false);
+		manager.onLocalFileCreated(Paths.get(filePaths.get(0)), false);
+		manager.onLocalFileCreated(Paths.get(filePaths.get(1)), false);
 		FileEventManagerTest.sleepMillis(ActionExecutor.ACTION_WAIT_TIME_MS * 2);
 		assertTrue(manager.getFileComponentQueue().size() == 0);
 		//assertTrue(manager.getFilePathToAction().size() == 2);

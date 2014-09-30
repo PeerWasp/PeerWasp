@@ -20,7 +20,7 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.SetMultimap;
 
-public class FileEventManager implements IFileEventListener, org.hive2hive.core.events.framework.interfaces.IFileEventListener {
+public class FileEventManager implements ILocalFileEventListener, org.hive2hive.core.events.framework.interfaces.IFileEventListener {
 	
 	private static final Logger logger = LoggerFactory.getLogger(FileEventManager.class);
 	
@@ -78,7 +78,7 @@ public class FileEventManager implements IFileEventListener, org.hive2hive.core.
      * the event as a conventional create
      */
 	@Override
-	public void onFileCreated(Path path, boolean useFileWalker) {
+	public void onLocalFileCreated(Path path, boolean useFileWalker) {
 		logger.debug("onFileCreated: {}", path);
 		
 		FileComponent createdComponent = createFileComponent(path);
@@ -178,7 +178,7 @@ public class FileEventManager implements IFileEventListener, org.hive2hive.core.
 	 * over the names of contained files as a key to allow optimized folder moves.
 	 */
 	@Override
-	public void onFileDeleted(Path path) {
+	public void onLocalFileDeleted(Path path) {
 		logger.debug("onFileDeleted: {}", path);
 		
 		//Get the fileComponent and remove it from the action queue
@@ -205,7 +205,7 @@ public class FileEventManager implements IFileEventListener, org.hive2hive.core.
 	}
 
 	@Override
-	public void onFileModified(Path path) {
+	public void onLocalFileModified(Path path) {
 		logger.debug("onFileModified: {}", path);
 		
 		//Get component to modify and remove it from action queue
