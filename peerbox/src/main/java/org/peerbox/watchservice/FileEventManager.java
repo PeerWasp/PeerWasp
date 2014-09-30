@@ -1,8 +1,6 @@
 package org.peerbox.watchservice;
 
-import java.io.File;
 import java.nio.file.Files;
-import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -179,7 +177,10 @@ public class FileEventManager implements ILocalFileEventListener, org.hive2hive.
 		logger.debug("onFileDownload: {}", fileEvent.getPath());
 
 		Path path = fileEvent.getPath();
-		FileComponent fileComponent = getOrCreateFileComponent(path);
+		FileComponent fileComponent = getFileComponent(path);
+		if(fileComponent == null) {
+			fileComponent = createFileComponent(path, fileEvent.isFile());
+		}
 		getFileTree().putComponent(path.toString(), fileComponent);
 		fileComponent.getAction().handleRemoteUpdateEvent();
 
@@ -213,11 +214,17 @@ public class FileEventManager implements ILocalFileEventListener, org.hive2hive.
 		FileComponent component = getFileComponent(path);
 		if (component == null) {
 			// does not exist yet, create new one for folder or file
-			if (Files.isDirectory(path, LinkOption.NOFOLLOW_LINKS)) {
-				component = new FolderComposite(path, maintainContentHashes);
-			} else {
-				component = new FileLeaf(path, maintainContentHashes);
-			}
+			component = createFileComponent(path, Files.isRegularFile(path));
+		}
+		return component;
+	}
+
+	private FileComponent createFileComponent(Path path, boolean isFile) {
+		FileComponent component = null;
+		if (isFile) {
+			component = new FileLeaf(path, maintainContentHashes);
+		} else {
+			component = new FolderComposite(path, maintainContentHashes);
 		}
 		return component;
 	}
