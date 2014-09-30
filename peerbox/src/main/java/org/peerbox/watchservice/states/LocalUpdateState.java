@@ -48,24 +48,18 @@ public class LocalUpdateState extends AbstractActionState {
 	@Override
 	public AbstractActionState handleLocalMoveEvent(Path oldFilePath) {
 		logger.debug("Local Move Event: not defined");
-		throw new RuntimeException("Local Move Event: not defined");
-	}
-
-	@Override
-	public AbstractActionState handleRemoteCreateEvent() {
-		logger.debug("Remote Create Event: Local Update -> Exception");
-		return new ExceptionState(action);
-	}
-
-	@Override
-	public AbstractActionState handleRemoteDeleteEvent() {
-		logger.debug("Remote Delete Event: Local Update -> Conflict");
-		return new ConflictState(action);
+		throw new IllegalStateException("Local Move Event: not defined");
 	}
 
 	@Override
 	public AbstractActionState handleRemoteUpdateEvent() {
 		logger.debug("Remote Update Event: Local Update -> Conflict");
+		return new ConflictState(action);
+	}
+
+	@Override
+	public AbstractActionState handleRemoteDeleteEvent() {
+		logger.debug("Remote Delete Event: Local Update -> Conflict");
 		return new ConflictState(action);
 	}
 

@@ -1,6 +1,5 @@
 package org.peerbox.watchservice.states;
 
-import java.io.Serializable;
 import java.nio.file.Path;
 
 import org.hive2hive.core.exceptions.IllegalFileLocation;
@@ -33,16 +32,16 @@ public class InitialState extends AbstractActionState {
 	}
 
 	@Override
-	public AbstractActionState handleLocalDeleteEvent() {
-		logger.debug("Local Delete Event: Initial -> Local Delete");
-		return new LocalDeleteState(action);
-	}
-
-	@Override
 	public AbstractActionState handleLocalUpdateEvent() {
 		logger.debug("Local Update Event: Initial -> Local Update");
 		return new LocalUpdateState(action);
+	
+	}
 
+	@Override
+	public AbstractActionState handleLocalDeleteEvent() {
+		logger.debug("Local Delete Event: Initial -> Local Delete");
+		return new LocalDeleteState(action);
 	}
 
 	@Override
@@ -52,21 +51,15 @@ public class InitialState extends AbstractActionState {
 	}
 
 	@Override
-	public AbstractActionState handleRemoteCreateEvent() {
-		logger.debug("Remote Create Event: Initial -> Remote Create");
-		return new RemoteCreateState(action);
+	public AbstractActionState handleRemoteUpdateEvent() {
+		logger.debug("Remote Update Event: Initial -> Remote Update");
+		return new RemoteUpdateState(action);
 	}
 
 	@Override
 	public AbstractActionState handleRemoteDeleteEvent() {
 		logger.debug("Remote Delete Event: Initial -> Remote Delete");
 		return new RemoteDeleteState(action);
-	}
-
-	@Override
-	public AbstractActionState handleRemoteUpdateEvent() {
-		logger.debug("Remote Update Event: Initial -> Remote Update");
-		return new RemoteUpdateState(action);
 	}
 
 	@Override
@@ -78,6 +71,6 @@ public class InitialState extends AbstractActionState {
 	@Override
 	public void execute(FileManager fileManager) throws NoSessionException,
 			NoPeerConnectionException, IllegalFileLocation {
-		logger.warn("Execute method in Initial State not defined.");
+		logger.warn("Execute is not defined in the initial state.");
 	}
 }

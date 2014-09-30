@@ -53,8 +53,8 @@ public class LocalCreateState extends AbstractActionState {
 	}
 
 	@Override
-	public AbstractActionState handleRemoteCreateEvent() {
-		logger.debug("Remote Create Event: Local Create -> Conflict");
+	public AbstractActionState handleRemoteUpdateEvent() {
+		logger.debug("Remote Update Event: Local Create -> Conflict");
 		return new ConflictState(action);
 	}
 
@@ -65,15 +65,9 @@ public class LocalCreateState extends AbstractActionState {
 	}
 
 	@Override
-	public AbstractActionState handleRemoteUpdateEvent() {
-		logger.debug("Remote Update Event: Local Create -> Exception");
-		return new ExceptionState(action);
-	}
-
-	@Override
 	public AbstractActionState handleRemoteMoveEvent(Path oldFilePath) {
-		logger.debug("Remote Move Event: Local Create -> Exception");
-		return new ExceptionState(action);
+		logger.debug("Remote Move Event: Local Create -> Conflict");
+		return new ConflictState(action);
 	}
 
 	/**

@@ -20,57 +20,51 @@ public class RemoteMoveState extends AbstractActionState {
 
 	@Override
 	public AbstractActionState handleLocalCreateEvent() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public AbstractActionState handleLocalDeleteEvent() {
-		// TODO Auto-generated method stub
-		return null;
+		logger.debug("Local Create Event: ");
+		return this;
 	}
 
 	@Override
 	public AbstractActionState handleLocalUpdateEvent() {
-		// TODO Auto-generated method stub
-		return null;
+		logger.debug("Local Update Event: ");
+		return this;
+	}
+
+	@Override
+	public AbstractActionState handleLocalDeleteEvent() {
+		logger.debug("Local Delete Event: ");
+		return this;
 	}
 
 	@Override
 	public AbstractActionState handleLocalMoveEvent(Path oldFilePath) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public AbstractActionState handleRemoteCreateEvent() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public AbstractActionState handleRemoteDeleteEvent() {
-		// TODO Auto-generated method stub
-		return null;
+		logger.debug("Local Move Event: ");
+		return this;
 	}
 
 	@Override
 	public AbstractActionState handleRemoteUpdateEvent() {
-		// TODO Auto-generated method stub
-		return null;
+		logger.debug("Remote Update Event: ");
+		return this;
+	}
+
+	@Override
+	public AbstractActionState handleRemoteDeleteEvent() {
+		logger.debug("Remote Delete Event: ");
+		return this;
 	}
 
 	@Override
 	public AbstractActionState handleRemoteMoveEvent(Path oldFilePath) {
-		// TODO Auto-generated method stub
-		return null;
+		logger.debug("Remote Move Event: ");
+		return this;
 	}
 
 	@Override
 	public void execute(FileManager fileManager) throws NoSessionException,
 			NoPeerConnectionException, IllegalFileLocation {
-		// TODO Auto-generated method stub
-
+		Path path = action.getFilePath();
+		logger.debug("Execute REMOTE MOVE: {}", path);
 	}
 
 }

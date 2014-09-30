@@ -48,15 +48,15 @@ public class LocalMoveState extends AbstractActionState {
 	}
 
 	@Override
-	public AbstractActionState handleLocalDeleteEvent() {
-		logger.debug("Local Delete Event: not defined");
-		throw new IllegalStateException("Local Delete Event: not defined");
-	}
-
-	@Override
 	public AbstractActionState handleLocalUpdateEvent() {
 		logger.debug("Local Update Event: not defined");
 		throw new IllegalStateException("Local Update Event: not defined");
+	}
+
+	@Override
+	public AbstractActionState handleLocalDeleteEvent() {
+		logger.debug("Local Delete Event: not defined");
+		throw new IllegalStateException("Local Delete Event: not defined");
 	}
 
 	@Override
@@ -66,20 +66,14 @@ public class LocalMoveState extends AbstractActionState {
 	}
 
 	@Override
-	public AbstractActionState handleRemoteCreateEvent() {
-		logger.debug("Remote Create Event: Local Move -> Conflict");
+	public AbstractActionState handleRemoteUpdateEvent() {
+		logger.debug("Remote Update Event: Local Move -> Conflict");
 		return new ConflictState(action);
 	}
 
 	@Override
 	public AbstractActionState handleRemoteDeleteEvent() {
 		logger.debug("Remote Delete Event: Local Move -> Conflict");
-		return new ConflictState(action);
-	}
-
-	@Override
-	public AbstractActionState handleRemoteUpdateEvent() {
-		logger.debug("Remote Update Event: Local Move -> Conflict");
 		return new ConflictState(action);
 	}
 
