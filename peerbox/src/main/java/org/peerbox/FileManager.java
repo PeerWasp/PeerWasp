@@ -17,6 +17,13 @@ import org.hive2hive.processframework.interfaces.IResultProcessComponent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * TODO: do we need to buffer the operations somehow e.g. such that not unlimited add operations run in parallel?
+ * (encryption, chunking, uploading etc. consumes resources and it may better to have a limit for that).
+ * ActionExecutor may also schedule it accordingly.
+ *
+ */
+
 public class FileManager {
 
 	private static final Logger logger = LoggerFactory.getLogger(FileManager.class);
@@ -61,6 +68,7 @@ public class FileManager {
 			throws FileNotFoundException, IllegalArgumentException, NoSessionException,
 			NoPeerConnectionException {
 		logger.debug("RECOVER - {}", file);
+		// TODO: implement recover
 		return null;
 	}
 
@@ -68,6 +76,7 @@ public class FileManager {
 			throws IllegalFileLocation, IllegalArgumentException, NoSessionException,
 			NoPeerConnectionException {
 		logger.debug("SHARE");
+		// TODO: implement sharing
 		return null;
 	}
 

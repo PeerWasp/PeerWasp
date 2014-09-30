@@ -20,9 +20,8 @@ public class ClientStarter extends AbstractStarter {
 
 	private static final Logger logger = LoggerFactory.getLogger(ClientStarter.class);
 	
-	private static final boolean IS_INITIAL_NODE = false;
-	
-	private static final String BOOTSTRAP_HOST_NAME = "192.168.178.24";
+	private static boolean IS_INITIAL_NODE;
+	private static String BOOTSTRAP_HOST_NAME;
 	private static final String USER = "h2huser";
 	private static final String PASSWORD = "SecretPassword";
 	private static final String PIN = "AZBY";
@@ -30,6 +29,9 @@ public class ClientStarter extends AbstractStarter {
 	private ClientNode client;
 	
 	public static void main(String[] args) {
+		parseArguments(args);
+		
+		
 		try {
 			new ClientStarter().run();
 		} catch (IOException e) {
@@ -37,11 +39,53 @@ public class ClientStarter extends AbstractStarter {
 		}
 	}
 	
+	private static void parseArguments(String[] args) {
+		if(args.length != 2) {
+			quit(args);
+		}
+		
+		for(int i = 0; i < args.length; ++i) {
+			String a = args[i];
+			String[] elements = a.split("=");
+			if(elements.length != 2) {
+				quit(args);
+			}
+			
+			switch(elements[0]) {
+				case "initial":
+					if(elements[1].equalsIgnoreCase("1")) {
+						IS_INITIAL_NODE = true;
+					}
+					logger.info("IS_INITIAL_NODE={}", IS_INITIAL_NODE);
+					break;
+				case "bootstrap":
+					BOOTSTRAP_HOST_NAME = elements[1];
+					logger.info("BOOTSTRAP_HOST_NAME={}", BOOTSTRAP_HOST_NAME);
+					break;
+				default:
+					logger.error("Unknown parameter provided.");
+					quit(args);
+					break;
+			}
+		}
+	}
+
+	private static void quit(String[] args) {
+		logger.error("Wrong arguments provided. Exiting...");
+		logger.error("Arguments:");
+		for(String a : args) {
+			logger.error("\t{}", a);
+		}
+		logger.error("Usage: initial=[0 or 1] bootstrap=[address to use]");
+		System.exit(-1);
+	}
+
 	public ClientStarter() throws IOException {
 		super();
 	}
 
 	private void run() {
+		
 		try {
 			
 			setup();
@@ -74,7 +118,7 @@ public class ClientStarter extends AbstractStarter {
 		if (IS_INITIAL_NODE) {
 			networkConf = NetworkConfiguration.create("initial");
 		} else {
-			networkConf = NetworkConfiguration.create("node-" + BOOTSTRAP_HOST_NAME,
+			networkConf = NetworkConfiguration.create("node-" + BOOTSTRAP_HOST_NAME + "-" + System.currentTimeMillis(),
 					bootstrapAddress);
 		}
 		
