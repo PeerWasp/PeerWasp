@@ -14,7 +14,13 @@ import net.engio.mbassy.listener.Handler;
 import org.hive2hive.core.events.framework.interfaces.file.IFileDeleteEvent;
 import org.hive2hive.core.events.framework.interfaces.file.IFileDownloadEvent;
 import org.hive2hive.core.events.framework.interfaces.file.IFileMoveEvent;
+import org.hive2hive.core.exceptions.IllegalFileLocation;
+import org.hive2hive.core.exceptions.NoPeerConnectionException;
+import org.hive2hive.core.exceptions.NoSessionException;
+import org.hive2hive.processframework.exceptions.InvalidProcessStateException;
 import org.peerbox.FileManager;
+import org.peerbox.watchservice.states.RemoteDeleteState;
+import org.peerbox.watchservice.states.RemoteUpdateState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -74,8 +80,17 @@ public class FileEventManager implements ILocalFileEventListener, org.hive2hive.
 	public void onLocalFileCreated(Path path, boolean useFileWalker) {
 		logger.debug("onFileCreated: {}", path);
 		
-		FileComponent fileComponent = getOrCreateFileComponent(path);
-		getFileTree().putComponent(path.toString(), fileComponent);
+		//FileComponent fileComponent = getOrCreateFileComponent(path);
+		FileComponent fileComponent = getFileComponent(path);
+		if(fileComponent == null){
+			fileComponent = createFileComponent(path, Files.isRegularFile(path));
+			getFileTree().putComponent(path.toString(), fileComponent);
+		}
+		
+		if(fileComponent.getAction().getCurrentState() instanceof RemoteUpdateState){
+			fileComponent.getAction().getCurrentState().handleLocalCreateEvent();
+			fileComponentQueue.remove(fileComponent); //just in case the component is still in the queue
+		}
 		
 		if(fileComponent instanceof FolderComposite){
 			String moveCandidateHash = null;
@@ -149,26 +164,41 @@ public class FileEventManager implements ILocalFileEventListener, org.hive2hive.
 //		if(deletedComponent == null){
 //			return;
 //		}
+		
 		FileComponent deletedComponent = getFileComponent(path);
 		if(deletedComponent == null){
 			return;
 		}
 		fileComponentQueue.remove(deletedComponent);
 		
-		// handle the delete event
-		deletedComponent.getAction().handleLocalDeleteEvent();
-		
-		//only add the file to the set of deleted files and to the action queue
-		//if it was uploaded to the DHT before.
-		if(deletedComponent.getIsUploaded()){
-			deletedByContentHash.put(deletedComponent.getContentHash(), deletedComponent);
-			if(deletedComponent instanceof FolderComposite){
-				FolderComposite deletedComponentAsFolder = (FolderComposite)deletedComponent;
-				deletedByContentNamesHash.put(deletedComponentAsFolder.getContentNamesHash(), deletedComponentAsFolder);
+		if(deletedComponent.getAction().getCurrentState() instanceof RemoteDeleteState){
+			deletedComponent.getAction().handleLocalDeleteEvent();
+			try {
+				deletedComponent.getAction().execute(fileManager);
+			} catch (NoSessionException | NoPeerConnectionException | IllegalFileLocation
+					| InvalidProcessStateException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
+		} else if(deletedComponent.getAction().getCurrentState() instanceof RemoteUpdateState){
+			deletedComponent.getAction().handleLocalDeleteEvent();
+		} else {
+			// handle the delete event
+			deletedComponent.getAction().handleLocalDeleteEvent();
 			
-			fileComponentQueue.add(deletedComponent);
+			//only add the file to the set of deleted files and to the action queue
+			//if it was uploaded to the DHT before.
+			if(deletedComponent.getIsUploaded()){
+				deletedByContentHash.put(deletedComponent.getContentHash(), deletedComponent);
+				if(deletedComponent instanceof FolderComposite){
+					FolderComposite deletedComponentAsFolder = (FolderComposite)deletedComponent;
+					deletedByContentNamesHash.put(deletedComponentAsFolder.getContentNamesHash(), deletedComponentAsFolder);
+				}
+				
+				fileComponentQueue.add(deletedComponent);
+			}
 		}
+		
 	}
 
 	@Override
@@ -210,6 +240,7 @@ public class FileEventManager implements ILocalFileEventListener, org.hive2hive.
 		return getFileTree().getComponent(path.toString());
 	}
 
+	@Deprecated
 	private FileComponent getOrCreateFileComponent(Path path) {
 		FileComponent component = getFileComponent(path);
 		if (component == null) {
