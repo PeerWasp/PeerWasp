@@ -1,13 +1,15 @@
 package org.peerbox.watchservice;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import org.hive2hive.core.exceptions.IllegalFileLocation;
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.hive2hive.core.exceptions.NoSessionException;
-import org.hive2hive.processframework.exceptions.InvalidProcessStateException;
 import org.peerbox.watchservice.states.LocalDeleteState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,30 +22,28 @@ import org.slf4j.LoggerFactory;
  * @author albrecht
  *
  */
-public class ActionExecutor implements Runnable {
+public class ActionExecutor implements Runnable, IActionEventListener {
 	
 	private static final Logger logger = LoggerFactory.getLogger(ActionExecutor.class);
 	
 	/**
 	 *  amount of time that an action has to be "stable" in order to be executed 
 	 */
-	public static final int ACTION_WAIT_TIME_MS = 2000;
+	public static final long ACTION_WAIT_TIME_MS = 2000;
+	public static final int NUMBER_OF_EXECUTE_SLOTS = 4;
 	
 	private FileEventManager fileEventManager;
+	private List<Action> executingActions;
 
 	public ActionExecutor(FileEventManager eventManager) {
 		this.fileEventManager = eventManager;
+		executingActions = Collections.synchronizedList(new ArrayList<Action>());
 	}
 	
 
 	@Override
 	public void run() {
-		try {
-			processActions();
-		} catch (NoSessionException | NoPeerConnectionException | IllegalFileLocation e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		processActions();
 	}
 
 	/**
@@ -52,46 +52,59 @@ public class ActionExecutor implements Runnable {
 	 * @throws NoPeerConnectionException 
 	 * @throws NoSessionException 
 	 */
-	private synchronized void processActions() throws NoSessionException, NoPeerConnectionException, IllegalFileLocation {
-		while(true) {
-			FileComponent next = null;
+	private synchronized void processActions() {
+		while (true) {
 			try {
+				FileComponent next = null;
+
 				// blocking, waits until queue not empty, returns and removes (!) first element
 				// synchronized such that no access to the queue is possible between take()/put() call pairs.
-				synchronized(this){
+//				synchronized (this) {
+					logger.debug("Currently executing/pending actions: {}/{}", executingActions.size(), fileEventManager.getFileComponentQueue().size());
 					next = fileEventManager.getFileComponentQueue().take();
-					if(isActionReady(next.getAction())) {
-						
-						if(next.getAction().getCurrentState() instanceof LocalDeleteState){
+					if (isActionReady(next.getAction()) && isExecuteSlotFree()) {
+
+						if (next.getAction().getCurrentState() instanceof LocalDeleteState) {
 							removeFromDeleted(next);
 						}
 						// execute
-						try {
-							next.getAction().execute(fileEventManager.getFileManager());
-							next.setIsUploaded(true);
-						} catch (InvalidProcessStateException e) {
-							// TODO: what do we do if executing fails?
-							e.printStackTrace();
-						}
-						
+						next.getAction().addEventListener(this);
+						executingActions.add(next.getAction());
+						next.getAction().execute(fileEventManager.getFileManager());
+						next.setIsUploaded(true);
 					} else {
 						// not ready yet, insert action again (no blocking peek, unfortunately)
 						fileEventManager.getFileComponentQueue().put(next);
-						long timeToWait = ACTION_WAIT_TIME_MS - getActionAge(next.getAction()) + 1;
+						long timeToWait = calculateWaitTime(next);
 						// TODO: does this work? sleep is not so good because it blocks everything...
-						if(timeToWait > 0){
-							wait(timeToWait);				
-						}
-
+						wait(timeToWait);
 					}
-				}
+//				}
 				next = fileEventManager.getFileComponentQueue().take();
 				fileEventManager.getFileComponentQueue().put(next);
+
 				
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			} 
+			} catch (InterruptedException iex) {
+				iex.printStackTrace();
+				return;
+			} catch (Exception ex) {
+				logger.warn("Exception occurred: {}", ex);
+			}
 		}
+	}
+
+
+	private boolean isExecuteSlotFree() {
+		return executingActions.size() < NUMBER_OF_EXECUTE_SLOTS;
+	}
+
+
+	private long calculateWaitTime(FileComponent action) {
+		long timeToWait = ACTION_WAIT_TIME_MS - getActionAge(action.getAction()) + 1L;
+		if(timeToWait < 100L) { // wait at least 100ms
+			timeToWait = 100L;
+		}
+		return timeToWait;
 	}
 
 
@@ -130,6 +143,20 @@ public class ActionExecutor implements Runnable {
 	 */
 	private long getActionAge(Action action) {
 		return System.currentTimeMillis() - action.getTimestamp();
+	}
+
+
+	@Override
+	public void onActionExecuteSucceeded(Action action) {
+		executingActions.remove(action);
+		logger.debug("Currently executing/pending actions: {}/{}", executingActions.size(), fileEventManager.getFileComponentQueue().size());
+	}
+
+
+	@Override
+	public void onActionExecuteFailed(Action action) {
+		executingActions.remove(action);
+		logger.debug("Currently executing/pending actions: {}/{}", executingActions.size(), fileEventManager.getFileComponentQueue().size());
 	}
 	
 }

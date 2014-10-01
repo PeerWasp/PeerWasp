@@ -65,6 +65,7 @@ public class RemoteUpdateState extends AbstractActionState {
 			NoPeerConnectionException, IllegalFileLocation {
 		Path path = action.getFilePath();
 		logger.debug("Execute REMOTE UPDATE: {}", path);
+		notifyActionExecuteSucceeded();
 	}
 
 }

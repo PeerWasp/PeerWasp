@@ -1,13 +1,20 @@
 package org.peerbox.watchservice.states;
 
 import java.nio.file.Path;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
 
 import org.hive2hive.core.exceptions.IllegalFileLocation;
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.hive2hive.core.exceptions.NoSessionException;
+import org.hive2hive.processframework.RollbackReason;
 import org.hive2hive.processframework.exceptions.InvalidProcessStateException;
+import org.hive2hive.processframework.interfaces.IProcessComponent;
+import org.hive2hive.processframework.interfaces.IProcessComponentListener;
 import org.peerbox.FileManager;
 import org.peerbox.watchservice.Action;
+import org.peerbox.watchservice.IActionEventListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -82,6 +89,8 @@ public class LocalCreateState extends AbstractActionState {
 			NoPeerConnectionException, IllegalFileLocation, InvalidProcessStateException {
 		Path path = action.getFilePath();
 		logger.debug("Execute LOCAL CREATE: {}", path);
-		fileManager.add(path.toFile());
+		IProcessComponent process = fileManager.add(path.toFile());
+		process.attachListener(new FileManagerProcessListener());
 	}
+	
 }

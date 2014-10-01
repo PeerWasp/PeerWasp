@@ -1,13 +1,19 @@
 package org.peerbox.watchservice.states;
 
 import java.nio.file.Path;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
 
 import org.hive2hive.core.exceptions.IllegalFileLocation;
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.hive2hive.core.exceptions.NoSessionException;
+import org.hive2hive.processframework.RollbackReason;
 import org.hive2hive.processframework.exceptions.InvalidProcessStateException;
+import org.hive2hive.processframework.interfaces.IProcessComponentListener;
 import org.peerbox.FileManager;
 import org.peerbox.watchservice.Action;
+import org.peerbox.watchservice.IActionEventListener;
 
 /**
  * Interface for different states of implemented state pattern
@@ -45,4 +51,35 @@ public abstract class AbstractActionState {
 
 	public abstract void execute(FileManager fileManager) throws NoSessionException,
 			NoPeerConnectionException, IllegalFileLocation, InvalidProcessStateException;
+	
+	
+	protected void notifyActionExecuteSucceeded() {
+		Set<IActionEventListener> listener = 
+				new HashSet<IActionEventListener>(action.getEventListener());
+		Iterator<IActionEventListener> it = listener.iterator();
+		while(it.hasNext()) {
+			it.next().onActionExecuteSucceeded(action);
+		}
+	}
+
+	protected void notifyActionExecuteFailed() {
+		Set<IActionEventListener> listener = 
+				new HashSet<IActionEventListener>(action.getEventListener());
+		Iterator<IActionEventListener> it = listener.iterator();
+		while(it.hasNext()) {
+			it.next().onActionExecuteSucceeded(action);
+		}
+	}	
+	
+	protected class FileManagerProcessListener implements IProcessComponentListener {
+		@Override
+		public void onSucceeded() {
+			notifyActionExecuteSucceeded();
+		}
+
+		@Override
+		public void onFailed(RollbackReason reason) {
+			notifyActionExecuteFailed();
+		}
+	}
 }

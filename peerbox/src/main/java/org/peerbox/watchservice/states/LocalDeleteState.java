@@ -5,8 +5,10 @@ import java.nio.file.Path;
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.hive2hive.core.exceptions.NoSessionException;
 import org.hive2hive.processframework.exceptions.InvalidProcessStateException;
+import org.hive2hive.processframework.interfaces.IProcessComponent;
 import org.peerbox.FileManager;
 import org.peerbox.watchservice.Action;
+import org.peerbox.watchservice.states.AbstractActionState.FileManagerProcessListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -81,6 +83,7 @@ public class LocalDeleteState extends AbstractActionState {
 			NoPeerConnectionException, InvalidProcessStateException {
 		Path path = action.getFilePath();
 		logger.debug("Execute LOCAL DELETE: {}", path);
-		fileManager.delete(path.toFile());
+		IProcessComponent process = fileManager.delete(path.toFile());
+		process.attachListener(new FileManagerProcessListener());
 	}
 }

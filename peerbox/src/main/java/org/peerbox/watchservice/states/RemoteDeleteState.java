@@ -65,7 +65,7 @@ public class RemoteDeleteState extends AbstractActionState {
 			NoPeerConnectionException, IllegalFileLocation {
 		Path path = action.getFilePath();
 		logger.debug("Execute REMOTE DELETE: {}", path);
-
+		notifyActionExecuteSucceeded();
 	}
 
 }

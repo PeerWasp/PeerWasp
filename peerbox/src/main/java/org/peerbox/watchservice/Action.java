@@ -1,6 +1,9 @@
 package org.peerbox.watchservice;
 
 import java.nio.file.Path;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
 
 import org.hive2hive.core.exceptions.IllegalFileLocation;
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
@@ -34,6 +37,7 @@ public class Action {
 	
 	private Path filePath;
 	private AbstractActionState currentState;
+	private Set<IActionEventListener> eventListeners;
 	
 	/**
 	 * Initialize with timestamp and set currentState to initial state
@@ -41,6 +45,7 @@ public class Action {
 	public Action(Path filePath){
 		this.filePath = filePath;
 		currentState = new InitialState(this);
+		eventListeners = new HashSet<IActionEventListener>();
 		updateTimestamp();
 	}
 	
@@ -138,5 +143,13 @@ public class Action {
 
 	public void setPath(Path path) {
 		this.filePath = path;
+	}
+	
+	public synchronized void addEventListener(IActionEventListener listener) {
+		eventListeners.add(listener);
+	}
+	
+	public Set<IActionEventListener> getEventListener() {
+		return eventListeners;
 	}
 }
