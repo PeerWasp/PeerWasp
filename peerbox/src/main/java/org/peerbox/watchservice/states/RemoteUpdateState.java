@@ -20,8 +20,8 @@ public class RemoteUpdateState extends AbstractActionState {
 
 	@Override
 	public AbstractActionState handleLocalCreateEvent() {
-		logger.debug("Local Create Event:  ({})", action.getFilePath());
-		return this;
+		logger.debug("Local Create Event after Remote Update!  ({})", action.getFilePath());
+		return new InitialState(action);
 	}
 
 	@Override
