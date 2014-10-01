@@ -32,7 +32,7 @@ public class RemoteDeleteState extends AbstractActionState {
 
 	@Override
 	public AbstractActionState handleLocalDeleteEvent() {
-		logger.debug("Local Delete Event:  ({})", action.getFilePath());
+		logger.debug("Local Delete Event in RemoteDeleteState ({})", action.getFilePath());
 		
 		return this;
 	}
