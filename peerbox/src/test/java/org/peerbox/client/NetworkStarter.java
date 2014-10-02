@@ -7,7 +7,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.hive2hive.core.api.interfaces.IH2HNode;
+import org.hive2hive.core.exceptions.NoPeerConnectionException;
+import org.hive2hive.core.exceptions.NoSessionException;
 import org.hive2hive.core.network.NetworkTestUtil;
+import org.hive2hive.processframework.interfaces.IProcessComponent;
+import org.hive2hive.processframework.util.TestExecutionUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,17 +35,19 @@ public class NetworkStarter extends AbstractStarter {
 		super();
 	}
 
-	private void run() {
+	public void run() {
 		try {
 
 			setup();
-
-			// teardown();
 
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	}
+	
+	public void stop() {
+		teardown();
 	}
 
 	private void setup() throws Exception {
@@ -61,7 +67,24 @@ public class NetworkStarter extends AbstractStarter {
 		}
 	}
 	
+	public ClientNode getClientNode(int index) {
+		return clients.get(index);
+	}
+	
+	public List<ClientNode> getClients() {
+		return clients;
+	}
+	
 	private void teardown() {
+		logger.info("Stopping clients.");
+		for(ClientNode node : clients) {
+			node.stop();
+		}
+		logger.info("Shutdown network");
 		NetworkTestUtil.shutdownH2HNetwork(network);
+	}
+
+	public int getNetworkSize() {
+		return clients.size();
 	}
 }

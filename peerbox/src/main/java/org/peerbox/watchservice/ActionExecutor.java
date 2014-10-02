@@ -101,8 +101,8 @@ public class ActionExecutor implements Runnable, IActionEventListener {
 
 	private long calculateWaitTime(FileComponent action) {
 		long timeToWait = ACTION_WAIT_TIME_MS - getActionAge(action.getAction()) + 1L;
-		if(timeToWait < 100L) { // wait at least 100ms
-			timeToWait = 100L;
+		if(timeToWait < 500L) { // wait at least some time
+			timeToWait = 500L;
 		}
 		return timeToWait;
 	}

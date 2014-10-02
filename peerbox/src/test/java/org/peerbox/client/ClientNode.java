@@ -4,14 +4,19 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 import org.hive2hive.core.api.interfaces.IH2HNode;
+import org.hive2hive.core.exceptions.NoPeerConnectionException;
+import org.hive2hive.core.exceptions.NoSessionException;
 import org.hive2hive.core.security.UserCredentials;
 import org.hive2hive.processframework.interfaces.IProcessComponent;
 import org.hive2hive.processframework.util.TestExecutionUtil;
 import org.peerbox.FileManager;
 import org.peerbox.watchservice.FileEventManager;
 import org.peerbox.watchservice.FolderWatchService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-class ClientNode {
+public class ClientNode {
+	private static final Logger logger = LoggerFactory.getLogger(ClientNode.class);
 	
 	private IH2HNode node;
 	private UserCredentials credentials;
@@ -27,6 +32,10 @@ class ClientNode {
 		
 		initialization();
 		
+	}
+	
+	public Path getRootPath() {
+		return rootPath;
 	}
 
 	private void initialization() throws Exception {
@@ -44,10 +53,41 @@ class ClientNode {
 		node.getFileManager().subscribeFileEvents(fileEventManager);
 
 		// login
-		IProcessComponent loginProcess = node.getUserManager().login(credentials, rootPath);
-		TestExecutionUtil.executeProcess(loginProcess);
+		logger.debug("Login user");
+		loginUser();
 
 		// start monitoring folder
+		logger.debug("Start watchservice");
 		watchService.start();
+	}
+	
+	private void loginUser() throws NoPeerConnectionException {
+		IProcessComponent loginProcess = node.getUserManager().login(credentials, rootPath);
+		TestExecutionUtil.executeProcess(loginProcess);
+	}
+	
+	private void logoutUser() throws NoPeerConnectionException, NoSessionException {
+		IProcessComponent registerProcess = node.getUserManager().logout();
+		TestExecutionUtil.executeProcess(registerProcess);
+	}
+	
+	public void stop() {
+		try {
+			logger.debug("Stop watchservice");
+			watchService.stop();
+		} catch (Exception e) {
+			// ignore
+			e.printStackTrace();
+		}
+		
+		try {
+			logger.debug("Logout user");
+			logoutUser();
+		} catch (NoPeerConnectionException | NoSessionException e) {
+			// ignore
+			e.printStackTrace();
+		}
+		
+		
 	}
 }

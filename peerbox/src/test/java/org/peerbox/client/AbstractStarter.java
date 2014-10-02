@@ -8,6 +8,7 @@ import java.nio.file.Paths;
 import org.apache.commons.io.FileUtils;
 import org.hive2hive.core.api.interfaces.IH2HNode;
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
+import org.hive2hive.core.exceptions.NoSessionException;
 import org.hive2hive.core.security.UserCredentials;
 import org.hive2hive.processframework.interfaces.IProcessComponent;
 import org.hive2hive.processframework.util.TestExecutionUtil;
@@ -37,5 +38,9 @@ public abstract class AbstractStarter {
 		IProcessComponent registerProcess = registerNode.getUserManager().register(credentials);
 		TestExecutionUtil.executeProcess(registerProcess);
 		logger.info("Registered new user.");
+	}
+
+	public Path getBasePath() {
+		return BASE_PATH;
 	}
 }
