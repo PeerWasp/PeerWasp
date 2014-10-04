@@ -85,5 +85,6 @@ public class LocalDeleteState extends AbstractActionState {
 		logger.debug("Execute LOCAL DELETE: {}", path);
 		IProcessComponent process = fileManager.delete(path.toFile());
 		process.attachListener(new FileManagerProcessListener());
+		notifyActionExecuteSucceeded();
 	}
 }

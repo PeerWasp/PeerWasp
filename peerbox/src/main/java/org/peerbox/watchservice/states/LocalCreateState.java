@@ -90,7 +90,15 @@ public class LocalCreateState extends AbstractActionState {
 		Path path = action.getFilePath();
 		logger.debug("Execute LOCAL CREATE: {}", path);
 		IProcessComponent process = fileManager.add(path.toFile());
-		process.attachListener(new FileManagerProcessListener());
+		if(process != null){
+			process.attachListener(new FileManagerProcessListener());
+		} else {
+			System.err.println("process is null");
+		}
+		notifyActionExecuteSucceeded();
+		
 	}
+	
+	
 	
 }

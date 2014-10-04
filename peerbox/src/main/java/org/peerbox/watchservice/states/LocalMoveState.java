@@ -5,6 +5,8 @@ import java.nio.file.Path;
 
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.hive2hive.core.exceptions.NoSessionException;
+import org.hive2hive.processframework.exceptions.InvalidProcessStateException;
+import org.hive2hive.processframework.interfaces.IProcessComponent;
 import org.peerbox.FileManager;
 import org.peerbox.watchservice.Action;
 import org.slf4j.Logger;
@@ -92,8 +94,18 @@ public class LocalMoveState extends AbstractActionState {
 	public void execute(FileManager fileManager) throws NoSessionException,
 			NoPeerConnectionException {
 	
-		fileManager.move(sourcePath.toFile(), action.getFilePath().toFile());
+		try {
+			IProcessComponent process = fileManager.move(sourcePath.toFile(), action.getFilePath().toFile());
+			if(process != null){
+				process.attachListener(new FileManagerProcessListener());
+			}
+			
+		} catch (InvalidProcessStateException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		logger.debug("Task \"Move File\" executed from: " + sourcePath.toString() + " to " + action.getFilePath().toFile().toPath());
+		notifyActionExecuteSucceeded();
 		
 	}
 }
