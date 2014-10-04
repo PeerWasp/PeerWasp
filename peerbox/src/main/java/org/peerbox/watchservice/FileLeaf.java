@@ -7,6 +7,8 @@ import java.nio.file.Paths;
 
 import org.hive2hive.core.security.EncryptionUtil;
 import org.hive2hive.core.security.HashUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class FileLeaf extends AbstractFileComponent implements FileComponent{
 	private Action action;
@@ -15,6 +17,8 @@ public class FileLeaf extends AbstractFileComponent implements FileComponent{
 	private String contentHash;
 	private FolderComposite parent;
 	private boolean isUploaded;
+	
+	private static final Logger logger = LoggerFactory.getLogger(FileLeaf.class);
 	
 	public FileLeaf(Path path){
 		this.path = path;
@@ -99,6 +103,7 @@ public class FileLeaf extends AbstractFileComponent implements FileComponent{
 				e.printStackTrace();
 			}
 		}
+		logger.debug("File {} has contentHash: {}", path, newHash);
 		if(!contentHash.equals(newHash)){
 			contentHash = newHash;
 			return true;
@@ -126,7 +131,10 @@ public class FileLeaf extends AbstractFileComponent implements FileComponent{
 	public void setPath(Path parentPath){	
 		if(parentPath != null){
 			this.path = Paths.get(new File(parentPath.toString(), fileName.toString()).getPath());
+			logger.debug("Set path to {}", path);
+			action.setPath(this.path);
 		}
+		
 	}
 
 	@Override

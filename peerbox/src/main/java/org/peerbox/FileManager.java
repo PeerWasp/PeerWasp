@@ -63,10 +63,14 @@ public class FileManager {
 	}
 
 	public IProcessComponent move(File source, File destination) throws NoSessionException,
-			NoPeerConnectionException {
+			NoPeerConnectionException, InvalidProcessStateException {
 		logger.debug("MOVE - from: {}, to: {}", source, destination);
 		// TODO: implement move.
-		return null;
+		IProcessComponent component = h2hFileManager.move(source, destination);
+		component.attachListener(new FileOperationListener(source));
+		component.attachListener(new FileOperationListener(destination));
+		component.start();
+		return component;
 	}
 
 	public IProcessComponent recover(File file, IVersionSelector versionSelector)
