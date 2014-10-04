@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 
 import org.apache.commons.io.FileUtils;
 import org.junit.AfterClass;
@@ -32,19 +33,19 @@ public class FileWalkerTestWhenFolderCreated {
 	private static String dir3Str = parentPath + "dir3" + File.separator;
 	private static String file1Str = dir1Str + "file1";
 	private static String file2Str = dir1Str + "file2";
-	private static String dir1NewStr = dir2Str + "dir1";
-	private static String file3Str = dir3Str + "file2";
-	private static String file4Str = dir3Str + "file2";
+	private static String dir1NewStr = dir2Str + "dir1" + File.separator;
+	private static String file1NewStr = dir1NewStr + "file1";
+	private static String file1RootStr = parentPath + "file1";
 	
 	private static File testDirectory;
 	private static File dir1;
 	private static File dir2;
-	private static File dir3;
+	
 	private static RandomAccessFile randfile1;
 	private static File file1;
 	private static File file2;
-	private static File file3;
-	private static File file4;
+	private static File file1New;
+	private static File file1Root;
 	private static File dir1New;
 	
 	private static FileEventManager manager;
@@ -58,11 +59,10 @@ public class FileWalkerTestWhenFolderCreated {
 		
 		dir1 = new File(dir1Str);
 		dir2 = new File(dir2Str);
-		dir3 = new File(dir3Str);
 		file1 = new File(file1Str);
 		file2 = new File(file2Str);
-		file3 = new File(file3Str);
-		file4 = new File(file4Str);
+		file1New = new File(file1NewStr);
+		file1Root = new File(file1RootStr);
 		dir1New = new File(dir1NewStr);
 		dir1.mkdir();
 		dir2.mkdir();
@@ -102,7 +102,7 @@ public class FileWalkerTestWhenFolderCreated {
 		}
 	}
 	
-	@AfterClass
+	@AfterClass 
 	public static void rollback() throws Exception{
 		watchService.stop();
 		file1.delete();
@@ -115,7 +115,6 @@ public class FileWalkerTestWhenFolderCreated {
 		try {
 			FileUtils.deleteDirectory(testDirectory);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		//assertTrue(testDirectory.delete());
@@ -154,9 +153,9 @@ public class FileWalkerTestWhenFolderCreated {
 			Files.move(dir1.toPath(), dir1New.toPath());
 			Thread.sleep(10);
 			
-			assertTrue(manager.getDeletedFileComponents().size() == 1);
-			assertTrue(manager.getDeletedByContentNamesHash().size() == 1);
-			assertTrue(manager.getFileComponentQueue().size() == 2);
+			assertTrue(manager.getDeletedFileComponents().size() == 0);
+			assertTrue(manager.getDeletedByContentNamesHash().size() == 0);
+			assertTrue(manager.getFileComponentQueue().size() == 1);
 			
 			//Ensure old files are removed and new ones appended to the tree
 			assertNull(manager.getFileTree().getComponent(dir1Str));
@@ -165,23 +164,60 @@ public class FileWalkerTestWhenFolderCreated {
 			assertNotNull(manager.getFileTree().getComponent(dir2Str + "dir1"));
 			assertNotNull(manager.getFileTree().getComponent(dir2Str  + "dir1" + File.separator + "file1"));
 			assertNotNull(manager.getFileTree().getComponent(dir2Str  + "dir1" + File.separator + "file2"));
+			System.out.println(manager.getFileTree().getComponent(dir2Str + "dir1").getPath().toString());
+			System.out.println(Paths.get(dir2Str + "dir1"));
+			assertTrue(manager.getFileTree().getComponent(dir2Str + "dir1").getPath().equals(Paths.get(dir2Str + "dir1")));
+			assertTrue(manager.getFileTree().getComponent(dir2Str + "dir1").getAction().getFilePath().equals(Paths.get(dir2Str + "dir1")));
+			System.out.println(file1Str);
+			System.out.println(manager.getFileTree().getComponent(dir2Str  + "dir1" + File.separator + "file1").getPath().toString());
+			System.out.println(Paths.get(dir2Str  + "dir1" + File.separator + "file1"));
+			assertTrue(manager.getFileTree().getComponent(dir2Str  + "dir1" + File.separator + "file1").getPath().equals(Paths.get(dir2Str  + "dir1" + File.separator + "file1")));
+			
+			assertTrue(manager.getFileTree().getComponent(dir2Str  + "dir1" + File.separator + "file1").getAction().getFilePath().equals(Paths.get(dir2Str  + "dir1" + File.separator + "file1")));
+			
+			assertTrue(manager.getFileTree().getComponent(dir2Str  + "dir1" + File.separator + "file2").getPath().equals(Paths.get(dir2Str  + "dir1" + File.separator + "file2")));
+			assertTrue(manager.getFileTree().getComponent(dir2Str  + "dir1" + File.separator + "file2").getAction().getFilePath().equals(Paths.get(dir2Str  + "dir1" + File.separator + "file2")));
+			
+
+			System.out.println("Before folder move");
+			for(FileComponent comp : manager.getDeletedFileComponents().values()){
+				System.out.println(comp.getPath() + " : " + comp.getAction().getFilePath() + " : " + comp.getAction().getCurrentState().getClass().toString());
+			}
 			
 			Thread.sleep(ActionExecutor.ACTION_WAIT_TIME_MS * 2);
+
+			System.out.println("After folder move");
+			for(FileComponent comp : manager.getDeletedFileComponents().values()){
+				System.out.println(comp.getPath() + " : " + comp.getAction().getFilePath() + " : " + comp.getAction().getCurrentState().getClass().toString());
+			}
+			
+			assertTrue(manager.getDeletedFileComponents().size() == 0);
+			assertTrue(manager.getDeletedByContentNamesHash().size() == 0);
+			assertTrue(manager.getFileComponentQueue().size() == 0);
+			Files.move(file1New.toPath(), file1Root.toPath());
+			Thread.sleep(10);
+			
+			System.out.println("Last");
+			for(FileComponent comp : manager.getDeletedFileComponents().values()){
+				System.out.println(comp.getPath() + " : " + comp.getAction().getFilePath() + " : " + comp.getAction().getCurrentState().getClass().toString());
+			}
+			
+			assertTrue(manager.getDeletedFileComponents().size() == 0);
+			assertTrue(manager.getDeletedByContentNamesHash().size() == 0);
+			ArrayList<FileComponent> list = new ArrayList<FileComponent>(manager.getFileComponentQueue());
+
+			for(FileComponent comp : list){
+				System.out.println(comp.getPath() + ": " + comp.getAction().getCurrentState().getClass().toString());
+			}
+			assertTrue(manager.getFileComponentQueue().size() == 1);
+			
+			assertNull(manager.getFileTree().getComponent(file1NewStr));
+			assertNotNull(manager.getFileTree().getComponent(file1RootStr));
+			
+			assertTrue(manager.getFileTree().getComponent(file1RootStr).getPath().equals(Paths.get(file1RootStr)));
+			
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-	}
-	
-	@Test @Ignore
-	public void testDataDiscovery(){
-		dir3.mkdir();
-		try {
-			file3.createNewFile();
-			file4.createNewFile();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
 	}
 }
