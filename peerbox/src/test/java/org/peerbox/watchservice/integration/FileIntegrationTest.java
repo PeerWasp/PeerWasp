@@ -23,6 +23,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.peerbox.client.ClientNode;
 import org.peerbox.client.NetworkStarter;
+import org.peerbox.utils.FileTestUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,6 +36,10 @@ public abstract class FileIntegrationTest {
 	private static NetworkStarter network;
 	
 	protected static ClientNode client;
+	
+	protected static final int NUMBER_OF_CHARS = 1000*100; // approx. 100kb
+	protected static final int WAIT_TIME_SHORT = 30;
+	protected static final int WAIT_TIME_LONG = 5*60;
 	
 	@BeforeClass
 	public static final void beforeClass() throws IOException {
@@ -132,6 +137,22 @@ public abstract class FileIntegrationTest {
 			}
 		}
 		return true;
+	}
+	
+	protected Path addSingleFolder() throws IOException {
+		Path folder = FileTestUtils.createRandomFolder(client.getRootPath());
+		
+		waitForExists(folder, WAIT_TIME_SHORT);
+		assertSyncClientPaths();
+		return folder;
+	}
+	
+	protected List<Path> addManyFiles() throws IOException {
+		List<Path> files = FileTestUtils.createRandomFiles(client.getRootPath(), 100, NUMBER_OF_CHARS);
+		
+		waitForExists(files, WAIT_TIME_LONG);
+		assertSyncClientPaths();
+		return files;
 	}
 	
 	

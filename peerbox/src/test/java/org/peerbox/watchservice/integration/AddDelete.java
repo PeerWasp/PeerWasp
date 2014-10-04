@@ -12,9 +12,9 @@ import org.peerbox.utils.FileTestUtils;
 
 public class AddDelete extends FileIntegrationTest {
 	
-	private static final int NUMBER_OF_CHARS = 1000*100; // approx. 100kb
-	private static final int WAIT_TIME_SHORT = 30;
-	private static final int WAIT_TIME_LONG = 5*60;
+//	private static final int NUMBER_OF_CHARS = 1000*100; // approx. 100kb
+//	private static final int WAIT_TIME_SHORT = 30;
+//	private static final int WAIT_TIME_LONG = 5*60;
 	
 	@Test
 	public void singleFolderTest() throws IOException {
@@ -23,14 +23,6 @@ public class AddDelete extends FileIntegrationTest {
 		
 		// DELETE
 		deleteSingleFolder(folder);
-	}
-	
-	private Path addSingleFolder() throws IOException {
-		Path folder = FileTestUtils.createRandomFolder(client.getRootPath());
-		
-		waitForExists(folder, WAIT_TIME_SHORT);
-		assertSyncClientPaths();
-		return folder;
 	}
 	
 	private void deleteSingleFolder(Path folder) throws IOException {
@@ -163,14 +155,6 @@ public class AddDelete extends FileIntegrationTest {
 		List<Path> files = addManyFiles();
 		
 		deleteManyFiles(files);
-	}
-	
-	private List<Path> addManyFiles() throws IOException {
-		List<Path> files = FileTestUtils.createRandomFiles(client.getRootPath(), 100, NUMBER_OF_CHARS);
-		
-		waitForExists(files, WAIT_TIME_LONG);
-		assertSyncClientPaths();
-		return files;
 	}
 	
 	private void deleteManyFiles(List<Path> files) throws IOException {
