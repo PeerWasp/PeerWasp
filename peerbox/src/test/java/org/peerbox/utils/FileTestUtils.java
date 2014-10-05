@@ -48,6 +48,14 @@ public class FileTestUtils {
 		return file;
 	}
 	
+	public static Path createTestFile(Path basePath, int numChars) throws IOException {
+		String name = String.format("%s.file", "test");
+		Path file = basePath.resolve(name);
+		String data = createRandomData(numChars);
+		org.apache.commons.io.FileUtils.writeStringToFile(file.toFile(), data);
+		return file;
+	}
+	
 	public static List<Path> createRandomFiles(Path basePath, int numberOfFiles, int numberOfChars) throws IOException {
 		List<Path> files = new ArrayList<Path>();
 		for(int i = 0; i < numberOfFiles; ++i) {

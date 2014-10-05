@@ -7,6 +7,7 @@ import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.hive2hive.core.exceptions.NoSessionException;
 import org.peerbox.FileManager;
 import org.peerbox.watchservice.Action;
+import org.peerbox.watchservice.ConflictHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,6 +22,7 @@ public class ConflictState extends AbstractActionState {
 	@Override
 	public AbstractActionState handleLocalCreateEvent() {
 		// TODO Auto-generated method stub
+		ConflictHandler.rename(action.getFilePath());
 		return null;
 	}
 
@@ -64,7 +66,9 @@ public class ConflictState extends AbstractActionState {
 	public void execute(FileManager fileManager) throws NoSessionException,
 			NoPeerConnectionException, IllegalFileLocation {
 		// TODO Auto-generated method stub
-
+		Path fileInConflict = action.getFilePath();
+		Path renamedFile = ConflictHandler.rename(fileInConflict);
+		fileInConflict = renamedFile;
 	}
 
 }

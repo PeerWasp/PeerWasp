@@ -67,7 +67,7 @@ public abstract class FileIntegrationTest {
 		client = network.getClientNode(RandomUtils.nextInt(0, network.getNetworkSize()));
 	}
 	
-	@After 
+	//@After 
 	public void afterTest() throws IOException {
 		network.stop();
 		FileUtils.cleanDirectory(network.getBasePath().toFile());
