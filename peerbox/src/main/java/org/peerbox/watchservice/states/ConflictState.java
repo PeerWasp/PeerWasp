@@ -22,7 +22,6 @@ public class ConflictState extends AbstractActionState {
 	@Override
 	public AbstractActionState handleLocalCreateEvent() {
 		// TODO Auto-generated method stub
-		ConflictHandler.rename(action.getFilePath());
 		return null;
 	}
 
