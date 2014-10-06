@@ -16,6 +16,7 @@ import org.peerbox.watchservice.states.LocalDeleteState;
 import org.peerbox.watchservice.states.InitialState;
 import org.peerbox.watchservice.states.LocalUpdateState;
 import org.peerbox.watchservice.states.LocalMoveState;
+import org.peerbox.watchservice.states.ConflictState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -136,6 +137,8 @@ public class Action {
 			logger.debug("Current State: Move");
 		} else if (currentState.getClass() == InitialState.class) {
 			logger.debug("Current State: Initial");
+		}else if (currentState.getClass() == ConflictState.class) {
+			logger.debug("Current State: Conflict");
 		}
 
 		return currentState;
