@@ -8,6 +8,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -31,7 +32,7 @@ import com.google.common.hash.Hashing;
 
 public abstract class FileIntegrationTest {
 	
-	private static final Logger logger = LoggerFactory.getLogger(FileIntegrationTest.class);
+	protected static final Logger logger = LoggerFactory.getLogger(FileIntegrationTest.class);
 	
 	private static NetworkStarter network;
 	
@@ -73,6 +74,60 @@ public abstract class FileIntegrationTest {
 		FileUtils.cleanDirectory(network.getBasePath().toFile());
 	}
 	
+	protected Path addSingleFolder() throws IOException {
+		Path folder = FileTestUtils.createRandomFolder(client.getRootPath());
+		
+		waitForExists(folder, WAIT_TIME_SHORT);
+		assertSyncClientPaths();
+		return folder;
+	}
+
+	protected Path addSingleFile() throws IOException {
+		Path file = FileTestUtils.createRandomFile(client.getRootPath(), NUMBER_OF_CHARS);
+		
+		waitForExists(file, WAIT_TIME_SHORT);
+		assertSyncClientPaths();
+		return file;
+	}
+
+	protected List<Path> addManyFiles() throws IOException {
+		List<Path> files = FileTestUtils.createRandomFiles(client.getRootPath(), 100, NUMBER_OF_CHARS);
+		
+		waitForExists(files, WAIT_TIME_LONG);
+		assertSyncClientPaths();
+		return files;
+	}
+
+	protected List<Path> addSingleFileInFolder() throws IOException {
+		List<Path> files = FileTestUtils.createFolderWithFiles(client.getRootPath(), 1, NUMBER_OF_CHARS);
+		
+		waitForExists(files, WAIT_TIME_SHORT);
+		assertSyncClientPaths();
+		return files;
+	}
+
+	protected List<Path> addManyFilesInFolder() throws IOException {
+		List<Path> files = FileTestUtils.createFolderWithFiles(client.getRootPath(), 100, NUMBER_OF_CHARS);
+		
+		waitForExists(files, WAIT_TIME_LONG);
+		assertSyncClientPaths();
+		return files;
+	}
+
+	protected List<Path> addManyFilesInManyFolders() throws IOException {
+		List<Path> files = new ArrayList<>();
+		int numFolders = 20;
+		int numFilesPerFolder = 20;
+		for(int i = 0; i < numFolders; ++i) {
+			List<Path> f = FileTestUtils.createFolderWithFiles(client.getRootPath(), numFilesPerFolder, NUMBER_OF_CHARS);
+			files.addAll(f);
+		}
+		
+		waitForExists(files, WAIT_TIME_LONG);		
+		assertSyncClientPaths();
+		return files;
+	}
+
 	protected void waitForExists(Path path, int seconds) {
 		H2HWaiter waiter = new H2HWaiter(seconds);
 		do {
@@ -87,7 +142,7 @@ public abstract class FileIntegrationTest {
 		} while(!pathExistsOnAllNodes(paths));
 	}
 		
-	protected boolean pathExistsOnAllNodes(Path absPath) {
+	private boolean pathExistsOnAllNodes(Path absPath) {
 		Path relativePath = client.getRootPath().relativize(absPath);
 		for(ClientNode node : network.getClients()) {
 			if(!Files.exists(node.getRootPath().resolve(relativePath))) {
@@ -97,7 +152,7 @@ public abstract class FileIntegrationTest {
 		return true;
 	}
 	
-	protected boolean pathExistsOnAllNodes(List<Path> absPaths) {
+	private boolean pathExistsOnAllNodes(List<Path> absPaths) {
 		for(Path p : absPaths) {
 			if(!pathExistsOnAllNodes(p)) {
 				return false;
@@ -120,7 +175,7 @@ public abstract class FileIntegrationTest {
 		} while(!pathNotExistsOnAllNodes(paths));
 	}
 	
-	protected boolean pathNotExistsOnAllNodes(Path absPath) {
+	private boolean pathNotExistsOnAllNodes(Path absPath) {
 		Path relativePath = client.getRootPath().relativize(absPath);
 		for(ClientNode node : network.getClients()) {
 			if(Files.exists(node.getRootPath().resolve(relativePath))) {
@@ -130,7 +185,7 @@ public abstract class FileIntegrationTest {
 		return true;
 	}
 	
-	protected boolean pathNotExistsOnAllNodes(List<Path> absPaths) {
+	private boolean pathNotExistsOnAllNodes(List<Path> absPaths) {
 		for(Path p : absPaths) {
 			if(!pathNotExistsOnAllNodes(p)) {
 				return false;
@@ -139,23 +194,47 @@ public abstract class FileIntegrationTest {
 		return true;
 	}
 	
-	protected Path addSingleFolder() throws IOException {
-		Path folder = FileTestUtils.createRandomFolder(client.getRootPath());
-		
-		waitForExists(folder, WAIT_TIME_SHORT);
-		assertSyncClientPaths();
-		return folder;
+	protected void waitForUpdate(Path path, int seconds) throws IOException {
+		H2HWaiter waiter = new H2HWaiter(seconds);
+		do {
+			waiter.tickASecond();
+		} while(!pathEqualsOnAllNodes(path));
 	}
 	
-	protected List<Path> addManyFiles() throws IOException {
-		List<Path> files = FileTestUtils.createRandomFiles(client.getRootPath(), 100, NUMBER_OF_CHARS);
-		
-		waitForExists(files, WAIT_TIME_LONG);
-		assertSyncClientPaths();
-		return files;
+	protected void waitForUpdate(List<Path> paths, int seconds) throws IOException {
+		H2HWaiter waiter = new H2HWaiter(seconds);
+		do {
+			waiter.tickASecond();
+		} while(!pathEqualsOnAllNodes(paths));
 	}
 	
+	private boolean pathEqualsOnAllNodes(Path absPath) throws IOException {
+		String thisHash = com.google.common.io.Files.hash(absPath.toFile(), Hashing.sha256()).toString();
+		Path relativePath = client.getRootPath().relativize(absPath);
+		for(ClientNode node : network.getClients()) {
+			Path otherPath = node.getRootPath().resolve(relativePath);
+			// make sure path exists already.
+			if(!Files.exists(otherPath)) {
+				return false;
+			}
+			// check hashes
+			String otherHash = com.google.common.io.Files.hash(otherPath.toFile(), Hashing.sha256()).toString();
+			if(!thisHash.equals(otherHash)) {
+				return false;
+			}
+		}
+		return true;
+	}
 	
+	private boolean pathEqualsOnAllNodes(List<Path> paths) throws IOException {
+		for(Path p : paths) {
+			if(!pathEqualsOnAllNodes(p)) {
+				return false;
+			}
+		}
+		return true;
+	}
+			
 	/**
 	 * Asserts that all root paths of all clients have the same content.
 	 * @throws IOException 
@@ -200,7 +279,7 @@ public abstract class FileIntegrationTest {
 		}
 		// difference has to be empty for sync folders
 		assertTrue(difference.isEmpty());
-
+	
 		// 2. compare the hashes of the paths
 		for (java.util.Map.Entry<Path, String> e : indexThis.getHashes().entrySet()) {
 			Path relativePath = e.getKey();
@@ -218,8 +297,8 @@ public abstract class FileIntegrationTest {
 			assertTrue(hashesEqual);
 		}
 	}
-	
-	protected class IndexRootPath extends SimpleFileVisitor<Path> {
+
+	private class IndexRootPath extends SimpleFileVisitor<Path> {
 		private Path rootPath;
 		private SortedMap<Path, String> pathToHash;
 

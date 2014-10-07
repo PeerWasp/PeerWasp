@@ -12,10 +12,6 @@ import org.peerbox.utils.FileTestUtils;
 
 public class AddDelete extends FileIntegrationTest {
 	
-//	private static final int NUMBER_OF_CHARS = 1000*100; // approx. 100kb
-//	private static final int WAIT_TIME_SHORT = 30;
-//	private static final int WAIT_TIME_LONG = 5*60;
-	
 	@Test
 	public void singleFolderTest() throws IOException {
 		// ADD
@@ -135,14 +131,6 @@ public class AddDelete extends FileIntegrationTest {
 		deleteSingleFile(file);
 	}
 	
-	private Path addSingleFile() throws IOException {
-		Path file = FileTestUtils.createRandomFile(client.getRootPath(), NUMBER_OF_CHARS);
-		
-		waitForExists(file, WAIT_TIME_SHORT);
-		assertSyncClientPaths();
-		return file;
-	}
-	
 	private void deleteSingleFile(Path file) throws IOException {
 		Files.delete(file);
 		
@@ -175,14 +163,6 @@ public class AddDelete extends FileIntegrationTest {
 		deleteSingleFileInFolder(files);
 	}
 	
-	private List<Path> addSingleFileInFolder() throws IOException {
-		List<Path> files = FileTestUtils.createFolderWithFiles(client.getRootPath(), 1, NUMBER_OF_CHARS);
-		
-		waitForExists(files, WAIT_TIME_SHORT);
-		assertSyncClientPaths();
-		return files;
-	}
-	
 	private void deleteSingleFileInFolder(List<Path> files) throws IOException {
 		ListIterator<Path> it = files.listIterator(files.size());
 		while(it.hasPrevious()) {
@@ -201,14 +181,6 @@ public class AddDelete extends FileIntegrationTest {
 		
 		// DELETE
 		deleteManyFilesInFolder(files);
-	}
-	
-	private List<Path> addManyFilesInFolder() throws IOException {
-		List<Path> files = FileTestUtils.createFolderWithFiles(client.getRootPath(), 100, NUMBER_OF_CHARS);
-		
-		waitForExists(files, WAIT_TIME_LONG);
-		assertSyncClientPaths();
-		return files;
 	}
 	
 	private void deleteManyFilesInFolder(List<Path> files) throws IOException {
@@ -231,20 +203,6 @@ public class AddDelete extends FileIntegrationTest {
 		deleteManyFilesInManyFolders(files);
 	}
 	
-	private List<Path> addManyFilesInManyFolders() throws IOException {
-		List<Path> files = new ArrayList<>();
-		int numFolders = 20;
-		int numFilesPerFolder = 20;
-		for(int i = 0; i < numFolders; ++i) {
-			List<Path> f = FileTestUtils.createFolderWithFiles(client.getRootPath(), numFilesPerFolder, NUMBER_OF_CHARS);
-			files.addAll(f);
-		}
-		
-		waitForExists(files, WAIT_TIME_LONG);		
-		assertSyncClientPaths();
-		return files;
-	}
-
 	private void deleteManyFilesInManyFolders(List<Path> files) throws IOException {
 		List<Path> folders = new ArrayList<Path>();
 		// delete files
