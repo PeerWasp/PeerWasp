@@ -132,7 +132,7 @@ public abstract class FileIntegrationTest {
 	
 	protected boolean pathNotExistsOnAllNodes(List<Path> absPaths) {
 		for(Path p : absPaths) {
-			if(pathExistsOnAllNodes(p)) {
+			if(!pathNotExistsOnAllNodes(p)) {
 				return false;
 			}
 		}
