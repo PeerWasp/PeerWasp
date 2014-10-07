@@ -7,15 +7,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.hive2hive.core.api.interfaces.IH2HNode;
-import org.hive2hive.core.exceptions.NoPeerConnectionException;
-import org.hive2hive.core.exceptions.NoSessionException;
 import org.hive2hive.core.network.NetworkTestUtil;
-import org.hive2hive.processframework.interfaces.IProcessComponent;
-import org.hive2hive.processframework.util.TestExecutionUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class NetworkStarter extends AbstractStarter {
+public class NetworkStarter extends AbstractStarter implements ITestNetwork {
 	
 	private static final Logger logger = LoggerFactory.getLogger(NetworkStarter.class);
 
@@ -25,7 +21,7 @@ public class NetworkStarter extends AbstractStarter {
 
 	public static void main(String[] args) {
 		try {
-			new NetworkStarter().run();
+			new NetworkStarter().start();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -35,7 +31,8 @@ public class NetworkStarter extends AbstractStarter {
 		super();
 	}
 
-	public void run() {
+	@Override
+	public void start() {
 		try {
 
 			setup();
@@ -46,6 +43,7 @@ public class NetworkStarter extends AbstractStarter {
 		}
 	}
 	
+	@Override
 	public void stop() {
 		teardown();
 	}
@@ -61,7 +59,7 @@ public class NetworkStarter extends AbstractStarter {
 
 		// create and login all clients (same credentials)
 		for (int i = 0; i < network.size(); ++i) {
-			Path path = Paths.get(BASE_PATH.toString(), String.format("user-%s", i));
+			Path path = Paths.get(BASE_PATH.toString(), String.format("client-%s", i));
 			clients.add(new ClientNode(network.get(i), credentials, path));
 			logger.info("Created client {} ", i);
 		}
@@ -86,5 +84,14 @@ public class NetworkStarter extends AbstractStarter {
 
 	public int getNetworkSize() {
 		return clients.size();
+	}
+
+	@Override
+	public List<Path> getRootPaths() {
+		List<Path> paths = new ArrayList<>();
+		for(ClientNode c : clients) {
+			paths.add(c.getRootPath());
+		}
+		return paths;
 	}
 }

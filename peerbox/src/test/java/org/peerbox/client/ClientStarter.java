@@ -107,8 +107,7 @@ public class ClientStarter extends AbstractStarter {
 	private void setup() throws Exception {
 		IH2HNode node = createNode();
 		credentials = new UserCredentials(USER, PASSWORD, PIN);
-		Path rootPath = Paths.get(BASE_PATH.toString(), String.format("%s-%s", 
-				USER, NODE_NAME));
+		Path rootPath = Paths.get(BASE_PATH.toString(), NODE_NAME);
 		
 		if(IS_INITIAL_NODE) {
 			registerUser(node, credentials);

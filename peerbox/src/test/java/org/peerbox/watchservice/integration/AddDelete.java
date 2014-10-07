@@ -39,7 +39,7 @@ public class AddDelete extends FileIntegrationTest {
 
 	private List<Path> addManyFolders() throws IOException {
 		int numFolders = 20;
-		List<Path> folders = FileTestUtils.createRandomFolders(client.getRootPath(), numFolders);
+		List<Path> folders = FileTestUtils.createRandomFolders(masterRootPath, numFolders);
 	
 		waitForExists(folders, WAIT_TIME_LONG);
 		assertSyncClientPaths();
@@ -65,7 +65,7 @@ public class AddDelete extends FileIntegrationTest {
 	}
 	
 	private List<Path> addSingleFolderInFolder() throws IOException {
-		Path folder = FileTestUtils.createRandomFolder(client.getRootPath());
+		Path folder = FileTestUtils.createRandomFolder(masterRootPath);
 		Path subFolder = FileTestUtils.createRandomFolder(folder);
 		
 		List<Path> folders = new ArrayList<>();
@@ -100,7 +100,7 @@ public class AddDelete extends FileIntegrationTest {
 	private List<Path> addManyFoldersInFolder() throws IOException {
 		List<Path> folders = new ArrayList<>();
 		
-		Path folder = FileTestUtils.createRandomFolder(client.getRootPath());
+		Path folder = FileTestUtils.createRandomFolder(masterRootPath);
 		List<Path> subFolders = FileTestUtils.createRandomFolders(folder, 20);
 		
 		folders.add(folder);

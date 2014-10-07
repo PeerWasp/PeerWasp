@@ -23,6 +23,8 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.peerbox.client.ClientNode;
+import org.peerbox.client.DummyNetwork;
+import org.peerbox.client.ITestNetwork;
 import org.peerbox.client.NetworkStarter;
 import org.peerbox.utils.FileTestUtils;
 import org.slf4j.Logger;
@@ -34,48 +36,53 @@ public abstract class FileIntegrationTest {
 	
 	protected static final Logger logger = LoggerFactory.getLogger(FileIntegrationTest.class);
 	
-	private static NetworkStarter network;
-	
-	protected static ClientNode client;
+	private static ITestNetwork network;
+	protected static Path masterRootPath;
 	
 	protected static final int NUMBER_OF_CHARS = 1000*100; // approx. 100kb
 	protected static final int WAIT_TIME_SHORT = 30;
 	protected static final int WAIT_TIME_LONG = 5*60;
 	
+	
 	@BeforeClass
-	public static final void beforeClass() throws IOException {
-//		network = new NetworkStarter();
-//		FileUtils.cleanDirectory(network.getBasePath().toFile());
-//		network.run();
-//		
-//		// Get a random client. Operations will be executed on this client
-//		client = network.getClientNode(RandomUtils.nextInt(0, network.getNetworkSize()));
+	public static void beforeClass() throws IOException {
+		// setup network
+		network = new NetworkStarter();
+		
+		// start running
+		network.start();
+		
+		// select random path as master path (operations will be executed within this path)
+		masterRootPath = network.getRootPaths().get(
+				RandomUtils.nextInt(0, network.getRootPaths().size()));
 	}
 	
 	@AfterClass
 	public static void afterClass() throws IOException {
-//		FileUtils.cleanDirectory(network.getBasePath().toFile());
-//		network.stop();
-	}
-	
-	@Before
-	public void beforeTest() throws IOException {
-		network = new NetworkStarter();
-		FileUtils.cleanDirectory(network.getBasePath().toFile());
-		network.run();
-		
-		// Get a random client. Operations will be executed on this client
-		client = network.getClientNode(RandomUtils.nextInt(0, network.getNetworkSize()));
-	}
-	
-	@After 
-	public void afterTest() throws IOException {
 		network.stop();
 		FileUtils.cleanDirectory(network.getBasePath().toFile());
 	}
 	
+
+	@Before 
+	public void beforeTest() throws IOException {
+		
+		// USE THIS DUMMY NETWORK IF NETWORK RUNS SEPARATE
+//		network = new DummyNetwork();
+		
+		// cleanup folders
+//		FileUtils.cleanDirectory(network.getBasePath().toFile());
+		
+	}
+	
+	@After
+	public void afterTest() throws IOException {
+		network.stop();
+//		FileUtils.cleanDirectory(network.getBasePath().toFile());
+	}
+	
 	protected Path addSingleFolder() throws IOException {
-		Path folder = FileTestUtils.createRandomFolder(client.getRootPath());
+		Path folder = FileTestUtils.createRandomFolder(masterRootPath);
 		
 		waitForExists(folder, WAIT_TIME_SHORT);
 		assertSyncClientPaths();
@@ -83,7 +90,7 @@ public abstract class FileIntegrationTest {
 	}
 
 	protected Path addSingleFile() throws IOException {
-		Path file = FileTestUtils.createRandomFile(client.getRootPath(), NUMBER_OF_CHARS);
+		Path file = FileTestUtils.createRandomFile(masterRootPath, NUMBER_OF_CHARS);
 		
 		waitForExists(file, WAIT_TIME_SHORT);
 		assertSyncClientPaths();
@@ -91,7 +98,7 @@ public abstract class FileIntegrationTest {
 	}
 
 	protected List<Path> addManyFiles() throws IOException {
-		List<Path> files = FileTestUtils.createRandomFiles(client.getRootPath(), 100, NUMBER_OF_CHARS);
+		List<Path> files = FileTestUtils.createRandomFiles(masterRootPath, 100, NUMBER_OF_CHARS);
 		
 		waitForExists(files, WAIT_TIME_LONG);
 		assertSyncClientPaths();
@@ -99,7 +106,7 @@ public abstract class FileIntegrationTest {
 	}
 
 	protected List<Path> addSingleFileInFolder() throws IOException {
-		List<Path> files = FileTestUtils.createFolderWithFiles(client.getRootPath(), 1, NUMBER_OF_CHARS);
+		List<Path> files = FileTestUtils.createFolderWithFiles(masterRootPath, 1, NUMBER_OF_CHARS);
 		
 		waitForExists(files, WAIT_TIME_SHORT);
 		assertSyncClientPaths();
@@ -107,7 +114,7 @@ public abstract class FileIntegrationTest {
 	}
 
 	protected List<Path> addManyFilesInFolder() throws IOException {
-		List<Path> files = FileTestUtils.createFolderWithFiles(client.getRootPath(), 100, NUMBER_OF_CHARS);
+		List<Path> files = FileTestUtils.createFolderWithFiles(masterRootPath, 100, NUMBER_OF_CHARS);
 		
 		waitForExists(files, WAIT_TIME_LONG);
 		assertSyncClientPaths();
@@ -119,7 +126,7 @@ public abstract class FileIntegrationTest {
 		int numFolders = 20;
 		int numFilesPerFolder = 20;
 		for(int i = 0; i < numFolders; ++i) {
-			List<Path> f = FileTestUtils.createFolderWithFiles(client.getRootPath(), numFilesPerFolder, NUMBER_OF_CHARS);
+			List<Path> f = FileTestUtils.createFolderWithFiles(masterRootPath, numFilesPerFolder, NUMBER_OF_CHARS);
 			files.addAll(f);
 		}
 		
@@ -143,9 +150,9 @@ public abstract class FileIntegrationTest {
 	}
 		
 	private boolean pathExistsOnAllNodes(Path absPath) {
-		Path relativePath = client.getRootPath().relativize(absPath);
-		for(ClientNode node : network.getClients()) {
-			if(!Files.exists(node.getRootPath().resolve(relativePath))) {
+		Path relativePath = masterRootPath.relativize(absPath);
+		for(Path rp : network.getRootPaths()) {
+			if(!Files.exists(rp.resolve(relativePath))) {
 				return false;
 			}
 		}
@@ -176,9 +183,9 @@ public abstract class FileIntegrationTest {
 	}
 	
 	private boolean pathNotExistsOnAllNodes(Path absPath) {
-		Path relativePath = client.getRootPath().relativize(absPath);
-		for(ClientNode node : network.getClients()) {
-			if(Files.exists(node.getRootPath().resolve(relativePath))) {
+		Path relativePath = masterRootPath.relativize(absPath);
+		for(Path rp : network.getRootPaths()) {
+			if(Files.exists(rp.resolve(relativePath))) {
 				return false;
 			}
 		}
@@ -210,9 +217,9 @@ public abstract class FileIntegrationTest {
 	
 	private boolean pathEqualsOnAllNodes(Path absPath) throws IOException {
 		String thisHash = com.google.common.io.Files.hash(absPath.toFile(), Hashing.sha256()).toString();
-		Path relativePath = client.getRootPath().relativize(absPath);
-		for(ClientNode node : network.getClients()) {
-			Path otherPath = node.getRootPath().resolve(relativePath);
+		Path relativePath = masterRootPath.relativize(absPath);
+		for(Path rp : network.getRootPaths()) {
+			Path otherPath = rp.resolve(relativePath);
 			// make sure path exists already.
 			if(!Files.exists(otherPath)) {
 				return false;
@@ -241,18 +248,18 @@ public abstract class FileIntegrationTest {
 	 */
 	protected void assertSyncClientPaths() throws IOException {
 		// compute client index as a reference
-		IndexRootPath clientIndex = new IndexRootPath(client.getRootPath());
-		Files.walkFileTree(client.getRootPath(), clientIndex);
+		IndexRootPath clientIndex = new IndexRootPath(masterRootPath);
+		Files.walkFileTree(masterRootPath, clientIndex);
 		
 		// compare index with other root paths
-		for(ClientNode node : network.getClients()) {
-			if(node.equals(client)) {
+		for(Path rp : network.getRootPaths()) {
+			if(rp.equals(masterRootPath)) {
 				continue; // ignore comparison with itself
 			}
 			
 			// compute index of other path
-			IndexRootPath indexOther = new IndexRootPath(node.getRootPath());
-			Files.walkFileTree(node.getRootPath(), indexOther);
+			IndexRootPath indexOther = new IndexRootPath(rp);
+			Files.walkFileTree(rp, indexOther);
 			
 			assertSyncPathIndices(clientIndex, indexOther);
 		}
