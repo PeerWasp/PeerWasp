@@ -22,7 +22,7 @@ public class Move extends FileIntegrationTest{
 	@Test @Ignore
 	public void singleFileMoveTest() throws IOException{
 		Path folder = addSingleFolder();
-		Path srcFile = FileTestUtils.createRandomFile(client.getRootPath(), NUMBER_OF_CHARS);
+		Path srcFile = FileTestUtils.createRandomFile(masterRootPath, NUMBER_OF_CHARS);
 		waitForExists(srcFile, WAIT_TIME_SHORT);
 		assertSyncClientPaths();
 		
@@ -76,7 +76,7 @@ public class Move extends FileIntegrationTest{
 	}
 	
 	private void moveManyFilesOrFolders(Path dstFolder) throws IOException {
-		File rootFolder = client.getRootPath().toFile();
+		File rootFolder = masterRootPath.toFile();
 		
 		File[] files = rootFolder.listFiles();
 		Path lastMovedFile = null;

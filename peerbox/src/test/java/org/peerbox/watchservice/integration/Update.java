@@ -79,7 +79,8 @@ public class Update extends FileIntegrationTest {
 	}
 
 	private void updateSingleFile(Path f) throws IOException {
-		FileTestUtils.writeRandomData(f, NUMBER_OF_CHARS);
+		double scale = RandomUtils.nextDouble(0.01, 2.0);
+		FileTestUtils.writeRandomData(f, (int)(NUMBER_OF_CHARS*scale));
 	}
 
 	private List<Path> updateManyFiles(List<Path> files) throws IOException {
