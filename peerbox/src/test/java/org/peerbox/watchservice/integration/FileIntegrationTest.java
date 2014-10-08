@@ -22,6 +22,8 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.peerbox.client.ClientNode;
+import org.peerbox.client.DummyNetwork;
+import org.peerbox.client.ITestNetwork;
 import org.peerbox.client.NetworkStarter;
 import org.peerbox.utils.FileTestUtils;
 import org.slf4j.Logger;
@@ -53,7 +55,7 @@ public abstract class FileIntegrationTest {
 	
 	@AfterClass
 	public static void afterClass() throws IOException {
-//		FileUtils.cleanDirectory(network.getBasePath().toFile());
+	//	FileUtils.cleanDirectory(network.getBasePath().toFile());
 //		network.stop();
 	}
 	
@@ -78,6 +80,13 @@ public abstract class FileIntegrationTest {
 		do {
 			waiter.tickASecond();
 		} while(!pathExistsOnAllNodes(path));
+	}
+	
+	protected void waitIfNotExist(Path path, int seconds){
+		H2HWaiter waiter = new H2HWaiter(seconds);
+		while(!pathExistsOnAllNodes(path)){
+			waiter.tickASecond();
+		}
 	}
 	
 	protected void waitForExists(List<Path> paths, int seconds) {
