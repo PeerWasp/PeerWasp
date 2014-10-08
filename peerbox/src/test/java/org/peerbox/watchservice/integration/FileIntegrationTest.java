@@ -47,8 +47,8 @@ public abstract class FileIntegrationTest {
 	@BeforeClass
 	public static void beforeClass() throws IOException {
 		// setup network
-//		network = new NetworkStarter();
-		network = new DummyNetwork();
+		network = new NetworkStarter();
+//		network = new DummyNetwork();
 //		FileUtils.cleanDirectory(network.getBasePath().toFile());
 		
 		// start running
