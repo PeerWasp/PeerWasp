@@ -95,8 +95,6 @@ public class LocalCreateState extends AbstractActionState {
 		} else {
 			System.err.println("process is null");
 		}
-		notifyActionExecuteSucceeded();
-		
 	}
 	
 	

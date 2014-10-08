@@ -10,6 +10,9 @@ import org.apache.commons.lang3.RandomStringUtils;
 
 public class FileTestUtils {
 	
+	private static int FOLDER_NUMBER = 0;
+	private static int FILE_NUMBER = 0;
+	
 	public static List<Path> createFolderWithFiles(Path basePath, int numberOfFiles, int numberOfChars) throws IOException {
 		List<Path> files = new ArrayList<Path>();
 		
@@ -25,8 +28,8 @@ public class FileTestUtils {
 	}
 	
 	public static Path createRandomFolder(Path basePath) throws IOException {
-		String folder = RandomStringUtils.randomAlphanumeric(10);
-		Path p = basePath.resolve(folder);
+		String folderName = "f"+FOLDER_NUMBER++; 
+		Path p = basePath.resolve(folderName);
 		Files.createDirectory(p);
 		return p;
 	}
@@ -41,7 +44,7 @@ public class FileTestUtils {
 	}
 	
 	public static Path createRandomFile(Path basePath, int numChars) throws IOException {
-		String name = String.format("%s.file", RandomStringUtils.randomAlphanumeric(10));
+		String name = String.format("%s.file", FILE_NUMBER++);
 		Path file = basePath.resolve(name);
 		String data = createRandomData(numChars);
 		org.apache.commons.io.FileUtils.writeStringToFile(file.toFile(), data);

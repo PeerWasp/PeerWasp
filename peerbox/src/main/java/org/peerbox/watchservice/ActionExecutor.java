@@ -30,7 +30,7 @@ public class ActionExecutor implements Runnable, IActionEventListener {
 	 *  amount of time that an action has to be "stable" in order to be executed 
 	 */
 	public static final long ACTION_WAIT_TIME_MS = 2000;
-	public static final int NUMBER_OF_EXECUTE_SLOTS = 4;
+	public static final int NUMBER_OF_EXECUTE_SLOTS = 1;
 	
 	private FileEventManager fileEventManager;
 	private List<Action> executingActions;
@@ -73,9 +73,12 @@ public class ActionExecutor implements Runnable, IActionEventListener {
 						next.getAction().execute(fileEventManager.getFileManager());
 						next.setIsUploaded(true);
 					} else {
-						if(executingActions.size() != 0)
-							System.out.println("Blocking action: " + executingActions.get(0).getFilePath() + " " + executingActions.get(0).getCurrentState().getClass());
-						
+						if(executingActions.size() != 0) {
+//							System.out.println("Blocking action: " + executingActions.get(0).getFilePath() + " " + executingActions.get(0).getCurrentState().getClass());
+//							for(Action a : executingActions) {
+//								System.out.println("Blocking action: " + a.getFilePath() + " " + a.getCurrentState().getClass());
+//							}
+						}
 						//System.out.println("Current state: " + next.getAction().getCurrentState().getClass().toString());
 						// not ready yet, insert action again (no blocking peek, unfortunately)
 						fileEventManager.getFileComponentQueue().put(next);

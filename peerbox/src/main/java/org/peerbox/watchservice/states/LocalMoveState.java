@@ -105,7 +105,7 @@ public class LocalMoveState extends AbstractActionState {
 			e.printStackTrace();
 		}
 		logger.debug("Task \"Move File\" executed from: " + sourcePath.toString() + " to " + action.getFilePath().toFile().toPath());
-		notifyActionExecuteSucceeded();
+//		notifyActionExecuteSucceeded();
 		
 	}
 }
