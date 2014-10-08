@@ -27,7 +27,7 @@ public class ConflictTest extends FileIntegrationTest{
 		Path file_2 = addSingleFile();
 	}
 	
-	private Path addSingleFile() throws IOException {
+	protected Path addSingleFile() throws IOException {
 		Path file = FileTestUtils.createTestFile(client.getRootPath(), NUMBER_OF_CHARS);
 		
 		waitForExists(file, WAIT_TIME_SHORT);

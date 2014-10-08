@@ -149,6 +149,13 @@ public abstract class FileIntegrationTest {
 		} while(!pathExistsOnAllNodes(path));
 	}
 	
+	protected void waitIfNotExist(Path path, int seconds){
+		H2HWaiter waiter = new H2HWaiter(seconds);
+		while(!pathExistsOnAllNodes(path)){
+			waiter.tickASecond();
+		}
+	}
+	
 	protected void waitForExists(List<Path> paths, int seconds) {
 		H2HWaiter waiter = new H2HWaiter(seconds);
 		do {

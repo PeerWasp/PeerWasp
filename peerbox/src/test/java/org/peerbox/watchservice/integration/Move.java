@@ -1,12 +1,16 @@
 package org.peerbox.watchservice.integration;
 
+import static org.junit.Assert.*;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 
 import org.junit.Ignore;
 import org.junit.Test;
+import org.junit.Assert;
 import org.mockito.Mockito;
 import org.peerbox.utils.FileTestUtils;
 
@@ -32,11 +36,11 @@ public class Move extends FileIntegrationTest{
 
 	//still fails
 	@Test
-	public void manyFilesMoveTest() throws IOException{
+	public void manyFilesMoveTest() throws IOException, InterruptedException{
 		Path folder = addSingleFolder();
 		addManyFiles();
 		assertSyncClientPaths();
-		
+		Thread.sleep(10000);
 		moveManyFilesOrFolders(folder);
 		assertSyncClientPaths();
 	}
@@ -56,7 +60,7 @@ public class Move extends FileIntegrationTest{
 	
 	@Test @Ignore
 	public void singleNonEmptyFolderMoveTest(){
-		
+
 	}
 	
 	@Test @Ignore
@@ -79,15 +83,22 @@ public class Move extends FileIntegrationTest{
 		File rootFolder = masterRootPath.toFile();
 		
 		File[] files = rootFolder.listFiles();
-		Path lastMovedFile = null;
-		for(int i = 0; i < 50; i++){
-			if(files[i].isDirectory())
+		ArrayList<Path> movedFiles = new ArrayList<Path>();
+		int nrMoves = 40;
+		for(int i = 0; i < nrMoves; i++){
+			if(files[i].isDirectory()){
+				nrMoves--;
 				continue;
+			}
 			Path dstPath = dstFolder.resolve(files[i].getName());
-			System.err.println(dstPath);
 			Files.move(files[i], dstPath.toFile());
-			lastMovedFile = dstPath;
+			
+			movedFiles.add(dstPath);
 		}
-		waitForExists(lastMovedFile, WAIT_TIME_SHORT);
+		assertTrue(nrMoves == movedFiles.size());
+		for(int i = 0; i < nrMoves; i++){
+			waitIfNotExist(movedFiles.get(i), WAIT_TIME_SHORT);
+		}
+		//waitForExists(lastMovedFile, WAIT_TIME_SHORT);
 	}
 }

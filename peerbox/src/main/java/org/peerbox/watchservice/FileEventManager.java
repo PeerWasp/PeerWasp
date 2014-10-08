@@ -45,7 +45,7 @@ public class FileEventManager implements ILocalFileEventListener, org.hive2hive.
 
     
     public FileEventManager(Path rootPath) {
-    	fileComponentQueue = new PriorityBlockingQueue<FileComponent>(10, new FileActionTimeComparator());
+    	fileComponentQueue = new PriorityBlockingQueue<FileComponent>(1000, new FileActionTimeComparator());
     	fileTree = new FolderComposite(rootPath, true);
 
 		actionExecutor = new Thread(new ActionExecutor(this));
