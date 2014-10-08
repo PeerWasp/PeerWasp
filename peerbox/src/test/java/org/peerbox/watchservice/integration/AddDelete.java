@@ -18,7 +18,7 @@ public class AddDelete extends FileIntegrationTest {
 		Path folder = addSingleFolder();
 		
 		// DELETE
-		deleteSingleFolder(folder);
+//		deleteSingleFolder(folder);
 	}
 	
 	private void deleteSingleFolder(Path folder) throws IOException {
@@ -34,7 +34,7 @@ public class AddDelete extends FileIntegrationTest {
 		List<Path> folders = addManyFolders();
 		
 		// DELETE
-		deleteManyFolders(folders);
+//		deleteManyFolders(folders);
 	}
 
 	private List<Path> addManyFolders() throws IOException {
@@ -61,7 +61,7 @@ public class AddDelete extends FileIntegrationTest {
 		List<Path> folders = addSingleFolderInFolder();
 		
 		// DELETE
-		deleteSingleFolderInFolder(folders);
+//		deleteSingleFolderInFolder(folders);
 	}
 	
 	private List<Path> addSingleFolderInFolder() throws IOException {
@@ -94,7 +94,7 @@ public class AddDelete extends FileIntegrationTest {
 		List<Path> folders = addManyFoldersInFolder();
 		
 		// DELETE
-		deleteManyFoldersInFolder(folders);
+//		deleteManyFoldersInFolder(folders);
 	}
 	
 	private List<Path> addManyFoldersInFolder() throws IOException {
@@ -128,7 +128,7 @@ public class AddDelete extends FileIntegrationTest {
 		Path file = addSingleFile();
 		
 		// DELETE
-		deleteSingleFile(file);
+//		deleteSingleFile(file);
 	}
 	
 	private void deleteSingleFile(Path file) throws IOException {
@@ -140,9 +140,11 @@ public class AddDelete extends FileIntegrationTest {
 	
 	@Test
 	public void manyFilesTest() throws IOException {
+		// ADD
 		List<Path> files = addManyFiles();
 		
-		deleteManyFiles(files);
+		// DELETE
+//		deleteManyFiles(files);
 	}
 	
 	private void deleteManyFiles(List<Path> files) throws IOException {
@@ -160,7 +162,7 @@ public class AddDelete extends FileIntegrationTest {
 		List<Path> files = addSingleFileInFolder();
 		
 		// DELETE
-		deleteSingleFileInFolder(files);
+//		deleteSingleFileInFolder(files);
 	}
 	
 	private void deleteSingleFileInFolder(List<Path> files) throws IOException {
@@ -180,7 +182,7 @@ public class AddDelete extends FileIntegrationTest {
 		List<Path> files = addManyFilesInFolder();
 		
 		// DELETE
-		deleteManyFilesInFolder(files);
+//		deleteManyFilesInFolder(files);
 	}
 	
 	private void deleteManyFilesInFolder(List<Path> files) throws IOException {
@@ -200,7 +202,7 @@ public class AddDelete extends FileIntegrationTest {
 		List<Path> files = addManyFilesInManyFolders();
 		
 		// DELETE
-		deleteManyFilesInManyFolders(files);
+//		deleteManyFilesInManyFolders(files);
 	}
 	
 	private void deleteManyFilesInManyFolders(List<Path> files) throws IOException {

@@ -44,12 +44,34 @@ public abstract class FileIntegrationTest {
 	protected static final int WAIT_TIME_LONG = 5*60;
 	
 	
-	@BeforeClass
-	public static void beforeClass() throws IOException {
+//	@BeforeClass
+//	public static void beforeClass() throws IOException {
+//		// setup network
+//		network = new NetworkStarter();
+////		network = new DummyNetwork();
+////		FileUtils.cleanDirectory(network.getBasePath().toFile());
+//		
+//		// start running
+//		network.start();
+//		
+//		// select random path as master path (operations will be executed within this path)
+//		masterRootPath = network.getRootPaths().get(
+//				RandomUtils.nextInt(0, network.getRootPaths().size()));
+//	}
+//	
+//	@AfterClass
+//	public static void afterClass() throws IOException {
+//		network.stop();
+////		FileUtils.cleanDirectory(network.getBasePath().toFile());
+//	}
+	
+
+	@Before 
+	public void beforeTest() throws IOException {
 		// setup network
 		network = new NetworkStarter();
 //		network = new DummyNetwork();
-//		FileUtils.cleanDirectory(network.getBasePath().toFile());
+		FileUtils.cleanDirectory(network.getBasePath().toFile());
 		
 		// start running
 		network.start();
@@ -57,30 +79,13 @@ public abstract class FileIntegrationTest {
 		// select random path as master path (operations will be executed within this path)
 		masterRootPath = network.getRootPaths().get(
 				RandomUtils.nextInt(0, network.getRootPaths().size()));
-	}
-	
-	@AfterClass
-	public static void afterClass() throws IOException {
-		network.stop();
-//		FileUtils.cleanDirectory(network.getBasePath().toFile());
-	}
-	
-
-	@Before 
-	public void beforeTest() throws IOException {
-		
-		// USE THIS DUMMY NETWORK IF NETWORK RUNS SEPARATE
-//		network = new DummyNetwork();
-		
-		// cleanup folders
-//		FileUtils.cleanDirectory(network.getBasePath().toFile());
 		
 	}
 	
 	@After
 	public void afterTest() throws IOException {
 		network.stop();
-//		FileUtils.cleanDirectory(network.getBasePath().toFile());
+		FileUtils.cleanDirectory(network.getBasePath().toFile());
 	}
 	
 	protected Path addSingleFolder() throws IOException {
