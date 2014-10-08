@@ -187,6 +187,7 @@ public class FolderWatchService extends AbstractWatchService {
 					// FIXME: how to handle this event?
 					if (event.kind() == OVERFLOW) {
 						logger.warn("OVERFLOW");
+						System.exit(1);
 						continue;
 					}
 

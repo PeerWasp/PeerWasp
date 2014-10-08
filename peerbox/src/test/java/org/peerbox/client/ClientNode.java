@@ -53,7 +53,7 @@ public class ClientNode {
 		node.getFileManager().subscribeFileEvents(fileEventManager);
 
 		// login
-		logger.debug("Login user");
+		logger.debug("Login user {} (node ̣{})", credentials.getUserId(), node.getNetworkConfiguration().getNodeID());
 		loginUser();
 
 		// start monitoring folder
@@ -73,7 +73,7 @@ public class ClientNode {
 	
 	public void stop() {
 		try {
-			logger.debug("Stop watchservice");
+			logger.debug("Stop watchservice {} (node ̣{})", credentials.getUserId(), node.getNetworkConfiguration().getNodeID());
 			watchService.stop();
 		} catch (Exception e) {
 			// ignore
@@ -81,7 +81,7 @@ public class ClientNode {
 		}
 		
 		try {
-			logger.debug("Logout user");
+			logger.debug("Logout user {} (node ̣{})", credentials.getUserId(), node.getNetworkConfiguration().getNodeID());
 			logoutUser();
 		} catch (NoPeerConnectionException | NoSessionException e) {
 			// ignore

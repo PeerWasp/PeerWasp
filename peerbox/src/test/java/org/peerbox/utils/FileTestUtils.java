@@ -48,6 +48,11 @@ public class FileTestUtils {
 		return file;
 	}
 	
+	public static void writeRandomData(Path file, int numChars) throws IOException {
+		String data = createRandomData(numChars);
+		org.apache.commons.io.FileUtils.writeStringToFile(file.toFile(), data);
+	}
+	
 	public static Path createTestFile(Path basePath, int numChars) throws IOException {
 		String name = String.format("%s.file", "test");
 		Path file = basePath.resolve(name);

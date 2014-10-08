@@ -79,6 +79,19 @@ public class FileWalker extends AbstractWatchService {
 		//if(eventManager.getDeletedFileComponents().)$
 		
 	}
+
+	public FolderComposite indexContentRecursively() {
+		computeContentHash = true;
+		try {
+			filesystemView = new HashMap<Path, Action>();
+			Files.walkFileTree(rootDirectory, new FileIndexer());
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		computeContentHash = false;
+		return fileTree;
+	}
 	
 	private class FileIndexer extends SimpleFileVisitor<Path> {
 		@Override
@@ -107,18 +120,5 @@ public class FileWalker extends AbstractWatchService {
 		public FileVisitResult visitFileFailed(Path path, IOException ex) throws IOException {
 			return super.visitFileFailed(path, ex);
 		}
-	}
-
-	public FolderComposite indexContentRecursively() {
-		computeContentHash = true;
-		try {
-			filesystemView = new HashMap<Path, Action>();
-			Files.walkFileTree(rootDirectory, new FileIndexer());
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		computeContentHash = false;
-		return fileTree;
 	}
 }

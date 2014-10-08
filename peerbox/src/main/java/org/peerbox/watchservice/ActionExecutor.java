@@ -73,6 +73,10 @@ public class ActionExecutor implements Runnable, IActionEventListener {
 						next.getAction().execute(fileEventManager.getFileManager());
 						next.setIsUploaded(true);
 					} else {
+						if(executingActions.size() != 0)
+							System.out.println("Blocking action: " + executingActions.get(0).getFilePath() + " " + executingActions.get(0).getCurrentState().getClass());
+						
+						//System.out.println("Current state: " + next.getAction().getCurrentState().getClass().toString());
 						// not ready yet, insert action again (no blocking peek, unfortunately)
 						fileEventManager.getFileComponentQueue().put(next);
 						long timeToWait = calculateWaitTime(next);
@@ -88,7 +92,7 @@ public class ActionExecutor implements Runnable, IActionEventListener {
 				iex.printStackTrace();
 				return;
 			} catch (Exception ex) {
-				logger.warn("Exception occurred: {}", ex);
+				logger.warn("Exception occurred: {}", ex.getMessage());
 			}
 		}
 	}
@@ -149,14 +153,16 @@ public class ActionExecutor implements Runnable, IActionEventListener {
 	@Override
 	public void onActionExecuteSucceeded(Action action) {
 		executingActions.remove(action);
-		logger.debug("Currently executing/pending actions: {}/{}", executingActions.size(), fileEventManager.getFileComponentQueue().size());
+		logger.debug("Action successful: {} {}", action.getFilePath(), action.getCurrentState().getClass().toString());
+		//logger.debug("Currently executing/pending actions: {}/{}", executingActions.size(), fileEventManager.getFileComponentQueue().size());
 	}
 
 
 	@Override
 	public void onActionExecuteFailed(Action action) {
 		executingActions.remove(action);
-		logger.debug("Currently executing/pending actions: {}/{}", executingActions.size(), fileEventManager.getFileComponentQueue().size());
+		logger.debug("Action failed: {} {}", action.getFilePath(), action.getCurrentState().getClass().toString());
+		//logger.debug("Currently executing/pending actions: {}/{}", executingActions.size(), fileEventManager.getFileComponentQueue().size());
 	}
 	
 }
