@@ -49,6 +49,10 @@ public class FolderComposite extends AbstractFileComponent implements FileCompon
 	
 	}
 	
+	public SortedMap<String, FileComponent> getChildren(){
+		return children;
+	}
+	
 	@Override
 	public FolderComposite getParent() {
 		return this.parent;

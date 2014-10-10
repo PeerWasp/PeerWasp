@@ -40,7 +40,6 @@ public class Move extends FileIntegrationTest{
 		Path folder = addSingleFolder();
 		addManyFiles();
 		assertSyncClientPaths();
-		Thread.sleep(10000);
 		moveManyFilesOrFolders(folder);
 		assertSyncClientPaths();
 	}
@@ -90,7 +89,7 @@ public class Move extends FileIntegrationTest{
 				nrMoves--;
 				continue;
 			}
-			Path dstPath = dstFolder.resolve(files[i].getName());
+			Path dstPath = Paths.get(files[i].getParentFile().getPath() + File.separator + "X" +  files[i].getName());
 			Files.move(files[i], dstPath.toFile());
 			
 			movedFiles.add(dstPath);

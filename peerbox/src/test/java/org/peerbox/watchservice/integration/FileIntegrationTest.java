@@ -41,7 +41,7 @@ public abstract class FileIntegrationTest {
 	
 	protected static final int NUMBER_OF_CHARS = 1000*100; // approx. 100kb
 	protected static final int WAIT_TIME_SHORT = 30;
-	protected static final int WAIT_TIME_LONG = 5*60;
+	protected static final int WAIT_TIME_LONG = 10*60;
 	
 	
 //	@BeforeClass
@@ -77,15 +77,15 @@ public abstract class FileIntegrationTest {
 		network.start();
 		
 		// select random path as master path (operations will be executed within this path)
-		masterRootPath = network.getRootPaths().get(
-				RandomUtils.nextInt(0, network.getRootPaths().size()));
+		masterRootPath = network.getRootPaths().get(0);
+				//RandomUtils.nextInt(0, network.getRootPaths().size()));
 		
 	}
 	
 	@After
 	public void afterTest() throws IOException {
 		network.stop();
-		FileUtils.cleanDirectory(network.getBasePath().toFile());
+//		FileUtils.cleanDirectory(network.getBasePath().toFile());
 	}
 	
 	protected Path addSingleFolder() throws IOException {
@@ -130,8 +130,8 @@ public abstract class FileIntegrationTest {
 
 	protected List<Path> addManyFilesInManyFolders() throws IOException {
 		List<Path> files = new ArrayList<>();
-		int numFolders = 20;
-		int numFilesPerFolder = 20;
+		int numFolders = 15;
+		int numFilesPerFolder = 5;
 		for(int i = 0; i < numFolders; ++i) {
 			List<Path> f = FileTestUtils.createFolderWithFiles(masterRootPath, numFilesPerFolder, NUMBER_OF_CHARS);
 			files.addAll(f);

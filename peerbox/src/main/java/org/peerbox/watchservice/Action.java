@@ -50,7 +50,7 @@ public class Action {
 		updateTimestamp();
 	}
 	
-	private void updateTimestamp() {
+	public void updateTimestamp() {
 		timestamp = System.currentTimeMillis();
 	}
 	
