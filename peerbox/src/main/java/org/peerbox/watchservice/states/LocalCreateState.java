@@ -1,6 +1,10 @@
 package org.peerbox.watchservice.states;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
@@ -14,6 +18,7 @@ import org.hive2hive.processframework.interfaces.IProcessComponent;
 import org.hive2hive.processframework.interfaces.IProcessComponentListener;
 import org.peerbox.FileManager;
 import org.peerbox.watchservice.Action;
+import org.peerbox.watchservice.ConflictHandler;
 import org.peerbox.watchservice.IActionEventListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -62,6 +67,27 @@ public class LocalCreateState extends AbstractActionState {
 	@Override
 	public AbstractActionState handleRemoteUpdateEvent() {
 		logger.debug("Remote Update Event: Local Create -> Conflict ({})", action.getFilePath());
+		
+		logger.debug("We should rename the file here!");
+//		File oldFile = action.getFilePath().toFile();
+//		Path newFile = Paths.get(oldFile.getParent() + File.separator + oldFile.getName() + "_conflict");
+//		try {
+//			Files.move(oldFile.toPath(), newFile);
+//		} catch (IOException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+		
+		Path fileInConflict = action.getFilePath();
+		Path renamedFile = ConflictHandler.rename(fileInConflict);
+		try {
+			Files.move(fileInConflict, renamedFile);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		fileInConflict = renamedFile;
+		logger.debug("Conflict handling complete.");
 		return new ConflictState(action);
 	}
 

@@ -65,9 +65,9 @@ public class ConflictState extends AbstractActionState {
 	public void execute(FileManager fileManager) throws NoSessionException,
 			NoPeerConnectionException, IllegalFileLocation {
 		// TODO Auto-generated method stub
-		Path fileInConflict = action.getFilePath();
-		Path renamedFile = ConflictHandler.rename(fileInConflict);
-		fileInConflict = renamedFile;
+//		Path fileInConflict = action.getFilePath();
+//		Path renamedFile = ConflictHandler.rename(fileInConflict);
+//		fileInConflict = renamedFile;
 	}
 
 }
