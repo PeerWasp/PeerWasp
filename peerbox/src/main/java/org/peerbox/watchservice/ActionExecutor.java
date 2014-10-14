@@ -60,6 +60,13 @@ public class ActionExecutor implements Runnable, IActionEventListener {
 				// blocking, waits until queue not empty, returns and removes (!) first element
 				// synchronized such that no access to the queue is possible between take()/put() call pairs.
 //				synchronized (this) {
+				
+				ArrayList<FileComponent> components = new ArrayList<FileComponent>(fileEventManager.getFileComponentQueue());
+				int i = 0;
+//				for(FileComponent comp : components){
+//					System.out.println("COMP: " + i + ": " + comp.getPath());
+//					i++;
+//				}
 					logger.debug("Currently executing/pending actions: {}/{}", executingActions.size(), fileEventManager.getFileComponentQueue().size());
 					next = fileEventManager.getFileComponentQueue().take();
 					if (isActionReady(next.getAction()) && isExecuteSlotFree()) {

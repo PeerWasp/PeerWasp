@@ -204,6 +204,18 @@ public class FileEventManagerTest {
 		assertTrue(actionsToCheck.size() == 1);
 		
 		sleepMillis(ActionExecutor.ACTION_WAIT_TIME_MS * 2);
+		printBlockingQueue(actionsToCheck);
+		assertTrue(actionsToCheck.size() == 0);
+
+	}
+	
+	private void printBlockingQueue(BlockingQueue<FileComponent> queue){
+		System.out.println("Queue:");
+		ArrayList<FileComponent> components = new ArrayList<FileComponent>(queue);
+		int i = 0;
+		for(FileComponent comp : components){
+			System.out.println(i + ": " + comp.getAction().getCurrentState().getClass() + ": " + comp.getPath());
+		}
 	}
 	
 	/**

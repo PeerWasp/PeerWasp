@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.List;
 
 import org.junit.Ignore;
 import org.junit.Test;
@@ -23,7 +24,7 @@ public class Move extends FileIntegrationTest{
 	 * between delete/create and move is not tested yet!
 	 * @throws IOException
 	 */
-	@Test @Ignore
+	@Test
 	public void singleFileMoveTest() throws IOException{
 		Path folder = addSingleFolder();
 		Path srcFile = FileTestUtils.createRandomFile(masterRootPath, NUMBER_OF_CHARS);
@@ -40,13 +41,13 @@ public class Move extends FileIntegrationTest{
 		Path folder = addSingleFolder();
 		addManyFiles();
 		assertSyncClientPaths();
-		moveManyFilesOrFolders(folder);
+		moveManyFilesIntoFolder(folder);
 		assertSyncClientPaths();
 	}
 	
 
 
-	@Test @Ignore
+	@Test
 	public void singleEmptyFolderMoveTest() throws IOException{
 		Path folderToMove = addSingleFolder();
 		Path dstFolder = addSingleFolder();
@@ -57,19 +58,53 @@ public class Move extends FileIntegrationTest{
 		assertSyncClientPaths();
 	}
 	
-	@Test @Ignore
-	public void singleNonEmptyFolderMoveTest(){
-
+	@Test
+	public void singleNonEmptyFolderMoveTest() throws IOException{
+		Path folderToMove = addSingleFolder();
+		Path dstFolderParent = addSingleFolder();
+		addSingleFile(folderToMove);
+		Path dstFolder = dstFolderParent.resolve("f0");
+		Files.move(folderToMove.toFile(), dstFolder.toFile());
+		waitForExists(dstFolder, WAIT_TIME_SHORT);
+		assertSyncClientPaths();
 	}
 	
-	@Test @Ignore
-	public void manyEmptyFolderMoveTest(){
-		
+	@Test
+	public void manyEmptyFolderMoveTest() throws IOException{
+		int nrFolders = 10;
+		ArrayList<Path> sources = new ArrayList<Path>();
+		Path destination = addSingleFolder();
+		for(int i = 0; i < nrFolders; i++){
+			sources.add(addSingleFolder());
+		}
+		Path currentSource = null;
+		Path currentDestination = null;
+		for(int i = 0; i < nrFolders; i++){
+			currentSource = sources.get(i);
+			currentDestination = destination.resolve(currentSource.getFileName());
+			Files.move(currentSource.toFile(), currentDestination.toFile());
+		}
+		waitForExists(currentDestination, WAIT_TIME_SHORT);
+		assertSyncClientPaths();
 	}
 	
-	@Test @Ignore
-	public void manyNonEmptyFolderMoveTest(){
-		
+	@Test
+	public void manyNonEmptyFolderMoveTest() throws IOException{
+		Path destination = addSingleFolder();
+		List<Path> paths = addManyFilesInManyFolders();
+		Path lastDestination = null;
+		for(Path path: paths){
+			if(path.toFile().isDirectory()){
+				lastDestination = destination.resolve(path.getFileName());
+				if(path.toFile().exists()){
+					Files.move(path.toFile(), lastDestination.toFile());
+				}
+			}
+			
+		}
+		System.out.println("Last destination to wait for: " + lastDestination);
+		waitForExists(lastDestination, WAIT_TIME_SHORT);
+		assertSyncClientPaths();
 	}
 	
 	
@@ -78,7 +113,7 @@ public class Move extends FileIntegrationTest{
 		waitForExists(dstFile, WAIT_TIME_SHORT);
 	}
 	
-	private void moveManyFilesOrFolders(Path dstFolder) throws IOException {
+	private void moveManyFilesIntoFolder(Path dstFolder) {
 		File rootFolder = masterRootPath.toFile();
 		
 		File[] files = rootFolder.listFiles();
@@ -89,15 +124,22 @@ public class Move extends FileIntegrationTest{
 				nrMoves--;
 				continue;
 			}
-			Path dstPath = Paths.get(files[i].getParentFile().getPath() + File.separator + "X" +  files[i].getName());
-			Files.move(files[i], dstPath.toFile());
+			Path dstPath = dstFolder.resolve(files[i].getName());
+			//Path dstPath = Paths.get(files[i].getParentFile().getPath() + File.separator + "X" +  files[i].getName());
+			try {
+				Files.move(files[i], dstPath.toFile());
+				movedFiles.add(dstPath);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				movedFiles.remove(dstPath);
+			}
 			
-			movedFiles.add(dstPath);
+
 		}
 		assertTrue(nrMoves == movedFiles.size());
-		for(int i = 0; i < nrMoves; i++){
-			waitIfNotExist(movedFiles.get(i), WAIT_TIME_SHORT);
-		}
-		//waitForExists(lastMovedFile, WAIT_TIME_SHORT);
+		waitIfNotExist(movedFiles.get(movedFiles.size()-1), WAIT_TIME_SHORT);
 	}
+	
+	
 }

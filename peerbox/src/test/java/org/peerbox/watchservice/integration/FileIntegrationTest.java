@@ -40,7 +40,7 @@ public abstract class FileIntegrationTest {
 	protected static Path masterRootPath;
 	
 	protected static final int NUMBER_OF_CHARS = 1000*100; // approx. 100kb
-	protected static final int WAIT_TIME_SHORT = 30;
+	protected static final int WAIT_TIME_SHORT = 60;
 	protected static final int WAIT_TIME_LONG = 10*60;
 	
 	
@@ -103,10 +103,25 @@ public abstract class FileIntegrationTest {
 		assertSyncClientPaths();
 		return file;
 	}
+	
+	protected Path addSingleFile(Path dstFolder) throws IOException {
+		Path file = FileTestUtils.createRandomFile(dstFolder, NUMBER_OF_CHARS);
+		
+		waitForExists(file, WAIT_TIME_SHORT);
+		assertSyncClientPaths();
+		return file;
+	}
 
 	protected List<Path> addManyFiles() throws IOException {
 		List<Path> files = FileTestUtils.createRandomFiles(masterRootPath, 100, NUMBER_OF_CHARS);
 		
+		waitForExists(files, WAIT_TIME_LONG);
+		assertSyncClientPaths();
+		return files;
+	}
+	
+	protected List<Path> addManyFiles(Path dirPath) throws IOException {
+		List<Path> files = FileTestUtils.createRandomFiles(dirPath, 100, NUMBER_OF_CHARS);
 		waitForExists(files, WAIT_TIME_LONG);
 		assertSyncClientPaths();
 		return files;
@@ -130,8 +145,8 @@ public abstract class FileIntegrationTest {
 
 	protected List<Path> addManyFilesInManyFolders() throws IOException {
 		List<Path> files = new ArrayList<>();
-		int numFolders = 15;
-		int numFilesPerFolder = 5;
+		int numFolders = 10;
+		int numFilesPerFolder = 10;
 		for(int i = 0; i < numFolders; ++i) {
 			List<Path> f = FileTestUtils.createFolderWithFiles(masterRootPath, numFilesPerFolder, NUMBER_OF_CHARS);
 			files.addAll(f);
