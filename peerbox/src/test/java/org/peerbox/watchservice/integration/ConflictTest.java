@@ -22,44 +22,72 @@ import org.peerbox.utils.FileTestUtils;
 public class ConflictTest extends FileIntegrationTest{
 	
 	@Test
-	public void CreateCreateTest() throws IOException, InterruptedException {
+	public void LocalCreate_RemoteCreateTest() throws IOException, InterruptedException {
 		
 		String homeDir = System.getProperty("user.home");
-		// ADD
-		//Path file_1 = addSingleFile();
 		
-		Path pathUser0 = Paths.get(homeDir + File.separator + "PeerBox_Test" + File.separator + "client-0" + File.separator + "test.txt");
-		Path pathUser1 = Paths.get(homeDir + File.separator + "PeerBox_Test" + File.separator + "client-1" + File.separator + "test.txt");
+		Path pathClient0 = Paths.get(homeDir + File.separator + "PeerBox_Test" + File.separator + "client-0" + File.separator + "test.txt");
+		Path pathClient1 = Paths.get(homeDir + File.separator + "PeerBox_Test" + File.separator + "client-1" + File.separator + "test.txt");
 		
-		FileUtils.writeStringToFile(pathUser0.toFile(), "ABCDEFGHIJ");
-		
+		FileUtils.writeStringToFile(pathClient0.toFile(), "Client0_FIRST");
 		Thread.sleep(2000);
-		FileUtils.writeStringToFile(pathUser1.toFile(), "0123456789");
-		
-		System.out.println("FILE CONTENT USER 1: " + FileUtils.readFileToString(pathUser0.toFile()));
-		System.out.println("FILE CONTENT USER 2: " + FileUtils.readFileToString(pathUser1.toFile()));
+		FileUtils.writeStringToFile(pathClient1.toFile(), "_CLIENT1_SECOND");
 		Thread.sleep(10000);
 		assertSyncClientPaths();
+	}
+	
+	@Test
+	public void LocalUpdate_RemoteDeleteTest() throws IOException, InterruptedException {
 		
-		System.out.println("FILE CONTENT USER 1 AFTER SYNC: " + FileUtils.readFileToString(pathUser0.toFile()));
-		System.out.println("FILE CONTENT USER 2 AFTER SYNC: " + FileUtils.readFileToString(pathUser1.toFile()));
+		String homeDir = System.getProperty("user.home");
+		
+		Path pathClient0 = Paths.get(homeDir + File.separator + "PeerBox_Test" + File.separator + "client-0" + File.separator + "test.txt");
+		Path pathClient1 = Paths.get(homeDir + File.separator + "PeerBox_Test" + File.separator + "client-1" + File.separator + "test.txt");
+		
+		FileUtils.writeStringToFile(pathClient0.toFile(), "CLIENT0_FIRST");
+		Thread.sleep(5000); // wait until file is synched
+		FileUtils.forceDelete(pathClient0.toFile());
+		Thread.sleep(2000);
+		FileUtils.writeStringToFile(pathClient1.toFile(), "_CLIENT1_SECOND");
+		Thread.sleep(10000);
+		assertSyncClientPaths();
+
+	}
+	
+	// move detection seems not to work yet (no synchronization)
+	@Test
+	public void LocalMove_RemoteUpdateTest() throws IOException, InterruptedException {
+		
+		String homeDir = System.getProperty("user.home");
+		
+		Path pathClient0 = Paths.get(homeDir + File.separator + "PeerBox_Test" + File.separator + "client-0" + File.separator + "test.txt");
+		Path pathClient1 = Paths.get(homeDir + File.separator + "PeerBox_Test" + File.separator + "client-1" + File.separator + "test.txt");
+		Path pathClient0_subDir = Paths.get(homeDir + File.separator + "PeerBox_Test" + File.separator + "client-0" + File.separator + "subDir");
+		
+		FileUtils.writeStringToFile(pathClient0.toFile(), "CLIENT0_FIRST");
+		Thread.sleep(5000); // wait until file is synched
+		FileUtils.moveFileToDirectory(pathClient0.toFile(), pathClient0_subDir.toFile(), true);
+		Thread.sleep(3000);
+		//FileUtils.writeStringToFile(pathClient1.toFile(), "ABCDEFGHIJ0123456789");
+		Thread.sleep(10000);
+		assertSyncClientPaths();
 
 	}
 	
 	@Test
-	public void DeleteUpdateTest() throws IOException, InterruptedException {
+	public void LocalUpdate_RemoteUpdateTest() throws IOException, InterruptedException {
 		
 		String homeDir = System.getProperty("user.home");
 		
-		Path pathUser0 = Paths.get(homeDir + File.separator + "PeerBox_Test" + File.separator + "client-0" + File.separator + "test.txt");
-		Path pathUser1 = Paths.get(homeDir + File.separator + "PeerBox_Test" + File.separator + "client-1" + File.separator + "test.txt");
+		Path pathClient0 = Paths.get(homeDir + File.separator + "PeerBox_Test" + File.separator + "client-0" + File.separator + "test.txt");
+		Path pathClient1 = Paths.get(homeDir + File.separator + "PeerBox_Test" + File.separator + "client-1" + File.separator + "test.txt");
 		
-		FileUtils.writeStringToFile(pathUser0.toFile(), "ABCDEFGHIJ");
-		FileUtils.writeStringToFile(pathUser1.toFile(), "ABCDEFGHIJ");
+		FileUtils.writeStringToFile(pathClient0.toFile(), "CLIENT0_FIRST");
+		Thread.sleep(5000);
+		FileUtils.writeStringToFile(pathClient0.toFile(), "_CLIENT0_SECOND");
 		Thread.sleep(2000);
-		FileUtils.forceDelete(pathUser1.toFile());
+		FileUtils.writeStringToFile(pathClient1.toFile(), "_CLIENT1_THIRD");
 		Thread.sleep(10000);
-		//assertSyncClientPaths();
-
+		assertSyncClientPaths();
 	}
 }
