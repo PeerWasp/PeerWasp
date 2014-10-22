@@ -118,7 +118,7 @@ public class Move extends FileIntegrationTest{
 		
 		File[] files = rootFolder.listFiles();
 		ArrayList<Path> movedFiles = new ArrayList<Path>();
-		int nrMoves = 40;
+		int nrMoves = 20;
 		for(int i = 0; i < nrMoves; i++){
 			if(files[i].isDirectory()){
 				nrMoves--;

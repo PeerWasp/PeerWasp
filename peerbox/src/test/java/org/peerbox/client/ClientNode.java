@@ -63,12 +63,12 @@ public class ClientNode {
 	
 	private void loginUser() throws NoPeerConnectionException {
 		IProcessComponent loginProcess = node.getUserManager().login(credentials, rootPath);
-		TestExecutionUtil.executeProcess(loginProcess);
+		TestExecutionUtil.executeProcessTillSucceded(loginProcess);
 	}
 	
 	private void logoutUser() throws NoPeerConnectionException, NoSessionException {
 		IProcessComponent registerProcess = node.getUserManager().logout();
-		TestExecutionUtil.executeProcess(registerProcess);
+		TestExecutionUtil.executeProcessTillSucceded(registerProcess);
 	}
 	
 	public void stop() {

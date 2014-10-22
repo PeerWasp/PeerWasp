@@ -121,7 +121,7 @@ public class ClientStarter extends AbstractStarter {
 		InetAddress bootstrapAddress = InetAddress.getByName(BOOTSTRAP_HOST_NAME); // InetAddress.getLocalHost();
 		INetworkConfiguration networkConf = null;
 		if (IS_INITIAL_NODE) {
-			networkConf = NetworkConfiguration.create("node-" 
+			networkConf = NetworkConfiguration.createInitial("node-" 
 					+ BOOTSTRAP_HOST_NAME + "-" + NODE_NAME);
 		} else {
 			networkConf = NetworkConfiguration.create("node-" 

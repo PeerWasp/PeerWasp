@@ -9,8 +9,7 @@ import org.hive2hive.core.exceptions.IllegalFileLocation;
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.hive2hive.core.exceptions.NoSessionException;
 import org.hive2hive.processframework.exceptions.InvalidProcessStateException;
-import org.hive2hive.processframework.exceptions.ProcessExceptionVisitor;
-import org.hive2hive.processframework.interfaces.IProcessExceptionElement;
+import org.hive2hive.processframework.peerbox.IAction;
 import org.peerbox.FileManager;
 import org.peerbox.watchservice.states.AbstractActionState;
 import org.peerbox.watchservice.states.LocalCreateState;
@@ -34,7 +33,7 @@ import com.sun.org.apache.xml.internal.security.utils.Base64;
  */
 
 //public class Action implements IProcessExceptionElement{
-public class Action {
+public class Action{
 	private final static Logger logger = LoggerFactory.getLogger(Action.class);
 	private long timestamp = Long.MAX_VALUE;
 	
