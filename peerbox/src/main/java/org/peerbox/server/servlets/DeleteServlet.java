@@ -18,7 +18,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
 
-public class DeleteServlet extends HttpServlet {
+public class DeleteServlet extends HttpServlet implements IServlet {
 	
 	private static final Logger logger = LoggerFactory.getLogger(DeleteServlet.class);
 	private static final long serialVersionUID = 1L;

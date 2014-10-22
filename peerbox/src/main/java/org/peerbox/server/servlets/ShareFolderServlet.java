@@ -17,7 +17,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
 
-public class ShareFolderServlet extends HttpServlet {
+public class ShareFolderServlet extends HttpServlet  implements IServlet {
 	
 	private static final Logger logger = LoggerFactory.getLogger(ShareFolderServlet.class);
 	private static final long serialVersionUID = 1L;

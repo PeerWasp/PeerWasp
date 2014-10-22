@@ -1,6 +1,5 @@
 package org.peerbox.server;
 
-import org.apache.commons.lang3.SystemUtils;
 import org.hive2hive.core.network.NetworkUtils;
 import org.peerbox.server.servlets.DeleteServlet;
 import org.peerbox.server.servlets.ShareFolderServlet;
