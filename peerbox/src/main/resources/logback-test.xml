@@ -13,6 +13,8 @@
 	<logger name="io.netty" level="OFF" /> <!-- mute netty library -->
 	<!--   <logger name="org.hive2hive.core" level="OFF" /> --> <!-- mute hive2hive library -->
 	
+	<logger name="org.eclipse.jetty" level="INFO" />
+		
 	<root level="TRACE">
 		<appender-ref ref="STDOUT" />
 	</root>
