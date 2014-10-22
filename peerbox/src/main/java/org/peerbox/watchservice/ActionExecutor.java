@@ -212,7 +212,7 @@ public class ActionExecutor implements Runnable, IActionEventListener {
 		System.out.println("Handle ProcessExecutionException");
 	}
 	
-	public void handleException(Exception e, IAction a){
+	public void handleException(Exception e, Action a){
 		System.out.println("Handle Exception - this should not happen!");
 	}
 	
