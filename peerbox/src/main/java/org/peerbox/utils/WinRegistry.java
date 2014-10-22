@@ -20,8 +20,9 @@ public class WinRegistry {
 
 	/**
 	 * Set the api_server_port in the registry
+	 * 
 	 * @param port
-	 * @return
+	 * @return true if successful
 	 */
 	public static boolean setApiServerPort(int port) {
 		if (port < 0 || port > 65535) {
@@ -47,8 +48,38 @@ public class WinRegistry {
 	}
 
 	/**
+	 * Set the rootpath in the registry
+	 * 
+	 * @param rootpath
+	 * @return true if successful
+	 */
+	public static boolean setRootPath(String rootPath) {
+		if (rootPath == null) {
+			throw new IllegalArgumentException("rootPath cannot be null");
+		}
+
+		ProcessBuilder builder = new ProcessBuilder();
+
+		builder.command("reg", /* registry command */
+				"ADD", /* add a new key */
+				"HKCU\\Software\\PeerBox", /* registry key */
+				"/v", "rootpath", /* name of the value */
+				"/t", "REG_SZ", /* type of the value */
+				"/d", rootPath, /* actual data */
+				"/f" /* force overwrite if key exists */
+		);
+
+		if (!executeCommand(builder)) {
+			logger.warn("Could not set the port in the registry");
+			return false;
+		}
+		return true;
+	}
+
+	/**
 	 * Execute a process built with a ProcessBuilder.
 	 * Waits some time such that the process can finish!
+	 * 
 	 * @param builder
 	 * @return
 	 */
@@ -63,6 +94,9 @@ public class WinRegistry {
 
 			// wait for termination -- should be fast!
 			success = p.waitFor(5, TimeUnit.SECONDS) && p.exitValue() == 0;
+			if (p.isAlive()) {
+				p.destroyForcibly();
+			}
 
 		} catch (InterruptedException | IOException e) {
 			logger.info("Exception during command execution", e);
