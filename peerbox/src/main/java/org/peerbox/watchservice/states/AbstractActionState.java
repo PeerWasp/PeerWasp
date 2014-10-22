@@ -62,12 +62,12 @@ public abstract class AbstractActionState {
 		}
 	}
 
-	protected void notifyActionExecuteFailed() {
+	protected void notifyActionExecuteFailed(RollbackReason reason) {
 		Set<IActionEventListener> listener = 
 				new HashSet<IActionEventListener>(action.getEventListener());
 		Iterator<IActionEventListener> it = listener.iterator();
 		while(it.hasNext()) {
-			it.next().onActionExecuteSucceeded(action);
+			it.next().onActionExecuteFailed(action, reason);
 		}
 	}	
 	
@@ -79,7 +79,7 @@ public abstract class AbstractActionState {
 
 		@Override
 		public void onFailed(RollbackReason reason) {
-			notifyActionExecuteFailed();
+			notifyActionExecuteFailed(reason);
 		}
 	}
 }
