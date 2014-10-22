@@ -51,11 +51,12 @@ public class LocalMoveState extends AbstractActionState {
 		return new InitialState(action);
 	}
 
+	// TODO Needs to be verified (Patrick, 21.10.14)
 	@Override
 	public AbstractActionState handleLocalUpdateEvent() {
-		logger.debug("Local Update Event: not defined ({})", action.getFilePath());
+		logger.debug("Local Update Event: Local Move -> Local Update ({})", action.getFilePath());
 //		throw new IllegalStateException("Local Update Event: not defined");
-		return new InitialState(action);
+		return new LocalUpdateState(action);
 	}
 
 	@Override

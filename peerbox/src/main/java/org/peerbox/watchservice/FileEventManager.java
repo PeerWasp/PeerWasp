@@ -152,7 +152,21 @@ public class FileEventManager implements ILocalFileEventListener, org.hive2hive.
 		
 		//handle the modify-event
 		lastAction.handleLocalModifyEvent();
+		
+		updateChildrenTimestamps(toModify);
 		fileComponentQueue.add(toModify);
+	}
+
+	private void updateChildrenTimestamps(FileComponent toModify) {
+		if(toModify instanceof FolderComposite){
+			FolderComposite toModifyAsFolderComposite = (FolderComposite)toModify;
+			for(FileComponent child : toModifyAsFolderComposite.getChildren().values()){
+				if(fileComponentQueue.remove(child)){
+					child.getAction().updateTimestamp();
+					fileComponentQueue.add(child);
+				}
+			}
+		}
 	}
 
 	//TODO: remove children from actionQueue as well!

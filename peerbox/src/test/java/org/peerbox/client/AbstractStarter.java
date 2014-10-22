@@ -36,7 +36,7 @@ public abstract class AbstractStarter {
 	
 	protected void registerUser(IH2HNode registerNode, UserCredentials credentials) throws NoPeerConnectionException {
 		IProcessComponent registerProcess = registerNode.getUserManager().register(credentials);
-		TestExecutionUtil.executeProcess(registerProcess);
+		TestExecutionUtil.executeProcessTillSucceded(registerProcess);
 		logger.info("Registered new user.");
 	}
 

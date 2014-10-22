@@ -1,6 +1,10 @@
 package org.peerbox.watchservice.states;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import org.hive2hive.core.exceptions.IllegalFileLocation;
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
@@ -27,6 +31,7 @@ public class RemoteUpdateState extends AbstractActionState {
 	@Override
 	public AbstractActionState handleLocalUpdateEvent() {
 		logger.debug("Local Update Event:  ({})", action.getFilePath());
+		
 		return this;
 	}
 

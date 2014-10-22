@@ -32,7 +32,7 @@ public class H2HManager {
 	}
 
 	public boolean createNode() {
-		INetworkConfiguration defaultNetworkConf = NetworkConfiguration.create(generateNodeID());
+		INetworkConfiguration defaultNetworkConf = NetworkConfiguration.createInitial(generateNodeID());
 		return createNode(defaultNetworkConf);
 	}
 

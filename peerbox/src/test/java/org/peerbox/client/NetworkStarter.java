@@ -7,7 +7,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.hive2hive.core.api.interfaces.IH2HNode;
-import org.hive2hive.core.network.NetworkTestUtil;
+import org.hive2hive.core.security.UserCredentials;
+import org.hive2hive.core.utils.NetworkTestUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,7 +54,7 @@ public class NetworkStarter extends AbstractStarter implements ITestNetwork {
 		logger.info("Create network with {} nodes", NETWORK_SIZE);
 
 		// register specific user
-		credentials = NetworkTestUtil.generateRandomCredentials();
+		credentials = new UserCredentials("user", "password", "pin"); //NetworkTestUtil.generateRandomCredentials();
 		IH2HNode registerNode = network.get(0);
 		registerUser(registerNode, credentials);
 

@@ -57,9 +57,9 @@ public class FileTestUtils {
 	}
 	
 	public static Path createTestFile(Path basePath, int numChars) throws IOException {
-		String name = String.format("%s.file", "test");
+		String name = String.format("%s.txt", "test");
 		Path file = basePath.resolve(name);
-		String data = createRandomData(numChars);
+		String data = "test";
 		org.apache.commons.io.FileUtils.writeStringToFile(file.toFile(), data);
 		return file;
 	}

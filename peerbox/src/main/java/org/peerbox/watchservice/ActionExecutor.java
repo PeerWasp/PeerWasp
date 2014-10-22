@@ -10,7 +10,14 @@ import java.util.Set;
 import org.hive2hive.core.exceptions.IllegalFileLocation;
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.hive2hive.core.exceptions.NoSessionException;
+import org.hive2hive.processframework.RollbackReason;
+import org.hive2hive.processframework.exceptions.InvalidProcessStateException;
+import org.hive2hive.processframework.exceptions.ParentInUserProfileNotFoundException;
+import org.hive2hive.processframework.exceptions.ProcessExecutionException;
+import org.hive2hive.processframework.peerbox.IAction;
+import org.hive2hive.processframework.peerbox.IActionExecutor;
 import org.peerbox.watchservice.states.LocalDeleteState;
+import org.peerbox.watchservice.visitor.ProcessExceptionVisitor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,6 +38,7 @@ public class ActionExecutor implements Runnable, IActionEventListener {
 	 */
 	public static final long ACTION_WAIT_TIME_MS = 2000;
 	public static final int NUMBER_OF_EXECUTE_SLOTS = 1;
+	public static final int MAX_EXECUTION_ATTEMPTS = 2;
 	
 	private FileEventManager fileEventManager;
 	private List<Action> executingActions;
@@ -60,6 +68,13 @@ public class ActionExecutor implements Runnable, IActionEventListener {
 				// blocking, waits until queue not empty, returns and removes (!) first element
 				// synchronized such that no access to the queue is possible between take()/put() call pairs.
 //				synchronized (this) {
+				
+				ArrayList<FileComponent> components = new ArrayList<FileComponent>(fileEventManager.getFileComponentQueue());
+				int i = 0;
+//				for(FileComponent comp : components){
+//					System.out.println("COMP: " + i + ": " + comp.getPath());
+//					i++;
+//				}
 					logger.debug("Currently executing/pending actions: {}/{}", executingActions.size(), fileEventManager.getFileComponentQueue().size());
 					next = fileEventManager.getFileComponentQueue().take();
 					if (isActionReady(next.getAction()) && isExecuteSlotFree()) {
@@ -95,7 +110,8 @@ public class ActionExecutor implements Runnable, IActionEventListener {
 				iex.printStackTrace();
 				return;
 			} catch (Exception ex) {
-				logger.warn("Exception occurred: {}", ex.getMessage());
+				logger.error("Exception occurred: {}", ex.getMessage());
+				logger.error(ex.getStackTrace().toString());
 			}
 		}
 	}
@@ -162,10 +178,42 @@ public class ActionExecutor implements Runnable, IActionEventListener {
 
 
 	@Override
-	public void onActionExecuteFailed(Action action) {
-		executingActions.remove(action);
-		logger.debug("Action failed: {} {}", action.getFilePath(), action.getCurrentState().getClass().toString());
+	public void onActionExecuteFailed(Action action, RollbackReason reason) {
+		//executingActions.remove(action);
+		logger.debug("Action failed: {} {}. Re-initiate execution!", action.getFilePath(), action.getCurrentState().getClass().toString());
+		try {
+			handleException(reason.getCause(), action);
+			if(action.getExecutionAttempts() <= MAX_EXECUTION_ATTEMPTS){
+				action.execute(fileEventManager.getFileManager());
+			}
+			
+			
+		} catch (NoSessionException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (NoPeerConnectionException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IllegalFileLocation e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (InvalidProcessStateException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		//logger.debug("Currently executing/pending actions: {}/{}", executingActions.size(), fileEventManager.getFileComponentQueue().size());
+	}
+	
+	public void handleException(ParentInUserProfileNotFoundException e, IAction a){
+		System.out.println("Handle ParentInUserProfileNotFoundException");
+	}
+	
+	public void handleException(ProcessExecutionException e, IAction a){
+		System.out.println("Handle ProcessExecutionException");
+	}
+	
+	public void handleException(Exception e, Action a){
+		System.out.println("Handle Exception - this should not happen!");
 	}
 	
 }

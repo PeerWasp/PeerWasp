@@ -9,6 +9,7 @@ import org.hive2hive.core.exceptions.IllegalFileLocation;
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.hive2hive.core.exceptions.NoSessionException;
 import org.hive2hive.processframework.exceptions.InvalidProcessStateException;
+import org.hive2hive.processframework.peerbox.IAction;
 import org.peerbox.FileManager;
 import org.peerbox.watchservice.states.AbstractActionState;
 import org.peerbox.watchservice.states.LocalCreateState;
@@ -31,14 +32,15 @@ import com.sun.org.apache.xml.internal.security.utils.Base64;
  *
  */
 
-public class Action {
-	
+//public class Action implements IProcessExceptionElement{
+public class Action{
 	private final static Logger logger = LoggerFactory.getLogger(Action.class);
 	private long timestamp = Long.MAX_VALUE;
 	
 	private Path filePath;
 	private AbstractActionState currentState;
 	private Set<IActionEventListener> eventListeners;
+	private int executionAttempts = 0;
 	
 	/**
 	 * Initialize with timestamp and set currentState to initial state
@@ -50,7 +52,7 @@ public class Action {
 		updateTimestamp();
 	}
 	
-	private void updateTimestamp() {
+	public void updateTimestamp() {
 		timestamp = System.currentTimeMillis();
 	}
 	
@@ -111,6 +113,7 @@ public class Action {
 		// this may be async, i.e. do not wait on completion of the process
 		// maybe return the IProcessComponent object such that the
 		// executor can be aware of the status (completion of task etc)
+		executionAttempts++;
 		currentState.execute(fileManager);
 		currentState = new InitialState(this);
 	}
@@ -137,7 +140,7 @@ public class Action {
 			logger.debug("Current State: Move");
 		} else if (currentState.getClass() == InitialState.class) {
 			logger.debug("Current State: Initial");
-		}else if (currentState.getClass() == ConflictState.class) {
+		} else if (currentState.getClass() == ConflictState.class) {
 			logger.debug("Current State: Conflict");
 		}
 
@@ -155,4 +158,15 @@ public class Action {
 	public Set<IActionEventListener> getEventListener() {
 		return eventListeners;
 	}
+
+	public int getExecutionAttempts() {
+		return executionAttempts;
+	}
+
+//	@Override
+//	public void handleException(ProcessExceptionVisitor visitor) {
+//		// TODO Auto-generated method stub
+//		visitor.visit(this);
+//		System.out.println("Action handle exception");
+//	}
 }
