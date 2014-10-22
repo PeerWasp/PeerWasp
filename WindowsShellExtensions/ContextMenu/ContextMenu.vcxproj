@@ -158,11 +158,10 @@
     <ResourceCompile Include="ContextMenu.rc" />
   </ItemGroup>
   <ItemGroup>
-    <Image Include="bitmap1.bmp" />
-    <Image Include="icon_delete.bmp" />
-    <Image Include="icon_peerbox.bmp" />
-    <Image Include="icon_share.bmp" />
-    <Image Include="icon_versions.bmp" />
+    <Image Include="Icons\delete.bmp" />
+    <Image Include="Icons\peerbox.bmp" />
+    <Image Include="Icons\share.bmp" />
+    <Image Include="Icons\versions.bmp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ClassFactory.cpp" />

@@ -13,6 +13,9 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Resource Files\Icons">
+      <UniqueIdentifier>{45d3b3b6-1cf8-4b35-849b-c288cb16e38b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="resource.h">
@@ -40,20 +43,17 @@
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
-    <Image Include="icon_peerbox.bmp">
-      <Filter>Resource Files</Filter>
+    <Image Include="Icons\delete.bmp">
+      <Filter>Resource Files\Icons</Filter>
     </Image>
-    <Image Include="icon_delete.bmp">
-      <Filter>Resource Files</Filter>
+    <Image Include="Icons\peerbox.bmp">
+      <Filter>Resource Files\Icons</Filter>
     </Image>
-    <Image Include="icon_share.bmp">
-      <Filter>Resource Files</Filter>
+    <Image Include="Icons\share.bmp">
+      <Filter>Resource Files\Icons</Filter>
     </Image>
-    <Image Include="icon_versions.bmp">
-      <Filter>Resource Files</Filter>
-    </Image>
-    <Image Include="bitmap1.bmp">
-      <Filter>Resource Files</Filter>
+    <Image Include="Icons\versions.bmp">
+      <Filter>Resource Files\Icons</Filter>
     </Image>
   </ItemGroup>
   <ItemGroup>
