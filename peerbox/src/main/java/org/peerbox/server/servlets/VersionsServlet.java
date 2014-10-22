@@ -17,47 +17,53 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
 
-public class VersionsServlet extends HttpServlet  implements IServlet {
-	
+public class VersionsServlet extends HttpServlet implements IServlet {
+
 	private static final Logger logger = LoggerFactory.getLogger(VersionsServlet.class);
 	private static final long serialVersionUID = 1L;
 
 	@Override
 	protected void doPost(HttpServletRequest req, HttpServletResponse resp)
-	        throws ServletException, IOException {
+			throws ServletException, IOException {
 		// check content type: json
-		if(!req.getContentType().contains(MimeTypes.Type.APPLICATION_JSON.asString())) {
+		if (!req.getContentType().contains(MimeTypes.Type.APPLICATION_JSON.asString())) {
 			resp.sendError(HttpServletResponse.SC_BAD_REQUEST, String.format(
-						"Only JSON requests supported (MIME %s)",
-						MimeTypes.Type.APPLICATION_JSON.asString()));
+					"Only JSON requests supported (MIME %s)",
+					MimeTypes.Type.APPLICATION_JSON.asString()));
 		}
-		
+
 		// read content
 		char[] buffer = new char[req.getContentLength()];
 		req.getReader().read(buffer);
 		String content = new String(buffer);
-		
+
 		// deserialize into message
 		GsonBuilder gsonBuilder = new GsonBuilder();
 		gsonBuilder.registerTypeAdapter(Path.class, new PathDeserializer());
 		Gson gson = gsonBuilder.create();
 
-		VersionsMessage msg = null; 
+		VersionsMessage msg = null;
 		try {
 			msg = gson.fromJson(content, VersionsMessage.class);
 			logger.info("Got request for file versions: {}", msg.getPath());
 			// todo: handle the message.
-			
-		} catch(JsonSyntaxException jsonEx) {
+
+		} catch (JsonSyntaxException jsonEx) {
 			logger.info("Could not parse message.");
 			resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Could not deserialize given input");
 		}
-		
-		
+
 	}
-	
+
+	/**
+	 * Versions of file - we expect exactly 1 path to a file as argument
+	 * 
+	 * @author albrecht
+	 *
+	 */
 	private static class VersionsMessage {
-		private Path path;	
+		private Path path;
+
 		public Path getPath() {
 			return path;
 		}
