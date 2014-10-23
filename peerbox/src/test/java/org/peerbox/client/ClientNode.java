@@ -45,7 +45,7 @@ public class ClientNode {
 		}
 
 		// create managers and initialization
-		fileEventManager = new FileEventManager(rootPath);
+		fileEventManager = new FileEventManager(rootPath, true);
 		watchService = new FolderWatchService(rootPath);
 		watchService.addFileEventListener(fileEventManager);
 		fileEventManager.setFileManager(new FileManager(node.getFileManager()));

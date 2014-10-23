@@ -32,7 +32,8 @@ public class FileEventManager implements ILocalFileEventListener, org.hive2hive.
 	
 	private static final Logger logger = LoggerFactory.getLogger(FileEventManager.class);
 	
-	private Thread actionExecutor;
+	private Thread executorThread;
+	private ActionExecutor actionExecutor;
     private FileManager fileManager;
     
     private BlockingQueue<FileComponent> fileComponentQueue; 
@@ -44,12 +45,12 @@ public class FileEventManager implements ILocalFileEventListener, org.hive2hive.
     private boolean maintainContentHashes = true;
 
     
-    public FileEventManager(Path rootPath) {
+    public FileEventManager(Path rootPath, boolean waitForNotifications) {
     	fileComponentQueue = new PriorityBlockingQueue<FileComponent>(1000, new FileActionTimeComparator());
     	fileTree = new FolderComposite(rootPath, true);
-
-		actionExecutor = new Thread(new ActionExecutor(this));
-		actionExecutor.start();
+    	actionExecutor = new ActionExecutor(this);
+		executorThread = new Thread(new ActionExecutor(this, waitForNotifications));
+		executorThread.start();
     }
     
     /**
@@ -57,13 +58,17 @@ public class FileEventManager implements ILocalFileEventListener, org.hive2hive.
      * @param maintainContentHashes set to true if content hashes have to be maintained. Content hash changes are
      * then propagated upwards to the parent directory.
      */
-    public FileEventManager(Path rootPath, boolean maintainContentHashes) {
+    public FileEventManager(Path rootPath, boolean waitForNotifications, boolean maintainContentHashes) {
     	fileComponentQueue = new PriorityBlockingQueue<FileComponent>(10, new FileActionTimeComparator());
     	fileTree = new FolderComposite(rootPath, true);
         this.maintainContentHashes = maintainContentHashes;
 		
-        actionExecutor = new Thread(new ActionExecutor(this));
-		actionExecutor.start();
+        executorThread = new Thread(new ActionExecutor(this, waitForNotifications));
+		executorThread.start();
+    }
+    
+    public void setAndStartActionExecutor(ActionExecutor executor){
+    	//actionExecutor.t
     }
     
     /**
@@ -99,18 +104,18 @@ public class FileEventManager implements ILocalFileEventListener, org.hive2hive.
 		}
 		
 		if(fileComponent instanceof FolderComposite){
-			String moveCandidateHash = null;
-			FolderComposite moveCandidate = null;
-			moveCandidateHash = discoverSubtreeStructure(path);
-			moveCandidate = deletedByContentNamesHash.get(moveCandidateHash);
-			if(moveCandidate != null){
-				System.out.println("Folder Move detected!");
-				initiateOptimizedMove(moveCandidate, path);
-				return;
-			} else {
+//			String moveCandidateHash = null;
+//			FolderComposite moveCandidate = null;
+//			moveCandidateHash = discoverSubtreeStructure(path);
+//			moveCandidate = deletedByContentNamesHash.get(moveCandidateHash);
+//			if(moveCandidate != null){
+//				System.out.println("Folder Move detected!");
+//				initiateOptimizedMove(moveCandidate, path);
+//				return;
+//			} else {
 				fileComponent = discoverSubtreeCompletely(path);
 				getFileTree().putComponent(fileComponent.getPath().toString(), fileComponent);
-			}
+//			}
 		} else {
 			fileComponent.bubbleContentHashUpdate();
 		}

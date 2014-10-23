@@ -64,7 +64,8 @@ public class FileEventManagerTest {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		manager = new FileEventManager(Paths.get(parentPath));
+		manager = new FileEventManager(Paths.get(parentPath), false);
+
 	}
 	
 	/**

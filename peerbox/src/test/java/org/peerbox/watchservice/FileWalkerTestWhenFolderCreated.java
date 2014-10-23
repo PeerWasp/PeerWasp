@@ -55,7 +55,7 @@ public class FileWalkerTestWhenFolderCreated {
 	public static void staticSetup(){
 		testDirectory = new File(parentPath);
 		testDirectory.mkdir();
-		manager = new FileEventManager(Paths.get(parentPath), false);	
+		manager = new FileEventManager(Paths.get(parentPath), false, false);	
 		
 		dir1 = new File(dir1Str);
 		dir2 = new File(dir2Str);
@@ -139,7 +139,7 @@ public class FileWalkerTestWhenFolderCreated {
 	 * @throws InterruptedException 
 	 *
 	 */
-	@Test
+	@Test @Ignore @Deprecated
 	public void testFolderMoveDetection() throws InterruptedException{
 		try {
 			manager.onLocalFileCreated(dir1.toPath(), false);

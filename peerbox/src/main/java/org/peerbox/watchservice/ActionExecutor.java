@@ -10,6 +10,7 @@ import java.util.Set;
 import org.hive2hive.core.exceptions.IllegalFileLocation;
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.hive2hive.core.exceptions.NoSessionException;
+import org.hive2hive.core.exceptions.PutFailedException;
 import org.hive2hive.processframework.RollbackReason;
 import org.hive2hive.processframework.exceptions.InvalidProcessStateException;
 import org.hive2hive.processframework.exceptions.ParentInUserProfileNotFoundException;
@@ -39,10 +40,17 @@ public class ActionExecutor implements Runnable, IActionEventListener {
 	
 	private FileEventManager fileEventManager;
 	private List<Action> executingActions;
+	private boolean useNotifications;
 
 	public ActionExecutor(FileEventManager eventManager) {
+		this(eventManager, true);
+
+	}
+	
+	public ActionExecutor(FileEventManager eventManager, boolean waitForCompletion){
 		this.fileEventManager = eventManager;
 		executingActions = Collections.synchronizedList(new ArrayList<Action>());
+		useNotifications = waitForCompletion;
 	}
 	
 
@@ -81,7 +89,10 @@ public class ActionExecutor implements Runnable, IActionEventListener {
 						}
 						// execute
 						next.getAction().addEventListener(this);
-						executingActions.add(next.getAction());
+						
+						if(useNotifications){
+							executingActions.add(next.getAction());
+						}
 						next.getAction().execute(fileEventManager.getFileManager());
 						next.setIsUploaded(true);
 					} else {
@@ -184,7 +195,6 @@ public class ActionExecutor implements Runnable, IActionEventListener {
 				action.execute(fileEventManager.getFileManager());
 			}
 			
-			
 		} catch (NoSessionException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -201,16 +211,19 @@ public class ActionExecutor implements Runnable, IActionEventListener {
 		//logger.debug("Currently executing/pending actions: {}/{}", executingActions.size(), fileEventManager.getFileComponentQueue().size());
 	}
 	
-	public void handleException(ParentInUserProfileNotFoundException e, Action a){
-		System.out.println("Handle ParentInUserProfileNotFoundException");
-	}
-	
-	public void handleException(ProcessExecutionException e, Action a){
-		System.out.println("Handle ProcessExecutionException");
-	}
-	
 	public void handleException(Exception e, Action a){
-		System.out.println("Handle Exception - this should not happen!");
+		
+		if(e instanceof PutFailedException){
+			System.out.println("Handle PutFailedException");
+		} else if (e instanceof ProcessExecutionException){
+			System.out.println("Handle ProcessExecutionException");
+		} else if(e instanceof IllegalStateException){
+			System.out.println("Handle IllegalStateException");
+		} else {
+			System.err.println("UNHANDLED EXCEPTION");
+		}
+		System.out.println("Handle Exception - this should not happen!" +  e.getClass().toString());
+		
 	}
 	
 }
