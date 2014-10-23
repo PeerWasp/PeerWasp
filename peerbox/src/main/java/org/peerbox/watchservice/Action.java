@@ -9,7 +9,6 @@ import org.hive2hive.core.exceptions.IllegalFileLocation;
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.hive2hive.core.exceptions.NoSessionException;
 import org.hive2hive.processframework.exceptions.InvalidProcessStateException;
-import org.hive2hive.processframework.peerbox.IAction;
 import org.peerbox.FileManager;
 import org.peerbox.watchservice.states.AbstractActionState;
 import org.peerbox.watchservice.states.LocalCreateState;

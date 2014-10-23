@@ -14,10 +14,7 @@ import org.hive2hive.processframework.RollbackReason;
 import org.hive2hive.processframework.exceptions.InvalidProcessStateException;
 import org.hive2hive.processframework.exceptions.ParentInUserProfileNotFoundException;
 import org.hive2hive.processframework.exceptions.ProcessExecutionException;
-import org.hive2hive.processframework.peerbox.IAction;
-import org.hive2hive.processframework.peerbox.IActionExecutor;
 import org.peerbox.watchservice.states.LocalDeleteState;
-import org.peerbox.watchservice.visitor.ProcessExceptionVisitor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -204,11 +201,11 @@ public class ActionExecutor implements Runnable, IActionEventListener {
 		//logger.debug("Currently executing/pending actions: {}/{}", executingActions.size(), fileEventManager.getFileComponentQueue().size());
 	}
 	
-	public void handleException(ParentInUserProfileNotFoundException e, IAction a){
+	public void handleException(ParentInUserProfileNotFoundException e, Action a){
 		System.out.println("Handle ParentInUserProfileNotFoundException");
 	}
 	
-	public void handleException(ProcessExecutionException e, IAction a){
+	public void handleException(ProcessExecutionException e, Action a){
 		System.out.println("Handle ProcessExecutionException");
 	}
 	
