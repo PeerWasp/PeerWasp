@@ -3,6 +3,10 @@
 #include <map>
 #include <string>
 
+// resource id representing no icon, i.e. command without icon
+#define NO_ICON 0
+
+
 enum CommandId {
 	CMD_TOP,
 	CMD_DELETE,
@@ -26,4 +30,5 @@ class Command
 {
 public:
 	static std::map<CommandId, CommandInfo> CreateCommandMap();
+	static bool hasIcon(struct CommandInfo *cmd);
 };

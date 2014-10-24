@@ -6,8 +6,9 @@
 #include <cpprest/http_client.h>				// HTTP and Uri
 #include <cpprest/json.h>                       // JSON LIBRARY
 
-#include "Utils.h"
 #include "Command.h"
+#include "Utils.h"
+#include "IconHelper.h"
 
 extern HINSTANCE g_hInst;
 extern long g_cDllRef;
@@ -28,12 +29,7 @@ ContextMenuExt::ContextMenuExt(void) : m_cRef(1),
 	m_firstCmdId(0),
 	m_currentCmdId(0),
 	m_topMenuIndex(0),
-	m_subMenuIndex(0),
-	/* icons */
-	m_hTopBmp(NULL),
-	m_hDeleteBmp(NULL),
-	m_hVersionsBmp(NULL),
-	m_hShareBmp(NULL)
+	m_subMenuIndex(0)
 {
     InterlockedIncrement(&g_cDllRef);
 
@@ -41,43 +37,19 @@ ContextMenuExt::ContextMenuExt(void) : m_cRef(1),
 
 ContextMenuExt::~ContextMenuExt(void)
 {
-	if (m_hTopBmp)
-    {
-		DeleteObject(m_hTopBmp);
-		m_hTopBmp = NULL;
-    }
-
-	if (m_hDeleteBmp)
-	{
-		DeleteObject(m_hDeleteBmp);
-		m_hDeleteBmp = NULL;
+	// free all icon bitmaps
+	std::map<CommandId, HBITMAP>::iterator it = m_icons.begin();
+	while (it != m_icons.end()) {
+		DeleteObject(it->second);
+		++it;
 	}
 
-	if (m_hVersionsBmp)
-	{
-		DeleteObject(m_hVersionsBmp);
-		m_hVersionsBmp = NULL;
-	}
-
-	if (m_hShareBmp)
-	{
-		DeleteObject(m_hShareBmp);
-		m_hShareBmp = NULL;
-	}
-
+	m_icons.clear();
 	m_files.clear();
 	m_cmdIdToCommand.clear();
 
     InterlockedDecrement(&g_cDllRef);
 }
-
-HANDLE ContextMenuExt::CreateBitmap(int resourceId)
-{
-	return LoadImage(g_hInst, MAKEINTRESOURCE(resourceId),
-		IMAGE_BITMAP, 0, 0, LR_DEFAULTSIZE | LR_LOADTRANSPARENT);
-}
-
-
 
 void ContextMenuExt::UpdateSelectionFlags(std::wstring lastPath)
 {
@@ -201,6 +173,37 @@ IFACEMETHODIMP ContextMenuExt::Initialize(
 
 #pragma region IContextMenu
 
+HRESULT ContextMenuExt::LoadAndSetBitmapByIcon(MENUITEMINFO *mii, CommandId cmd)
+{
+	HRESULT hr = E_FAIL;
+	HBITMAP bitmap = NULL;
+
+	// check preconditions
+	if (mii == NULL) {
+		return hr;
+	}
+	// command info exists?
+	if (commandInfoMap.find(cmd) == commandInfoMap.end()) {
+		return hr;
+	}
+	// check whether there is an icon for that cmd
+	if (!Command::hasIcon(&commandInfoMap[CMD_TOP])) {
+		return hr;
+	}
+
+	// load the icon into bitmap
+	hr = IconHelper::LoadBitmapByIcon(commandInfoMap[cmd].bitmapResourceId, &bitmap);
+
+	// if loading succeeded, set bitmap to menu item
+	if (SUCCEEDED(hr) && (bitmap != NULL)) {
+		mii->fMask |= MIIM_BITMAP;		/* bitmap icon flag: icon in hbmpItem member */
+		mii->hbmpItem = bitmap;
+		m_icons[cmd] = bitmap; // store, to free later
+		hr = S_OK;
+	}
+
+	return hr;
+}
 
 bool ContextMenuExt::CreateTopMenu()
 {
@@ -228,8 +231,7 @@ bool ContextMenuExt::CreateTopMenu()
 bool ContextMenuExt::MenuItemInitTop(UINT pos, UINT cmdId)
 {
 	MENUITEMINFO mii = { sizeof(mii) };
-	mii.fMask = MIIM_BITMAP		/* bitmap icon: hbmpItem member */
-		| MIIM_STRING			/* use of dwTypeData member */
+	mii.fMask = MIIM_STRING		/* use of dwTypeData member */
 		| MIIM_FTYPE			/* use of fType member */
 		| MIIM_ID				/* use of wID member */
 		| MIIM_STATE			/* use of fState member */
@@ -239,9 +241,7 @@ bool ContextMenuExt::MenuItemInitTop(UINT pos, UINT cmdId)
 	mii.wID = cmdId;
 	mii.hSubMenu = m_hSubMenu;
 	mii.dwTypeData = &commandInfoMap[CMD_TOP].menuText[0];
-	// icon -- will be free'd
-	m_hTopBmp = CreateBitmap(commandInfoMap[CMD_TOP].bitmapResourceId);
-	mii.hbmpItem = static_cast<HBITMAP>(m_hTopBmp);
+	LoadAndSetBitmapByIcon(&mii, CMD_TOP);
 
 	if (!InsertMenuItem(m_hTopMenu, pos, TRUE, &mii))
 	{
@@ -292,7 +292,7 @@ bool ContextMenuExt::MenuItemInitSeparator(HMENU menuHandle, UINT pos)
 bool ContextMenuExt::MenuItemInitDelete(UINT pos, UINT cmdId)
 {
 	MENUITEMINFO mii = { sizeof(mii) };
-	mii.fMask = MIIM_BITMAP | MIIM_STRING | MIIM_FTYPE | MIIM_ID | MIIM_STATE;
+	mii.fMask = MIIM_STRING | MIIM_FTYPE | MIIM_ID | MIIM_STATE;
 	mii.fType = MFT_STRING;
 	mii.fState = MFS_GRAYED;
 	// need folders or files
@@ -301,9 +301,7 @@ bool ContextMenuExt::MenuItemInitDelete(UINT pos, UINT cmdId)
 	}
 	mii.wID = cmdId;
 	mii.dwTypeData = &commandInfoMap[CMD_DELETE].menuText[0];
-	// icon -- will be free'd
-	m_hDeleteBmp = CreateBitmap(commandInfoMap[CMD_DELETE].bitmapResourceId);
-	mii.hbmpItem = static_cast<HBITMAP>(m_hDeleteBmp);
+	LoadAndSetBitmapByIcon(&mii, CMD_DELETE);
 
 	if (!InsertMenuItem(m_hSubMenu, pos, TRUE, &mii))
 	{
@@ -316,7 +314,7 @@ bool ContextMenuExt::MenuItemInitDelete(UINT pos, UINT cmdId)
 bool ContextMenuExt::MenuItemInitVersions(UINT pos, UINT cmdId)
 {
 	MENUITEMINFO mii = { sizeof(mii) };
-	mii.fMask = MIIM_BITMAP | MIIM_STRING | MIIM_FTYPE | MIIM_ID | MIIM_STATE;
+	mii.fMask = MIIM_STRING | MIIM_FTYPE | MIIM_ID | MIIM_STATE;
 	mii.fType = MFT_STRING;
 	mii.fState = MFS_GRAYED;
 	// enable only for single file
@@ -325,9 +323,7 @@ bool ContextMenuExt::MenuItemInitVersions(UINT pos, UINT cmdId)
 	}
 	mii.wID = cmdId;
 	mii.dwTypeData = &commandInfoMap[CMD_VERSIONS].menuText[0];
-	// icon -- will be free'd
-	m_hVersionsBmp = CreateBitmap(commandInfoMap[CMD_VERSIONS].bitmapResourceId);
-	mii.hbmpItem = static_cast<HBITMAP>(m_hVersionsBmp);
+	LoadAndSetBitmapByIcon(&mii, CMD_VERSIONS);
 
 	if (!InsertMenuItem(m_hSubMenu, pos, TRUE, &mii))
 	{
@@ -340,7 +336,7 @@ bool ContextMenuExt::MenuItemInitVersions(UINT pos, UINT cmdId)
 bool ContextMenuExt::MenuItemInitShare(UINT pos, UINT cmdId)
 {
 	MENUITEMINFO mii = { sizeof(mii) };
-	mii.fMask = MIIM_BITMAP | MIIM_STRING | MIIM_FTYPE | MIIM_ID | MIIM_STATE;
+	mii.fMask = MIIM_STRING | MIIM_FTYPE | MIIM_ID | MIIM_STATE;
 	mii.fType = MFT_STRING;
 	mii.fState = MFS_GRAYED;
 	// enable only for single folder
@@ -349,9 +345,7 @@ bool ContextMenuExt::MenuItemInitShare(UINT pos, UINT cmdId)
 	}
 	mii.wID = cmdId;
 	mii.dwTypeData = &commandInfoMap[CMD_SHARE].menuText[0];
-	// icon -- will be free'd
-	m_hShareBmp = CreateBitmap(commandInfoMap[CMD_SHARE].bitmapResourceId);
-	mii.hbmpItem = static_cast<HBITMAP>(m_hShareBmp);
+	LoadAndSetBitmapByIcon(&mii, CMD_SHARE);
 
 	if (!InsertMenuItem(m_hSubMenu, pos, TRUE, &mii))
 	{
