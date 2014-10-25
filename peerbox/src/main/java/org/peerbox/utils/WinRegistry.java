@@ -1,10 +1,5 @@
 package org.peerbox.utils;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.concurrent.TimeUnit;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,7 +35,7 @@ public class WinRegistry {
 				"/f" /* force overwrite if key exists */
 		);
 
-		if (!executeCommand(builder)) {
+		if (!ExecuteProcessUtils.executeCommand(builder, null)) {
 			logger.warn("Could not set the port in the registry");
 			return false;
 		}
@@ -69,68 +64,11 @@ public class WinRegistry {
 				"/f" /* force overwrite if key exists */
 		);
 
-		if (!executeCommand(builder)) {
+		if (!ExecuteProcessUtils.executeCommand(builder, null)) {
 			logger.warn("Could not set the port in the registry");
 			return false;
 		}
 		return true;
-	}
-
-	/**
-	 * Execute a process built with a ProcessBuilder.
-	 * Waits some time such that the process can finish!
-	 * 
-	 * @param builder
-	 * @return
-	 */
-	private static boolean executeCommand(ProcessBuilder builder) {
-		boolean success = false;
-		try {
-			Process p = builder.start();
-
-			// output processing (debug purposes...)
-			// String out = readOutput(p);
-			// logger.debug(out);
-
-			// wait for termination -- should be fast!
-			success = p.waitFor(5, TimeUnit.SECONDS) && p.exitValue() == 0;
-			if (p.isAlive()) {
-				p.destroyForcibly();
-			}
-
-		} catch (InterruptedException | IOException e) {
-			logger.info("Exception during command execution", e);
-			return false;
-		}
-		return success;
-	}
-
-	/**
-	 * buffers std out and std err of a process and returns the string.
-	 * 
-	 * @param p process to observe
-	 * @return string of output and error
-	 * @throws IOException
-	 */
-	@SuppressWarnings("unused")
-	private static String readOutput(Process p) throws IOException {
-		BufferedReader err = new BufferedReader(new InputStreamReader(p.getErrorStream()));
-		BufferedReader out = new BufferedReader(new InputStreamReader(p.getInputStream())); // note: input!!
-
-		StringBuilder strBuilder = new StringBuilder();
-		String errLine = null;
-		String outLine = null;
-		while ((errLine = err.readLine()) != null || (outLine = out.readLine()) != null) {
-			if (errLine != null) {
-				strBuilder.append(errLine);
-				strBuilder.append(System.getProperty("line.separator"));
-			}
-			if (outLine != null) {
-				strBuilder.append(outLine);
-				strBuilder.append(System.getProperty("line.separator"));
-			}
-		}
-		return strBuilder.toString();
 	}
 
 }
