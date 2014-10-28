@@ -61,7 +61,6 @@ public class ConflictTest extends FileIntegrationTest{
 		String homeDir = System.getProperty("user.home");
 		
 		Path pathClient0 = Paths.get(homeDir + File.separator + "PeerBox_Test" + File.separator + "client-0" + File.separator + "test.txt");
-		Path pathClient1 = Paths.get(homeDir + File.separator + "PeerBox_Test" + File.separator + "client-1" + File.separator + "test.txt");
 		Path pathClient0_subDir = Paths.get(homeDir + File.separator + "PeerBox_Test" + File.separator + "client-0" + File.separator + "subDir");
 		
 		FileUtils.writeStringToFile(pathClient0.toFile(), "CLIENT0_FIRST");
