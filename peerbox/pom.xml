@@ -5,31 +5,42 @@
 	<groupId>org</groupId>
 	<artifactId>peerbox</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<packaging>jar</packaging>
 
 	<name>peerbox</name>
 	<url>http://maven.apache.org</url>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<jdk.version>1.8</jdk.version>
 	</properties>
+	
+	
 
-	<repositories>
+<!-- 	<repositories>
 		<repository>
 			<id>hive2hive.org</id>
 			<url>http://repo.hive2hive.org</url>
 		</repository>
-	</repositories>
+	</repositories> 
+-->
 
 	<dependencies>
 		<!-- Hive2Hive https://github.com/Hive2Hive/Hive2Hive -->
 		<dependency>
 			<groupId>org.hive2hive</groupId>
 			<artifactId>org.hive2hive.core</artifactId>
-			<version>1.1.1-SNAPSHOT</version> <!-- TODO how to get latest core? -->
+			<version>1.1.1-SNAPSHOT</version>
 			<scope>compile</scope>
 		</dependency>
-
+		
+		<!-- process framework -->
+		<dependency>
+			<groupId>org.hive2hive</groupId>
+			<artifactId>org.hive2hive.processframework</artifactId>
+			<version>1.1.1-SNAPSHOT</version>
+			<scope>compile</scope>
+		</dependency>
+		
 		<!-- Guice Dependency Injection: https://github.com/google/guice -->
 		<dependency>
 			<groupId>com.google.inject</groupId>
@@ -37,6 +48,7 @@
 			<version>3.0</version>
 		</dependency>
 
+		<!-- Google Guava: https://code.google.com/p/guava-libraries/ -->
 		<dependency>
 			<groupId>com.google.guava</groupId>
 			<artifactId>guava</artifactId>
@@ -50,6 +62,7 @@
 			<version>1.1.1</version>
 			<scope>compile</scope>
 		</dependency>
+		
 		<dependency>
 			<groupId>ch.qos.logback</groupId>
 			<artifactId>logback-classic</artifactId>
@@ -62,7 +75,7 @@
 		<dependency>
 			<groupId>org.controlsfx</groupId>
 			<artifactId>controlsfx</artifactId>
-			<version>8.0.6</version>
+			<version>8.0.6_20</version>
 		</dependency>
 
 		<!-- JideFX https://github.com/jidesoft/jidefx-oss -->
@@ -72,12 +85,14 @@
 			<version>0.9.1</version>
 		</dependency>
 
-
+		<!-- Jetty Webserver/Servlet Engine: http://www.eclipse.org/jetty/ -->
 		<dependency>
 			<groupId>org.eclipse.jetty</groupId>
 			<artifactId>jetty-servlet</artifactId>
 			<version>9.3.0.M0</version>
 		</dependency>
+		
+		<!-- Google GSON - JSON library: https://code.google.com/p/google-gson/ -->
 		<dependency>
 			<groupId>com.google.code.gson</groupId>
 			<artifactId>gson</artifactId>
@@ -116,6 +131,7 @@
 			<scope>test</scope>
 		</dependency>
 		
+		<!-- XML parsing: http://xstream.codehaus.org/ -->
 		<dependency>
 			<groupId>com.thoughtworks.xstream</groupId>
 			<artifactId>xstream</artifactId>
@@ -123,5 +139,53 @@
 		</dependency>
 		
 	</dependencies>
+
+	<build>
+		<plugins>
+			<!--  java compiler version level  -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<configuration>
+					<source>${jdk.version}</source>
+					<target>${jdk.version}</target>
+				</configuration>
+			</plugin>
+			
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-dependency-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>copy-dependencies</id>
+						<phase>prepare-package</phase>
+						<goals>
+							<goal>copy-dependencies</goal>
+						</goals>
+						<configuration>
+							<outputDirectory>${project.build.directory}/lib</outputDirectory>
+							<overWriteReleases>true</overWriteReleases>
+							<overWriteSnapshots>true</overWriteSnapshots>
+							<overWriteIfNewer>true</overWriteIfNewer>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+				<configuration>
+					<archive>
+						<manifest>
+							<addClasspath>true</addClasspath>
+							<classpathPrefix>lib/</classpathPrefix>
+							<mainClass>org.peerbox.App</mainClass>
+						</manifest>
+					</archive>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
 
 </project>
