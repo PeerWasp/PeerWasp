@@ -1,6 +1,7 @@
 package org.peerbox.watchservice;
 
 import java.nio.file.Path;
+import java.util.Base64;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
@@ -20,7 +21,6 @@ import org.peerbox.watchservice.states.ConflictState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sun.org.apache.xml.internal.security.utils.Base64;
 
 /**
  * The Action class provides a systematic and lose-coupled way to change the 
@@ -56,7 +56,7 @@ public class Action{
 	}
 	
 	public static String createStringFromByteArray(byte[] bytes){
-		String hashString = Base64.encode(bytes);
+		String hashString = Base64.getEncoder().encodeToString(bytes);
 		return hashString;
 	}
 	
