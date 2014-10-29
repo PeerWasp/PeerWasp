@@ -36,6 +36,9 @@
     <ClInclude Include="Utils.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="IconHelper.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="ContextMenu.rc">
@@ -43,16 +46,7 @@
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
-    <Image Include="Icons\delete.bmp">
-      <Filter>Resource Files\Icons</Filter>
-    </Image>
-    <Image Include="Icons\peerbox.bmp">
-      <Filter>Resource Files\Icons</Filter>
-    </Image>
-    <Image Include="Icons\share.bmp">
-      <Filter>Resource Files\Icons</Filter>
-    </Image>
-    <Image Include="Icons\versions.bmp">
+    <Image Include="Icons\peerbox.ico">
       <Filter>Resource Files\Icons</Filter>
     </Image>
   </ItemGroup>
@@ -73,6 +67,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Utils.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="IconHelper.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

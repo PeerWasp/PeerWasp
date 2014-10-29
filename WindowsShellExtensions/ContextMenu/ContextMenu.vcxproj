@@ -93,6 +93,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ModuleDefinitionFile>GlobalExportFunctions.def</ModuleDefinitionFile>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -149,6 +150,7 @@
   <ItemGroup>
     <ClInclude Include="ClassFactory.h" />
     <ClInclude Include="Command.h" />
+    <ClInclude Include="IconHelper.h" />
     <ClInclude Include="Utils.h" />
     <ClInclude Include="ContextMenuExt.h" />
     <ClInclude Include="Reg.h" />
@@ -158,16 +160,14 @@
     <ResourceCompile Include="ContextMenu.rc" />
   </ItemGroup>
   <ItemGroup>
-    <Image Include="Icons\delete.bmp" />
-    <Image Include="Icons\peerbox.bmp" />
-    <Image Include="Icons\share.bmp" />
-    <Image Include="Icons\versions.bmp" />
+    <Image Include="Icons\peerbox.ico" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ClassFactory.cpp" />
     <ClCompile Include="Command.cpp" />
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="ContextMenuExt.cpp" />
+    <ClCompile Include="IconHelper.cpp" />
     <ClCompile Include="Reg.cpp" />
     <ClCompile Include="Utils.cpp" />
   </ItemGroup>

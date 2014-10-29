@@ -6,6 +6,7 @@
 #include <vector>
 #include <map>
 
+
 #include "Utils.h"
 #include "Command.h"
 
@@ -33,8 +34,6 @@ protected:
 private:
     // Reference count of component.
     long m_cRef;
-   
-	Utils m_utils;
 
 	// menu handle of top menu, given by QueryContextMenu (hMenu parameter)
 	HMENU m_hTopMenu;
@@ -56,12 +55,8 @@ private:
 	UINT m_subMenuIndex;
 
 	// Bitmap handles for the menu icons
-	// loaded in constructor respectively LoadBitmaps
 	// will be free'd in deconstructor
-	HANDLE m_hTopBmp;
-	HANDLE m_hDeleteBmp;
-	HANDLE m_hVersionsBmp;
-	HANDLE m_hShareBmp;
+	std::map<CommandId, HBITMAP> m_icons;
 
 	// maps cmdIds assigned to menu items to the internal command enum
 	std::map<UINT, CommandId> m_cmdIdToCommand;
@@ -80,8 +75,9 @@ private:
 	// true if exactly 1 item selected
 	bool m_selectionOnlyOne;
 
-	// loads the bitmaps (icons)
-	HANDLE CreateBitmap(int resourceId);
+
+	// load and set icon for a menu itme given a command
+	HRESULT LoadAndSetBitmapByIcon(MENUITEMINFO *mii, CommandId cmd);
 
 	// returns the help text for a command item
 	// commandId is the key in the m_cmdIdToCommand map

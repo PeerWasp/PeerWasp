@@ -11,10 +11,9 @@ import org.hive2hive.core.exceptions.IllegalFileLocation;
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.hive2hive.core.exceptions.NoSessionException;
 import org.hive2hive.core.exceptions.PutFailedException;
+import org.hive2hive.processframework.ProcessError;
 import org.hive2hive.processframework.RollbackReason;
 import org.hive2hive.processframework.exceptions.InvalidProcessStateException;
-import org.hive2hive.processframework.exceptions.ParentInUserProfileNotFoundException;
-import org.hive2hive.processframework.exceptions.ProcessExecutionException;
 import org.peerbox.watchservice.states.LocalDeleteState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -188,42 +187,33 @@ public class ActionExecutor implements Runnable, IActionEventListener {
 	@Override
 	public void onActionExecuteFailed(Action action, RollbackReason reason) {
 		//executingActions.remove(action);
-		logger.debug("Action failed: {} {}. Re-initiate execution!", action.getFilePath(), action.getCurrentState().getClass().toString());
+		logger.info("Action failed: {} {}.", action.getFilePath(), action.getCurrentState().getClass().toString());
 		try {
-			handleException(reason.getCause(), action);
-			if(action.getExecutionAttempts() <= MAX_EXECUTION_ATTEMPTS){
-				action.execute(fileEventManager.getFileManager());
-			}
-			
+			handleExecutionError(reason, action);
 		} catch (NoSessionException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (NoPeerConnectionException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (IllegalFileLocation e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (InvalidProcessStateException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		//logger.debug("Currently executing/pending actions: {}/{}", executingActions.size(), fileEventManager.getFileComponentQueue().size());
 	}
-	
-	public void handleException(Exception e, Action a){
-		
-		if(e instanceof PutFailedException){
-			System.out.println("Handle PutFailedException");
-		} else if (e instanceof ProcessExecutionException){
-			System.out.println("Handle ProcessExecutionException");
-		} else if(e instanceof IllegalStateException){
-			System.out.println("Handle IllegalStateException");
-		} else {
-			System.err.println("UNHANDLED EXCEPTION");
+
+	public void handleExecutionError(RollbackReason reason, Action action) throws NoSessionException, NoPeerConnectionException, IllegalFileLocation, InvalidProcessStateException{
+		ProcessError error = reason.getErrorType();
+		switch(error){
+			case PARENT_IN_USERFILE_NOT_FOUND:
+			case PUT_FAILED:
+				logger.info("Re-initiate execution of {} {}.", action.getFilePath(), action.getCurrentState().getClass().toString());
+				if(action.getExecutionAttempts() <= MAX_EXECUTION_ATTEMPTS){
+					action.execute(fileEventManager.getFileManager());
+				}
+				break;
+			default:
+				logger.warn("There was an unresolved error due to a missing catch!");
 		}
-		System.out.println("Handle Exception - this should not happen!" +  e.getClass().toString());
-		
 	}
-	
 }
