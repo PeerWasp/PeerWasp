@@ -12,24 +12,22 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<jdk.version>1.8</jdk.version>
+		<h2h.version>1.1.1-SNAPSHOT</h2h.version>
 	</properties>
-	
-	
 
-<!-- 	<repositories>
+	<repositories>
 		<repository>
 			<id>hive2hive.org</id>
 			<url>http://repo.hive2hive.org</url>
 		</repository>
 	</repositories> 
--->
 
 	<dependencies>
 		<!-- Hive2Hive https://github.com/Hive2Hive/Hive2Hive -->
 		<dependency>
 			<groupId>org.hive2hive</groupId>
 			<artifactId>org.hive2hive.core</artifactId>
-			<version>1.1.1-SNAPSHOT</version>
+			<version>${h2h.version}</version>
 			<scope>compile</scope>
 		</dependency>
 		
@@ -37,7 +35,7 @@
 		<dependency>
 			<groupId>org.hive2hive</groupId>
 			<artifactId>org.hive2hive.processframework</artifactId>
-			<version>1.1.1-SNAPSHOT</version>
+			<version>${h2h.version}</version>
 			<scope>compile</scope>
 		</dependency>
 		
@@ -72,6 +70,24 @@
 			<scope>compile</scope>
 		</dependency>
 
+
+		<!-- H2H Core Test Jar -->
+		<dependency>
+			<groupId>org.hive2hive</groupId>
+			<artifactId>org.hive2hive.core</artifactId>
+			<version>${h2h.version}</version>
+			<type>test-jar</type>
+			<scope>test</scope>
+		</dependency>
+		
+		<!-- H2H ProcessFramework Test Jar -->
+		<dependency>
+			<groupId>org.hive2hive</groupId>
+			<artifactId>org.hive2hive.processframework</artifactId>
+			<version>${h2h.version}</version>
+			<type>test-jar</type>
+			<scope>test</scope>
+		</dependency>
 
 		<!-- ControlsFX http://fxexperience.com/controlsfx/ -->
 		<dependency>
