@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<launch4jConfig>
+  <dontWrapJar>true</dontWrapJar>
+  <headerType>gui</headerType>
+  <jar>peerbox-0.0.1-SNAPSHOT.jar</jar>
+  <outfile>peerbox.exe</outfile>
+  <errTitle></errTitle>
+  <cmdLine></cmdLine>
+  <chdir>.</chdir>
+  <priority>normal</priority>
+  <downloadUrl>http://java.com/download</downloadUrl>
+  <supportUrl>http://www.peerbox.ch</supportUrl>
+  <stayAlive>false</stayAlive>
+  <restartOnCrash>false</restartOnCrash>
+  <manifest></manifest>
+  <icon>peerbox64.ico</icon>
+  <jre>
+    <path></path>
+    <bundledJre64Bit>false</bundledJre64Bit>
+    <minVersion>1.8.0_25</minVersion>
+    <maxVersion></maxVersion>
+    <jdkPreference>preferJre</jdkPreference>
+    <runtimeBits>64/32</runtimeBits>
+  </jre>
+  <versionInfo>
+    <fileVersion>0.0.0.1</fileVersion>
+    <txtFileVersion>0.0.0.1</txtFileVersion>
+    <fileDescription>PeerBox Launcher</fileDescription>
+    <copyright>PeerBox Developers</copyright>
+    <productVersion>0.0.0.1</productVersion>
+    <txtProductVersion>0.0.0.1</txtProductVersion>
+    <productName>PeerBox</productName>
+    <companyName></companyName>
+    <internalName>PeerBox</internalName>
+    <originalFilename>peerbox.exe</originalFilename>
+  </versionInfo>
+</launch4jConfig>
