@@ -46,6 +46,7 @@
 			<groupId>com.google.inject</groupId>
 			<artifactId>guice</artifactId>
 			<version>3.0</version>
+			<scope>compile</scope>
 		</dependency>
 
 		<!-- Google Guava: https://code.google.com/p/guava-libraries/ -->
@@ -53,6 +54,7 @@
 			<groupId>com.google.guava</groupId>
 			<artifactId>guava</artifactId>
 			<version>18.0</version>
+			<scope>compile</scope>
 		</dependency>
 
 		<!-- logback logging: http://logback.qos.ch/ -->
@@ -76,6 +78,7 @@
 			<groupId>org.controlsfx</groupId>
 			<artifactId>controlsfx</artifactId>
 			<version>8.0.6_20</version>
+			<scope>compile</scope>
 		</dependency>
 
 		<!-- JideFX https://github.com/jidesoft/jidefx-oss -->
@@ -83,6 +86,7 @@
 			<groupId>com.jidesoft</groupId>
 			<artifactId>jidefx-validation</artifactId>
 			<version>0.9.1</version>
+			<scope>compile</scope>
 		</dependency>
 
 		<!-- Jetty Webserver/Servlet Engine: http://www.eclipse.org/jetty/ -->
@@ -90,6 +94,7 @@
 			<groupId>org.eclipse.jetty</groupId>
 			<artifactId>jetty-servlet</artifactId>
 			<version>9.3.0.M0</version>
+			<scope>compile</scope>
 		</dependency>
 		
 		<!-- Google GSON - JSON library: https://code.google.com/p/google-gson/ -->
@@ -97,8 +102,17 @@
 			<groupId>com.google.code.gson</groupId>
 			<artifactId>gson</artifactId>
 			<version>2.3</version>
+			<scope>compile</scope>
 		</dependency>
 
+		<!-- XML parsing: http://xstream.codehaus.org/ -->
+		<dependency>
+			<groupId>com.thoughtworks.xstream</groupId>
+			<artifactId>xstream</artifactId>
+			<version>1.4.7</version>
+			<scope>compile</scope>
+		</dependency>
+		
 
 		<!-- JUnit http://junit.org/ -->
 		<dependency>
@@ -123,21 +137,15 @@
 			<version>3.1.2</version>
 			<scope>test</scope>
 		</dependency>
-
+		
+		<!-- apache common lang: https://commons.apache.org/proper/commons-lang/ -->
 		<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-lang3</artifactId>
 			<version>3.3.2</version>
 			<scope>test</scope>
 		</dependency>
-		
-		<!-- XML parsing: http://xstream.codehaus.org/ -->
-		<dependency>
-			<groupId>com.thoughtworks.xstream</groupId>
-			<artifactId>xstream</artifactId>
-			<version>1.4.7</version>
-		</dependency>
-		
+
 	</dependencies>
 
 	<build>
@@ -167,6 +175,8 @@
 							<overWriteReleases>true</overWriteReleases>
 							<overWriteSnapshots>true</overWriteSnapshots>
 							<overWriteIfNewer>true</overWriteIfNewer>
+							<!-- we do not want the test dependencies in the release -->
+							<includeScope>runtime</includeScope>
 						</configuration>
 					</execution>
 				</executions>
@@ -183,6 +193,14 @@
 						</manifest>
 					</archive>
 				</configuration>
+
+				<executions>
+					<execution>
+						<goals>
+							<goal>test-jar</goal>
+						</goals>
+					</execution>
+				</executions>
 			</plugin>
 		</plugins>
 	</build>
