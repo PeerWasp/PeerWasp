@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Base64;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
@@ -12,7 +13,6 @@ import org.hive2hive.core.security.HashUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sun.org.apache.xml.internal.security.utils.Base64;
 
 /**
  * 
@@ -206,9 +206,9 @@ public class FolderComposite extends AbstractFileComponent implements FileCompon
 		}
 		
 		byte[] rawHash = HashUtil.hash(tmp.getBytes());
-		String updatedContentHash = Base64.encode(rawHash);
+		String updatedContentHash = Base64.getEncoder().encodeToString(rawHash);
 		if(!contentHash.equals(updatedContentHash)){
-			contentHash = Base64.encode(rawHash);
+			contentHash = Base64.getEncoder().encodeToString(rawHash);
 			return true;
 		}
 		return false;

@@ -6,6 +6,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -14,6 +15,7 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 
+import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,7 +44,7 @@ public class UserConfig {
 	 * The user configuration file (note: file)
 	 * TODO: save somewhere safe (e.g. where settings are stored, maybe hidden)
 	 */
-	private static final String USER_PROPERTIES_FILENAME = "peerbox.properties";
+	private static final String USER_PROPERTIES_FILENAME = Paths.get(FileUtils.getUserDirectoryPath(), ".PeerBox", "peerbox.properties").toString();
 
 	/**
 	 * The property names
@@ -86,8 +88,11 @@ public class UserConfig {
 	private void loadProperties() throws IOException {
 		// first read defaults
 		Properties defaultProp = loadDefaultProperties();
-		// create empty file if not exists yet
+		// create parent dirs and empty file if not exists yet
 		if (!propertyFile.exists()) {
+			if (!propertyFile.getParentFile().exists()) {
+				propertyFile.getParentFile().mkdirs();
+			}
 			propertyFile.createNewFile();
 		}
 		prop = loadUserProperties(defaultProp);

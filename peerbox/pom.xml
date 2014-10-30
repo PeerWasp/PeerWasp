@@ -5,13 +5,14 @@
 	<groupId>org</groupId>
 	<artifactId>peerbox</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<packaging>jar</packaging>
 
 	<name>peerbox</name>
 	<url>http://maven.apache.org</url>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<jdk.version>1.8</jdk.version>
+		<h2h.version>1.1.1-SNAPSHOT</h2h.version>
 	</properties>
 
 	<repositories>
@@ -19,28 +20,39 @@
 			<id>hive2hive.org</id>
 			<url>http://repo.hive2hive.org</url>
 		</repository>
-	</repositories>
+	</repositories> 
 
 	<dependencies>
 		<!-- Hive2Hive https://github.com/Hive2Hive/Hive2Hive -->
 		<dependency>
 			<groupId>org.hive2hive</groupId>
 			<artifactId>org.hive2hive.core</artifactId>
-			<version>1.1.1-SNAPSHOT</version> <!-- TODO how to get latest core? -->
+			<version>${h2h.version}</version>
 			<scope>compile</scope>
 		</dependency>
-
+		
+		<!-- process framework -->
+		<dependency>
+			<groupId>org.hive2hive</groupId>
+			<artifactId>org.hive2hive.processframework</artifactId>
+			<version>${h2h.version}</version>
+			<scope>compile</scope>
+		</dependency>
+		
 		<!-- Guice Dependency Injection: https://github.com/google/guice -->
 		<dependency>
 			<groupId>com.google.inject</groupId>
 			<artifactId>guice</artifactId>
 			<version>3.0</version>
+			<scope>compile</scope>
 		</dependency>
 
+		<!-- Google Guava: https://code.google.com/p/guava-libraries/ -->
 		<dependency>
 			<groupId>com.google.guava</groupId>
 			<artifactId>guava</artifactId>
 			<version>18.0</version>
+			<scope>compile</scope>
 		</dependency>
 
 		<!-- logback logging: http://logback.qos.ch/ -->
@@ -50,6 +62,7 @@
 			<version>1.1.1</version>
 			<scope>compile</scope>
 		</dependency>
+		
 		<dependency>
 			<groupId>ch.qos.logback</groupId>
 			<artifactId>logback-classic</artifactId>
@@ -58,11 +71,30 @@
 		</dependency>
 
 
+		<!-- H2H Core Test Jar -->
+		<dependency>
+			<groupId>org.hive2hive</groupId>
+			<artifactId>org.hive2hive.core</artifactId>
+			<version>${h2h.version}</version>
+			<type>test-jar</type>
+			<scope>test</scope>
+		</dependency>
+		
+		<!-- H2H ProcessFramework Test Jar -->
+		<dependency>
+			<groupId>org.hive2hive</groupId>
+			<artifactId>org.hive2hive.processframework</artifactId>
+			<version>${h2h.version}</version>
+			<type>test-jar</type>
+			<scope>test</scope>
+		</dependency>
+
 		<!-- ControlsFX http://fxexperience.com/controlsfx/ -->
 		<dependency>
 			<groupId>org.controlsfx</groupId>
 			<artifactId>controlsfx</artifactId>
-			<version>8.0.6</version>
+			<version>8.0.6_20</version>
+			<scope>compile</scope>
 		</dependency>
 
 		<!-- JideFX https://github.com/jidesoft/jidefx-oss -->
@@ -70,20 +102,33 @@
 			<groupId>com.jidesoft</groupId>
 			<artifactId>jidefx-validation</artifactId>
 			<version>0.9.1</version>
+			<scope>compile</scope>
 		</dependency>
 
-
+		<!-- Jetty Webserver/Servlet Engine: http://www.eclipse.org/jetty/ -->
 		<dependency>
 			<groupId>org.eclipse.jetty</groupId>
 			<artifactId>jetty-servlet</artifactId>
 			<version>9.3.0.M0</version>
+			<scope>compile</scope>
 		</dependency>
+		
+		<!-- Google GSON - JSON library: https://code.google.com/p/google-gson/ -->
 		<dependency>
 			<groupId>com.google.code.gson</groupId>
 			<artifactId>gson</artifactId>
 			<version>2.3</version>
+			<scope>compile</scope>
 		</dependency>
 
+		<!-- XML parsing: http://xstream.codehaus.org/ -->
+		<dependency>
+			<groupId>com.thoughtworks.xstream</groupId>
+			<artifactId>xstream</artifactId>
+			<version>1.4.7</version>
+			<scope>compile</scope>
+		</dependency>
+		
 
 		<!-- JUnit http://junit.org/ -->
 		<dependency>
@@ -108,20 +153,76 @@
 			<version>3.1.2</version>
 			<scope>test</scope>
 		</dependency>
-
+		
+		<!-- apache common lang: https://commons.apache.org/proper/commons-lang/ -->
 		<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-lang3</artifactId>
 			<version>3.3.2</version>
 			<scope>test</scope>
 		</dependency>
-		
-		<dependency>
-			<groupId>com.thoughtworks.xstream</groupId>
-			<artifactId>xstream</artifactId>
-			<version>1.4.7</version>
-		</dependency>
-		
+
 	</dependencies>
+
+	<build>
+		<plugins>
+			<!--  java compiler version level  -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.2</version>
+				<configuration>
+					<source>${jdk.version}</source>
+					<target>${jdk.version}</target>
+				</configuration>
+			</plugin>
+			
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-dependency-plugin</artifactId>
+				<version>2.9</version>
+				<executions>
+					<execution>
+						<id>copy-dependencies</id>
+						<phase>prepare-package</phase>
+						<goals>
+							<goal>copy-dependencies</goal>
+						</goals>
+						<configuration>
+							<outputDirectory>${project.build.directory}/lib</outputDirectory>
+							<overWriteReleases>true</overWriteReleases>
+							<overWriteSnapshots>true</overWriteSnapshots>
+							<overWriteIfNewer>true</overWriteIfNewer>
+							<!-- we do not want the test dependencies in the release -->
+							<includeScope>runtime</includeScope>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+				<version>2.5</version>
+				<configuration>
+					<archive>
+						<manifest>
+							<addClasspath>true</addClasspath>
+							<classpathPrefix>lib/</classpathPrefix>
+							<mainClass>org.peerbox.App</mainClass>
+						</manifest>
+					</archive>
+				</configuration>
+
+				<executions>
+					<execution>
+						<goals>
+							<goal>test-jar</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+
 
 </project>
