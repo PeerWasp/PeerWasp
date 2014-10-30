@@ -5,6 +5,7 @@ import static org.junit.Assert.fail;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.RandomUtils;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
 /**
@@ -17,6 +18,18 @@ import org.junit.Test;
 public class WinRegistryTest {
 
 	private static final int NUMBER_ITERATIONS = 100;
+	
+	@Before
+	public void beforeTest() {
+		// windows registry can only be tested on windows -- duh!
+		failIfNotWindows();
+	}
+	
+	private void failIfNotWindows() {
+		if(!OsUtils.isWindows()) {
+			fail("Not on windows - cannot test windows registry functionality.");
+		}
+	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void testNegativeApiServerPort() {
