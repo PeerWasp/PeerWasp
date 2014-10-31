@@ -1,7 +1,17 @@
-<project name="PeerBox" default="none" basedir="../">
+<!-- 
+	note: download maven-ant-tasks*.jar from 
+	http://maven.apache.org/ant-tasks/download.cgi 
+	and place it in the lib folder of ant.
+-->
+
+<project name="PeerBox" default="none" basedir="../"
+	xmlns:artifact="antlib:org.apache.maven.artifact.ant">
 	<description>
         Build tasks for PeerBox
     </description>
+
+	<!-- reference the PeerBox pom to get version information and maven functionality -->
+	<artifact:pom id="peerbox_pom" file="peerbox/pom.xml" />
 
 	<!-- set global properties for this build -->
 	<property file="build/PeerBox.properties" />
@@ -9,6 +19,18 @@
 	<property file="build/WindowsContextMenu.properties" />
 	<property file="build/launch4j.properties" />
 	<property file="build/InnoSetup.properties" />
+
+	<!-- create proper version property (for installer) -->
+	<loadresource property="peerbox.version">
+		<propertyresource name="peerbox_pom.version" />
+		<filterchain>
+			<tokenfilter>
+				<filetokenizer />
+				<replacestring from="-SNAPSHOT" to="" />
+			</tokenfilter>
+		</filterchain>
+	</loadresource>
+
 
 	<condition property="isWindows">
 		<os family="windows" />
@@ -29,14 +51,14 @@
 	<target name="win_mvn_clean" if="isWindows">
 		<exec executable="cmd" failonerror="true">
 			<arg value="/c" />
-			<arg value="mvn clean -f ${peerbox.pom}" />
+			<arg value="mvn clean -f ${peerbox.pomfile}" />
 		</exec>
 	</target>
 
 	<target name="win_mvn_package" if="isWindows">
 		<exec executable="cmd" failonerror="true">
 			<arg value="/c" />
-			<arg value="mvn package -f ${peerbox.pom}" />
+			<arg value="mvn package -f ${peerbox.pomfile}" />
 			<arg value="-DskipTests" />
 		</exec>
 	</target>
@@ -65,54 +87,96 @@
 
 	<target name="win_installer_x86" if="isWindows">
 		<exec executable="${inno_setup.compiler}" failonerror="true">
-			<arg value="${inno_setup.setup.x86}" />
+			<arg value="${inno_setup.setup}" />
 		</exec>
 	</target>
 
 	<target name="win_installer_x64" if="isWindows">
-		<exec executable="${inno_setup.compiler}" failonerror="true">
-			<arg value="${inno_setup.setup.x64}" />
-		</exec>
-	</target>
+		<!-- fill in template placeholders -->
+		<copy file="${inno_setup.setup.configtemplate}" tofile="${inno_setup.setup.config}" overwrite="true" />
 
-	<target name="win_package_x86">
+		<replace file="${inno_setup.setup.config}">
+			<replacefilter token="@ARCHITECTURE_INSTALLER_FILE@" value="win_installer_x64.iss" />
+			<replacefilter token="@BASE_DIR@" value="Windows_x64" />
+			<replacefilter token="@PEERBOX_JAR@" value="${peerbox.jarname}" />
+			<replacefilter token="@APP_VERSION@" value="${peerbox.version}" />
+		</replace>
+
+		<!-- execute the compiler -->
+		<exec executable="${inno_setup.compiler}" failonerror="true">
+			<arg value="${inno_setup.setup}" />
+		</exec>
+
+		<!-- move tmp config to target dir -->
+		<move file="${inno_setup.setup.config}" todir="${peerbox.winbuild_x64}" failonerror="true" />
+	</target>
+	
+	<target name="win_package_all">
+		<antcall target="win_package_x64" />
+		<antcall target="win_package_x86" />
 	</target>
 
 	<target name="win_package_x64">
-		<property name="targetdir" value="build\Windows_x64" />
-		<delete dir="${targetdir}" />
-		<mkdir dir="${targetdir}"/>
-		<echo>Create target directory: ${targetdir}</echo>
+		<antcall target="init_target_dir">
+			<param name="dirname" value="${peerbox.winbuild_x64}" />
+		</antcall>
 
+		<!-- build fresh package -->
 		<antcall target="mvn_clean" />
 		<antcall target="mvn_package" />
+		<antcall target="copy_peerbox_package">
+			<param name="targetdir" value="${peerbox.winbuild_x64}" />
+		</antcall>
 
-		<echo>Copy PeerBox package...</echo>
-		<copy file="${peerbox.build}/peerbox-0.0.1-SNAPSHOT.jar" todir="${targetdir}"/>
-		<copy todir="${targetdir}/lib">
-			<fileset dir="${peerbox.build}/lib" />
-		</copy>
-
+		<!-- build the context menu extensions -->
 		<antcall target="win_context_menu_x64" />
+		<antcall target="copy_contextmenu">
+			<param name="targetdir" value="${peerbox.winbuild_x64}" />
+		</antcall>
 
-		<echo>Copy ContextMenu extension...</echo>
-		<copy file="${context_menu.home}/x64/Release/ContextMenu.dll" todir="${targetdir}"/>
-		<copy todir="${targetdir}">
-			<fileset dir="${context_menu.home}/x64/Release" includes="cpprest*.dll" />
-		</copy>
-
+		<!-- build the exe wrapper for launching the jar -->
 		<antcall target="win_jar2exe_launcher" />
-		<move file="build/peerbox.exe" todir="${targetdir}" />
-		
-		<copy file="resources/peerbox64.ico" todir="${targetdir}" />
-		<copy file="resources/License.rtf" todir="${targetdir}" />
-		<antcall target="win_installer_x64" />
-		
-	</target>
+		<echo>Move peerbox.exe ...</echo>
+		<move file="build/peerbox.exe" todir="${peerbox.winbuild_x64}" failonerror="true" />
 
-	<target name="win_package_all">
-		<antcall target="win_package_x86" />
-		<antcall target="win_package_x64" />
+		<!-- build the installer -->
+		<antcall target="copy_installer_resources">
+			<param name="targetdir" value="${peerbox.winbuild_x64}" />
+		</antcall>
+		<antcall target="win_installer_x64" />
+
 	</target>
+	
+	<target name="win_package_x86">
+	</target>
+	
+	<target name="init_target_dir">
+			<!-- delete old and create new build folder -->
+			<delete dir="${dirname}" />
+			<mkdir dir="${dirname}" />
+			<echo>Create target directory: ${dirname}</echo>
+		</target>
+
+		<target name="copy_peerbox_package">
+			<echo>Copy PeerBox package to ${targetdir} ...</echo>
+			<copy file="${peerbox.jar}" todir="${targetdir}" failonerror="true" />
+			<copy todir="${targetdir}/lib" failonerror="true">
+				<fileset dir="${peerbox.build}/lib" />
+			</copy>
+		</target>
+
+		<target name="copy_contextmenu">
+			<echo>Copy ContextMenu extension to ${targetdir} ...</echo>
+			<copy file="${context_menu.home}/x64/Release/ContextMenu.dll" todir="${targetdir}" failonerror="true" />
+			<copy todir="${targetdir}" failonerror="true">
+				<fileset dir="${context_menu.home}/x64/Release" includes="cpprest*.dll" />
+			</copy>
+		</target>
+
+		<target name="copy_installer_resources">
+			<echo>Copy resources ...</echo>
+			<copy file="resources/peerbox64.ico" todir="${targetdir}" failonerror="true" />
+			<copy file="resources/License.rtf" todir="${targetdir}" failonerror="true" />
+		</target>
 
 </project>
