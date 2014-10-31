@@ -1,0 +1,118 @@
+<project name="PeerBox" default="none" basedir="../">
+	<description>
+        Build tasks for PeerBox
+    </description>
+
+	<!-- set global properties for this build -->
+	<property file="build/PeerBox.properties" />
+	<property file="build/VisualStudio.properties" />
+	<property file="build/WindowsContextMenu.properties" />
+	<property file="build/launch4j.properties" />
+	<property file="build/InnoSetup.properties" />
+
+	<condition property="isWindows">
+		<os family="windows" />
+	</condition>
+	<condition property="isUnix">
+		<os family="unix" />
+	</condition>
+
+	<target name="none">
+		<echo>Select a task</echo>
+	</target>
+
+	<!-- wrapper targets that depend on platform specific commands (conditional) -->
+	<target name="mvn_clean" depends="win_mvn_clean" />
+	<target name="mvn_package" depends="win_mvn_package" />
+
+
+	<target name="win_mvn_clean" if="isWindows">
+		<exec executable="cmd" failonerror="true">
+			<arg value="/c" />
+			<arg value="mvn clean -f ${peerbox.pom}" />
+		</exec>
+	</target>
+
+	<target name="win_mvn_package" if="isWindows">
+		<exec executable="cmd" failonerror="true">
+			<arg value="/c" />
+			<arg value="mvn package -f ${peerbox.pom}" />
+			<arg value="-DskipTests" />
+		</exec>
+	</target>
+
+	<target name="win_context_menu_x86" if="isWindows">
+		<exec executable="${visual_studio.devenv}" failonerror="true">
+			<arg value="${context_menu.solution}" />
+			<arg value="/Rebuild" />
+			<arg value="${context_menu.release.x86}" />
+		</exec>
+	</target>
+
+	<target name="win_context_menu_x64" if="isWindows">
+		<exec executable="${visual_studio.devenv}" failonerror="true">
+			<arg value="${context_menu.solution}" />
+			<arg value="/Rebuild" />
+			<arg value="${context_menu.release.x64}" />
+		</exec>
+	</target>
+
+	<target name="win_jar2exe_launcher" if="isWindows">
+		<exec executable="${launch4j.exe}" failonerror="true">
+			<arg value="${launch4j.config}" />
+		</exec>
+	</target>
+
+	<target name="win_installer_x86" if="isWindows">
+		<exec executable="${inno_setup.compiler}" failonerror="true">
+			<arg value="${inno_setup.setup.x86}" />
+		</exec>
+	</target>
+
+	<target name="win_installer_x64" if="isWindows">
+		<exec executable="${inno_setup.compiler}" failonerror="true">
+			<arg value="${inno_setup.setup.x64}" />
+		</exec>
+	</target>
+
+	<target name="win_package_x86">
+	</target>
+
+	<target name="win_package_x64">
+		<property name="targetdir" value="build\Windows_x64" />
+		<delete dir="${targetdir}" />
+		<mkdir dir="${targetdir}"/>
+		<echo>Create target directory: ${targetdir}</echo>
+
+		<antcall target="mvn_clean" />
+		<antcall target="mvn_package" />
+
+		<echo>Copy PeerBox package...</echo>
+		<copy file="${peerbox.build}/peerbox-0.0.1-SNAPSHOT.jar" todir="${targetdir}"/>
+		<copy todir="${targetdir}/lib">
+			<fileset dir="${peerbox.build}/lib" />
+		</copy>
+
+		<antcall target="win_context_menu_x64" />
+
+		<echo>Copy ContextMenu extension...</echo>
+		<copy file="${context_menu.home}/x64/Release/ContextMenu.dll" todir="${targetdir}"/>
+		<copy todir="${targetdir}">
+			<fileset dir="${context_menu.home}/x64/Release" includes="cpprest*.dll" />
+		</copy>
+
+		<antcall target="win_jar2exe_launcher" />
+		<move file="build/peerbox.exe" todir="${targetdir}" />
+		
+		<copy file="resources/peerbox64.ico" todir="${targetdir}" />
+		<copy file="resources/License.rtf" todir="${targetdir}" />
+		<antcall target="win_installer_x64" />
+		
+	</target>
+
+	<target name="win_package_all">
+		<antcall target="win_package_x86" />
+		<antcall target="win_package_x64" />
+	</target>
+
+</project>

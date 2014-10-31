@@ -5,6 +5,8 @@
 #define MyAppExeName "peerbox.exe"
 #define Api_Server_Port "30000"
 
+#define BASE_DIR "Windows_x64"
+
 [Setup]
 ; NOTE: The value of AppId uniquely identifies this application.
 ; Do not use the same AppId value in installers for other applications.
@@ -25,10 +27,10 @@ VersionInfoVersion={#MyAppVersion}
 
 DefaultDirName={pf}\{#MyAppName}
 DefaultGroupName={#MyAppName}
-LicenseFile=License.rtf
+LicenseFile={#BASE_DIR}\License.rtf
 OutputDir=.
-OutputBaseFilename=peerbox_setup
-SetupIconFile=peerbox64.ico
+OutputBaseFilename=peerbox_setup_x64
+SetupIconFile={#BASE_DIR}\peerbox64.ico
 Compression=lzma
 SolidCompression=yes
 
@@ -44,15 +46,16 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{
 
 [Files]
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
-Source: "peerbox.exe"; DestDir: "{app}"; Flags: ignoreversion
-Source: "peerbox64.ico"; DestDir: "{app}"; Flags: ignoreversion
+Source: "{#BASE_DIR}\peerbox.exe"; DestDir: "{app}"; Flags: ignoreversion
+Source: "{#BASE_DIR}\peerbox64.ico"; DestDir: "{app}"; Flags: ignoreversion
 ; -- java packages
-Source: "peerbox-0.0.1-SNAPSHOT.jar"; DestDir: "{app}"; Flags: ignoreversion
-Source: "lib\*"; DestDir: "{app}\lib"; Flags: ignoreversion createallsubdirs recursesubdirs
+Source: "{#BASE_DIR}\peerbox-0.0.1-SNAPSHOT.jar"; DestDir: "{app}"; Flags: ignoreversion
+Source: "{#BASE_DIR}\lib\*"; DestDir: "{app}\lib"; Flags: ignoreversion createallsubdirs recursesubdirs
 ; -- context menu extension
-; regserver: dll is registered in the windows registry 
-Source: "ContextMenu.dll"; DestDir: "{app}"; Flags: ignoreversion regserver
-Source: "cpprest120_2_2.dll"; DestDir: "{app}"; Flags: ignoreversion
+; regserver: dll is registered in the windows registry
+Source: "{#BASE_DIR}\ContextMenu.dll"; DestDir: "{app}"; Flags: ignoreversion regserver
+Source: "{#BASE_DIR}\cpprest120_2_2.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "{#BASE_DIR}\License.rtf"; DestDir: "{app}"; Flags: ignoreversion
 
 [Dirs]
 Name: "{app}\lib"
