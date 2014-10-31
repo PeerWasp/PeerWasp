@@ -2,6 +2,9 @@ package org.peerbox.utils;
 
 import static org.junit.Assert.fail;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.RandomUtils;
 import org.junit.Assert;
@@ -74,13 +77,13 @@ public class WinRegistryTest {
 	public void testSetRootPath() {
 		for (int i = 0; i < NUMBER_ITERATIONS; ++i) {
 			String randomFolder = RandomStringUtils.randomAlphanumeric(12);
-			String rootPath = String.format("C:\\PeerBox\\%s", randomFolder);
+			Path rootPath = Paths.get("C:\\PeerBox\\", randomFolder);
 			WinRegistry.setRootPath(rootPath);
 			assertRootPath(rootPath);
 		}
 	}
 
-	private void assertRootPath(String rootPath) {
+	private void assertRootPath(Path rootPath) {
 		ProcessBuilder builder = new ProcessBuilder();
 
 		builder.command("reg", /* registry command */
@@ -94,7 +97,7 @@ public class WinRegistryTest {
 		ExecuteProcessUtils.executeCommand(builder, output);
 
 		String outputStr = output.toString();
-		Assert.assertTrue(outputStr.contains(rootPath));
+		Assert.assertTrue(outputStr.contains(rootPath.toString()));
 		Assert.assertTrue(outputStr.contains("REG_SZ"));
 	}
 

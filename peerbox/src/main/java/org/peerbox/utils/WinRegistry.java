@@ -1,5 +1,7 @@
 package org.peerbox.utils;
 
+import java.nio.file.Path;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,7 +50,7 @@ public class WinRegistry {
 	 * @param rootpath
 	 * @return true if successful
 	 */
-	public static boolean setRootPath(String rootPath) {
+	public static boolean setRootPath(Path rootPath) {
 		if (rootPath == null) {
 			throw new IllegalArgumentException("rootPath cannot be null");
 		}
@@ -60,7 +62,7 @@ public class WinRegistry {
 				"HKCU\\Software\\PeerBox", /* registry key */
 				"/v", "rootpath", /* name of the value */
 				"/t", "REG_SZ", /* type of the value */
-				"/d", rootPath, /* actual data */
+				"/d", rootPath.toString(), /* actual data */
 				"/f" /* force overwrite if key exists */
 		);
 
