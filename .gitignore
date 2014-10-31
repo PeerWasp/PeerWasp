@@ -3,3 +3,5 @@ WindowsShellExtensions/ContextMenu.sdf
 WindowsShellExtensions/packages/
 WindowsShellExtensions/ContextMenu/Debug/
 WindowsShellExtensions/ContextMenu/Release/
+build/Windows_x86/
+build/Windows_x64/
