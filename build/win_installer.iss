@@ -50,8 +50,8 @@ Source: "{#BaseDir}\{#PeerBoxJar}"; DestDir: "{app}"; Flags: ignoreversion
 Source: "{#BaseDir}\lib\*"; DestDir: "{app}\lib"; Flags: ignoreversion createallsubdirs recursesubdirs
 ; -- context menu extension
 ; regserver: dll is registered in the windows registry
-Source: "{#BaseDir}\ContextMenu.dll"; DestDir: "{app}"; Flags: ignoreversion regserver
-Source: "{#BaseDir}\cpprest120_2_2.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "{#BaseDir}\ContextMenu.dll"; DestDir: "{app}"; Flags: ignoreversion regserver uninsrestartdelete restartreplace
+Source: "{#BaseDir}\cpprest120_2_2.dll"; DestDir: "{app}"; Flags: ignoreversion uninsrestartdelete restartreplace
 Source: "{#BaseDir}\License.rtf"; DestDir: "{app}"; Flags: ignoreversion
 
 [Dirs]
