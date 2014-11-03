@@ -79,9 +79,18 @@
 	</target>
 
 	<target name="win_jar2exe_launcher" if="isWindows">
+		<!-- fill in template placeholders -->
+		<copy file="${launch4j.configtemplate}" tofile="${targetdir}/${launch4j.configname}" overwrite="true" />
+
+		<replace file="${targetdir}/${launch4j.configname}">
+			<replacefilter token="@PEERBOX_JAR@" value="${peerbox.jarname}" />
+			<replacefilter token="@APP_VERSION@" value="${peerbox.version}" />
+		</replace>
+
 		<exec executable="${launch4j.exe}" failonerror="true">
-			<arg value="${launch4j.config}" />
+			<arg value="${targetdir}/${launch4j.configname}" />
 		</exec>
+
 	</target>
 
 	<target name="win_installer_x86" if="isWindows">
@@ -150,9 +159,9 @@
 		</copy>
 
 		<!-- build the exe wrapper for launching the jar -->
-		<antcall target="win_jar2exe_launcher" />
-		<echo>Move peerbox.exe ...</echo>
-		<move file="build/peerbox.exe" todir="${peerbox.winbuild_x64}" failonerror="true" />
+		<antcall target="win_jar2exe_launcher">
+			<param name="targetdir" value="${peerbox.winbuild_x64}" />
+		</antcall>
 
 		<!-- build the installer -->
 		<antcall target="copy_installer_resources">
@@ -182,9 +191,9 @@
 		</copy>
 
 		<!-- build the exe wrapper for launching the jar -->
-		<antcall target="win_jar2exe_launcher" />
-		<echo>Move peerbox.exe ...</echo>
-		<move file="build/peerbox.exe" todir="${peerbox.winbuild_x86}" failonerror="true" />
+		<antcall target="win_jar2exe_launcher">
+			<param name="targetdir" value="${peerbox.winbuild_x86}" />
+		</antcall>
 
 		<!-- build the installer -->
 		<antcall target="copy_installer_resources">

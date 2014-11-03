@@ -2,7 +2,7 @@
 <launch4jConfig>
   <dontWrapJar>true</dontWrapJar>
   <headerType>gui</headerType>
-  <jar>peerbox-0.0.1-SNAPSHOT.jar</jar>
+  <jar>@PEERBOX_JAR@</jar>
   <outfile>peerbox.exe</outfile>
   <errTitle></errTitle>
   <cmdLine></cmdLine>
@@ -13,7 +13,7 @@
   <stayAlive>false</stayAlive>
   <restartOnCrash>false</restartOnCrash>
   <manifest></manifest>
-  <icon>../resources/peerbox64.ico</icon>
+  <icon>../../resources/peerbox64.ico</icon>
   <jre>
     <path></path>
     <bundledJre64Bit>false</bundledJre64Bit>
@@ -23,12 +23,12 @@
     <runtimeBits>64/32</runtimeBits>
   </jre>
   <versionInfo>
-    <fileVersion>0.0.0.1</fileVersion>
-    <txtFileVersion>0.0.0.1</txtFileVersion>
+    <fileVersion>@APP_VERSION@.0</fileVersion>
+    <txtFileVersion>@APP_VERSION@</txtFileVersion>
     <fileDescription>PeerBox Launcher</fileDescription>
     <copyright>PeerBox Developers</copyright>
-    <productVersion>0.0.0.1</productVersion>
-    <txtProductVersion>0.0.0.1</txtProductVersion>
+    <productVersion>@APP_VERSION@.0</productVersion>
+    <txtProductVersion>@APP_VERSION@</txtProductVersion>
     <productName>PeerBox</productName>
     <companyName></companyName>
     <internalName>PeerBox</internalName>
