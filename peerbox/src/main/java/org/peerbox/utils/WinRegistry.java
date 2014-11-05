@@ -25,6 +25,10 @@ public class WinRegistry {
 		if (port < 0 || port > 65535) {
 			throw new IllegalArgumentException("Port out of range (port is: " + 65535 + ")");
 		}
+		if (!OsUtils.isWindows()) {
+			throw new RuntimeException(
+					"Cannot set ApiServerPort in registry (not running on Windows).");
+		}
 
 		ProcessBuilder builder = new ProcessBuilder();
 
@@ -53,6 +57,9 @@ public class WinRegistry {
 	public static boolean setRootPath(Path rootPath) {
 		if (rootPath == null) {
 			throw new IllegalArgumentException("rootPath cannot be null");
+		}
+		if (!OsUtils.isWindows()) {
+			throw new RuntimeException("Cannot set RootPath in registry (not running on Windows).");
 		}
 
 		ProcessBuilder builder = new ProcessBuilder();
