@@ -10,8 +10,10 @@ import org.hive2hive.core.security.UserCredentials;
 import org.hive2hive.processframework.interfaces.IProcessComponent;
 import org.hive2hive.processframework.util.TestExecutionUtil;
 import org.peerbox.FileManager;
+import org.peerbox.h2h.PeerboxFileAgent;
 import org.peerbox.watchservice.FileEventManager;
 import org.peerbox.watchservice.FolderWatchService;
+import org.peerbox.watchservice.RecoveryService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,6 +25,8 @@ public class ClientNode {
 	private Path rootPath;
 	
 	private FileEventManager fileEventManager;
+	private FileManager fileManager;
+	private RecoveryService recoveryService;
 	private FolderWatchService watchService;
 
 	public ClientNode(IH2HNode node, UserCredentials credentials, Path rootPath) throws Exception {
@@ -34,8 +38,16 @@ public class ClientNode {
 		
 	}
 	
+	public RecoveryService getRecoveryService(){
+		return recoveryService;
+	}
+	
 	public Path getRootPath() {
 		return rootPath;
+	}
+	
+	public FileEventManager getFileEventManager(){
+		return fileEventManager;
 	}
 
 	private void initialization() throws Exception {
@@ -45,10 +57,15 @@ public class ClientNode {
 		}
 
 		// create managers and initialization
+		fileManager = new FileManager(node.getFileManager());
 		fileEventManager = new FileEventManager(rootPath, true);
+		recoveryService = new RecoveryService(fileManager);
 		watchService = new FolderWatchService(rootPath);
 		watchService.addFileEventListener(fileEventManager);
-		fileEventManager.setFileManager(new FileManager(node.getFileManager()));
+		
+		//TODO remove cycle dependency
+		fileEventManager.setFileManager(fileManager);
+		fileManager.setFileEventManager(fileEventManager);
 		
 		node.getFileManager().subscribeFileEvents(fileEventManager);
 
@@ -62,7 +79,8 @@ public class ClientNode {
 	}
 	
 	private void loginUser() throws NoPeerConnectionException {
-		IProcessComponent loginProcess = node.getUserManager().login(credentials, rootPath);
+		PeerboxFileAgent fileAgent = new PeerboxFileAgent(rootPath.toFile());
+		IProcessComponent loginProcess = node.getUserManager().login(credentials, fileAgent);
 		TestExecutionUtil.executeProcessTillSucceded(loginProcess);
 	}
 	
