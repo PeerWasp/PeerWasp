@@ -9,6 +9,7 @@ import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -36,12 +37,12 @@ public abstract class FileIntegrationTest {
 	
 	protected static final Logger logger = LoggerFactory.getLogger(FileIntegrationTest.class);
 	
-	private static ITestNetwork network;
+	private static NetworkStarter network;
 	protected static Path masterRootPath;
 	
 	protected static final int NUMBER_OF_CHARS = 1000*100; // approx. 100kb
-	protected static final int WAIT_TIME_SHORT = 60;
-	protected static final int WAIT_TIME_LONG = 10*60;
+	protected static final int WAIT_TIME_SHORT = 30;
+	protected static final int WAIT_TIME_LONG = 120;
 	
 	
 //	@BeforeClass
@@ -64,7 +65,9 @@ public abstract class FileIntegrationTest {
 //		network.stop();
 ////		FileUtils.cleanDirectory(network.getBasePath().toFile());
 //	}
-	
+	protected NetworkStarter getNetwork(){
+		return network;
+	}
 
 	@Before 
 	public void beforeTest() throws IOException {
@@ -113,7 +116,7 @@ public abstract class FileIntegrationTest {
 	}
 
 	protected List<Path> addManyFiles() throws IOException {
-		List<Path> files = FileTestUtils.createRandomFiles(masterRootPath, 100, NUMBER_OF_CHARS);
+		List<Path> files = FileTestUtils.createRandomFiles(masterRootPath, 100, 100);
 		
 		waitForExists(files, WAIT_TIME_LONG);
 		assertSyncClientPaths();
@@ -164,6 +167,13 @@ public abstract class FileIntegrationTest {
 		} while(!pathExistsOnAllNodes(path));
 	}
 	
+	protected void waitForExistsLocally(Path path, int seconds) {
+		H2HWaiter waiter = new H2HWaiter(seconds);
+		do {
+			waiter.tickASecond();
+		} while(!pathExistsLocally(path));
+	}
+	
 	protected void waitIfNotExist(Path path, int seconds){
 		H2HWaiter waiter = new H2HWaiter(seconds);
 		while(!pathExistsOnAllNodes(path)){
@@ -182,6 +192,7 @@ public abstract class FileIntegrationTest {
 		Path relativePath = masterRootPath.relativize(absPath);
 		for(Path rp : network.getRootPaths()) {
 			if(!Files.exists(rp.resolve(relativePath))) {
+				logger.debug("Missing {}", relativePath);
 				return false;
 			}
 		}
@@ -195,6 +206,10 @@ public abstract class FileIntegrationTest {
 			}
 		}
 		return true;
+	}
+	
+	private boolean pathExistsLocally(Path path){
+		return path.toFile().exists();
 	}
 	
 	protected void waitForNotExists(Path path, int seconds) {
@@ -242,6 +257,20 @@ public abstract class FileIntegrationTest {
 		do {
 			waiter.tickASecond();
 		} while(!pathEqualsOnAllNodes(paths));
+	}
+	
+	protected void waitForContentEquals(Path source, byte[] content, int seconds) throws IOException{
+		H2HWaiter waiter = new H2HWaiter(seconds);
+		do {
+			waiter.tickASecond();
+		} while(!contentIsRecoveredLocally(source, content));
+	}
+	
+	private boolean contentIsRecoveredLocally(Path source, byte[] content) throws IOException{
+		byte[] newContent = Files.readAllBytes(source);
+		System.out.println(new String(content));
+		System.out.println(new String(newContent));
+		return Arrays.equals(content, newContent);
 	}
 	
 	private boolean pathEqualsOnAllNodes(Path absPath) throws IOException {
