@@ -93,7 +93,7 @@
 		<dependency>
 			<groupId>org.controlsfx</groupId>
 			<artifactId>controlsfx</artifactId>
-			<version>8.0.6_20</version>
+			<version>8.0.6</version>
 			<scope>compile</scope>
 		</dependency>
 

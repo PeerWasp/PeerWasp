@@ -1,24 +1,31 @@
 package org.peerbox.watchservice;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.Vector;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.PriorityBlockingQueue;
 
 import net.engio.mbassy.listener.Handler;
 
+import org.hive2hive.core.events.framework.interfaces.file.IFileAddEvent;
 import org.hive2hive.core.events.framework.interfaces.file.IFileDeleteEvent;
-import org.hive2hive.core.events.framework.interfaces.file.IFileDownloadEvent;
+import org.hive2hive.core.events.framework.interfaces.file.IFileEvent;
 import org.hive2hive.core.events.framework.interfaces.file.IFileMoveEvent;
+import org.hive2hive.core.events.framework.interfaces.file.IFileShareEvent;
+import org.hive2hive.core.events.framework.interfaces.file.IFileUpdateEvent;
 import org.hive2hive.core.exceptions.IllegalFileLocation;
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.hive2hive.core.exceptions.NoSessionException;
 import org.hive2hive.processframework.exceptions.InvalidProcessStateException;
 import org.peerbox.FileManager;
+import org.peerbox.h2h.IFileRecoveryRequestEvent;
 import org.peerbox.watchservice.states.RemoteDeleteState;
 import org.peerbox.watchservice.states.RemoteMoveState;
 import org.peerbox.watchservice.states.RemoteUpdateState;
@@ -41,6 +48,7 @@ public class FileEventManager implements ILocalFileEventListener, org.hive2hive.
     
     private SetMultimap<String, FileComponent> deletedByContentHash = HashMultimap.create();
     private Map<String, FolderComposite> deletedByContentNamesHash = new HashMap<String, FolderComposite>();
+    private Map<String, FileLeaf> recoveredFileVersions = new HashMap<String, FileLeaf>();
     
     private boolean maintainContentHashes = true;
 
@@ -121,6 +129,7 @@ public class FileEventManager implements ILocalFileEventListener, org.hive2hive.
 		}
 		
 		fileComponentQueue.remove(fileComponent);
+		recoveredFileVersions.remove(fileComponent);
 	
 		// detect "move" event by looking at recent deletes
 		FileComponent deletedComponent = findDeletedByContent(fileComponent);
@@ -137,6 +146,18 @@ public class FileEventManager implements ILocalFileEventListener, org.hive2hive.
 		// add action to the queue again as timestamp was updated
 		fileComponentQueue.add(fileComponent);
 	}
+	
+//	public void onFileRecovered(Path path){
+//		FileComponent fileComponent = getFileComponent(path);
+//		if(fileComponent == null){
+//			logger.trace("Recovered file component has to be created.");
+//			fileComponent = createFileComponent(path, Files.isRegularFile(path));
+//			getFileTree().putComponent(path.toString(), fileComponent);
+//		} else {
+//			logger.trace("Recovered file component exists.");
+//		}
+//		fileComponent.getAction().
+//	}
 
 	@Override
 	public void onLocalFileModified(Path path) {
@@ -231,28 +252,39 @@ public class FileEventManager implements ILocalFileEventListener, org.hive2hive.
 		}
 		
 	}
-
+	
 	@Override
 	@Handler
-	public void onFileDownload(IFileDownloadEvent fileEvent) {
-		logger.debug("onFileDownload: {}", fileEvent.getPath());
-
-		Path path = fileEvent.getPath();
-		FileComponent fileComponent = getFileComponent(path);
-		if(fileComponent == null) {
-			fileComponent = createFileComponent(path, fileEvent.isFile());
-		}
-		getFileTree().putComponent(path.toString(), fileComponent);
-		fileComponent.getAction().handleRemoteUpdateEvent();
-
+	public void onFileAdd(IFileAddEvent fileEvent){
+		logger.debug("onFileAdd: {}", fileEvent.getFile().getPath());
+		Path path = fileEvent.getFile().toPath();
+//		FileLeaf recoveredVersion = recoveredFileVersions.get(path.toString());
+//		if(recoveredVersion != null){
+//			logger.trace("Downloaded file is a recovered version: {}", path);
+			//if it is a recovered file, not state change is done. we stay in InitialState until create event occurs.
+//			getFileTree().putComponent(path.toString(), recoveredVersion);
+//		} else {
+//			logger.trace("Downloaded file is a regular file: {}", path);
+			FileComponent fileComponent = getFileComponent(path);
+			if(fileComponent == null) {
+				fileComponent = createFileComponent(path, fileEvent.isFile());
+				getFileTree().putComponent(path.toString(), fileComponent);
+				fileComponent.getAction().handleRemoteUpdateEvent();
+				fileComponentQueue.add(fileComponent);
+			} else {
+				logger.error("Remotely added file already exists locally: {}", path);
+			}
+			
+//		}
 	}
+	
 
 	@Override
 	@Handler
 	public void onFileDelete(IFileDeleteEvent fileEvent) {
-		logger.debug("onFileDelete: {}", fileEvent.getPath());
+		logger.debug("onFileDelete: {}", fileEvent.getFile().getPath());
 		
-		Path path = fileEvent.getPath();
+		Path path = fileEvent.getFile().toPath();
 		FileComponent fileComponent = getFileComponent(path);
 		if(fileComponent != null) {
 			fileComponent.getAction().handleRemoteDeleteEvent();
@@ -261,13 +293,20 @@ public class FileEventManager implements ILocalFileEventListener, org.hive2hive.
 
 	@Override
 	@Handler
+	public void onFileUpdate(IFileUpdateEvent fileEvent) {
+		// TODO Auto-generated method stub
+		
+	}
+	
+	@Override
+	@Handler
 	public void onFileMove(IFileMoveEvent fileEvent) {
-		logger.debug("onFileMove: {}", fileEvent.getPath());
+		logger.debug("onFileMove: {}", fileEvent.getFile().getPath());
 		
 		// TODO Auto-generated method stub
 
-		Path srcPath = fileEvent.getSrcPath();
-		Path dstPath = fileEvent.getDstPath();
+		Path srcPath = fileEvent.getSrcFile().toPath();
+		Path dstPath = fileEvent.getDstFile().toPath();
 		
 		FileComponent fileComponent = getFileComponent(srcPath);
 		if(fileComponent == null){
@@ -281,6 +320,44 @@ public class FileEventManager implements ILocalFileEventListener, org.hive2hive.
 //		//switch to remoteMoveState()
 		deletedComponent.getAction().getCurrentState().handleRemoteMoveEvent(srcPath);
 		fileComponentQueue.add(deletedComponent);
+	}
+	
+	public void onFileRecoveryRequest(IFileRecoveryRequestEvent fileEvent){
+		File currentFile = fileEvent.getFile();
+		Path recoveredFilePath = PathUtils.getRecoveredFilePath(currentFile.toString(), fileEvent.getVersionToRecover());
+		
+		if(currentFile == null || currentFile.isDirectory()){
+			logger.error("Try to recover non-existing file or directory: {}", currentFile.getPath());
+			return;
+		}
+		logger.trace("Put file recover request to map using key: {}", recoveredFilePath.toString());
+		FileLeaf versionToRecover = new FileLeaf(recoveredFilePath);
+		recoveredFileVersions.put(recoveredFilePath.toString(), versionToRecover);
+		versionToRecover.getAction().handleRecoverEvent(fileEvent.getVersionToRecover());
+		fileComponentQueue.add(versionToRecover);
+		
+		try {
+			logger.trace("Initiate file recovery in FileEventManager for file {}", recoveredFilePath);
+			fileManager.recover(currentFile, new PeerboxVersionSelector(fileEvent.getVersionToRecover()));
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IllegalArgumentException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (NoSessionException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (NoPeerConnectionException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (InvalidProcessStateException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		// add file to recoveredFileVersions
+		// start recovery
+		
 	}
 
 	private FileComponent getFileComponent(Path path){
@@ -400,4 +477,12 @@ public class FileEventManager implements ILocalFileEventListener, org.hive2hive.
 			return Long.compare(a.getAction().getTimestamp(), b.getAction().getTimestamp());
 		}
 	}
+
+	@Override
+	public void onFileShare(IFileShareEvent fileEvent) {
+		// TODO Auto-generated method stub
+		
+	}
+
+
 }
