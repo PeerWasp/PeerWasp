@@ -1,14 +1,12 @@
 package org.peerbox.watchservice.states;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
 import org.hive2hive.core.exceptions.IllegalFileLocation;
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.hive2hive.core.exceptions.NoSessionException;
+import org.hive2hive.processframework.exceptions.InvalidProcessStateException;
+import org.hive2hive.processframework.interfaces.IProcessComponent;
 import org.peerbox.FileManager;
 import org.peerbox.watchservice.Action;
 import org.slf4j.Logger;
@@ -67,10 +65,23 @@ public class RemoteUpdateState extends AbstractActionState {
 
 	@Override
 	public void execute(FileManager fileManager) throws NoSessionException,
-			NoPeerConnectionException, IllegalFileLocation {
+			NoPeerConnectionException, IllegalFileLocation, InvalidProcessStateException {
 		Path path = action.getFilePath();
-		logger.debug("Execute REMOTE UPDATE: {}", path);
+		logger.debug("Execute REMOTE UPDATE, download the file: {}", path);
+		IProcessComponent process = fileManager.download(path.toFile());
+		if(process != null){
+			process.attachListener(new FileManagerProcessListener());
+		} else {
+			System.err.println("process is null");
+		}
+		
 		notifyActionExecuteSucceeded();
+	}
+
+	@Override
+	public AbstractActionState handleRecoverEvent(int versionToRecover) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }
