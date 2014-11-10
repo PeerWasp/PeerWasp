@@ -16,6 +16,9 @@ import org.hive2hive.processframework.exceptions.InvalidProcessStateException;
 import org.hive2hive.processframework.interfaces.IProcessComponent;
 import org.hive2hive.processframework.interfaces.IProcessComponentListener;
 import org.hive2hive.processframework.interfaces.IResultProcessComponent;
+import org.peerbox.watchservice.FileEventManager;
+import org.peerbox.watchservice.PathUtils;
+import org.peerbox.watchservice.PeerboxVersionSelector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,9 +33,15 @@ public class FileManager {
 
 	private static final Logger logger = LoggerFactory.getLogger(FileManager.class);
 	private IFileManager h2hFileManager;
+	private FileEventManager fileEventManager = null;
 
 	public FileManager(IFileManager h2hFileManager) {
 		this.h2hFileManager = h2hFileManager;
+	}
+	
+	public FileManager(IFileManager h2hFileManager, FileEventManager fileEventManager){
+		this.h2hFileManager = h2hFileManager;
+		this.fileEventManager = fileEventManager;
 	}
 
 	public IProcessComponent add(File file) throws NoSessionException, NoPeerConnectionException,
@@ -73,12 +82,23 @@ public class FileManager {
 		return component;
 	}
 
-	public IProcessComponent recover(File file, IVersionSelector versionSelector)
+	public IProcessComponent recover(File file, PeerboxVersionSelector versionSelector)
 			throws FileNotFoundException, IllegalArgumentException, NoSessionException,
-			NoPeerConnectionException {
+			NoPeerConnectionException, InvalidProcessStateException {
 		logger.debug("RECOVER - {}", file);
-		// TODO: implement recover
-		return null;
+		IProcessComponent component = h2hFileManager.recover(file, versionSelector);
+		//component.attachListener(new FileRecoveryListener(file, versionSelector.getVersionToRecover()));
+		//logger.trace("listener attached.");
+		component.start();
+		return component;
+	}
+	
+	public IProcessComponent download(File file) throws NoSessionException, IllegalArgumentException,
+	NoPeerConnectionException, InvalidProcessStateException {
+		IProcessComponent component = h2hFileManager.download(file);
+		component.attachListener(new FileOperationListener(file));
+		component.start();
+		return component;
 	}
 
 	public IProcessComponent share(File folder, String userId, PermissionType permission)
@@ -108,5 +128,60 @@ public class FileManager {
 		public void onFailed(RollbackReason reason) {
 			logger.debug("Operation failed: {} ({})", path, reason.getHint());
 		}
+	}
+	
+//	private class FileRecoveryListener implements IProcessComponentListener {
+//		private File file;
+//		public FileRecoveryListener(File file, int version) {
+//			this.file = PathUtils.getRecoveredFilePath(file.getPath(), version).toFile();
+//		}
+//
+//		@Override
+//		public void onSucceeded() {
+//			logger.debug("Recovery Operation succeeded: {}", file);
+//			if(!file.exists()){
+//				logger.error("File {} does not exist after recovery.", file);
+//			} else {
+//
+//				if(fileEventManager == null){
+//					logger.error("fileEventManager is null! Recovered file {} is not added.", file);
+//				} else {
+//					logger.info("File {} has been added after successful recovery.", file);
+//					fileEventManager.onLocalFileCreated(file.toPath(), false);
+//					try {
+//						Thread.sleep(5000);
+//					} catch (InterruptedException e) {
+//						// TODO Auto-generated catch block
+//						e.printStackTrace();
+//					}
+//					fileEventManager.onLocalFileCreated(file.toPath(), false);
+//				}
+//				
+//				IProcessComponent process;
+//				try {
+//					process = add(path);
+//					if(process != null){
+//						//process.attachListener(new FileManagerProcessListener());
+//						//process.start();
+//					} else {
+//						System.err.println("process is null");
+//					}
+//				} catch (NoSessionException | NoPeerConnectionException | IllegalFileLocation
+//						| InvalidProcessStateException e) {
+//					// TODO Auto-generated catch block
+//					e.printStackTrace();
+//				}
+//				
+//			}
+//			
+//		}
+//		@Override
+//		public void onFailed(RollbackReason reason) {
+//			logger.debug("Operation failed: {} ({})", file, reason.getHint());
+//		}
+//	}
+
+	public void setFileEventManager(FileEventManager fileEventManager) {
+		this.fileEventManager = fileEventManager;
 	}
 }
