@@ -11,6 +11,7 @@ import org.hive2hive.processframework.exceptions.InvalidProcessStateException;
 import org.hive2hive.processframework.interfaces.IProcessComponent;
 import org.hive2hive.core.security.UserCredentials;
 import org.peerbox.ResultStatus;
+import org.peerbox.h2h.PeerboxFileAgent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,7 +55,8 @@ public class UserManager {
 			InvalidProcessStateException {
 		// TODO what if already logged in?
 		userCredentials = new UserCredentials(username, password, pin);
-		IProcessComponent loginProcess = h2hUserManager.login(userCredentials, rootPath);
+		
+		IProcessComponent loginProcess = h2hUserManager.login(userCredentials, new PeerboxFileAgent(rootPath.toFile()));
 		ProcessComponentListener listener = new ProcessComponentListener();
 		loginProcess.attachListener(listener);
 		loginProcess.start().await();

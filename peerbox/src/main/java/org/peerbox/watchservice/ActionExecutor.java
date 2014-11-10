@@ -34,8 +34,8 @@ public class ActionExecutor implements Runnable, IActionEventListener {
 	 *  amount of time that an action has to be "stable" in order to be executed 
 	 */
 	public static final long ACTION_WAIT_TIME_MS = 2000;
-	public static final int NUMBER_OF_EXECUTE_SLOTS = 1;
-	public static final int MAX_EXECUTION_ATTEMPTS = 2;
+	public static final int NUMBER_OF_EXECUTE_SLOTS = 10;
+	public static final int MAX_EXECUTION_ATTEMPTS = 5;
 	
 	private FileEventManager fileEventManager;
 	private List<Action> executingActions;
@@ -204,16 +204,23 @@ public class ActionExecutor implements Runnable, IActionEventListener {
 
 	public void handleExecutionError(RollbackReason reason, Action action) throws NoSessionException, NoPeerConnectionException, IllegalFileLocation, InvalidProcessStateException{
 		ProcessError error = reason.getErrorType();
-		switch(error){
-			case PARENT_IN_USERFILE_NOT_FOUND:
-			case PUT_FAILED:
-				logger.info("Re-initiate execution of {} {}.", action.getFilePath(), action.getCurrentState().getClass().toString());
-				if(action.getExecutionAttempts() <= MAX_EXECUTION_ATTEMPTS){
-					action.execute(fileEventManager.getFileManager());
-				}
-				break;
-			default:
-				logger.warn("There was an unresolved error due to a missing catch!");
+		logger.trace("Re-initiate execution of {} {}.", action.getFilePath(), action.getCurrentState().getClass().toString());
+		if(action.getExecutionAttempts() <= MAX_EXECUTION_ATTEMPTS){
+			action.execute(fileEventManager.getFileManager());
 		}
+//		switch(error){
+//			case PARENT_IN_USERFILE_NOT_FOUND:
+//			case PUT_FAILED:
+//			case GET_FAILED:
+//			case VERSION_FORK:
+//				default:
+//				logger.trace("Re-initiate execution of {} {}.", action.getFilePath(), action.getCurrentState().getClass().toString());
+//				if(action.getExecutionAttempts() <= MAX_EXECUTION_ATTEMPTS){
+//					action.execute(fileEventManager.getFileManager());
+//				}
+//				break;
+//			//default:
+//			//	logger.warn("There was an unresolved error due to a missing catch!");
+//		}
 	}
 }

@@ -98,6 +98,11 @@ public class Action{
 		currentState = currentState.handleRemoteDeleteEvent();
 		updateTimestamp();
 	}
+	
+	public void handleRecoverEvent(int versionToRecover){
+		currentState = currentState.handleRecoverEvent(versionToRecover);
+		updateTimestamp();
+	}
 
 	/**
 	 * Each state is able to execute an action as soon the state is considered as stable. 
