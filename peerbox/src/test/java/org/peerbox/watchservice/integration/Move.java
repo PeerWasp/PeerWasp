@@ -23,7 +23,7 @@ public class Move extends FileIntegrationTest{
 	 * These tests only consider file and folder contents. The difference 
 	 * between delete/create and move is not tested yet!
 	 * @throws IOException
-	 */
+	 */	
 	@Test
 	public void singleFileMoveTest() throws IOException{
 		Path folder = addSingleFolder();
@@ -138,7 +138,10 @@ public class Move extends FileIntegrationTest{
 
 		}
 		assertTrue(nrMoves == movedFiles.size());
-		waitIfNotExist(movedFiles.get(movedFiles.size()-1), WAIT_TIME_SHORT);
+		for(int i = movedFiles.size()-1; i >= 0; i--){
+			waitIfNotExist(movedFiles.get(i), WAIT_TIME_SHORT);
+		}
+		
 	}
 	
 	

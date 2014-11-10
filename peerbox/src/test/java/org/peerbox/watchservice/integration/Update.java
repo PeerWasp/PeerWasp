@@ -80,12 +80,13 @@ public class Update extends FileIntegrationTest {
 
 	private void updateSingleFile(Path f) throws IOException {
 		double scale = RandomUtils.nextDouble(0.01, 2.0);
-		FileTestUtils.writeRandomData(f, (int)(NUMBER_OF_CHARS*scale));
+//		FileTestUtils.writeRandomData(f, (int)(NUMBER_OF_CHARS*scale));
+		FileTestUtils.writeRandomData(f, 10000);
 	}
 
 	private List<Path> updateManyFiles(List<Path> files) throws IOException {
 		List<Path> modified = new ArrayList<>();
-		for(int i = 0; i < files.size(); ++i) {
+		for(int i = 0; i < files.size()/2; ++i) {
 			Path f = files.get(i);
 			// ignore directories
 			if(Files.isDirectory(f)) { 
@@ -93,7 +94,7 @@ public class Update extends FileIntegrationTest {
 			}
 			
 			// modify with probability 0.5
-			boolean modify = (RandomUtils.nextInt(0, 100) % 2) == 0;
+			boolean modify = true; //(RandomUtils.nextInt(0, 100) % 2) == 0;
 			if (modify) {
 				updateSingleFile(f);
 				modified.add(f);
