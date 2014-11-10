@@ -39,6 +39,8 @@ public abstract class AbstractActionState {
 	public abstract AbstractActionState handleLocalUpdateEvent();
 
 	public abstract AbstractActionState handleLocalMoveEvent(Path oldFilePath);
+	
+	public abstract AbstractActionState handleRecoverEvent(int versionToRecover);
 
 	/*
 	 * REMOTE event handlers

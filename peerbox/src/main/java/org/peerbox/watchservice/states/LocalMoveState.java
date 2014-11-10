@@ -109,4 +109,10 @@ public class LocalMoveState extends AbstractActionState {
 //		notifyActionExecuteSucceeded();
 		
 	}
+
+	@Override
+	public AbstractActionState handleRecoverEvent(int versionToRecover) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

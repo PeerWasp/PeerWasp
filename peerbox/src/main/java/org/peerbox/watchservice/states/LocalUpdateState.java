@@ -106,4 +106,10 @@ public class LocalUpdateState extends AbstractActionState {
 		IProcessComponent process = fileManager.update(path.toFile());
 		process.attachListener(new FileManagerProcessListener());
 	}
+
+	@Override
+	public AbstractActionState handleRecoverEvent(int versionToRecover) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

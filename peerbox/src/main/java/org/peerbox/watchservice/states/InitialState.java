@@ -74,4 +74,10 @@ public class InitialState extends AbstractActionState {
 		logger.warn("Execute is not defined in the initial state  ({})", action.getFilePath());
 		notifyActionExecuteSucceeded();
 	}
+
+	@Override
+	public AbstractActionState handleRecoverEvent(int versionToRecover) {
+		logger.debug("Recover Event: Initial -> Recover ({})", action.getFilePath());
+		return new RecoverState(action, versionToRecover);
+	}
 }

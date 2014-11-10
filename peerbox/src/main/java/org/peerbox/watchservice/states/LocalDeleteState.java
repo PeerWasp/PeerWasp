@@ -101,4 +101,10 @@ public class LocalDeleteState extends AbstractActionState {
 		IProcessComponent process = fileManager.delete(path.toFile());
 		process.attachListener(new FileManagerProcessListener());
 	}
+
+	@Override
+	public AbstractActionState handleRecoverEvent(int versionToRecover) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

@@ -67,4 +67,10 @@ public class RemoteMoveState extends AbstractActionState {
 		logger.debug("Execute REMOTE MOVE: {}", path);
 	}
 
+	@Override
+	public AbstractActionState handleRecoverEvent(int versionToRecover) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

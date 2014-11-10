@@ -122,6 +122,12 @@ public class LocalCreateState extends AbstractActionState {
 			System.err.println("process is null");
 		}
 	}
+
+	@Override
+	public AbstractActionState handleRecoverEvent(int versionToRecover) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 	
 	
 	

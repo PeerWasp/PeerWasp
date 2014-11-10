@@ -70,4 +70,10 @@ public class ConflictState extends AbstractActionState {
 //		fileInConflict = renamedFile;
 	}
 
+	@Override
+	public AbstractActionState handleRecoverEvent(int versionToRecover) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }
