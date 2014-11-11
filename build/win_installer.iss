@@ -67,3 +67,61 @@ Filename: "{app}\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#StringChang
 
 [ThirdParty]
 UseRelativePaths=True
+
+[Code]
+function InitializeSetup(): Boolean;
+var
+  ErrorCode: Integer;
+  JavaInstalled : Boolean;
+  Result1 : Boolean;
+  Versions: TArrayOfString;
+  I: Integer;
+begin
+  if RegGetSubkeyNames(HKLM, 'SOFTWARE\JavaSoft\Java Runtime Environment', Versions) then
+  begin
+    for I := 0 to GetArrayLength(Versions)-1 do
+      if JavaInstalled = true then
+      begin
+        //do nothing
+      end else
+      begin
+        // check the subkeys: they have the form x.x or x.x.x_xx -> we look at the first and third digit (Java 1.8)
+        if ( Versions[I][2]='.' ) and ( ( StrToInt(Versions[I][1]) > 1 ) or ( ( StrToInt(Versions[I][1]) = 1 ) and ( StrToInt(Versions[I][3]) >= 8 ) ) ) then
+        begin
+          JavaInstalled := true;
+        end else
+        begin
+          JavaInstalled := false;
+        end;
+      end;
+  end else
+  begin
+    JavaInstalled := false;
+  end;
+
+  // if java not installed, we show a message box that informs the user and advises them to download java.
+  // we can open a browser with the java.com download page where the user can download the newest java.
+  // the setup quits (user has to restart it)
+  if JavaInstalled then
+  begin
+    Result := true;
+  end else
+  begin
+    // ask to install JRE
+    Result1 := MsgBox('This tool requires Java Runtime Environment version 1.8 or newer to run. Please download and install the JRE and run this setup again. Do you want to download it now?',
+    mbConfirmation, MB_YESNO) = idYes;
+    if Result1 = false then
+    begin
+      Result:=false;
+    end else
+    begin
+      // open browser with java.com download page
+      Result:=false;
+      ShellExec('open', 'http://www.java.com/getjava/', '', '', SW_SHOWNORMAL, ewNoWait, ErrorCode);
+    end;
+  end;
+
+end;
+
+
+end.
