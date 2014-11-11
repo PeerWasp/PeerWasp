@@ -87,7 +87,7 @@ public class FolderWatchServiceTest {
 	public void testServiceStart() throws Exception {
 		Path file = addModifyDelete("file_1.txt");
 		// service stopped -> no events should be processed
-		Mockito.verify(fileEventListener, Mockito.never()).onLocalFileCreated(file, false);
+		Mockito.verify(fileEventListener, Mockito.never()).onLocalFileCreated(file);
 		Mockito.verify(fileEventListener, Mockito.never()).onLocalFileModified(file);
 		Mockito.verify(fileEventListener, Mockito.never()).onLocalFileDeleted(file);
 		
@@ -95,7 +95,7 @@ public class FolderWatchServiceTest {
 		
 		file = addModifyDelete("file_2.txt");
 		// service started -> events should be processed
-		Mockito.verify(fileEventListener, Mockito.times(1)).onLocalFileCreated(file,false);
+		Mockito.verify(fileEventListener, Mockito.times(1)).onLocalFileCreated(file);
 		Mockito.verify(fileEventListener, Mockito.atLeastOnce()).onLocalFileModified(file);
 		Mockito.verify(fileEventListener, Mockito.times(1)).onLocalFileDeleted(file);
 	}
@@ -109,7 +109,7 @@ public class FolderWatchServiceTest {
 		Path file = addModifyDelete("file_1.txt");
 		
 		// service stopped -> no events should be processed
-		Mockito.verify(fileEventListener, Mockito.never()).onLocalFileCreated(file,false);
+		Mockito.verify(fileEventListener, Mockito.never()).onLocalFileCreated(file);
 		Mockito.verify(fileEventListener, Mockito.never()).onLocalFileModified(file);
 		Mockito.verify(fileEventListener, Mockito.never()).onLocalFileDeleted(file);
 	}
@@ -119,19 +119,19 @@ public class FolderWatchServiceTest {
 		watchService.start();
 		Path file = addModifyDelete("file_1.txt");
 		// service started -> events should be processed
-		Mockito.verify(fileEventListener, Mockito.times(1)).onLocalFileCreated(file,false);
+		Mockito.verify(fileEventListener, Mockito.times(1)).onLocalFileCreated(file);
 		Mockito.verify(fileEventListener, Mockito.atLeastOnce()).onLocalFileModified(file);
 		Mockito.verify(fileEventListener, Mockito.times(1)).onLocalFileDeleted(file);
 		
 		watchService.stop();
 		file = addModifyDelete("file_2.txt");
 		// service stopped -> no events should be processed
-		Mockito.verify(fileEventListener, Mockito.never()).onLocalFileCreated(file, false);
+		Mockito.verify(fileEventListener, Mockito.never()).onLocalFileCreated(file);
 		Mockito.verify(fileEventListener, Mockito.never()).onLocalFileModified(file);
 		Mockito.verify(fileEventListener, Mockito.never()).onLocalFileDeleted(file);
 		watchService.start();
 		// service stopped -> no events should be processed
-		Mockito.verify(fileEventListener, Mockito.never()).onLocalFileCreated(file, false);
+		Mockito.verify(fileEventListener, Mockito.never()).onLocalFileCreated(file);
 		Mockito.verify(fileEventListener, Mockito.never()).onLocalFileModified(file);
 		Mockito.verify(fileEventListener, Mockito.never()).onLocalFileDeleted(file);
 	}
@@ -162,7 +162,7 @@ public class FolderWatchServiceTest {
 		
 		sleep();
 		// expect 1 event
-		Mockito.verify(fileEventListener, Mockito.times(1)).onLocalFileCreated(add, false);
+		Mockito.verify(fileEventListener, Mockito.times(1)).onLocalFileCreated(add);
 	}
 	
 	@Test
@@ -180,7 +180,7 @@ public class FolderWatchServiceTest {
 		
 		sleep();
 		// expect multiple modify events
-		Mockito.verify(fileEventListener, Mockito.never()).onLocalFileCreated(modify, false);
+		Mockito.verify(fileEventListener, Mockito.never()).onLocalFileCreated(modify);
 		Mockito.verify(fileEventListener, Mockito.atLeastOnce()).onLocalFileModified(modify);
 	}
 	
@@ -222,7 +222,7 @@ public class FolderWatchServiceTest {
 		sleep();
 		// expect 1 delete, 1 create event
 		Mockito.verify(fileEventListener, Mockito.times(1)).onLocalFileDeleted(move);
-		Mockito.verify(fileEventListener, Mockito.times(1)).onLocalFileCreated(dstFile, false);
+		Mockito.verify(fileEventListener, Mockito.times(1)).onLocalFileCreated(dstFile);
 	}
 	
 	
@@ -243,7 +243,7 @@ public class FolderWatchServiceTest {
 		sleep();
 		// expect 1 delete, 1 create event
 		Mockito.verify(fileEventListener, Mockito.times(1)).onLocalFileDeleted(rename);
-		Mockito.verify(fileEventListener, Mockito.times(1)).onLocalFileCreated(newName, false);
+		Mockito.verify(fileEventListener, Mockito.times(1)).onLocalFileCreated(newName);
 	}
 	
 	@Test
@@ -261,7 +261,7 @@ public class FolderWatchServiceTest {
 		Path copy = Paths.get(basePath.toString(), "copy_of_file.txt");
 		FileUtils.copyFile(original.toFile(), copy.toFile());
 		sleep();
-		Mockito.verify(fileEventListener, Mockito.times(1)).onLocalFileCreated(copy, false);
+		Mockito.verify(fileEventListener, Mockito.times(1)).onLocalFileCreated(copy);
 	}
 	
 	@Test
@@ -271,7 +271,7 @@ public class FolderWatchServiceTest {
 		watchService.start();
 		assertTrue(newFolder.toFile().mkdir());
 		sleep();
-		Mockito.verify(fileEventListener, Mockito.times(1)).onLocalFileCreated(newFolder, false);
+		Mockito.verify(fileEventListener, Mockito.times(1)).onLocalFileCreated(newFolder);
 	}
 	
 	@Test
@@ -285,8 +285,8 @@ public class FolderWatchServiceTest {
 		assertTrue(newFile.toFile().createNewFile());
 		
 		sleep();
-		Mockito.verify(fileEventListener, Mockito.times(1)).onLocalFileCreated(newFolder, false);
-		Mockito.verify(fileEventListener, Mockito.times(1)).onLocalFileCreated(newFile, false);
+		Mockito.verify(fileEventListener, Mockito.times(1)).onLocalFileCreated(newFolder);
+		Mockito.verify(fileEventListener, Mockito.times(1)).onLocalFileCreated(newFile);
 	}
 	
 	@Test 
@@ -341,7 +341,7 @@ public class FolderWatchServiceTest {
 		Files.move(folder, newLocation);
 		sleep();
 		Mockito.verify(fileEventListener, Mockito.times(1)).onLocalFileDeleted(folder);
-		Mockito.verify(fileEventListener, Mockito.times(1)).onLocalFileCreated(newLocation, false);
+		Mockito.verify(fileEventListener, Mockito.times(1)).onLocalFileCreated(newLocation);
 	}
 	
 	@Test 
@@ -355,7 +355,7 @@ public class FolderWatchServiceTest {
 		Files.move(folder, rename);
 		sleep();
 		Mockito.verify(fileEventListener, Mockito.times(1)).onLocalFileDeleted(folder);
-		Mockito.verify(fileEventListener, Mockito.times(1)).onLocalFileCreated(rename, false);
+		Mockito.verify(fileEventListener, Mockito.times(1)).onLocalFileCreated(rename);
 	}
 	
 	@Test 
@@ -370,10 +370,10 @@ public class FolderWatchServiceTest {
 		sleep();
 		// old folder untouched
 		Mockito.verify(fileEventListener, Mockito.never()).onLocalFileDeleted(folder);
-		Mockito.verify(fileEventListener, Mockito.never()).onLocalFileCreated(folder, false);
+		Mockito.verify(fileEventListener, Mockito.never()).onLocalFileCreated(folder);
 		Mockito.verify(fileEventListener, Mockito.never()).onLocalFileModified(folder);
 		// new folder
-		Mockito.verify(fileEventListener, Mockito.times(1)).onLocalFileCreated(anyObject(), false);
+		Mockito.verify(fileEventListener, Mockito.times(1)).onLocalFileCreated(anyObject());
 	}
 	
 	@Test 
@@ -386,7 +386,7 @@ public class FolderWatchServiceTest {
 			files.add(p);
 		}
 		sleep();
-		Mockito.verify(fileEventListener, Mockito.times(files.size())).onLocalFileCreated(anyObject(), false);
+		Mockito.verify(fileEventListener, Mockito.times(files.size())).onLocalFileCreated(anyObject());
 		
 	}
 	
@@ -408,7 +408,7 @@ public class FolderWatchServiceTest {
 			}
 		}
 		sleep();
-		Mockito.verify(fileEventListener, Mockito.times(numFolders + numFolders*numFilesPerFolder)).onLocalFileCreated(anyObject(), false);
+		Mockito.verify(fileEventListener, Mockito.times(numFolders + numFolders*numFilesPerFolder)).onLocalFileCreated(anyObject());
 	}
 	
 	
@@ -430,7 +430,7 @@ public class FolderWatchServiceTest {
 			}
 		}
 		sleep();
-		Mockito.verify(fileEventListener, Mockito.times(numFolders + numFolders*numFilesPerFolder)).onLocalFileCreated(anyObject(), false);
+		Mockito.verify(fileEventListener, Mockito.times(numFolders + numFolders*numFilesPerFolder)).onLocalFileCreated(anyObject());
 	}
 	
 	@Test 
@@ -452,7 +452,7 @@ public class FolderWatchServiceTest {
 			}
 		}
 		sleep();
-		Mockito.verify(fileEventListener, Mockito.times(numFolders + numFolders*numFilesPerFolder)).onLocalFileCreated(anyObject(), false);
+		Mockito.verify(fileEventListener, Mockito.times(numFolders + numFolders*numFilesPerFolder)).onLocalFileCreated(anyObject());
 	}
 	
 	@Test
@@ -474,7 +474,7 @@ public class FolderWatchServiceTest {
 			}
 		}
 		sleep();
-		Mockito.verify(fileEventListener, Mockito.times(numFolders + numFolders*numFilesPerFolder)).onLocalFileCreated(anyObject(), false);
+		Mockito.verify(fileEventListener, Mockito.times(numFolders + numFolders*numFilesPerFolder)).onLocalFileCreated(anyObject());
 	}
 	
 	private void sleep() throws InterruptedException {

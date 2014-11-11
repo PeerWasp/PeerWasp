@@ -91,7 +91,7 @@ public class FileEventManager implements ILocalFileEventListener, org.hive2hive.
 	 * the event as a conventional create
 	 */
 	@Override
-	public void onLocalFileCreated(Path path, boolean useFileWalker) {
+	public void onLocalFileCreated(Path path) {
 		logger.debug("onLocalFileCreate: {}", path);
 		
 		//FileComponent fileComponent = getOrCreateFileComponent(path);

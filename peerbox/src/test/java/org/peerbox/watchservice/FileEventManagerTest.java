@@ -96,7 +96,7 @@ public class FileEventManagerTest {
 		
 		long start = System.currentTimeMillis();
 		
-		manager.onLocalFileCreated(Paths.get(filePaths.get(0)), false);
+		manager.onLocalFileCreated(Paths.get(filePaths.get(0)));
 		assertTrue(fileComponentsToCheck.size() == 1);
 		assertTrue(fileComponentsToCheck.peek().getAction().getCurrentState() instanceof LocalCreateState);
 		
@@ -119,7 +119,7 @@ public class FileEventManagerTest {
 	@Test
 	public void fromDeleteToModifyTest(){
 		//handle artificial create event, wait for handling
-		manager.onLocalFileCreated(Paths.get(filePaths.get(0)), false);
+		manager.onLocalFileCreated(Paths.get(filePaths.get(0)));
 		sleepMillis(ActionExecutor.ACTION_WAIT_TIME_MS * 2);
 		
 		//check if exactly one element exists in the queue
@@ -134,7 +134,7 @@ public class FileEventManagerTest {
 		assertTrue(actionsToCheck.peek().getAction().getCurrentState() instanceof LocalDeleteState);
 		
 		//initiate re-creation, ensure that all happens in time
-		manager.onLocalFileCreated(Paths.get(filePaths.get(1)), false);
+		manager.onLocalFileCreated(Paths.get(filePaths.get(1)));
 		assertTrue(actionsToCheck.size() == 1);
 		assertTrue(actionsToCheck.peek().getAction().getCurrentState() instanceof LocalMoveState);
 		
@@ -151,7 +151,7 @@ public class FileEventManagerTest {
 	public void onFileDeletedTest(){
 		BlockingQueue<FileComponent> actionsToCheck = manager.getFileComponentQueue();
 		
-		manager.onLocalFileCreated(Paths.get(filePaths.get(0)), false);
+		manager.onLocalFileCreated(Paths.get(filePaths.get(0)));
 		sleepMillis(ActionExecutor.ACTION_WAIT_TIME_MS * 2);
 		
 		long start = System.currentTimeMillis();
@@ -182,7 +182,7 @@ public class FileEventManagerTest {
 		
 		long start = System.currentTimeMillis();
 		
-		manager.onLocalFileCreated(Paths.get(filePaths.get(0)), false);
+		manager.onLocalFileCreated(Paths.get(filePaths.get(0)));
 		manager.onLocalFileModified(Paths.get(filePaths.get(0)));
 		assertTrue(actionsToCheck.size() == 1);
 		assertNotNull(actionsToCheck);
@@ -242,9 +242,9 @@ public class FileEventManagerTest {
 		BlockingQueue<FileComponent> actionsToCheck = manager.getFileComponentQueue();
 		
 		//issue all the events, check state of head and if the action corresponds to the correct file
-		manager.onLocalFileCreated(Paths.get(filePaths.get(0)), false);
+		manager.onLocalFileCreated(Paths.get(filePaths.get(0)));
 		//manager.onFileCreated(Paths.get(filePaths.get(1)), false);
-		manager.onLocalFileCreated(Paths.get(filePaths.get(2)), false);
+		manager.onLocalFileCreated(Paths.get(filePaths.get(2)));
 		//manager.onFileCreated(Paths.get(filePaths.get(3)), false);
 		sleepMillis(ActionExecutor.ACTION_WAIT_TIME_MS * 2);
 		long start = System.currentTimeMillis();
@@ -254,7 +254,7 @@ public class FileEventManagerTest {
 		assertTrue(actionsToCheck.peek().getAction().getCurrentState() instanceof LocalUpdateState);
 		assertTrue(actionsToCheck.peek().getAction().getFilePath().toString().equals(filePaths.get(0)));
 		
-		manager.onLocalFileCreated(Paths.get(filePaths.get(1)), false);
+		manager.onLocalFileCreated(Paths.get(filePaths.get(1)));
 		sleepMillis(10);
 		assertTrue(actionsToCheck.size() == 2);
 		assertTrue(actionsToCheck.peek().getAction().getCurrentState() instanceof LocalUpdateState);
@@ -281,7 +281,7 @@ public class FileEventManagerTest {
 		assertTrue(actionsToCheck.peek().getAction().getCurrentState() instanceof LocalCreateState);
 		assertTrue(actionsToCheck.peek().getAction().getFilePath().toString().equals(filePaths.get(1)));
 		
-		manager.onLocalFileCreated(Paths.get(filePaths.get(3)), false);
+		manager.onLocalFileCreated(Paths.get(filePaths.get(3)));
 		sleepMillis(10);
 
 		assertTrue(actionsToCheck.size() == 3);
@@ -328,14 +328,14 @@ public class FileEventManagerTest {
 		BlockingQueue<FileComponent> actionsToCheck = manager.getFileComponentQueue();
 		assertTrue(actionsToCheck.size() == 0);
 		
-		manager.onLocalFileCreated(Paths.get(filePaths.get(4)), false);
+		manager.onLocalFileCreated(Paths.get(filePaths.get(4)));
 		sleepMillis(10);
 		
 		//move the file LOCALLY
 		manager.onLocalFileDeleted(Paths.get(filePaths.get(4)));
 		sleepMillis(10);
 		
-		manager.onLocalFileCreated(Paths.get(filePaths.get(5)), false);
+		manager.onLocalFileCreated(Paths.get(filePaths.get(5)));
 		
 		FileComponent head = actionsToCheck.peek();
 		assertTrue(head.getAction().getCurrentState() instanceof LocalCreateState);

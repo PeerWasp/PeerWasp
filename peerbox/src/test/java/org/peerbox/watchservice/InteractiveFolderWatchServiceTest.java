@@ -52,7 +52,7 @@ public class InteractiveFolderWatchServiceTest {
 		}
 		
 		@Override
-		public void onLocalFileCreated(Path path, boolean useFileWalker) {
+		public void onLocalFileCreated(Path path) {
 			logger.info("onLocalFileCreated: {}", path);
 		}
 	}
