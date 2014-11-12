@@ -21,7 +21,9 @@ public class ValidationUtils {
 		PIN_EMPTY("Pin cannot be empty."),
 		PIN_TOO_SHORT(String.format(
 				"The pin should be at least %d characters long.", Constants.MIN_PIN_LENGTH)),
-		PIN_MISMATCH("The pins do not match.");
+		PIN_MISMATCH("The pins do not match."),
+		
+		BOOTSTRAPHOST_EMPTY("The bootstrap host cannot be empty.");
 		
 		
 		private String message;

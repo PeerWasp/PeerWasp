@@ -13,28 +13,22 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.TextField;
-import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.Pane;
 import javafx.stage.Window;
-import jidefx.scene.control.decoration.DecorationUtils;
-import jidefx.scene.control.decoration.Decorator;
-import jidefx.scene.control.validation.ValidationMode;
-import jidefx.scene.control.validation.ValidationUtils;
-import jidefx.scene.control.validation.Validator;
 
+import org.controlsfx.control.decoration.Decorator;
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.hive2hive.processframework.exceptions.InvalidProcessStateException;
 import org.peerbox.ResultStatus;
 import org.peerbox.UserConfig;
 import org.peerbox.model.UserManager;
-import org.peerbox.utils.FormValidationUtils;
+import org.peerbox.presenter.validation.EmptyTextFieldValidator;
+import org.peerbox.presenter.validation.ValidationUtils.ValidationResult;
 import org.peerbox.view.ViewNames;
 import org.peerbox.view.controls.ErrorLabel;
 import org.slf4j.Logger;
@@ -69,9 +63,12 @@ public class LoginController implements Initializable {
 	private GridPane grdForm;
 	@FXML
 	private ErrorLabel lblError;
-
-	private Decorator<ProgressIndicator> fProgressDecoration = null;
+	@FXML
+	private ProgressIndicator piProgress;
 	
+	EmptyTextFieldValidator usernameValidator;
+	EmptyTextFieldValidator passwordValidator;
+	EmptyTextFieldValidator pinValidator;
 	
 	@Inject
 	public LoginController(NavigationService navigationService, UserManager userManager) {
@@ -101,53 +98,31 @@ public class LoginController implements Initializable {
 		grdForm.disableProperty().unbind();
 		grdForm.setDisable(false);
 		uninstallProgressIndicator();
-		ValidationUtils.validateOnDemand(grdForm);
+		uninstallValidationDecorations();
+	}
+
+	private void initializeValidations() {
+		usernameValidator = new EmptyTextFieldValidator(txtUsername, true, ValidationResult.USERNAME_EMPTY);
+		passwordValidator = new EmptyTextFieldValidator(txtPassword, false, ValidationResult.PASSWORD_EMPTY);
+		pinValidator = new EmptyTextFieldValidator(txtPin, false, ValidationResult.PIN_EMPTY);
 	}
 	
-	private void initializeValidations() {
-		wrapDecorationPane();
-		addUsernameValidation();
-		addPasswordValidation();
-		addPinValidation();
-	}
-
-	private void wrapDecorationPane() {
-		Pane dp = FormValidationUtils.wrapInDecorationPane((Pane) grdForm.getParent(), grdForm);
-		AnchorPane.setLeftAnchor(dp, 0.0);
-		AnchorPane.setTopAnchor(dp, 0.0);
-		AnchorPane.setRightAnchor(dp, 0.0);
-	}
-
-	private void addUsernameValidation() {
-		Validator usernameValidator = FormValidationUtils.createEmptyTextFieldValidator(txtUsername,
-				"Please enter a username.", true);
-		ValidationUtils.install(txtUsername, usernameValidator, ValidationMode.ON_FLY);
-		ValidationUtils.install(txtUsername, usernameValidator, ValidationMode.ON_DEMAND);
-	}
-
-	private void addPasswordValidation() {
-		Validator passwordValidator = FormValidationUtils.createEmptyTextFieldValidator(
-				txtPassword, "Please enter a password.", false);
-		ValidationUtils.install(txtPassword, passwordValidator, ValidationMode.ON_FLY);
-		ValidationUtils.install(txtPassword, passwordValidator, ValidationMode.ON_DEMAND);
-	}
-
-	private void addPinValidation() {
-		Validator pinValidator = FormValidationUtils.createEmptyTextFieldValidator(
-				txtPin, "Please enter a PIN.", false);
-		ValidationUtils.install(txtPin, pinValidator, ValidationMode.ON_FLY);
-		ValidationUtils.install(txtPin, pinValidator, ValidationMode.ON_DEMAND);
-		
+	private void uninstallValidationDecorations() {
+		Decorator.removeDecoration(txtUsername, usernameValidator.getDecorator());
+		Decorator.removeDecoration(txtPassword, passwordValidator.getDecorator());
+		Decorator.removeDecoration(txtPin, pinValidator.getDecorator());
 	}
 
 	public void loginAction(ActionEvent event) {
 		boolean inputValid = false;
 		try {
 			clearError();
-			inputValid = ValidationUtils.validateOnDemand(grdForm)
+			ValidationResult validationRes = validateAll();
+			inputValid = !validationRes.isError()
 					&& SelectRootPathUtils.verifyRootPath(txtRootPath.getText()) 
 					&& checkUserExists();
 		} catch (NoPeerConnectionException e) {
+			inputValid = false;
 			setError("Connection to the network failed.");
 		}
 
@@ -158,6 +133,13 @@ public class LoginController implements Initializable {
 	}
 	
 	
+	private ValidationResult validateAll() {
+		return (usernameValidator.validate() == ValidationResult.OK
+				& passwordValidator.validate() == ValidationResult.OK
+				& pinValidator.validate() == ValidationResult.OK
+				) ? ValidationResult.OK : ValidationResult.ERROR;
+	}
+
 	private boolean checkUserExists() throws NoPeerConnectionException {
 		String username = txtUsername.getText().trim();
 		if (!userManager.isRegistered(username)) {
@@ -260,16 +242,22 @@ public class LoginController implements Initializable {
 	}
 
 	private void installProgressIndicator() {
-		ProgressIndicator piProgress = new ProgressIndicator();
-		fProgressDecoration = new Decorator<>(piProgress, Pos.CENTER);
-		DecorationUtils.install(grdForm, fProgressDecoration);
+		Platform.runLater(() -> {
+			// center indicator with respect to the grid
+			double xOffset = piProgress.getWidth() / 2.0;
+			double yOffset = piProgress.getHeight() / 2.0;
+			double x = grdForm.getWidth() / 2.0 - xOffset;
+			double y = grdForm.getHeight() / 2.0 - yOffset;
+			piProgress.relocate(x, y);
+			// show
+			piProgress.setVisible(true);
+		});
 	}
 
 	private void uninstallProgressIndicator() {
-		if (fProgressDecoration != null) {
-			DecorationUtils.uninstall(grdForm, fProgressDecoration);
-			fProgressDecoration = null;
-		}
+		Platform.runLater(() -> {
+			piProgress.setVisible(false);
+		});
 	}
 
 	public void registerAction(ActionEvent event) {
@@ -305,5 +293,5 @@ public class LoginController implements Initializable {
 	public void setUserConfig(UserConfig userConfig) {
 		this.userConfig = userConfig;
 	}
-
+	
 }
