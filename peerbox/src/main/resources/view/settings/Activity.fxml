@@ -39,7 +39,7 @@
 				<RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
 			</rowConstraints>
 			<children>
-            <TextArea fx:id="lwRecentActivity" editable="false" prefHeight="344.0" prefWidth="624.0" />
+            <TextArea fx:id="taRecentActivity" editable="false" prefHeight="344.0" prefWidth="624.0" />
 			</children>
 		</GridPane>
 		<HBox alignment="CENTER_LEFT" GridPane.rowIndex="2">
