@@ -10,7 +10,12 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class FileWalker extends AbstractWatchService {
+	
+	private static final Logger logger = LoggerFactory.getLogger(FileWalker.class);
 	
 	private Path rootDirectory;
 	private FileEventManager eventManager;
@@ -38,7 +43,7 @@ public class FileWalker extends AbstractWatchService {
 	public void indexNamesRecursively(){
 		try {
 			filesystemView = new HashMap<Path, Action>();
-			Files.walkFileTree(rootDirectory, new FileIndexer());
+			Files.walkFileTree(rootDirectory, new FileIndexer(false));
 			
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -84,7 +89,7 @@ public class FileWalker extends AbstractWatchService {
 		computeContentHash = true;
 		try {
 			filesystemView = new HashMap<Path, Action>();
-			Files.walkFileTree(rootDirectory, new FileIndexer());
+			Files.walkFileTree(rootDirectory, new FileIndexer(true));
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -94,6 +99,12 @@ public class FileWalker extends AbstractWatchService {
 	}
 	
 	private class FileIndexer extends SimpleFileVisitor<Path> {
+		
+		private boolean throwCreates = false;
+		
+		public FileIndexer(boolean throwCreates){
+			this.throwCreates = throwCreates;
+		}
 		@Override
 		public FileVisitResult postVisitDirectory(Path path, IOException ex) throws IOException {
 			return super.postVisitDirectory(path, ex);
@@ -102,16 +113,23 @@ public class FileWalker extends AbstractWatchService {
 		@Override
 		public FileVisitResult preVisitDirectory(Path path, BasicFileAttributes attr)
 				throws IOException {
+			if(throwCreates){
+				if(path.toString().equals(rootDirectory.toString())){
+					logger.trace("Skipping root directory.");
+				} else {
+					logger.trace("create event for {} ", path);
+					eventManager.onLocalFileCreated(path);
+				}
+			}
 			return super.preVisitDirectory(path, attr);
 		}
 
 		@Override
 		public FileVisitResult visitFile(Path path, BasicFileAttributes attr) throws IOException {
 			filesystemView.put(path, new Action(path));
-			if(path.toFile().isDirectory()){
-				fileTree.putComponent(path.toString(), new FolderComposite(path, computeContentHash));
-			} else {
-				fileTree.putComponent(path.toString(), new FileLeaf(path, computeContentHash));
+			logger.debug("Found file {}", path);
+			if(throwCreates){
+				eventManager.onLocalFileCreated(path);
 			}
 			return FileVisitResult.CONTINUE;
 		}

@@ -114,34 +114,43 @@ public class FileEventManager implements ILocalFileEventListener, org.hive2hive.
 			}
 		}
 		
+		handleMoveAndCreateCases(fileComponent);
+			
+		updateDataStructures(path, fileComponent);	
 		if(path.toFile().isDirectory()){
 			discoverSubtreeCompletely(path);
 		}
-		
+	}
+
+	/**
+	 * This helper method distinguishes between creates 
+	 * corresponding to move actions and conventional creates.
+	 * Based on the type of the event, actions are performed as
+	 * defined in the state machine.
+	 * @param fileComponent
+	 */
+	private void handleMoveAndCreateCases(FileComponent fileComponent) {
 		FileComponent deletedComponent = findDeletedByContent(fileComponent);
 		Action createAction = fileComponent.getAction();
-		if(deletedComponent != null) {
+		if(deletedComponent == null) {
+			createAction.handleLocalCreateEvent();
+		} else {
 			Action deleteAction = deletedComponent.getAction();
 			if(!fileComponentQueue.remove(deletedComponent)){
-				logger.trace("Unexpected remove behaviour for {}", path);
+				System.err.println("Unexpected remove behaviour");
 			}
 			createAction.handleLocalMoveEvent(deleteAction.getFilePath());
-		} else {
-			createAction.handleLocalCreateEvent();
 		}
-		
-		updateDataStructures(path, fileComponent);	
 	}
 	
 	/**
-	 * This helper method puts fileComponent to the tree, removes it from the queue, 
-	 * handles the local create event and adds it to the queue again.
+	 * This helper method puts fileComponent to the tree, refreshes the queue and
+	 * bubbles content hash updates.
 	 * @param path
 	 * @param fileComponent
 	 */
 	private void updateDataStructures(Path path, FileComponent fileComponent) {
 		getFileTree().putComponent(path.toString(), fileComponent);
-		//remove and add to reorder the queue (timestamp changed)
 		fileComponentQueue.remove(fileComponent);
 		fileComponentQueue.add(fileComponent);
 		fileComponent.bubbleContentHashUpdate();
@@ -151,32 +160,12 @@ public class FileEventManager implements ILocalFileEventListener, org.hive2hive.
 		String moveCandidateHash = discoverSubtreeStructure(path);
 		return deletedByContentNamesHash.get(moveCandidateHash);
 	}
-	
+
+
+
 //		fileComponentQueue.remove(fileComponent);
 //		recoveredFileVersions.remove(fileComponent);
-//	
-//		// detect "move" event by looking at recent deletes
-//		FileComponent deletedComponent = findDeletedByContent(fileComponent);
-//		Action createAction = fileComponent.getAction();
-//		if(deletedComponent == null) {
-//			if(componentAsFolder == null){
-//				createAction.handleLocalCreateEvent();			
-//			} else {
-//				addRecursively(componentAsFolder);
-//				
-//			}
-//
-//			
-//		} else {
-//			Action deleteAction = deletedComponent.getAction();
-//			if(!fileComponentQueue.remove(deletedComponent)){
-//				System.err.println("Unexpected remove behaviour");
-//			}
-//			createAction.handleLocalMoveEvent(deleteAction.getFilePath());
-//		}
-//		// add action to the queue again as timestamp was updated
-//		fileComponentQueue.add(fileComponent);
-//	}
+
 	
 private void addRecursively(FolderComposite componentAsFolder) {
 	SortedMap<String, FileComponent> children = componentAsFolder.getChildren();
