@@ -41,6 +41,8 @@ public class Action{
 	private Set<IActionEventListener> eventListeners;
 	private int executionAttempts = 0;
 	
+	private boolean isUploaded = false;
+	
 	/**
 	 * Initialize with timestamp and set currentState to initial state
 	 */
@@ -58,6 +60,14 @@ public class Action{
 	public static String createStringFromByteArray(byte[] bytes){
 		String hashString = Base64.getEncoder().encodeToString(bytes);
 		return hashString;
+	}
+	
+	public boolean getIsUploaded(){
+		return isUploaded;
+	}
+	
+	public void setIsUploaded(boolean isUploaded){
+		this.isUploaded = isUploaded;
 	}
 	
 	/**
