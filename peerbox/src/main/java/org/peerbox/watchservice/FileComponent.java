@@ -1,6 +1,7 @@
 package org.peerbox.watchservice;
 
 import java.nio.file.Path;
+import java.util.List;
 
 public interface FileComponent {
 	
@@ -38,7 +39,9 @@ public interface FileComponent {
 	public void setPath(Path parent);
 	
 
-	public boolean getIsUploaded();
-	public void setIsUploaded(boolean isUploaded);
+	public boolean getActionIsUploaded();
+	public void setActionIsUploaded(boolean isUploaded);
+	
+	public boolean isReady();
 
 }

@@ -28,25 +28,30 @@ public class FolderComposite extends AbstractFileComponent implements FileCompon
 	private String contentHash;
 	private String contentNamesHash;
 	private FolderComposite parent;
-	private boolean isUploaded;
 	private boolean updateContentHashes;
 	
 	private static final Logger logger = LoggerFactory.getLogger(FolderComposite.class);
 	
 	
-	public FolderComposite(Path path, boolean updateContentHashes){
+	public FolderComposite(Path path, boolean updateContentHashes, boolean isRoot){
 		this.path = path;
 		this.folderName = path.getFileName();
 		this.action = new Action(path);
 		this.contentHash = "";
-		this.isUploaded = false;
 		this.updateContentHashes = updateContentHashes;
 		this.contentNamesHash = "";
 		
+		if(isRoot){
+			action.setIsUploaded(true);
+		}
 		if(updateContentHashes){
 			updateContentHash();	
 		}
 	
+	}
+	
+	public FolderComposite(Path path, boolean updateContentHashes){
+		this(path, updateContentHashes, false);
 	}
 	
 	public SortedMap<String, FileComponent> getChildren(){
@@ -249,15 +254,15 @@ public class FolderComposite extends AbstractFileComponent implements FileCompon
 	}
 
 	@Override
-	public boolean getIsUploaded() {
-		return this.isUploaded;
+	public boolean getActionIsUploaded() {
+		return this.getAction().getIsUploaded();
 	}
 	
 	@Override
-	public void setIsUploaded(boolean isUploaded) {
-		this.isUploaded = isUploaded;
+	public void setActionIsUploaded(boolean isUploaded) {
+		this.getAction().setIsUploaded(isUploaded);
 		for(FileComponent child : children.values()){
-			child.setIsUploaded(isUploaded);
+			child.getAction().setIsUploaded(isUploaded);
 		}
 	}
 	
@@ -300,6 +305,14 @@ public class FolderComposite extends AbstractFileComponent implements FileCompon
 
 	@Override
 	public boolean isFile() {
+		return false;
+	}
+
+	@Override
+	public boolean isReady() {
+		if(parent.getActionIsUploaded()){
+			return true;
+		}
 		return false;
 	}
 }

@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 
 import org.hive2hive.core.security.EncryptionUtil;
 import org.hive2hive.core.security.HashUtil;
@@ -16,7 +17,6 @@ public class FileLeaf extends AbstractFileComponent implements FileComponent{
 	private Path fileName;
 	private String contentHash;
 	private FolderComposite parent;
-	private boolean isUploaded;
 	
 	private static final Logger logger = LoggerFactory.getLogger(FileLeaf.class);
 	
@@ -25,7 +25,6 @@ public class FileLeaf extends AbstractFileComponent implements FileComponent{
 		this.fileName = path.getFileName();
 		this.action = new Action(path);
 		this.contentHash = "";
-		this.isUploaded = false;
 		updateContentHash();
 	}
 	
@@ -34,7 +33,6 @@ public class FileLeaf extends AbstractFileComponent implements FileComponent{
 		this.fileName = path.getFileName();
 		this.action = new Action(path);
 		this.contentHash = "";
-		this.isUploaded = false;
 		if(maintainContentHashes){
 			updateContentHash();
 		}
@@ -118,13 +116,13 @@ public class FileLeaf extends AbstractFileComponent implements FileComponent{
 	}
 
 	@Override
-	public boolean getIsUploaded() {
-		return this.isUploaded;
+	public boolean getActionIsUploaded() {
+		return this.getAction().getIsUploaded();
 	}
 
 	@Override
-	public void setIsUploaded(boolean isUploaded) {
-		this.isUploaded = isUploaded;
+	public void setActionIsUploaded(boolean isUploaded) {
+		this.getAction().setIsUploaded(isUploaded);
 	}
 	
 	@Override
@@ -139,6 +137,12 @@ public class FileLeaf extends AbstractFileComponent implements FileComponent{
 
 	@Override
 	public boolean isFile() {
+		return true;
+	}
+
+	@Override
+	public boolean isReady() {
+		// TODO Auto-generated method stub
 		return true;
 	}
 }
