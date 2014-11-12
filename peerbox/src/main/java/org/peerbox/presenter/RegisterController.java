@@ -10,28 +10,16 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.TextField;
-import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.Pane;
-import jidefx.scene.control.decoration.DecorationUtils;
-import jidefx.scene.control.decoration.Decorator;
-import jidefx.scene.control.validation.ValidationEvent;
-import jidefx.scene.control.validation.ValidationMode;
-import jidefx.scene.control.validation.ValidationObject;
-import jidefx.scene.control.validation.ValidationUtils;
-import jidefx.scene.control.validation.Validator;
 
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.hive2hive.processframework.exceptions.InvalidProcessStateException;
-import org.peerbox.Constants;
 import org.peerbox.ResultStatus;
 import org.peerbox.model.UserManager;
-import org.peerbox.utils.FormValidationUtils;
 import org.peerbox.view.ViewNames;
 import org.peerbox.view.controls.ErrorLabel;
 import org.slf4j.Logger;
@@ -66,12 +54,12 @@ public class RegisterController implements Initializable {
 	private Button btnBack;
 	@FXML
 	private GridPane grdForm;
+	@FXML
+	private ProgressIndicator piProgress;
 	
 	@FXML 
 	private ErrorLabel lblError;
-	
-	/* decorator that decorates the UI with a progress indicator during busy tasks */
-	private Decorator<ProgressIndicator> fProgressDecoration = null;
+
 
 	@Inject
 	public RegisterController(NavigationService navigationService, UserManager userManager) {
@@ -95,7 +83,7 @@ public class RegisterController implements Initializable {
 		grdForm.disableProperty().unbind();
 		grdForm.setDisable(false);
 		uninstallProgressIndicator();
-		ValidationUtils.validateOnDemand(grdForm);
+//		ValidationUtils.validateOnDemand(grdForm);
 	}
 
 	/**
@@ -103,9 +91,9 @@ public class RegisterController implements Initializable {
 	 */
 	private void initializeValidations() {
 		wrapDecorationPane();
-		addUsernameValidation();
-		addPasswordValidation();
-		addPinValidation();
+//		addUsernameValidation();
+//		addPasswordValidation();
+//		addPinValidation();
 	}
 
 	/**
@@ -113,123 +101,123 @@ public class RegisterController implements Initializable {
 	 * the form fields. All fields within the decoration pane are covered automatically.
 	 */
 	private void wrapDecorationPane() {
-		Pane dp = FormValidationUtils.wrapInDecorationPane((Pane)grdForm.getParent(), grdForm);
-		AnchorPane.setLeftAnchor(dp, 0.0);
-		AnchorPane.setTopAnchor(dp, 0.0);
-		AnchorPane.setRightAnchor(dp, 0.0);
+//		Pane dp = FormValidationUtils.wrapInDecorationPane((Pane)grdForm.getParent(), grdForm);
+//		AnchorPane.setLeftAnchor(dp, 0.0);
+//		AnchorPane.setTopAnchor(dp, 0.0);
+//		AnchorPane.setRightAnchor(dp, 0.0);
 		
 	}
 
-	private void addUsernameValidation() {
-		Validator usernameEmptyValidator = new Validator() {
-			@Override
-			public ValidationEvent call(ValidationObject param) {
-				final String username = getUsername();
-				if (username.isEmpty()) {
-					return new ValidationEvent(ValidationEvent.VALIDATION_ERROR, 0, "Please enter a username.");
-				}
-				return ValidationEvent.OK;
-			}
-		};
-		Validator usernameFullValidator = new Validator() {
-			@Override
-			public ValidationEvent call(ValidationObject param) {
-				try {
-					final String username = getUsername();
-					ValidationEvent usernameEmpty = usernameEmptyValidator.call(param);
-					if(usernameEmpty != ValidationEvent.OK) {
-						return usernameEmpty; 
-					}
-					if (fUserManager.isRegistered(username)) {
-						setError("This username is already taken.");
-						return new ValidationEvent(ValidationEvent.VALIDATION_ERROR, 0, "Username already taken.");
-					}
-				} catch (NoPeerConnectionException e) {
-					setError("Network connection failed.");
-					return new ValidationEvent(ValidationEvent.VALIDATION_ERROR, 0, "Network connection failed.");
-				}
-				return ValidationEvent.OK;
-			}
-		};
-		
-		ValidationUtils.install(txtUsername, usernameEmptyValidator, ValidationMode.ON_FLY);
-		ValidationUtils.install(txtUsername, usernameFullValidator, ValidationMode.ON_DEMAND);
-	}
-
-	private void addPasswordValidation() {
-		Validator passwordValidator = new Validator() {
-			@Override
-			public ValidationEvent call(ValidationObject param) {
-				final String password = txtPassword_1.getText();
-				ValidationUtils.validateOnDemand(txtPassword_2); // refresh validation result of confirm field
-				// as well
-				if (password.isEmpty()) {
-					return new ValidationEvent(ValidationEvent.VALIDATION_ERROR, 0, "Please enter a password.");
-				}
-				if (password.length() < Constants.MIN_PASSWORD_LENGTH) {
-					return new ValidationEvent(ValidationEvent.VALIDATION_WARNING, 0, String.format(
-							"The password should be at least %d characters long.", Constants.MIN_PASSWORD_LENGTH));
-				}
-				return ValidationEvent.OK;
-			}
-		};
-		ValidationUtils.install(txtPassword_1, passwordValidator, ValidationMode.ON_FLY);
-		ValidationUtils.install(txtPassword_1, passwordValidator, ValidationMode.ON_DEMAND);
-	
-		Validator passwordMatchValidator = new Validator() {
-			@Override
-			public ValidationEvent call(ValidationObject param) {
-				final String password_1 = txtPassword_1.getText();
-				final String password_2 = txtPassword_2.getText();
-				if (!password_1.equals(password_2)) {
-					return new ValidationEvent(ValidationEvent.VALIDATION_ERROR, 0, "The passwords are not the same.");
-				}
-				if (password_2.isEmpty()) {
-					return new ValidationEvent(ValidationEvent.VALIDATION_ERROR, 0, "Please enter a password.");
-				}
-				return ValidationEvent.OK;
-			}
-		};
-		ValidationUtils.install(txtPassword_2, passwordMatchValidator, ValidationMode.ON_FLY);
-		ValidationUtils.install(txtPassword_2, passwordMatchValidator, ValidationMode.ON_DEMAND);
-	}
-
-	private void addPinValidation() {
-		Validator pinValidator = new Validator() {
-			@Override
-			public ValidationEvent call(ValidationObject param) {
-				final String pin = txtPin_1.getText();
-				ValidationUtils.validateOnDemand(txtPin_2); // refresh validation result of confirm field
-				if (pin.isEmpty()) {
-					return new ValidationEvent(ValidationEvent.VALIDATION_ERROR, 0, "Please enter a pin.");
-				}
-				if (pin.length() < Constants.MIN_PIN_LENGTH) {
-					return new ValidationEvent(ValidationEvent.VALIDATION_WARNING, 0, String.format(
-							"The PIN should be at least %d characters long.", Constants.MIN_PIN_LENGTH));
-				}
-				return ValidationEvent.OK;
-			}
-		};
-		ValidationUtils.install(txtPin_1, pinValidator, ValidationMode.ON_FLY);
-		ValidationUtils.install(txtPin_1, pinValidator, ValidationMode.ON_DEMAND);
-
-		Validator pinMatchValidator = new Validator() {
-			@Override
-			public ValidationEvent call(ValidationObject param) {
-				final String pin_1 = txtPin_1.getText();
-				final String pin_2 = txtPin_2.getText();
-				if (!pin_1.equals(pin_2)) {
-					return new ValidationEvent(ValidationEvent.VALIDATION_ERROR, 0, "The PINs are not the same.");
-				}
-				if (pin_2.isEmpty()) {
-					return new ValidationEvent(ValidationEvent.VALIDATION_ERROR, 1, "Please enter a PIN.");
-				}
-				return ValidationEvent.OK;
-			}
-		};
-		ValidationUtils.install(txtPin_2, pinMatchValidator, ValidationMode.ON_FLY);
-		ValidationUtils.install(txtPin_2, pinMatchValidator, ValidationMode.ON_DEMAND);
-	}
+//	private void addUsernameValidation() {
+//		Validator usernameEmptyValidator = new Validator() {
+//			@Override
+//			public ValidationEvent call(ValidationObject param) {
+//				final String username = getUsername();
+//				if (username.isEmpty()) {
+//					return new ValidationEvent(ValidationEvent.VALIDATION_ERROR, 0, "Please enter a username.");
+//				}
+//				return ValidationEvent.OK;
+//			}
+//		};
+//		Validator usernameFullValidator = new Validator() {
+//			@Override
+//			public ValidationEvent call(ValidationObject param) {
+//				try {
+//					final String username = getUsername();
+//					ValidationEvent usernameEmpty = usernameEmptyValidator.call(param);
+//					if(usernameEmpty != ValidationEvent.OK) {
+//						return usernameEmpty; 
+//					}
+//					if (fUserManager.isRegistered(username)) {
+//						setError("This username is already taken.");
+//						return new ValidationEvent(ValidationEvent.VALIDATION_ERROR, 0, "Username already taken.");
+//					}
+//				} catch (NoPeerConnectionException e) {
+//					setError("Network connection failed.");
+//					return new ValidationEvent(ValidationEvent.VALIDATION_ERROR, 0, "Network connection failed.");
+//				}
+//				return ValidationEvent.OK;
+//			}
+//		};
+//		
+//		ValidationUtils.install(txtUsername, usernameEmptyValidator, ValidationMode.ON_FLY);
+//		ValidationUtils.install(txtUsername, usernameFullValidator, ValidationMode.ON_DEMAND);
+//	}
+//
+//	private void addPasswordValidation() {
+//		Validator passwordValidator = new Validator() {
+//			@Override
+//			public ValidationEvent call(ValidationObject param) {
+//				final String password = txtPassword_1.getText();
+//				ValidationUtils.validateOnDemand(txtPassword_2); // refresh validation result of confirm field
+//				// as well
+//				if (password.isEmpty()) {
+//					return new ValidationEvent(ValidationEvent.VALIDATION_ERROR, 0, "Please enter a password.");
+//				}
+//				if (password.length() < Constants.MIN_PASSWORD_LENGTH) {
+//					return new ValidationEvent(ValidationEvent.VALIDATION_WARNING, 0, String.format(
+//							"The password should be at least %d characters long.", Constants.MIN_PASSWORD_LENGTH));
+//				}
+//				return ValidationEvent.OK;
+//			}
+//		};
+//		ValidationUtils.install(txtPassword_1, passwordValidator, ValidationMode.ON_FLY);
+//		ValidationUtils.install(txtPassword_1, passwordValidator, ValidationMode.ON_DEMAND);
+//	
+//		Validator passwordMatchValidator = new Validator() {
+//			@Override
+//			public ValidationEvent call(ValidationObject param) {
+//				final String password_1 = txtPassword_1.getText();
+//				final String password_2 = txtPassword_2.getText();
+//				if (!password_1.equals(password_2)) {
+//					return new ValidationEvent(ValidationEvent.VALIDATION_ERROR, 0, "The passwords are not the same.");
+//				}
+//				if (password_2.isEmpty()) {
+//					return new ValidationEvent(ValidationEvent.VALIDATION_ERROR, 0, "Please enter a password.");
+//				}
+//				return ValidationEvent.OK;
+//			}
+//		};
+//		ValidationUtils.install(txtPassword_2, passwordMatchValidator, ValidationMode.ON_FLY);
+//		ValidationUtils.install(txtPassword_2, passwordMatchValidator, ValidationMode.ON_DEMAND);
+//	}
+//
+//	private void addPinValidation() {
+//		Validator pinValidator = new Validator() {
+//			@Override
+//			public ValidationEvent call(ValidationObject param) {
+//				final String pin = txtPin_1.getText();
+//				ValidationUtils.validateOnDemand(txtPin_2); // refresh validation result of confirm field
+//				if (pin.isEmpty()) {
+//					return new ValidationEvent(ValidationEvent.VALIDATION_ERROR, 0, "Please enter a pin.");
+//				}
+//				if (pin.length() < Constants.MIN_PIN_LENGTH) {
+//					return new ValidationEvent(ValidationEvent.VALIDATION_WARNING, 0, String.format(
+//							"The PIN should be at least %d characters long.", Constants.MIN_PIN_LENGTH));
+//				}
+//				return ValidationEvent.OK;
+//			}
+//		};
+//		ValidationUtils.install(txtPin_1, pinValidator, ValidationMode.ON_FLY);
+//		ValidationUtils.install(txtPin_1, pinValidator, ValidationMode.ON_DEMAND);
+//
+//		Validator pinMatchValidator = new Validator() {
+//			@Override
+//			public ValidationEvent call(ValidationObject param) {
+//				final String pin_1 = txtPin_1.getText();
+//				final String pin_2 = txtPin_2.getText();
+//				if (!pin_1.equals(pin_2)) {
+//					return new ValidationEvent(ValidationEvent.VALIDATION_ERROR, 0, "The PINs are not the same.");
+//				}
+//				if (pin_2.isEmpty()) {
+//					return new ValidationEvent(ValidationEvent.VALIDATION_ERROR, 1, "Please enter a PIN.");
+//				}
+//				return ValidationEvent.OK;
+//			}
+//		};
+//		ValidationUtils.install(txtPin_2, pinMatchValidator, ValidationMode.ON_FLY);
+//		ValidationUtils.install(txtPin_2, pinMatchValidator, ValidationMode.ON_DEMAND);
+//	}
 
 	/**
 	 * Register new user action. Validates user input (on demand) first
@@ -237,7 +225,9 @@ public class RegisterController implements Initializable {
 	 */
 	public void registerAction(ActionEvent event) {
 		clearError();
-		if (ValidationUtils.validateOnDemand(grdForm)) {
+//		if (ValidationUtils.validateOnDemand(grdForm)) {
+		// TODO
+		if(true) {
 			Task<ResultStatus> task = createRegisterTask();
 			new Thread(task).start();
 		}
@@ -343,22 +333,28 @@ public class RegisterController implements Initializable {
 	}
 	
 	/**
-	 * Adds a progress indicator to the UI
+	 * Shows a progress indicator
 	 */
 	private void installProgressIndicator() {
-		ProgressIndicator piProgress = new ProgressIndicator();
-		fProgressDecoration = new Decorator<>(piProgress, Pos.CENTER);
-		DecorationUtils.install(grdForm, fProgressDecoration);
+		Platform.runLater(() -> {
+			// center indicator with respect to the grid
+			double xOffset = piProgress.getWidth() / 2.0;
+			double yOffset = piProgress.getHeight() / 2.0;
+			double x = grdForm.getWidth() / 2.0 - xOffset;
+			double y = grdForm.getHeight() / 2.0 - yOffset;
+			piProgress.relocate(x, y);
+			// show PI
+			piProgress.setVisible(true);
+		});
 	}
 
 	/**
-	 * Removes the progress indicator from the UI
+	 * Hides the progress indicator
 	 */
 	private void uninstallProgressIndicator() {
-		if(fProgressDecoration != null) {
-			DecorationUtils.uninstall(grdForm, fProgressDecoration);
-			fProgressDecoration = null;
-		}
+		Platform.runLater(() -> {
+			piProgress.setVisible(false);
+		});
 	}
 	
 	/**

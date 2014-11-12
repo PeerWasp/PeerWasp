@@ -15,8 +15,6 @@ import javafx.scene.control.TextField;
 import javafx.stage.Window;
 
 import org.apache.commons.io.FileUtils;
-import org.controlsfx.control.action.Action;
-import org.controlsfx.dialog.Dialog;
 import org.peerbox.UserConfig;
 import org.peerbox.presenter.SelectRootPathUtils;
 import org.peerbox.view.converter.EnabledDisabledStringConverter;
