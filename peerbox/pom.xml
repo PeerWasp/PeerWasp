@@ -69,31 +69,20 @@
 			<version>1.1.1</version>
 			<scope>compile</scope>
 		</dependency>
-
-
-		<!-- H2H Core Test Jar -->
-		<dependency>
-			<groupId>org.hive2hive</groupId>
-			<artifactId>org.hive2hive.core</artifactId>
-			<version>${h2h.version}</version>
-			<type>test-jar</type>
-			<scope>test</scope>
-		</dependency>
 		
-		<!-- H2H ProcessFramework Test Jar -->
+		<!-- OpenJFX Dialog API package provided by ControlsFX. Java 8u40 should include the API itself -->
 		<dependency>
-			<groupId>org.hive2hive</groupId>
-			<artifactId>org.hive2hive.processframework</artifactId>
-			<version>${h2h.version}</version>
-			<type>test-jar</type>
-			<scope>test</scope>
+			<groupId>org.controlsfx</groupId>
+			<artifactId>openjfx-dialogs</artifactId>
+			<version>1.0.2</version>
+			<scope>compile</scope>
 		</dependency>
 
 		<!-- ControlsFX http://fxexperience.com/controlsfx/ -->
 		<dependency>
 			<groupId>org.controlsfx</groupId>
 			<artifactId>controlsfx</artifactId>
-			<version>8.0.6</version>
+			<version>8.20.8</version>
 			<scope>compile</scope>
 		</dependency>
 
@@ -159,6 +148,24 @@
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-lang3</artifactId>
 			<version>3.3.2</version>
+			<scope>test</scope>
+		</dependency>
+		
+		<!-- H2H Core Test Jar -->
+		<dependency>
+			<groupId>org.hive2hive</groupId>
+			<artifactId>org.hive2hive.core</artifactId>
+			<version>${h2h.version}</version>
+			<type>test-jar</type>
+			<scope>test</scope>
+		</dependency>
+		
+		<!-- H2H ProcessFramework Test Jar -->
+		<dependency>
+			<groupId>org.hive2hive</groupId>
+			<artifactId>org.hive2hive.processframework</artifactId>
+			<version>${h2h.version}</version>
+			<type>test-jar</type>
 			<scope>test</scope>
 		</dependency>
 

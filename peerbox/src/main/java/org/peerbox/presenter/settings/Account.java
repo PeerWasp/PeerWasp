@@ -95,8 +95,8 @@ public class Account implements Initializable {
 
 			File newPathParent = new File(newPathParentStr);
 			File newPath = new File(newPathParent, currentPath.getName());
-			Action result = SelectRootPathUtils.confirmMoveDirectoryDialog(newPath);
-			if(result == Dialog.Actions.YES) {
+			boolean yes = SelectRootPathUtils.confirmMoveDirectoryDialog(newPath);
+			if(yes) {
 				FileUtils.moveDirectoryToDirectory(currentPath, newPathParent, false);
 				
 				txtRootPath.setText(newPath.toString());

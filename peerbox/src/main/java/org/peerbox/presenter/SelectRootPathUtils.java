@@ -5,56 +5,76 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.ButtonType;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Window;
 
-import org.controlsfx.control.action.Action;
-import org.controlsfx.dialog.Dialog;
-import org.controlsfx.dialog.Dialogs;
-
 public class SelectRootPathUtils {
 
-	public static Action confirmMoveDirectoryDialog(File newPath) {
-		return Dialogs
-				.create()
-				.title("Move Path")
-				.message(String.format("This will move the directory to a new location: %s.",
-								newPath.toString()))
-				.actions(Dialog.Actions.OK, Dialog.Actions.CANCEL)
-				.showConfirm();
+	public static boolean confirmMoveDirectoryDialog(File newPath) {
+		boolean yes = false;
+		
+		Alert dlg = new Alert(AlertType.CONFIRMATION);
+		dlg.setTitle("Move Directory");
+		dlg.setHeaderText("Move the directory?");
+		dlg.setContentText(String.format("This will move the directory to a new location: %s.",
+								newPath.toString()));
+		
+		dlg.getButtonTypes().clear();
+		dlg.getButtonTypes().addAll(ButtonType.YES, ButtonType.NO);
+		
+		dlg.showAndWait();
+		yes = dlg.getResult() == ButtonType.YES;
+		
+		return yes;
 	}
 	
 	public static void showPermissionWarning() {
-		Dialogs.create()
-				.title("Directory creation failed")
-				.message("Either the selected directory's parent directory does not exist "+
-							"or you do not have permissions to create the directory.")
-				.showWarning();
+		Alert dlg = new Alert(AlertType.ERROR);
+		dlg.setTitle("Error");
+		dlg.setHeaderText("Cannot create directory");
+		dlg.setContentText("Either the selected directory's parent directory does not exist " + 
+				"or you do not have permissions to create the directory.");
+		
+		dlg.showAndWait();
 	}
 
-	public static Action askForDirectoryCreation() {
-		return Dialogs.create()
-			      .title("Directory does not exist.")
-			      .actions(Dialog.Actions.YES, Dialog.Actions.NO)
-			      .message( "Create this directory?")
-			      .showConfirm();
+	public static boolean askForDirectoryCreation() {
+		
+		boolean yes = false;
+		
+		Alert dlg = new Alert(AlertType.CONFIRMATION);
+		dlg.setTitle("Create Directory");
+		dlg.setHeaderText("Create the directory?");
+		dlg.setContentText("The directory does not exist yet.");
+		dlg.getButtonTypes().clear();
+		dlg.getButtonTypes().addAll(ButtonType.YES, ButtonType.NO);
+		
+		dlg.showAndWait();
+		yes = dlg.getResult() == ButtonType.YES;
+		
+		return yes;
 	}
 
 	public static void showIncorrectSelectionInformation() {
-		Dialogs.create().title("File instead of directory selected.")
-		.message("Please change the path as it does not lead to a directory")
-		.showInformation();
+		Alert dlg = new Alert(AlertType.INFORMATION);
+		dlg.setTitle("File");
+		dlg.setHeaderText("File instead of directory selected");
+		dlg.setContentText("Please select a directory.");
+		dlg.showAndWait();
 	}
 
 	public static boolean verifyRootPath(String desiredRootPath) {
 		try {
 			File path = new File(desiredRootPath);
-			Action createDirAction = Dialog.Actions.YES;
+			boolean createDirAction = true;
 			if (!path.exists()) {
 				createDirAction = SelectRootPathUtils.askForDirectoryCreation();
 			}
 			boolean isDirCreated = false;
-			if (createDirAction.equals(Dialog.Actions.YES)) {
+			if (createDirAction) {
 				isDirCreated = initializeRootDirectory(desiredRootPath);
 				if (isDirCreated) {
 					return true;
@@ -69,9 +89,11 @@ public class SelectRootPathUtils {
 	}
 
 	public static void showInvalidDirectoryChooserEntryInformation() {
-		Dialogs.create().title("Can't open the directory.")
-				.message("The selected directory and its parent directory do not exist.")
-				.showInformation();
+		Alert dlg = new Alert(AlertType.ERROR);
+		dlg.setTitle("Error");
+		dlg.setHeaderText("Cannot open the directory");
+		dlg.setContentText("The selected directory and its parent directory do not exist.");
+		dlg.showAndWait();
 	}
 
 	public static String showDirectoryChooser(String pathAsString, Window toOpenDialog) {
