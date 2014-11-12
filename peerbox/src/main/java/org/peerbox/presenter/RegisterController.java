@@ -4,6 +4,8 @@ import java.net.URL;
 import java.util.ResourceBundle;
 
 import javafx.application.Platform;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.concurrent.Task;
 import javafx.concurrent.WorkerStateEvent;
 import javafx.event.ActionEvent;
@@ -16,10 +18,15 @@ import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 
+import org.controlsfx.control.decoration.Decoration;
+import org.controlsfx.control.decoration.Decorator;
+import org.controlsfx.control.decoration.StyleClassDecoration;
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.hive2hive.processframework.exceptions.InvalidProcessStateException;
 import org.peerbox.ResultStatus;
 import org.peerbox.model.UserManager;
+import org.peerbox.presenter.validation.ValidationUtils;
+import org.peerbox.presenter.validation.ValidationUtils.ValidationResult;
 import org.peerbox.view.ViewNames;
 import org.peerbox.view.controls.ErrorLabel;
 import org.slf4j.Logger;
@@ -59,6 +66,12 @@ public class RegisterController implements Initializable {
 	
 	@FXML 
 	private ErrorLabel lblError;
+	
+	private Decoration errorDecorator;
+	
+	private PasswordValidator passwordValidator;
+	private UsernameValidator usernameValidator;
+	private PinValidator pinValidator;
 
 
 	@Inject
@@ -83,141 +96,30 @@ public class RegisterController implements Initializable {
 		grdForm.disableProperty().unbind();
 		grdForm.setDisable(false);
 		uninstallProgressIndicator();
-//		ValidationUtils.validateOnDemand(grdForm);
+		uninstallValidationDecorations();
 	}
 
 	/**
 	 * Installs decorators for field validation
 	 */
 	private void initializeValidations() {
-		wrapDecorationPane();
-//		addUsernameValidation();
-//		addPasswordValidation();
-//		addPinValidation();
+		errorDecorator = new StyleClassDecoration("validation-error");
+		usernameValidator = new UsernameValidator(txtUsername);
+		passwordValidator = new PasswordValidator(txtPassword_1, txtPassword_2);
+		pinValidator = new PinValidator(txtPin_1, txtPin_2);
 	}
+	
 
 	/**
-	 * For field validation, a decoration pane is required that installs the UI elements on 
-	 * the form fields. All fields within the decoration pane are covered automatically.
+	 * Remove the decorations that are installed during validation
 	 */
-	private void wrapDecorationPane() {
-//		Pane dp = FormValidationUtils.wrapInDecorationPane((Pane)grdForm.getParent(), grdForm);
-//		AnchorPane.setLeftAnchor(dp, 0.0);
-//		AnchorPane.setTopAnchor(dp, 0.0);
-//		AnchorPane.setRightAnchor(dp, 0.0);
-		
+	private void uninstallValidationDecorations() {
+		Decorator.removeDecoration(txtUsername, errorDecorator);
+		Decorator.removeDecoration(txtPassword_1, errorDecorator);
+		Decorator.removeDecoration(txtPassword_2, errorDecorator);
+		Decorator.removeDecoration(txtPin_1, errorDecorator);
+		Decorator.removeDecoration(txtPin_2, errorDecorator);
 	}
-
-//	private void addUsernameValidation() {
-//		Validator usernameEmptyValidator = new Validator() {
-//			@Override
-//			public ValidationEvent call(ValidationObject param) {
-//				final String username = getUsername();
-//				if (username.isEmpty()) {
-//					return new ValidationEvent(ValidationEvent.VALIDATION_ERROR, 0, "Please enter a username.");
-//				}
-//				return ValidationEvent.OK;
-//			}
-//		};
-//		Validator usernameFullValidator = new Validator() {
-//			@Override
-//			public ValidationEvent call(ValidationObject param) {
-//				try {
-//					final String username = getUsername();
-//					ValidationEvent usernameEmpty = usernameEmptyValidator.call(param);
-//					if(usernameEmpty != ValidationEvent.OK) {
-//						return usernameEmpty; 
-//					}
-//					if (fUserManager.isRegistered(username)) {
-//						setError("This username is already taken.");
-//						return new ValidationEvent(ValidationEvent.VALIDATION_ERROR, 0, "Username already taken.");
-//					}
-//				} catch (NoPeerConnectionException e) {
-//					setError("Network connection failed.");
-//					return new ValidationEvent(ValidationEvent.VALIDATION_ERROR, 0, "Network connection failed.");
-//				}
-//				return ValidationEvent.OK;
-//			}
-//		};
-//		
-//		ValidationUtils.install(txtUsername, usernameEmptyValidator, ValidationMode.ON_FLY);
-//		ValidationUtils.install(txtUsername, usernameFullValidator, ValidationMode.ON_DEMAND);
-//	}
-//
-//	private void addPasswordValidation() {
-//		Validator passwordValidator = new Validator() {
-//			@Override
-//			public ValidationEvent call(ValidationObject param) {
-//				final String password = txtPassword_1.getText();
-//				ValidationUtils.validateOnDemand(txtPassword_2); // refresh validation result of confirm field
-//				// as well
-//				if (password.isEmpty()) {
-//					return new ValidationEvent(ValidationEvent.VALIDATION_ERROR, 0, "Please enter a password.");
-//				}
-//				if (password.length() < Constants.MIN_PASSWORD_LENGTH) {
-//					return new ValidationEvent(ValidationEvent.VALIDATION_WARNING, 0, String.format(
-//							"The password should be at least %d characters long.", Constants.MIN_PASSWORD_LENGTH));
-//				}
-//				return ValidationEvent.OK;
-//			}
-//		};
-//		ValidationUtils.install(txtPassword_1, passwordValidator, ValidationMode.ON_FLY);
-//		ValidationUtils.install(txtPassword_1, passwordValidator, ValidationMode.ON_DEMAND);
-//	
-//		Validator passwordMatchValidator = new Validator() {
-//			@Override
-//			public ValidationEvent call(ValidationObject param) {
-//				final String password_1 = txtPassword_1.getText();
-//				final String password_2 = txtPassword_2.getText();
-//				if (!password_1.equals(password_2)) {
-//					return new ValidationEvent(ValidationEvent.VALIDATION_ERROR, 0, "The passwords are not the same.");
-//				}
-//				if (password_2.isEmpty()) {
-//					return new ValidationEvent(ValidationEvent.VALIDATION_ERROR, 0, "Please enter a password.");
-//				}
-//				return ValidationEvent.OK;
-//			}
-//		};
-//		ValidationUtils.install(txtPassword_2, passwordMatchValidator, ValidationMode.ON_FLY);
-//		ValidationUtils.install(txtPassword_2, passwordMatchValidator, ValidationMode.ON_DEMAND);
-//	}
-//
-//	private void addPinValidation() {
-//		Validator pinValidator = new Validator() {
-//			@Override
-//			public ValidationEvent call(ValidationObject param) {
-//				final String pin = txtPin_1.getText();
-//				ValidationUtils.validateOnDemand(txtPin_2); // refresh validation result of confirm field
-//				if (pin.isEmpty()) {
-//					return new ValidationEvent(ValidationEvent.VALIDATION_ERROR, 0, "Please enter a pin.");
-//				}
-//				if (pin.length() < Constants.MIN_PIN_LENGTH) {
-//					return new ValidationEvent(ValidationEvent.VALIDATION_WARNING, 0, String.format(
-//							"The PIN should be at least %d characters long.", Constants.MIN_PIN_LENGTH));
-//				}
-//				return ValidationEvent.OK;
-//			}
-//		};
-//		ValidationUtils.install(txtPin_1, pinValidator, ValidationMode.ON_FLY);
-//		ValidationUtils.install(txtPin_1, pinValidator, ValidationMode.ON_DEMAND);
-//
-//		Validator pinMatchValidator = new Validator() {
-//			@Override
-//			public ValidationEvent call(ValidationObject param) {
-//				final String pin_1 = txtPin_1.getText();
-//				final String pin_2 = txtPin_2.getText();
-//				if (!pin_1.equals(pin_2)) {
-//					return new ValidationEvent(ValidationEvent.VALIDATION_ERROR, 0, "The PINs are not the same.");
-//				}
-//				if (pin_2.isEmpty()) {
-//					return new ValidationEvent(ValidationEvent.VALIDATION_ERROR, 1, "Please enter a PIN.");
-//				}
-//				return ValidationEvent.OK;
-//			}
-//		};
-//		ValidationUtils.install(txtPin_2, pinMatchValidator, ValidationMode.ON_FLY);
-//		ValidationUtils.install(txtPin_2, pinMatchValidator, ValidationMode.ON_DEMAND);
-//	}
 
 	/**
 	 * Register new user action. Validates user input (on demand) first
@@ -225,14 +127,29 @@ public class RegisterController implements Initializable {
 	 */
 	public void registerAction(ActionEvent event) {
 		clearError();
-//		if (ValidationUtils.validateOnDemand(grdForm)) {
-		// TODO
-		if(true) {
+		if (!validateAll().isError()) {
 			Task<ResultStatus> task = createRegisterTask();
 			new Thread(task).start();
 		}
 	}
 	
+	/**
+	 * Complete validation of all input fields AND'ed
+	 * @return
+	 */
+	private ValidationResult validateAll() {
+		// note, we want to evaluate ALL fields, regardless whether one validation fails or not.
+		// this way, all fields will be analyzed and marked if validation fails and not just the first 
+		// field where validation fails.
+		// thus: use & and not &&
+		return (usernameValidator.validateUsername(true) == ValidationResult.OK
+				& passwordValidator.validatePassword() == ValidationResult.OK
+				& passwordValidator.validateConfirmPassword() == ValidationResult.OK
+				& pinValidator.validatePin() == ValidationResult.OK 
+				& pinValidator.validateConfirmPin() == ValidationResult.OK) 
+				? ValidationResult.OK : ValidationResult.ERROR;
+	}
+
 	/**
 	 * Go back to previous page
 	 * @param event
@@ -378,5 +295,182 @@ public class RegisterController implements Initializable {
 	 */
 	private String getUsername() {
 		return txtUsername.getText().trim();
+	}
+	
+	
+	private final class UsernameValidator {
+
+		private TextField txtUsername;
+
+		public UsernameValidator(TextField txtUsername) {
+			this.txtUsername = txtUsername;
+			initChangeListener();
+		}
+
+		private void initChangeListener() {
+			txtUsername.textProperty().addListener(new ChangeListener<String>() {
+				@Override
+				public void changed(ObservableValue<? extends String> observable, String oldValue,
+						String newValue) {
+					validateUsername(newValue, false);
+				}
+			});
+		}
+		
+		public ValidationResult validateUsername(boolean checkIfRegistered) {
+			return validateUsername(txtUsername.getText(), checkIfRegistered);
+		}
+
+		public ValidationResult validateUsername(String username, boolean checkIfRegistered) {
+			try {
+
+				final String usernameTr = username.trim();
+				ValidationResult res = ValidationUtils.validateUsername(usernameTr,
+						checkIfRegistered, fUserManager);
+
+				if (res.isError()) {
+					Decorator.addDecoration(txtUsername, errorDecorator);
+				} else {
+					Decorator.removeDecoration(txtUsername, errorDecorator);
+				}
+
+				return res;
+
+			} catch (NoPeerConnectionException e) {
+				setError("Network connection failed.");
+			}
+
+			return ValidationResult.ERROR;
+		}
+	}
+	
+	private final class PasswordValidator {
+
+		private PasswordField txtPassword;
+		private PasswordField txtConfirmPassword;
+
+		public PasswordValidator(PasswordField txtPassword, PasswordField txtConfirmPassword) {
+			this.txtPassword = txtPassword;
+			this.txtConfirmPassword = txtConfirmPassword;
+			initChangeListeners();
+		}
+
+		private void initChangeListeners() {
+			txtPassword.textProperty().addListener(new ChangeListener<String>() {
+				@Override
+				public void changed(ObservableValue<? extends String> observable, String oldValue,
+						String newValue) {
+					validatePassword(newValue);
+				}
+			});
+
+			txtConfirmPassword.textProperty().addListener(new ChangeListener<String>() {
+				@Override
+				public void changed(ObservableValue<? extends String> observable, String oldValue,
+						String newValue) {
+					final String password = txtPassword.getText();
+					validateConfirmPassword(password, newValue);
+				}
+			});
+		}
+		
+		public ValidationResult validatePassword() {
+			return validatePassword(txtPassword.getText());
+		}
+
+		public ValidationResult validatePassword(final String password) {
+			final String confirmPassword = txtConfirmPassword.getText();
+			validateConfirmPassword(password, confirmPassword);
+
+			ValidationResult res = ValidationUtils.validatePassword(password);
+			if (res.isError()) {
+				Decorator.addDecoration(txtPassword, errorDecorator);
+			} else {
+				Decorator.removeDecoration(txtPassword, errorDecorator);
+			}
+
+			return res;
+		}
+		
+		public ValidationResult validateConfirmPassword() {
+			return validateConfirmPassword(txtPassword.getText(), txtConfirmPassword.getText());
+		}
+
+		public ValidationResult validateConfirmPassword(final String password,
+				final String confirmPassword) {
+			ValidationResult res = ValidationUtils.validateConfirmPassword(password,
+					confirmPassword);
+			if (res.isError()) {
+				Decorator.addDecoration(txtConfirmPassword, errorDecorator);
+			} else {
+				Decorator.removeDecoration(txtConfirmPassword, errorDecorator);
+			}
+
+			return res;
+		}
+	}
+	
+	private final class PinValidator {
+
+		private PasswordField txtPin;
+		private PasswordField txtConfirmPin;
+
+		public PinValidator(PasswordField txtPin, PasswordField txtConfirmPin) {
+			this.txtPin = txtPin;
+			this.txtConfirmPin = txtConfirmPin;
+			initChangeListeners();
+		}
+
+		private void initChangeListeners() {
+			txtPin.textProperty().addListener(new ChangeListener<String>() {
+				@Override
+				public void changed(ObservableValue<? extends String> observable, String oldValue,
+						String newValue) {
+					validatePin(newValue);
+				}
+			});
+
+			txtConfirmPin.textProperty().addListener(new ChangeListener<String>() {
+				@Override
+				public void changed(ObservableValue<? extends String> observable, String oldValue,
+						String newValue) {
+					final String pin = txtPin.getText();
+					validateConfirmPin(pin, newValue);
+				}
+			});
+		}
+		
+		public ValidationResult validatePin() {
+			return validatePin(txtPin.getText());
+		}
+
+		public ValidationResult validatePin(final String pin) {
+			final String confirmPin = txtConfirmPin.getText();
+			validateConfirmPin(pin, confirmPin);
+
+			ValidationResult res = ValidationUtils.validatePin(pin);
+			if (res.isError()) {
+				Decorator.addDecoration(txtPin, errorDecorator);
+			} else {
+				Decorator.removeDecoration(txtPin, errorDecorator);
+			}
+
+			return res;
+		}
+		
+		public ValidationResult validateConfirmPin() {
+			return validateConfirmPin(txtPin.getText(), txtConfirmPin.getText());
+		}
+
+		public ValidationResult validateConfirmPin(final String pin, final String confirmPin) {
+			ValidationResult res = ValidationUtils.validateConfirmPin(pin, confirmPin);
+			if (res.isError()) {
+				Decorator.addDecoration(txtConfirmPin, errorDecorator);
+			} else {
+				Decorator.removeDecoration(txtConfirmPin, errorDecorator);
+			}
+
+			return res;
+		}
 	}
 }
