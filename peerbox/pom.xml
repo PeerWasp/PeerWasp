@@ -54,7 +54,7 @@
 			<version>18.0</version>
 			<scope>compile</scope>
 		</dependency>
-
+		
 		<!-- logback logging: http://logback.qos.ch/ -->
 		<dependency>
 			<groupId>ch.qos.logback</groupId>
@@ -83,14 +83,6 @@
 			<groupId>org.controlsfx</groupId>
 			<artifactId>controlsfx</artifactId>
 			<version>8.20.8</version>
-			<scope>compile</scope>
-		</dependency>
-
-		<!-- JideFX https://github.com/jidesoft/jidefx-oss -->
-		<dependency>
-			<groupId>com.jidesoft</groupId>
-			<artifactId>jidefx-validation</artifactId>
-			<version>0.9.1</version>
 			<scope>compile</scope>
 		</dependency>
 
