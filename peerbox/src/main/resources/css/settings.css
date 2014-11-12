@@ -13,4 +13,10 @@
 	-fx-graphic: url('../images/settings-account.png');
 }
 
+.tab.settings-activity .tab-label  {
+	-fx-content-display: top;
+	-fx-graphic: url('../images/settings-activity.png');
+}
+
+
 
