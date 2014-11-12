@@ -6,8 +6,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.SortedMap;
 import java.util.Vector;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.PriorityBlockingQueue;
@@ -55,7 +57,7 @@ public class FileEventManager implements ILocalFileEventListener, org.hive2hive.
     
     public FileEventManager(Path rootPath, boolean waitForNotifications) {
     	fileComponentQueue = new PriorityBlockingQueue<FileComponent>(1000, new FileActionTimeComparator());
-    	fileTree = new FolderComposite(rootPath, true);
+    	fileTree = new FolderComposite(rootPath, true, true);
     	actionExecutor = new ActionExecutor(this);
 		executorThread = new Thread(new ActionExecutor(this, waitForNotifications));
 		executorThread.start();
@@ -89,64 +91,101 @@ public class FileEventManager implements ILocalFileEventListener, org.hive2hive.
 	 * a conventional move operation (this is expected in particular when ordinary files 
 	 * are moved and the optimized move operation is not possible), otherwise just handle 
 	 * the event as a conventional create
+	 * 
+	 * Assumptions:
+	 * - The file exists
 	 */
 	@Override
 	public void onLocalFileCreated(Path path) {
 		logger.debug("onLocalFileCreate: {}", path);
-		
-		//FileComponent fileComponent = getOrCreateFileComponent(path);
 		FileComponent fileComponent = getFileComponent(path);
-		if(fileComponent == null){
-			fileComponent = createFileComponent(path, Files.isRegularFile(path));
-			getFileTree().putComponent(path.toString(), fileComponent);
-		}
-		logger.debug("File {} with content hash {} created", path, fileComponent.getContentHash());
-		
-		//if the create was a reaction to a remote move or update (i.e. H2H created the file), don't proceed
-		if(fileComponent.getAction().getCurrentState() instanceof RemoteUpdateState ||
-				fileComponent.getAction().getCurrentState() instanceof RemoteMoveState){
-			fileComponentQueue.remove(fileComponent); //just in case the component is still in the queue
-			fileComponent.getAction().getCurrentState().handleLocalCreateEvent();
-			fileComponentQueue.add(fileComponent);
+		if(fileComponent != null){
+			logger.trace("Created file or folder {} already exists, handling cancelled.", path);
 			return;
 		}
 		
-		if(fileComponent instanceof FolderComposite){
-//			String moveCandidateHash = null;
-//			FolderComposite moveCandidate = null;
-//			moveCandidateHash = discoverSubtreeStructure(path);
-//			moveCandidate = deletedByContentNamesHash.get(moveCandidateHash);
-//			if(moveCandidate != null){
-//				System.out.println("Folder Move detected!");
-//				initiateOptimizedMove(moveCandidate, path);
-//				return;
-//			} else {
-				fileComponent = discoverSubtreeCompletely(path);
-				getFileTree().putComponent(fileComponent.getPath().toString(), fileComponent);
-//			}
-		} else {
-			fileComponent.bubbleContentHashUpdate();
+		fileComponent = createFileComponent(path, Files.isRegularFile(path));
+		if(path.toFile().isDirectory()){
+			FolderComposite moveCandidate = findSourceOfOptimizedMove(path);
+			if(moveCandidate != null){
+				System.out.println("Folder Move detected!");
+				initiateOptimizedMove(moveCandidate, path);
+				return;
+			}
 		}
 		
-		fileComponentQueue.remove(fileComponent);
-		recoveredFileVersions.remove(fileComponent);
-	
-		// detect "move" event by looking at recent deletes
+		if(path.toFile().isDirectory()){
+			discoverSubtreeCompletely(path);
+		}
+		
 		FileComponent deletedComponent = findDeletedByContent(fileComponent);
 		Action createAction = fileComponent.getAction();
-		if(deletedComponent == null) {
-			createAction.handleLocalCreateEvent();
-		} else {
+		if(deletedComponent != null) {
 			Action deleteAction = deletedComponent.getAction();
 			if(!fileComponentQueue.remove(deletedComponent)){
-				System.err.println("Unexpected remove behaviour");
+				logger.trace("Unexpected remove behaviour for {}", path);
 			}
 			createAction.handleLocalMoveEvent(deleteAction.getFilePath());
+		} else {
+			createAction.handleLocalCreateEvent();
 		}
-		// add action to the queue again as timestamp was updated
-		fileComponentQueue.add(fileComponent);
+		
+		updateDataStructures(path, fileComponent);	
 	}
 	
+	/**
+	 * This helper method puts fileComponent to the tree, removes it from the queue, 
+	 * handles the local create event and adds it to the queue again.
+	 * @param path
+	 * @param fileComponent
+	 */
+	private void updateDataStructures(Path path, FileComponent fileComponent) {
+		getFileTree().putComponent(path.toString(), fileComponent);
+		//remove and add to reorder the queue (timestamp changed)
+		fileComponentQueue.remove(fileComponent);
+		fileComponentQueue.add(fileComponent);
+		fileComponent.bubbleContentHashUpdate();
+	}
+
+	private FolderComposite findSourceOfOptimizedMove(Path path) {
+		String moveCandidateHash = discoverSubtreeStructure(path);
+		return deletedByContentNamesHash.get(moveCandidateHash);
+	}
+	
+//		fileComponentQueue.remove(fileComponent);
+//		recoveredFileVersions.remove(fileComponent);
+//	
+//		// detect "move" event by looking at recent deletes
+//		FileComponent deletedComponent = findDeletedByContent(fileComponent);
+//		Action createAction = fileComponent.getAction();
+//		if(deletedComponent == null) {
+//			if(componentAsFolder == null){
+//				createAction.handleLocalCreateEvent();			
+//			} else {
+//				addRecursively(componentAsFolder);
+//				
+//			}
+//
+//			
+//		} else {
+//			Action deleteAction = deletedComponent.getAction();
+//			if(!fileComponentQueue.remove(deletedComponent)){
+//				System.err.println("Unexpected remove behaviour");
+//			}
+//			createAction.handleLocalMoveEvent(deleteAction.getFilePath());
+//		}
+//		// add action to the queue again as timestamp was updated
+//		fileComponentQueue.add(fileComponent);
+//	}
+	
+private void addRecursively(FolderComposite componentAsFolder) {
+	SortedMap<String, FileComponent> children = componentAsFolder.getChildren();
+	for(FileComponent child : children.values()){
+		child.getAction().handleLocalCreateEvent();
+		fileComponentQueue.add(child);
+	}
+}
+
 //	public void onFileRecovered(Path path){
 //		FileComponent fileComponent = getFileComponent(path);
 //		if(fileComponent == null){
@@ -239,7 +278,7 @@ public class FileEventManager implements ILocalFileEventListener, org.hive2hive.
 			
 			//only add the file to the set of deleted files and to the action queue
 			//if it was uploaded to the DHT before.
-			if(deletedComponent.getIsUploaded()){
+			if(deletedComponent.getActionIsUploaded()){
 				
 				deletedByContentHash.put(deletedComponent.getContentHash(), deletedComponent);
 				if(deletedComponent instanceof FolderComposite){
