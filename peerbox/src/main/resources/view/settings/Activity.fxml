@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.text.*?>
+<?import javafx.scene.media.*?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import java.lang.*?>
+<?import javafx.scene.layout.*?>
+
+<GridPane hgap="10.0" prefHeight="450.0" prefWidth="600.0" vgap="10.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.peerbox.presenter.settings.Activity">
+	<columnConstraints>
+		<ColumnConstraints hgrow="ALWAYS" minWidth="60.0" />
+	</columnConstraints>
+	<rowConstraints>
+		<RowConstraints />
+		<RowConstraints minHeight="-Infinity" prefHeight="150.0" vgrow="SOMETIMES" />
+		<RowConstraints />
+	</rowConstraints>
+	<children>
+		<VBox spacing="10.0" GridPane.rowIndex="0">
+			<children>
+				<Label text="Recent Activity">
+					<font>
+						<Font name="System Bold" size="13.0" />
+					</font>
+					<VBox.margin>
+						<Insets />
+					</VBox.margin>
+				</Label>
+				<Label text="See recent activities about up- and downloaded files and their state of synchronization" wrapText="true" />
+			</children>
+		</VBox>
+		<GridPane hgap="10.0" vgap="10.0" GridPane.rowIndex="1">
+			<columnConstraints>
+				<ColumnConstraints hgrow="SOMETIMES" minWidth="50.0" />
+				<ColumnConstraints hgrow="NEVER" minWidth="20.0" prefWidth="100.0" />
+			</columnConstraints>
+			<rowConstraints>
+				<RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+			</rowConstraints>
+			<children>
+            <TextArea fx:id="taRecentActivity" editable="false" prefHeight="344.0" prefWidth="624.0" />
+			</children>
+		</GridPane>
+		<HBox alignment="CENTER_LEFT" GridPane.rowIndex="2">
+			<padding>
+				<Insets top="20.0" />
+			</padding>
+		</HBox>
+	</children>
+	<padding>
+		<Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+	</padding>
+</GridPane>
