@@ -85,6 +85,7 @@
 		<replace file="${targetdir}/${launch4j.configname}">
 			<replacefilter token="@PEERBOX_JAR@" value="${peerbox.jarname}" />
 			<replacefilter token="@APP_VERSION@" value="${peerbox.version}" />
+            <replacefilter token="@JAVA_VERSION_MIN@" value="${launch4.java_version_min}" />
 		</replace>
 
 		<exec executable="${launch4j.exe}" failonerror="true">
