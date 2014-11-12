@@ -5,20 +5,17 @@ import java.net.URL;
 import java.net.UnknownHostException;
 import java.util.ResourceBundle;
 
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.TextField;
-import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
-import jidefx.scene.control.validation.ValidationMode;
-import jidefx.scene.control.validation.ValidationUtils;
-import jidefx.scene.control.validation.Validator;
 
 import org.peerbox.UserConfig;
 import org.peerbox.model.H2HManager;
-import org.peerbox.utils.FormValidationUtils;
+import org.peerbox.presenter.validation.EmptyTextFieldValidator;
+import org.peerbox.presenter.validation.ValidationUtils.ValidationResult;
 import org.peerbox.view.ViewNames;
 import org.peerbox.view.controls.ErrorLabel;
 import org.slf4j.Logger;
@@ -40,6 +37,8 @@ public class JoinNetworkController implements Initializable {
 	private TextField txtBootstrapIP;
 	@FXML
 	private ErrorLabel lblError;
+	
+	private EmptyTextFieldValidator bootstrapValidator;
 
 	@Inject
 	public JoinNetworkController(NavigationService navigationService, H2HManager h2hManager) {
@@ -48,23 +47,14 @@ public class JoinNetworkController implements Initializable {
 	}
 
 	public void initialize(URL arg0, ResourceBundle arg1) {
+		Platform.runLater(() -> {
+			txtBootstrapIP.requestFocus();
+		});
 		initializeValidations();
 	}
 
 	private void initializeValidations() {
-		wrapDecorationPane();
-
-		Validator bootstrapAddrValidator = FormValidationUtils.createEmptyTextFieldValidator(
-				txtBootstrapIP, "Please enter an address.", true);
-		ValidationUtils.install(txtBootstrapIP, bootstrapAddrValidator, ValidationMode.ON_FLY);
-		ValidationUtils.install(txtBootstrapIP, bootstrapAddrValidator, ValidationMode.ON_DEMAND);
-	}
-
-	private void wrapDecorationPane() {
-		Pane dp = FormValidationUtils.wrapInDecorationPane((Pane) vboxForm.getParent(), vboxForm);
-		AnchorPane.setLeftAnchor(dp, 0.0);
-		AnchorPane.setTopAnchor(dp, 0.0);
-		AnchorPane.setRightAnchor(dp, 0.0);
+		bootstrapValidator = new EmptyTextFieldValidator(txtBootstrapIP, true, ValidationResult.BOOTSTRAPHOST_EMPTY);
 	}
 
 	public void navigateBackAction(ActionEvent event) {
@@ -74,7 +64,7 @@ public class JoinNetworkController implements Initializable {
 
 	public void joinNetworkAction(ActionEvent event) {
 		clearError();
-		if (!ValidationUtils.validateOnDemand(vboxForm)) {
+		if (validateAll().isError()) {
 			return;
 		}
 
@@ -95,6 +85,11 @@ public class JoinNetworkController implements Initializable {
 			setError(String.format("Could not connect to '%s'", address));
 			logger.info("Could not connect to '{}' ({})", address, e.getMessage());
 		}
+	}
+	
+	private ValidationResult validateAll() {
+		return (bootstrapValidator.validate() == ValidationResult.OK) 
+				? ValidationResult.OK : ValidationResult.ERROR;
 	}
 
 	private void udpateUserConfig() {
