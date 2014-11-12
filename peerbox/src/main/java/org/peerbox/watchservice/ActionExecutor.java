@@ -81,7 +81,14 @@ public class ActionExecutor implements Runnable, IActionEventListener {
 //				}
 					logger.debug("Currently executing/pending actions: {}/{}", executingActions.size(), fileEventManager.getFileComponentQueue().size());
 					next = fileEventManager.getFileComponentQueue().take();
-					if (isActionReady(next.getAction()) && isExecuteSlotFree()) {
+					if(!isFileComponentReady(next)){
+						fileEventManager.getFileComponentQueue().remove(next);
+						next.getAction().updateTimestamp();
+						fileEventManager.getFileComponentQueue().add(next);
+						logger.trace("FileComponent {} was not ready yet: timestamp updated and put back to queue.", next.getPath());
+						continue;
+					}
+					if (isTimerReady(next.getAction()) && isExecuteSlotFree()) {
 
 						if (next.getAction().getCurrentState() instanceof LocalDeleteState) {
 							removeFromDeleted(next);
@@ -93,7 +100,6 @@ public class ActionExecutor implements Runnable, IActionEventListener {
 							executingActions.add(next.getAction());
 						}
 						next.getAction().execute(fileEventManager.getFileManager());
-						next.setIsUploaded(true);
 					} else {
 						if(executingActions.size() != 0) {
 //							System.out.println("Blocking action: " + executingActions.get(0).getFilePath() + " " + executingActions.get(0).getCurrentState().getClass());
@@ -123,6 +129,10 @@ public class ActionExecutor implements Runnable, IActionEventListener {
 		}
 	}
 
+
+	private boolean isFileComponentReady(FileComponent next) {
+		return next.isReady();
+	}
 
 	private boolean isExecuteSlotFree() {
 		return executingActions.size() < NUMBER_OF_EXECUTE_SLOTS;
@@ -161,7 +171,7 @@ public class ActionExecutor implements Runnable, IActionEventListener {
 	 * @param action Action to be executed
 	 * @return true if ready to be executed, false otherwise
 	 */
-	private boolean isActionReady(Action action) {
+	private boolean isTimerReady(Action action) {
 		long ageMs = getActionAge(action);
 		return ageMs >= ACTION_WAIT_TIME_MS;
 	}
@@ -179,6 +189,7 @@ public class ActionExecutor implements Runnable, IActionEventListener {
 	@Override
 	public void onActionExecuteSucceeded(Action action) {
 		executingActions.remove(action);
+		action.setIsUploaded(true);
 		logger.debug("Action successful: {} {}", action.getFilePath(), action.getCurrentState().getClass().toString());
 		//logger.debug("Currently executing/pending actions: {}/{}", executingActions.size(), fileEventManager.getFileComponentQueue().size());
 	}
