@@ -21,7 +21,11 @@ public interface FileComponent {
 	 * in which this FileComponent is contained.
 	 */
 	public default void bubbleContentHashUpdate(){
-		boolean hasChanged = updateContentHash();
+		bubbleContentHashUpdate(null);
+	}
+	
+	public default void bubbleContentHashUpdate(String contentHash){
+		boolean hasChanged = updateContentHash(contentHash);
 		if(hasChanged){
 			getParent().bubbleContentHashUpdate();
 		}
@@ -33,7 +37,7 @@ public interface FileComponent {
 	
 	public FileComponent getComponent(String path);
 	
-	public boolean updateContentHash();
+	public boolean updateContentHash(String contentHash);
 	
 	public Path getPath();
 	public void setPath(Path parent);

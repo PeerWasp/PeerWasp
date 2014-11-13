@@ -189,7 +189,7 @@ private void addRecursively(FolderComposite componentAsFolder) {
 
 	@Override
 	public void onLocalFileModified(Path path) {
-		logger.debug("onFileModified: {}", path);
+		logger.debug("onLocalFileModified: {}", path);
 		
 		//Get component to modify and remove it from action queue
 		FileComponent toModify = getFileComponent(path);
@@ -201,6 +201,14 @@ private void addRecursively(FolderComposite componentAsFolder) {
 			 // a folder can have only 1 version in H2H. Hence, we cannot execute an update!
 			return;
 		}
+		String newHash = PathUtils.computeFileContentHash(path);
+		if(toModify.getContentHash().equals(newHash)){
+			logger.info("The content hash has not changed despite the onLocalFileModified event. No actions taken & returned.");
+			return;
+		} else {
+			toModify.bubbleContentHashUpdate();
+		}
+		
 		Action lastAction = toModify.getAction();
 		fileComponentQueue.remove(toModify);
 		

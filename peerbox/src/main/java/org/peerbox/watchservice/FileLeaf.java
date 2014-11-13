@@ -84,24 +84,24 @@ public class FileLeaf extends AbstractFileComponent implements FileComponent{
 		return this.path;
 	}
 	
+
+	public boolean updateContentHash() {
+		return updateContentHash(null);
+	}
+	
 	/**
 	 * Computes and updates this FileLeafs contentHash property.
-	 * @return true if the contentHash hash changed, false otherwise
+	 * @return true if the contentHash hash changed, false otherwise.
+	 * @param newHash provided content hash. If this is null, the content hash is
+	 * calculated on the fly. If this is not null, it is assumed to be the correct
+	 * hash of the file's content at the time of the call.
 	 */
 	@Override
-	public boolean updateContentHash() {
-		String newHash = "";
-		if(path != null && path.toFile() != null){
-			try {
-				byte[] rawHash = HashUtil.hash(path.toFile());
-				if(rawHash != null){
-					newHash = Action.createStringFromByteArray(rawHash);
-				}
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
-		logger.debug("File {} has contentHash: {}", path, newHash);
+	public boolean updateContentHash(String newHash) {
+		// TODO Auto-generated method stub
+		if(newHash == null){
+			newHash = PathUtils.computeFileContentHash(getPath());
+		} 
 		if(!contentHash.equals(newHash)){
 			contentHash = newHash;
 			return true;
@@ -145,4 +145,5 @@ public class FileLeaf extends AbstractFileComponent implements FileComponent{
 		// TODO Auto-generated method stub
 		return true;
 	}
+
 }

@@ -189,10 +189,10 @@ public class FolderComposite extends AbstractFileComponent implements FileCompon
 		FileComponent nextLevelComponent = children.get(nextLevelPath);
 		
 		if(newRemainingPath.equals("")){
-			if(nextLevelComponent != null && updateContentHashes){
-				nextLevelComponent.bubbleContentHashUpdate();
-			}
-			bubbleContentNamesHashUpdate();
+//			if(nextLevelComponent != null && updateContentHashes){
+//				nextLevelComponent.bubbleContentHashUpdate();
+//			}
+//			bubbleContentNamesHashUpdate();
 			return children.get(nextLevelPath);
 		} else {
 			if(nextLevelComponent == null){
@@ -203,17 +203,23 @@ public class FolderComposite extends AbstractFileComponent implements FileCompon
 		}
 	}
 
-	@Override
+
 	public boolean updateContentHash() {
-		String tmp = "";
-		for(FileComponent value : children.values()){
-			tmp = tmp.concat(value.getContentHash());
+		return updateContentHash(null);
+	}
+	
+	@Override
+	public boolean updateContentHash(String newHash) {
+		if(newHash == null){
+			String tmp = "";
+			for(FileComponent value : children.values()){
+				tmp = tmp.concat(value.getContentHash());
+			}
+			byte[] rawHash = HashUtil.hash(tmp.getBytes());
+			newHash = Base64.getEncoder().encodeToString(rawHash);
 		}
-		
-		byte[] rawHash = HashUtil.hash(tmp.getBytes());
-		String updatedContentHash = Base64.getEncoder().encodeToString(rawHash);
-		if(!contentHash.equals(updatedContentHash)){
-			contentHash = Base64.getEncoder().encodeToString(rawHash);
+		if(!contentHash.equals(newHash)){
+			contentHash = newHash;
 			return true;
 		}
 		return false;
