@@ -15,19 +15,21 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
+import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Window;
 
-import org.controlsfx.control.decoration.Decorator;
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.hive2hive.processframework.exceptions.InvalidProcessStateException;
 import org.peerbox.ResultStatus;
 import org.peerbox.UserConfig;
 import org.peerbox.model.UserManager;
 import org.peerbox.presenter.validation.EmptyTextFieldValidator;
+import org.peerbox.presenter.validation.RootPathValidator;
+import org.peerbox.presenter.validation.SelectRootPathUtils;
 import org.peerbox.presenter.validation.ValidationUtils.ValidationResult;
 import org.peerbox.view.ViewNames;
 import org.peerbox.view.controls.ErrorLabel;
@@ -47,12 +49,20 @@ public class LoginController implements Initializable {
 
 	@FXML
 	private TextField txtUsername;
+	@FXML 
+	private Label lblUsernameError;
 	@FXML
 	private PasswordField txtPassword;
+	@FXML 
+	private Label lblPasswordError;
 	@FXML
 	private PasswordField txtPin;
+	@FXML 
+	private Label lblPinError;
 	@FXML
 	private TextField txtRootPath;
+	@FXML 
+	private Label lblPathError;
 	@FXML
 	private CheckBox chbAutoLogin;
 	@FXML
@@ -66,9 +76,10 @@ public class LoginController implements Initializable {
 	@FXML
 	private ProgressIndicator piProgress;
 	
-	EmptyTextFieldValidator usernameValidator;
-	EmptyTextFieldValidator passwordValidator;
-	EmptyTextFieldValidator pinValidator;
+	private EmptyTextFieldValidator usernameValidator;
+	private EmptyTextFieldValidator passwordValidator;
+	private EmptyTextFieldValidator pinValidator;
+	private RootPathValidator pathValidator;
 	
 	@Inject
 	public LoginController(NavigationService navigationService, UserManager userManager) {
@@ -103,14 +114,19 @@ public class LoginController implements Initializable {
 
 	private void initializeValidations() {
 		usernameValidator = new EmptyTextFieldValidator(txtUsername, true, ValidationResult.USERNAME_EMPTY);
+		usernameValidator.setErrorProperty(lblUsernameError.textProperty());
 		passwordValidator = new EmptyTextFieldValidator(txtPassword, false, ValidationResult.PASSWORD_EMPTY);
+		passwordValidator.setErrorProperty(lblPasswordError.textProperty());
 		pinValidator = new EmptyTextFieldValidator(txtPin, false, ValidationResult.PIN_EMPTY);
+		pinValidator.setErrorProperty(lblPinError.textProperty());
+		pathValidator = new RootPathValidator(txtRootPath, lblPathError.textProperty());
 	}
 	
 	private void uninstallValidationDecorations() {
-		Decorator.removeDecoration(txtUsername, usernameValidator.getDecorator());
-		Decorator.removeDecoration(txtPassword, passwordValidator.getDecorator());
-		Decorator.removeDecoration(txtPin, pinValidator.getDecorator());
+		usernameValidator.reset();
+		passwordValidator.reset();
+		pinValidator.reset();
+		pathValidator.reset();
 	}
 
 	public void loginAction(ActionEvent event) {
@@ -118,9 +134,7 @@ public class LoginController implements Initializable {
 		try {
 			clearError();
 			ValidationResult validationRes = validateAll();
-			inputValid = !validationRes.isError()
-					&& SelectRootPathUtils.verifyRootPath(txtRootPath.getText()) 
-					&& checkUserExists();
+			inputValid = !validationRes.isError() && checkUserExists();
 		} catch (NoPeerConnectionException e) {
 			inputValid = false;
 			setError("Connection to the network failed.");
@@ -137,6 +151,7 @@ public class LoginController implements Initializable {
 		return (usernameValidator.validate() == ValidationResult.OK
 				& passwordValidator.validate() == ValidationResult.OK
 				& pinValidator.validate() == ValidationResult.OK
+				& pathValidator.validate() == ValidationResult.OK 
 				) ? ValidationResult.OK : ValidationResult.ERROR;
 	}
 

@@ -28,4 +28,9 @@ public class RootPathValidator extends TextFieldValidator {
 		return res;
 	}
 
+	public void reset() {
+		undecorateError();
+		clearErrorMessage();
+	}
+
 }
