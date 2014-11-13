@@ -1,34 +1,25 @@
 package org.peerbox.presenter.validation;
 
-import javafx.beans.property.StringProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.scene.control.TextField;
 
-import org.controlsfx.control.decoration.Decoration;
-import org.controlsfx.control.decoration.Decorator;
-import org.controlsfx.control.decoration.StyleClassDecoration;
 import org.peerbox.presenter.validation.ValidationUtils.ValidationResult;
 
-public final class EmptyTextFieldValidator {
+public final class EmptyTextFieldValidator extends TextFieldValidator {
 	
-	private TextField txt;
 	private boolean trim;
 	private ValidationResult returnOnError;
-	private Decoration errorDecorator;
-	private StringProperty errorPoperty;
 
 	public EmptyTextFieldValidator(TextField txt, boolean trim, ValidationResult returnOnError) {
-		this.txt = txt;
+		super(txt, null);
 		this.trim = trim;
 		this.returnOnError = returnOnError;
-		this.errorPoperty = null;
-		this.errorDecorator = new StyleClassDecoration("validation-error");
 		initChangeListener();
 	}
 
 	private void initChangeListener() {
-		txt.textProperty().addListener(new ChangeListener<String>() {
+		validateTxtField.textProperty().addListener(new ChangeListener<String>() {
 			@Override
 			public void changed(ObservableValue<? extends String> observable, String oldValue,
 					String newValue) {
@@ -38,35 +29,26 @@ public final class EmptyTextFieldValidator {
 	}
 	
 	public ValidationResult validate() {
-		return validate(txt.getText());
+		return validate(validateTxtField.getText());
 	}
 
-	private ValidationResult validate(String newValue) {
+	public ValidationResult validate(final String newValue) {
 		final String value = trim ? newValue.trim() : newValue;
 		ValidationResult res = ValidationResult.ERROR;
 		if(value.isEmpty()) {
-			Decorator.addDecoration(txt, errorDecorator);
+			decorateError();
 			res = returnOnError;
+			setErrorMessage(res.getMessage());
 		} else {
-			Decorator.removeDecoration(txt, errorDecorator);
+			undecorateError();
 			res = ValidationResult.OK;
-		}
-		
-		if (errorPoperty != null) {
-			if (res.isError()) {
-				errorPoperty.setValue(res.getMessage());
-			} else {
-				errorPoperty.setValue("");
-			}
+			clearErrorMessage();
 		}
 		return res;
 	}
 
-	public Decoration getDecorator() {
-		return errorDecorator;
-	}
-
-	public void setErrorProperty(StringProperty errorProperty) {
-		this.errorPoperty  = errorProperty;
+	public void reset() {
+		undecorateError();
+		clearErrorMessage();
 	}
 }
