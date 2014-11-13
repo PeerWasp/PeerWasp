@@ -1,3 +1,5 @@
+ /* 
+ 
  .background {
     -fx-background-image: url('../images/peerbox-background.jpg');
 }
@@ -105,10 +107,16 @@
   -fx-background-color: transparent;
 }
 
+*/
+
+
 /* progress indicator styling */
+/* 
 .progress-indicator {
 -fx-progress-color: white;
 }
+ */
+ 
 
 /*
 .button { 
@@ -156,13 +164,19 @@
 
 */
 
+.validation-error-label {
+	-fx-text-fill: darkred;
+}
 
 .validation-error {
  	/* parameters: type, color, radius, spread, offset x/y */
     -fx-effect: innershadow(three-pass-box, red, 7, 0.4, 0, 0);
 }
 
+/* 
 .validation-warning {
     -fx-effect: innershadow(three-pass-box, yellow, 7, 0.4, 0, 0);
 }
+*/
+
 
