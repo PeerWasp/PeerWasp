@@ -15,10 +15,8 @@ import javafx.scene.control.TextField;
 import javafx.stage.Window;
 
 import org.apache.commons.io.FileUtils;
-import org.controlsfx.control.action.Action;
-import org.controlsfx.dialog.Dialog;
 import org.peerbox.UserConfig;
-import org.peerbox.presenter.SelectRootPathUtils;
+import org.peerbox.presenter.validation.SelectRootPathUtils;
 import org.peerbox.view.converter.EnabledDisabledStringConverter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -95,8 +93,8 @@ public class Account implements Initializable {
 
 			File newPathParent = new File(newPathParentStr);
 			File newPath = new File(newPathParent, currentPath.getName());
-			Action result = SelectRootPathUtils.confirmMoveDirectoryDialog(newPath);
-			if(result == Dialog.Actions.YES) {
+			boolean yes = SelectRootPathUtils.confirmMoveDirectoryDialog(newPath);
+			if(yes) {
 				FileUtils.moveDirectoryToDirectory(currentPath, newPathParent, false);
 				
 				txtRootPath.setText(newPath.toString());

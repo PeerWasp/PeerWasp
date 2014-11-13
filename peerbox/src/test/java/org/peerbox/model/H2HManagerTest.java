@@ -10,7 +10,7 @@ import java.net.UnknownHostException;
 import org.hive2hive.core.api.configs.NetworkConfiguration;
 import org.junit.Before;
 import org.junit.Test;
-import org.peerbox.presenter.SelectRootPathUtils;
+import org.peerbox.presenter.validation.SelectRootPathUtils;
 
 public class H2HManagerTest {
 	

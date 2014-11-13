@@ -1,3 +1,5 @@
+ /* 
+ 
  .background {
     -fx-background-image: url('../images/peerbox-background.jpg');
 }
@@ -105,10 +107,16 @@
   -fx-background-color: transparent;
 }
 
+*/
+
+
 /* progress indicator styling */
+/* 
 .progress-indicator {
 -fx-progress-color: white;
 }
+ */
+ 
 
 /*
 .button { 
@@ -156,40 +164,19 @@
 
 */
 
+.validation-error-label {
+	-fx-text-fill: darkred;
+}
 
+.validation-error {
+ 	/* parameters: type, color, radius, spread, offset x/y */
+    -fx-effect: innershadow(three-pass-box, red, 7, 0.4, 0, 0);
+}
 
-
-/*  You can use pseudo-class to change the style for a particular type of nodes. Available pseudo-classes are:
-        validation-error
-        validation-warning
-        validation-info
-        validation-ok
+/* 
+.validation-warning {
+    -fx-effect: innershadow(three-pass-box, yellow, 7, 0.4, 0, 0);
+}
 */
-.text-field:validation-error {
-    -fx-background-color: #ff000077, -fx-text-box-border, -fx-control-inner-background;
-}
-
-/* You can combine validation related pseudo-classes with other pseudo-class */
-.text-field:validation-error:focused {
-    -fx-background-color: #ff0000ff, -fx-text-box-border, -fx-control-inner-background;
-    -fx-background-insets: -0.4, 1, 2
-}
-
-.choice-box:validation-error {
-    -fx-background-color: -fx-shadow-highlight-color, #ff00ff77, -fx-inner-border, -fx-body-color;
-}
-
-/* you can also use wildcard with pseudo class to change the style for all the nodes with certain validation result */
-*:validation-warning {
-    -fx-text-fill: #aaaa00ff;
-}
-
-*:validation-error {
-    -fx-text-fill: #aaaa00ff;
-}
-
-*:validation-ok {
-    -fx-text-fill: #00aa00ff;
-}
 
 
