@@ -41,7 +41,6 @@ public class ValidationUtils {
 		}
 	}
 	
-	
 	public static ValidationResult validateUsername(final String username, boolean checkIfRegistered, final UserManager userManager) throws NoPeerConnectionException {
 		if(username == null) {
 			throw new IllegalArgumentException("Argument username must not be null.");
@@ -63,67 +62,20 @@ public class ValidationUtils {
 		return ValidationResult.OK;
 	}
 	
-	
-	public static ValidationResult validatePassword(final String password) {
-		if (password == null) {
-			throw new IllegalArgumentException("Argument password must not be null.");
-		}
-
-		if (password.isEmpty()) {
-			return ValidationResult.PASSWORD_EMPTY;
-		}
-
-		if (password.length() < Constants.MIN_PASSWORD_LENGTH) {
-			return ValidationResult.PASSWORD_TOO_SHORT;
-		}
-
-		return ValidationResult.OK;
-	}
-
-
-	public static ValidationResult validateConfirmPassword(String password, String confirmPassword) {
-		if(password == null) {
-			throw new IllegalArgumentException("Argument password must not be null.");
-		}
-		if(confirmPassword == null) {
-			throw new IllegalArgumentException("Argument confirmPassword must not be null.");
-		}
-		
-		if(!password.equals(confirmPassword)) {
-			return ValidationResult.PASSWORD_MISMATCH;
-		}
-		
-		if(confirmPassword.isEmpty()) {
-			return ValidationResult.PASSWORD_EMPTY;
-		}
-		
-		return ValidationResult.OK;
-	}
-	
-	
-	public static ValidationResult validatePin(final String pin) {
-		if (pin == null) {
+	public static ValidationResult validatePins(final String pin, final String confirmPin) {
+		if(pin == null) {
 			throw new IllegalArgumentException("Argument pin must not be null.");
 		}
-
+		if(confirmPin == null) {
+			throw new IllegalArgumentException("Argument confirmPin must not be null.");
+		}
+		
 		if (pin.isEmpty()) {
 			return ValidationResult.PIN_EMPTY;
 		}
 
 		if (pin.length() < Constants.MIN_PIN_LENGTH) {
 			return ValidationResult.PIN_TOO_SHORT;
-		}
-
-		return ValidationResult.OK;
-	}
-
-
-	public static ValidationResult validateConfirmPin(String pin, String confirmPin) {
-		if(pin == null) {
-			throw new IllegalArgumentException("Argument pin must not be null.");
-		}
-		if(confirmPin == null) {
-			throw new IllegalArgumentException("Argument confirmPin must not be null.");
 		}
 		
 		if(!pin.equals(confirmPin)) {
@@ -132,6 +84,33 @@ public class ValidationUtils {
 		
 		if(confirmPin.isEmpty()) {
 			return ValidationResult.PIN_EMPTY;
+		}
+		
+		return ValidationResult.OK;
+	}
+
+	public static ValidationResult validatePasswords(final String password, final String confirmPassword) {
+		if(password == null) {
+			throw new IllegalArgumentException("Argument password must not be null.");
+		}
+		if(confirmPassword == null) {
+			throw new IllegalArgumentException("Argument confirmPassword must not be null.");
+		}
+		
+		if (password.isEmpty()) {
+			return ValidationResult.PASSWORD_EMPTY;
+		}
+
+		if (password.length() < Constants.MIN_PASSWORD_LENGTH) {
+			return ValidationResult.PASSWORD_TOO_SHORT;
+		}
+		
+		if(!password.equals(confirmPassword)) {
+			return ValidationResult.PASSWORD_MISMATCH;
+		}
+		
+		if(confirmPassword.isEmpty()) {
+			return ValidationResult.PASSWORD_EMPTY;
 		}
 		
 		return ValidationResult.OK;

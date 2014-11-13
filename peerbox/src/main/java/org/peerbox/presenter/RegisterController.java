@@ -4,8 +4,6 @@ import java.net.URL;
 import java.util.ResourceBundle;
 
 import javafx.application.Platform;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.concurrent.Task;
 import javafx.concurrent.WorkerStateEvent;
 import javafx.event.ActionEvent;
@@ -13,19 +11,19 @@ import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 
-import org.controlsfx.control.decoration.Decoration;
-import org.controlsfx.control.decoration.Decorator;
-import org.controlsfx.control.decoration.StyleClassDecoration;
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.hive2hive.processframework.exceptions.InvalidProcessStateException;
 import org.peerbox.ResultStatus;
 import org.peerbox.model.UserManager;
-import org.peerbox.presenter.validation.ValidationUtils;
+import org.peerbox.presenter.validation.CombinedPasswordValidator;
+import org.peerbox.presenter.validation.CombinedPinValidator;
+import org.peerbox.presenter.validation.UsernameValidator;
 import org.peerbox.presenter.validation.ValidationUtils.ValidationResult;
 import org.peerbox.view.ViewNames;
 import org.peerbox.view.controls.ErrorLabel;
@@ -48,11 +46,17 @@ public class RegisterController implements Initializable {
 	@FXML
 	private TextField txtUsername;
 	@FXML
+	private Label lblUsernameError;
+	@FXML
 	private PasswordField txtPassword_1;
+	@FXML
+	private Label lblPasswordError;
 	@FXML
 	private PasswordField txtPassword_2;
 	@FXML
 	private PasswordField txtPin_1;
+	@FXML
+	private Label lblPinError;
 	@FXML
 	private PasswordField txtPin_2;
 	@FXML
@@ -67,12 +71,9 @@ public class RegisterController implements Initializable {
 	@FXML 
 	private ErrorLabel lblError;
 	
-	private Decoration errorDecorator;
-	
-	private PasswordValidator passwordValidator;
 	private UsernameValidator usernameValidator;
-	private PinValidator pinValidator;
-
+	private CombinedPasswordValidator passwordValidator;
+	private CombinedPinValidator pinValidator;
 
 	@Inject
 	public RegisterController(NavigationService navigationService, UserManager userManager) {
@@ -103,10 +104,9 @@ public class RegisterController implements Initializable {
 	 * Installs decorators for field validation
 	 */
 	private void initializeValidations() {
-		errorDecorator = new StyleClassDecoration("validation-error");
-		usernameValidator = new UsernameValidator(txtUsername);
-		passwordValidator = new PasswordValidator(txtPassword_1, txtPassword_2);
-		pinValidator = new PinValidator(txtPin_1, txtPin_2);
+		usernameValidator = new UsernameValidator(txtUsername, lblUsernameError.textProperty(), fUserManager);
+		passwordValidator = new CombinedPasswordValidator(txtPassword_1, lblPasswordError.textProperty(), txtPassword_2);
+		pinValidator = new CombinedPinValidator(txtPin_1, lblPinError.textProperty(), txtPin_2);
 	}
 	
 
@@ -114,11 +114,9 @@ public class RegisterController implements Initializable {
 	 * Remove the decorations that are installed during validation
 	 */
 	private void uninstallValidationDecorations() {
-		Decorator.removeDecoration(txtUsername, errorDecorator);
-		Decorator.removeDecoration(txtPassword_1, errorDecorator);
-		Decorator.removeDecoration(txtPassword_2, errorDecorator);
-		Decorator.removeDecoration(txtPin_1, errorDecorator);
-		Decorator.removeDecoration(txtPin_2, errorDecorator);
+		usernameValidator.reset();
+		passwordValidator.reset();
+		pinValidator.reset();
 	}
 
 	/**
@@ -142,11 +140,9 @@ public class RegisterController implements Initializable {
 		// this way, all fields will be analyzed and marked if validation fails and not just the first 
 		// field where validation fails.
 		// thus: use & and not &&
-		return (usernameValidator.validateUsername(true) == ValidationResult.OK
-				& passwordValidator.validatePassword() == ValidationResult.OK
-				& passwordValidator.validateConfirmPassword() == ValidationResult.OK
-				& pinValidator.validatePin() == ValidationResult.OK 
-				& pinValidator.validateConfirmPin() == ValidationResult.OK) 
+		return (usernameValidator.validate(true) == ValidationResult.OK
+				& passwordValidator.validatePasswords() == ValidationResult.OK
+				& pinValidator.validatePins() == ValidationResult.OK) 
 				? ValidationResult.OK : ValidationResult.ERROR;
 	}
 
@@ -297,180 +293,4 @@ public class RegisterController implements Initializable {
 		return txtUsername.getText().trim();
 	}
 	
-	
-	private final class UsernameValidator {
-
-		private TextField txtUsername;
-
-		public UsernameValidator(TextField txtUsername) {
-			this.txtUsername = txtUsername;
-			initChangeListener();
-		}
-
-		private void initChangeListener() {
-			txtUsername.textProperty().addListener(new ChangeListener<String>() {
-				@Override
-				public void changed(ObservableValue<? extends String> observable, String oldValue,
-						String newValue) {
-					validateUsername(newValue, false);
-				}
-			});
-		}
-		
-		public ValidationResult validateUsername(boolean checkIfRegistered) {
-			return validateUsername(txtUsername.getText(), checkIfRegistered);
-		}
-
-		public ValidationResult validateUsername(String username, boolean checkIfRegistered) {
-			try {
-
-				final String usernameTr = username.trim();
-				ValidationResult res = ValidationUtils.validateUsername(usernameTr,
-						checkIfRegistered, fUserManager);
-
-				if (res.isError()) {
-					Decorator.addDecoration(txtUsername, errorDecorator);
-				} else {
-					Decorator.removeDecoration(txtUsername, errorDecorator);
-				}
-
-				return res;
-
-			} catch (NoPeerConnectionException e) {
-				setError("Network connection failed.");
-			}
-
-			return ValidationResult.ERROR;
-		}
-	}
-	
-	private final class PasswordValidator {
-
-		private PasswordField txtPassword;
-		private PasswordField txtConfirmPassword;
-
-		public PasswordValidator(PasswordField txtPassword, PasswordField txtConfirmPassword) {
-			this.txtPassword = txtPassword;
-			this.txtConfirmPassword = txtConfirmPassword;
-			initChangeListeners();
-		}
-
-		private void initChangeListeners() {
-			txtPassword.textProperty().addListener(new ChangeListener<String>() {
-				@Override
-				public void changed(ObservableValue<? extends String> observable, String oldValue,
-						String newValue) {
-					validatePassword(newValue);
-				}
-			});
-
-			txtConfirmPassword.textProperty().addListener(new ChangeListener<String>() {
-				@Override
-				public void changed(ObservableValue<? extends String> observable, String oldValue,
-						String newValue) {
-					final String password = txtPassword.getText();
-					validateConfirmPassword(password, newValue);
-				}
-			});
-		}
-		
-		public ValidationResult validatePassword() {
-			return validatePassword(txtPassword.getText());
-		}
-
-		public ValidationResult validatePassword(final String password) {
-			final String confirmPassword = txtConfirmPassword.getText();
-			validateConfirmPassword(password, confirmPassword);
-
-			ValidationResult res = ValidationUtils.validatePassword(password);
-			if (res.isError()) {
-				Decorator.addDecoration(txtPassword, errorDecorator);
-			} else {
-				Decorator.removeDecoration(txtPassword, errorDecorator);
-			}
-
-			return res;
-		}
-		
-		public ValidationResult validateConfirmPassword() {
-			return validateConfirmPassword(txtPassword.getText(), txtConfirmPassword.getText());
-		}
-
-		public ValidationResult validateConfirmPassword(final String password,
-				final String confirmPassword) {
-			ValidationResult res = ValidationUtils.validateConfirmPassword(password,
-					confirmPassword);
-			if (res.isError()) {
-				Decorator.addDecoration(txtConfirmPassword, errorDecorator);
-			} else {
-				Decorator.removeDecoration(txtConfirmPassword, errorDecorator);
-			}
-
-			return res;
-		}
-	}
-	
-	private final class PinValidator {
-
-		private PasswordField txtPin;
-		private PasswordField txtConfirmPin;
-
-		public PinValidator(PasswordField txtPin, PasswordField txtConfirmPin) {
-			this.txtPin = txtPin;
-			this.txtConfirmPin = txtConfirmPin;
-			initChangeListeners();
-		}
-
-		private void initChangeListeners() {
-			txtPin.textProperty().addListener(new ChangeListener<String>() {
-				@Override
-				public void changed(ObservableValue<? extends String> observable, String oldValue,
-						String newValue) {
-					validatePin(newValue);
-				}
-			});
-
-			txtConfirmPin.textProperty().addListener(new ChangeListener<String>() {
-				@Override
-				public void changed(ObservableValue<? extends String> observable, String oldValue,
-						String newValue) {
-					final String pin = txtPin.getText();
-					validateConfirmPin(pin, newValue);
-				}
-			});
-		}
-		
-		public ValidationResult validatePin() {
-			return validatePin(txtPin.getText());
-		}
-
-		public ValidationResult validatePin(final String pin) {
-			final String confirmPin = txtConfirmPin.getText();
-			validateConfirmPin(pin, confirmPin);
-
-			ValidationResult res = ValidationUtils.validatePin(pin);
-			if (res.isError()) {
-				Decorator.addDecoration(txtPin, errorDecorator);
-			} else {
-				Decorator.removeDecoration(txtPin, errorDecorator);
-			}
-
-			return res;
-		}
-		
-		public ValidationResult validateConfirmPin() {
-			return validateConfirmPin(txtPin.getText(), txtConfirmPin.getText());
-		}
-
-		public ValidationResult validateConfirmPin(final String pin, final String confirmPin) {
-			ValidationResult res = ValidationUtils.validateConfirmPin(pin, confirmPin);
-			if (res.isError()) {
-				Decorator.addDecoration(txtConfirmPin, errorDecorator);
-			} else {
-				Decorator.removeDecoration(txtConfirmPin, errorDecorator);
-			}
-
-			return res;
-		}
-	}
 }

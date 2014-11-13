@@ -1,5 +1,6 @@
 package org.peerbox.presenter.validation;
 
+import javafx.beans.property.StringProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.scene.control.TextField;
@@ -15,11 +16,13 @@ public final class EmptyTextFieldValidator {
 	private boolean trim;
 	private ValidationResult returnOnError;
 	private Decoration errorDecorator;
+	private StringProperty errorPoperty;
 
 	public EmptyTextFieldValidator(TextField txt, boolean trim, ValidationResult returnOnError) {
 		this.txt = txt;
 		this.trim = trim;
 		this.returnOnError = returnOnError;
+		this.errorPoperty = null;
 		this.errorDecorator = new StyleClassDecoration("validation-error");
 		initChangeListener();
 	}
@@ -48,10 +51,22 @@ public final class EmptyTextFieldValidator {
 			Decorator.removeDecoration(txt, errorDecorator);
 			res = ValidationResult.OK;
 		}
+		
+		if (errorPoperty != null) {
+			if (res.isError()) {
+				errorPoperty.setValue(res.getMessage());
+			} else {
+				errorPoperty.setValue("");
+			}
+		}
 		return res;
 	}
 
 	public Decoration getDecorator() {
 		return errorDecorator;
+	}
+
+	public void setErrorProperty(StringProperty errorProperty) {
+		this.errorPoperty  = errorProperty;
 	}
 }

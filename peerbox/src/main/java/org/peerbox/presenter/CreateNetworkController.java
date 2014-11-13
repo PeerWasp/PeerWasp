@@ -53,7 +53,7 @@ public class CreateNetworkController implements Initializable {
 	}
 	
 	public void navigateBackAction(ActionEvent event) {
-		boolean goBack = false;
+		boolean goBack = true;
 		clearError();
 		if (h2hManager.isConnected()) {
 			goBack = showConfirmDeleteNetworkDialog();
