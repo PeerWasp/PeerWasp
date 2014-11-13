@@ -16,7 +16,7 @@ import javafx.stage.Window;
 
 import org.apache.commons.io.FileUtils;
 import org.peerbox.UserConfig;
-import org.peerbox.presenter.SelectRootPathUtils;
+import org.peerbox.presenter.validation.SelectRootPathUtils;
 import org.peerbox.view.converter.EnabledDisabledStringConverter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

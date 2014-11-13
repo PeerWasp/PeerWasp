@@ -141,8 +141,8 @@ public class RegisterController implements Initializable {
 		// field where validation fails.
 		// thus: use & and not &&
 		return (usernameValidator.validate(true) == ValidationResult.OK
-				& passwordValidator.validatePasswords() == ValidationResult.OK
-				& pinValidator.validatePins() == ValidationResult.OK) 
+				& passwordValidator.validate() == ValidationResult.OK
+				& pinValidator.validate() == ValidationResult.OK) 
 				? ValidationResult.OK : ValidationResult.ERROR;
 	}
 

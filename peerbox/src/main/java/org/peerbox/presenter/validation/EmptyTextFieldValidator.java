@@ -12,26 +12,23 @@ public final class EmptyTextFieldValidator extends TextFieldValidator {
 	private ValidationResult returnOnError;
 
 	public EmptyTextFieldValidator(TextField txt, boolean trim, ValidationResult returnOnError) {
-		super(txt, null);
+		super(txt, null, true);
 		this.trim = trim;
 		this.returnOnError = returnOnError;
-		initChangeListener();
+//		initChangeListener();
 	}
 
-	private void initChangeListener() {
-		validateTxtField.textProperty().addListener(new ChangeListener<String>() {
-			@Override
-			public void changed(ObservableValue<? extends String> observable, String oldValue,
-					String newValue) {
-				validate(newValue);
-			}
-		});
-	}
+//	private void initChangeListener() {
+//		validateTxtField.textProperty().addListener(new ChangeListener<String>() {
+//			@Override
+//			public void changed(ObservableValue<? extends String> observable, String oldValue,
+//					String newValue) {
+//				validate(newValue);
+//			}
+//		});
+//	}
 	
-	public ValidationResult validate() {
-		return validate(validateTxtField.getText());
-	}
-
+	@Override
 	public ValidationResult validate(final String newValue) {
 		final String value = trim ? newValue.trim() : newValue;
 		ValidationResult res = ValidationResult.ERROR;

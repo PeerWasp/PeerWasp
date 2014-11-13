@@ -5,14 +5,14 @@ import javafx.scene.control.PasswordField;
 
 import org.peerbox.presenter.validation.ValidationUtils.ValidationResult;
 
-public final class CombinedPinValidator {
+public final class CombinedPinValidator implements IValidate  {
 	
 	private TextFieldValidator validatePin;
 	private TextFieldValidator validateConfirmPin;
 
 	public CombinedPinValidator(PasswordField txtPin,
 			StringProperty pinErrorProperty, PasswordField txtConfirmPin) {
-		validatePin = new TextFieldValidator(txtPin, pinErrorProperty){
+		validatePin = new TextFieldValidator(txtPin, pinErrorProperty, true) {
 			@Override
 			public ValidationResult validate(String pin) {
 				final String confirmPin = validateConfirmPin.getTextField().getText();
@@ -20,7 +20,7 @@ public final class CombinedPinValidator {
 			}
 		};
 		
-		validateConfirmPin = new TextFieldValidator(txtConfirmPin){
+		validateConfirmPin = new TextFieldValidator(txtConfirmPin) {
 			@Override
 			public ValidationResult validate(String confirmPin) {
 				final String pin = validatePin.getTextField().getText();
@@ -29,13 +29,14 @@ public final class CombinedPinValidator {
 		};
 	}
 	
-	public ValidationResult validatePins() {
+	@Override
+	public ValidationResult validate() {
 		final String pin = validatePin.getTextField().getText();
 		final String confirmPin = validateConfirmPin.getTextField().getText();
 		return validatePins(pin, confirmPin);
 	}
 
-	public ValidationResult validatePins(final String pin, final String confirmPin) {
+	private ValidationResult validatePins(final String pin, final String confirmPin) {
 		ValidationResult res = ValidationUtils.validatePins(pin, confirmPin);
 		if (res.isError()) {
 			validatePin.decorateError();

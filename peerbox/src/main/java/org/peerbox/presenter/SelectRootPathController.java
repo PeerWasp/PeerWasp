@@ -10,11 +10,15 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.stage.Window;
 
 import org.apache.commons.io.FileUtils;
 import org.peerbox.UserConfig;
+import org.peerbox.presenter.validation.RootPathValidator;
+import org.peerbox.presenter.validation.SelectRootPathUtils;
+import org.peerbox.presenter.validation.ValidationUtils.ValidationResult;
 import org.peerbox.view.ViewNames;
 import org.peerbox.view.controls.ErrorLabel;
 import org.slf4j.Logger;
@@ -38,7 +42,11 @@ public class SelectRootPathController implements Initializable {
 	@FXML
 	private TextField txtRootPath;
 	@FXML
+	private Label lblPathError;
+	@FXML
 	private ErrorLabel lblError;
+	
+	private RootPathValidator pathValidator;
 	
 	@Inject
 	public SelectRootPathController(NavigationService navigationService) {
@@ -47,6 +55,11 @@ public class SelectRootPathController implements Initializable {
 	
 	public void initialize(URL location, ResourceBundle resources) {
 		initializePath();
+		initializeValidation();
+	}
+
+	private void initializeValidation() {
+		pathValidator = new RootPathValidator(txtRootPath, lblPathError.textProperty());
 	}
 
 	private void initializePath() {
@@ -77,8 +90,8 @@ public class SelectRootPathController implements Initializable {
 	public void continueAction(ActionEvent event) {
 		clearError();
 		String path = txtRootPath.getText();
-		boolean inputValid = SelectRootPathUtils.verifyRootPath(path);
-		if (inputValid) {
+		ValidationResult result = pathValidator.validate();
+		if (!result.isError()) {
 			try {
 				logger.info("Root path set to '{}'", path);
 				userConfig.setRootPath(path);

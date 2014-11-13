@@ -23,7 +23,14 @@ public class ValidationUtils {
 				"The pin should be at least %d characters long.", Constants.MIN_PIN_LENGTH)),
 		PIN_MISMATCH("The pins do not match."),
 		
-		BOOTSTRAPHOST_EMPTY("The bootstrap host cannot be empty.");
+		BOOTSTRAPHOST_EMPTY("The bootstrap host cannot be empty."),
+		
+		ROOTPATH_NOTEXISTS("Directory does not exist."),
+		ROOTPATH_NOTADIRECTORY("Path is not a directory."),
+		ROOTPATH_NOTWRITABLE("Directory is not writable."),
+		ROOTPATH_CREATE_ACCESSDENIED("Could not create the directory (access denied)."),
+		ROOTPATH_CREATE_FAILED("Could not create the directory.");
+		
 		
 		
 		private String message;

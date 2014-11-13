@@ -12,12 +12,12 @@ public final class UsernameValidator extends TextFieldValidator {
 	private UserManager userManager;
 
 	public UsernameValidator(TextField txtUsername, StringProperty errorProperty, UserManager userManager) {
-		super(txtUsername, errorProperty);
+		super(txtUsername, errorProperty, true);
 		this.userManager = userManager;
 	}
 	
 	@Override
-	public ValidationResult validate(String username) {
+	public ValidationResult validate(final String username) {
 		return validate(username, false);
 	}
 	

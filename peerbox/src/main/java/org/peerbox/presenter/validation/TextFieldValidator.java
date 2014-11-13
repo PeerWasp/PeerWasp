@@ -7,29 +7,38 @@ import javafx.scene.control.TextField;
 
 import org.peerbox.presenter.validation.ValidationUtils.ValidationResult;
 
-public abstract class TextFieldValidator {
+public abstract class TextFieldValidator implements IValidate {
 
 	protected TextField validateTxtField;
 	protected StringProperty errorProperty;
+	protected ChangeListener<String> changeListener;
 	
 	public TextFieldValidator(TextField txtField) {
-		this(txtField, null);
+		this(txtField, null, true);
 	}
 	
-	public TextFieldValidator(TextField txtField, StringProperty errorProperty) {
+	public TextFieldValidator(TextField txtField, StringProperty errorProperty, boolean onFly) {
 		this.validateTxtField = txtField;
 		this.errorProperty = errorProperty;
-		initChangeListener();
+		if(onFly) {
+			initChangeListener();
+		}
 	}
 	
 	private void initChangeListener() {
-		validateTxtField.textProperty().addListener(new ChangeListener<String>() {
+		changeListener = new ChangeListener<String>() {
 			@Override
 			public void changed(ObservableValue<? extends String> observable, String oldValue,
 					String newValue) {
 				validate(newValue);
 			}
-		});
+		};
+		validateTxtField.textProperty().addListener(changeListener);
+	}
+	
+	@Override
+	public ValidationResult validate() {
+		return validate(validateTxtField.getText());
 	}
 	
 	public abstract ValidationResult validate(final String value);
