@@ -16,7 +16,7 @@
             <HBox spacing="10.0">
                <children>
       				<Label text="Select or enter node: " />
-                  <Label fx:id="lblBootstrapAddressError" />
+                  <Label fx:id="lblBootstrapAddressError" styleClass="validation-error-label" />
                </children>
             </HBox>
             <HBox alignment="CENTER_LEFT" spacing="10.0">
