@@ -6,11 +6,15 @@ import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import org.hive2hive.core.api.configs.NetworkConfiguration;
 import org.junit.Before;
 import org.junit.Test;
 import org.peerbox.presenter.validation.SelectRootPathUtils;
+import org.peerbox.presenter.validation.ValidationUtils.ValidationResult;
 
 public class H2HManagerTest {
 	
@@ -68,26 +72,36 @@ public class H2HManagerTest {
 		}
 	}
 	
-	@Test(expected=IOException.class)
-	public void initializeRootDirectoryButSelectFile() throws IOException{
+	@Test
+	public void testRootPathButSelectFile() throws IOException {
 		File testFile = new File("Test.txt");
-		testFile.createNewFile();
-		SelectRootPathUtils.initializeRootDirectory("Test.txt");
-		
+		assertTrue(testFile.createNewFile());
+
+		ValidationResult res = SelectRootPathUtils.validateRootPath(Paths.get("Test.txt"));
+		assertEquals(res, ValidationResult.ROOTPATH_NOTADIRECTORY);
+
+		assertTrue(testFile.delete());
 	}
 	
 	@Test
-	public void initializeRootDirectoryWithExistingDirectory() throws IOException{
+	public void testRootPathWithExistingDirectory() throws IOException {
 		File testDir = new File("Test_ExistingDir");
-		testDir.mkdir();
-		SelectRootPathUtils.initializeRootDirectory("Test_ExistingDir");
-		testDir.delete();
+		assertTrue(testDir.mkdir());
+		
+		ValidationResult res = SelectRootPathUtils.validateRootPath(Paths.get("Test_ExistingDir"));
+		assertEquals(res, ValidationResult.OK);
+		
+		assertTrue(testDir.delete());
 	}
 	
 	@Test
-	public void initializeRootDirectoryWithNewDirectory() throws IOException{
-		boolean isSuccessfull = SelectRootPathUtils.initializeRootDirectory(path + "Test_NewDir");
-		assertTrue(isSuccessfull);
+	public void testRootPathWithNewDirectory() throws IOException {
+		// TODO: refactoring required -- cannot have user interaction (dialog asking user whether to
+		// create directory or not) here. should be somewhere else...
+		ValidationResult res = SelectRootPathUtils.validateRootPath(Paths.get(path, "Test_NewDir"));
+		
+		assertEquals(res, ValidationResult.OK);
+		
 		File newDir = new File(path + "Test_NewDir");
 		assertTrue(newDir.exists());
 		assertTrue(newDir.isDirectory());
@@ -95,8 +109,13 @@ public class H2HManagerTest {
 	}
 	
 	@Test
-	public void initializeRootDirectoryWithoutParentDir() throws IOException{
-		boolean isSuccessfull = SelectRootPathUtils.initializeRootDirectory(path + "doesnotexist/Test_Dir");
-		assertFalse(isSuccessfull);
+	public void testRootPathWithoutParentDir() throws IOException {
+		// TODO: same as above!
+		Path p = Paths.get(path, "doesnotexist/Test_Dir");
+		ValidationResult res = SelectRootPathUtils.validateRootPath(p);
+		assertEquals(res, ValidationResult.OK);
+		
+		Files.delete(p);
+		
 	}
 }
