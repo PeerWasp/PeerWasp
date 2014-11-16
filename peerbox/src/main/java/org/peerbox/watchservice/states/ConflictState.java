@@ -76,4 +76,10 @@ public class ConflictState extends AbstractActionState {
 		return null;
 	}
 
+	@Override
+	public AbstractActionState handleRemoteCreateEvent() {
+		// TODO Auto-generated method stub
+		return this;
+	}
+
 }

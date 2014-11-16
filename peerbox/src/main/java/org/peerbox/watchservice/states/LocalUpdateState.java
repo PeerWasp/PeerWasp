@@ -112,4 +112,10 @@ public class LocalUpdateState extends AbstractActionState {
 		// TODO Auto-generated method stub
 		return null;
 	}
+
+	@Override
+	public AbstractActionState handleRemoteCreateEvent() {
+		// TODO Auto-generated method stub
+		return new ConflictState(action);
+	}
 }

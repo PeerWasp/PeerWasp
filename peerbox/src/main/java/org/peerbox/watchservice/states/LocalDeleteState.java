@@ -107,4 +107,10 @@ public class LocalDeleteState extends AbstractActionState {
 		// TODO Auto-generated method stub
 		return null;
 	}
+
+	@Override
+	public AbstractActionState handleRemoteCreateEvent() {
+		// TODO Auto-generated method stub
+		return this;
+	}
 }

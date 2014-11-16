@@ -98,4 +98,10 @@ public class RecoverState extends AbstractActionState{
 		
 	}
 
+	@Override
+	public AbstractActionState handleRemoteCreateEvent() {
+		// TODO Auto-generated method stub
+		return new ConflictState(action);
+	}
+
 }

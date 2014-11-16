@@ -50,6 +50,8 @@ public abstract class AbstractActionState {
 	 * REMOTE event handlers
 	 */
 	public abstract AbstractActionState handleRemoteDeleteEvent();
+	
+	public abstract AbstractActionState handleRemoteCreateEvent();
 
 	public abstract AbstractActionState handleRemoteUpdateEvent();
 

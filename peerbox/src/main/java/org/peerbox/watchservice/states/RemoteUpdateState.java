@@ -86,7 +86,13 @@ public class RemoteUpdateState extends AbstractActionState {
 	
 	@Override
 	public AbstractActionState getDefaultState(){
-		return new AwaitRemoteUpdateState(action);
+		return this;
+	}
+
+	@Override
+	public AbstractActionState handleRemoteCreateEvent() {
+		// TODO Auto-generated method stub
+		return new ConflictState(action);
 	}
 
 }

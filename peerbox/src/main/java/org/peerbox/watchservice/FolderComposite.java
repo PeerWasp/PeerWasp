@@ -22,8 +22,8 @@ import org.slf4j.LoggerFactory;
  */
 public class FolderComposite extends AbstractFileComponent implements FileComponent{
 
-//	private SortedMap<String, FileComponent> children = new ConcurrentSkipListMap<String, FileComponent>();
-	private SortedMap<String, FileComponent> children = new TreeMap<String, FileComponent>();
+	private SortedMap<String, FileComponent> children = new ConcurrentSkipListMap<String, FileComponent>();
+//	private SortedMap<String, FileComponent> children = new TreeMap<String, FileComponent>();
 	private Action action;
 	private Path path;
 	private Path folderName;

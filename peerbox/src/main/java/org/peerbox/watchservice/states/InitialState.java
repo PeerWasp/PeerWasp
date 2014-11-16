@@ -55,6 +55,12 @@ public class InitialState extends AbstractActionState {
 		logger.debug("Remote Update Event: Initial -> Remote Update ({})", action.getFilePath());
 		return new RemoteUpdateState(action);
 	}
+	
+	@Override
+	public AbstractActionState handleRemoteCreateEvent() {
+		logger.debug("Remote Update Event: Initial -> Remote Create ({})", action.getFilePath());
+		return new RemoteCreateState(action);
+	}
 
 	@Override
 	public AbstractActionState handleRemoteDeleteEvent() {

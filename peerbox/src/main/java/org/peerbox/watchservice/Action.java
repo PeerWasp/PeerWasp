@@ -74,6 +74,7 @@ public class Action{
 	 * changes the state of the currentState to Create state if current state allows it.
 	 */
 	public void handleLocalCreateEvent(){
+		logger.debug("Path: {} State: {} HashCode: {}", filePath, currentState.getClass(), this.hashCode());
 		currentState = currentState.handleLocalCreateEvent();
 		updateTimestamp();
 	}
@@ -82,6 +83,7 @@ public class Action{
 	 * changes the state of the currentState to Modify state if current state allows it.
 	 */
 	public void handleLocalModifyEvent(){
+		logger.debug("Path: {} State: {} HashCode: {}", filePath, currentState.getClass(), this.hashCode());
 		currentState = currentState.handleLocalUpdateEvent();
 		updateTimestamp();
 	}
@@ -90,27 +92,38 @@ public class Action{
 	 * changes the state of the currentState to Delete state if current state allows it.
 	 */
 	public void handleLocalDeleteEvent(){
+		logger.debug("Path: {} State: {} HashCode: {}", filePath, currentState.getClass(), this.hashCode());
 		currentState = currentState.handleLocalDeleteEvent();
 		updateTimestamp();
 	}
 	
 	public void handleLocalMoveEvent(Path oldFilePath) {
+		logger.debug("Path: {} State: {} HashCode: {}", filePath, currentState.getClass(), this.hashCode());
 		currentState = currentState.handleLocalMoveEvent(oldFilePath);
 		updateTimestamp();
 	}
 	
 	public void handleRemoteUpdateEvent() {
+		logger.debug("Path: {} State: {} HashCode: {}", filePath, currentState.getClass(), this.hashCode());
 		currentState = currentState.handleRemoteUpdateEvent();
 		updateTimestamp();
 	}
 	
 	public void handleRemoteDeleteEvent() {
+		logger.debug("Path: {} State: {} HashCode: {}", filePath, currentState.getClass(), this.hashCode());
 		currentState = currentState.handleRemoteDeleteEvent();
 		updateTimestamp();
 	}
 	
 	public void handleRecoverEvent(int versionToRecover){
+		logger.debug("Path: {} State: {} HashCode: {}", filePath, currentState.getClass(), this.hashCode());
 		currentState = currentState.handleRecoverEvent(versionToRecover);
+		updateTimestamp();
+	}
+	
+	public void handleRemoteCreateEvent() {
+		logger.debug("Path: {} State: {} HashCode: {}", filePath, currentState.getClass(), this.hashCode());
+		currentState = currentState.handleRemoteCreateEvent();
 		updateTimestamp();
 	}
 
@@ -127,10 +140,21 @@ public class Action{
 		// this may be async, i.e. do not wait on completion of the process
 		// maybe return the IProcessComponent object such that the
 		// executor can be aware of the status (completion of task etc)
+		try{
+		
 		executionAttempts++;
 		currentState.execute(fileManager);
 		currentState = currentState.getDefaultState();
 		//currentState = new InitialState(this);
+		
+		} catch (Throwable t){
+			logger.error("onLocalFileModified: Catched a throwable of type {} with message {}", t.getClass().toString(),  t.getMessage());
+			for(int i = 0; i < t.getStackTrace().length; i++){
+				StackTraceElement curr = t.getStackTrace()[i];
+				logger.error("{} : {} ", curr.getClassName(), curr.getMethodName());
+				logger.error("{} : {} ", curr.getFileName(), curr.getLineNumber());
+			}
+		}
 	}
 	
 	public Path getFilePath(){

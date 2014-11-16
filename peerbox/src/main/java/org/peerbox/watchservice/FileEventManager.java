@@ -57,7 +57,7 @@ public class FileEventManager implements ILocalFileEventListener, org.hive2hive.
 
     
     public FileEventManager(Path rootPath, boolean waitForNotifications) {
-    	fileComponentQueue = new PriorityBlockingQueue<FileComponent>(1000, new FileActionTimeComparator());
+    	fileComponentQueue = new PriorityBlockingQueue<FileComponent>(2000, new FileActionTimeComparator());
     	fileTree = new FolderComposite(rootPath, true, true);
     	this.rootPath = rootPath;
     	actionExecutor = new ActionExecutor(this);
@@ -109,6 +109,10 @@ public class FileEventManager implements ILocalFileEventListener, org.hive2hive.
 		if(fileComponent != null){
 			updateChildrenTimestamps(fileComponent);
 			logger.trace("Created file or folder {} already exists, handling cancelled.", path);
+			if(fileComponent.getAction().getCurrentState() instanceof RemoteUpdateState){
+				fileComponent.getAction().handleLocalCreateEvent();
+				fileComponentQueue.remove(fileComponent);
+			}
 			return;
 		}
 		
@@ -158,10 +162,21 @@ public class FileEventManager implements ILocalFileEventListener, org.hive2hive.
 	 * @param fileComponent
 	 */
 	private void updateDataStructures(Path path, FileComponent fileComponent) {
+		try{
 		getFileTree().putComponent(path.toString(), fileComponent);
 		fileComponentQueue.remove(fileComponent);
 		fileComponentQueue.add(fileComponent);
+		logger.debug("Added {} to fileComponentQueue", path);
 		fileComponent.bubbleContentHashUpdate();
+		logger.debug("Finished bubbleContentHashUpdate for {}", path);
+		} catch(Throwable t){
+			logger.error("onLocalFileModified: Catched a throwable of type {} with message {}", t.getClass().toString(),  t.getMessage());
+			for(int i = 0; i < t.getStackTrace().length; i++){
+				StackTraceElement curr = t.getStackTrace()[i];
+				logger.error("{} : {} ", curr.getClassName(), curr.getMethodName());
+				logger.error("{} : {} ", curr.getFileName(), curr.getLineNumber());
+			}
+		}
 	}
 
 	private FolderComposite findSourceOfOptimizedMove(Path path) {
@@ -218,7 +233,7 @@ private void addRecursively(FolderComposite componentAsFolder) {
 			toModify.bubbleContentHashUpdate();
 			return;
 		} else if(toModify.getContentHash().equals(newHash)){
-			logger.info("The content hash not changed for file {}", path);
+			logger.info("The content hash has not changed for file {}", path);
 			return;
 		} else {
 			logger.info("The content hash changed for file {} old: {} new: {}", path, toModify.getContentHash(), newHash);
@@ -274,6 +289,11 @@ private void addRecursively(FolderComposite componentAsFolder) {
 //		if(deletedComponent == null){
 //			return;
 //		}
+		FileComponent toDelete = getFileComponent(path);
+		if(toDelete.getAction().getCurrentState() instanceof RemoteUpdateState){
+			logger.trace("The file is in remote update state, delte is ignored.");
+			return;
+		}
 		
 		FileComponent deletedComponent = deleteFileComponent(path);
 		if(deletedComponent == null){
@@ -293,8 +313,10 @@ private void addRecursively(FolderComposite componentAsFolder) {
 				e.printStackTrace();
 			}
 		} else if(deletedComponent.getAction().getCurrentState() instanceof RemoteUpdateState){
+			logger.debug("In Remote Update State: Simple handling");
 			deletedComponent.getAction().handleLocalDeleteEvent();
 		} else {
+			logger.debug("Not in Remote Update State");
 			// handle the delete event
 			deletedComponent.getAction().handleLocalDeleteEvent();
 			
@@ -347,11 +369,12 @@ private void addRecursively(FolderComposite componentAsFolder) {
 //				logger.trace("success: createFileComponent {}", path);
 				getFileTree().putComponent(path.toString(), fileComponent);
 //				logger.trace("success: getFileTree().putComponent {}", path);
-				fileComponent.getAction().handleRemoteUpdateEvent();
+				fileComponent.getAction().handleRemoteCreateEvent();
 				//logger.trace("success: fileComponent.getAction().handleRemoteUpdateEvent {}", path);
 				fileComponentQueue.add(fileComponent);
 				//logger.trace("success: fileComponentQueue.add {}", path);
 			} else {
+				fileComponent.getAction().handleRemoteCreateEvent();
 				logger.error("Remotely added file already exists locally: {}", path);
 			}
 		} catch(Throwable t){
