@@ -69,9 +69,14 @@ public class FileLeaf extends AbstractFileComponent implements FileComponent{
 	@Override
 	public void bubbleContentHashUpdate() {
 		boolean hasChanged = updateContentHash();
+		if(path == null){
+			logger.trace("path is null!!!");
+		}
+		//logger.trace("{} path BEFORE bubble", path);
 		if(hasChanged){
 			parent.bubbleContentHashUpdate();
 		}
+		//logger.trace("{} path AFTER bubble", path);
 	}
 
 	@Override
@@ -143,7 +148,10 @@ public class FileLeaf extends AbstractFileComponent implements FileComponent{
 	@Override
 	public boolean isReady() {
 		// TODO Auto-generated method stub
-		return true;
+		if(parent.getActionIsUploaded()){
+			return true;
+		}
+		return false;
 	}
 
 }

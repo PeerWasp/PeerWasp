@@ -83,5 +83,10 @@ public class RemoteUpdateState extends AbstractActionState {
 		// TODO Auto-generated method stub
 		return null;
 	}
+	
+	@Override
+	public AbstractActionState getDefaultState(){
+		return new AwaitRemoteUpdateState(action);
+	}
 
 }

@@ -1,5 +1,7 @@
 package org.peerbox.watchservice;
 
+import java.io.File;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -34,7 +36,7 @@ public class ActionExecutor implements Runnable, IActionEventListener {
 	 *  amount of time that an action has to be "stable" in order to be executed 
 	 */
 	public static final long ACTION_WAIT_TIME_MS = 2000;
-	public static final int NUMBER_OF_EXECUTE_SLOTS = 10;
+	public static final int NUMBER_OF_EXECUTE_SLOTS = 5;
 	public static final int MAX_EXECUTION_ATTEMPTS = 5;
 	
 	private FileEventManager fileEventManager;
@@ -102,10 +104,12 @@ public class ActionExecutor implements Runnable, IActionEventListener {
 						next.getAction().execute(fileEventManager.getFileManager());
 					} else {
 						if(executingActions.size() != 0) {
-//							System.out.println("Blocking action: " + executingActions.get(0).getFilePath() + " " + executingActions.get(0).getCurrentState().getClass());
-//							for(Action a : executingActions) {
-//								System.out.println("Blocking action: " + a.getFilePath() + " " + a.getCurrentState().getClass());
-//							}
+							//System.out.println("Blocking action: " + executingActions.get(0).getFilePath() + " " + executingActions.get(0).getCurrentState().getClass());
+							int j = 1;
+							for(Action a : executingActions) {
+								System.out.println("Blocking action: " + j + " " + a.getFilePath() + " " + a.getCurrentState().getClass());
+								j++;
+							}
 						}
 						//System.out.println("Current state: " + next.getAction().getCurrentState().getClass().toString());
 						// not ready yet, insert action again (no blocking peek, unfortunately)
@@ -215,12 +219,42 @@ public class ActionExecutor implements Runnable, IActionEventListener {
 
 	public void handleExecutionError(RollbackReason reason, Action action) throws NoSessionException, NoPeerConnectionException, IllegalFileLocation, InvalidProcessStateException{
 		ProcessError error = reason.getErrorType();
-		logger.trace("Re-initiate execution of {} {}.", action.getFilePath(), action.getCurrentState().getClass().toString());
-		if(action.getExecutionAttempts() <= MAX_EXECUTION_ATTEMPTS){
-			action.execute(fileEventManager.getFileManager());
+		
+		switch(error){
+	
+			case SAME_CONTENT:
+				logger.trace("H2H update of file {} failed, content hash did not change. {}", action.getFilePath(), fileEventManager.getRootPath().toString());
+				//Path localPathOfFailed = new File(fileEventManager.getRootPath(), action.getFilePathRelativeToRoot()).toPath();
+				FileComponent notModified = fileEventManager.getFileTree().getComponent(action.getFilePath().toString());
+				if(notModified == null){
+					logger.trace("FileComponent with path {} is null", action.getFilePath().toString());
+				}
+				
+				boolean changed = executingActions.remove(action);
+				if(!changed){
+					logger.trace("executingActions: Nothing deleted for {}", action.getFilePath().toString());
+				} else {
+					logger.trace("executingActions: Removed from queue {}", action.getFilePath().toString());
+				}
+				break;
+			case PARENT_IN_USERFILE_NOT_FOUND:
+				logger.error("Code PARENT_IN_USERFILE_NOT_FOUND {} {}.", action.getFilePath(), action.getCurrentState().getClass().toString());
+				if(action.getExecutionAttempts() <= MAX_EXECUTION_ATTEMPTS){
+					action.execute(fileEventManager.getFileManager());
+				} else {
+					executingActions.remove(action);
+					logger.error("To many attempts, action of {} has not been executed again. Reason: PARENT_IN_USERFILE_NOT_FOUND", action.getFilePath());
+				}
+			default:
+				logger.trace("Re-initiate execution of {} {}.", action.getFilePath(), action.getCurrentState().getClass().toString());
+				if(action.getExecutionAttempts() <= MAX_EXECUTION_ATTEMPTS){
+					action.execute(fileEventManager.getFileManager());
+				} else {
+					executingActions.remove(action);
+					logger.error("To many attempts, action of {} has not been executed again. Reason: default", action.getFilePath());
+				}
 		}
-//		switch(error){
-//			case PARENT_IN_USERFILE_NOT_FOUND:
+					
 //			case PUT_FAILED:
 //			case GET_FAILED:
 //			case VERSION_FORK:

@@ -147,6 +147,15 @@ public class AddDelete extends FileIntegrationTest {
 //		deleteManyFiles(files);
 	}
 	
+	@Test
+	public void manyFilesStressTest() throws IOException {
+		// ADD
+		List<Path> files = addManyFiles(1000, WAIT_TIME_STRESSTEST);
+		
+		// DELETE
+//		deleteManyFiles(files);
+	}
+	
 	private void deleteManyFiles(List<Path> files) throws IOException {
 		for(Path f : files) {
 			Files.delete(f);

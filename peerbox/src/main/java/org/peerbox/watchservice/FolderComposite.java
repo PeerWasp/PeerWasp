@@ -7,6 +7,7 @@ import java.nio.file.Paths;
 import java.util.Base64;
 import java.util.SortedMap;
 import java.util.TreeMap;
+import java.util.concurrent.ConcurrentSkipListMap;
 
 import org.hive2hive.core.security.EncryptionUtil;
 import org.hive2hive.core.security.HashUtil;
@@ -21,6 +22,7 @@ import org.slf4j.LoggerFactory;
  */
 public class FolderComposite extends AbstractFileComponent implements FileComponent{
 
+//	private SortedMap<String, FileComponent> children = new ConcurrentSkipListMap<String, FileComponent>();
 	private SortedMap<String, FileComponent> children = new TreeMap<String, FileComponent>();
 	private Action action;
 	private Path path;
@@ -94,30 +96,47 @@ public class FolderComposite extends AbstractFileComponent implements FileCompon
 	 * fly. Existing items are replaced. Triggers updates of content and name hashes.
 	 */
 	@Override
-	public void putComponent(String remainingPath, FileComponent component) {
+	public synchronized void putComponent(String remainingPath, FileComponent component) {
 		
 		//if the path it absolute, cut off the absolute path to the root directory!
 		if(remainingPath.startsWith(path.toString())){
 			remainingPath = remainingPath.substring(path.toString().length() + 1);
 		}
-		
+		//logger.trace("after remainingpath calculation {}", remainingPath);
 		String nextLevelPath = PathUtils.getNextPathFragment(remainingPath);
 		String newRemainingPath = PathUtils.getRemainingPathFragment(remainingPath);
 		
 		FileComponent nextLevelComponent;
-		
+		if(newRemainingPath == null){
+			//logger.debug("newRemainingPath == null");
+		}
 		//if we are at the last recursion, perform the add, else recursively continue
 		if(newRemainingPath.equals("")){
-			addComponentToChildren(nextLevelPath, component);
-		} else {
-			nextLevelComponent = children.get(nextLevelPath);
-			if(nextLevelComponent == null){
-				Path completePath = constructFullPath(nextLevelPath);
-				nextLevelComponent = new FolderComposite(completePath, updateContentHashes);
-				addComponentToChildren(nextLevelPath, nextLevelComponent);
+			//logger.trace("newRemainingPath is empty {}", remainingPath);
+			if(nextLevelPath == null){
+				//logger.trace("nextLevelPath is NULL {}", remainingPath);
 			}
+			//logger.trace("nextLevelPath is {}", nextLevelPath);
+			addComponentToChildren(nextLevelPath, component);
+			//logger.trace("after addComponentToChildren {}", nextLevelPath);
+		} else {
+			//logger.trace("newRemainingPath is not empty {}", remainingPath);
+			nextLevelComponent = children.get(nextLevelPath);
+			//logger.trace("after children.get {}", remainingPath);
+			if(nextLevelComponent == null){
+				//logger.trace("newLevelComponent is null {}", remainingPath);
+				Path completePath = constructFullPath(nextLevelPath);
+				//logger.trace("after completePathConstrution{} {}", remainingPath, completePath);
+				nextLevelComponent = new FolderComposite(completePath, updateContentHashes);
+				//logger.trace("after new FolderComposite( {} {}", remainingPath, completePath);
+				addComponentToChildren(nextLevelPath, nextLevelComponent);
+				//logger.trace("after addComponentToChildren2 {} {}", nextLevelPath, nextLevelComponent);
+			}
+
 			nextLevelComponent.putComponent(newRemainingPath, component);
+		//	logger.trace("success nextLevelComponent.putComponen", remainingPath);
 		}
+		//logger.trace("success putComponent", nextLevelPath);
 	} 
 
 	/**
@@ -177,7 +196,7 @@ public class FolderComposite extends AbstractFileComponent implements FileCompon
 	 * @return If it does exist, the requested FileComponent is returned, null otherwise.
 	 */
 	@Override
-	public FileComponent getComponent(String remainingPath){
+	public synchronized FileComponent getComponent(String remainingPath){
 		//if the path it absolute, cut off the absolute path to the root directory!
 		if(remainingPath.startsWith(path.toString())){
 			remainingPath = remainingPath.substring(path.toString().length() + 1);
@@ -205,38 +224,54 @@ public class FolderComposite extends AbstractFileComponent implements FileCompon
 
 
 	public boolean updateContentHash() {
+//		logger.debug("enter updateContentHash() in FolderComposite()");
 		return updateContentHash(null);
 	}
 	
 	@Override
 	public boolean updateContentHash(String newHash) {
+//		logger.debug("enter updateContentHash(String) in FolderComposite()");
 		if(newHash == null){
+//			logger.debug("enter newHash == null");
 			String tmp = "";
 			for(FileComponent value : children.values()){
+			//	logger.debug("value: {}", value.getPath());
 				tmp = tmp.concat(value.getContentHash());
 			}
+//			logger.trace("read children");
 			byte[] rawHash = HashUtil.hash(tmp.getBytes());
+//			logger.trace("got bytes");
 			newHash = Base64.getEncoder().encodeToString(rawHash);
+//			logger.trace("got newHash");
 		}
 		if(!contentHash.equals(newHash)){
 			contentHash = newHash;
+			logger.trace("successful new hash");
 			return true;
 		}
+		logger.trace("successful no new hash");
 		return false;
 	}
 	
 	@Override
 	public void bubbleContentHashUpdate() {
 		boolean hasChanged = updateContentHash();
+		logger.debug("after: hasChanged {}", hasChanged);
 		if(hasChanged && parent != null){
+			logger.debug("ENTER IF");
 			parent.bubbleContentHashUpdate();
+			logger.debug("LEAVE IF");
 		}
+		//logger.debug("success: parent.bubbleContentHashUpdate()");
 	}
 	
 	private void bubbleContentNamesHashUpdate() {
 		boolean hasChanged = computeContentNamesHash();
+		logger.debug("successful computeContentNamesHash hasChanged {}", hasChanged);
 		if(hasChanged && parent != null){
+			logger.debug("start partent.bubbleContentNamesHashUpdate");
 			parent.bubbleContentNamesHashUpdate();
+			logger.debug("finish partent.bubbleContentNamesHashUpdate");
 		}
 	}
 
@@ -246,17 +281,27 @@ public class FolderComposite extends AbstractFileComponent implements FileCompon
 	private void addComponentToChildren(String nextLevelPath, FileComponent component) {
 		children.remove(nextLevelPath);
 		children.put(nextLevelPath, component);
-		component.setParent(this);
-		if(updateContentHashes){
-			bubbleContentHashUpdate();			
+		logger.trace("after remove/put {}", nextLevelPath);
+		if(component == null){
+			logger.trace("COMPONENT IS NULL");
 		}
+		component.setParent(this);
+		logger.trace("after setParent {}", nextLevelPath);
+		if(updateContentHashes){
+			logger.trace("START bubbleContentHashUpdate {}", nextLevelPath);
+			bubbleContentHashUpdate();		
+			logger.trace("END bubbleContentHashUpdate {}", nextLevelPath);
+		}
+		logger.trace("after bubbleContentHashUpdate {}", nextLevelPath);
 		component.setPath(path);
+		logger.trace("after setPath {}", nextLevelPath);
 		if(component instanceof FolderComposite){
 			FolderComposite componentAsFolder = (FolderComposite)component;
 			componentAsFolder.propagatePathChangetoChildren();
 		}
-		
+		logger.trace("BEFORE bubbleContentNamesHashUpdate {}", nextLevelPath);
 		bubbleContentNamesHashUpdate();
+		logger.trace("successful bubbleContentNamesHashUpdate {}", nextLevelPath);
 	}
 
 	@Override

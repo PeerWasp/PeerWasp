@@ -129,7 +129,8 @@ public class Action{
 		// executor can be aware of the status (completion of task etc)
 		executionAttempts++;
 		currentState.execute(fileManager);
-		currentState = new InitialState(this);
+		currentState = currentState.getDefaultState();
+		//currentState = new InitialState(this);
 	}
 	
 	public Path getFilePath(){

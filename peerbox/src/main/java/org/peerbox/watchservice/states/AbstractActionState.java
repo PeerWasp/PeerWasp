@@ -28,6 +28,10 @@ public abstract class AbstractActionState {
 	public AbstractActionState(Action action) {
 		this.action = action;
 	}
+	
+	public AbstractActionState getDefaultState(){
+		return new InitialState(action);
+	}
 
 	/*
 	 * LOCAL event handlers

@@ -43,6 +43,7 @@ public abstract class FileIntegrationTest {
 	protected static final int NUMBER_OF_CHARS = 1000*100; // approx. 100kb
 	protected static final int WAIT_TIME_SHORT = 30;
 	protected static final int WAIT_TIME_LONG = 120;
+	protected static final int WAIT_TIME_STRESSTEST = 600;
 	
 	
 //	@BeforeClass
@@ -115,12 +116,16 @@ public abstract class FileIntegrationTest {
 		return file;
 	}
 
-	protected List<Path> addManyFiles() throws IOException {
-		List<Path> files = FileTestUtils.createRandomFiles(masterRootPath, 100, 100);
+	protected List<Path> addManyFiles(int nrFiles, int toWait) throws IOException {
+		List<Path> files = FileTestUtils.createRandomFiles(masterRootPath, nrFiles, 100);
 		
-		waitForExists(files, WAIT_TIME_LONG);
+		waitForExists(files, toWait);
 		assertSyncClientPaths();
 		return files;
+	}
+	
+	protected List<Path> addManyFiles() throws IOException {
+		return addManyFiles(200, WAIT_TIME_LONG);
 	}
 	
 	protected List<Path> addManyFiles(Path dirPath) throws IOException {

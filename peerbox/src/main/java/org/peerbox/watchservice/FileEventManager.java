@@ -53,14 +53,17 @@ public class FileEventManager implements ILocalFileEventListener, org.hive2hive.
     private Map<String, FileLeaf> recoveredFileVersions = new HashMap<String, FileLeaf>();
     
     private boolean maintainContentHashes = true;
+    private Path rootPath;
 
     
     public FileEventManager(Path rootPath, boolean waitForNotifications) {
     	fileComponentQueue = new PriorityBlockingQueue<FileComponent>(1000, new FileActionTimeComparator());
     	fileTree = new FolderComposite(rootPath, true, true);
+    	this.rootPath = rootPath;
     	actionExecutor = new ActionExecutor(this);
 		executorThread = new Thread(new ActionExecutor(this, waitForNotifications));
 		executorThread.start();
+		
     }
     
     /**
@@ -72,13 +75,17 @@ public class FileEventManager implements ILocalFileEventListener, org.hive2hive.
     	fileComponentQueue = new PriorityBlockingQueue<FileComponent>(10, new FileActionTimeComparator());
     	fileTree = new FolderComposite(rootPath, true);
         this.maintainContentHashes = maintainContentHashes;
-		
+		this.rootPath = rootPath;
         executorThread = new Thread(new ActionExecutor(this, waitForNotifications));
 		executorThread.start();
     }
     
     public void setAndStartActionExecutor(ActionExecutor executor){
     	//actionExecutor.t
+    }
+    
+    public Path getRootPath(){
+    	return rootPath;
     }
     
     /**
@@ -100,6 +107,7 @@ public class FileEventManager implements ILocalFileEventListener, org.hive2hive.
 		logger.debug("onLocalFileCreate: {}", path);
 		FileComponent fileComponent = getFileComponent(path);
 		if(fileComponent != null){
+			updateChildrenTimestamps(fileComponent);
 			logger.trace("Created file or folder {} already exists, handling cancelled.", path);
 			return;
 		}
@@ -191,7 +199,7 @@ private void addRecursively(FolderComposite componentAsFolder) {
 	public void onLocalFileModified(Path path) {
 		logger.debug("onLocalFileModified: {}", path);
 		
-		//Get component to modify and remove it from action queue
+		try{//Get component to modify and remove it from action queue
 		FileComponent toModify = getFileComponent(path);
 		if(toModify == null){
 			return;
@@ -202,10 +210,18 @@ private void addRecursively(FolderComposite componentAsFolder) {
 			return;
 		}
 		String newHash = PathUtils.computeFileContentHash(path);
-		if(toModify.getContentHash().equals(newHash)){
+		if(toModify.getContentHash().equals(newHash) && toModify.getActionIsUploaded()){
 			logger.info("The content hash has not changed despite the onLocalFileModified event. No actions taken & returned.");
 			return;
+		}
+		if(toModify.getContentHash().equals("")){
+			toModify.bubbleContentHashUpdate();
+			return;
+		} else if(toModify.getContentHash().equals(newHash)){
+			logger.info("The content hash not changed for file {}", path);
+			return;
 		} else {
+			logger.info("The content hash changed for file {} old: {} new: {}", path, toModify.getContentHash(), newHash);
 			toModify.bubbleContentHashUpdate();
 		}
 		
@@ -216,7 +232,16 @@ private void addRecursively(FolderComposite componentAsFolder) {
 		lastAction.handleLocalModifyEvent();
 		
 		updateChildrenTimestamps(toModify);
-		fileComponentQueue.add(toModify);
+		fileComponentQueue.add(toModify); 
+		
+		} catch(Throwable t){
+			logger.error("onLocalFileModified: Catched a throwable of type {} with message {}", t.getClass().toString(),  t.getMessage());
+			for(int i = 0; i < t.getStackTrace().length; i++){
+				StackTraceElement curr = t.getStackTrace()[i];
+				logger.error("{} : {} ", curr.getClassName(), curr.getMethodName());
+				logger.error("{} : {} ", curr.getFileName(), curr.getLineNumber());
+			}
+		}
 	}
 
 	private void updateChildrenTimestamps(FileComponent toModify) {
@@ -293,7 +318,19 @@ private void addRecursively(FolderComposite componentAsFolder) {
 	@Handler
 	public void onFileAdd(IFileAddEvent fileEvent){
 		logger.debug("onFileAdd: {}", fileEvent.getFile().getPath());
+		
+		if(fileEvent == null){
+		//	logger.trace("fileEvent == null");
+		}
+		if(fileEvent.getFile() == null){
+		//	logger.trace("fileEvent.getFile() == null");
+		}
+		
 		Path path = fileEvent.getFile().toPath();
+		if(fileEvent.getFile().toPath() == null){
+		//	logger.trace("fileEvent.getFile().toPath() == null");
+		}
+		try {
 //		FileLeaf recoveredVersion = recoveredFileVersions.get(path.toString());
 //		if(recoveredVersion != null){
 //			logger.trace("Downloaded file is a recovered version: {}", path);
@@ -304,12 +341,27 @@ private void addRecursively(FolderComposite componentAsFolder) {
 			FileComponent fileComponent = getFileComponent(path);
 			if(fileComponent == null) {
 				fileComponent = createFileComponent(path, fileEvent.isFile());
+				if(fileComponent == null){
+					logger.trace("fail: fileComponent still null {}", path);
+				}
+//				logger.trace("success: createFileComponent {}", path);
 				getFileTree().putComponent(path.toString(), fileComponent);
+//				logger.trace("success: getFileTree().putComponent {}", path);
 				fileComponent.getAction().handleRemoteUpdateEvent();
+				//logger.trace("success: fileComponent.getAction().handleRemoteUpdateEvent {}", path);
 				fileComponentQueue.add(fileComponent);
+				//logger.trace("success: fileComponentQueue.add {}", path);
 			} else {
 				logger.error("Remotely added file already exists locally: {}", path);
 			}
+		} catch(Throwable t){
+			logger.error("Catched a throwable of type {} with message {}", t.getClass().toString(),  t.getMessage());
+			for(int i = 0; i < t.getStackTrace().length; i++){
+				StackTraceElement curr = t.getStackTrace()[i];
+				logger.error("{} : {} ", curr.getClassName(), curr.getMethodName());
+				logger.error("{} : {} ", curr.getFileName(), curr.getLineNumber());
+			}
+		}
 			
 //		}
 	}
@@ -330,8 +382,26 @@ private void addRecursively(FolderComposite componentAsFolder) {
 	@Override
 	@Handler
 	public void onFileUpdate(IFileUpdateEvent fileEvent) {
-		// TODO Auto-generated method stub
-		
+		Path path = fileEvent.getFile().toPath();
+		logger.debug("onFileUpdate: {}", path);
+
+		try {
+			FileComponent fileComponent = getFileComponent(path);
+			if(fileComponent == null) {
+				logger.warn("Received update for inexisting file. This means, the file is not in the selective sync -> Return.");
+				return;
+			} else {
+				fileComponent.getAction().handleRemoteUpdateEvent();
+				fileComponentQueue.add(fileComponent);
+			}
+		} catch(Throwable t){
+			logger.error("Catched a throwable of type {} with message {}", t.getClass().toString(),  t.getMessage());
+			for(int i = 0; i < t.getStackTrace().length; i++){
+				StackTraceElement curr = t.getStackTrace()[i];
+				logger.error("{} : {} ", curr.getClassName(), curr.getMethodName());
+				logger.error("{} : {} ", curr.getFileName(), curr.getLineNumber());
+			}
+		}
 	}
 	
 	@Override
@@ -495,7 +565,7 @@ private void addRecursively(FolderComposite componentAsFolder) {
 		return this.deletedByContentHash;
 	}
 
-	public FolderComposite getFileTree(){ //maybe synchronize this method?
+	public synchronized FolderComposite getFileTree(){ //maybe synchronize this method?
 		return fileTree;
 	}
 
