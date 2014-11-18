@@ -1,7 +1,5 @@
 package org.peerbox.watchservice.states;
 
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.nio.file.Path;
 
 import org.hive2hive.core.exceptions.IllegalFileLocation;
@@ -11,91 +9,78 @@ import org.hive2hive.processframework.exceptions.InvalidProcessStateException;
 import org.hive2hive.processframework.interfaces.IProcessComponent;
 import org.peerbox.FileManager;
 import org.peerbox.watchservice.Action;
-import org.peerbox.watchservice.PeerboxVersionSelector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class RecoverState extends AbstractActionState{
-	
-	private final static Logger logger = LoggerFactory.getLogger(RecoverState.class);
-	
-	private int fVersionToRecover = 0;
-	public RecoverState(Action action, int versionToRecover) {
+public class RemoteCreateState extends AbstractActionState{
+
+	private static final Logger logger = LoggerFactory.getLogger(RemoteCreateState.class);
+	public RemoteCreateState(Action action) {
 		super(action);
-		fVersionToRecover = versionToRecover;
 		// TODO Auto-generated constructor stub
 	}
 
 	@Override
 	public AbstractActionState changeStateOnLocalCreate() {
-		// TODO Auto-generated method stub
-		return new LocalCreateState(action);
-	}
-
-	@Override
-	public AbstractActionState changeStateOnLocalDelete() {
-		// TODO Auto-generated method stub
-		return null;
+		logger.debug("Local Create Event in RemoteUpdateState!  ({})", action.getFilePath());
+		return new ConflictState(action);
 	}
 
 	@Override
 	public AbstractActionState changeStateOnLocalUpdate() {
-		// TODO Auto-generated method stub
-		return null;
+		logger.debug("Local Update Event:  ({})", action.getFilePath());
+		return new ConflictState(action);
+	}
+
+	@Override
+	public AbstractActionState changeStateOnLocalDelete() {
+		logger.debug("Local Delete Event in RemoteUpdateState ({})", action.getFilePath());
+		return this;
 	}
 
 	@Override
 	public AbstractActionState changeStateOnLocalMove(Path oldFilePath) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public AbstractActionState changeStateOnLocalRecover(int versionToRecover) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public AbstractActionState changeStateOnRemoteDelete() {
-		// TODO Auto-generated method stub
-		return null;
+		logger.debug("Local Move Event:  ({})", action.getFilePath());
+		return new ConflictState(action);
 	}
 
 	@Override
 	public AbstractActionState changeStateOnRemoteUpdate() {
-		// TODO Auto-generated method stub
-		return new InitialState(action);
+		logger.debug("Remote Update Event:  ({})", action.getFilePath());
+		return this;
+	}
+
+	@Override
+	public AbstractActionState changeStateOnRemoteDelete() {
+		logger.debug("Remote Delete Event:  ({})", action.getFilePath());
+		return this;
 	}
 
 	@Override
 	public AbstractActionState changeStateOnRemoteMove(Path oldFilePath) {
-		// TODO Auto-generated method stub
-		return null;
+		logger.debug("Remote Move Event:  ({})", action.getFilePath());
+		return this;
 	}
 
 	@Override
 	public void execute(FileManager fileManager) throws NoSessionException,
 			NoPeerConnectionException, IllegalFileLocation, InvalidProcessStateException {
-			
 		Path path = action.getFilePath();
-		logger.debug("Execute RECOVER: {}", path);
-		File currentFile = path.toFile();
-		
-		try {
-			IProcessComponent process;
-			process = fileManager.recover(currentFile, new PeerboxVersionSelector(fVersionToRecover));
-			if(process != null){
-				process.attachListener(new FileManagerProcessListener());
-			} else {
-				System.err.println("process is null");
-			}
-			
-		} catch (FileNotFoundException | IllegalArgumentException e) {
-			logger.error("{} in RECOVER: {}", e.getClass().getName(), path);
-			e.printStackTrace();
+		logger.debug("Execute REMOTE ADD, download the file: {}", path);
+		IProcessComponent process = fileManager.download(path.toFile());
+		if(process != null){
+			process.attachListener(new FileManagerProcessListener());
+		} else {
+			System.err.println("process is null");
 		}
 		
+		notifyActionExecuteSucceeded();
+	}
+
+	@Override
+	public AbstractActionState changeStateOnLocalRecover(int versionToRecover) {
+		// TODO Auto-generated method stub
+		return this;
 	}
 
 	@Override

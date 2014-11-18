@@ -1,5 +1,7 @@
 package org.peerbox.watchservice.states;
 
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 
 import org.hive2hive.core.exceptions.IllegalFileLocation;
@@ -26,52 +28,62 @@ public class InitialState extends AbstractActionState {
 	}
 
 	@Override
-	public AbstractActionState handleLocalCreateEvent() {
+	public AbstractActionState changeStateOnLocalCreate() {
 		logger.debug("Local Create Event: Initial -> Local Create ({})", action.getFilePath());
 		return new LocalCreateState(action);
 	}
 
 	@Override
-	public AbstractActionState handleLocalUpdateEvent() {
+	public AbstractActionState changeStateOnLocalUpdate() {
 		logger.debug("Local Update Event: Initial -> Local Update ({})", action.getFilePath());
 		return new LocalUpdateState(action);
 	
 	}
 
 	@Override
-	public AbstractActionState handleLocalDeleteEvent() {
+	public AbstractActionState changeStateOnLocalDelete() {
 		logger.debug("Local Delete Event: Initial -> Local Delete ({})", action.getFilePath());
 		return new LocalDeleteState(action);
 	}
 
 	@Override
-	public AbstractActionState handleLocalMoveEvent(Path oldFilePath) {
+	public AbstractActionState changeStateOnLocalMove(Path oldFilePath) {
 		logger.debug("Local Move Event: Initial -> Local Move ({})", action.getFilePath());
 		return new LocalMoveState(action, oldFilePath);
 	}
 
 	@Override
-	public AbstractActionState handleRemoteUpdateEvent() {
+	public AbstractActionState changeStateOnRemoteUpdate() {
 		logger.debug("Remote Update Event: Initial -> Remote Update ({})", action.getFilePath());
 		return new RemoteUpdateState(action);
 	}
 	
 	@Override
-	public AbstractActionState handleRemoteCreateEvent() {
+	public AbstractActionState changeStateOnRemoteCreate() {
 		logger.debug("Remote Update Event: Initial -> Remote Create ({})", action.getFilePath());
 		return new RemoteCreateState(action);
 	}
 
 	@Override
-	public AbstractActionState handleRemoteDeleteEvent() {
+	public AbstractActionState changeStateOnRemoteDelete() {
 		logger.debug("Remote Delete Event: Initial -> Remote Delete ({})", action.getFilePath());
 		return new RemoteDeleteState(action);
 	}
 
 	@Override
-	public AbstractActionState handleRemoteMoveEvent(Path oldFilePath) {
-		logger.debug("Remote Move Event: Initial -> Remote Move ({})", action.getFilePath());
-		return new RemoteMoveState(action);
+	public AbstractActionState changeStateOnRemoteMove(Path oldFilePath) {
+		logger.debug("Remote Move Event: Initial -> Remote Move ({}) {}", action.getFilePath(), action.hashCode());
+		
+		Path path = action.getFilePath();
+		logger.debug("Execute REMOTE MOVE: {}", path);
+		try {
+			Files.move(oldFilePath, path);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		return new RemoteMoveState(action, oldFilePath);
 	}
 
 	@Override
@@ -82,8 +94,62 @@ public class InitialState extends AbstractActionState {
 	}
 
 	@Override
-	public AbstractActionState handleRecoverEvent(int versionToRecover) {
+	public AbstractActionState changeStateOnLocalRecover(int versionToRecover) {
 		logger.debug("Recover Event: Initial -> Recover ({})", action.getFilePath());
 		return new RecoverState(action, versionToRecover);
+	}
+
+	@Override
+	public void handleLocalCreate() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void handleLocalDelete() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void handleLocalUpdate() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void handleLocalMove() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void handleLocalRecover() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void handleRemoteCreate() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void handleRemoteDelete() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void handleRemoteUpdate() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void handleRemoteMove() {
+		// TODO Auto-generated method stub
+		
 	}
 }

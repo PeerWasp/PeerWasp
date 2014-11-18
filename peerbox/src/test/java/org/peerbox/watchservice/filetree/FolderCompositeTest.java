@@ -33,6 +33,8 @@ public class FolderCompositeTest {
 	private static File fileInDirInDirOnRoot;
 	private static File dirOnRoot;
 	
+	private DummyFileEventManager fileEventManager = new DummyFileEventManager();
+	
 	@BeforeClass
 	public static void setup(){
 		testDirectory = new File(parentPath);

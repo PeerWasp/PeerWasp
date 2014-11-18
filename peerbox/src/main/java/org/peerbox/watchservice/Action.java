@@ -40,17 +40,27 @@ public class Action{
 	private AbstractActionState currentState;
 	private Set<IActionEventListener> eventListeners;
 	private int executionAttempts = 0;
+	private IFileEventManager fileEventManager;
 	
 	private boolean isUploaded = false;
 	
 	/**
 	 * Initialize with timestamp and set currentState to initial state
 	 */
-	public Action(Path filePath){
+	public Action(Path filePath, IFileEventManager fileEventManager){
 		this.filePath = filePath;
 		currentState = new InitialState(this);
 		eventListeners = new HashSet<IActionEventListener>();
+		this.fileEventManager = fileEventManager;
 		updateTimestamp();
+	}
+	
+	public Action(Path filePath){
+		this(filePath, null);
+	}
+	
+	public void setFileEventManager(IFileEventManager fileEventManager){
+		this.fileEventManager = fileEventManager;
 	}
 	
 	public void updateTimestamp() {
@@ -75,7 +85,7 @@ public class Action{
 	 */
 	public void handleLocalCreateEvent(){
 		logger.debug("Path: {} State: {} HashCode: {}", filePath, currentState.getClass(), this.hashCode());
-		currentState = currentState.handleLocalCreateEvent();
+		currentState = currentState.changeStateOnLocalCreate();
 		updateTimestamp();
 	}
 	
@@ -84,7 +94,7 @@ public class Action{
 	 */
 	public void handleLocalModifyEvent(){
 		logger.debug("Path: {} State: {} HashCode: {}", filePath, currentState.getClass(), this.hashCode());
-		currentState = currentState.handleLocalUpdateEvent();
+		currentState = currentState.changeStateOnLocalUpdate();
 		updateTimestamp();
 	}
 
@@ -93,39 +103,46 @@ public class Action{
 	 */
 	public void handleLocalDeleteEvent(){
 		logger.debug("Path: {} State: {} HashCode: {}", filePath, currentState.getClass(), this.hashCode());
-		currentState = currentState.handleLocalDeleteEvent();
+		currentState = currentState.changeStateOnLocalDelete();
 		updateTimestamp();
 	}
 	
 	public void handleLocalMoveEvent(Path oldFilePath) {
 		logger.debug("Path: {} State: {} HashCode: {}", filePath, currentState.getClass(), this.hashCode());
-		currentState = currentState.handleLocalMoveEvent(oldFilePath);
+		currentState = currentState.changeStateOnLocalMove(oldFilePath);
 		updateTimestamp();
 	}
 	
 	public void handleRemoteUpdateEvent() {
 		logger.debug("Path: {} State: {} HashCode: {}", filePath, currentState.getClass(), this.hashCode());
-		currentState = currentState.handleRemoteUpdateEvent();
+		currentState = currentState.changeStateOnRemoteUpdate();
 		updateTimestamp();
 	}
 	
 	public void handleRemoteDeleteEvent() {
 		logger.debug("Path: {} State: {} HashCode: {}", filePath, currentState.getClass(), this.hashCode());
-		currentState = currentState.handleRemoteDeleteEvent();
+		currentState = currentState.changeStateOnRemoteDelete();
 		updateTimestamp();
 	}
 	
 	public void handleRecoverEvent(int versionToRecover){
 		logger.debug("Path: {} State: {} HashCode: {}", filePath, currentState.getClass(), this.hashCode());
-		currentState = currentState.handleRecoverEvent(versionToRecover);
+		currentState = currentState.changeStateOnLocalRecover(versionToRecover);
 		updateTimestamp();
 	}
 	
 	public void handleRemoteCreateEvent() {
 		logger.debug("Path: {} State: {} HashCode: {}", filePath, currentState.getClass(), this.hashCode());
-		currentState = currentState.handleRemoteCreateEvent();
+		currentState = currentState.changeStateOnRemoteCreate();
 		updateTimestamp();
 	}
+	
+	public void handleRemoteMoveEvent(Path path) {
+		logger.debug("Path: {} State: {} HashCode: {}", filePath, currentState.getClass(), this.hashCode());
+		currentState = currentState.changeStateOnRemoteMove(path);
+		updateTimestamp();
+	}
+
 
 	/**
 	 * Each state is able to execute an action as soon the state is considered as stable. 
@@ -181,6 +198,8 @@ public class Action{
 			logger.debug("Current State: Initial");
 		} else if (currentState.getClass() == ConflictState.class) {
 			logger.debug("Current State: Conflict");
+		} else {
+			logger.debug("Current State: {}", currentState.getClass().getName());
 		}
 
 		return currentState;

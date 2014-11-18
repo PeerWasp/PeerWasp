@@ -25,7 +25,7 @@ public class FileWalker extends AbstractWatchService {
 	
 	public FileWalker(Path rootDirectory, FileEventManager eventManager){
 		this.rootDirectory = rootDirectory;
-		this.fileTree = new FolderComposite(rootDirectory, false);
+		this.fileTree = new FolderComposite(rootDirectory, true);
 		this.eventManager = eventManager;
 	}
 	
@@ -126,7 +126,7 @@ public class FileWalker extends AbstractWatchService {
 
 		@Override
 		public FileVisitResult visitFile(Path path, BasicFileAttributes attr) throws IOException {
-			filesystemView.put(path, new Action(path));
+			filesystemView.put(path, new Action(path, eventManager));
 			logger.debug("Found file {}", path);
 			if(throwCreates){
 				eventManager.onLocalFileCreated(path);

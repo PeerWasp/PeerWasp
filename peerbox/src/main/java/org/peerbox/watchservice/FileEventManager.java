@@ -37,7 +37,7 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.SetMultimap;
 
-public class FileEventManager implements ILocalFileEventListener, org.hive2hive.core.events.framework.interfaces.IFileEventListener {
+public class FileEventManager implements IFileEventManager, ILocalFileEventListener, org.hive2hive.core.events.framework.interfaces.IFileEventListener {
 	
 	private static final Logger logger = LoggerFactory.getLogger(FileEventManager.class);
 	
@@ -104,34 +104,36 @@ public class FileEventManager implements ILocalFileEventListener, org.hive2hive.
 	 */
 	@Override
 	public void onLocalFileCreated(Path path) {
-		logger.debug("onLocalFileCreate: {}", path);
-		FileComponent fileComponent = getFileComponent(path);
-		if(fileComponent != null){
-			updateChildrenTimestamps(fileComponent);
-			logger.trace("Created file or folder {} already exists, handling cancelled.", path);
-			if(fileComponent.getAction().getCurrentState() instanceof RemoteUpdateState){
-				fileComponent.getAction().handleLocalCreateEvent();
-				fileComponentQueue.remove(fileComponent);
-			}
-			return;
-		}
 		
-		fileComponent = createFileComponent(path, Files.isRegularFile(path));
-		if(path.toFile().isDirectory()){
-			FolderComposite moveCandidate = findSourceOfOptimizedMove(path);
-			if(moveCandidate != null){
-				System.out.println("Folder Move detected!");
-				initiateOptimizedMove(moveCandidate, path);
-				return;
-			}
-		}
 		
-		handleMoveAndCreateCases(fileComponent);
-			
-		updateDataStructures(path, fileComponent);	
-		if(path.toFile().isDirectory()){
-			discoverSubtreeCompletely(path);
-		}
+//		logger.debug("onLocalFileCreate: {}", path);
+//		FileComponent fileComponent = getFileComponent(path);
+//		if(fileComponent != null){
+//			updateChildrenTimestamps(fileComponent);
+//			logger.trace("Created file or folder {} already exists, handling cancelled.", path);
+//			if(fileComponent.getAction().getCurrentState() instanceof RemoteUpdateState){
+//				fileComponent.getAction().handleLocalCreateEvent();
+//				fileComponentQueue.remove(fileComponent);
+//			}
+//			return;
+//		}
+//		
+//		fileComponent = createFileComponent(path, Files.isRegularFile(path));
+//		if(path.toFile().isDirectory()){
+////			FolderComposite moveCandidate = findSourceOfOptimizedMove(path);
+////			if(moveCandidate != null){
+////				System.out.println("Folder Move detected!");
+////				initiateOptimizedMove(moveCandidate, path);
+////				return;
+////			}
+//		}
+//		
+//		handleMoveAndCreateCases(fileComponent);
+//			
+//		updateDataStructures(path, fileComponent);	
+//		if(path.toFile().isDirectory()){
+//			discoverSubtreeCompletely(path);
+//		}
 	}
 
 	/**
@@ -147,6 +149,7 @@ public class FileEventManager implements ILocalFileEventListener, org.hive2hive.
 		if(deletedComponent == null) {
 			createAction.handleLocalCreateEvent();
 		} else {
+			logger.trace("Found a matching move candidate: {}", deletedComponent);
 			Action deleteAction = deletedComponent.getAction();
 			if(!fileComponentQueue.remove(deletedComponent)){
 				System.err.println("Unexpected remove behaviour");
@@ -290,6 +293,10 @@ private void addRecursively(FolderComposite componentAsFolder) {
 //			return;
 //		}
 		FileComponent toDelete = getFileComponent(path);
+		if(toDelete == null){
+			logger.trace("File to delete not found.");
+			return;
+		}
 		if(toDelete.getAction().getCurrentState() instanceof RemoteUpdateState){
 			logger.trace("The file is in remote update state, delte is ignored.");
 			return;
@@ -323,9 +330,11 @@ private void addRecursively(FolderComposite componentAsFolder) {
 			//only add the file to the set of deleted files and to the action queue
 			//if it was uploaded to the DHT before.
 			if(deletedComponent.getActionIsUploaded()){
+				logger.trace("Delete of file {} which is uploaded.", path);
 				
 				deletedByContentHash.put(deletedComponent.getContentHash(), deletedComponent);
 				if(deletedComponent instanceof FolderComposite){
+					logger.trace("Folder {} put to deletedByContentHashNames.", path);
 					FolderComposite deletedComponentAsFolder = (FolderComposite)deletedComponent;
 					deletedByContentNamesHash.put(deletedComponentAsFolder.getContentNamesHash(), deletedComponentAsFolder);
 				}
@@ -438,17 +447,21 @@ private void addRecursively(FolderComposite componentAsFolder) {
 		Path dstPath = fileEvent.getDstFile().toPath();
 		
 		FileComponent fileComponent = getFileComponent(srcPath);
+		logger.debug("State of moved component: {}", fileComponent.getAction().getCurrentState().getClass());
 		if(fileComponent == null){
 			System.err.println("Error: Component to move does not exist, this should not happen");
 			fileComponent = createFileComponent(srcPath, fileEvent.isFile());
 			getFileTree().putComponent(srcPath.toString(), fileComponent);		
 		}
 		FileComponent deletedComponent = getFileTree().deleteComponent(srcPath.toString());
+		logger.debug("State of deleted component: {}", deletedComponent.getAction().getCurrentState().getClass());
 		fileComponentQueue.remove(deletedComponent);
 		getFileTree().putComponent(dstPath.toString(), deletedComponent);
 //		//switch to remoteMoveState()
-		deletedComponent.getAction().getCurrentState().handleRemoteMoveEvent(srcPath);
-		fileComponentQueue.add(deletedComponent);
+		deletedComponent.getAction().handleRemoteMoveEvent(srcPath);
+		logger.debug("After handling: {}", deletedComponent.getAction().getCurrentState().getClass());
+//		fileComponentQueue.add(deletedComponent);
+		logger.debug("Handled file move of {} {}", dstPath, deletedComponent.getAction().hashCode());
 	}
 	
 	public void onFileRecoveryRequest(IFileRecoveryRequestEvent fileEvent){
@@ -542,8 +555,13 @@ private void addRecursively(FolderComposite componentAsFolder) {
 	private FileComponent findDeletedByContent(FileComponent createdComponent){
 		FileComponent deletedComponent = null;
 		String contentHash = createdComponent.getContentHash();
+		logger.trace("Contenthash to search for: {}", contentHash);
 		Set<FileComponent> deletedComponents = deletedByContentHash.get(contentHash);
 
+		
+		for(FileComponent comp : deletedComponents){
+			logger.trace("Compoonent {} with hash {}", comp.getPath(), comp.getContentHash());
+		}
 		long minTimeDiff = Long.MAX_VALUE;
 		for(FileComponent candidate : deletedComponents) {
 			long timeDiff = createdComponent.getAction().getTimestamp() - candidate.getAction().getTimestamp();

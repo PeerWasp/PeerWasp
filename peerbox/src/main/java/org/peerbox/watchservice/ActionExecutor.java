@@ -194,7 +194,7 @@ public class ActionExecutor implements Runnable, IActionEventListener {
 	public void onActionExecuteSucceeded(Action action) {
 		executingActions.remove(action);
 		action.setIsUploaded(true);
-		logger.debug("Action successful: {} {}", action.getFilePath(), action.getCurrentState().getClass().toString());
+		logger.debug("Action successful: {} {} {}", action.getFilePath(), action.hashCode(), action.getCurrentState().getClass().toString());
 		//logger.debug("Currently executing/pending actions: {}/{}", executingActions.size(), fileEventManager.getFileComponentQueue().size());
 	}
 

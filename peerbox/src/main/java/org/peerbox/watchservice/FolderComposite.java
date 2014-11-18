@@ -31,6 +31,7 @@ public class FolderComposite extends AbstractFileComponent implements FileCompon
 	private String contentNamesHash;
 	private FolderComposite parent;
 	private boolean updateContentHashes;
+	//private IFileEventManager fileEventManager;
 	
 	private static final Logger logger = LoggerFactory.getLogger(FolderComposite.class);
 	
@@ -42,6 +43,7 @@ public class FolderComposite extends AbstractFileComponent implements FileCompon
 		this.contentHash = "";
 		this.updateContentHashes = updateContentHashes;
 		this.contentNamesHash = "";
+//		this.fileEventManager = fileEventManager;
 		
 		if(isRoot){
 			action.setIsUploaded(true);

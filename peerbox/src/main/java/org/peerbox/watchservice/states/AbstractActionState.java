@@ -14,6 +14,8 @@ import org.hive2hive.processframework.interfaces.IProcessComponentListener;
 import org.peerbox.FileManager;
 import org.peerbox.watchservice.Action;
 import org.peerbox.watchservice.IActionEventListener;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Interface for different states of implemented state pattern
@@ -22,7 +24,7 @@ import org.peerbox.watchservice.IActionEventListener;
  *
  */
 public abstract class AbstractActionState {
-
+	private final static Logger logger = LoggerFactory.getLogger(AbstractActionState.class);
 	protected Action action;
 
 	public AbstractActionState(Action action) {
@@ -30,32 +32,63 @@ public abstract class AbstractActionState {
 	}
 	
 	public AbstractActionState getDefaultState(){
-		return new InitialState(action);
+		logger.debug("Type {} here", this.getClass());
+		return new EstablishedState(action);
 	}
 
 	/*
-	 * LOCAL event handlers
+	 * LOCAL state changers
 	 */
-	public abstract AbstractActionState handleLocalCreateEvent();
+	public abstract AbstractActionState changeStateOnLocalCreate();
 
-	public abstract AbstractActionState handleLocalDeleteEvent();
+	public abstract AbstractActionState changeStateOnLocalDelete();
 
-	public abstract AbstractActionState handleLocalUpdateEvent();
+	public abstract AbstractActionState changeStateOnLocalUpdate();
 
-	public abstract AbstractActionState handleLocalMoveEvent(Path oldFilePath);
+	public abstract AbstractActionState changeStateOnLocalMove(Path oldFilePath);
 	
-	public abstract AbstractActionState handleRecoverEvent(int versionToRecover);
+	public abstract AbstractActionState changeStateOnLocalRecover(int versionToRecover);
 
 	/*
-	 * REMOTE event handlers
+	 * REMOTE state changers
 	 */
-	public abstract AbstractActionState handleRemoteDeleteEvent();
+	public abstract AbstractActionState changeStateOnRemoteDelete();
 	
-	public abstract AbstractActionState handleRemoteCreateEvent();
+	public abstract AbstractActionState changeStateOnRemoteCreate();
 
-	public abstract AbstractActionState handleRemoteUpdateEvent();
+	public abstract AbstractActionState changeStateOnRemoteUpdate();
 
-	public abstract AbstractActionState handleRemoteMoveEvent(Path oldFilePath);
+	public abstract AbstractActionState changeStateOnRemoteMove(Path oldFilePath);
+	
+	/*
+	 * LOCAL event handler
+	 */
+	
+	public abstract void handleLocalCreate();
+	
+	public abstract void handleLocalDelete();
+	
+	public abstract void handleLocalUpdate();
+	
+	public abstract void handleLocalMove();
+	
+	public abstract void handleLocalRecover();
+	
+	/*
+	 * REMOTE event handler
+	 */
+	
+	public abstract void handleRemoteCreate();
+	
+	public abstract void handleRemoteDelete();
+	
+	public abstract void handleRemoteUpdate();
+	
+	public abstract void handleRemoteMove();
+	
+	/*
+	 * Execution and notification related functions
+	 */
 
 	public abstract void execute(FileManager fileManager) throws NoSessionException,
 			NoPeerConnectionException, IllegalFileLocation, InvalidProcessStateException;

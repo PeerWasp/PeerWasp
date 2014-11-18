@@ -21,44 +21,44 @@ public class RemoteUpdateState extends AbstractActionState {
 	}
 
 	@Override
-	public AbstractActionState handleLocalCreateEvent() {
+	public AbstractActionState changeStateOnLocalCreate() {
 		logger.debug("Local Create Event in RemoteUpdateState!  ({})", action.getFilePath());
 		return new InitialState(action);
 	}
 
 	@Override
-	public AbstractActionState handleLocalUpdateEvent() {
+	public AbstractActionState changeStateOnLocalUpdate() {
 		logger.debug("Local Update Event:  ({})", action.getFilePath());
 		
 		return this;
 	}
 
 	@Override
-	public AbstractActionState handleLocalDeleteEvent() {
+	public AbstractActionState changeStateOnLocalDelete() {
 		logger.debug("Local Delete Event in RemoteUpdateState ({})", action.getFilePath());
 		return this;
 	}
 
 	@Override
-	public AbstractActionState handleLocalMoveEvent(Path oldFilePath) {
+	public AbstractActionState changeStateOnLocalMove(Path oldFilePath) {
 		logger.debug("Local Move Event:  ({})", action.getFilePath());
 		return this;
 	}
 
 	@Override
-	public AbstractActionState handleRemoteUpdateEvent() {
+	public AbstractActionState changeStateOnRemoteUpdate() {
 		logger.debug("Remote Update Event:  ({})", action.getFilePath());
 		return this;
 	}
 
 	@Override
-	public AbstractActionState handleRemoteDeleteEvent() {
+	public AbstractActionState changeStateOnRemoteDelete() {
 		logger.debug("Remote Delete Event:  ({})", action.getFilePath());
 		return this;
 	}
 
 	@Override
-	public AbstractActionState handleRemoteMoveEvent(Path oldFilePath) {
+	public AbstractActionState changeStateOnRemoteMove(Path oldFilePath) {
 		logger.debug("Remote Move Event:  ({})", action.getFilePath());
 		return this;
 	}
@@ -79,7 +79,7 @@ public class RemoteUpdateState extends AbstractActionState {
 	}
 
 	@Override
-	public AbstractActionState handleRecoverEvent(int versionToRecover) {
+	public AbstractActionState changeStateOnLocalRecover(int versionToRecover) {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -90,9 +90,63 @@ public class RemoteUpdateState extends AbstractActionState {
 	}
 
 	@Override
-	public AbstractActionState handleRemoteCreateEvent() {
+	public AbstractActionState changeStateOnRemoteCreate() {
 		// TODO Auto-generated method stub
 		return new ConflictState(action);
+	}
+
+	@Override
+	public void handleLocalCreate() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void handleLocalDelete() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void handleLocalUpdate() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void handleLocalMove() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void handleLocalRecover() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void handleRemoteCreate() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void handleRemoteDelete() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void handleRemoteUpdate() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void handleRemoteMove() {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

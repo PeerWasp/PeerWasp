@@ -33,31 +33,31 @@ public class LocalDeleteState extends AbstractActionState {
 	}
 
 	@Override
-	public AbstractActionState handleLocalCreateEvent() {
+	public AbstractActionState changeStateOnLocalCreate() {
 		logger.debug("Local Create Event: Local Delete -> Local Update ({})", action.getFilePath());
 		return new LocalUpdateState(action);
 	}
 
 	@Override
-	public AbstractActionState handleLocalDeleteEvent() {
+	public AbstractActionState changeStateOnLocalDelete() {
 		logger.debug("Local Delete Event: Stay in Local Delete ({})", action.getFilePath());
 		return this;
 	}
 
 	@Override
-	public AbstractActionState handleLocalUpdateEvent() {
+	public AbstractActionState changeStateOnLocalUpdate() {
 		logger.debug("Local Update Event: Stay in Local Delete ({})", action.getFilePath());
 		return this;
 	}
 
 	@Override
-	public AbstractActionState handleLocalMoveEvent(Path oldFilePath) {
+	public AbstractActionState changeStateOnLocalMove(Path oldFilePath) {
 		logger.debug("Local Move Event: Delete -> Local Move ({})", action.getFilePath());
 		return new LocalMoveState(action, oldFilePath);
 	}
 
 	@Override
-	public AbstractActionState handleRemoteUpdateEvent() {
+	public AbstractActionState changeStateOnRemoteUpdate() {
 		logger.debug("Remote Update Event: Local Delete -> Conflict ({})", action.getFilePath());
 		
 		Path fileInConflict = action.getFilePath();
@@ -75,13 +75,13 @@ public class LocalDeleteState extends AbstractActionState {
 	}
 
 	@Override
-	public AbstractActionState handleRemoteDeleteEvent() {
+	public AbstractActionState changeStateOnRemoteDelete() {
 		logger.debug("Remote Delete Event: Local Delete -> Conflict ({})", action.getFilePath());
 		return new ConflictState(action);
 	}
 
 	@Override
-	public AbstractActionState handleRemoteMoveEvent(Path oldFilePath) {
+	public AbstractActionState changeStateOnRemoteMove(Path oldFilePath) {
 		logger.debug("Remote Move Event: Local Delete -> Conflict ({})", action.getFilePath());
 		return new ConflictState(action);
 	}
@@ -103,14 +103,68 @@ public class LocalDeleteState extends AbstractActionState {
 	}
 
 	@Override
-	public AbstractActionState handleRecoverEvent(int versionToRecover) {
+	public AbstractActionState changeStateOnLocalRecover(int versionToRecover) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public AbstractActionState handleRemoteCreateEvent() {
+	public AbstractActionState changeStateOnRemoteCreate() {
 		// TODO Auto-generated method stub
 		return this;
+	}
+
+	@Override
+	public void handleLocalCreate() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void handleLocalDelete() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void handleLocalUpdate() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void handleLocalMove() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void handleLocalRecover() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void handleRemoteCreate() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void handleRemoteDelete() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void handleRemoteUpdate() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void handleRemoteMove() {
+		// TODO Auto-generated method stub
+		
 	}
 }

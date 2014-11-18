@@ -23,7 +23,7 @@ public class FileLeaf extends AbstractFileComponent implements FileComponent{
 	public FileLeaf(Path path){
 		this.path = path;
 		this.fileName = path.getFileName();
-		this.action = new Action(path);
+		this.action = new Action(path, null);
 		this.contentHash = "";
 		updateContentHash();
 	}
@@ -31,7 +31,7 @@ public class FileLeaf extends AbstractFileComponent implements FileComponent{
 	public FileLeaf(Path path, boolean maintainContentHashes){
 		this.path = path;
 		this.fileName = path.getFileName();
-		this.action = new Action(path);
+		this.action = new Action(path, null);
 		this.contentHash = "";
 		if(maintainContentHashes){
 			updateContentHash();
