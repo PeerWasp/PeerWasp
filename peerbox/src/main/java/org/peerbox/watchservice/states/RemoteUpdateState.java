@@ -2,6 +2,7 @@ package org.peerbox.watchservice.states;
 
 import java.nio.file.Path;
 
+import org.apache.commons.lang3.NotImplementedException;
 import org.hive2hive.core.exceptions.IllegalFileLocation;
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.hive2hive.core.exceptions.NoSessionException;
@@ -40,7 +41,7 @@ public class RemoteUpdateState extends AbstractActionState {
 	}
 
 	@Override
-	public AbstractActionState changeStateOnLocalMove(Path oldFilePath) {
+	public AbstractActionState changeStateOnLocalMove(Path oldPath) {
 		logger.debug("Local Move Event:  ({})", action.getFilePath());
 		return this;
 	}
@@ -96,57 +97,57 @@ public class RemoteUpdateState extends AbstractActionState {
 	}
 
 	@Override
-	public void handleLocalCreate() {
+	public AbstractActionState handleLocalCreate() {
 		// TODO Auto-generated method stub
-		
+		throw new NotImplementedException("RemoteUpdateState.handleLocalCreate");
 	}
 
 	@Override
-	public void handleLocalDelete() {
+	public AbstractActionState handleLocalDelete() {
 		// TODO Auto-generated method stub
-		
+		throw new NotImplementedException("RemoteUpdateState.handleLocalDelete");
 	}
 
 	@Override
-	public void handleLocalUpdate() {
+	public AbstractActionState handleLocalUpdate() {
 		// TODO Auto-generated method stub
-		
+		throw new NotImplementedException("RemoteUpdateState.handleLocalUpdate");
 	}
 
 	@Override
-	public void handleLocalMove() {
+	public AbstractActionState handleLocalMove(Path oldPath) {
 		// TODO Auto-generated method stub
-		
+		throw new NotImplementedException("RemoteUpdateState.handleLocalMove");
 	}
 
 	@Override
-	public void handleLocalRecover() {
+	public AbstractActionState handleLocalRecover() {
 		// TODO Auto-generated method stub
-		
+		throw new NotImplementedException("RemoteUpdateState.handleLocalRecover");
 	}
 
 	@Override
-	public void handleRemoteCreate() {
+	public AbstractActionState handleRemoteCreate() {
 		// TODO Auto-generated method stub
-		
+		throw new NotImplementedException("RemoteUpdateState.handleRemoteCreate");
 	}
 
 	@Override
-	public void handleRemoteDelete() {
+	public AbstractActionState handleRemoteDelete() {
 		// TODO Auto-generated method stub
-		
+		throw new NotImplementedException("RemoteUpdateState.handleRemoteDelete");
 	}
 
 	@Override
-	public void handleRemoteUpdate() {
+	public AbstractActionState handleRemoteUpdate() {
 		// TODO Auto-generated method stub
-		
+		throw new NotImplementedException("RemoteUpdateState.handleRemoteUpdate");
 	}
 
 	@Override
-	public void handleRemoteMove() {
+	public AbstractActionState handleRemoteMove() {
 		// TODO Auto-generated method stub
-		
+		throw new NotImplementedException("RemoteUpdateState.handleRemoteMove");
 	}
 
 }

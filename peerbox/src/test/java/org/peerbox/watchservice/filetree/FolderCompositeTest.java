@@ -82,8 +82,12 @@ public class FolderCompositeTest {
 	public void fileTreeOperationsTest(){
 
 		FolderComposite fileTree = new FolderComposite(Paths.get(parentPath), true);
-		fileTree.putComponent(fileOnRootStr, new FileLeaf(Paths.get(fileOnRootStr)));
-		fileTree.putComponent(fileInNewDirStr, new FileLeaf(Paths.get(fileInNewDirStr)));
+		FileLeaf fileOnRoot = new FileLeaf(Paths.get(fileOnRootStr));
+		FileLeaf fileInNewDir = new FileLeaf(Paths.get(fileInNewDirStr));
+		fileInNewDir.getAction().setFile(fileInNewDir);
+		fileOnRoot.getAction().setFile(fileOnRoot);
+		fileTree.putComponent(fileOnRootStr, fileOnRoot);
+		fileTree.putComponent(fileInNewDirStr, fileInNewDir);
 		
 		FileComponent component = fileTree.getComponent(fileOnRootStr);
 		assertTrue(component instanceof FileLeaf);
@@ -112,7 +116,9 @@ public class FolderCompositeTest {
 	
 	private void bubbleContentHashUpdateTest(FolderComposite fileTree){
 		//put a new file in a lower directory
-		fileTree.putComponent(fileInDirInDirOnRootStr, new FileLeaf(Paths.get(fileInDirInDirOnRootStr)));
+		FileLeaf fileInDirInDirOnRoot = new FileLeaf(Paths.get(fileInDirInDirOnRootStr));
+		fileInDirInDirOnRoot.getAction().setFile(fileInDirInDirOnRoot);
+		fileTree.putComponent(fileInDirInDirOnRootStr, fileInDirInDirOnRoot);
 		FileComponent component = fileTree.getComponent(fileInDirInDirOnRootStr);
 		assertTrue(component instanceof FileLeaf);
 		assertTrue(component.getPath().toString().equals(fileInDirInDirOnRootStr));
@@ -129,8 +135,7 @@ public class FolderCompositeTest {
 			e.printStackTrace();
 		}
 		
-		//ensure that the getComponent call compares and updates hashes recursively
-		component = fileTree.getComponent(fileInDirInDirOnRootStr);
+		fileInDirInDirOnRoot.bubbleContentHashUpdate();
 		String newHashRoot = fileTree.getContentHash();
 		String newHashFile = component.getContentHash();
 

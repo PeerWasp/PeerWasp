@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
+import org.apache.commons.lang3.NotImplementedException;
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.hive2hive.core.exceptions.NoSessionException;
 import org.hive2hive.processframework.exceptions.InvalidProcessStateException;
@@ -11,6 +12,7 @@ import org.hive2hive.processframework.interfaces.IProcessComponent;
 import org.peerbox.FileManager;
 import org.peerbox.watchservice.Action;
 import org.peerbox.watchservice.ConflictHandler;
+import org.peerbox.watchservice.IFileEventManager;
 import org.peerbox.watchservice.states.AbstractActionState.FileManagerProcessListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -99,7 +101,9 @@ public class LocalDeleteState extends AbstractActionState {
 		Path path = action.getFilePath();
 		logger.debug("Execute LOCAL DELETE: {}", path);
 		IProcessComponent process = fileManager.delete(path.toFile());
-		process.attachListener(new FileManagerProcessListener());
+		if(process != null){
+			process.attachListener(new FileManagerProcessListener());
+		}
 	}
 
 	@Override
@@ -115,56 +119,74 @@ public class LocalDeleteState extends AbstractActionState {
 	}
 
 	@Override
-	public void handleLocalCreate() {
+	public AbstractActionState handleLocalCreate() {
 		// TODO Auto-generated method stub
-		
+		throw new NotImplementedException("LocalDeleteState.handleLocalCreate");
 	}
 
 	@Override
-	public void handleLocalDelete() {
+	public AbstractActionState handleLocalDelete() {
 		// TODO Auto-generated method stub
-		
+		throw new NotImplementedException("LocalDeleteState.handleLocalDelete");
 	}
 
 	@Override
-	public void handleLocalUpdate() {
+	public AbstractActionState handleLocalUpdate() {
 		// TODO Auto-generated method stub
-		
+		logger.debug("Local Update has no effect. File: {}", action.getFilePath());
+		throw new NotImplementedException("LocalDeleteState.handleLocalUpdate");
 	}
 
 	@Override
-	public void handleLocalMove() {
-		// TODO Auto-generated method stub
-		
+	public AbstractActionState handleLocalMove(Path oldPath) {
+		AbstractActionState newState = changeStateOnLocalMove(oldPath);
+		IFileEventManager eventManager = action.getFileEventManager();
+		action.getFile().setParentPath(oldPath.getParent());
+		action.getFile().setPath(oldPath);
+		System.out.println("oldPath: " + oldPath);
+		System.out.println("action.getFile().getPath(): " + action.getFile().getPath());
+		eventManager.getFileTree().putComponent(oldPath.toString(), action.getFile());
+		eventManager.getFileComponentQueue().remove(action.getFile());
+		action.updateTimestamp();
+		eventManager.getFileComponentQueue().add(action.getFile());
+		System.out.println("action.getFilePath(): " + action.getFilePath() + " action.getFile().getPath(): " + action.getFile().getPath());
+		return newState;
 	}
 
 	@Override
-	public void handleLocalRecover() {
+	public AbstractActionState handleLocalRecover() {
 		// TODO Auto-generated method stub
-		
+		throw new NotImplementedException("LocalDeleteState.handleLocalRecover");
 	}
 
 	@Override
-	public void handleRemoteCreate() {
+	public AbstractActionState handleRemoteCreate() {
 		// TODO Auto-generated method stub
-		
+		throw new NotImplementedException("LocalDeleteState.handleRemoteCreate");
 	}
 
 	@Override
-	public void handleRemoteDelete() {
+	public AbstractActionState handleRemoteDelete() {
 		// TODO Auto-generated method stub
-		
+		throw new NotImplementedException("LocalDeleteState.handleRemoteDelete");
 	}
 
 	@Override
-	public void handleRemoteUpdate() {
+	public AbstractActionState handleRemoteUpdate() {
 		// TODO Auto-generated method stub
-		
+		throw new NotImplementedException("LocalDeleteState.handleRemoteUpdate");
 	}
 
 	@Override
-	public void handleRemoteMove() {
+	public AbstractActionState handleRemoteMove() {
 		// TODO Auto-generated method stub
-		
+		throw new NotImplementedException("LocalDeleteState.handleRemoteMove");
 	}
+	
+	
+	public AbstractActionState getDefaultState(){
+		logger.debug("Return to default state 'InitialState' as component was removed from the tree: {}", action.getFilePath());
+		return new InitialState(action);
+	}
+
 }

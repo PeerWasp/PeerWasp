@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
+import org.apache.commons.lang3.NotImplementedException;
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.hive2hive.core.exceptions.NoSessionException;
 import org.hive2hive.processframework.exceptions.InvalidProcessStateException;
@@ -11,6 +12,7 @@ import org.hive2hive.processframework.interfaces.IProcessComponent;
 import org.peerbox.FileManager;
 import org.peerbox.watchservice.Action;
 import org.peerbox.watchservice.ConflictHandler;
+import org.peerbox.watchservice.IFileEventManager;
 import org.peerbox.watchservice.states.AbstractActionState.FileManagerProcessListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,7 +53,7 @@ public class LocalUpdateState extends AbstractActionState {
 	}
 
 	@Override
-	public AbstractActionState changeStateOnLocalMove(Path oldFilePath) {
+	public AbstractActionState changeStateOnLocalMove(Path oldPath) {
 		logger.debug("Local Move Event: not defined");
 		throw new IllegalStateException("Local Move Event: not defined");
 	}
@@ -104,7 +106,12 @@ public class LocalUpdateState extends AbstractActionState {
 		Path path = action.getFilePath();
 		logger.debug("Execute LOCAL UPDATE: {}", path);
 		IProcessComponent process = fileManager.update(path.toFile());
-		process.attachListener(new FileManagerProcessListener());
+		if(process == null){
+			System.err.println("process is null");
+		} else {
+			process.attachListener(new FileManagerProcessListener());
+		}
+		
 	}
 
 	@Override
@@ -120,56 +127,59 @@ public class LocalUpdateState extends AbstractActionState {
 	}
 
 	@Override
-	public void handleLocalCreate() {
+	public AbstractActionState handleLocalCreate() {
 		// TODO Auto-generated method stub
-		
+		throw new NotImplementedException("LocalUpdateState.handleLocalCreate");
+	}
+
+//	@Override
+//	public AbstractActionState handleLocalDelete() {
+//		// TODO Auto-generated method stub
+//		
+//		return changeStateOnLocalDelete();
+//	}
+
+	@Override
+	public AbstractActionState handleLocalUpdate() {
+		// TODO Auto-generated method stub
+		IFileEventManager eventManager = action.getFileEventManager();
+		updateTimeAndQueue();
+		return changeStateOnLocalUpdate();
 	}
 
 	@Override
-	public void handleLocalDelete() {
+	public AbstractActionState handleLocalMove(Path oldPath) {
 		// TODO Auto-generated method stub
-		
+		throw new NotImplementedException("LocalUpdateState.handleLocalMove");
 	}
 
 	@Override
-	public void handleLocalUpdate() {
+	public AbstractActionState handleLocalRecover() {
 		// TODO Auto-generated method stub
-		
+		throw new NotImplementedException("LocalUpdateState.handleLocalRecover");
 	}
 
 	@Override
-	public void handleLocalMove() {
+	public AbstractActionState handleRemoteCreate() {
 		// TODO Auto-generated method stub
-		
+		throw new NotImplementedException("LocalUpdateState.handleRemoteCreate");
 	}
 
 	@Override
-	public void handleLocalRecover() {
+	public AbstractActionState handleRemoteDelete() {
 		// TODO Auto-generated method stub
-		
+		throw new NotImplementedException("LocalUpdateState.handleRemoteDelete");
 	}
 
 	@Override
-	public void handleRemoteCreate() {
+	public AbstractActionState handleRemoteUpdate() {
 		// TODO Auto-generated method stub
-		
+		throw new NotImplementedException("LocalUpdateState.handleRemoteUpdate");
 	}
 
 	@Override
-	public void handleRemoteDelete() {
+	public AbstractActionState handleRemoteMove() {
 		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void handleRemoteUpdate() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void handleRemoteMove() {
-		// TODO Auto-generated method stub
-		
+		throw new NotImplementedException("LocalUpdateState.handleRemoteMove");
 	}
 }

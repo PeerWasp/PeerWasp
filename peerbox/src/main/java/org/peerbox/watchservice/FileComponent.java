@@ -11,7 +11,7 @@ public interface FileComponent {
 	
 	public String getContentHash();
 
-	public Action getAction();
+	public IAction getAction();
 	
 	public void setParent(FolderComposite parent);
 	public FolderComposite getParent();
@@ -38,10 +38,10 @@ public interface FileComponent {
 	public FileComponent getComponent(String path);
 	
 	public boolean updateContentHash(String contentHash);
-	
+	public boolean updateContentHash();
 	public Path getPath();
-	public void setPath(Path parent);
-	
+	public void setParentPath(Path parent);
+	public void setPath(Path path);
 
 	public boolean getActionIsUploaded();
 	public void setActionIsUploaded(boolean isUploaded);

@@ -12,7 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class FileLeaf extends AbstractFileComponent implements FileComponent{
-	private Action action;
+	private IAction action;
 	private Path path;
 	private Path fileName;
 	private String contentHash;
@@ -40,7 +40,7 @@ public class FileLeaf extends AbstractFileComponent implements FileComponent{
 	}
 
 	@Override
-	public Action getAction() {
+	public IAction getAction() {
 		return this.action;
 	}
 
@@ -131,13 +131,19 @@ public class FileLeaf extends AbstractFileComponent implements FileComponent{
 	}
 	
 	@Override
-	public void setPath(Path parentPath){	
+	public void setParentPath(Path parentPath){	
 		if(parentPath != null){
 			this.path = Paths.get(new File(parentPath.toString(), fileName.toString()).getPath());
 			logger.debug("Set path to {}", path);
-			action.setPath(this.path);
+//			action.setPath(this.path);
 		}
 		
+	}
+	
+	@Override
+	public void setPath(Path path){
+		this.path = path;
+		this.fileName = path.getFileName();
 	}
 
 	@Override

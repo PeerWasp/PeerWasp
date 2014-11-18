@@ -2,6 +2,7 @@ package org.peerbox.watchservice.states;
 
 import java.nio.file.Path;
 
+import org.apache.commons.lang3.NotImplementedException;
 import org.hive2hive.core.exceptions.IllegalFileLocation;
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.hive2hive.core.exceptions.NoSessionException;
@@ -19,17 +20,26 @@ public class RemoteCreateState extends AbstractActionState{
 		super(action);
 		// TODO Auto-generated constructor stub
 	}
+	
+	public AbstractActionState getDefaultState(){
+		logger.debug("Stay in default state 'RemoteCreateState': {}", action.getFile().getPath());
+//		return this;
+		return new EstablishedState(action);
+	}
 
 	@Override
 	public AbstractActionState changeStateOnLocalCreate() {
 		logger.debug("Local Create Event in RemoteUpdateState!  ({})", action.getFilePath());
-		return new ConflictState(action);
+//		return new ConflictState(action);
+//		return new EstablishedState(action);
+		return this;
 	}
 
 	@Override
 	public AbstractActionState changeStateOnLocalUpdate() {
 		logger.debug("Local Update Event:  ({})", action.getFilePath());
-		return new ConflictState(action);
+//		return new ConflictState(action);
+		return this;
 	}
 
 	@Override
@@ -39,7 +49,7 @@ public class RemoteCreateState extends AbstractActionState{
 	}
 
 	@Override
-	public AbstractActionState changeStateOnLocalMove(Path oldFilePath) {
+	public AbstractActionState changeStateOnLocalMove(Path oldPath) {
 		logger.debug("Local Move Event:  ({})", action.getFilePath());
 		return new ConflictState(action);
 	}
@@ -74,7 +84,7 @@ public class RemoteCreateState extends AbstractActionState{
 			System.err.println("process is null");
 		}
 		
-		notifyActionExecuteSucceeded();
+		//notifyActionExecuteSucceeded();
 	}
 
 	@Override
@@ -90,57 +100,58 @@ public class RemoteCreateState extends AbstractActionState{
 	}
 
 	@Override
-	public void handleLocalCreate() {
-		// TODO Auto-generated method stub
-		
+	public AbstractActionState handleLocalCreate() {
+		action.getFile().updateContentHash();
+		return changeStateOnLocalCreate();
 	}
 
 	@Override
-	public void handleLocalDelete() {
+	public AbstractActionState handleLocalDelete() {
 		// TODO Auto-generated method stub
-		
+		throw new NotImplementedException("RemoteCreateState.handleLocalDelete");
 	}
 
 	@Override
-	public void handleLocalUpdate() {
+	public AbstractActionState handleLocalUpdate() {
 		// TODO Auto-generated method stub
-		
+		return changeStateOnLocalUpdate();
+//		throw new NotImplementedException("RemoteCreateState.handleLocalUpdate");
 	}
 
 	@Override
-	public void handleLocalMove() {
+	public AbstractActionState handleLocalMove(Path oldPath) {
 		// TODO Auto-generated method stub
-		
+		throw new NotImplementedException("RemoteCreateState.handleLocalMove");
 	}
 
 	@Override
-	public void handleLocalRecover() {
+	public AbstractActionState handleLocalRecover() {
 		// TODO Auto-generated method stub
-		
+		throw new NotImplementedException("RemoteCreateState.handleLocalRecover");
 	}
 
 	@Override
-	public void handleRemoteCreate() {
+	public AbstractActionState handleRemoteCreate() {
 		// TODO Auto-generated method stub
-		
+		throw new NotImplementedException("RemoteCreateState.handleRemoteCreate");
 	}
 
 	@Override
-	public void handleRemoteDelete() {
+	public AbstractActionState handleRemoteDelete() {
 		// TODO Auto-generated method stub
-		
+		throw new NotImplementedException("RemoteCreateState.handleRemoteDelete");
 	}
 
 	@Override
-	public void handleRemoteUpdate() {
+	public AbstractActionState handleRemoteUpdate() {
 		// TODO Auto-generated method stub
-		
+		throw new NotImplementedException("RemoteCreateState.handleRemoteUpdate");
 	}
 
 	@Override
-	public void handleRemoteMove() {
+	public AbstractActionState handleRemoteMove() {
 		// TODO Auto-generated method stub
-		
+		throw new NotImplementedException("RemoteCreateState.handleRemoteMove");
 	}
 
 }

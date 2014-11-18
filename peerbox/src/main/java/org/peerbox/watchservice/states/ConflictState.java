@@ -83,55 +83,62 @@ public class ConflictState extends AbstractActionState {
 	}
 
 	@Override
-	public void handleLocalCreate() {
+	public AbstractActionState handleLocalCreate() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public AbstractActionState handleLocalDelete() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public AbstractActionState handleLocalUpdate() {
+		return null;
 		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
-	public void handleLocalDelete() {
+	public AbstractActionState handleLocalMove(Path oldPath) {
+		return null;
 		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
-	public void handleLocalUpdate() {
+	public AbstractActionState handleLocalRecover() {
+		return null;
 		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
-	public void handleLocalMove() {
+	public AbstractActionState handleRemoteCreate() {
+		return null;
 		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
-	public void handleLocalRecover() {
+	public AbstractActionState handleRemoteDelete() {
+		return null;
 		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
-	public void handleRemoteCreate() {
+	public AbstractActionState handleRemoteUpdate() {
+		return null;
 		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
-	public void handleRemoteDelete() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void handleRemoteUpdate() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void handleRemoteMove() {
+	public AbstractActionState handleRemoteMove() {
+		return null;
 		// TODO Auto-generated method stub
 		
 	}

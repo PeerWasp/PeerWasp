@@ -40,7 +40,7 @@ public class ActionExecutor implements Runnable, IActionEventListener {
 	public static final int MAX_EXECUTION_ATTEMPTS = 5;
 	
 	private FileEventManager fileEventManager;
-	private List<Action> executingActions;
+	private List<IAction> executingActions;
 	private boolean useNotifications;
 
 	public ActionExecutor(FileEventManager eventManager) {
@@ -50,7 +50,7 @@ public class ActionExecutor implements Runnable, IActionEventListener {
 	
 	public ActionExecutor(FileEventManager eventManager, boolean waitForCompletion){
 		this.fileEventManager = eventManager;
-		executingActions = Collections.synchronizedList(new ArrayList<Action>());
+		executingActions = Collections.synchronizedList(new ArrayList<IAction>());
 		useNotifications = waitForCompletion;
 	}
 	
@@ -98,18 +98,21 @@ public class ActionExecutor implements Runnable, IActionEventListener {
 						// execute
 						next.getAction().addEventListener(this);
 						
+						logger.debug("Start execution: {}", next.getPath());
+						next.getAction().execute(fileEventManager.getFileManager());
 						if(useNotifications){
 							executingActions.add(next.getAction());
+						} else {
+							onActionExecuteSucceeded(next.getAction());
 						}
-						next.getAction().execute(fileEventManager.getFileManager());
 					} else {
 						if(executingActions.size() != 0) {
 							//System.out.println("Blocking action: " + executingActions.get(0).getFilePath() + " " + executingActions.get(0).getCurrentState().getClass());
-							int j = 1;
-							for(Action a : executingActions) {
-								System.out.println("Blocking action: " + j + " " + a.getFilePath() + " " + a.getCurrentState().getClass());
-								j++;
-							}
+//							int j = 1;
+//							for(IAction a : executingActions) {
+//								System.out.println("Blocking action: " + j + " " + a.getFilePath() + " " + a.getCurrentState().getClass() + " " + a.hashCode());
+//								j++;
+//							}
 						}
 						//System.out.println("Current state: " + next.getAction().getCurrentState().getClass().toString());
 						// not ready yet, insert action again (no blocking peek, unfortunately)
@@ -129,6 +132,9 @@ public class ActionExecutor implements Runnable, IActionEventListener {
 			} catch (Exception ex) {
 				logger.error("Exception occurred: {}", ex.getMessage());
 				logger.error(ex.getStackTrace().toString());
+			} catch (Throwable t){
+				logger.error("Throwable occurred: {}", t.getMessage());
+				logger.error(t.getStackTrace().toString());
 			}
 		}
 	}
@@ -175,7 +181,7 @@ public class ActionExecutor implements Runnable, IActionEventListener {
 	 * @param action Action to be executed
 	 * @return true if ready to be executed, false otherwise
 	 */
-	private boolean isTimerReady(Action action) {
+	private boolean isTimerReady(IAction action) {
 		long ageMs = getActionAge(action);
 		return ageMs >= ACTION_WAIT_TIME_MS;
 	}
@@ -185,22 +191,36 @@ public class ActionExecutor implements Runnable, IActionEventListener {
 	 * @param action
 	 * @return age in ms
 	 */
-	private long getActionAge(Action action) {
+	private long getActionAge(IAction action) {
 		return System.currentTimeMillis() - action.getTimestamp();
 	}
 
 
 	@Override
-	public void onActionExecuteSucceeded(Action action) {
-		executingActions.remove(action);
+	public void onActionExecuteSucceeded(IAction action) {
+		int i = 0;
+//		for(IAction a : executingActions){
+//			logger.trace("{}     Action {} with ID {} and State {}", i++, a.getFilePath(), a.hashCode(), a.getCurrentState().getClass());
+//		}
+		
+		logger.debug("Action {} with state {} and ID {} removed", action.getFilePath(), action.getCurrentState().getClass(), action.hashCode());
+		action.onSucceed();
 		action.setIsUploaded(true);
 		logger.debug("Action successful: {} {} {}", action.getFilePath(), action.hashCode(), action.getCurrentState().getClass().toString());
 		//logger.debug("Currently executing/pending actions: {}/{}", executingActions.size(), fileEventManager.getFileComponentQueue().size());
+		boolean contains = executingActions.contains(action);
+		logger.debug("Contains {}: ", contains);
+		boolean changed = executingActions.remove(action);
+		if(changed){
+			logger.debug("changed on remove of {}", action.hashCode());
+		} else{
+			logger.debug("NOT changed on remove of {}", action.hashCode());
+		}
 	}
 
 
 	@Override
-	public void onActionExecuteFailed(Action action, RollbackReason reason) {
+	public void onActionExecuteFailed(IAction action, RollbackReason reason) {
 		//executingActions.remove(action);
 		logger.info("Action failed: {} {}.", action.getFilePath(), action.getCurrentState().getClass().toString());
 		try {
@@ -217,7 +237,7 @@ public class ActionExecutor implements Runnable, IActionEventListener {
 		//logger.debug("Currently executing/pending actions: {}/{}", executingActions.size(), fileEventManager.getFileComponentQueue().size());
 	}
 
-	public void handleExecutionError(RollbackReason reason, Action action) throws NoSessionException, NoPeerConnectionException, IllegalFileLocation, InvalidProcessStateException{
+	public void handleExecutionError(RollbackReason reason, IAction action) throws NoSessionException, NoPeerConnectionException, IllegalFileLocation, InvalidProcessStateException{
 		ProcessError error = reason.getErrorType();
 		
 		switch(error){

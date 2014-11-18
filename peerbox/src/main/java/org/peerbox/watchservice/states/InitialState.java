@@ -3,14 +3,21 @@ package org.peerbox.watchservice.states;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Set;
 
+import org.apache.commons.lang3.NotImplementedException;
 import org.hive2hive.core.exceptions.IllegalFileLocation;
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.hive2hive.core.exceptions.NoSessionException;
 import org.peerbox.FileManager;
 import org.peerbox.watchservice.Action;
+import org.peerbox.watchservice.FileComponent;
+import org.peerbox.watchservice.FileEventManager;
+import org.peerbox.watchservice.IFileEventManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.collect.SetMultimap;
 
 /**
  * the Initial state is given when a file is considered as new, synced or unknown.
@@ -36,7 +43,7 @@ public class InitialState extends AbstractActionState {
 	@Override
 	public AbstractActionState changeStateOnLocalUpdate() {
 		logger.debug("Local Update Event: Initial -> Local Update ({})", action.getFilePath());
-		return new LocalUpdateState(action);
+		return new InitialState(action);
 	
 	}
 
@@ -47,9 +54,9 @@ public class InitialState extends AbstractActionState {
 	}
 
 	@Override
-	public AbstractActionState changeStateOnLocalMove(Path oldFilePath) {
+	public AbstractActionState changeStateOnLocalMove(Path oldPath) {
 		logger.debug("Local Move Event: Initial -> Local Move ({})", action.getFilePath());
-		return new LocalMoveState(action, oldFilePath);
+		return this;//new LocalMoveState(action, oldPath);
 	}
 
 	@Override
@@ -60,7 +67,7 @@ public class InitialState extends AbstractActionState {
 	
 	@Override
 	public AbstractActionState changeStateOnRemoteCreate() {
-		logger.debug("Remote Update Event: Initial -> Remote Create ({})", action.getFilePath());
+		logger.debug("Remote Create Event: Initial -> Remote Create ({})", action.getFilePath());
 		return new RemoteCreateState(action);
 	}
 
@@ -100,56 +107,74 @@ public class InitialState extends AbstractActionState {
 	}
 
 	@Override
-	public void handleLocalCreate() {
-		// TODO Auto-generated method stub
+	public AbstractActionState handleLocalCreate() {
+		action.putFile(action.getFilePath().toString(), action.getFile());
+		action.getFile().updateContentHash();
+		
+		IFileEventManager eventManager = action.getFileEventManager();
+		FileComponent moveSource = eventManager.findDeletedByContent(action.getFile());
+		if(moveSource == null){
+			logger.trace("Handle regular create of {}, as no possible move source has been found.", action.getFilePath());
+			action.getFileEventManager().getFileComponentQueue().add(action.getFile());
+			return changeStateOnLocalCreate();
+		} else {
+			logger.trace("Handle move of {}, from {}.", action.getFilePath(), moveSource.getPath());
+			moveSource.getAction().handleLocalMoveEvent(action.getFilePath());
+			eventManager.getFileComponentQueue().remove(action.getFile());
+			return changeStateOnLocalMove(action.getFilePath());
+		}
 		
 	}
 
 	@Override
-	public void handleLocalDelete() {
-		// TODO Auto-generated method stub
-		
+	public AbstractActionState handleLocalDelete() {
+		throw new NotImplementedException("InitialState.handleLocalDelete");
 	}
 
 	@Override
-	public void handleLocalUpdate() {
+	public AbstractActionState handleLocalUpdate() {
 		// TODO Auto-generated method stub
-		
+		logger.debug("Local Update is ignored for {}", action.getFilePath());
+		return changeStateOnLocalUpdate();
 	}
 
 	@Override
-	public void handleLocalMove() {
+	public AbstractActionState handleLocalMove(Path oldPath) {
 		// TODO Auto-generated method stub
+		IFileEventManager eventManager = action.getFileEventManager();
+		eventManager.deleteFileComponent(action.getFilePath());
 		
+		return changeStateOnLocalMove(oldPath);
 	}
 
 	@Override
-	public void handleLocalRecover() {
+	public AbstractActionState handleLocalRecover() {
 		// TODO Auto-generated method stub
-		
+		throw new NotImplementedException("InitialState.handleLocalRecover");
 	}
 
 	@Override
-	public void handleRemoteCreate() {
-		// TODO Auto-generated method stub
-		
+	public AbstractActionState handleRemoteCreate() {
+		action.putFile(action.getFilePath().toString(), action.getFile());
+		updateTimeAndQueue();
+		return changeStateOnRemoteCreate();
 	}
 
 	@Override
-	public void handleRemoteDelete() {
+	public AbstractActionState handleRemoteDelete() {
 		// TODO Auto-generated method stub
-		
+		throw new NotImplementedException("InitialState.handleRemoteDelete");
 	}
 
 	@Override
-	public void handleRemoteUpdate() {
+	public AbstractActionState handleRemoteUpdate() {
 		// TODO Auto-generated method stub
-		
+		throw new NotImplementedException("InitialState.handleRemoteUpdate");
 	}
 
 	@Override
-	public void handleRemoteMove() {
+	public AbstractActionState handleRemoteMove() {
 		// TODO Auto-generated method stub
-		
+		throw new NotImplementedException("InitialState.handleRemoteMove");
 	}
 }

@@ -99,7 +99,7 @@ public class FolderComposite extends AbstractFileComponent implements FileCompon
 	 */
 	@Override
 	public synchronized void putComponent(String remainingPath, FileComponent component) {
-		
+//		component.getAction().setPath(Paths.get(remainingPath));
 		//if the path it absolute, cut off the absolute path to the root directory!
 		if(remainingPath.startsWith(path.toString())){
 			remainingPath = remainingPath.substring(path.toString().length() + 1);
@@ -295,7 +295,7 @@ public class FolderComposite extends AbstractFileComponent implements FileCompon
 			logger.trace("END bubbleContentHashUpdate {}", nextLevelPath);
 		}
 		logger.trace("after bubbleContentHashUpdate {}", nextLevelPath);
-		component.setPath(path);
+		component.setParentPath(path);
 		logger.trace("after setPath {}", nextLevelPath);
 		if(component instanceof FolderComposite){
 			FolderComposite componentAsFolder = (FolderComposite)component;
@@ -338,7 +338,7 @@ public class FolderComposite extends AbstractFileComponent implements FileCompon
 	public void propagatePathChangetoChildren(){
 		System.out.println("getPath(): " + getPath());
 		for(FileComponent child : children.values()){
-			child.setPath(getPath());
+			child.setParentPath(getPath());
 			if(child instanceof FolderComposite){
 				FolderComposite childAsFolder = (FolderComposite)child;
 				childAsFolder.propagatePathChangetoChildren();
@@ -348,11 +348,11 @@ public class FolderComposite extends AbstractFileComponent implements FileCompon
 	}
 	
 	@Override
-	public void setPath(Path parentPath){	
+	public void setParentPath(Path parentPath){	
 		if(parentPath != null){
 			this.path = Paths.get(new File(parentPath.toString(), folderName.toString()).getPath());
 			//logger.debug("Set path to {}", path);
-			action.setPath(this.path);
+//			action.setPath(this.path);
 		}
 	}
 
@@ -367,5 +367,11 @@ public class FolderComposite extends AbstractFileComponent implements FileCompon
 			return true;
 		}
 		return false;
+	}
+
+	@Override
+	public void setPath(Path path) {
+		path = path;
+		folderName = path.getFileName();
 	}
 }

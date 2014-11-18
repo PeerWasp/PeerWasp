@@ -13,9 +13,13 @@ import org.hive2hive.processframework.exceptions.InvalidProcessStateException;
 import org.hive2hive.processframework.interfaces.IProcessComponentListener;
 import org.peerbox.FileManager;
 import org.peerbox.watchservice.Action;
+import org.peerbox.watchservice.FileComponent;
 import org.peerbox.watchservice.IActionEventListener;
+import org.peerbox.watchservice.IFileEventManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.collect.SetMultimap;
 
 /**
  * Interface for different states of implemented state pattern
@@ -32,8 +36,14 @@ public abstract class AbstractActionState {
 	}
 	
 	public AbstractActionState getDefaultState(){
-		logger.debug("Type {} here", this.getClass());
+		logger.debug("Return to default state 'EstablishedState': {}", action.getFile().getPath());
 		return new EstablishedState(action);
+	}
+	
+	public void updateTimeAndQueue(){
+		action.getFileEventManager().getFileComponentQueue().remove(action.getFile());
+		action.updateTimestamp();
+		action.getFileEventManager().getFileComponentQueue().add(action.getFile());
 	}
 
 	/*
@@ -45,7 +55,7 @@ public abstract class AbstractActionState {
 
 	public abstract AbstractActionState changeStateOnLocalUpdate();
 
-	public abstract AbstractActionState changeStateOnLocalMove(Path oldFilePath);
+	public abstract AbstractActionState changeStateOnLocalMove(Path oldPath);
 	
 	public abstract AbstractActionState changeStateOnLocalRecover(int versionToRecover);
 
@@ -64,27 +74,37 @@ public abstract class AbstractActionState {
 	 * LOCAL event handler
 	 */
 	
-	public abstract void handleLocalCreate();
+	public abstract AbstractActionState handleLocalCreate();
 	
-	public abstract void handleLocalDelete();
+	public AbstractActionState handleLocalDelete(){
+		IFileEventManager eventManager = action.getFileEventManager();
+		eventManager.getFileComponentQueue().remove(action.getFile());
+		if(action.getFile().isFile()){
+			SetMultimap<String, FileComponent> deletedFiles = action.getFileEventManager().getDeletedFileComponents();
+			deletedFiles.put(action.getFile().getContentHash(), action.getFile());
+		}
+		eventManager.getFileTree().deleteComponent(action.getFile().getPath().toString());
+		eventManager.getFileComponentQueue().add(action.getFile());
+		return changeStateOnLocalDelete();
+	}
 	
-	public abstract void handleLocalUpdate();
+	public abstract AbstractActionState handleLocalUpdate();
 	
-	public abstract void handleLocalMove();
+	public abstract AbstractActionState handleLocalMove(Path oldFilePath);
 	
-	public abstract void handleLocalRecover();
+	public abstract AbstractActionState handleLocalRecover();
 	
 	/*
 	 * REMOTE event handler
 	 */
 	
-	public abstract void handleRemoteCreate();
+	public abstract AbstractActionState handleRemoteCreate();
 	
-	public abstract void handleRemoteDelete();
+	public abstract AbstractActionState handleRemoteDelete();
 	
-	public abstract void handleRemoteUpdate();
+	public abstract AbstractActionState handleRemoteUpdate();
 	
-	public abstract void handleRemoteMove();
+	public abstract AbstractActionState handleRemoteMove();
 	
 	/*
 	 * Execution and notification related functions

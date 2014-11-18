@@ -32,15 +32,16 @@ import org.slf4j.LoggerFactory;
  */
 
 //public class Action implements IProcessExceptionElement{
-public class Action{
+public class Action implements IAction{
 	private final static Logger logger = LoggerFactory.getLogger(Action.class);
 	private long timestamp = Long.MAX_VALUE;
 	
-	private Path filePath;
+//	private Path filePath;
 	private AbstractActionState currentState;
 	private Set<IActionEventListener> eventListeners;
 	private int executionAttempts = 0;
 	private IFileEventManager fileEventManager;
+	private FileComponent file;
 	
 	private boolean isUploaded = false;
 	
@@ -48,7 +49,7 @@ public class Action{
 	 * Initialize with timestamp and set currentState to initial state
 	 */
 	public Action(Path filePath, IFileEventManager fileEventManager){
-		this.filePath = filePath;
+//		this.filePath = filePath;
 		currentState = new InitialState(this);
 		eventListeners = new HashSet<IActionEventListener>();
 		this.fileEventManager = fileEventManager;
@@ -61,6 +62,18 @@ public class Action{
 	
 	public void setFileEventManager(IFileEventManager fileEventManager){
 		this.fileEventManager = fileEventManager;
+	}
+	
+	public IFileEventManager getFileEventManager(){
+		return fileEventManager;
+	}
+	
+	public FileComponent getFile() {
+		return file;
+	}
+
+	public void setFile(FileComponent file) {
+		this.file = file;
 	}
 	
 	public void updateTimestamp() {
@@ -84,61 +97,63 @@ public class Action{
 	 * changes the state of the currentState to Create state if current state allows it.
 	 */
 	public void handleLocalCreateEvent(){
-		logger.debug("Path: {} State: {} HashCode: {}", filePath, currentState.getClass(), this.hashCode());
-		currentState = currentState.changeStateOnLocalCreate();
+//		logger.debug("Path: {} State: {} HashCode: {}", filePath, currentState.getClass(), this.hashCode());
 		updateTimestamp();
+		currentState = currentState.handleLocalCreate();
+
 	}
 	
 	/**
 	 * changes the state of the currentState to Modify state if current state allows it.
 	 */
-	public void handleLocalModifyEvent(){
-		logger.debug("Path: {} State: {} HashCode: {}", filePath, currentState.getClass(), this.hashCode());
-		currentState = currentState.changeStateOnLocalUpdate();
+	public void handleLocalUpdateEvent(){
+//		logger.debug("Path: {} State: {} HashCode: {}", filePath, currentState.getClass(), this.hashCode());
 		updateTimestamp();
+		currentState = currentState.handleLocalUpdate();
 	}
 
 	/**
 	 * changes the state of the currentState to Delete state if current state allows it.
 	 */
 	public void handleLocalDeleteEvent(){
-		logger.debug("Path: {} State: {} HashCode: {}", filePath, currentState.getClass(), this.hashCode());
-		currentState = currentState.changeStateOnLocalDelete();
+//		logger.debug("Path: {} State: {} HashCode: {}", filePath, currentState.getClass(), this.hashCode());
 		updateTimestamp();
+		currentState = currentState.handleLocalDelete();
 	}
 	
 	public void handleLocalMoveEvent(Path oldFilePath) {
-		logger.debug("Path: {} State: {} HashCode: {}", filePath, currentState.getClass(), this.hashCode());
-		currentState = currentState.changeStateOnLocalMove(oldFilePath);
+//		logger.debug("Path: {} State: {} HashCode: {}", filePath, currentState.getClass(), this.hashCode());
 		updateTimestamp();
+		currentState = currentState.handleLocalMove(oldFilePath);
+
 	}
 	
 	public void handleRemoteUpdateEvent() {
-		logger.debug("Path: {} State: {} HashCode: {}", filePath, currentState.getClass(), this.hashCode());
+//		logger.debug("Path: {} State: {} HashCode: {}", filePath, currentState.getClass(), this.hashCode());
 		currentState = currentState.changeStateOnRemoteUpdate();
 		updateTimestamp();
 	}
 	
 	public void handleRemoteDeleteEvent() {
-		logger.debug("Path: {} State: {} HashCode: {}", filePath, currentState.getClass(), this.hashCode());
-		currentState = currentState.changeStateOnRemoteDelete();
+//		logger.debug("Path: {} State: {} HashCode: {}", filePath, currentState.getClass(), this.hashCode());
+//		currentState = currentState.changeStateOnRemoteDelete();
 		updateTimestamp();
 	}
 	
 	public void handleRecoverEvent(int versionToRecover){
-		logger.debug("Path: {} State: {} HashCode: {}", filePath, currentState.getClass(), this.hashCode());
-		currentState = currentState.changeStateOnLocalRecover(versionToRecover);
+//		logger.debug("Path: {} State: {} HashCode: {}", filePath, currentState.getClass(), this.hashCode());
+//		currentState = currentState.changeStateOnLocalRecover(versionToRecover);
 		updateTimestamp();
 	}
 	
 	public void handleRemoteCreateEvent() {
-		logger.debug("Path: {} State: {} HashCode: {}", filePath, currentState.getClass(), this.hashCode());
-		currentState = currentState.changeStateOnRemoteCreate();
+//		logger.debug("Path: {} State: {} HashCode: {}", filePath, currentState.getClass(), this.hashCode());
+		currentState = currentState.handleRemoteCreate();
 		updateTimestamp();
 	}
 	
 	public void handleRemoteMoveEvent(Path path) {
-		logger.debug("Path: {} State: {} HashCode: {}", filePath, currentState.getClass(), this.hashCode());
+//		logger.debug("Path: {} State: {} HashCode: {}", filePath, currentState.getClass(), this.hashCode());
 		currentState = currentState.changeStateOnRemoteMove(path);
 		updateTimestamp();
 	}
@@ -161,7 +176,7 @@ public class Action{
 		
 		executionAttempts++;
 		currentState.execute(fileManager);
-		currentState = currentState.getDefaultState();
+//		currentState = currentState.getDefaultState();
 		//currentState = new InitialState(this);
 		
 		} catch (Throwable t){
@@ -175,7 +190,7 @@ public class Action{
 	}
 	
 	public Path getFilePath(){
-		return filePath;
+		return file.getPath();
 	}
 	
 	public long getTimestamp() {
@@ -205,9 +220,9 @@ public class Action{
 		return currentState;
 	}
 
-	public void setPath(Path path) {
-		this.filePath = path;
-	}
+//	public void setPath(Path path) {
+//		this.filePath = path;
+//	}
 	
 	public synchronized void addEventListener(IActionEventListener listener) {
 		eventListeners.add(listener);
@@ -219,6 +234,18 @@ public class Action{
 
 	public int getExecutionAttempts() {
 		return executionAttempts;
+	}
+
+	public void putFile(String string, FileComponent file) {
+		// TODO Auto-generated method stub
+		fileEventManager.getFileTree().putComponent(string, file);
+	}
+
+	@Override
+	public void onSucceed() {
+		System.out.println("CurrentState: " + currentState.getClass());
+		currentState = currentState.getDefaultState();
+		System.out.println("New CurrentState: " + currentState.getClass());
 	}
 
 //	@Override

@@ -56,7 +56,7 @@ public class AddDelete extends FileIntegrationTest {
 		assertSyncClientPaths();
 	}
 	
-	@Test
+	@Test 
 	public void singleFolderInFolderTest() throws IOException {
 		// ADD
 		List<Path> folders = addSingleFolderInFolder();
@@ -93,7 +93,12 @@ public class AddDelete extends FileIntegrationTest {
 	public void manyFoldersInFolderTest() throws IOException {
 		// ADD
 		List<Path> folders = addManyFoldersInFolder();
-		
+		try {
+			Thread.sleep(2000);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		// DELETE
 //		deleteManyFoldersInFolder(folders);
 	}
@@ -148,7 +153,7 @@ public class AddDelete extends FileIntegrationTest {
 //		deleteManyFiles(files);
 	}
 	
-	@Test
+	@Test @Ignore
 	public void manyFilesStressTest() throws IOException {
 		// ADD
 		List<Path> files = addManyFiles(600, WAIT_TIME_STRESSTEST);
