@@ -156,7 +156,7 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 			}
 			logger.debug("File {} has to be created", file.getPath());
 			file.getAction().setFile(file);
-			file.getAction().setFileEventManager(this);
+			file.getAction().setEventManager(this);
 		}
 		logger.debug("File {} has state {}", file.getPath(), file.getAction().getCurrentState().getClass());
 		return file;
@@ -397,7 +397,7 @@ private void addRecursively(FolderComposite componentAsFolder) {
 		Path path = fileEvent.getFile().toPath();
 		FileComponent file = getOrCreateFileComponent(path, fileEvent);
 		file.getAction().setFile(file);
-		file.getAction().setFileEventManager(this);
+		file.getAction().setEventManager(this);
 		file.getAction().handleRemoteCreateEvent();
 		
 //		if(fileEvent == null){

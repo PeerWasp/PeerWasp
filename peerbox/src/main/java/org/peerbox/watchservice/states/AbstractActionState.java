@@ -41,9 +41,9 @@ public abstract class AbstractActionState {
 	}
 	
 	public void updateTimeAndQueue(){
-		action.getFileEventManager().getFileComponentQueue().remove(action.getFile());
+		action.getEventManager().getFileComponentQueue().remove(action.getFile());
 		action.updateTimestamp();
-		action.getFileEventManager().getFileComponentQueue().add(action.getFile());
+		action.getEventManager().getFileComponentQueue().add(action.getFile());
 	}
 
 	/*
@@ -77,10 +77,10 @@ public abstract class AbstractActionState {
 	public abstract AbstractActionState handleLocalCreate();
 	
 	public AbstractActionState handleLocalDelete(){
-		IFileEventManager eventManager = action.getFileEventManager();
+		IFileEventManager eventManager = action.getEventManager();
 		eventManager.getFileComponentQueue().remove(action.getFile());
 		if(action.getFile().isFile()){
-			SetMultimap<String, FileComponent> deletedFiles = action.getFileEventManager().getDeletedFileComponents();
+			SetMultimap<String, FileComponent> deletedFiles = action.getEventManager().getDeletedFileComponents();
 			deletedFiles.put(action.getFile().getContentHash(), action.getFile());
 			logger.debug("Put deleted file {} with hash {} to SetMultimap<String, FileComponent>", action.getFilePath(), action.getFile().getContentHash());
 		}

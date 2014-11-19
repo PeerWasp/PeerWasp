@@ -1,11 +1,8 @@
 package org.peerbox.watchservice;
 
-import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Base64;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Set;
 
 import org.hive2hive.core.exceptions.IllegalFileLocation;
@@ -33,16 +30,14 @@ import org.slf4j.LoggerFactory;
  *
  */
 
-//public class Action implements IProcessExceptionElement{
 public class Action implements IAction{
 	private final static Logger logger = LoggerFactory.getLogger(Action.class);
 	private long timestamp = Long.MAX_VALUE;
 	
-//	private Path filePath;
 	private AbstractActionState currentState;
 	private Set<IActionEventListener> eventListeners;
 	private int executionAttempts = 0;
-	private IFileEventManager fileEventManager;
+	private IFileEventManager eventManager;
 	private FileComponent file;
 	
 	private boolean isUploaded = false;
@@ -50,24 +45,23 @@ public class Action implements IAction{
 	/**
 	 * Initialize with timestamp and set currentState to initial state
 	 */
-	public Action(Path filePath, IFileEventManager fileEventManager){
-//		this.filePath = filePath;
+	public Action(IFileEventManager fileEventManager){
 		currentState = new InitialState(this);
 		eventListeners = new HashSet<IActionEventListener>();
-		this.fileEventManager = fileEventManager;
+		this.eventManager = fileEventManager;
 		updateTimestamp();
 	}
 	
-	public Action(Path filePath){
-		this(filePath, null);
+	public Action(){
+		this(null);
 	}
 	
-	public void setFileEventManager(IFileEventManager fileEventManager){
-		this.fileEventManager = fileEventManager;
+	public void setEventManager(IFileEventManager fileEventManager){
+		this.eventManager = fileEventManager;
 	}
 	
-	public IFileEventManager getFileEventManager(){
-		return fileEventManager;
+	public IFileEventManager getEventManager(){
+		return eventManager;
 	}
 	
 	public FileComponent getFile() {
@@ -80,11 +74,6 @@ public class Action implements IAction{
 	
 	public void updateTimestamp() {
 		timestamp = System.currentTimeMillis();
-	}
-	
-	public static String createStringFromByteArray(byte[] bytes){
-		String hashString = Base64.getEncoder().encodeToString(bytes);
-		return hashString;
 	}
 	
 	public boolean getIsUploaded(){
@@ -252,7 +241,7 @@ public class Action implements IAction{
 
 	public void putFile(String string, FileComponent file) {
 		// TODO Auto-generated method stub
-		fileEventManager.getFileTree().putComponent(string, file);
+		eventManager.getFileTree().putComponent(string, file);
 	}
 
 	@Override

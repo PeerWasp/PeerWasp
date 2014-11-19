@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Base64;
 
 import org.apache.commons.io.FilenameUtils;
 import org.hive2hive.core.security.HashUtil;
@@ -41,12 +42,17 @@ public class PathUtils {
 			try {
 				byte[] rawHash = HashUtil.hash(path.toFile());
 				if(rawHash != null){
-					newHash = Action.createStringFromByteArray(rawHash);
+					newHash = PathUtils.createStringFromByteArray(rawHash);
 				}
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
 		}
 		return newHash;
+	}
+	
+	public static String createStringFromByteArray(byte[] bytes){
+		String hashString = Base64.getEncoder().encodeToString(bytes);
+		return hashString;
 	}
 }

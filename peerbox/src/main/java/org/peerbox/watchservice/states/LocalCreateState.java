@@ -146,9 +146,9 @@ public class LocalCreateState extends AbstractActionState {
 	@Override
 	public AbstractActionState handleLocalDelete() {
 		// TODO Auto-generated method stub
-		IFileEventManager eventManager = action.getFileEventManager();
+		IFileEventManager eventManager = action.getEventManager();
 		eventManager.deleteFileComponent(action.getFile().getPath());
-		action.getFileEventManager().getFileComponentQueue().remove(action.getFile());
+		action.getEventManager().getFileComponentQueue().remove(action.getFile());
 		return changeStateOnLocalDelete();
 	}
 

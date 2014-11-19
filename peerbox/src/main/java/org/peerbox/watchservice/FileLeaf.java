@@ -23,7 +23,7 @@ public class FileLeaf extends AbstractFileComponent implements FileComponent{
 	public FileLeaf(Path path){
 		this.path = path;
 		this.fileName = path.getFileName();
-		this.action = new Action(path, null);
+		this.action = new Action();
 		this.contentHash = "";
 		updateContentHash();
 	}
@@ -31,7 +31,7 @@ public class FileLeaf extends AbstractFileComponent implements FileComponent{
 	public FileLeaf(Path path, boolean maintainContentHashes){
 		this.path = path;
 		this.fileName = path.getFileName();
-		this.action = new Action(path, null);
+		this.action = new Action();
 		this.contentHash = "";
 		if(maintainContentHashes){
 			updateContentHash();
@@ -72,11 +72,9 @@ public class FileLeaf extends AbstractFileComponent implements FileComponent{
 		if(path == null){
 			logger.trace("path is null!!!");
 		}
-		//logger.trace("{} path BEFORE bubble", path);
 		if(hasChanged){
 			parent.bubbleContentHashUpdate();
 		}
-		//logger.trace("{} path AFTER bubble", path);
 	}
 
 	@Override
@@ -103,7 +101,6 @@ public class FileLeaf extends AbstractFileComponent implements FileComponent{
 	 */
 	@Override
 	public boolean updateContentHash(String newHash) {
-		// TODO Auto-generated method stub
 		if(newHash == null){
 			newHash = PathUtils.computeFileContentHash(getPath());
 		} 
@@ -138,7 +135,6 @@ public class FileLeaf extends AbstractFileComponent implements FileComponent{
 		if(parentPath != null){
 			this.path = Paths.get(new File(parentPath.toString(), fileName.toString()).getPath());
 			logger.debug("Set path to {}", path);
-//			action.setPath(this.path);
 		}
 		
 	}
@@ -156,7 +152,6 @@ public class FileLeaf extends AbstractFileComponent implements FileComponent{
 
 	@Override
 	public boolean isReady() {
-		// TODO Auto-generated method stub
 		if(parent.getActionIsUploaded()){
 			return true;
 		}

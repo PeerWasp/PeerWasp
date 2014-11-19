@@ -126,7 +126,7 @@ public class FileWalker extends AbstractWatchService {
 
 		@Override
 		public FileVisitResult visitFile(Path path, BasicFileAttributes attr) throws IOException {
-			filesystemView.put(path, new Action(path, eventManager));
+			filesystemView.put(path, new Action(eventManager));
 			logger.debug("Found file {}", path);
 			if(throwCreates){
 				eventManager.onLocalFileCreated(path);

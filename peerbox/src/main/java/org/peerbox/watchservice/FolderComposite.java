@@ -39,7 +39,7 @@ public class FolderComposite extends AbstractFileComponent implements FileCompon
 	public FolderComposite(Path path, boolean updateContentHashes, boolean isRoot){
 		this.path = path;
 		this.folderName = path.getFileName();
-		this.action = new Action(path);
+		this.action = new Action();
 		this.contentHash = "";
 		this.updateContentHashes = updateContentHashes;
 		this.contentNamesHash = "";
@@ -152,7 +152,7 @@ public class FolderComposite extends AbstractFileComponent implements FileCompon
 		for(String childName : children.keySet()){
 			nameHashInput = nameHashInput.concat(childName);
 		}
-		contentNamesHash = Action.createStringFromByteArray(HashUtil.hash(nameHashInput.getBytes()));
+		contentNamesHash = PathUtils.createStringFromByteArray(HashUtil.hash(nameHashInput.getBytes()));
 		if(!contentNamesHash.equals(oldNamesHash)){
 			return true;
 		} else {

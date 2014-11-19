@@ -142,7 +142,7 @@ public class LocalUpdateState extends AbstractActionState {
 	@Override
 	public AbstractActionState handleLocalUpdate() {
 		// TODO Auto-generated method stub
-		IFileEventManager eventManager = action.getFileEventManager();
+		IFileEventManager eventManager = action.getEventManager();
 		updateTimeAndQueue();
 		return changeStateOnLocalUpdate();
 	}

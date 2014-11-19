@@ -155,7 +155,7 @@ public class EstablishedState extends AbstractActionState{
 	@Override
 	public AbstractActionState handleRemoteDelete() {
 		logger.debug("EstablishedState.handleRemoteDelete");
-		IFileEventManager eventManager = action.getFileEventManager();
+		IFileEventManager eventManager = action.getEventManager();
 		eventManager.getFileTree().deleteComponent(action.getFilePath().toString());
 		eventManager.getFileComponentQueue().remove(action.getFile());
 		action.getFilePath().toFile().delete();
@@ -177,11 +177,10 @@ public class EstablishedState extends AbstractActionState{
 
 	@Override
 	public AbstractActionState handleRemoteMove(Path dstPath) {
-		// TODO Auto-generated method stub
 		Path oldPath = action.getFilePath();
 		logger.debug("Modify the tree accordingly. Src: {} Dst: {}", action.getFilePath(), dstPath);
-		FileComponent deleted = action.getFileEventManager().getFileTree().deleteComponent(action.getFilePath().toString());
-		action.getFileEventManager().getFileTree().putComponent(dstPath.toString(), action.getFile());
+		FileComponent deleted = action.getEventManager().getFileTree().deleteComponent(action.getFilePath().toString());
+		action.getEventManager().getFileTree().putComponent(dstPath.toString(), action.getFile());
 		
 		
 		Path path = action.getFilePath();

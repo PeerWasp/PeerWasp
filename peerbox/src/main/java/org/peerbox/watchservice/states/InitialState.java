@@ -104,7 +104,7 @@ public class InitialState extends AbstractActionState {
 		action.putFile(action.getFilePath().toString(), action.getFile());
 		action.getFile().updateContentHash();
 		
-		IFileEventManager eventManager = action.getFileEventManager();
+		IFileEventManager eventManager = action.getEventManager();
 		
 		try {
 			Thread.sleep(50);
@@ -116,7 +116,7 @@ public class InitialState extends AbstractActionState {
 		logger.debug("File {} has hash {}", action.getFilePath(), action.getFile().getContentHash());
 		if(moveSource == null){
 			logger.trace("Handle regular create of {}, as no possible move source has been found.", action.getFilePath());
-			action.getFileEventManager().getFileComponentQueue().add(action.getFile());
+			action.getEventManager().getFileComponentQueue().add(action.getFile());
 			return changeStateOnLocalCreate();
 		} else {
 			logger.trace("Handle move of {}, from {}.", action.getFilePath(), moveSource.getPath());
