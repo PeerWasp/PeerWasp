@@ -1,5 +1,7 @@
 package org.peerbox.watchservice;
 
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Base64;
 import java.util.HashSet;
@@ -155,8 +157,17 @@ public class Action implements IAction{
 	
 	public void handleRemoteMoveEvent(Path path) {
 //		logger.debug("Path: {} State: {} HashCode: {}", filePath, currentState.getClass(), this.hashCode());
-		currentState = currentState.changeStateOnRemoteMove(path);
 		updateTimestamp();
+		currentState = currentState.handleRemoteMove(path);
+		
+//		try {
+//			logger.debug("Move From {} to {}", path, getFilePath());
+//			com.google.common.io.Files.move(getFilePath().toFile(), path.toFile());
+//			Files.move(path, getFilePath() );
+//		} catch (IOException e) {
+//			e.printStackTrace();
+//		}
+		
 	}
 
 
@@ -201,7 +212,8 @@ public class Action implements IAction{
 	/**
 	 * @return current state object
 	 */
-	public AbstractActionState getCurrentState() {
+	public AbstractActionState getCurrentState() { 
+		logger.debug("Current path: {}", getFilePath());
 		if (currentState.getClass() == LocalCreateState.class) {
 			logger.debug("Current State: Create");
 		} else if (currentState.getClass() == LocalDeleteState.class) {

@@ -83,14 +83,14 @@ public class InitialState extends AbstractActionState {
 		
 		Path path = action.getFilePath();
 		logger.debug("Execute REMOTE MOVE: {}", path);
-		try {
-			Files.move(oldFilePath, path);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		return new RemoteMoveState(action, oldFilePath);
+//		try {
+//			Files.move(oldFilePath, path);
+//		} catch (IOException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+		throw new NotImplementedException("InitialState.onremoteMove");
+//		return new RemoteMoveState(action, oldFilePath);
 	}
 
 	@Override
@@ -105,6 +105,13 @@ public class InitialState extends AbstractActionState {
 		action.getFile().updateContentHash();
 		
 		IFileEventManager eventManager = action.getFileEventManager();
+		
+		try {
+			Thread.sleep(50);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		FileComponent moveSource = eventManager.findDeletedByContent(action.getFile());
 		logger.debug("File {} has hash {}", action.getFilePath(), action.getFile().getContentHash());
 		if(moveSource == null){
@@ -123,6 +130,7 @@ public class InitialState extends AbstractActionState {
 	@Override
 	public AbstractActionState handleLocalDelete() {
 		//throw new NotImplementedException("InitialState.handleLocalDelete");
+		logger.debug("Local Delete is ignored i InitialState for {}", action.getFilePath());
 		return this;
 	}
 
@@ -136,10 +144,11 @@ public class InitialState extends AbstractActionState {
 	@Override
 	public AbstractActionState handleLocalMove(Path oldPath) {
 		// TODO Auto-generated method stub
-		IFileEventManager eventManager = action.getFileEventManager();
-		eventManager.deleteFileComponent(action.getFilePath());
-		
-		return changeStateOnLocalMove(oldPath);
+//		IFileEventManager eventManager = action.getFileEventManager();
+//		eventManager.deleteFileComponent(action.getFilePath());
+//		
+//		return changeStateOnLocalMove(oldPath);
+		throw new NotImplementedException("InitialState.handleLocalMove");
 	}
 
 	@Override
@@ -168,7 +177,7 @@ public class InitialState extends AbstractActionState {
 	}
 
 	@Override
-	public AbstractActionState handleRemoteMove() {
+	public AbstractActionState handleRemoteMove(Path path) {
 		// TODO Auto-generated method stub
 		throw new NotImplementedException("InitialState.handleRemoteMove");
 	}

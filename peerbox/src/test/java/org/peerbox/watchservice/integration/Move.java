@@ -34,6 +34,17 @@ public class Move extends FileIntegrationTest{
 		moveFileOrFolder(srcFile, folder.resolve(srcFile.getFileName()));
 		assertSyncClientPaths();
 	}
+	
+	@Test
+	public void severalFilesMoveTest() throws IOException{
+		Path folder = addSingleFolder();
+		List<Path> files = addManyFiles(20, 30);
+		waitForExists(files, WAIT_TIME_SHORT);
+		assertSyncClientPaths();
+		
+		moveManyFilesIntoFolder(folder);
+		assertSyncClientPaths();
+	}
 
 	//still fails
 	@Test
@@ -118,7 +129,7 @@ public class Move extends FileIntegrationTest{
 		
 		File[] files = rootFolder.listFiles();
 		ArrayList<Path> movedFiles = new ArrayList<Path>();
-		int nrMoves = 20;
+		int nrMoves = 50;
 		for(int i = 0; i < nrMoves; i++){
 			if(files[i].isDirectory()){
 				nrMoves--;

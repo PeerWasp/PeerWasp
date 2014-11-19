@@ -23,10 +23,15 @@ public class RemoteMoveState extends AbstractActionState {
 		this.oldPath = oldPath;
 	}
 
+	public AbstractActionState getDefaultState(){
+		logger.debug("Stay in default state 'RemoteMoveState': {}", action.getFile().getPath());
+		return this;
+	}
+	
 	@Override
 	public AbstractActionState changeStateOnLocalCreate() {
 		logger.debug("Local Create Event:  ({})", action.getFilePath());
-		return this;
+		return new EstablishedState(action);
 	}
 
 	@Override
@@ -71,11 +76,12 @@ public class RemoteMoveState extends AbstractActionState {
 		Path path = action.getFilePath();
 		logger.debug("Execute REMOTE MOVE: {}", path);
 //		try {
-//			Files.move(oldPath, path);
+//			com.google.common.io.Files.move(oldPath.toFile(), path.toFile());
 //		} catch (IOException e) {
 //			// TODO Auto-generated catch block
 //			e.printStackTrace();
 //		}
+//		notifyActionExecuteSucceeded();
 	}
 
 	@Override
@@ -98,8 +104,12 @@ public class RemoteMoveState extends AbstractActionState {
 
 	@Override
 	public AbstractActionState handleLocalCreate() {
+
 		// TODO Auto-generated method stub
-		throw new NotImplementedException("RemoteMoveState.handleLocalCreate");
+//		throw new NotImplementedException("RemoteMoveState.handleLocalCreate");
+//		updateTimeAndQueue();
+//		notifyActionExecuteSucceeded();
+		return changeStateOnLocalCreate();
 	}
 
 	@Override
@@ -145,9 +155,9 @@ public class RemoteMoveState extends AbstractActionState {
 	}
 
 	@Override
-	public AbstractActionState handleRemoteMove() {
+	public AbstractActionState handleRemoteMove(Path path) {
 		// TODO Auto-generated method stub
-		throw new NotImplementedException("RemoteMoveState.handlhandleRemoteMoveeRemoteMove");
+		throw new NotImplementedException("RemoteMoveState.handleRemoteMove");
 	}
 
 }

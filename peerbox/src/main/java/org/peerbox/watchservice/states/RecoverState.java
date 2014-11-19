@@ -148,7 +148,7 @@ public class RecoverState extends AbstractActionState{
 	}
 
 	@Override
-	public AbstractActionState handleRemoteMove() {
+	public AbstractActionState handleRemoteMove(Path path) {
 		// TODO Auto-generated method stub
 		throw new NotImplementedException("RecoverState.handleRemoteMove");
 	}

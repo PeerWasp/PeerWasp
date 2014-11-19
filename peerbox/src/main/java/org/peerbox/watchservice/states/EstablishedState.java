@@ -51,7 +51,7 @@ public class EstablishedState extends AbstractActionState{
 	@Override
 	public AbstractActionState changeStateOnLocalMove(Path oldFilePath) {
 		// TODO Auto-generated method stub
-		return this;
+		return new RemoteMoveState(action, oldFilePath);
 	}
 
 	@Override
@@ -80,8 +80,8 @@ public class EstablishedState extends AbstractActionState{
 
 	@Override
 	public AbstractActionState changeStateOnRemoteMove(Path oldFilePath) {
-		// TODO Auto-generated method stub
-		return null;
+		logger.debug("Switched to RemoteMoveState!");
+		return new RemoteMoveState(action, oldFilePath);
 	}
 
 	@Override
@@ -128,15 +128,15 @@ public class EstablishedState extends AbstractActionState{
 	public AbstractActionState handleLocalMove(Path newPath) {
 		// TODO Auto-generated method stub
 //		throw new NotImplementedException("EstablishedState.handleLocalMove");
-		try {
-			Files.move(action.getFilePath().toFile(), newPath.toFile());
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		action.getFileEventManager().getFileTree().deleteComponent(action.getFilePath().toString());
-		action.getFileEventManager().getFileTree().putComponent(newPath.toString(), action.getFile());
-		
+//		try {
+//			Files.move(action.getFilePath().toFile(), newPath.toFile());
+//		} catch (IOException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+//		action.getFileEventManager().getFileTree().deleteComponent(action.getFilePath().toString());
+//		action.getFileEventManager().getFileTree().putComponent(newPath.toString(), action.getFile());
+
 		return changeStateOnLocalMove(newPath);
 	}
 
@@ -166,9 +166,35 @@ public class EstablishedState extends AbstractActionState{
 	}
 
 	@Override
-	public AbstractActionState handleRemoteMove() {
+	public AbstractActionState handleRemoteMove(Path dstPath) {
 		// TODO Auto-generated method stub
-		throw new NotImplementedException("EstablishedState.handleRemoteMove");
+		Path oldPath = action.getFilePath();
+		logger.debug("Modify the tree accordingly. Src: {} Dst: {}", action.getFilePath(), dstPath);
+		FileComponent deleted = action.getFileEventManager().getFileTree().deleteComponent(action.getFilePath().toString());
+		action.getFileEventManager().getFileTree().putComponent(dstPath.toString(), action.getFile());
+		
+		
+		Path path = action.getFilePath();
+		logger.debug("Execute REMOTE MOVE: {}", path);
+		try {
+			com.google.common.io.Files.move(oldPath.toFile(), path.toFile());
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+//		notifyActionExecuteSucceeded();
+//		if(deleted.equals(action.getFile())){
+//			logger.debug("EQUALS {}", action.getCurrentState().getClass());
+//		} else {
+//			logger.debug("NOT EQUALS", deleted.getAction().getCurrentState().getClass());
+//		}
+//		IFileEventManager manager = action.getFileEventManager();
+//		manager.cr
+//		action.getFileEventManager().getFileTree().putComponent(dstPath.toString(), action.getFile());
+//		logger.debug("--oldPath {} ", oldPath);
+		
+		//updateTimeAndQueue();
+		return changeStateOnRemoteMove(oldPath);
 	}
 
 }

@@ -105,7 +105,7 @@ public abstract class AbstractActionState {
 	
 	public abstract AbstractActionState handleRemoteUpdate();
 	
-	public abstract AbstractActionState handleRemoteMove();
+	public abstract AbstractActionState handleRemoteMove(Path path);
 	
 	/*
 	 * Execution and notification related functions

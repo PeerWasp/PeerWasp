@@ -137,7 +137,7 @@ public class ConflictState extends AbstractActionState {
 	}
 
 	@Override
-	public AbstractActionState handleRemoteMove() {
+	public AbstractActionState handleRemoteMove(Path path) {
 		return null;
 		// TODO Auto-generated method stub
 		

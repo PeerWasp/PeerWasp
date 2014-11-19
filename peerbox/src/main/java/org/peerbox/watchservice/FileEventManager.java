@@ -500,7 +500,7 @@ private void addRecursively(FolderComposite componentAsFolder) {
 		logger.debug("Handle move from {} to {}", srcPath, dstPath);
 		
 		FileComponent source = getOrCreateFileComponent(srcPath);
-		source.getAction().handleLocalMoveEvent(dstPath);
+		source.getAction().handleRemoteMoveEvent(dstPath);
 		
 		
 //		FileComponent fileComponent = getFileComponent(srcPath);

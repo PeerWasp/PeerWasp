@@ -8,6 +8,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Vector;
 
 import org.hive2hive.core.exceptions.IllegalFileLocation;
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
@@ -36,11 +37,11 @@ public class ActionExecutor implements Runnable, IActionEventListener {
 	 *  amount of time that an action has to be "stable" in order to be executed 
 	 */
 	public static final long ACTION_WAIT_TIME_MS = 2000;
-	public static final int NUMBER_OF_EXECUTE_SLOTS = 5;
+	public static final int NUMBER_OF_EXECUTE_SLOTS = 10;
 	public static final int MAX_EXECUTION_ATTEMPTS = 5;
 	
 	private FileEventManager fileEventManager;
-	private List<IAction> executingActions;
+	private Vector<IAction> executingActions;
 	private boolean useNotifications;
 
 	public ActionExecutor(FileEventManager eventManager) {
@@ -50,7 +51,7 @@ public class ActionExecutor implements Runnable, IActionEventListener {
 	
 	public ActionExecutor(FileEventManager eventManager, boolean waitForCompletion){
 		this.fileEventManager = eventManager;
-		executingActions = Collections.synchronizedList(new ArrayList<IAction>());
+		executingActions = new Vector<IAction>();//Collections.synchronizedList(new ArrayList<IAction>());
 		useNotifications = waitForCompletion;
 	}
 	
@@ -108,11 +109,16 @@ public class ActionExecutor implements Runnable, IActionEventListener {
 					} else {
 						if(executingActions.size() != 0) {
 							//System.out.println("Blocking action: " + executingActions.get(0).getFilePath() + " " + executingActions.get(0).getCurrentState().getClass());
-//							int j = 1;
+
 //							for(IAction a : executingActions) {
 //								System.out.println("Blocking action: " + j + " " + a.getFilePath() + " " + a.getCurrentState().getClass() + " " + a.hashCode());
 //								j++;
 //							}
+							
+							for(int j = 0; j < executingActions.size(); j++){
+								IAction a = executingActions.get(j);
+								logger.trace("Blocking Action {} with ID {} and State {}", a.getFilePath(), a.getFilePath().hashCode(), a.getCurrentState().getClass());
+							}
 						}
 						//System.out.println("Current state: " + next.getAction().getCurrentState().getClass().toString());
 						// not ready yet, insert action again (no blocking peek, unfortunately)
@@ -202,18 +208,22 @@ public class ActionExecutor implements Runnable, IActionEventListener {
 
 	@Override
 	public void onActionExecuteSucceeded(IAction action) {
-		int i = 0;
+
+		for(int i = 0; i < executingActions.size(); i++){
+			IAction a = executingActions.get(i);
+			logger.trace("{}     Action {} with ID {} and State {}", i, a.getFilePath(), a.getFilePath().hashCode(), a.getCurrentState().getClass());
+		}
 //		for(IAction a : executingActions){
 //			logger.trace("{}     Action {} with ID {} and State {}", i++, a.getFilePath(), a.hashCode(), a.getCurrentState().getClass());
 //		}
-		
+//		
 		logger.debug("Action {} with state {} and ID {} removed", action.getFilePath(), action.getCurrentState().getClass(), action.hashCode());
 		action.onSucceed();
 		action.setIsUploaded(true);
 		logger.debug("Action successful: {} {} {}", action.getFilePath(), action.hashCode(), action.getCurrentState().getClass().toString());
 		//logger.debug("Currently executing/pending actions: {}/{}", executingActions.size(), fileEventManager.getFileComponentQueue().size());
-		boolean contains = executingActions.contains(action);
-		logger.debug("Contains {}: ", contains);
+//		boolean contains = executingActions.contains(action);
+//		logger.debug("Contains {}: ", contains);
 		boolean changed = executingActions.remove(action);
 		if(changed){
 			logger.debug("changed on remove of {}", action.hashCode());
