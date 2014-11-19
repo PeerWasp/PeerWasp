@@ -71,7 +71,7 @@ public class EstablishedState extends AbstractActionState{
 	@Override
 	public AbstractActionState changeStateOnRemoteUpdate() {
 		// TODO Auto-generated method stub
-		return null;
+		return new RemoteUpdateState(action);
 	}
 
 	@Override
@@ -144,7 +144,8 @@ public class EstablishedState extends AbstractActionState{
 	@Override
 	public AbstractActionState handleRemoteUpdate() {
 		// TODO Auto-generated method stub
-		throw new NotImplementedException("EstablishedState.handleRemoteUpdate");
+		updateTimeAndQueue();
+		return changeStateOnRemoteUpdate();
 	}
 
 	@Override

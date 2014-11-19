@@ -94,13 +94,6 @@ public class InitialState extends AbstractActionState {
 	}
 
 	@Override
-	public void execute(FileManager fileManager) throws NoSessionException,
-			NoPeerConnectionException, IllegalFileLocation {
-		logger.warn("Execute is not defined in the initial state  ({})", action.getFilePath());
-		notifyActionExecuteSucceeded();
-	}
-
-	@Override
 	public AbstractActionState changeStateOnLocalRecover(int versionToRecover) {
 		logger.debug("Recover Event: Initial -> Recover ({})", action.getFilePath());
 		return new RecoverState(action, versionToRecover);
@@ -176,5 +169,13 @@ public class InitialState extends AbstractActionState {
 	public AbstractActionState handleRemoteMove() {
 		// TODO Auto-generated method stub
 		throw new NotImplementedException("InitialState.handleRemoteMove");
+	}
+	
+
+	@Override
+	public void execute(FileManager fileManager) throws NoSessionException,
+			NoPeerConnectionException, IllegalFileLocation {
+		logger.warn("Execute is not defined in the initial state  ({})", action.getFilePath());
+		notifyActionExecuteSucceeded();
 	}
 }

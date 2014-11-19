@@ -40,7 +40,8 @@ public abstract class FileIntegrationTest {
 	private static NetworkStarter network;
 	protected static Path masterRootPath;
 	
-	protected static final int NUMBER_OF_CHARS = 1000*100; // approx. 100kb
+//	protected static final int NUMBER_OF_CHARS = 1000*100; // approx. 100kb
+	protected static final int NUMBER_OF_CHARS = 10;
 	protected static final int WAIT_TIME_SHORT = 30;
 	protected static final int WAIT_TIME_LONG = 120;
 	protected static final int WAIT_TIME_STRESSTEST = 600;

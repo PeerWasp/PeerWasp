@@ -30,7 +30,7 @@ public class RemoteUpdateState extends AbstractActionState {
 	@Override
 	public AbstractActionState changeStateOnLocalUpdate() {
 		logger.debug("Local Update Event:  ({})", action.getFilePath());
-		
+
 		return this;
 	}
 
@@ -65,21 +65,6 @@ public class RemoteUpdateState extends AbstractActionState {
 	}
 
 	@Override
-	public void execute(FileManager fileManager) throws NoSessionException,
-			NoPeerConnectionException, IllegalFileLocation, InvalidProcessStateException {
-		Path path = action.getFilePath();
-		logger.debug("Execute REMOTE UPDATE, download the file: {}", path);
-		IProcessComponent process = fileManager.download(path.toFile());
-		if(process != null){
-			process.attachListener(new FileManagerProcessListener());
-		} else {
-			System.err.println("process is null");
-		}
-		
-		notifyActionExecuteSucceeded();
-	}
-
-	@Override
 	public AbstractActionState changeStateOnLocalRecover(int versionToRecover) {
 		// TODO Auto-generated method stub
 		return null;
@@ -99,19 +84,22 @@ public class RemoteUpdateState extends AbstractActionState {
 	@Override
 	public AbstractActionState handleLocalCreate() {
 		// TODO Auto-generated method stub
-		throw new NotImplementedException("RemoteUpdateState.handleLocalCreate");
+//		throw new NotImplementedException("RemoteUpdateState.handleLocalCreate");
+		return changeStateOnLocalCreate();
 	}
 
 	@Override
 	public AbstractActionState handleLocalDelete() {
 		// TODO Auto-generated method stub
-		throw new NotImplementedException("RemoteUpdateState.handleLocalDelete");
+		return changeStateOnLocalDelete();
 	}
 
 	@Override
 	public AbstractActionState handleLocalUpdate() {
 		// TODO Auto-generated method stub
-		throw new NotImplementedException("RemoteUpdateState.handleLocalUpdate");
+//		throw new NotImplementedException("RemoteUpdateState.handleLocalUpdate");
+		action.getFile().bubbleContentHashUpdate();
+		return changeStateOnLocalUpdate();
 	}
 
 	@Override
@@ -134,7 +122,6 @@ public class RemoteUpdateState extends AbstractActionState {
 
 	@Override
 	public AbstractActionState handleRemoteDelete() {
-		// TODO Auto-generated method stub
 		throw new NotImplementedException("RemoteUpdateState.handleRemoteDelete");
 	}
 
@@ -150,4 +137,18 @@ public class RemoteUpdateState extends AbstractActionState {
 		throw new NotImplementedException("RemoteUpdateState.handleRemoteMove");
 	}
 
+	@Override
+	public void execute(FileManager fileManager) throws NoSessionException,
+			NoPeerConnectionException, IllegalFileLocation, InvalidProcessStateException {
+		Path path = action.getFilePath();
+		logger.debug("Execute REMOTE UPDATE, download the file: {}", path);
+		IProcessComponent process = fileManager.download(path.toFile());
+		if(process != null){
+			process.attachListener(new FileManagerProcessListener());
+		} else {
+			System.err.println("process is null");
+		}
+		
+//		notifyActionExecuteSucceeded();
+	}
 }

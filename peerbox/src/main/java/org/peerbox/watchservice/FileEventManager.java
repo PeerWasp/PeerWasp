@@ -142,12 +142,18 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 //			discoverSubtreeCompletely(path);
 //		}
 	}
-
-	private FileComponent getOrCreateFileComponent(Path path) {
+	private FileComponent getOrCreateFileComponent(Path path){
+		return getOrCreateFileComponent(path, null);
+	}
+	
+	private FileComponent getOrCreateFileComponent(Path path, IFileEvent event) {
 		FileComponent file = fileTree.getComponent(path.toString());
 		if(file == null){
-			
-			file = createFileComponent(path, Files.isRegularFile(path));
+			if(event == null){
+				file = createFileComponent(path, Files.isRegularFile(path));
+			} else {
+				file = createFileComponent(path, event.isFile());
+			}
 			logger.debug("File {} has to be created", file.getPath());
 			file.getAction().setFile(file);
 			file.getAction().setFileEventManager(this);
@@ -240,6 +246,11 @@ private void addRecursively(FolderComposite componentAsFolder) {
 		FileComponent file = getOrCreateFileComponent(path);
 		if(file.isFolder()){
 			logger.debug("File {} is a folder. Update rejected.", path);
+			return;
+		}
+		String newHash = PathUtils.computeFileContentHash(path);
+		if(file.getContentHash().equals(newHash)){
+			logger.debug("Content hash did not change for file {}. Update rejected.", path);
 			return;
 		}
 		//file.getAction().setFile(file);
@@ -384,7 +395,7 @@ private void addRecursively(FolderComposite componentAsFolder) {
 		logger.debug("onFileAdd: {}", fileEvent.getFile().getPath());
 		
 		Path path = fileEvent.getFile().toPath();
-		FileComponent file = getOrCreateFileComponent(path);
+		FileComponent file = getOrCreateFileComponent(path, fileEvent);
 		file.getAction().setFile(file);
 		file.getAction().setFileEventManager(this);
 		file.getAction().handleRemoteCreateEvent();
@@ -456,23 +467,25 @@ private void addRecursively(FolderComposite componentAsFolder) {
 		Path path = fileEvent.getFile().toPath();
 		logger.debug("onFileUpdate: {}", path);
 
-		try {
-			FileComponent fileComponent = getFileComponent(path);
-			if(fileComponent == null) {
-				logger.warn("Received update for inexisting file. This means, the file is not in the selective sync -> Return.");
-				return;
-			} else {
-				fileComponent.getAction().handleRemoteUpdateEvent();
-				fileComponentQueue.add(fileComponent);
-			}
-		} catch(Throwable t){
-			logger.error("Catched a throwable of type {} with message {}", t.getClass().toString(),  t.getMessage());
-			for(int i = 0; i < t.getStackTrace().length; i++){
-				StackTraceElement curr = t.getStackTrace()[i];
-				logger.error("{} : {} ", curr.getClassName(), curr.getMethodName());
-				logger.error("{} : {} ", curr.getFileName(), curr.getLineNumber());
-			}
-		}
+		FileComponent file = getOrCreateFileComponent(path);
+		file.getAction().handleRemoteUpdateEvent();
+//		try {
+//			FileComponent fileComponent = getFileComponent(path);
+//			if(fileComponent == null) {
+//				logger.warn("Received update for inexisting file. This means, the file is not in the selective sync -> Return.");
+//				return;
+//			} else {
+//				fileComponent.getAction().handleRemoteUpdateEvent();
+//				fileComponentQueue.add(fileComponent);
+//			}
+//		} catch(Throwable t){
+//			logger.error("Catched a throwable of type {} with message {}", t.getClass().toString(),  t.getMessage());
+//			for(int i = 0; i < t.getStackTrace().length; i++){
+//				StackTraceElement curr = t.getStackTrace()[i];
+//				logger.error("{} : {} ", curr.getClassName(), curr.getMethodName());
+//				logger.error("{} : {} ", curr.getFileName(), curr.getLineNumber());
+//			}
+//		}
 	}
 	
 	@Override

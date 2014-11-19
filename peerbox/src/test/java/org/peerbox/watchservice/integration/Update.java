@@ -63,6 +63,12 @@ public class Update extends FileIntegrationTest {
 		
 		waitForUpdate(modified, WAIT_TIME_LONG);
 		assertSyncClientPaths();
+		try {
+			Thread.sleep(5000);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 	
 	@Test
@@ -81,7 +87,7 @@ public class Update extends FileIntegrationTest {
 	private void updateSingleFile(Path f) throws IOException {
 		double scale = RandomUtils.nextDouble(0.01, 2.0);
 //		FileTestUtils.writeRandomData(f, (int)(NUMBER_OF_CHARS*scale));
-		FileTestUtils.writeRandomData(f, 10000);
+		FileTestUtils.writeRandomData(f, 100000);
 	}
 
 	private List<Path> updateManyFiles(List<Path> files) throws IOException {

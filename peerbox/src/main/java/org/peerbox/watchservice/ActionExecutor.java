@@ -130,8 +130,12 @@ public class ActionExecutor implements Runnable, IActionEventListener {
 				iex.printStackTrace();
 				return;
 			} catch (Exception ex) {
-				logger.error("Exception occurred: {}", ex.getMessage());
-				logger.error(ex.getStackTrace().toString());
+				logger.error("Exception occurred: {}", ex.getClass().getName());
+				for(int i = 0; i < ex.getStackTrace().length; i++){
+					StackTraceElement curr = ex.getStackTrace()[i];
+					logger.error("{} : {} ", curr.getClassName(), curr.getMethodName());
+					logger.error("{} : {} ", curr.getFileName(), curr.getLineNumber());
+				}
 			} catch (Throwable t){
 				logger.error("Throwable occurred: {}", t.getMessage());
 				logger.error(t.getStackTrace().toString());
@@ -256,6 +260,7 @@ public class ActionExecutor implements Runnable, IActionEventListener {
 				} else {
 					logger.trace("executingActions: Removed from queue {}", action.getFilePath().toString());
 				}
+				action.onSucceed();
 				break;
 			case PARENT_IN_USERFILE_NOT_FOUND:
 				logger.error("Code PARENT_IN_USERFILE_NOT_FOUND {} {}.", action.getFilePath(), action.getCurrentState().getClass().toString());

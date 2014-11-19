@@ -130,8 +130,9 @@ public class Action implements IAction{
 	
 	public void handleRemoteUpdateEvent() {
 //		logger.debug("Path: {} State: {} HashCode: {}", filePath, currentState.getClass(), this.hashCode());
-		currentState = currentState.changeStateOnRemoteUpdate();
 		updateTimestamp();
+		currentState = currentState.handleRemoteUpdate();
+		
 	}
 	
 	public void handleRemoteDeleteEvent() {
