@@ -54,7 +54,7 @@ public class LocalDeleteState extends AbstractActionState {
 
 	@Override
 	public AbstractActionState changeStateOnLocalMove(Path oldFilePath) {
-		logger.debug("Local Move Event: Delete -> Local Move ({})", action.getFilePath());
+		logger.debug("Local Move Event: Delete -> Local Move ({} > {})", oldFilePath, action.getFilePath());
 		return new LocalMoveState(action, oldFilePath);
 	}
 
@@ -138,18 +138,21 @@ public class LocalDeleteState extends AbstractActionState {
 	}
 
 	@Override
-	public AbstractActionState handleLocalMove(Path oldPath) {
-		AbstractActionState newState = changeStateOnLocalMove(oldPath);
+	public AbstractActionState handleLocalMove(Path newPath) {
+		logger.debug("NEWPATH: {}", newPath);
+		Path oldPath = action.getFilePath();
+		
 		IFileEventManager eventManager = action.getFileEventManager();
-		action.getFile().setParentPath(oldPath.getParent());
-		action.getFile().setPath(oldPath);
-		System.out.println("oldPath: " + oldPath);
+		action.getFile().setParentPath(newPath.getParent());
+		action.getFile().setPath(newPath);
+		System.out.println("oldPath: " + newPath);
 		System.out.println("action.getFile().getPath(): " + action.getFile().getPath());
-		eventManager.getFileTree().putComponent(oldPath.toString(), action.getFile());
+		eventManager.getFileTree().putComponent(newPath.toString(), action.getFile());
 		eventManager.getFileComponentQueue().remove(action.getFile());
 		action.updateTimestamp();
 		eventManager.getFileComponentQueue().add(action.getFile());
 		System.out.println("action.getFilePath(): " + action.getFilePath() + " action.getFile().getPath(): " + action.getFile().getPath());
+		AbstractActionState newState = changeStateOnLocalMove(oldPath);
 		return newState;
 	}
 

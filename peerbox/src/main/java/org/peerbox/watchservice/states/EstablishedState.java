@@ -1,5 +1,6 @@
 package org.peerbox.watchservice.states;
 
+import java.io.IOException;
 import java.nio.file.Path;
 
 import org.apache.commons.lang3.NotImplementedException;
@@ -16,7 +17,10 @@ import org.peerbox.watchservice.PathUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ch.qos.logback.core.status.OnConsoleStatusListener;
+
 import com.google.common.collect.SetMultimap;
+import com.google.common.io.Files;
 
 public class EstablishedState extends AbstractActionState{
 
@@ -47,7 +51,7 @@ public class EstablishedState extends AbstractActionState{
 	@Override
 	public AbstractActionState changeStateOnLocalMove(Path oldFilePath) {
 		// TODO Auto-generated method stub
-		return null;
+		return this;
 	}
 
 	@Override
@@ -90,6 +94,7 @@ public class EstablishedState extends AbstractActionState{
 	@Override
 	public AbstractActionState handleLocalCreate() {
 		// TODO Auto-generated method stub
+		action.getFile().updateContentHash();
 		return changeStateOnLocalCreate();
 	}
 
@@ -113,14 +118,26 @@ public class EstablishedState extends AbstractActionState{
 			logger.info("The content hash has not changed despite the onLocalFileModified event. No actions taken & returned.");
 			return this;
 		}
+		action.getFile().updateContentHash(newHash);
+
 		updateTimeAndQueue();
 		return changeStateOnLocalUpdate();
 	}
 
 	@Override
-	public AbstractActionState handleLocalMove(Path oldPath) {
+	public AbstractActionState handleLocalMove(Path newPath) {
 		// TODO Auto-generated method stub
-		throw new NotImplementedException("EstablishedState.handleLocalMove");
+//		throw new NotImplementedException("EstablishedState.handleLocalMove");
+		try {
+			Files.move(action.getFilePath().toFile(), newPath.toFile());
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		action.getFileEventManager().getFileTree().deleteComponent(action.getFilePath().toString());
+		action.getFileEventManager().getFileTree().putComponent(newPath.toString(), action.getFile());
+		
+		return changeStateOnLocalMove(newPath);
 	}
 
 	@Override

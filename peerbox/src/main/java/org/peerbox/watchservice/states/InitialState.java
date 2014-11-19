@@ -106,6 +106,7 @@ public class InitialState extends AbstractActionState {
 		
 		IFileEventManager eventManager = action.getFileEventManager();
 		FileComponent moveSource = eventManager.findDeletedByContent(action.getFile());
+		logger.debug("File {} has hash {}", action.getFilePath(), action.getFile().getContentHash());
 		if(moveSource == null){
 			logger.trace("Handle regular create of {}, as no possible move source has been found.", action.getFilePath());
 			action.getFileEventManager().getFileComponentQueue().add(action.getFile());
@@ -121,7 +122,8 @@ public class InitialState extends AbstractActionState {
 
 	@Override
 	public AbstractActionState handleLocalDelete() {
-		throw new NotImplementedException("InitialState.handleLocalDelete");
+		//throw new NotImplementedException("InitialState.handleLocalDelete");
+		return this;
 	}
 
 	@Override

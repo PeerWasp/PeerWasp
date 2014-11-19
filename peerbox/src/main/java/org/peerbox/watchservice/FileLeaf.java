@@ -108,9 +108,12 @@ public class FileLeaf extends AbstractFileComponent implements FileComponent{
 			newHash = PathUtils.computeFileContentHash(getPath());
 		} 
 		if(!contentHash.equals(newHash)){
+			logger.debug("Updated contenthash from {} to {}", contentHash, newHash);
 			contentHash = newHash;
+			
 			return true;
 		} else {
+			logger.debug("No content hash update: {}", contentHash);
 			return false;
 		}
 	}

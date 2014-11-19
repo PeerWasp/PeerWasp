@@ -82,6 +82,7 @@ public abstract class AbstractActionState {
 		if(action.getFile().isFile()){
 			SetMultimap<String, FileComponent> deletedFiles = action.getFileEventManager().getDeletedFileComponents();
 			deletedFiles.put(action.getFile().getContentHash(), action.getFile());
+			logger.debug("Put deleted file {} with hash {} to SetMultimap<String, FileComponent>", action.getFilePath(), action.getFile().getContentHash());
 		}
 		eventManager.getFileTree().deleteComponent(action.getFile().getPath().toString());
 		eventManager.getFileComponentQueue().add(action.getFile());

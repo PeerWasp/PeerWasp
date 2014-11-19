@@ -497,23 +497,28 @@ private void addRecursively(FolderComposite componentAsFolder) {
 
 		Path srcPath = fileEvent.getSrcFile().toPath();
 		Path dstPath = fileEvent.getDstFile().toPath();
+		logger.debug("Handle move from {} to {}", srcPath, dstPath);
 		
-		FileComponent fileComponent = getFileComponent(srcPath);
-		logger.debug("State of moved component: {}", fileComponent.getAction().getCurrentState().getClass());
-		if(fileComponent == null){
-			System.err.println("Error: Component to move does not exist, this should not happen");
-			fileComponent = createFileComponent(srcPath, fileEvent.isFile());
-			getFileTree().putComponent(srcPath.toString(), fileComponent);		
-		}
-		FileComponent deletedComponent = getFileTree().deleteComponent(srcPath.toString());
-		logger.debug("State of deleted component: {}", deletedComponent.getAction().getCurrentState().getClass());
-		fileComponentQueue.remove(deletedComponent);
-		getFileTree().putComponent(dstPath.toString(), deletedComponent);
-//		//switch to remoteMoveState()
-		deletedComponent.getAction().handleRemoteMoveEvent(srcPath);
-		logger.debug("After handling: {}", deletedComponent.getAction().getCurrentState().getClass());
-//		fileComponentQueue.add(deletedComponent);
-		logger.debug("Handled file move of {} {}", dstPath, deletedComponent.getAction().hashCode());
+		FileComponent source = getOrCreateFileComponent(srcPath);
+		source.getAction().handleLocalMoveEvent(dstPath);
+		
+		
+//		FileComponent fileComponent = getFileComponent(srcPath);
+//		logger.debug("State of moved component: {}", fileComponent.getAction().getCurrentState().getClass());
+//		if(fileComponent == null){
+//			System.err.println("Error: Component to move does not exist, this should not happen");
+//			fileComponent = createFileComponent(srcPath, fileEvent.isFile());
+//			getFileTree().putComponent(srcPath.toString(), fileComponent);		
+//		}
+//		FileComponent deletedComponent = getFileTree().deleteComponent(srcPath.toString());
+//		logger.debug("State of deleted component: {}", deletedComponent.getAction().getCurrentState().getClass());
+//		fileComponentQueue.remove(deletedComponent);
+//		getFileTree().putComponent(dstPath.toString(), deletedComponent);
+////		//switch to remoteMoveState()
+//		deletedComponent.getAction().handleRemoteMoveEvent(srcPath);
+//		logger.debug("After handling: {}", deletedComponent.getAction().getCurrentState().getClass());
+////		fileComponentQueue.add(deletedComponent);
+//		logger.debug("Handled file move of {} {}", dstPath, deletedComponent.getAction().hashCode());
 	}
 	
 	public void onFileRecoveryRequest(IFileRecoveryRequestEvent fileEvent){

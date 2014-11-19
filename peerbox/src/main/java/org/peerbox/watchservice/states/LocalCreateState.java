@@ -155,6 +155,7 @@ public class LocalCreateState extends AbstractActionState {
 	@Override
 	public AbstractActionState handleLocalUpdate() {
 		// TODO Auto-generated method stub
+		action.getFile().updateContentHash();
 		return changeStateOnLocalUpdate();
 	}
 
