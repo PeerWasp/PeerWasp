@@ -141,6 +141,7 @@ public class Action implements IAction{
 //		logger.debug("Path: {} State: {} HashCode: {}", filePath, currentState.getClass(), this.hashCode());
 //		currentState = currentState.changeStateOnRemoteDelete();
 		updateTimestamp();
+		currentState = currentState.handleRemoteDelete();
 	}
 	
 	public void handleRecoverEvent(int versionToRecover){

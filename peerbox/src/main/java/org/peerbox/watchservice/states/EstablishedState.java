@@ -63,7 +63,7 @@ public class EstablishedState extends AbstractActionState{
 	@Override
 	public AbstractActionState changeStateOnRemoteDelete() {
 		// TODO Auto-generated method stub
-		return null;
+		return new InitialState(action);
 	}
 
 	@Override
@@ -154,8 +154,18 @@ public class EstablishedState extends AbstractActionState{
 
 	@Override
 	public AbstractActionState handleRemoteDelete() {
-		// TODO Auto-generated method stub
-		throw new NotImplementedException("EstablishedState.handleRemoteDelete");
+		logger.debug("EstablishedState.handleRemoteDelete");
+		IFileEventManager eventManager = action.getFileEventManager();
+		eventManager.getFileTree().deleteComponent(action.getFilePath().toString());
+		eventManager.getFileComponentQueue().remove(action.getFile());
+		action.getFilePath().toFile().delete();
+		try {
+			java.nio.file.Files.delete(action.getFilePath());
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return changeStateOnRemoteDelete();
 	}
 
 	@Override

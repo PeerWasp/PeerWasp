@@ -17,7 +17,7 @@ public class AddDelete extends FileIntegrationTest {
 	public void singleFolderTest() throws IOException {
 		// ADD
 		Path folder = addSingleFolder();
-		
+		deleteSingleFolder(folder);
 		// DELETE
 //		deleteSingleFolder(folder);
 	}
@@ -33,7 +33,7 @@ public class AddDelete extends FileIntegrationTest {
 	public void manyFoldersTest() throws IOException {
 		// ADD
 		List<Path> folders = addManyFolders();
-		
+		deleteManyFolders(folders);
 		// DELETE
 //		deleteManyFolders(folders);
 	}
@@ -100,7 +100,7 @@ public class AddDelete extends FileIntegrationTest {
 			e.printStackTrace();
 		}
 		// DELETE
-//		deleteManyFoldersInFolder(folders);
+		deleteManyFoldersInFolder(folders);
 	}
 	
 	private List<Path> addManyFoldersInFolder() throws IOException {
@@ -109,7 +109,7 @@ public class AddDelete extends FileIntegrationTest {
 		Path folder = FileTestUtils.createRandomFolder(masterRootPath);
 		List<Path> subFolders = FileTestUtils.createRandomFolders(folder, 20);
 		
-		folders.add(folder);
+//		folders.add(folder);
 		folders.addAll(subFolders);
 		
 		waitForExists(folders, WAIT_TIME_LONG);
@@ -217,7 +217,7 @@ public class AddDelete extends FileIntegrationTest {
 		List<Path> files = addManyFilesInManyFolders();
 		
 		// DELETE
-//		deleteManyFilesInManyFolders(files);
+		deleteManyFilesInManyFolders(files);
 	}
 	
 	private void deleteManyFilesInManyFolders(List<Path> files) throws IOException {

@@ -455,10 +455,8 @@ private void addRecursively(FolderComposite componentAsFolder) {
 		logger.debug("onFileDelete: {}", fileEvent.getFile().getPath());
 		
 		Path path = fileEvent.getFile().toPath();
-		FileComponent fileComponent = getFileComponent(path);
-		if(fileComponent != null) {
-			fileComponent.getAction().handleRemoteDeleteEvent();
-		}
+		FileComponent file = getOrCreateFileComponent(path, fileEvent);
+		file.getAction().handleRemoteDeleteEvent();
 	}
 
 	@Override
