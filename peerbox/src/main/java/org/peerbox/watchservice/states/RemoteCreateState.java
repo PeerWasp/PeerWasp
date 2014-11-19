@@ -18,27 +18,18 @@ public class RemoteCreateState extends AbstractActionState{
 	private static final Logger logger = LoggerFactory.getLogger(RemoteCreateState.class);
 	public RemoteCreateState(Action action) {
 		super(action);
-		// TODO Auto-generated constructor stub
 	}
 	
-//	public AbstractActionState getDefaultState(){
-//		logger.debug("Stay in default state 'RemoteCreateState': {}", action.getFile().getPath());
-////		return this;
-//		return new EstablishedState(action);
-//	}
 
 	@Override
 	public AbstractActionState changeStateOnLocalCreate() {
 		logger.debug("Local Create Event in RemoteCreateState!  ({}) {}", action.getFilePath(), action.hashCode());
-//		return new ConflictState(action);
 		return new EstablishedState(action);
-//		return this;
 	}
 
 	@Override
 	public AbstractActionState changeStateOnLocalUpdate() {
 		logger.debug("Local Update Event:  ({})", action.getFilePath());
-//		return new ConflictState(action);
 		return this;
 	}
 
@@ -74,13 +65,11 @@ public class RemoteCreateState extends AbstractActionState{
 
 	@Override
 	public AbstractActionState changeStateOnLocalRecover(int versionToRecover) {
-		// TODO Auto-generated method stub
 		return this;
 	}
 
 	@Override
 	public AbstractActionState changeStateOnRemoteCreate() {
-		// TODO Auto-generated method stub
 		return new ConflictState(action);
 	}
 
@@ -98,9 +87,7 @@ public class RemoteCreateState extends AbstractActionState{
 
 	@Override
 	public AbstractActionState handleLocalUpdate() {
-		// TODO Auto-generated method stub
 		return changeStateOnLocalUpdate();
-//		throw new NotImplementedException("RemoteCreateState.handleLocalUpdate");
 	}
 
 	@Override
@@ -150,8 +137,6 @@ public class RemoteCreateState extends AbstractActionState{
 		} else {
 			System.err.println("process is null");
 		}
-		
-		//notifyActionExecuteSucceeded();
 	}
 
 }
