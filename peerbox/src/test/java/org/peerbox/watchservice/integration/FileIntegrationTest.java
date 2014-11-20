@@ -161,7 +161,7 @@ public abstract class FileIntegrationTest {
 			files.addAll(f);
 		}
 		
-		waitForExists(files, WAIT_TIME_LONG);		
+		waitForExists(files, WAIT_TIME_STRESSTEST);		
 		assertSyncClientPaths();
 		return files;
 	}

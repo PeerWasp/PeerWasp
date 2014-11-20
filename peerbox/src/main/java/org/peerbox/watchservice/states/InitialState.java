@@ -13,6 +13,7 @@ import org.peerbox.FileManager;
 import org.peerbox.watchservice.Action;
 import org.peerbox.watchservice.FileComponent;
 import org.peerbox.watchservice.FileEventManager;
+import org.peerbox.watchservice.FolderComposite;
 import org.peerbox.watchservice.IFileEventManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -101,10 +102,26 @@ public class InitialState extends AbstractActionState {
 
 	@Override
 	public AbstractActionState handleLocalCreate() {
+		IFileEventManager eventManager = action.getEventManager();
+//		String structureHash = "";
+//		if(action.getFilePath().toFile().isDirectory()){
+//			structureHash = eventManager.discoverSubtreeStructure(action.getFilePath());
+//			FolderComposite moveSource = eventManager.getDeletedByContentNamesHash().get(structureHash);
+//			if(moveSource != null){
+//				moveSource.getAction().handleLocalMoveEvent(action.getFilePath());
+//				updateTimeAndQueue();
+//				return changeStateOnLocalMove(action.getFilePath());
+//				//TODO remove children from QUEUE!
+//			} else {
+////				eventManager.discoverSubtreeCompletely(action.getFilePath());
+//			}
+//			
+//		}
+		
 		action.putFile(action.getFilePath().toString(), action.getFile());
 		action.getFile().updateContentHash();
 		
-		IFileEventManager eventManager = action.getEventManager();
+		eventManager.discoverSubtreeCompletely(action.getFilePath());
 		
 		try {
 			Thread.sleep(50);

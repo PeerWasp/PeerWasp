@@ -120,7 +120,7 @@ public class FileWalker extends AbstractWatchService {
 					logger.trace("create event for {} ", path);
 					eventManager.onLocalFileCreated(path);
 				}
-			}
+			} 
 			return super.preVisitDirectory(path, attr);
 		}
 
@@ -131,6 +131,13 @@ public class FileWalker extends AbstractWatchService {
 			logger.debug("Found file {}", path);
 			if(throwCreates){
 				eventManager.onLocalFileCreated(path);
+			} else {
+				if(path.toFile().isDirectory()){
+					fileTree.putComponent(path.toString(), new FolderComposite(path, false));
+				} else {
+					fileTree.putComponent(path.toString(), new FileLeaf(path, false));
+				}
+				
 			}
 			return FileVisitResult.CONTINUE;
 		}

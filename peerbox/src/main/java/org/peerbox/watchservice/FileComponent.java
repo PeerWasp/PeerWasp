@@ -2,6 +2,7 @@ package org.peerbox.watchservice;
 
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Map;
 
 public interface FileComponent {
 	

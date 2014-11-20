@@ -14,6 +14,7 @@ import org.hive2hive.processframework.interfaces.IProcessComponentListener;
 import org.peerbox.FileManager;
 import org.peerbox.watchservice.Action;
 import org.peerbox.watchservice.FileComponent;
+import org.peerbox.watchservice.FolderComposite;
 import org.peerbox.watchservice.IActionEventListener;
 import org.peerbox.watchservice.IFileEventManager;
 import org.slf4j.Logger;
@@ -83,6 +84,9 @@ public abstract class AbstractActionState {
 			SetMultimap<String, FileComponent> deletedFiles = action.getEventManager().getDeletedFileComponents();
 			deletedFiles.put(action.getFile().getContentHash(), action.getFile());
 			logger.debug("Put deleted file {} with hash {} to SetMultimap<String, FileComponent>", action.getFilePath(), action.getFile().getContentHash());
+		} else {
+			FolderComposite folder = (FolderComposite)action.getFile();
+			eventManager.getDeletedByContentNamesHash().put(folder.getContentNamesHash(), folder);
 		}
 		eventManager.getFileTree().deleteComponent(action.getFile().getPath().toString());
 		eventManager.getFileComponentQueue().add(action.getFile());

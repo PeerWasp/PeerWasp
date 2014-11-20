@@ -219,7 +219,6 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 	
 	public void onFileRecoveryRequest(IFileRecoveryRequestEvent fileEvent){
 		File currentFile = fileEvent.getFile();
-		Path recoveredFilePath = PathUtils.getRecoveredFilePath(currentFile.toString(), fileEvent.getVersionToRecover());
 		if(currentFile == null || currentFile.isDirectory()){
 			logger.error("Try to recover non-existing file or directory: {}", currentFile.getPath());
 			return;
@@ -227,28 +226,6 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 		
 		FileComponent file = fileTree.getComponent(currentFile.getPath());
 		file.getAction().handleRecoverEvent(fileEvent.getVersionToRecover());
-//		File currentFile = fileEvent.getFile();
-//		Path recoveredFilePath = PathUtils.getRecoveredFilePath(currentFile.toString(), fileEvent.getVersionToRecover());
-//		
-//		if(currentFile == null || currentFile.isDirectory()){
-//			logger.error("Try to recover non-existing file or directory: {}", currentFile.getPath());
-//			return;
-//		}
-//		logger.trace("Put file recover request to map using key: {}", recoveredFilePath.toString());
-//		FileLeaf versionToRecover = new FileLeaf(recoveredFilePath);
-//		recoveredFileVersions.put(recoveredFilePath.toString(), versionToRecover);
-//		versionToRecover.getAction().handleRecoverEvent(fileEvent.getVersionToRecover());
-//		fileComponentQueue.add(versionToRecover);
-//		
-//		try {
-//			logger.trace("Initiate file recovery in FileEventManager for file {}", recoveredFilePath);
-//			fileManager.recover(currentFile, new PeerboxVersionSelector(fileEvent.getVersionToRecover()));
-//		} catch (FileNotFoundException | IllegalArgumentException | NoSessionException | NoPeerConnectionException | InvalidProcessStateException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		} 
-
-		
 	}
 
 	private FileComponent createFileComponent(Path path, boolean isFile) {
@@ -269,7 +246,7 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 	 * @param filePath represents the root of the subtree
 	 * @return the complete subtree as a FolderComposite
 	 */
-	private FolderComposite discoverSubtreeCompletely(Path filePath) {
+	public FolderComposite discoverSubtreeCompletely(Path filePath) {
 		FileWalker walker = new FileWalker(filePath, this);
 		logger.debug("start complete subtree discovery at : {}", filePath);
 		return walker.indexContentRecursively();
@@ -283,7 +260,7 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 	 * @param filePath represents the root of the subtree
 	 * @return the hash representing the folder's structure
 	 */
-	private String discoverSubtreeStructure(Path filePath) {
+	public String discoverSubtreeStructure(Path filePath) {
 		FileWalker walker = new FileWalker(filePath, this);
 		logger.debug("start discovery of subtree structure at : {}", filePath);
 		walker.indexNamesRecursively();
