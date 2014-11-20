@@ -135,7 +135,7 @@ public class Action implements IAction{
 	
 	public void handleRecoverEvent(int versionToRecover){
 //		logger.debug("Path: {} State: {} HashCode: {}", filePath, currentState.getClass(), this.hashCode());
-//		currentState = currentState.changeStateOnLocalRecover(versionToRecover);
+		currentState = currentState.handleLocalRecover(versionToRecover);
 		updateTimestamp();
 	}
 	

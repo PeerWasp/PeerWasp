@@ -55,9 +55,9 @@ public class EstablishedState extends AbstractActionState{
 	}
 
 	@Override
-	public AbstractActionState changeStateOnLocalRecover(int versionToRecover) {
+	public AbstractActionState changeStateOnLocalRecover(int version) {
 		// TODO Auto-generated method stub
-		return null;
+		return new RecoverState(action, version);
 	}
 
 	@Override
@@ -141,9 +141,10 @@ public class EstablishedState extends AbstractActionState{
 	}
 
 	@Override
-	public AbstractActionState handleLocalRecover() {
+	public AbstractActionState handleLocalRecover(int version) {
 		// TODO Auto-generated method stub
-		throw new NotImplementedException("EstablishedState.handleLocalRecover");
+		updateTimeAndQueue();
+		return changeStateOnLocalRecover(version);
 	}
 
 	@Override

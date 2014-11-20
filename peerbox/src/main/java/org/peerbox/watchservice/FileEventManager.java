@@ -100,6 +100,7 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 		
 		if(path.toFile().isDirectory()){
 			discoverSubtreeCompletely(path);
+//			discoverSubtreeStructure(path);
 		}
 	}
 	
@@ -217,6 +218,15 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 	}
 	
 	public void onFileRecoveryRequest(IFileRecoveryRequestEvent fileEvent){
+		File currentFile = fileEvent.getFile();
+		Path recoveredFilePath = PathUtils.getRecoveredFilePath(currentFile.toString(), fileEvent.getVersionToRecover());
+		if(currentFile == null || currentFile.isDirectory()){
+			logger.error("Try to recover non-existing file or directory: {}", currentFile.getPath());
+			return;
+		}
+		
+		FileComponent file = fileTree.getComponent(currentFile.getPath());
+		file.getAction().handleRecoverEvent(fileEvent.getVersionToRecover());
 //		File currentFile = fileEvent.getFile();
 //		Path recoveredFilePath = PathUtils.getRecoveredFilePath(currentFile.toString(), fileEvent.getVersionToRecover());
 //		

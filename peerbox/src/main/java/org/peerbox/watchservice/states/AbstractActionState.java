@@ -93,7 +93,7 @@ public abstract class AbstractActionState {
 	
 	public abstract AbstractActionState handleLocalMove(Path oldFilePath);
 	
-	public abstract AbstractActionState handleLocalRecover();
+	public abstract AbstractActionState handleLocalRecover(int version);
 	
 	/*
 	 * REMOTE event handler

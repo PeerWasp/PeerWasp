@@ -152,7 +152,7 @@ public class InitialState extends AbstractActionState {
 	}
 
 	@Override
-	public AbstractActionState handleLocalRecover() {
+	public AbstractActionState handleLocalRecover(int version) {
 		// TODO Auto-generated method stub
 		throw new NotImplementedException("InitialState.handleLocalRecover");
 	}

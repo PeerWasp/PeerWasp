@@ -109,7 +109,7 @@ public class RemoteUpdateState extends AbstractActionState {
 	}
 
 	@Override
-	public AbstractActionState handleLocalRecover() {
+	public AbstractActionState handleLocalRecover(int version) {
 		// TODO Auto-generated method stub
 		throw new NotImplementedException("RemoteUpdateState.handleLocalRecover");
 	}
