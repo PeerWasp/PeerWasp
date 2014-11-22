@@ -1,7 +1,6 @@
 package org.peerbox;
 
 
-import java.net.UnknownHostException;
 import java.nio.file.Path;
 import java.util.List;
 
