@@ -145,6 +145,7 @@ public class LocalDeleteState extends AbstractActionState {
 		IFileEventManager eventManager = action.getEventManager();
 		action.getFile().setParentPath(newPath.getParent());
 		action.getFile().setPath(newPath);
+//		action.getFile().propagatePathChangeToChildren();
 		System.out.println("oldPath: " + newPath);
 		System.out.println("action.getFile().getPath(): " + action.getFile().getPath());
 		eventManager.getFileTree().putComponent(newPath.toString(), action.getFile());

@@ -115,10 +115,10 @@ public class ActionExecutor implements Runnable, IActionEventListener {
 //								j++;
 //							}
 							
-							for(int j = 0; j < executingActions.size(); j++){
-								IAction a = executingActions.get(j);
-								logger.trace("Blocking Action {} with ID {} and State {}", a.getFilePath(), a.getFilePath().hashCode(), a.getCurrentState().getClass());
-							}
+//							for(int j = 0; j < executingActions.size(); j++){
+//								IAction a = executingActions.get(j);
+//								logger.trace("Blocking Action {} with ID {} and State {}", a.getFilePath(), a.getFilePath().hashCode(), a.getCurrentState().getClass());
+//							}
 						}
 						//System.out.println("Current state: " + next.getAction().getCurrentState().getClass().toString());
 						// not ready yet, insert action again (no blocking peek, unfortunately)

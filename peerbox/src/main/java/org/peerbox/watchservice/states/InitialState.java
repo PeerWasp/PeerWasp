@@ -3,6 +3,7 @@ package org.peerbox.watchservice.states;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang3.NotImplementedException;
@@ -13,6 +14,7 @@ import org.peerbox.FileManager;
 import org.peerbox.watchservice.Action;
 import org.peerbox.watchservice.FileComponent;
 import org.peerbox.watchservice.FileEventManager;
+import org.peerbox.watchservice.FolderComposite;
 import org.peerbox.watchservice.IFileEventManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -101,10 +103,25 @@ public class InitialState extends AbstractActionState {
 
 	@Override
 	public AbstractActionState handleLocalCreate() {
-		action.putFile(action.getFilePath().toString(), action.getFile());
+//		action.putFile(action.getFilePath().toString(), action.getFile());
+		IFileEventManager eventManager = action.getEventManager();
+		if(action.getFilePath().toFile().isDirectory()){
+			//find deleted by structure hash
+			Map<String, FolderComposite> deletedFolders = eventManager.getDeletedByContentNamesHash();
+			String structureHash = action.getFile().getStructureHash();
+			logger.trace("LocalCreate: structure hash of {} is {}", action.getFilePath(), structureHash);
+			FolderComposite moveSource = deletedFolders.get(structureHash);
+			if(moveSource != null){
+				logger.trace("Folder move detected from {} to {}", moveSource.getPath(), action.getFilePath());
+				moveSource.getAction().handleLocalMoveEvent(action.getFilePath());
+				eventManager.getFileComponentQueue().remove(action.getFile());
+				//TODO: cleanup filecomponentqueue: remove children of folder if in localcreate state!
+				return changeStateOnLocalMove(action.getFilePath());
+			}
+		}
 		action.getFile().updateContentHash();
 		
-		IFileEventManager eventManager = action.getEventManager();
+
 		
 		try {
 			Thread.sleep(50);
@@ -115,6 +132,8 @@ public class InitialState extends AbstractActionState {
 		FileComponent moveSource = eventManager.findDeletedByContent(action.getFile());
 		logger.debug("File {} has hash {}", action.getFilePath(), action.getFile().getContentHash());
 		if(moveSource == null){
+			action.putFile(action.getFilePath().toString(), action.getFile());
+			
 			logger.trace("Handle regular create of {}, as no possible move source has been found.", action.getFilePath());
 			action.getEventManager().getFileComponentQueue().add(action.getFile());
 			return changeStateOnLocalCreate();
