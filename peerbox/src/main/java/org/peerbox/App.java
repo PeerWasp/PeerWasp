@@ -1,7 +1,6 @@
 package org.peerbox;
 
 
-import java.net.UnknownHostException;
 import java.nio.file.Path;
 import java.util.List;
 
@@ -17,8 +16,8 @@ import org.peerbox.guice.PeerBoxModule;
 import org.peerbox.model.H2HManager;
 import org.peerbox.model.UserManager;
 import org.peerbox.notifications.InformationNotification;
-import org.peerbox.presenter.SelectRootPathUtils;
 import org.peerbox.presenter.tray.TrayException;
+import org.peerbox.presenter.validation.SelectRootPathUtils;
 import org.peerbox.view.tray.AbstractSystemTray;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -117,8 +116,6 @@ public class App extends Application
 			UserManager userManager = injector.getInstance(org.peerbox.model.UserManager.class);
 			return userManager.loginUser(username, password, pin, path);
 			
-		} catch (UnknownHostException e) {
-			return ResultStatus.error("Could not connect to host.");
 		} catch (NoPeerConnectionException e) {
 			logger.debug("Loggin failed: {}", e);
 			return ResultStatus.error("Could not login user because connection to network failed.");

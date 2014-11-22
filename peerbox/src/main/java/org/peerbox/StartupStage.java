@@ -51,7 +51,7 @@ public class StartupStage {
 		stage.initStyle(StageStyle.DECORATED);
 		installExitHandler();
 		
-		Scene scene = new Scene(mainView, 275, 500);
+		Scene scene = new Scene(mainView);
     	stage.setScene(scene);
     	stage.sizeToScene();
     	

@@ -13,6 +13,12 @@
             <ErrorLabel fx:id="lblError" iconHeight="20.0" />
             <HBox spacing="10.0">
                <children>
+                  <Label text="Path:" />
+                  <Label fx:id="lblPathError" styleClass="validation-error-label" />
+               </children>
+            </HBox>
+            <HBox spacing="10.0">
+               <children>
                   <TextField fx:id="txtRootPath" prefHeight="25.0" HBox.hgrow="SOMETIMES" />
                   <Button fx:id="btnChangeRootPath" mnemonicParsing="false" onAction="#changeRootPathAction" text="..." />
                </children>

@@ -5,9 +5,16 @@ import java.net.URL;
 import java.net.UnknownHostException;
 import java.util.ResourceBundle;
 
-import org.controlsfx.control.action.Action;
-import org.controlsfx.dialog.Dialog;
-import org.controlsfx.dialog.Dialogs;
+import javafx.event.ActionEvent;
+import javafx.fxml.FXML;
+import javafx.fxml.Initializable;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.TextField;
+import javafx.stage.Window;
+
 import org.peerbox.model.H2HManager;
 import org.peerbox.view.ViewNames;
 import org.peerbox.view.controls.ErrorLabel;
@@ -15,12 +22,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.inject.Inject;
-
-import javafx.event.ActionEvent;
-import javafx.fxml.FXML;
-import javafx.fxml.Initializable;
-import javafx.scene.control.Button;
-import javafx.scene.control.TextField;
 
 public class CreateNetworkController implements Initializable {
 
@@ -52,12 +53,12 @@ public class CreateNetworkController implements Initializable {
 	}
 	
 	public void navigateBackAction(ActionEvent event) {
-		Action goBack = Dialog.Actions.YES;
+		boolean goBack = true;
 		clearError();
 		if (h2hManager.isConnected()) {
 			goBack = showConfirmDeleteNetworkDialog();
 		}
-		if (goBack.equals(Dialog.Actions.YES)) {
+		if (goBack) {
 			h2hManager.leaveNetwork();
 			btnCreate.setText("Create");
 			logger.debug("Navigate back.");
@@ -65,14 +66,20 @@ public class CreateNetworkController implements Initializable {
 		}
 	}
 
-	private Action showConfirmDeleteNetworkDialog() {
-		return Dialogs
-				.create()
-				.actions(Dialog.Actions.YES, Dialog.Actions.NO)
-				.title("Delete the network?")
-				.message("If you go back, your peer will be shut down "
-								+ "and your network deleted. Continue?")
-				.showConfirm();
+	private boolean showConfirmDeleteNetworkDialog() {
+		boolean yes = false;
+		
+		Window owner = txtIPAddress.getScene().getWindow();
+		Alert dlg = new Alert(AlertType.CONFIRMATION);
+		dlg.initOwner(owner);
+		dlg.setTitle("Delete Network");
+		dlg.setHeaderText("Delete the network?");
+		dlg.setContentText("If you go back, your peer will be shut down and your network deleted. Continue?");
+		dlg.showAndWait();
+		
+		yes = dlg.getResult() == ButtonType.OK;
+
+		return yes;
 	}
 	
 	public void createNetworkAction(ActionEvent event) {
@@ -91,11 +98,13 @@ public class CreateNetworkController implements Initializable {
 	}
 
 	private void showNetworkCreatedDialog() {
-		Dialogs.create()
-				.title("New network created!")
-				.message(String.format("The bootstrapping peer started on %s.",
-								txtIPAddress.getText()))
-				.showInformation();
+		Window owner = txtIPAddress.getScene().getWindow();
+		Alert dlg = new Alert(AlertType.INFORMATION);
+		dlg.initOwner(owner);
+		dlg.setTitle("Network Created");
+		dlg.setHeaderText("New network created");
+		dlg.setContentText(String.format("The bootstrapping peer started on %s.", txtIPAddress.getText()));
+		dlg.showAndWait();
 	}
 	
 	private void setError(String error) {

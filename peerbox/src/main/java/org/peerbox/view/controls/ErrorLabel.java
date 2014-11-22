@@ -1,8 +1,11 @@
 package org.peerbox.view.controls;
 
+import org.peerbox.view.IconHelper;
+
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.fxml.FXML;
+import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -10,15 +13,15 @@ import javafx.scene.image.ImageView;
 public class ErrorLabel extends Label {
 
 	@FXML
-	private ImageView imgView;
+	private ImageView icon;
 	private DoubleProperty iconHeightProperty;
 
 	public ErrorLabel() {
-		imgView = new ImageView(new Image(ErrorLabel.class.getResourceAsStream("/images/error-icon.png")));
-		imgView.setPreserveRatio(true);
-		imgView.setSmooth(true);
-		imgView.fitHeightProperty().bind(iconHeightProperty());
-		setGraphic(imgView);
+		icon = IconHelper.getErrorIcon();
+		icon.setPreserveRatio(true);
+		icon.setSmooth(true);
+		icon.fitHeightProperty().bind(iconHeightProperty());
+		setGraphic(icon);
 		visibleProperty().bind(textProperty().isNotEmpty());
 		setWrapText(true);
 	}
