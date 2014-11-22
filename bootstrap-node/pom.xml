@@ -1,0 +1,122 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>org.peerbox</groupId>
+	<artifactId>bootstrap-node</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<name>bootstrap-node</name>
+	<description>bootstrap node</description>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<jdk.version>1.8</jdk.version>
+		<h2h.version>1.1.1-SNAPSHOT</h2h.version>
+	</properties>
+
+
+	<dependencies>
+	
+		<!-- peerbox -->
+		<dependency>
+			<groupId>org</groupId>
+			<artifactId>peerbox</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+			<scope>compile</scope>
+		</dependency>
+
+		<!-- Hive2Hive https://github.com/Hive2Hive/Hive2Hive -->
+		<dependency>
+			<groupId>org.hive2hive</groupId>
+			<artifactId>org.hive2hive.core</artifactId>
+			<version>${h2h.version}</version>
+			<scope>compile</scope>
+		</dependency>
+
+		<!-- process framework -->
+		<dependency>
+			<groupId>org.hive2hive</groupId>
+			<artifactId>org.hive2hive.processframework</artifactId>
+			<version>${h2h.version}</version>
+			<scope>compile</scope>
+		</dependency>
+		
+		
+		<!-- logback logging: http://logback.qos.ch/ -->
+		<dependency>
+			<groupId>ch.qos.logback</groupId>
+			<artifactId>logback-core</artifactId>
+			<version>1.1.1</version>
+			<scope>compile</scope>
+		</dependency>
+		
+		<dependency>
+			<groupId>ch.qos.logback</groupId>
+			<artifactId>logback-classic</artifactId>
+			<version>1.1.1</version>
+			<scope>compile</scope>
+		</dependency>
+
+	</dependencies>
+
+
+
+	<build>
+		<plugins>
+			<!-- java compiler version level -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.2</version>
+				<configuration>
+					<source>${jdk.version}</source>
+					<target>${jdk.version}</target>
+				</configuration>
+			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-dependency-plugin</artifactId>
+				<version>2.9</version>
+				<executions>
+					<execution>
+						<id>copy-dependencies</id>
+						<phase>prepare-package</phase>
+						<goals>
+							<goal>copy-dependencies</goal>
+						</goals>
+						<configuration>
+							<outputDirectory>${project.build.directory}/lib</outputDirectory>
+							<overWriteReleases>true</overWriteReleases>
+							<overWriteSnapshots>true</overWriteSnapshots>
+							<overWriteIfNewer>true</overWriteIfNewer>
+							<!-- we do not want the test dependencies in the release -->
+							<includeScope>runtime</includeScope>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+				<version>2.5</version>
+				<configuration>
+					<archive>
+						<manifest>
+							<addClasspath>true</addClasspath>
+							<classpathPrefix>lib/</classpathPrefix>
+							<mainClass>org.peerbox.bootstrapnode.Starter</mainClass>
+						</manifest>
+					</archive>
+				</configuration>
+
+				<executions>
+					<execution>
+						<goals>
+							<goal>test-jar</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+</project>
