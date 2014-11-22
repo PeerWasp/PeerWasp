@@ -117,8 +117,6 @@ public class App extends Application
 			UserManager userManager = injector.getInstance(org.peerbox.model.UserManager.class);
 			return userManager.loginUser(username, password, pin, path);
 			
-		} catch (UnknownHostException e) {
-			return ResultStatus.error("Could not connect to host.");
 		} catch (NoPeerConnectionException e) {
 			logger.debug("Loggin failed: {}", e);
 			return ResultStatus.error("Could not login user because connection to network failed.");
