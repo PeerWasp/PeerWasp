@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import java.lang.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox fx:id="recoverFileView" spacing="10.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.peerbox.presenter.RecoverFileController">
+   <children>
+      <Label text="Select version" />
+      <HBox alignment="CENTER_LEFT" spacing="10.0">
+         <children>
+            <Label minWidth="40.0" text="File:" />
+            <TextField editable="false" text="\${controller.fileToRecover}" HBox.hgrow="ALWAYS" />
+         </children>
+      </HBox>
+      <TableView fx:id="tblFileVersions" prefHeight="250.0">
+        <columns>
+          <TableColumn editable="false" minWidth="30.0" prefWidth="75.0" text="Index" />
+          <TableColumn editable="false" minWidth="100.0" prefWidth="150.0" text="Date" />
+            <TableColumn editable="false" minWidth="100.0" prefWidth="150.0" text="Size" />
+        </columns>
+      </TableView>
+      <HBox spacing="10.0">
+         <children>
+            <Button cancelButton="true" mnemonicParsing="false" text="Cancel" />
+            <Button defaultButton="true" mnemonicParsing="false" text="Recover" />
+         </children>
+      </HBox>
+   </children>
+   <padding>
+      <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+   </padding>
+</VBox>
