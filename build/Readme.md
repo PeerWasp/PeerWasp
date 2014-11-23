@@ -18,5 +18,19 @@ The build script builds the PeerBox jar package, copies dependencies, compiles t
 ## Property files
 - Paths to helper applications (e.g. Visual Studio) are specified in *.properties files (probably not required to adapt if default location is used)
 
+
+## H2H building
+build H2H processframework and install in local maven repository
+```
+cd org.hive2hive.processframework
+mvn install -DskipTests -Dmaven.javadoc.skip=true
+```
+
+build H2H core and install in local maven repository
+```
+cd org.hive2hive.core
+mvn install -DskipTests -Dmaven.javadoc.skip=true
+```
+
 ## TODO
-- make launch4j.xml config a template where version and jar name is inserted dynamically (see win_installer*.iss config template)
+... 
