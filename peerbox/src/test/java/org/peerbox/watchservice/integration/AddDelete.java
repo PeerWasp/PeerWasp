@@ -17,7 +17,10 @@ public class AddDelete extends FileIntegrationTest {
 	public void singleFolderTest() throws IOException {
 		// ADD
 		Path folder = addSingleFolder();
-		deleteSingleFolder(folder);
+		assertQueuesAreEmpty();
+		
+//		deleteSingleFolder(folder);
+		assertQueuesAreEmpty();
 		// DELETE
 //		deleteSingleFolder(folder);
 	}
@@ -33,7 +36,9 @@ public class AddDelete extends FileIntegrationTest {
 	public void manyFoldersTest() throws IOException {
 		// ADD
 		List<Path> folders = addManyFolders();
+		assertQueuesAreEmpty();
 		deleteManyFolders(folders);
+		assertQueuesAreEmpty();
 		// DELETE
 //		deleteManyFolders(folders);
 	}
@@ -93,6 +98,7 @@ public class AddDelete extends FileIntegrationTest {
 	public void manyFoldersInFolderTest() throws IOException {
 		// ADD
 		List<Path> folders = addManyFoldersInFolder();
+		assertQueuesAreEmpty();
 		try {
 			Thread.sleep(2000);
 		} catch (InterruptedException e) {
@@ -100,7 +106,8 @@ public class AddDelete extends FileIntegrationTest {
 			e.printStackTrace();
 		}
 		// DELETE
-		deleteManyFoldersInFolder(folders);
+//		deleteManyFoldersInFolder(folders);
+		assertQueuesAreEmpty();
 	}
 	
 	private List<Path> addManyFoldersInFolder() throws IOException {
@@ -132,7 +139,7 @@ public class AddDelete extends FileIntegrationTest {
 	public void singleFileTest() throws IOException {
 		// ADD
 		Path file = addSingleFile();
-		
+		assertQueuesAreEmpty();
 		// DELETE
 //		deleteSingleFile(file);
 	}
@@ -148,7 +155,7 @@ public class AddDelete extends FileIntegrationTest {
 	public void manyFilesTest() throws IOException {
 		// ADD
 		List<Path> files = addManyFiles();
-		
+		assertQueuesAreEmpty();
 		// DELETE
 //		deleteManyFiles(files);
 	}
@@ -217,7 +224,7 @@ public class AddDelete extends FileIntegrationTest {
 		List<Path> files = addManyFilesInManyFolders();
 		
 		// DELETE
-		deleteManyFilesInManyFolders(files);
+		//deleteManyFilesInManyFolders(files);
 	}
 	
 	private void deleteManyFilesInManyFolders(List<Path> files) throws IOException {

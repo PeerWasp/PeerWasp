@@ -30,9 +30,11 @@ public class Move extends FileIntegrationTest{
 		Path srcFile = FileTestUtils.createRandomFile(masterRootPath, NUMBER_OF_CHARS);
 		waitForExists(srcFile, WAIT_TIME_SHORT);
 		assertSyncClientPaths();
+		assertQueuesAreEmpty();
 		
 		moveFileOrFolder(srcFile, folder.resolve(srcFile.getFileName()));
 		assertSyncClientPaths();
+		assertQueuesAreEmpty();
 	}
 	
 	@Test
@@ -41,9 +43,11 @@ public class Move extends FileIntegrationTest{
 		List<Path> files = addManyFiles(20, 30);
 		waitForExists(files, WAIT_TIME_SHORT);
 		assertSyncClientPaths();
+		assertQueuesAreEmpty();
 		
-		moveManyFilesIntoFolder(folder);
+		moveManyFilesIntoFolder(folder, 10);
 		assertSyncClientPaths();
+		assertQueuesAreEmpty();
 	}
 
 	//still fails
@@ -52,8 +56,11 @@ public class Move extends FileIntegrationTest{
 		Path folder = addSingleFolder();
 		addManyFiles();
 		assertSyncClientPaths();
-		moveManyFilesIntoFolder(folder);
+		assertQueuesAreEmpty();
+		
+		moveManyFilesIntoFolder(folder, 50);
 		assertSyncClientPaths();
+		assertQueuesAreEmpty();
 	}
 	
 
@@ -64,20 +71,24 @@ public class Move extends FileIntegrationTest{
 		Path dstFolder = addSingleFolder();
 		
 		assertSyncClientPaths();
+		assertQueuesAreEmpty();
 		
 		moveFileOrFolder(folderToMove, dstFolder.resolve(folderToMove.getFileName()));
 		assertSyncClientPaths();
+		assertQueuesAreEmpty();
 	}
 	
 	@Test
 	public void singleNonEmptyFolderMoveTest() throws IOException{
 		Path folderToMove = addSingleFolder();
+		
 		Path dstFolderParent = addSingleFolder();
 		addSingleFile(folderToMove);
-		Path dstFolder = dstFolderParent.resolve("f0");
+		Path dstFolder = dstFolderParent.resolve(folderToMove.getFileName());
 		Files.move(folderToMove.toFile(), dstFolder.toFile());
 		waitForExists(dstFolder, WAIT_TIME_SHORT);
 		assertSyncClientPaths();
+		assertQueuesAreEmpty();
 	}
 	
 	@Test
@@ -97,6 +108,7 @@ public class Move extends FileIntegrationTest{
 		}
 		waitForExists(currentDestination, WAIT_TIME_SHORT);
 		assertSyncClientPaths();
+		assertQueuesAreEmpty();
 	}
 	
 	@Test
@@ -116,6 +128,7 @@ public class Move extends FileIntegrationTest{
 		System.out.println("Last destination to wait for: " + lastDestination);
 		waitForExists(lastDestination, WAIT_TIME_SHORT);
 		assertSyncClientPaths();
+		assertQueuesAreEmpty();
 	}
 	
 	
@@ -124,12 +137,12 @@ public class Move extends FileIntegrationTest{
 		waitForExists(dstFile, WAIT_TIME_SHORT);
 	}
 	
-	private void moveManyFilesIntoFolder(Path dstFolder) {
+	private void moveManyFilesIntoFolder(Path dstFolder, int nrMoves) {
 		File rootFolder = masterRootPath.toFile();
 		
 		File[] files = rootFolder.listFiles();
 		ArrayList<Path> movedFiles = new ArrayList<Path>();
-		int nrMoves = 50;
+
 		for(int i = 0; i < nrMoves; i++){
 			if(files[i].isDirectory()){
 				nrMoves--;

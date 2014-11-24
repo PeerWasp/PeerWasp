@@ -329,6 +329,20 @@ public abstract class FileIntegrationTest {
 		}
 		logger.info("Client paths are SYNC!");
 	}
+	
+	protected void assertQueuesAreEmpty(){
+//		try {
+//			Thread.sleep(2000);
+//		} catch (InterruptedException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+//		List<ClientNode> clients = network.getClients();
+//		for(ClientNode client : clients){
+//			assertTrue(client.getFileEventManager().getFileComponentQueue().size() == 0);
+//			assertTrue(client.getFileEventManager().getActionExecutor().getExecutingActions().size() == 0);
+//		}
+	}
 
 	/**
 	 * Compares and asserts equality of two indices by looking at the paths and hashes of the content

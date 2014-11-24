@@ -46,13 +46,16 @@ public class ActionExecutor implements Runnable, IActionEventListener {
 
 	public ActionExecutor(FileEventManager eventManager) {
 		this(eventManager, true);
-
 	}
 	
 	public ActionExecutor(FileEventManager eventManager, boolean waitForCompletion){
 		this.fileEventManager = eventManager;
 		executingActions = new Vector<IAction>();//Collections.synchronizedList(new ArrayList<IAction>());
 		useNotifications = waitForCompletion;
+	}
+	
+	public Vector<IAction> getExecutingActions(){
+		return executingActions;
 	}
 	
 

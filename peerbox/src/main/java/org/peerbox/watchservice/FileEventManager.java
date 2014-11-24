@@ -41,6 +41,7 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
     
     private BlockingQueue<FileComponent> fileComponentQueue; 
     private FolderComposite fileTree;
+    private ActionExecutor actionExecutor;
     
     private SetMultimap<String, FileComponent> deletedByContentHash = HashMultimap.create();
     private Map<String, FolderComposite> deletedByContentNamesHash = new HashMap<String, FolderComposite>();
@@ -54,9 +55,14 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
     	fileComponentQueue = new PriorityBlockingQueue<FileComponent>(2000, new FileActionTimeComparator());
     	fileTree = new FolderComposite(rootPath, true, true);
     	this.rootPath = rootPath;
-		executorThread = new Thread(new ActionExecutor(this, waitForNotifications));
+    	this.actionExecutor = new ActionExecutor(this, waitForNotifications);
+		executorThread = new Thread(actionExecutor);
 		executorThread.start();
 		
+    }
+    
+    public ActionExecutor getActionExecutor(){
+    	return actionExecutor;
     }
     
     /**
