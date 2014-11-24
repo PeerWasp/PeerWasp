@@ -153,7 +153,7 @@ public class AddDelete extends FileIntegrationTest {
 //		deleteManyFiles(files);
 	}
 	
-	@Test
+	@Test @Ignore
 	public void manyFilesStressTest() throws IOException {
 		// ADD
 		List<Path> files = addManyFiles(1000, WAIT_TIME_STRESSTEST);

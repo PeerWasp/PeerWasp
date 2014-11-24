@@ -96,11 +96,18 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 		logger.trace("onLocalFileCreated: {}", path);
 		FileComponent file = getOrCreateFileComponent(path);
 
+		if(path.toFile().isDirectory()){
+			logger.debug("BEFORE Structure hash for {} is {} ", path, file.getStructureHash());
+			String structureHash = discoverSubtreeStructure(path);
+			logger.debug("AFTER Structure hash for {} is {} ", path, structureHash);
+			file.setStructureHash(structureHash);
+			
+		}
 		file.getAction().handleLocalCreateEvent();
 		
 		if(path.toFile().isDirectory()){
 			discoverSubtreeCompletely(path);
-//			discoverSubtreeStructure(path);
+
 		}
 	}
 	
@@ -168,6 +175,7 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 	public void onLocalFileDeleted(Path path) {
 		logger.debug("onLocalFileDelete: {}", path);
 		FileComponent file = getOrCreateFileComponent(path);
+		logger.debug("OnLocalFileDelete structure hash of {} is  {}", path, file.getStructureHash());
 		file.getAction().handleLocalDeleteEvent();
 	}
 	

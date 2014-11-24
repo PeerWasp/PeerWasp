@@ -268,7 +268,9 @@ public class FolderComposite extends AbstractFileComponent implements FileCompon
 	}
 	
 	private void bubbleContentNamesHashUpdate() {
+		logger.debug("Structure hash of {} before: {}", path, contentNamesHash);
 		boolean hasChanged = computeContentNamesHash();
+		logger.debug("Structure hash of {} after: {}", path, contentNamesHash);
 		logger.debug("successful computeContentNamesHash hasChanged {}", hasChanged);
 		if(hasChanged && parent != null){
 			logger.debug("start partent.bubbleContentNamesHashUpdate");
@@ -299,7 +301,7 @@ public class FolderComposite extends AbstractFileComponent implements FileCompon
 		logger.trace("after setPath {}", nextLevelPath);
 		if(component instanceof FolderComposite){
 			FolderComposite componentAsFolder = (FolderComposite)component;
-			componentAsFolder.propagatePathChangetoChildren();
+			componentAsFolder.propagatePathChangeToChildren();
 		}
 		logger.trace("BEFORE bubbleContentNamesHashUpdate {}", nextLevelPath);
 		bubbleContentNamesHashUpdate();
@@ -335,13 +337,13 @@ public class FolderComposite extends AbstractFileComponent implements FileCompon
 	 * related to each FileComponent is updates as well.
 	 * @param parentPath
 	 */
-	public void propagatePathChangetoChildren(){
+	public void propagatePathChangeToChildren(){
 		System.out.println("getPath(): " + getPath());
 		for(FileComponent child : children.values()){
 			child.setParentPath(getPath());
 			if(child instanceof FolderComposite){
 				FolderComposite childAsFolder = (FolderComposite)child;
-				childAsFolder.propagatePathChangetoChildren();
+				childAsFolder.propagatePathChangeToChildren();
 			}
 
 		}
@@ -373,5 +375,16 @@ public class FolderComposite extends AbstractFileComponent implements FileCompon
 	public void setPath(Path path) {
 		path = path;
 		folderName = path.getFileName();
+	}
+
+	@Override
+	public String getStructureHash() {
+		// TODO Auto-generated method stub
+		return contentNamesHash;
+	}
+
+	@Override
+	public void setStructureHash(String hash) {
+		contentNamesHash = hash;
 	}
 }

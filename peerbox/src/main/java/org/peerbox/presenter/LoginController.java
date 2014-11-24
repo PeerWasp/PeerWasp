@@ -37,11 +37,11 @@ import org.peerbox.model.UserManager;
 import org.peerbox.utils.FormValidationUtils;
 import org.peerbox.view.ViewNames;
 import org.peerbox.view.controls.ErrorLabel;
+import org.peerbox.watchservice.FolderWatchService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.inject.Inject;
-
 
 public class LoginController implements Initializable {
 
@@ -71,19 +71,18 @@ public class LoginController implements Initializable {
 	private ErrorLabel lblError;
 
 	private Decorator<ProgressIndicator> fProgressDecoration = null;
-	
-	
+
 	@Inject
 	public LoginController(NavigationService navigationService, UserManager userManager) {
 		this.fNavigationService = navigationService;
 		this.userManager = userManager;
 	}
-	
+
 	public void initialize(URL location, ResourceBundle resources) {
 		initializeValidations();
 		loadUserConfig();
 	}
-	
+
 	private void loadUserConfig() {
 		if (userConfig.hasUsername()) {
 			txtUsername.setText(userConfig.getUsername());
@@ -103,7 +102,7 @@ public class LoginController implements Initializable {
 		uninstallProgressIndicator();
 		ValidationUtils.validateOnDemand(grdForm);
 	}
-	
+
 	private void initializeValidations() {
 		wrapDecorationPane();
 		addUsernameValidation();
@@ -119,8 +118,8 @@ public class LoginController implements Initializable {
 	}
 
 	private void addUsernameValidation() {
-		Validator usernameValidator = FormValidationUtils.createEmptyTextFieldValidator(txtUsername,
-				"Please enter a username.", true);
+		Validator usernameValidator = FormValidationUtils.createEmptyTextFieldValidator(
+				txtUsername, "Please enter a username.", true);
 		ValidationUtils.install(txtUsername, usernameValidator, ValidationMode.ON_FLY);
 		ValidationUtils.install(txtUsername, usernameValidator, ValidationMode.ON_DEMAND);
 	}
@@ -133,11 +132,11 @@ public class LoginController implements Initializable {
 	}
 
 	private void addPinValidation() {
-		Validator pinValidator = FormValidationUtils.createEmptyTextFieldValidator(
-				txtPin, "Please enter a PIN.", false);
+		Validator pinValidator = FormValidationUtils.createEmptyTextFieldValidator(txtPin,
+				"Please enter a PIN.", false);
 		ValidationUtils.install(txtPin, pinValidator, ValidationMode.ON_FLY);
 		ValidationUtils.install(txtPin, pinValidator, ValidationMode.ON_DEMAND);
-		
+
 	}
 
 	public void loginAction(ActionEvent event) {
@@ -145,7 +144,7 @@ public class LoginController implements Initializable {
 		try {
 			clearError();
 			inputValid = ValidationUtils.validateOnDemand(grdForm)
-					&& SelectRootPathUtils.verifyRootPath(txtRootPath.getText()) 
+					&& SelectRootPathUtils.verifyRootPath(txtRootPath.getText())
 					&& checkUserExists();
 		} catch (NoPeerConnectionException e) {
 			setError("Connection to the network failed.");
@@ -156,8 +155,7 @@ public class LoginController implements Initializable {
 			new Thread(task).start();
 		}
 	}
-	
-	
+
 	private boolean checkUserExists() throws NoPeerConnectionException {
 		String username = txtUsername.getText().trim();
 		if (!userManager.isRegistered(username)) {
@@ -167,8 +165,8 @@ public class LoginController implements Initializable {
 		return true;
 	}
 
-	public ResultStatus loginUser(final String username, final String password, 
-			final String pin, final Path path) {
+	public ResultStatus loginUser(final String username, final String password, final String pin,
+			final Path path) {
 		try {
 			return userManager.loginUser(username, password, pin, path);
 		} catch (NoPeerConnectionException e) {
@@ -222,7 +220,7 @@ public class LoginController implements Initializable {
 
 		return task;
 	}
-	
+
 	private void onLoginFailed(ResultStatus result) {
 		logger.error("Login task failed: {}", result.getErrorMessage());
 		Platform.runLater(() -> {
@@ -232,14 +230,38 @@ public class LoginController implements Initializable {
 			setError(result.getErrorMessage());
 		});
 	}
-	
+
 	private void onLoginSucceeded() {
 		logger.debug("Login task succeeded: user {} logged in.", getUsername());
 		saveLoginConfig();
+
+		// Start FolderWatchService
+		startWatchService();
+
 		resetForm();
 		fNavigationService.navigate(ViewNames.SETUP_COMPLETED_VIEW);
 	}
-	
+
+	private void startWatchService() {
+
+		FolderWatchService watchService = null;
+
+		try {
+			watchService = new FolderWatchService(userConfig.getRootPath());
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		try {
+			watchService.start();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+	}
+
 	private void saveLoginConfig() {
 		try {
 			userConfig.setUsername(getUsername());

@@ -3,6 +3,7 @@ package org.peerbox.watchservice.states;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang3.NotImplementedException;
@@ -102,26 +103,26 @@ public class InitialState extends AbstractActionState {
 
 	@Override
 	public AbstractActionState handleLocalCreate() {
+
+//		action.putFile(action.getFilePath().toString(), action.getFile());
 		IFileEventManager eventManager = action.getEventManager();
-//		String structureHash = "";
-//		if(action.getFilePath().toFile().isDirectory()){
-//			structureHash = eventManager.discoverSubtreeStructure(action.getFilePath());
-//			FolderComposite moveSource = eventManager.getDeletedByContentNamesHash().get(structureHash);
-//			if(moveSource != null){
-//				moveSource.getAction().handleLocalMoveEvent(action.getFilePath());
-//				updateTimeAndQueue();
-//				return changeStateOnLocalMove(action.getFilePath());
-//				//TODO remove children from QUEUE!
-//			} else {
-////				eventManager.discoverSubtreeCompletely(action.getFilePath());
-//			}
-//			
-//		}
-		
-		action.putFile(action.getFilePath().toString(), action.getFile());
+		if(action.getFilePath().toFile().isDirectory()){
+			//find deleted by structure hash
+			Map<String, FolderComposite> deletedFolders = eventManager.getDeletedByContentNamesHash();
+			String structureHash = action.getFile().getStructureHash();
+			logger.trace("LocalCreate: structure hash of {} is {}", action.getFilePath(), structureHash);
+			FolderComposite moveSource = deletedFolders.get(structureHash);
+			if(moveSource != null){
+				logger.trace("Folder move detected from {} to {}", moveSource.getPath(), action.getFilePath());
+				moveSource.getAction().handleLocalMoveEvent(action.getFilePath());
+				eventManager.getFileComponentQueue().remove(action.getFile());
+				//TODO: cleanup filecomponentqueue: remove children of folder if in localcreate state!
+				return changeStateOnLocalMove(action.getFilePath());
+			}
+		}
 		action.getFile().updateContentHash();
 		
-		eventManager.discoverSubtreeCompletely(action.getFilePath());
+
 		
 		try {
 			Thread.sleep(50);
@@ -132,6 +133,8 @@ public class InitialState extends AbstractActionState {
 		FileComponent moveSource = eventManager.findDeletedByContent(action.getFile());
 		logger.debug("File {} has hash {}", action.getFilePath(), action.getFile().getContentHash());
 		if(moveSource == null){
+			action.putFile(action.getFilePath().toString(), action.getFile());
+			
 			logger.trace("Handle regular create of {}, as no possible move source has been found.", action.getFilePath());
 			action.getEventManager().getFileComponentQueue().add(action.getFile());
 			return changeStateOnLocalCreate();

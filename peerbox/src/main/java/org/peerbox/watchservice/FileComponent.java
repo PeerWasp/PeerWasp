@@ -11,6 +11,8 @@ public interface FileComponent {
 	public boolean isFile();
 	
 	public String getContentHash();
+	public String getStructureHash();
+	public void setStructureHash(String hash);
 
 	public IAction getAction();
 	
@@ -48,5 +50,7 @@ public interface FileComponent {
 	public void setActionIsUploaded(boolean isUploaded);
 	
 	public boolean isReady();
+	
+	public void propagatePathChangeToChildren();
 
 }

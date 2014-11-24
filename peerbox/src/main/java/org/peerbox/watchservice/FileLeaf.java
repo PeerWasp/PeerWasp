@@ -158,4 +158,20 @@ public class FileLeaf extends AbstractFileComponent implements FileComponent{
 		return false;
 	}
 
+	@Override
+	public String getStructureHash() {
+		// TODO Auto-generated method stub
+		return "";
+	}
+
+	@Override
+	public void setStructureHash(String hash) {
+		logger.debug("setStructureHash(String) is not defined on FileLeaf.");
+	}
+
+	@Override
+	public void propagatePathChangeToChildren() {
+		return;
+	}
+
 }

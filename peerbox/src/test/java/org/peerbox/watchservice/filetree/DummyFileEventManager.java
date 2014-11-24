@@ -43,18 +43,6 @@ public class DummyFileEventManager implements IFileEventManager{
 	}
 
 	@Override
-	public FolderComposite discoverSubtreeCompletely(Path filePath) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public String discoverSubtreeStructure(Path filePath) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
 	public Map<String, FolderComposite> getDeletedByContentNamesHash() {
 		// TODO Auto-generated method stub
 		return null;
