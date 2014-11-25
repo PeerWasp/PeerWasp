@@ -240,7 +240,7 @@ public class LoginController implements Initializable {
 	private void saveLoginConfig() {
 		try {
 			userConfig.setUsername(getUsername());
-			userConfig.setRootPath(txtRootPath.getText());
+			userConfig.setRootPath(Paths.get(txtRootPath.getText()));
 			if (chbAutoLogin.isSelected()) {
 				userConfig.setPassword(txtPassword.getText());
 				userConfig.setPin(txtPin.getText());

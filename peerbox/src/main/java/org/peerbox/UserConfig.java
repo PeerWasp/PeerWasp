@@ -16,6 +16,8 @@ import java.util.Properties;
 import java.util.Set;
 
 import org.apache.commons.io.FileUtils;
+import org.peerbox.utils.OsUtils;
+import org.peerbox.utils.WinRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,6 +57,7 @@ public class UserConfig {
 	private static final String PROPERTY_PASSWORD = "password";
 	private static final String PROPERTY_PIN = "pin";
 	private static final String PROPERTY_ROOTPATH = "rootpath";
+	private static final String PROPERTY_API_SERVER_PORT = "api_server_port";
 	/**
 	 * Separator character for the serialization of lists of values
 	 */
@@ -156,9 +159,15 @@ public class UserConfig {
 	 * @param path if null or empty, the root path is removed from the config.
 	 * @throws IOException
 	 */
-	public synchronized void setRootPath(final String path) throws IOException {
-		if (path != null && !path.isEmpty()) {
-			prop.setProperty(PROPERTY_ROOTPATH, path);
+	public synchronized void setRootPath(final Path path) throws IOException {
+		if (path != null && !path.toString().isEmpty()) {
+			
+			prop.setProperty(PROPERTY_ROOTPATH, path.toString());
+			
+			if(OsUtils.isWindows()) {
+				WinRegistry.setRootPath(path);
+			}
+			
 		} else {
 			prop.remove(PROPERTY_ROOTPATH);
 		}
@@ -346,5 +355,46 @@ public class UserConfig {
 			nodes.remove(node);
 			setBootstrappingNodes(nodes);
 		}
+	}
+	
+	
+	/**
+	 * @return the port of the rest api server 
+	 */
+	public int getApiServerPort() {
+		String p = prop.getProperty(PROPERTY_API_SERVER_PORT);
+		return p != null ? Integer.valueOf(p.trim()) : -1;
+	}
+	
+	/**
+	 * @return true if there is a server port is set, false otherwise.
+	 */
+	public boolean hasApiServerPort() {
+		int port = getApiServerPort();
+		return isValidPort(port);
+	}
+	
+	/**
+	 * Sets the api server port. 
+	 * @param port if not in valid range, the port is removed from the config.
+	 * @throws IOException
+	 */
+	public synchronized void setApiServerPort(final int port) throws IOException {
+		if(isValidPort(port)) {
+			
+			prop.setProperty(PROPERTY_API_SERVER_PORT, String.valueOf(port));
+			
+			if(OsUtils.isWindows()) {
+				WinRegistry.setApiServerPort(port);
+			}
+			
+		} else {
+			prop.remove(PROPERTY_API_SERVER_PORT);
+		}
+		saveProperties();
+	}
+
+	private boolean isValidPort(int port) {
+		return port >= 1 && port <= 65535;
 	}
 }

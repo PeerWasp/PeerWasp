@@ -3,6 +3,7 @@ package org.peerbox;
 import static org.junit.Assert.*;
 
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,13 +27,13 @@ public class UserConfigTest {
 
 	@Test
 	public void testHasRootPath() throws IOException {
-		userConfig.setRootPath("");
+		userConfig.setRootPath(Paths.get(""));
 		assertFalse(userConfig.hasRootPath());
 		
-		userConfig.setRootPath(" ");
+		userConfig.setRootPath(Paths.get(" "));
 		assertTrue(userConfig.hasRootPath());
 		
-		userConfig.setRootPath("/this/is/a/path");
+		userConfig.setRootPath(Paths.get("/this/is/a/path"));
 		assertTrue(userConfig.hasRootPath());
 		
 		userConfig.setRootPath(null);
@@ -41,16 +42,16 @@ public class UserConfigTest {
 
 	@Test
 	public void testSetRootPath() throws IOException {
-		userConfig.setRootPath("");
+		userConfig.setRootPath(Paths.get(""));
 		assertNull(userConfig.getRootPath());
 		userConfigAssertPersistence(userConfig, new UserConfig());
 		
-		userConfig.setRootPath("/this/is/a/Path");
+		userConfig.setRootPath(Paths.get("/this/is/a/Path"));
 		assertEquals(userConfig.getRootPath().toString(), "/this/is/a/Path");
 		assertNotEquals(userConfig.getRootPath(), "/this/is/a/Path".toLowerCase());
 		userConfigAssertPersistence(userConfig, new UserConfig());
 		
-		userConfig.setRootPath("/this/is/a/Path/John Doe ");
+		userConfig.setRootPath(Paths.get("/this/is/a/Path/John Doe "));
 		assertEquals(userConfig.getRootPath().toString(), "/this/is/a/Path/John Doe ");
 		userConfigAssertPersistence(userConfig, new UserConfig());
 		
@@ -178,6 +179,50 @@ public class UserConfigTest {
 		userConfig.setAutoLogin(false);
 		assertFalse(userConfig.isAutoLoginEnabled());
 		userConfigAssertPersistence(userConfig, new UserConfig());
+	}
+	
+	@Test 
+	public void hasApiServerPort() throws IOException {
+		userConfig.setApiServerPort(0);
+		assertFalse(userConfig.hasApiServerPort());
+		
+		userConfig.setApiServerPort(-1);
+		assertFalse(userConfig.hasApiServerPort());
+		
+		userConfig.setApiServerPort(65536);
+		assertFalse(userConfig.hasApiServerPort());
+		
+		userConfig.setApiServerPort(1);
+		assertTrue(userConfig.hasApiServerPort());
+		
+		userConfig.setApiServerPort(47325);
+		assertTrue(userConfig.hasApiServerPort());
+		
+		userConfig.setApiServerPort(65535);
+		assertTrue(userConfig.hasApiServerPort());
+	}
+	
+	@Test
+	public void setApiServerPort() throws IOException {
+		// invalid ports
+		userConfig.setApiServerPort(0);
+		assertEquals(userConfig.getApiServerPort(), -1);
+		
+		userConfig.setApiServerPort(-1);
+		assertEquals(userConfig.getApiServerPort(), -1);
+		
+		userConfig.setApiServerPort(65536);
+		assertEquals(userConfig.getApiServerPort(), -1);
+		
+		// valid ports
+		userConfig.setApiServerPort(1);
+		assertEquals(userConfig.getApiServerPort(), 1);
+		
+		userConfig.setApiServerPort(37824);
+		assertEquals(userConfig.getApiServerPort(), 37824);
+		
+		userConfig.setApiServerPort(65535);
+		assertEquals(userConfig.getApiServerPort(), 65535);
 	}
 
 	@SuppressWarnings("serial")
