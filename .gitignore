@@ -5,5 +5,4 @@ WindowsShellExtensions/ContextMenu/Debug/
 WindowsShellExtensions/ContextMenu/Release/
 WindowsShellExtensions/Release/
 WindowsShellExtensions/x64
-build/Windows_x86/
-build/Windows_x64/
+build/Windows/

@@ -32,8 +32,8 @@ SetupIconFile={#BaseDir}\peerbox64.ico
 Compression=lzma
 SolidCompression=yes
 
-ArchitecturesAllowed={#ArchitecturesAllowed}
-ArchitecturesInstallIn64BitMode={#ArchitecturesInstallIn64BitMode}
+ArchitecturesAllowed=x86 x64
+ArchitecturesInstallIn64BitMode=x64
 
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"
@@ -52,10 +52,15 @@ Source: "{#BaseDir}\lib\*"; DestDir: "{app}\lib"; Flags: ignoreversion createall
 
 ; -- context menu extension
 ; regserver: dll is registered in the windows registry
-Source: "{#BaseDir}\ContextMenu.dll"; DestDir: "{app}"; Flags: ignoreversion regserver uninsrestartdelete restartreplace
-Source: "{#BaseDir}\cpprest120_2_2.dll"; DestDir: "{app}"; Flags: ignoreversion uninsrestartdelete restartreplace
-Source: "{#BaseDir}\msvcp120.dll"; DestDir: "{app}"; Flags: ignoreversion uninsrestartdelete restartreplace
-Source: "{#BaseDir}\msvcr120.dll"; DestDir: "{app}"; Flags: ignoreversion uninsrestartdelete restartreplace
+Source: "{#BaseDir}\x64\ContextMenu.dll"; DestDir: "{app}"; Flags: ignoreversion regserver uninsrestartdelete restartreplace 64bit; Check: IsWin64;
+Source: "{#BaseDir}\x64\cpprest120_2_2.dll"; DestDir: "{app}"; Flags: ignoreversion uninsrestartdelete restartreplace 64bit; Check: IsWin64;
+Source: "{#BaseDir}\x64\msvcp120.dll"; DestDir: "{app}"; Flags: ignoreversion uninsrestartdelete restartreplace 64bit; Check: IsWin64;
+Source: "{#BaseDir}\x64\msvcr120.dll"; DestDir: "{app}"; Flags: ignoreversion uninsrestartdelete restartreplace 64bit; Check: IsWin64;
+
+Source: "{#BaseDir}\x86\ContextMenu.dll"; DestDir: "{app}"; Flags: ignoreversion regserver uninsrestartdelete restartreplace 32bit; Check: "not IsWin64";
+Source: "{#BaseDir}\x86\cpprest120_2_2.dll"; DestDir: "{app}"; Flags: ignoreversion uninsrestartdelete restartreplace 32bit; Check: "not IsWin64";
+Source: "{#BaseDir}\x86\msvcp120.dll"; DestDir: "{app}"; Flags: ignoreversion uninsrestartdelete restartreplace 32bit; Check: "not IsWin64";
+Source: "{#BaseDir}\x86\msvcr120.dll"; DestDir: "{app}"; Flags: ignoreversion uninsrestartdelete restartreplace 32bit; Check: "not IsWin64";
 
 Source: "{#BaseDir}\License.rtf"; DestDir: "{app}"; Flags: ignoreversion
 
