@@ -41,6 +41,10 @@
 
 	<target name="none">
 		<echo>Select a task</echo>
+        <!-- some tasks -->
+        <echo>win_package_all</echo>
+        <echo>win_package_x64</echo>
+        <echo>win_package_x86</echo>
 	</target>
 
 	<!-- wrapper targets that depend on platform specific commands (conditional) -->
@@ -158,7 +162,11 @@
 		<copy todir="${peerbox.winbuild_x64}" failonerror="true">
 			<fileset dir="${context_menu.home}/x64/Release" includes="cpprest*.dll" />
 		</copy>
-
+        
+        <!-- copy visual c++ redistributable dlls -->
+        <copy file="${visual_studio.vc_redist_x64}/msvcp120.dll" todir="${peerbox.winbuild_x64}" failonerror="true" />
+        <copy file="${visual_studio.vc_redist_x64}/msvcr120.dll" todir="${peerbox.winbuild_x64}" failonerror="true" />
+        
 		<!-- build the exe wrapper for launching the jar -->
 		<antcall target="win_jar2exe_launcher">
 			<param name="targetdir" value="${peerbox.winbuild_x64}" />
@@ -190,6 +198,10 @@
 		<copy todir="${peerbox.winbuild_x86}" failonerror="true">
 			<fileset dir="${context_menu.home}/Release" includes="cpprest*.dll" />
 		</copy>
+        
+        <!-- copy visual c++ redistributable dlls -->
+        <copy file="${visual_studio.vc_redist_x86}/msvcp120.dll" todir="${peerbox.winbuild_x86}" failonerror="true" />
+        <copy file="${visual_studio.vc_redist_x86}/msvcr120.dll" todir="${peerbox.winbuild_x86}" failonerror="true" />
 
 		<!-- build the exe wrapper for launching the jar -->
 		<antcall target="win_jar2exe_launcher">

@@ -45,13 +45,18 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 Source: "{#BaseDir}\peerbox.exe"; DestDir: "{app}"; Flags: ignoreversion
 Source: "{#BaseDir}\peerbox64.ico"; DestDir: "{app}"; Flags: ignoreversion
+
 ; -- java packages
 Source: "{#BaseDir}\{#PeerBoxJar}"; DestDir: "{app}"; Flags: ignoreversion
 Source: "{#BaseDir}\lib\*"; DestDir: "{app}\lib"; Flags: ignoreversion createallsubdirs recursesubdirs
+
 ; -- context menu extension
 ; regserver: dll is registered in the windows registry
 Source: "{#BaseDir}\ContextMenu.dll"; DestDir: "{app}"; Flags: ignoreversion regserver uninsrestartdelete restartreplace
 Source: "{#BaseDir}\cpprest120_2_2.dll"; DestDir: "{app}"; Flags: ignoreversion uninsrestartdelete restartreplace
+Source: "{#BaseDir}\msvcp120.dll"; DestDir: "{app}"; Flags: ignoreversion uninsrestartdelete restartreplace
+Source: "{#BaseDir}\msvcr120.dll"; DestDir: "{app}"; Flags: ignoreversion uninsrestartdelete restartreplace
+
 Source: "{#BaseDir}\License.rtf"; DestDir: "{app}"; Flags: ignoreversion
 
 [Dirs]

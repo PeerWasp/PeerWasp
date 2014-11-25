@@ -36,13 +36,13 @@ public class H2HManagerTest {
 	@Test
 	public void accessNetworkTestWrongBootstrapAddress() throws UnknownHostException{
 		h2hManager.createNode();
-		assertFalse(h2hManager.joinNetwork("1.2.3.4"));
+		assertTrue(h2hManager.joinNetwork("1.2.3.4").isError());
 	}
 	
 	@Test
 	public void accessNetworkTestCorrectBootstrapAddress() throws UnknownHostException{
 		h2hManager.createNode();
-		assertTrue(h2hManager.joinNetwork("localhost"));
+		assertTrue(h2hManager.joinNetwork("localhost").isOk());
 	}
 	
 	@Test
