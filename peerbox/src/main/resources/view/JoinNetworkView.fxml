@@ -10,7 +10,8 @@
 
 <AnchorPane prefHeight="100.0" prefWidth="250.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.peerbox.presenter.JoinNetworkController">
 	<children>
-		<VBox fx:id="vboxForm" prefHeight="200.0" prefWidth="100.0" spacing="10.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+		<ProgressIndicator fx:id="piProgress" visible="false" />
+		<VBox fx:id="vboxForm" prefHeight="200.0" prefWidth="100.0" spacing="10.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
 			<children>
 				<ErrorLabel fx:id="lblError" iconHeight="20.0" />
             <HBox spacing="10.0">

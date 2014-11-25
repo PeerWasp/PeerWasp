@@ -94,7 +94,7 @@ public class SelectRootPathController implements Initializable {
 		if (!result.isError()) {
 			try {
 				logger.info("Root path set to '{}'", path);
-				userConfig.setRootPath(path);
+				userConfig.setRootPath(Paths.get(path));
 				fNavigationService.navigate(ViewNames.LOGIN_VIEW);
 			} catch (IOException e) {
 				logger.warn("Could not save settings (Exception: {})", e.getMessage());

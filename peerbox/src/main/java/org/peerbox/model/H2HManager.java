@@ -11,6 +11,7 @@ import org.hive2hive.core.api.configs.FileConfiguration;
 import org.hive2hive.core.api.configs.NetworkConfiguration;
 import org.hive2hive.core.api.interfaces.IH2HNode;
 import org.hive2hive.core.api.interfaces.INetworkConfiguration;
+import org.peerbox.ResultStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,16 +32,21 @@ public class H2HManager {
 		return UUID.randomUUID().toString();
 	}
 
-	public boolean createNode() {
+	public ResultStatus createNode() {
 		INetworkConfiguration defaultNetworkConf = NetworkConfiguration.createInitial(generateNodeID());
 		return createNode(defaultNetworkConf);
 	}
 
-	public boolean createNode(INetworkConfiguration configuration) {
+	public ResultStatus createNode(INetworkConfiguration configuration) {
 		node = H2HNode.createNode(configuration, FileConfiguration.createDefault());
 		node.getUserManager().configureAutostart(false);
 		node.getFileManager().configureAutostart(false);
-		return node.connect();
+		boolean success = node.connect();
+		if(success) {
+			return ResultStatus.ok();
+		} else {
+			return ResultStatus.error("Could not connect to network.");
+		}
 	}
 
 	public String getInetAddressAsString() {
@@ -66,7 +72,7 @@ public class H2HManager {
 	 * @param bootstrapAddressString contains the host's name or address.
 	 * @throws UnknownHostException if the provided host is rejected (bad format).
 	 */
-	public boolean joinNetwork(String bootstrapAddressString) throws UnknownHostException {
+	public ResultStatus joinNetwork(String bootstrapAddressString) throws UnknownHostException {
 		if (bootstrapAddressString.isEmpty()) {
 			throw new IllegalArgumentException("Bootstrap address is empty.");
 		}
@@ -82,15 +88,15 @@ public class H2HManager {
 		Iterator<String> nodeIt = bootstrappingNodes.iterator();
 		while (nodeIt.hasNext() && !connected) {
 			String node = nodeIt.next();
-			boolean success = false;
+			ResultStatus res = null;
 			try {
-				success = joinNetwork(node);
+				res = joinNetwork(node);
 			} catch(UnknownHostException e) {
-				success = false;
+				res = ResultStatus.error("Address of host could not be determined.");
 			}
 			
 			connected = isConnected();
-			if (success && connected) {
+			if (res.isOk() && connected) {
 				logger.debug("Successfully connected to node {}", node);
 			} else {
 				logger.debug("Could not connect to node {}", node);

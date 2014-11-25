@@ -1,6 +1,5 @@
 package org.peerbox;
 
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -10,12 +9,15 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 
 import org.apache.commons.io.FileUtils;
+import org.peerbox.utils.OsUtils;
+import org.peerbox.utils.WinRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,12 +57,13 @@ public class UserConfig {
 	private static final String PROPERTY_PASSWORD = "password";
 	private static final String PROPERTY_PIN = "pin";
 	private static final String PROPERTY_ROOTPATH = "rootpath";
+	private static final String PROPERTY_API_SERVER_PORT = "api_server_port";
 	/**
 	 * Separator character for the serialization of lists of values
 	 */
 	private static final String LIST_SEPARATOR = ",";
 	
-	private File propertyFile;
+	private Path propertyFile;
 	private Properties prop;
 
 	/**
@@ -77,7 +80,7 @@ public class UserConfig {
 	 * @throws IOException if access to property file fails
 	 */
 	private UserConfig(final String filename) throws IOException {
-		this.propertyFile = new File(filename);
+		this.propertyFile = Paths.get(filename);
 		loadProperties();
 	}
 
@@ -89,14 +92,14 @@ public class UserConfig {
 		// first read defaults
 		Properties defaultProp = loadDefaultProperties();
 		// create parent dirs and empty file if not exists yet
-		if (!propertyFile.exists()) {
-			if (!propertyFile.getParentFile().exists()) {
-				propertyFile.getParentFile().mkdirs();
+		if (!Files.exists(propertyFile)) {
+			if (!Files.exists(propertyFile.getParent())) {
+				Files.createDirectory(propertyFile.getParent());
 			}
-			propertyFile.createNewFile();
+			Files.createFile(propertyFile);
 		}
 		prop = loadUserProperties(defaultProp);
-		logger.debug("Loaded property file {}", propertyFile.getAbsoluteFile());
+		logger.debug("Loaded property file {}", propertyFile.toAbsolutePath());
 	}
 	
 	/**
@@ -104,7 +107,7 @@ public class UserConfig {
 	 * @throws IOException
 	 */
 	private synchronized void saveProperties() throws IOException {
-		try (OutputStream out = new FileOutputStream(propertyFile)) {
+		try (OutputStream out = new FileOutputStream(propertyFile.toFile())) {
 			prop.store(out, null);
 		}
 	}
@@ -129,7 +132,7 @@ public class UserConfig {
 	 * @throws IOException
 	 */
 	private Properties loadUserProperties(final Properties defaultProp) throws IOException {
-		try (InputStream in = new FileInputStream(propertyFile)) {
+		try (InputStream in = new FileInputStream(propertyFile.toFile())) {
 			Properties p = new Properties(defaultProp);
 			p.load(in);
 			return p;
@@ -156,9 +159,15 @@ public class UserConfig {
 	 * @param path if null or empty, the root path is removed from the config.
 	 * @throws IOException
 	 */
-	public synchronized void setRootPath(final String path) throws IOException {
-		if (path != null && !path.isEmpty()) {
-			prop.setProperty(PROPERTY_ROOTPATH, path);
+	public synchronized void setRootPath(final Path path) throws IOException {
+		if (path != null && !path.toString().isEmpty()) {
+			
+			prop.setProperty(PROPERTY_ROOTPATH, path.toString());
+			
+			if(OsUtils.isWindows()) {
+				WinRegistry.setRootPath(path);
+			}
+			
 		} else {
 			prop.remove(PROPERTY_ROOTPATH);
 		}
@@ -304,6 +313,7 @@ public class UserConfig {
 			return;
 		}
 		
+		Collections.sort(nodes);
 		StringBuilder nodeList = new StringBuilder();
 		Set<String> uniqueNodes = new HashSet<String>();
 		for (String node : nodes) {
@@ -345,5 +355,46 @@ public class UserConfig {
 			nodes.remove(node);
 			setBootstrappingNodes(nodes);
 		}
+	}
+	
+	
+	/**
+	 * @return the port of the rest api server 
+	 */
+	public int getApiServerPort() {
+		String p = prop.getProperty(PROPERTY_API_SERVER_PORT);
+		return p != null ? Integer.valueOf(p.trim()) : -1;
+	}
+	
+	/**
+	 * @return true if there is a server port is set, false otherwise.
+	 */
+	public boolean hasApiServerPort() {
+		int port = getApiServerPort();
+		return isValidPort(port);
+	}
+	
+	/**
+	 * Sets the api server port. 
+	 * @param port if not in valid range, the port is removed from the config.
+	 * @throws IOException
+	 */
+	public synchronized void setApiServerPort(final int port) throws IOException {
+		if(isValidPort(port)) {
+			
+			prop.setProperty(PROPERTY_API_SERVER_PORT, String.valueOf(port));
+			
+			if(OsUtils.isWindows()) {
+				WinRegistry.setApiServerPort(port);
+			}
+			
+		} else {
+			prop.remove(PROPERTY_API_SERVER_PORT);
+		}
+		saveProperties();
+	}
+
+	private boolean isValidPort(int port) {
+		return port >= 1 && port <= 65535;
 	}
 }

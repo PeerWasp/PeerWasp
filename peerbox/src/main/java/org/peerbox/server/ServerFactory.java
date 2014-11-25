@@ -29,7 +29,7 @@ public class ServerFactory {
 	public static IServer createServer() {
 		// get free port
 		int port = getFreePort();
-		if (port <= 0 || port >= 65535) {
+		if (port < 1 || port > 65535) {
 			throw new IllegalStateException("Could not find a free port.");
 		}
 
