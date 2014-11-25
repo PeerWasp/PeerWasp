@@ -15,14 +15,15 @@
 
 
 	<dependencies>
-	
 		<!-- peerbox -->
+		<!-- 
 		<dependency>
 			<groupId>org</groupId>
 			<artifactId>peerbox</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
 			<scope>compile</scope>
 		</dependency>
+		 -->
 
 		<!-- Hive2Hive https://github.com/Hive2Hive/Hive2Hive -->
 		<dependency>
