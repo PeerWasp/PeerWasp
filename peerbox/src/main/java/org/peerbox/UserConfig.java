@@ -1,6 +1,5 @@
 package org.peerbox;
 
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -10,6 +9,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
@@ -60,7 +60,7 @@ public class UserConfig {
 	 */
 	private static final String LIST_SEPARATOR = ",";
 	
-	private File propertyFile;
+	private Path propertyFile;
 	private Properties prop;
 
 	/**
@@ -77,7 +77,7 @@ public class UserConfig {
 	 * @throws IOException if access to property file fails
 	 */
 	private UserConfig(final String filename) throws IOException {
-		this.propertyFile = new File(filename);
+		this.propertyFile = Paths.get(filename);
 		loadProperties();
 	}
 
@@ -89,14 +89,14 @@ public class UserConfig {
 		// first read defaults
 		Properties defaultProp = loadDefaultProperties();
 		// create parent dirs and empty file if not exists yet
-		if (!propertyFile.exists()) {
-			if (!propertyFile.getParentFile().exists()) {
-				propertyFile.getParentFile().mkdirs();
+		if (!Files.exists(propertyFile)) {
+			if (!Files.exists(propertyFile.getParent())) {
+				Files.createDirectory(propertyFile.getParent());
 			}
-			propertyFile.createNewFile();
+			Files.createFile(propertyFile);
 		}
 		prop = loadUserProperties(defaultProp);
-		logger.debug("Loaded property file {}", propertyFile.getAbsoluteFile());
+		logger.debug("Loaded property file {}", propertyFile.toAbsolutePath());
 	}
 	
 	/**
@@ -104,7 +104,7 @@ public class UserConfig {
 	 * @throws IOException
 	 */
 	private synchronized void saveProperties() throws IOException {
-		try (OutputStream out = new FileOutputStream(propertyFile)) {
+		try (OutputStream out = new FileOutputStream(propertyFile.toFile())) {
 			prop.store(out, null);
 		}
 	}
@@ -129,7 +129,7 @@ public class UserConfig {
 	 * @throws IOException
 	 */
 	private Properties loadUserProperties(final Properties defaultProp) throws IOException {
-		try (InputStream in = new FileInputStream(propertyFile)) {
+		try (InputStream in = new FileInputStream(propertyFile.toFile())) {
 			Properties p = new Properties(defaultProp);
 			p.load(in);
 			return p;
@@ -304,6 +304,7 @@ public class UserConfig {
 			return;
 		}
 		
+		Collections.sort(nodes);
 		StringBuilder nodeList = new StringBuilder();
 		Set<String> uniqueNodes = new HashSet<String>();
 		for (String node : nodes) {

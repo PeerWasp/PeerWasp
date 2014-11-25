@@ -29,7 +29,6 @@ public class NetworkSelectionController implements Initializable {
 	}
 
 	public void joinNetwork(ActionEvent event){
-		System.out.println("Network joined.");	
 		fNavigationService.navigate(ViewNames.JOIN_NETWORK_VIEW);
 	}
 }
