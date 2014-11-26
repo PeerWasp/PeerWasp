@@ -9,6 +9,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.eclipse.jetty.http.MimeTypes;
+import org.peerbox.interfaces.IFileVersionSelectionUI;
 import org.peerbox.server.utils.PathDeserializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,11 +17,22 @@ import org.slf4j.LoggerFactory;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
+import com.google.inject.Inject;
+import com.google.inject.Provider;
+import com.google.inject.Singleton;
 
+@Singleton
 public class VersionsServlet extends HttpServlet implements IServlet {
 
 	private static final Logger logger = LoggerFactory.getLogger(VersionsServlet.class);
 	private static final long serialVersionUID = 1L;
+	
+	private final Provider<IFileVersionSelectionUI> versionSelectionUI;
+	
+	@Inject
+	public VersionsServlet(Provider<IFileVersionSelectionUI> versionSelectionUI) {
+		this.versionSelectionUI = versionSelectionUI;
+	}
 
 	@Override
 	protected void doPost(HttpServletRequest req, HttpServletResponse resp)
@@ -46,13 +58,19 @@ public class VersionsServlet extends HttpServlet implements IServlet {
 		try {
 			msg = gson.fromJson(content, VersionsMessage.class);
 			logger.info("Got request for file versions: {}", msg.getPath());
-			// todo: handle the message.
-
+			fileRecovery(msg);
 		} catch (JsonSyntaxException jsonEx) {
 			logger.info("Could not parse message.");
 			resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Could not deserialize given input");
 		}
 
+	}
+
+	private void fileRecovery(VersionsMessage msg) {
+		// todo: handle the message.
+		IFileVersionSelectionUI ui = versionSelectionUI.get();
+		ui.setFileToRecover(msg.getPath());
+		ui.show();
 	}
 
 	/**

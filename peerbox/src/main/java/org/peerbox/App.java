@@ -12,6 +12,7 @@ import javafx.stage.Stage;
 
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.hive2hive.processframework.exceptions.InvalidProcessStateException;
+import org.peerbox.guice.ApiServerModule;
 import org.peerbox.guice.PeerBoxModule;
 import org.peerbox.model.H2HManager;
 import org.peerbox.model.UserManager;
@@ -69,7 +70,7 @@ public class App extends Application
     }
 
 	private void initializeGuice() {
-		injector = Guice.createInjector(new PeerBoxModule());
+		injector = Guice.createInjector(new PeerBoxModule(), new ApiServerModule());
 		injector.injectMembers(this);
 	}
 
