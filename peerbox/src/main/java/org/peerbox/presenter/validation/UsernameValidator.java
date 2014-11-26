@@ -27,6 +27,10 @@ public final class UsernameValidator extends TextFieldValidator {
 
 	public ValidationResult validate(String username, boolean checkIfRegistered) {
 		try {
+			
+			if(username == null) {
+				return ValidationResult.ERROR;
+			}
 
 			final String usernameTr = username.trim();
 			ValidationResult res = ValidationUtils.validateUsername(usernameTr,

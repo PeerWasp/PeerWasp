@@ -35,25 +35,6 @@ public class SelectRootPathUtils {
 		return yes;
 	}
 	
-//	public static void showPermissionWarning() {
-//		Alert dlg = new Alert(AlertType.ERROR);
-//		dlg.setTitle("Error");
-//		dlg.setHeaderText("Cannot create directory");
-//		dlg.setContentText("Either the selected directory's parent directory does not exist " + 
-//				"or you do not have permissions to create the directory.");
-//		
-//		dlg.showAndWait();
-//	}
-
-
-
-//	public static void showIncorrectSelectionInformation() {
-//		Alert dlg = new Alert(AlertType.INFORMATION);
-//		dlg.setTitle("File");
-//		dlg.setHeaderText("File instead of directory selected");
-//		dlg.setContentText("Please select a directory.");
-//		dlg.showAndWait();
-//	}
 
 	public static ValidationResult validateRootPath(Path rootPath) {
 		// check whether dir exists and create it if desired
@@ -139,37 +120,6 @@ public class SelectRootPathUtils {
 		dlg.setContentText("The selected directory or its parent directory does not exist.");
 		dlg.showAndWait();
 	}
-	
-	
-//	/**
-//	 * Sets the root directory path to the provided parameter. If the directory does not exist,
-//	 * it is created on the fly.
-//	 * @param rootDirectoryPath contains the absolute path to the root directory.
-//	 * @throws IOException if the provided rootDirectoryPath leads to a real file.
-//	 * @return true if the selected directory is valid and can be used. 
-//	 * @return false if either the parent directory does not exist or the user does not have write permissions.
-//	 */
-////	public static boolean initializeRootDirectory(String rootDirectoryPath) throws IOException {
-////		File rootDirectory = new File(rootDirectoryPath);
-////		boolean success = true;
-////		if (rootDirectory.exists()) {
-////			if (!rootDirectory.isDirectory()) {
-////				throw new IOException("The provided path leads to a file, not a directory.");
-////			}
-////			if (!Files.isWritable(rootDirectory.toPath())) {
-////				success = false;
-////			}
-////		} else {
-////			// check if parent directory exist and is writable
-////			File parentDirectory = rootDirectory.getParentFile();
-////			if (parentDirectory == null || !Files.isWritable(parentDirectory.toPath())) {
-////				return false;
-////			}
-////			// create the directory, only set rootDirectory if successful
-////			success = rootDirectory.mkdir();
-////		}
-////		return success;
-////	}
 	
 	public static boolean isValidRootPath(Path path) {
 		return path != null 
