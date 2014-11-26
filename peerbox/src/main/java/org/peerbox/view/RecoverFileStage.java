@@ -46,6 +46,7 @@ public class RecoverFileStage implements IFileVersionHandler {
 				@Override
 				public void handle(WindowEvent event) {
 					stage = null;
+					controller = null;
 				}
 			});
 
@@ -63,5 +64,4 @@ public class RecoverFileStage implements IFileVersionHandler {
 			stage.show();
 		});
 	}
-
 }
