@@ -37,7 +37,7 @@ public class ActionExecutor implements Runnable, IActionEventListener {
 	 *  amount of time that an action has to be "stable" in order to be executed 
 	 */
 	public static final long ACTION_WAIT_TIME_MS = 2000;
-	public static final int NUMBER_OF_EXECUTE_SLOTS = 10;
+	public static final int NUMBER_OF_EXECUTE_SLOTS = 2;
 	public static final int MAX_EXECUTION_ATTEMPTS = 5;
 	
 	private FileEventManager fileEventManager;

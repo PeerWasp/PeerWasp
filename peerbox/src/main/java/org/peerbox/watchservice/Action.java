@@ -319,9 +319,9 @@ public class Action implements IAction{
 
 	@Override
 	public void onSucceed() {
-		System.out.println("CurrentState: " + currentState.getClass());
+//		System.out.println("CurrentState: " + currentState.getClass());
 		currentState = currentState.getDefaultState();
-		System.out.println("New CurrentState: " + currentState.getClass());
+//		System.out.println("New CurrentState: " + currentState.getClass());
 	}
 
 	@Override
