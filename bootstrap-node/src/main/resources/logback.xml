@@ -8,19 +8,26 @@
 		</encoder>
 	</appender>
 
-	<appender name="FILE" class="ch.qos.logback.core.FileAppender">
-		<file>node.log</file>
-		<append>false</append>
+
+	<appender name="FILE"
+		class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<file>log/node.log</file>
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<!-- daily rollover -->
+			<fileNamePattern>log/node.%d{yyyy-MM-dd}.gz</fileNamePattern>
+			<maxHistory>7</maxHistory>
+		</rollingPolicy>
+
 		<encoder>
 			<pattern>%d{HH:mm:ss} %-12.-12([%thread])[%-5level] %logger{0} - %msg%n</pattern>
 		</encoder>
 	</appender>
-	
+
 	<!-- Loggers -->
-	<logger name="net.tomp2p" level="INFO" /> 	<!-- tomp2p library -->
-	<logger name="io.netty" level="INFO" /> 	<!-- netty library -->
-	<logger name="org.hive2hive" level="DEBUG" /> <!-- H2H -->
-	
+	<logger name="net.tomp2p" level="INFO" />
+	<logger name="io.netty" level="INFO" />
+	<logger name="org.hive2hive" level="DEBUG" />
+
 	<root level="DEBUG">
 		<appender-ref ref="STDOUT" />
 		<appender-ref ref="FILE" />
