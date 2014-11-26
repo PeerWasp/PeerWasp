@@ -124,6 +124,7 @@ public abstract class AbstractActionState {
 	
 	
 	protected void notifyActionExecuteSucceeded() {
+		action.setIsExecuting(false);
 		Set<IActionEventListener> listener = 
 				new HashSet<IActionEventListener>(action.getEventListener());
 		Iterator<IActionEventListener> it = listener.iterator();
@@ -133,6 +134,7 @@ public abstract class AbstractActionState {
 	}
 
 	protected void notifyActionExecuteFailed(RollbackReason reason) {
+		action.setIsExecuting(false);
 		Set<IActionEventListener> listener = 
 				new HashSet<IActionEventListener>(action.getEventListener());
 		Iterator<IActionEventListener> it = listener.iterator();

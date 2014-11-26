@@ -88,7 +88,8 @@ public class EstablishedState extends AbstractActionState{
 	public void execute(FileManager fileManager) throws NoSessionException,
 			NoPeerConnectionException, IllegalFileLocation, InvalidProcessStateException {
 		// TODO Auto-generated method stub
-		
+		logger.error("Execute in the ESTABLISHED state is only called due to wrong behaviour! {}", action.getFilePath());
+		notifyActionExecuteSucceeded();
 	}
 
 	@Override

@@ -1,7 +1,5 @@
 package org.peerbox.watchservice.states;
 
-import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 
 import org.apache.commons.lang3.NotImplementedException;

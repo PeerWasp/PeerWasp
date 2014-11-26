@@ -21,6 +21,7 @@ public class AddDelete extends FileIntegrationTest {
 		
 //		deleteSingleFolder(folder);
 		assertQueuesAreEmpty();
+		
 		// DELETE
 //		deleteSingleFolder(folder);
 	}
@@ -160,7 +161,7 @@ public class AddDelete extends FileIntegrationTest {
 //		deleteManyFiles(files);
 	}
 	
-	@Test @Ignore
+	@Test
 	public void manyFilesStressTest() throws IOException {
 		// ADD
 		List<Path> files = addManyFiles(1000, WAIT_TIME_STRESSTEST);

@@ -1,14 +1,12 @@
 package org.peerbox.watchservice;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-import java.util.SortedMap;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.PriorityBlockingQueue;
 
@@ -20,9 +18,6 @@ import org.hive2hive.core.events.framework.interfaces.file.IFileEvent;
 import org.hive2hive.core.events.framework.interfaces.file.IFileMoveEvent;
 import org.hive2hive.core.events.framework.interfaces.file.IFileShareEvent;
 import org.hive2hive.core.events.framework.interfaces.file.IFileUpdateEvent;
-import org.hive2hive.core.exceptions.NoPeerConnectionException;
-import org.hive2hive.core.exceptions.NoSessionException;
-import org.hive2hive.processframework.exceptions.InvalidProcessStateException;
 import org.peerbox.FileManager;
 import org.peerbox.h2h.IFileRecoveryRequestEvent;
 import org.slf4j.Logger;
@@ -45,7 +40,6 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
     
     private SetMultimap<String, FileComponent> deletedByContentHash = HashMultimap.create();
     private Map<String, FolderComposite> deletedByContentNamesHash = new HashMap<String, FolderComposite>();
-    private Map<String, FileLeaf> recoveredFileVersions = new HashMap<String, FileLeaf>();
     
     private boolean maintainContentHashes = true;
     private Path rootPath;
@@ -103,11 +97,8 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 		FileComponent file = getOrCreateFileComponent(path);
 
 		if(path.toFile().isDirectory()){
-			logger.debug("BEFORE Structure hash for {} is {} ", path, file.getStructureHash());
 			String structureHash = discoverSubtreeStructure(path);
-			logger.debug("AFTER Structure hash for {} is {} ", path, structureHash);
-			file.setStructureHash(structureHash);
-			
+			file.setStructureHash(structureHash);	
 		}
 		file.getAction().handleLocalCreateEvent();
 		
@@ -137,18 +128,6 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 		logger.debug("File {} has state {}", file.getPath(), file.getAction().getCurrentState().getClass());
 		return file;
 	}
-
-//	public void onFileRecovered(Path path){
-//		FileComponent fileComponent = getFileComponent(path);
-//		if(fileComponent == null){
-//			logger.trace("Recovered file component has to be created.");
-//			fileComponent = createFileComponent(path, Files.isRegularFile(path));
-//			getFileTree().putComponent(path.toString(), fileComponent);
-//		} else {
-//			logger.trace("Recovered file component exists.");
-//		}
-//		fileComponent.getAction().
-//	}
 
 	@Override
 	public void onLocalFileModified(Path path) {
@@ -364,8 +343,5 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 	@Override
 	public void onFileShare(IFileShareEvent fileEvent) {
 		// TODO Auto-generated method stub
-		
 	}
-
-
 }

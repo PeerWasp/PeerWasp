@@ -15,6 +15,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
+import java.util.Vector;
+import java.util.concurrent.BlockingQueue;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.RandomUtils;
@@ -28,6 +30,8 @@ import org.peerbox.client.DummyNetwork;
 import org.peerbox.client.ITestNetwork;
 import org.peerbox.client.NetworkStarter;
 import org.peerbox.utils.FileTestUtils;
+import org.peerbox.watchservice.FileComponent;
+import org.peerbox.watchservice.IAction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,7 +48,7 @@ public abstract class FileIntegrationTest {
 	protected static final int NUMBER_OF_CHARS = 10;
 	protected static final int WAIT_TIME_SHORT = 30;
 	protected static final int WAIT_TIME_LONG = 120;
-	protected static final int WAIT_TIME_STRESSTEST = 600;
+	protected static final int WAIT_TIME_STRESSTEST = 300;
 	
 	
 //	@BeforeClass
@@ -126,7 +130,7 @@ public abstract class FileIntegrationTest {
 	}
 	
 	protected List<Path> addManyFiles() throws IOException {
-		return addManyFiles(200, WAIT_TIME_LONG);
+		return addManyFiles(100, WAIT_TIME_LONG);
 	}
 	
 	protected List<Path> addManyFiles(Path dirPath) throws IOException {
@@ -332,17 +336,42 @@ public abstract class FileIntegrationTest {
 	
 	protected void assertQueuesAreEmpty(){
 //		try {
-//			Thread.sleep(2000);
+//			Thread.sleep(30000);
 //		} catch (InterruptedException e) {
 //			// TODO Auto-generated catch block
 //			e.printStackTrace();
 //		}
+//
 //		List<ClientNode> clients = network.getClients();
 //		for(ClientNode client : clients){
+//			Vector<FileComponent> queue = new Vector<FileComponent>(client.getFileEventManager().getFileComponentQueue());
+//			Vector<IAction> execs = client.getFileEventManager().getActionExecutor().getExecutingActions();
+//			if(queue.size() != 0){
+//				for(int i = 0; i < queue.size(); i++){
+//					logger.debug("Pending in queue: {}. {}:{}", i, queue.get(i).getPath(), queue.get(i).getAction().getCurrentState());
+//				}
+//			}
+//			if(execs.size() != 0){
+//				for(int i = 0; i < execs.size(); i++){
+//					logger.debug("Pending executions: {}. {}:{}", i, execs.get(i).getFilePath(), execs.get(i).getCurrentState());
+//				}
+//			}
 //			assertTrue(client.getFileEventManager().getFileComponentQueue().size() == 0);
 //			assertTrue(client.getFileEventManager().getActionExecutor().getExecutingActions().size() == 0);
 //		}
 	}
+
+//	private boolean areExecutionsPending() {
+//		List<ClientNode> clients = network.getClients();
+//		for(ClientNode client : clients){
+//			Vector<FileComponent> queue = new Vector<FileComponent>(client.getFileEventManager().getFileComponentQueue());
+//			Vector<IAction> execs = client.getFileEventManager().getActionExecutor().getExecutingActions();
+//			if(queue.size() != 0 || execs.size() != 0){
+//				return true;
+//			}
+//		}
+//		return false;
+//	}
 
 	/**
 	 * Compares and asserts equality of two indices by looking at the paths and hashes of the content

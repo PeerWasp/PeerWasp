@@ -16,7 +16,7 @@ public class Update extends FileIntegrationTest {
 	public void singleFileTest() throws IOException {
 		// ADD
 		Path f = addSingleFile();
-		assertQueuesAreEmpty();
+
 		logger.info("Adding finished.");
 		
 		// UPDATE
@@ -31,7 +31,6 @@ public class Update extends FileIntegrationTest {
 	public void manyFilesTest() throws IOException {
 		// ADD
 		List<Path> files = addManyFiles();
-		assertQueuesAreEmpty();
 		logger.info("Adding finished.");
 		
 		// UPDATE
@@ -47,7 +46,7 @@ public class Update extends FileIntegrationTest {
 	public void singleFileInFolderTest() throws IOException {
 		// ADD
 		List<Path> paths = addSingleFileInFolder();
-		assertQueuesAreEmpty();
+
 		logger.info("Adding finished.");
 		
 		// UPDATE
@@ -63,7 +62,7 @@ public class Update extends FileIntegrationTest {
 	public void manyFilesInFolderTest() throws IOException {
 		// ADD
 		List<Path> files = addManyFilesInFolder();
-		assertQueuesAreEmpty();
+
 		logger.info("Adding finished.");
 		
 		// UPDATE
@@ -85,7 +84,7 @@ public class Update extends FileIntegrationTest {
 	public void manyFilesInManyFoldersTest() throws IOException {
 		// ADD
 		List<Path> files = addManyFilesInManyFolders();
-		assertQueuesAreEmpty();
+
 		logger.info("Adding finished.");
 		
 		// UPDATE

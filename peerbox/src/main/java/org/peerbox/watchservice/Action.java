@@ -11,6 +11,7 @@ import org.hive2hive.core.exceptions.NoSessionException;
 import org.hive2hive.processframework.exceptions.InvalidProcessStateException;
 import org.peerbox.FileManager;
 import org.peerbox.watchservice.states.AbstractActionState;
+import org.peerbox.watchservice.states.EstablishedState;
 import org.peerbox.watchservice.states.LocalCreateState;
 import org.peerbox.watchservice.states.LocalDeleteState;
 import org.peerbox.watchservice.states.InitialState;
@@ -35,18 +36,21 @@ public class Action implements IAction{
 	private long timestamp = Long.MAX_VALUE;
 	
 	private AbstractActionState currentState;
+	private AbstractActionState nextState;
 	private Set<IActionEventListener> eventListeners;
 	private int executionAttempts = 0;
 	private IFileEventManager eventManager;
 	private FileComponent file;
 	
 	private boolean isUploaded = false;
+	private boolean isExecuting = false;
 	
 	/**
 	 * Initialize with timestamp and set currentState to initial state
 	 */
 	public Action(IFileEventManager fileEventManager){
 		currentState = new InitialState(this);
+		nextState = new EstablishedState(this);
 		eventListeners = new HashSet<IActionEventListener>();
 		this.eventManager = fileEventManager;
 		updateTimestamp();
@@ -91,6 +95,12 @@ public class Action implements IAction{
 //		logger.debug("Path: {} State: {} HashCode: {}", filePath, currentState.getClass(), this.hashCode());
 		updateTimestamp();
 		currentState = currentState.handleLocalCreate();
+//		if(isExecuting){
+//			nextState.changeStateOnLocalCreate();
+//		} else {
+//			currentState = currentState.handleLocalCreate();
+//		}
+
 
 	}
 	
@@ -99,8 +109,16 @@ public class Action implements IAction{
 	 */
 	public void handleLocalUpdateEvent(){
 //		logger.debug("Path: {} State: {} HashCode: {}", filePath, currentState.getClass(), this.hashCode());
+
+//		currentState = currentState.handleLocalUpdate();
 		updateTimestamp();
 		currentState = currentState.handleLocalUpdate();
+//		if(isExecuting){
+//			nextState.changeStateOnLocalUpdate();
+//		} else {
+//			updateTimestamp();
+//			currentState = currentState.handleLocalUpdate();
+//		}
 	}
 
 	/**
@@ -108,47 +126,101 @@ public class Action implements IAction{
 	 */
 	public void handleLocalDeleteEvent(){
 //		logger.debug("Path: {} State: {} HashCode: {}", filePath, currentState.getClass(), this.hashCode());
+
 		updateTimestamp();
 		currentState = currentState.handleLocalDelete();
+//		if(isExecuting){
+//			nextState.changeStateOnLocalDelete();
+//		} else {
+//			updateTimestamp();
+//			currentState = currentState.handleLocalDelete();
+//		}
 	}
 	
 	public void handleLocalMoveEvent(Path oldFilePath) {
 //		logger.debug("Path: {} State: {} HashCode: {}", filePath, currentState.getClass(), this.hashCode());
+		
 		updateTimestamp();
 		currentState = currentState.handleLocalMove(oldFilePath);
+//		if(isExecuting){
+//			nextState.changeStateOnLocalMove(oldFilePath);
+//		} else {
+//			updateTimestamp();
+//			currentState = currentState.handleLocalMove(oldFilePath);
+//		}
 
 	}
 	
 	public void handleRemoteUpdateEvent() {
 //		logger.debug("Path: {} State: {} HashCode: {}", filePath, currentState.getClass(), this.hashCode());
+		
 		updateTimestamp();
 		currentState = currentState.handleRemoteUpdate();
+//		if(isExecuting){
+//			nextState.changeStateOnRemoteUpdate();
+//		} else {
+//			updateTimestamp();
+//			currentState = currentState.handleRemoteUpdate();
+//		}
 		
 	}
 	
 	public void handleRemoteDeleteEvent() {
 //		logger.debug("Path: {} State: {} HashCode: {}", filePath, currentState.getClass(), this.hashCode());
 //		currentState = currentState.changeStateOnRemoteDelete();
+
 		updateTimestamp();
-		currentState = currentState.handleRemoteDelete();
+		currentState = currentState.handleRemoteDelete();		
+//		if(isExecuting){
+//			nextState.changeStateOnRemoteDelete();
+//		} else {
+//			updateTimestamp();
+//			currentState = currentState.handleRemoteDelete();
+//		}
 	}
 	
 	public void handleRecoverEvent(int versionToRecover){
 //		logger.debug("Path: {} State: {} HashCode: {}", filePath, currentState.getClass(), this.hashCode());
-		currentState = currentState.handleLocalRecover(versionToRecover);
+		
 		updateTimestamp();
+		currentState = currentState.handleLocalRecover(versionToRecover);
+
+//		if(isExecuting){
+//			nextState.changeStateOnLocalRecover(versionToRecover);
+//		} else {
+//			currentState = currentState.handleLocalRecover(versionToRecover);
+//			updateTimestamp();
+//		}
 	}
 	
 	public void handleRemoteCreateEvent() {
 //		logger.debug("Path: {} State: {} HashCode: {}", filePath, currentState.getClass(), this.hashCode());
-		currentState = currentState.handleRemoteCreate();
 		updateTimestamp();
+		currentState = currentState.handleRemoteCreate();
+
+		
+//		if(isExecuting){
+//			nextState.changeStateOnRemoteCreate();
+//		} else {
+//			currentState = currentState.handleRemoteCreate();
+//			updateTimestamp();
+//		}
 	}
 	
 	public void handleRemoteMoveEvent(Path path) {
 //		logger.debug("Path: {} State: {} HashCode: {}", filePath, currentState.getClass(), this.hashCode());
+		
 		updateTimestamp();
 		currentState = currentState.handleRemoteMove(path);
+
+		
+//		if(isExecuting){
+//			nextState.changeStateOnRemoteMove(path);
+//		} else {
+//			currentState = currentState.handleRemoteMove(path);
+//			updateTimestamp();
+//		}
+		
 		
 //		try {
 //			logger.debug("Move From {} to {}", path, getFilePath());
@@ -174,8 +246,9 @@ public class Action implements IAction{
 		// this may be async, i.e. do not wait on completion of the process
 		// maybe return the IProcessComponent object such that the
 		// executor can be aware of the status (completion of task etc)
-		try{
 		
+		try{
+		setIsExecuting(true);
 		executionAttempts++;
 		currentState.execute(fileManager);
 //		currentState = currentState.getDefaultState();
@@ -249,6 +322,22 @@ public class Action implements IAction{
 		System.out.println("CurrentState: " + currentState.getClass());
 		currentState = currentState.getDefaultState();
 		System.out.println("New CurrentState: " + currentState.getClass());
+	}
+
+	@Override
+	public AbstractActionState getNextState() {
+		// TODO Auto-generated method stub
+		return nextState;
+	}
+
+	@Override
+	public boolean isExecuting() {
+		return isExecuting;
+	}
+	
+	@Override
+	public void setIsExecuting(boolean isExecuting){
+		this.isExecuting = isExecuting;
 	}
 
 //	@Override

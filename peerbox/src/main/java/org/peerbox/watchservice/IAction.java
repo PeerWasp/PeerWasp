@@ -36,4 +36,9 @@ public interface IAction {
 	public void setFile(FileComponent file);
 	public int getExecutionAttempts();
 	public void onSucceed();
+	
+	public AbstractActionState getNextState();
+	public boolean isExecuting();
+
+	public void setIsExecuting(boolean isExecuting);
 }
