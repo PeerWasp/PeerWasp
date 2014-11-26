@@ -8,24 +8,31 @@
 
 <VBox fx:id="recoverFileView" spacing="10.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.peerbox.presenter.RecoverFileController">
    <children>
-      <Label text="Select version" />
+      <Label text="Select version to recover" />
       <HBox alignment="CENTER_LEFT" spacing="10.0">
          <children>
             <Label minWidth="40.0" text="File:" />
-            <TextField editable="false" text="\${controller.fileToRecover}" HBox.hgrow="ALWAYS" />
+            <TextField editable="false" text="${controller.fileToRecover}" HBox.hgrow="ALWAYS" />
          </children>
       </HBox>
       <TableView fx:id="tblFileVersions" prefHeight="250.0">
         <columns>
-          <TableColumn editable="false" minWidth="30.0" prefWidth="75.0" text="Index" />
-          <TableColumn editable="false" minWidth="100.0" prefWidth="150.0" text="Date" />
-            <TableColumn editable="false" minWidth="100.0" prefWidth="150.0" text="Size" />
+          <TableColumn fx:id="tblColIndex" editable="false" minWidth="30.0" prefWidth="75.0" text="Index" />
+          <TableColumn fx:id="tblColDate" editable="false" minWidth="140.0" prefWidth="180.0" text="Date" />
+            <TableColumn fx:id="tblColSize" editable="false" minWidth="100.0" prefWidth="150.0" text="Size" />
         </columns>
       </TableView>
-      <HBox spacing="10.0">
+      <HBox alignment="CENTER_RIGHT" spacing="10.0">
          <children>
-            <Button cancelButton="true" mnemonicParsing="false" text="Cancel" />
-            <Button defaultButton="true" mnemonicParsing="false" text="Recover" />
+            <Label text="Total versions found:" />
+            <Label fx:id="lblNumberOfVersions" text="0" />
+         </children>
+      </HBox>
+      <HBox alignment="CENTER_LEFT" spacing="10.0">
+         <children>
+            <Button cancelButton="true" mnemonicParsing="false" onAction="#cancelAction" text="Cancel" />
+            <Button fx:id="btnRecover" defaultButton="true" mnemonicParsing="false" onAction="#recoverAction" text="Recover" />
+            <Label fx:id="lblStatus" text="${controller.status}" />
          </children>
       </HBox>
    </children>

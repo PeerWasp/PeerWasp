@@ -33,7 +33,7 @@ public class FileManager {
 
 	private static final Logger logger = LoggerFactory.getLogger(FileManager.class);
 	private IFileManager h2hFileManager;
-	private FileEventManager fileEventManager = null;
+	private FileEventManager fileEventManager;
 
 	public FileManager(IFileManager h2hFileManager) {
 		this.h2hFileManager = h2hFileManager;
@@ -82,9 +82,7 @@ public class FileManager {
 		return component;
 	}
 
-	public IProcessComponent recover(File file, PeerboxVersionSelector versionSelector)
-			throws FileNotFoundException, IllegalArgumentException, NoSessionException,
-			NoPeerConnectionException, InvalidProcessStateException {
+	public IProcessComponent recover(File file, IVersionSelector versionSelector) throws FileNotFoundException, NoSessionException, NoPeerConnectionException, InvalidProcessStateException {
 		logger.debug("RECOVER - {}", file);
 		IProcessComponent component = h2hFileManager.recover(file, versionSelector);
 		//component.attachListener(new FileRecoveryListener(file, versionSelector.getVersionToRecover()));
@@ -130,6 +128,8 @@ public class FileManager {
 		}
 	}
 	
+	
+	// TODO(CA): still needed?
 //	private class FileRecoveryListener implements IProcessComponentListener {
 //		private File file;
 //		public FileRecoveryListener(File file, int version) {
@@ -183,5 +183,9 @@ public class FileManager {
 
 	public void setFileEventManager(FileEventManager fileEventManager) {
 		this.fileEventManager = fileEventManager;
+	}
+
+	public IFileManager getH2HFileManager() {
+		return h2hFileManager;
 	}
 }
