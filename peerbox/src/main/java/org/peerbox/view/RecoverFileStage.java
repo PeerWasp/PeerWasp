@@ -12,14 +12,14 @@ import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 
 import org.peerbox.guice.GuiceFxmlLoader;
-import org.peerbox.interfaces.IFileVersionSelectionUI;
+import org.peerbox.interfaces.IFileVersionHandler;
 import org.peerbox.presenter.RecoverFileController;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.inject.Inject;
 
-public class RecoverFileStage implements IFileVersionSelectionUI {
+public class RecoverFileStage implements IFileVersionHandler {
 	
 	private static final Logger logger = LoggerFactory.getLogger(RecoverFileStage.class);
 	private Stage stage;
@@ -56,17 +56,12 @@ public class RecoverFileStage implements IFileVersionSelectionUI {
 	}
 	
 	@Override
-	public void show() {
+	public void onFileVersionRequested(Path fileToRecover) {
+		this.fileToRecover = fileToRecover;
 		Platform.runLater(() -> { 
 			load();
 			stage.show();
 		});
 	}
 
-	@Override
-	public void setFileToRecover(Path fileToRecover) {
-		this.fileToRecover = fileToRecover;
-	}
-	
-	
 }

@@ -4,7 +4,9 @@ import java.util.EnumSet;
 
 import javax.servlet.DispatcherType;
 
+import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.servlet.DefaultServlet;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.slf4j.Logger;
@@ -32,12 +34,19 @@ public class HttpServer implements IServer {
 	 */
 	public HttpServer(int port) {
 		this.port = port;
-		server = new Server(port);
-		
-		initializeHandler();
+		server = new Server();
+		initConnector();
+		initHandler();
 	}
 
-	private void initializeHandler() {
+	private void initConnector() {
+		ServerConnector connector = new ServerConnector(server);
+		connector.setPort(port);
+		connector.setHost("localhost");
+		server.setConnectors(new Connector[]{connector});
+	}
+
+	private void initHandler() {
 		// default servlet required for jetty to accept all requests 
 		// (guice will define mappings between urls and servlets)
 		ServletContextHandler handler = new ServletContextHandler(server, "/", ServletContextHandler.SESSIONS);

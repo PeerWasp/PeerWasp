@@ -1,13 +1,13 @@
 package org.peerbox.guice;
 
-import org.peerbox.interfaces.IFileVersionSelectionUI;
+import org.peerbox.interfaces.IFileVersionHandler;
 import org.peerbox.view.RecoverFileStage;
 
 import com.google.inject.Provider;
 
-public class FileVersionSelectionUIProvider implements Provider<IFileVersionSelectionUI> {
+public class FileVersionSelectionUIProvider implements Provider<IFileVersionHandler> {
 
-	public IFileVersionSelectionUI get() {
+	public IFileVersionHandler get() {
 		return new RecoverFileStage();
 	}
 }

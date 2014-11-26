@@ -22,7 +22,7 @@ public class ServerStarter {
 			WinRegistry.setRootPath(Paths.get(FileUtils.getUserDirectoryPath(), "PeerBox"));
 		}
 		
-		Injector injector = Guice.createInjector(new ApiServerModule());
+		Injector injector = Guice.createInjector(new ApiServerModule(), new ApiServerTestModule());
 		IServer cmdServer = injector.getInstance(IServer.class);
 		cmdServer.start();
 
