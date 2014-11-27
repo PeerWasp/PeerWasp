@@ -9,13 +9,15 @@ public interface IServer {
 
 	/**
 	 * Starts the server
+	 * @return true if successful, false otherwise.
 	 */
-	void start();
+	boolean start();
 
 	/**
 	 * Stops the server
+	 * @return true if successful, false otherwise
 	 */
-	void stop();
+	boolean stop();
 
 	/**
 	 * Returns the port that this server binds to

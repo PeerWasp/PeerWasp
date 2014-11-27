@@ -55,22 +55,33 @@ public class HttpServer implements IServer {
 	}
 
 	@Override
-	public void start() {
+	public boolean start() {
 		try {
+			
 			server.start();
 			logger.info("Server started (port {})", getPort());
+			return true;
+			
 		} catch (Exception e) {
 			logger.warn("Could not start the server.", e);
 		}
+		
+		return false;
 	}
 
 	@Override
-	public void stop() {
+	public boolean stop() {
 		try {
+			
 			server.stop();
+			logger.info("Server stopped (port {})", getPort());
+			return true;
+			
 		} catch (Exception e) {
 			logger.warn("Could not stop the server.", e);
 		}
+		
+		return false;
 	}
 
 	@Override
