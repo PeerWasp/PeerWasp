@@ -371,7 +371,7 @@ public class FolderComposite extends AbstractFileComponent implements FileCompon
 
 	@Override
 	public void setPath(Path path) {
-		this.path = path;
+//		this.path = path;
 		folderName = path.getFileName();
 	}
 

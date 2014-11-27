@@ -82,6 +82,9 @@ public abstract class AbstractActionState {
 		IFileEventManager eventManager = action.getEventManager();
 		eventManager.getFileComponentQueue().remove(action.getFile());
 		if(action.getFile().isFile()){
+			String oldHash = action.getFile().getContentHash();
+			action.getFile().updateContentHash();
+			logger.debug("File: {}Previous content hash: {} new content hash: ", action.getFilePath(), oldHash, action.getFile().getContentHash());
 			SetMultimap<String, FileComponent> deletedFiles = action.getEventManager().getDeletedFileComponents();
 			deletedFiles.put(action.getFile().getContentHash(), action.getFile());
 			logger.debug("Put deleted file {} with hash {} to SetMultimap<String, FileComponent>", action.getFilePath(), action.getFile().getContentHash());
@@ -93,7 +96,8 @@ public abstract class AbstractActionState {
 		}
 		FileComponent comp = eventManager.getFileTree().deleteComponent(action.getFile().getPath().toString());
 		logger.debug("After delete hash of {} is {}", comp.getPath(), comp.getStructureHash());
-		eventManager.getFileComponentQueue().add(action.getFile());
+//		eventManager.getFileComponentQueue().add(action.getFile());
+		updateTimeAndQueue();
 		return changeStateOnLocalDelete();
 	}
 	
@@ -124,7 +128,7 @@ public abstract class AbstractActionState {
 	
 	
 	protected void notifyActionExecuteSucceeded() {
-		action.setIsExecuting(false);
+		//action.setIsExecuting(false);
 		Set<IActionEventListener> listener = 
 				new HashSet<IActionEventListener>(action.getEventListener());
 		Iterator<IActionEventListener> it = listener.iterator();
@@ -134,7 +138,7 @@ public abstract class AbstractActionState {
 	}
 
 	protected void notifyActionExecuteFailed(RollbackReason reason) {
-		action.setIsExecuting(false);
+		//action.setIsExecuting(false);
 		Set<IActionEventListener> listener = 
 				new HashSet<IActionEventListener>(action.getEventListener());
 		Iterator<IActionEventListener> it = listener.iterator();

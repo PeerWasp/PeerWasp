@@ -38,7 +38,7 @@ public class AddDelete extends FileIntegrationTest {
 		// ADD
 		List<Path> folders = addManyFolders();
 		assertQueuesAreEmpty();
-		deleteManyFolders(folders);
+//		deleteManyFolders(folders);
 		assertQueuesAreEmpty();
 		// DELETE
 //		deleteManyFolders(folders);
@@ -164,7 +164,7 @@ public class AddDelete extends FileIntegrationTest {
 	@Test
 	public void manyFilesStressTest() throws IOException {
 		// ADD
-		List<Path> files = addManyFiles(1000, WAIT_TIME_STRESSTEST);
+		List<Path> files = addManyFiles(500, WAIT_TIME_STRESSTEST);
 		
 		// DELETE
 //		deleteManyFiles(files);

@@ -70,10 +70,10 @@ public class RemoteUpdateState extends AbstractActionState {
 		return null;
 	}
 	
-	@Override
-	public AbstractActionState getDefaultState(){
-		return this;
-	}
+//	@Override
+//	public AbstractActionState getDefaultState(){
+//		return this;
+//	}
 
 	@Override
 	public AbstractActionState changeStateOnRemoteCreate() {

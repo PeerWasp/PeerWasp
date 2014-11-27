@@ -149,7 +149,7 @@ public abstract class FileIntegrationTest {
 	}
 
 	protected List<Path> addManyFilesInFolder() throws IOException {
-		List<Path> files = FileTestUtils.createFolderWithFiles(masterRootPath, 100, NUMBER_OF_CHARS);
+		List<Path> files = FileTestUtils.createFolderWithFiles(masterRootPath, 10, NUMBER_OF_CHARS);
 		
 		waitForExists(files, WAIT_TIME_LONG);
 		assertSyncClientPaths();
@@ -165,7 +165,7 @@ public abstract class FileIntegrationTest {
 			files.addAll(f);
 		}
 		
-		waitForExists(files, WAIT_TIME_STRESSTEST);		
+		waitForExists(files, WAIT_TIME_LONG);		
 		assertSyncClientPaths();
 		return files;
 	}
@@ -335,30 +335,30 @@ public abstract class FileIntegrationTest {
 	}
 	
 	protected void assertQueuesAreEmpty(){
-//		try {
-//			Thread.sleep(30000);
-//		} catch (InterruptedException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
-//
-//		List<ClientNode> clients = network.getClients();
-//		for(ClientNode client : clients){
-//			Vector<FileComponent> queue = new Vector<FileComponent>(client.getFileEventManager().getFileComponentQueue());
-//			Vector<IAction> execs = client.getFileEventManager().getActionExecutor().getExecutingActions();
-//			if(queue.size() != 0){
-//				for(int i = 0; i < queue.size(); i++){
-//					logger.debug("Pending in queue: {}. {}:{}", i, queue.get(i).getPath(), queue.get(i).getAction().getCurrentState());
-//				}
-//			}
-//			if(execs.size() != 0){
-//				for(int i = 0; i < execs.size(); i++){
-//					logger.debug("Pending executions: {}. {}:{}", i, execs.get(i).getFilePath(), execs.get(i).getCurrentState());
-//				}
-//			}
-//			assertTrue(client.getFileEventManager().getFileComponentQueue().size() == 0);
-//			assertTrue(client.getFileEventManager().getActionExecutor().getExecutingActions().size() == 0);
-//		}
+		try {
+			Thread.sleep(10000);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		List<ClientNode> clients = network.getClients();
+		for(ClientNode client : clients){
+			Vector<FileComponent> queue = new Vector<FileComponent>(client.getFileEventManager().getFileComponentQueue());
+			Vector<IAction> execs = client.getFileEventManager().getActionExecutor().getExecutingActions();
+			if(queue.size() != 0){
+				for(int i = 0; i < queue.size(); i++){
+					logger.debug("Pending in queue: {}. {}:{}", i, queue.get(i).getPath(), queue.get(i).getAction().getCurrentState());
+				}
+			}
+			if(execs.size() != 0){
+				for(int i = 0; i < execs.size(); i++){
+					logger.debug("Pending executions: {}. {}:{}", i, execs.get(i).getFilePath(), execs.get(i).getCurrentState());
+				}
+			}
+			assertTrue(client.getFileEventManager().getFileComponentQueue().size() == 0);
+			assertTrue(client.getFileEventManager().getActionExecutor().getExecutingActions().size() == 0);
+		}
 	}
 
 //	private boolean areExecutionsPending() {

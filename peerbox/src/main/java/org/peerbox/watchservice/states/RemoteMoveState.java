@@ -21,10 +21,10 @@ public class RemoteMoveState extends AbstractActionState {
 		this.oldPath = oldPath;
 	}
 
-	public AbstractActionState getDefaultState(){
-		logger.debug("Stay in default state 'RemoteMoveState': {}", action.getFile().getPath());
-		return this;
-	}
+//	public AbstractActionState getDefaultState(){
+//		logger.debug("Stay in default state 'RemoteMoveState': {}", action.getFile().getPath());
+//		return this;
+//	}
 	
 	@Override
 	public AbstractActionState changeStateOnLocalCreate() {

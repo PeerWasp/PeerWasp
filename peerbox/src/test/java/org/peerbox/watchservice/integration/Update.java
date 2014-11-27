@@ -16,7 +16,7 @@ public class Update extends FileIntegrationTest {
 	public void singleFileTest() throws IOException {
 		// ADD
 		Path f = addSingleFile();
-
+		assertQueuesAreEmpty();
 		logger.info("Adding finished.");
 		
 		// UPDATE
@@ -36,7 +36,7 @@ public class Update extends FileIntegrationTest {
 		// UPDATE
 		List<Path> modified = updateManyFiles(files);
 		
-		waitForUpdate(modified, WAIT_TIME_LONG);
+		waitForUpdate(modified, WAIT_TIME_SHORT);
 		
 		assertSyncClientPaths();
 		assertQueuesAreEmpty();
@@ -68,7 +68,7 @@ public class Update extends FileIntegrationTest {
 		// UPDATE
 		List<Path> modified = updateManyFiles(files);
 		
-		waitForUpdate(modified, WAIT_TIME_LONG);
+		waitForUpdate(modified, WAIT_TIME_SHORT);
 		assertSyncClientPaths();
 		
 		try {

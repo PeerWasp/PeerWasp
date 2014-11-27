@@ -33,7 +33,8 @@ public class EstablishedState extends AbstractActionState{
 
 	@Override
 	public AbstractActionState changeStateOnLocalCreate() {
-		// TODO Auto-generated method stub
+		logger.debug("File {} - LocalCreateEvent captured, update content hash for file", action.getFilePath());
+		action.getFile().updateContentHash();
 		return this;
 	}
 
@@ -115,6 +116,7 @@ public class EstablishedState extends AbstractActionState{
 	public AbstractActionState handleLocalUpdate() {
 		// TODO Auto-generated method stub
 		String newHash = PathUtils.computeFileContentHash(action.getFile().getPath());
+		logger.debug("File {} - Old hash: {} New Hash {}", action.getFilePath(), action.getFile().getContentHash(), newHash);
 		if(action.getFile().getContentHash().equals(newHash)){
 			logger.info("The content hash has not changed despite the onLocalFileModified event. No actions taken & returned.");
 			return this;

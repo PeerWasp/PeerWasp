@@ -4,6 +4,8 @@ import java.nio.file.Path;
 import java.util.Base64;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 import org.hive2hive.core.exceptions.IllegalFileLocation;
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
@@ -44,6 +46,8 @@ public class Action implements IAction{
 	
 	private boolean isUploaded = false;
 	private boolean isExecuting = false;
+	private boolean	changedWhileExecuted = false;
+	private final Lock lock = new ReentrantLock();
 	
 	/**
 	 * Initialize with timestamp and set currentState to initial state
@@ -92,144 +96,192 @@ public class Action implements IAction{
 	 * changes the state of the currentState to Create state if current state allows it.
 	 */
 	public void handleLocalCreateEvent(){
-//		logger.debug("Path: {} State: {} HashCode: {}", filePath, currentState.getClass(), this.hashCode());
-		updateTimestamp();
-		currentState = currentState.handleLocalCreate();
-//		if(isExecuting){
-//			nextState.changeStateOnLocalCreate();
-//		} else {
-//			currentState = currentState.handleLocalCreate();
-//		}
-
-
+		logger.trace("handleLocalCreateEvent - File: {}", getFilePath());
+		if(isExecuting){
+			
+			acquireLockOnThis();
+			logger.trace("Event occured for {} while executing.", getFilePath());
+//			changedWhileExecuted = true;
+			nextState = nextState.changeStateOnLocalCreate();
+			checkIfChanged();
+			releaseLockOnThis();
+		} else {
+			updateTimestamp();
+			currentState = currentState.handleLocalCreate();
+		}
 	}
 	
+	private void releaseLockOnThis() {
+		// TODO Auto-generated method stub
+		logger.trace("File {}: Release lock on this at {}", getFilePath(), System.currentTimeMillis());
+		//this.notify();
+		lock.unlock();
+	}
+
+	private void acquireLockOnThis() {
+			logger.trace("File {}: Wait for own lock at {}", getFilePath(), System.currentTimeMillis());
+			lock.lock();
+			logger.trace("File {}: Received own lock at {}", getFilePath(), System.currentTimeMillis());
+	}
+
 	/**
 	 * changes the state of the currentState to Modify state if current state allows it.
 	 */
 	public void handleLocalUpdateEvent(){
-//		logger.debug("Path: {} State: {} HashCode: {}", filePath, currentState.getClass(), this.hashCode());
+		logger.trace("handleLocalUpdateEvent - File: {}", getFilePath());
+		acquireLockOnThis();
+		if(isExecuting){
+			
 
-//		currentState = currentState.handleLocalUpdate();
-		updateTimestamp();
-		currentState = currentState.handleLocalUpdate();
-//		if(isExecuting){
-//			nextState.changeStateOnLocalUpdate();
-//		} else {
-//			updateTimestamp();
-//			currentState = currentState.handleLocalUpdate();
-//		}
+			logger.trace("Event occured for {} while executing.", getFilePath());
+			nextState = nextState.changeStateOnLocalUpdate();
+			checkIfChanged();
+
+			logger.trace("Set next state for {} to {}", getFilePath(), nextState.getClass());
+		} else {
+			updateTimestamp();
+			currentState = currentState.handleLocalUpdate();
+		}
+		releaseLockOnThis();
 	}
 
 	/**
 	 * changes the state of the currentState to Delete state if current state allows it.
 	 */
 	public void handleLocalDeleteEvent(){
-//		logger.debug("Path: {} State: {} HashCode: {}", filePath, currentState.getClass(), this.hashCode());
+		acquireLockOnThis();
+		logger.trace("handleLocalDeleteEvent - File: {}", getFilePath());
+		if(isExecuting){
 
-		updateTimestamp();
-		currentState = currentState.handleLocalDelete();
-//		if(isExecuting){
-//			nextState.changeStateOnLocalDelete();
-//		} else {
-//			updateTimestamp();
-//			currentState = currentState.handleLocalDelete();
-//		}
+			logger.trace("Event occured for {} while executing.", getFilePath());
+//			changedWhileExecuted = true;
+			nextState = nextState.changeStateOnLocalDelete();
+			checkIfChanged();
+
+		} else {
+			updateTimestamp();
+			currentState = currentState.handleLocalDelete();
+
+		}
+		releaseLockOnThis();
 	}
 	
 	public void handleLocalMoveEvent(Path oldFilePath) {
-//		logger.debug("Path: {} State: {} HashCode: {}", filePath, currentState.getClass(), this.hashCode());
-		
-		updateTimestamp();
-		currentState = currentState.handleLocalMove(oldFilePath);
-//		if(isExecuting){
-//			nextState.changeStateOnLocalMove(oldFilePath);
-//		} else {
-//			updateTimestamp();
-//			currentState = currentState.handleLocalMove(oldFilePath);
-//		}
+		logger.trace("handleLocalMoveEvent - File: {}", getFilePath());
+		acquireLockOnThis();
+		if(isExecuting){
 
+			logger.trace("Event occured for {} while executing.", getFilePath());
+//			changedWhileExecuted = true;
+			nextState = nextState.changeStateOnLocalMove(oldFilePath);
+			checkIfChanged();
+
+		} else {
+			updateTimestamp();
+			if(oldFilePath.equals(getFilePath())){
+				logger.trace("File {}:Move to same location due to update!", getFilePath());
+				
+//				eventManager.getDeletedFileComponents().gremove(oldFilePath.toString());
+//				return;
+			}
+			currentState = currentState.handleLocalMove(oldFilePath);
+		}
+		releaseLockOnThis();
 	}
 	
 	public void handleRemoteUpdateEvent() {
-//		logger.debug("Path: {} State: {} HashCode: {}", filePath, currentState.getClass(), this.hashCode());
-		
-		updateTimestamp();
-		currentState = currentState.handleRemoteUpdate();
-//		if(isExecuting){
-//			nextState.changeStateOnRemoteUpdate();
-//		} else {
-//			updateTimestamp();
-//			currentState = currentState.handleRemoteUpdate();
-//		}
-		
+		logger.trace("handleRemoteUpdateEvent - File: {}", getFilePath());
+		acquireLockOnThis();
+		if(isExecuting){
+
+			logger.trace("Event occured for {} while executing.", getFilePath());
+//			changedWhileExecuted = true;
+			nextState = nextState.changeStateOnRemoteUpdate();
+			checkIfChanged();
+
+		} else {
+			updateTimestamp();
+			currentState = currentState.handleRemoteUpdate();
+		}
+		releaseLockOnThis();
 	}
 	
-	public void handleRemoteDeleteEvent() {
-//		logger.debug("Path: {} State: {} HashCode: {}", filePath, currentState.getClass(), this.hashCode());
-//		currentState = currentState.changeStateOnRemoteDelete();
+	public void handleRemoteDeleteEvent() {	
+		logger.trace("handleRemoteDeleteEvent - File: {}", getFilePath());
+		acquireLockOnThis();
+		if(isExecuting){
 
-		updateTimestamp();
-		currentState = currentState.handleRemoteDelete();		
-//		if(isExecuting){
-//			nextState.changeStateOnRemoteDelete();
-//		} else {
-//			updateTimestamp();
-//			currentState = currentState.handleRemoteDelete();
-//		}
+			logger.trace("Event occured for {} while executing.", getFilePath());
+//			changedWhileExecuted = true;
+			nextState = nextState.changeStateOnRemoteDelete();
+			checkIfChanged();
+
+		} else {
+			updateTimestamp();
+			currentState = currentState.handleRemoteDelete();
+		}
+		releaseLockOnThis();
 	}
 	
 	public void handleRecoverEvent(int versionToRecover){
-//		logger.debug("Path: {} State: {} HashCode: {}", filePath, currentState.getClass(), this.hashCode());
-		
-		updateTimestamp();
-		currentState = currentState.handleLocalRecover(versionToRecover);
+		logger.trace("handleRecoverEvent - File: {}", getFilePath());
+		acquireLockOnThis();
+		if(isExecuting){
 
-//		if(isExecuting){
-//			nextState.changeStateOnLocalRecover(versionToRecover);
-//		} else {
-//			currentState = currentState.handleLocalRecover(versionToRecover);
-//			updateTimestamp();
-//		}
+			logger.trace("Event occured for {} while executing.", getFilePath());
+//			changedWhileExecuted = true;
+			nextState = nextState.changeStateOnLocalRecover(versionToRecover);
+			checkIfChanged();
+
+		} else {
+			updateTimestamp();
+			currentState = currentState.handleLocalRecover(versionToRecover);
+		}
+		releaseLockOnThis();
 	}
 	
 	public void handleRemoteCreateEvent() {
-//		logger.debug("Path: {} State: {} HashCode: {}", filePath, currentState.getClass(), this.hashCode());
-		updateTimestamp();
-		currentState = currentState.handleRemoteCreate();
+		logger.trace("handleRemoteCreateEvent - File: {}", getFilePath());
+		acquireLockOnThis();
+		if(isExecuting){
 
-		
-//		if(isExecuting){
-//			nextState.changeStateOnRemoteCreate();
-//		} else {
-//			currentState = currentState.handleRemoteCreate();
-//			updateTimestamp();
-//		}
+			logger.trace("Event occured for {} while executing.", getFilePath());
+			
+			nextState = nextState.changeStateOnRemoteCreate();
+			checkIfChanged();
+
+		} else {
+			updateTimestamp();
+			currentState = currentState.handleRemoteCreate();
+		}
+		releaseLockOnThis();
 	}
 	
-	public void handleRemoteMoveEvent(Path path) {
-//		logger.debug("Path: {} State: {} HashCode: {}", filePath, currentState.getClass(), this.hashCode());
-		
-		updateTimestamp();
-		currentState = currentState.handleRemoteMove(path);
+	private void checkIfChanged() {
+		if(!(nextState instanceof EstablishedState)){
+			logger.trace("File {}: Next state is of type {}, keep track of change", getFilePath(), nextState.getClass());
+			changedWhileExecuted = true;
+		} else {
+			logger.trace("File {}: Next state is of type {}, no change detected", getFilePath(), nextState.getClass());
+		}
+	}
 
-		
-//		if(isExecuting){
-//			nextState.changeStateOnRemoteMove(path);
-//		} else {
-//			currentState = currentState.handleRemoteMove(path);
-//			updateTimestamp();
-//		}
-		
-		
-//		try {
-//			logger.debug("Move From {} to {}", path, getFilePath());
-//			com.google.common.io.Files.move(getFilePath().toFile(), path.toFile());
-//			Files.move(path, getFilePath() );
-//		} catch (IOException e) {
-//			e.printStackTrace();
-//		}
-		
+	public void handleRemoteMoveEvent(Path path) {
+		logger.trace("handleRemoteMoveEvent - File: {}", getFilePath());
+		acquireLockOnThis();
+		if(isExecuting){
+
+			logger.trace("Event occured for {} while executing.", getFilePath());
+//			changedWhileExecuted = true;
+			nextState = nextState.changeStateOnRemoteMove(path);
+			checkIfChanged();
+
+		} else {
+			logger.trace("Currentstate: {} {}", getFilePath(), getCurrentState().getClass());
+			updateTimestamp();
+			currentState = currentState.handleRemoteMove(path);
+		}		
+		releaseLockOnThis();
 	}
 
 
@@ -248,12 +300,9 @@ public class Action implements IAction{
 		// executor can be aware of the status (completion of task etc)
 		
 		try{
-		setIsExecuting(true);
-		executionAttempts++;
-		currentState.execute(fileManager);
-//		currentState = currentState.getDefaultState();
-		//currentState = new InitialState(this);
-		
+			setIsExecuting(true);
+			executionAttempts++;
+			currentState.execute(fileManager);
 		} catch (Throwable t){
 			logger.error("onLocalFileModified: Catched a throwable of type {} with message {}", t.getClass().toString(),  t.getMessage());
 			for(int i = 0; i < t.getStackTrace().length; i++){
@@ -276,29 +325,9 @@ public class Action implements IAction{
 	 * @return current state object
 	 */
 	public AbstractActionState getCurrentState() { 
-		logger.debug("Current path: {}", getFilePath());
-		if (currentState.getClass() == LocalCreateState.class) {
-			logger.debug("Current State: Create");
-		} else if (currentState.getClass() == LocalDeleteState.class) {
-			logger.debug("Current State: Delete");
-		} else if (currentState.getClass() == LocalUpdateState.class) {
-			logger.debug("Current State: Modify");
-		} else if (currentState.getClass() == LocalMoveState.class) {
-			logger.debug("Current State: Move");
-		} else if (currentState.getClass() == InitialState.class) {
-			logger.debug("Current State: Initial");
-		} else if (currentState.getClass() == ConflictState.class) {
-			logger.debug("Current State: Conflict");
-		} else {
-			logger.debug("Current State: {}", currentState.getClass().getName());
-		}
-
+		logger.trace("Current state of {} is {}", getFilePath(), currentState.getClass());
 		return currentState;
 	}
-
-//	public void setPath(Path path) {
-//		this.filePath = path;
-//	}
 	
 	public synchronized void addEventListener(IActionEventListener listener) {
 		eventListeners.add(listener);
@@ -312,16 +341,17 @@ public class Action implements IAction{
 		return executionAttempts;
 	}
 
-	public void putFile(String string, FileComponent file) {
-		// TODO Auto-generated method stub
-		eventManager.getFileTree().putComponent(string, file);
-	}
+//	public void putFile(String string, FileComponent file) {
+//		eventManager.getFileTree().putComponent(string, file);
+//	}
 
 	@Override
 	public void onSucceed() {
-//		System.out.println("CurrentState: " + currentState.getClass());
-		currentState = currentState.getDefaultState();
-//		System.out.println("New CurrentState: " + currentState.getClass());
+		setIsExecuting(false);
+		logger.trace("onSucceed: File {}. Switch state from {} to {}", getFilePath(), currentState.getClass(), nextState.getClass());
+		currentState = nextState;
+		nextState = nextState.getDefaultState();
+		changedWhileExecuted = false;
 	}
 
 	@Override
@@ -335,9 +365,27 @@ public class Action implements IAction{
 		return isExecuting;
 	}
 	
-	@Override
-	public void setIsExecuting(boolean isExecuting){
+	private void setIsExecuting(boolean isExecuting){
 		this.isExecuting = isExecuting;
+	}
+
+	@Override
+	public boolean getChangedWhileExecuted() {
+		// TODO Auto-generated method stub
+		return changedWhileExecuted;
+	}
+
+	@Override
+	public void onFailed() {
+		// TODO Auto-generated method stub
+		setIsExecuting(false);
+		isExecuting = false;
+	}
+
+	@Override
+	public Lock getLock() {
+		// TODO Auto-generated method stub
+		return lock;
 	}
 
 //	@Override

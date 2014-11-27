@@ -30,7 +30,7 @@ public class Move extends FileIntegrationTest{
 		Path srcFile = FileTestUtils.createRandomFile(masterRootPath, NUMBER_OF_CHARS);
 		waitForExists(srcFile, WAIT_TIME_SHORT);
 		assertSyncClientPaths();
-//		assertQueuesAreEmpty();
+		assertQueuesAreEmpty();
 		
 		moveFileOrFolder(srcFile, folder.resolve(srcFile.getFileName()));
 		assertSyncClientPaths();
@@ -108,7 +108,7 @@ public class Move extends FileIntegrationTest{
 		}
 		waitForExists(currentDestination, WAIT_TIME_SHORT);
 		assertSyncClientPaths();
-		assertQueuesAreEmpty();
+//		assertQueuesAreEmpty();
 	}
 	
 	@Test

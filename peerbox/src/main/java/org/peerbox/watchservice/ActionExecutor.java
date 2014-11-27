@@ -37,8 +37,8 @@ public class ActionExecutor implements Runnable, IActionEventListener {
 	 *  amount of time that an action has to be "stable" in order to be executed 
 	 */
 	public static final long ACTION_WAIT_TIME_MS = 2000;
-	public static final int NUMBER_OF_EXECUTE_SLOTS = 2;
-	public static final int MAX_EXECUTION_ATTEMPTS = 5;
+	public static final int NUMBER_OF_EXECUTE_SLOTS = 10;
+	public static final int MAX_EXECUTION_ATTEMPTS = 3;
 	
 	private FileEventManager fileEventManager;
 	private Vector<IAction> executingActions;
@@ -99,6 +99,11 @@ public class ActionExecutor implements Runnable, IActionEventListener {
 						onActionExecuteSucceeded(next.getAction());
 					}
 				} else {
+					if(!isExecuteSlotFree()){
+						for(int i = 0; i < executingActions.size(); i++){
+							logger.trace("{}: {} {}", i, executingActions.get(i).getFilePath(), executingActions.get(i).getCurrentState().getClass());
+						}
+					}
 					fileEventManager.getFileComponentQueue().put(next);
 					long timeToWait = calculateWaitTime(next);
 					wait(timeToWait);
@@ -182,17 +187,49 @@ public class ActionExecutor implements Runnable, IActionEventListener {
 //			IAction a = executingActions.get(i);
 //			logger.trace("{}     Action {} with ID {} and State {}", i, a.getFilePath(), a.getFilePath().hashCode(), a.getCurrentState().getClass());
 //		}
+		//synchronized(action.getLock()){
+			logger.debug("Action {} with state {} and ID {} removed", action.getFilePath(), action.getCurrentState().getClass(), action.hashCode());
+			boolean changedWhileExecuted = false;
+//			try {
+				logger.trace("Wait for lock of action {} at {}", action.getFilePath(), System.currentTimeMillis());
+				action.getLock().lock();
+				logger.trace("Received lock of action {} at {}", action.getFilePath(), System.currentTimeMillis());
+				changedWhileExecuted = action.getChangedWhileExecuted();
+				
+				action.onSucceed();
+				action.setIsUploaded(true);
+				logger.trace("Release lock of action {} at {}", action.getFilePath(), System.currentTimeMillis());
+				
+				boolean changed = executingActions.remove(action);
+				if(changed){
+					logger.debug("changed on remove of {}", action.hashCode());
+				} else{
+					logger.debug("NOT changed on remove of {}", action.hashCode());
+				}
+				
+				if(changedWhileExecuted){
+					logger.trace("File {} changed during the execution process"
+							+ " to state {}. It has been put back to the queue", 
+							action.getFilePath(), action.getCurrentState().getClass());
+					action.updateTimestamp();
+					fileEventManager.getFileComponentQueue().add(action.getFile());
+					
+				}
+				
+//			} catch (InterruptedException e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			}
+
+			logger.debug("Action successful: {} {} {}", action.getFilePath(), action.hashCode(), action.getCurrentState().getClass().toString());
+			
+			action.getLock().unlock();
+			for(int i = 0; i < executingActions.size(); i++){
+				logger.trace("{}: {} - {}", i, executingActions.get(i).getFilePath(), executingActions.get(i).getCurrentState().getClass());
+			}
+			
+		//}
 		
-		logger.debug("Action {} with state {} and ID {} removed", action.getFilePath(), action.getCurrentState().getClass(), action.hashCode());
-		action.onSucceed();
-		action.setIsUploaded(true);
-		logger.debug("Action successful: {} {} {}", action.getFilePath(), action.hashCode(), action.getCurrentState().getClass().toString());
-		boolean changed = executingActions.remove(action);
-		if(changed){
-			logger.debug("changed on remove of {}", action.hashCode());
-		} else{
-			logger.debug("NOT changed on remove of {}", action.hashCode());
-		}
 		
 //		if(action.getNextState())
 	}
@@ -242,6 +279,8 @@ public class ActionExecutor implements Runnable, IActionEventListener {
 					fileEventManager.getFileComponentQueue().add(action.getFile());
 				} else {
 					logger.error("To many attempts, action of {} has not been executed again. Reason: default", action.getFilePath());
+					
+					onActionExecuteSucceeded(action);//action.onSucceed();
 				}
 		}
 	}

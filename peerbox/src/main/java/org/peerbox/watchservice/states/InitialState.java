@@ -133,13 +133,13 @@ public class InitialState extends AbstractActionState {
 		FileComponent moveSource = eventManager.findDeletedByContent(action.getFile());
 		logger.debug("File {} has hash {}", action.getFilePath(), action.getFile().getContentHash());
 		if(moveSource == null){
-			action.putFile(action.getFilePath().toString(), action.getFile());
-			
+			eventManager.getFileTree().putComponent(action.getFilePath().toString(), action.getFile());
 			logger.trace("Handle regular create of {}, as no possible move source has been found.", action.getFilePath());
-			action.getEventManager().getFileComponentQueue().add(action.getFile());
+			updateTimeAndQueue();
 			return changeStateOnLocalCreate();
 		} else {
 			logger.trace("Handle move of {}, from {}.", action.getFilePath(), moveSource.getPath());
+
 			moveSource.getAction().handleLocalMoveEvent(action.getFilePath());
 			eventManager.getFileComponentQueue().remove(action.getFile());
 			return changeStateOnLocalMove(action.getFilePath());
@@ -179,7 +179,7 @@ public class InitialState extends AbstractActionState {
 
 	@Override
 	public AbstractActionState handleRemoteCreate() {
-		action.putFile(action.getFilePath().toString(), action.getFile());
+		action.getEventManager().getFileTree().putComponent(action.getFilePath().toString(), action.getFile());
 		updateTimeAndQueue();
 		return changeStateOnRemoteCreate();
 	}
