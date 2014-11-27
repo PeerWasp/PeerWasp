@@ -52,4 +52,9 @@ class BaseServlet extends HttpServlet {
 
 		logger.error("Request failed: {} (Code {})", msg.getMessage(), msg.getCode());
 	}
+
+	protected void sendEmptyOK(HttpServletResponse resp) {
+		resp.setContentType(MimeTypes.Type.APPLICATION_JSON.asString());
+		resp.setStatus(HttpServletResponse.SC_OK);
+	}
 }

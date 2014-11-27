@@ -15,4 +15,8 @@ public class DeleteMessage {
 	public List<Path> getPaths() {
 		return paths;
 	}
+	
+	public void setPaths(List<Path> paths) {
+		this.paths = paths;
+	}
 }
