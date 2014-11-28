@@ -1,42 +1,54 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.text.*?>
 <?import javafx.geometry.*?>
 <?import java.lang.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox fx:id="recoverFileView" spacing="10.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.peerbox.presenter.RecoverFileController">
-   <children>
-      <Label text="Select version to recover" />
-      <HBox alignment="CENTER_LEFT" spacing="10.0">
-         <children>
-            <Label minWidth="40.0" text="File:" />
-            <TextField editable="false" text="${controller.fileToRecover}" HBox.hgrow="ALWAYS" />
-         </children>
-      </HBox>
-      <TableView fx:id="tblFileVersions" prefHeight="250.0">
-        <columns>
-          <TableColumn fx:id="tblColIndex" editable="false" minWidth="30.0" prefWidth="75.0" text="Index" />
-          <TableColumn fx:id="tblColDate" editable="false" minWidth="140.0" prefWidth="180.0" text="Date" />
-            <TableColumn fx:id="tblColSize" editable="false" minWidth="100.0" prefWidth="150.0" text="Size" />
-        </columns>
-      </TableView>
-      <HBox alignment="CENTER_RIGHT" spacing="10.0">
-         <children>
-            <Label text="Total versions found:" />
-            <Label fx:id="lblNumberOfVersions" text="0" />
-         </children>
-      </HBox>
-      <HBox alignment="CENTER_LEFT" spacing="10.0">
-         <children>
-            <Button cancelButton="true" mnemonicParsing="false" onAction="#cancelAction" text="Cancel" />
-            <Button fx:id="btnRecover" defaultButton="true" mnemonicParsing="false" onAction="#recoverAction" text="Recover" />
-            <Label fx:id="lblStatus" text="${controller.status}" />
-         </children>
-      </HBox>
-   </children>
-   <padding>
-      <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
-   </padding>
-</VBox>
+<AnchorPane fx:id="pane" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.peerbox.presenter.RecoverFileController">
+	<children>
+
+		<VBox fx:id="recoverFileView" spacing="10.0" AnchorPane.leftAnchor="40.0" AnchorPane.rightAnchor="40.0" AnchorPane.topAnchor="40.0">
+		   <children>
+		      <Label text="Recover Version">
+               <font>
+                  <Font size="24.0" />
+               </font></Label>
+		      <HBox alignment="CENTER_LEFT" spacing="10.0">
+		         <children>
+		            <Label minWidth="40.0" text="File:" />
+		            <TextField editable="false" text="${controller.fileToRecover}" HBox.hgrow="ALWAYS" />
+		         </children>
+		      </HBox>
+		      <TableView fx:id="tblFileVersions" prefHeight="250.0">
+		        <columns>
+		          <TableColumn fx:id="tblColIndex" editable="false" minWidth="30.0" prefWidth="75.0" text="Index" />
+		          <TableColumn fx:id="tblColDate" editable="false" minWidth="140.0" prefWidth="180.0" text="Date" />
+		            <TableColumn fx:id="tblColSize" editable="false" minWidth="100.0" prefWidth="150.0" text="Size" />
+		        </columns>
+		      </TableView>
+		      <HBox alignment="CENTER_RIGHT" spacing="10.0">
+		         <children>
+		            <Label text="Total versions found:" />
+		            <Label fx:id="lblNumberOfVersions" text="0" />
+		         </children>
+		      </HBox>
+		      <HBox alignment="CENTER_LEFT" spacing="10.0">
+		         <children>
+		            <Button cancelButton="true" mnemonicParsing="false" onAction="#cancelAction" text="Cancel" />
+		            <Button fx:id="btnRecover" defaultButton="true" mnemonicParsing="false" onAction="#recoverAction" text="Recover" />
+		         </children>
+		      </HBox>
+		   </children>
+         <opaqueInsets>
+            <Insets />
+         </opaqueInsets>
+         <padding>
+            <Insets bottom="80.0" />
+         </padding>
+		</VBox>
+		
+	</children>	
+</AnchorPane>

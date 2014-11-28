@@ -85,8 +85,6 @@ public class FileManager {
 	public IProcessComponent recover(File file, IVersionSelector versionSelector) throws FileNotFoundException, NoSessionException, NoPeerConnectionException, InvalidProcessStateException {
 		logger.debug("RECOVER - {}", file);
 		IProcessComponent component = h2hFileManager.recover(file, versionSelector);
-		//component.attachListener(new FileRecoveryListener(file, versionSelector.getVersionToRecover()));
-		//logger.trace("listener attached.");
 		component.start();
 		return component;
 	}

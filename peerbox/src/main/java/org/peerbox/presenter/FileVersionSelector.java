@@ -3,6 +3,7 @@ package org.peerbox.presenter;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -11,46 +12,61 @@ import org.hive2hive.core.model.IFileVersion;
 import org.hive2hive.core.processes.files.recover.IVersionSelector;
 import org.peerbox.interfaces.IFileVersionSelectorEventListener;
 
-class FileVersionSelector implements IVersionSelector {
+final public class FileVersionSelector implements IVersionSelector {
 	
 	private final Lock selectionLock = new ReentrantLock();
 	private final Condition versionSelectedCondition  = selectionLock.newCondition();
-	private IFileVersionSelectorEventListener listener; 
+	private final IFileVersionSelectorEventListener listener; 
 	private IFileVersion selectedVersion;
 	private String recoveredFileName;
 	
-	private volatile boolean gotAvailableVersions = false;
-	private volatile boolean isCancelled = false;
+	private final AtomicBoolean gotAvailableVersions = new AtomicBoolean();
+	private final AtomicBoolean isCancelled = new AtomicBoolean();
+	private final AtomicBoolean hasSelected = new AtomicBoolean();
 	
-	public FileVersionSelector(IFileVersionSelectorEventListener listener) {
+	public FileVersionSelector(final IFileVersionSelectorEventListener listener) {
 		if(listener == null) {
 			throw new IllegalArgumentException("Argument listener must not be null.");
 		}
 		
+		this.gotAvailableVersions.set(false);
+		this.isCancelled.set(false);
+		this.hasSelected.set(false);
 		this.recoveredFileName = "";
 		this.listener = listener;
 	}
 	
-	public void selectVersion(IFileVersion selectedVersion) {
-		if(selectedVersion == null) {
-			isCancelled = true;
+	public void cancel() {
+		isCancelled.set(true);
+		selectedVersion = null;
+	}
+	
+	public void selectVersion(IFileVersion selectedVersion)  {
+		if(hasSelected.get()) {
+			throw new IllegalStateException("Cannot select multiple times.");
+		}
+		hasSelected.set(true);
+		
+		if(!gotAvailableVersions.get()) {
+			throw new IllegalStateException("Cannot select version before retrieving available versions");
 		}
 		
-		if(gotAvailableVersions) {
-			try {
-				selectionLock.lock();
-				this.selectedVersion = selectedVersion;
-				versionSelectedCondition.signal();
-			} finally {
-				selectionLock.unlock();
-			}
+		if(selectedVersion == null) {
+			cancel();
+		}
+		
+		try {
+			selectionLock.lock();
+			this.selectedVersion = selectedVersion;
+			versionSelectedCondition.signal(); // wake up other waiting thread 
+		} finally {
+			selectionLock.unlock();
 		}
 	}
 
 	@Override
 	public IFileVersion selectVersion(List<IFileVersion> availableVersions) {
-		
-		if(isCancelled) {
+		if(isCancelled.get()) {
 			// not interested in versions anymore -> select nothing (i.e. cancel)
 			return null;
 		}
@@ -58,7 +74,7 @@ class FileVersionSelector implements IVersionSelector {
 		try {
 			selectionLock.lock();
 			if(availableVersions != null) {
-				gotAvailableVersions = true;
+				gotAvailableVersions.set(true);
 				try {
 					Thread.sleep(10000);
 				} catch (InterruptedException e) {
@@ -82,6 +98,10 @@ class FileVersionSelector implements IVersionSelector {
 
 	@Override
 	public String getRecoveredFileName(String fullName, String name, String extension) {
+		if(isCancelled.get()) {
+			return null;
+		}
+		
 		// generate a new file name indicating that the file is restored
 		Date versionDate = new Date(selectedVersion.getDate());
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy_MM_dd-HH_mm_ss");

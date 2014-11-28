@@ -11,8 +11,11 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 
-import org.peerbox.guice.GuiceFxmlLoader;
+import org.peerbox.ResultStatus;
 import org.peerbox.interfaces.IFileVersionHandler;
+import org.peerbox.interfaces.IFxmlLoaderProvider;
+import org.peerbox.model.H2HManager;
+import org.peerbox.model.UserManager;
 import org.peerbox.presenter.RecoverFileController;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,18 +26,25 @@ public class RecoverFileStage implements IFileVersionHandler {
 	
 	private static final Logger logger = LoggerFactory.getLogger(RecoverFileStage.class);
 	private Stage stage;
-	private GuiceFxmlLoader guiceFxmlLoader;
+	private IFxmlLoaderProvider fxmlLoaderProvider;
 	private Path fileToRecover;
 	private RecoverFileController controller;
+	private H2HManager h2hManager; 
+	private UserManager userManager;
 	
 	@Inject
-	public void setGuiceFxmlLoader(GuiceFxmlLoader guiceFxmlLoader) {
-		this.guiceFxmlLoader = guiceFxmlLoader;
+	public void setH2HManager(H2HManager h2hManager) {
+		this.h2hManager = h2hManager;
+	}
+	
+	@Inject
+	public void setFxmlLoaderProvider(IFxmlLoaderProvider fxmlLoaderProvider) {
+		this.fxmlLoaderProvider = fxmlLoaderProvider;
 	}
 	
 	private void load() {
 		try {
-			FXMLLoader loader = guiceFxmlLoader.create("/view/RecoverFileView.fxml");
+			FXMLLoader loader = fxmlLoaderProvider.create("/view/RecoverFileView.fxml");
 			Parent root = loader.load();
 			controller = loader.getController();
 			controller.setFileToRecover(fileToRecover);
@@ -45,9 +55,15 @@ public class RecoverFileStage implements IFileVersionHandler {
 			stage.setOnCloseRequest(new EventHandler<WindowEvent>() {
 				@Override
 				public void handle(WindowEvent event) {
+					controller.cancel();
 					stage = null;
 					controller = null;
 				}
+			});
+			
+			
+			Platform.runLater(() -> { 
+				stage.show();
 			});
 
 		} catch (IOException e) {
@@ -59,9 +75,30 @@ public class RecoverFileStage implements IFileVersionHandler {
 	@Override
 	public void onFileVersionRequested(Path fileToRecover) {
 		this.fileToRecover = fileToRecover;
-		Platform.runLater(() -> { 
+		
+		ResultStatus res = checkPreconditions();
+		if(res.isOk()) {
 			load();
-			stage.show();
-		});
+		} else {
+			// TODO: show error message
+		}
+	}
+
+	private ResultStatus checkPreconditions() {
+		
+//		
+//		if(!h2hManager.isConnected()) {
+//			return ResultStatus.error("There is no connection to the network");
+//		}
+		
+		
+		// TODO: we need to ensure:
+		// - connected
+		// - logged in
+		// - file is in the root folder somewhere (not outside)
+		// - versions only possible for files (not folders) -> need to check this in the profile (not on disk)
+		// ?
+		
+		return ResultStatus.ok();
 	}
 }

@@ -2,6 +2,8 @@ package org.peerbox.guice;
 
 import java.io.IOException;
 
+import org.peerbox.interfaces.IFxmlLoaderProvider;
+
 import javafx.fxml.FXMLLoader;
 import javafx.util.Callback;
 
@@ -20,7 +22,7 @@ import com.google.inject.Injector;
  * @author albrecht
  *
  */
-public class GuiceFxmlLoader {
+public class GuiceFxmlLoader implements IFxmlLoaderProvider {
 	
 	/**
 	 * The injector to use for creating the controller instances,
@@ -54,6 +56,7 @@ public class GuiceFxmlLoader {
 	 * @return an FXMLLoader instance, ready to call load() on it
 	 * @throws IOException in case .fxml file cannot be loaded
 	 */
+	@Override
 	public FXMLLoader create(String fxmlFile) throws IOException {
 		FXMLLoader loader = new FXMLLoader();
 		loader.setLocation(getClass().getResource(fxmlFile));

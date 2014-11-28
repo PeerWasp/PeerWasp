@@ -11,7 +11,7 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 
-import org.peerbox.guice.GuiceFxmlLoader;
+import org.peerbox.interfaces.IFxmlLoaderProvider;
 import org.peerbox.presenter.ShareFolderController;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,18 +23,18 @@ public class ShareFolderStage {
 	
 	private static final Logger logger = LoggerFactory.getLogger(ShareFolderStage.class);
 	private Stage stage;
-	private GuiceFxmlLoader guiceFxmlLoader;
+	private IFxmlLoaderProvider fxmlLoaderProvider;
 	private Path folderToShare;
 	private ShareFolderController controller;
 	
 	@Inject
-	public void setGuiceFxmlLoader(GuiceFxmlLoader guiceFxmlLoader) {
-		this.guiceFxmlLoader = guiceFxmlLoader;
+	public void setFxmlLoaderProvider(IFxmlLoaderProvider fxmlLoaderProvider) {
+		this.fxmlLoaderProvider = fxmlLoaderProvider;
 	}
 	
 	private void load() {
 		try {
-			FXMLLoader loader = guiceFxmlLoader.create("/view/ShareFolderView.fxml");
+			FXMLLoader loader = fxmlLoaderProvider.create("/view/ShareFolderView.fxml");
 			Parent root = loader.load();
 			controller = loader.getController();
 			controller.setFolderToShare(folderToShare);

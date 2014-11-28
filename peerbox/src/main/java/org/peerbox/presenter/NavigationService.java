@@ -7,7 +7,7 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 
-import org.peerbox.guice.GuiceFxmlLoader;
+import org.peerbox.interfaces.IFxmlLoaderProvider;
 import org.peerbox.interfaces.INavigatable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,18 +49,18 @@ public class NavigationService {
 	 * FXML loader supporting Google Guice (dependency injection),
 	 * loads pages and resolves dependencies of controllers using Guice
 	 */
-	private GuiceFxmlLoader guiceFxmlLoader;
+	private IFxmlLoaderProvider fxmlLoader;
 
 	/**
 	 * Creates a new navigation service instance.
 	 * @param loader the guice fxml loader to use (provides the injector instance)
 	 */
 	@Inject
-	public NavigationService(GuiceFxmlLoader loader) {
+	public NavigationService(IFxmlLoaderProvider loader) {
 		if(loader == null) { 
-			throw new IllegalArgumentException("The argument loader (GuiceFxmlLoader) must not be null.");
+			throw new IllegalArgumentException("The argument loader must not be null.");
 		}
- 		guiceFxmlLoader = loader;
+		fxmlLoader = loader;
 		pages = FXCollections.observableArrayList();
 	}
 	
@@ -87,7 +87,7 @@ public class NavigationService {
 	 * @throws IOException
 	 */
 	public FXMLLoader createLoader(String fxmlFile) throws IOException {
-		return guiceFxmlLoader.create(fxmlFile);
+		return fxmlLoader.create(fxmlFile);
 	}
 
 	/**

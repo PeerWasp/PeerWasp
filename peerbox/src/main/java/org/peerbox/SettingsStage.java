@@ -9,7 +9,7 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 
-import org.peerbox.guice.GuiceFxmlLoader;
+import org.peerbox.interfaces.IFxmlLoaderProvider;
 import org.peerbox.view.ViewNames;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,16 +20,16 @@ public class SettingsStage {
 	private static final Logger logger = LoggerFactory.getLogger(SettingsStage.class);
 
 	private Stage stage;
-	private GuiceFxmlLoader guiceFxmlLoader;
+	private IFxmlLoaderProvider fxmlLoaderProvider;
 	
 	@Inject
-	public void setGuiceFxmlLoader(GuiceFxmlLoader guiceFxmlLoader) {
-		this.guiceFxmlLoader = guiceFxmlLoader;
+	public void setFxmlLoaderProvider(IFxmlLoaderProvider fxmlLoaderProvider) {
+		this.fxmlLoaderProvider = fxmlLoaderProvider;
 	}
 	
 	private void load() {
 		try {
-			FXMLLoader loader = guiceFxmlLoader.create(ViewNames.SETTINGS_MAIN);
+			FXMLLoader loader = fxmlLoaderProvider.create(ViewNames.SETTINGS_MAIN);
 			Parent root = loader.load();
 			Scene scene = new Scene(root, 600, 450);
 			stage = new Stage();

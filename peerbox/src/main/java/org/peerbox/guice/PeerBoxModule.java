@@ -3,6 +3,7 @@ package org.peerbox.guice;
 
 import org.peerbox.FileManager;
 import org.peerbox.interfaces.IFileVersionHandler;
+import org.peerbox.interfaces.IFxmlLoaderProvider;
 import org.peerbox.model.H2HManager;
 import org.peerbox.model.UserManager;
 import org.peerbox.view.RecoverFileStage;
@@ -29,6 +30,7 @@ public class PeerBoxModule extends AbstractModule {
 		bindSystemTray();
 		bindPrimaryStage();
 		
+		bind(IFxmlLoaderProvider.class).to(GuiceFxmlLoader.class);
 		bind(IFileVersionHandler.class).to(RecoverFileStage.class);
 	}
 
