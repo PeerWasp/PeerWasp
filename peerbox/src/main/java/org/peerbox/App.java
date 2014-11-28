@@ -1,6 +1,7 @@
 package org.peerbox;
 
 
+import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
 
@@ -120,9 +121,10 @@ public class App extends Application
 		} catch (NoPeerConnectionException e) {
 			logger.debug("Loggin failed: {}", e);
 			return ResultStatus.error("Could not login user because connection to network failed.");
-		} catch (InvalidProcessStateException | InterruptedException e) {
-			e.printStackTrace();
-		}
+		} catch (InvalidProcessStateException | InterruptedException | IOException e) {
+			logger.warn("Could not login user:", e); 
+		} 
+		
 		return ResultStatus.error("Could not login user.");
 	}
 	
