@@ -1,6 +1,9 @@
 package org.peerbox.notifications;
 
-public class InformationNotification {
+import org.peerbox.events.IMessage;
+
+
+public class InformationNotification implements IMessage {
 
 	private String title;
 	private String message;

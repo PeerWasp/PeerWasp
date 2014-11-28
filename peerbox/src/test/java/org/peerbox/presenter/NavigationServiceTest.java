@@ -23,7 +23,7 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.peerbox.JavaFxNoOpApp;
+import org.peerbox.helper.JavaFxNoOpApp;
 import org.peerbox.interfaces.IFxmlLoaderProvider;
 import org.peerbox.interfaces.INavigatable;
 

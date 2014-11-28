@@ -31,6 +31,8 @@ public class ServerTest {
 		if(OsUtils.isWindows()) {
 			IServer srv = ServerFactory.createServer();
 			WinRegistryTest.assertPort(srv.getPort());
+		} else {
+			fail("Not on Windows.");
 		}
 	}
 	

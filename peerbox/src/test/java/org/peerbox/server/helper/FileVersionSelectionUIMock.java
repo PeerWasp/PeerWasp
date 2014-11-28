@@ -1,4 +1,4 @@
-package org.peerbox.server;
+package org.peerbox.server.helper;
 
 public class FileVersionSelectionUIMock {
 

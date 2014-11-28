@@ -1,4 +1,4 @@
-package org.peerbox;
+package org.peerbox.helper;
 import java.util.concurrent.CountDownLatch;
  
 import javax.swing.SwingUtilities;

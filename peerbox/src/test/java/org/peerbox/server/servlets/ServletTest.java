@@ -7,8 +7,8 @@ import java.nio.file.Path;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.peerbox.guice.ApiServerModule;
-import org.peerbox.server.ApiServerTestModule;
 import org.peerbox.server.IServer;
+import org.peerbox.server.helper.ApiServerTestModule;
 import org.peerbox.server.utils.PathDeserializer;
 import org.peerbox.server.utils.PathSerializer;
 

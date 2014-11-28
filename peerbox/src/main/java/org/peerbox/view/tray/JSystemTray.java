@@ -6,6 +6,8 @@ import java.awt.TrayIcon;
 import java.awt.TrayIcon.MessageType;
 import java.io.IOException;
 
+import net.engio.mbassy.listener.Handler;
+
 import org.peerbox.notifications.AggregatedFileEventStatus;
 import org.peerbox.notifications.ITrayNotifications;
 import org.peerbox.notifications.InformationNotification;
@@ -101,6 +103,7 @@ public class JSystemTray extends AbstractSystemTray implements ITrayNotification
 	 */
 	
 	@Override
+	@Handler
 	public void showInformation(InformationNotification in) {
 		logger.debug("information message: [{}] - [{}]", in.getTitle(), in.getMessage());
 		if(trayIcon != null) {
@@ -109,6 +112,7 @@ public class JSystemTray extends AbstractSystemTray implements ITrayNotification
 	}
 
 	@Override
+	@Handler
 	public void showFileEvents(AggregatedFileEventStatus event) {
 		String msg = generateAggregatedFileEventStatusMessage(event);
 		logger.debug("Message received: \n[{}]", msg);

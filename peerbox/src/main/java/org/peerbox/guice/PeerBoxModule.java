@@ -2,6 +2,7 @@ package org.peerbox.guice;
 
 
 import org.peerbox.FileManager;
+import org.peerbox.events.MessageBus;
 import org.peerbox.interfaces.IFileVersionHandler;
 import org.peerbox.interfaces.IFxmlLoaderProvider;
 import org.peerbox.model.H2HManager;
@@ -10,7 +11,6 @@ import org.peerbox.view.RecoverFileStage;
 import org.peerbox.view.tray.AbstractSystemTray;
 import org.peerbox.view.tray.JSystemTray;
 
-import com.google.common.eventbus.EventBus;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 import com.google.inject.TypeLiteral;
@@ -22,11 +22,11 @@ import com.google.inject.spi.TypeListener;
 
 public class PeerBoxModule extends AbstractModule {
 
-	private final EventBus eventBus = new EventBus("Default EventBus");
+	private final MessageBus messageBus = new MessageBus();
 	
 	@Override
 	protected void configure() {
-		bindEventBus();
+		bindMessageBus();
 		bindSystemTray();
 		bindPrimaryStage();
 		
@@ -38,18 +38,18 @@ public class PeerBoxModule extends AbstractModule {
 		bind(AbstractSystemTray.class).to(JSystemTray.class);
 	}
 
-	private void bindEventBus() {
-		bind(EventBus.class).toInstance(eventBus);
-		eventBusRegisterRule();
+	private void bindMessageBus() {
+		bind(MessageBus.class).toInstance(messageBus);
+		messageBusRegisterRule();
 	}
 	
-	private void eventBusRegisterRule() {
+	private void messageBusRegisterRule() {
 		bindListener(Matchers.any(), new TypeListener() {
 			@Override
 	        public <I> void hear(TypeLiteral<I> typeLiteral, TypeEncounter<I> typeEncounter) {
 	            typeEncounter.register(new InjectionListener<I>() {
 	                public void afterInjection(I i) {
-	                    eventBus.register(i);
+	                    messageBus.subscribe(i);
 	                }
 	            });
 	        }

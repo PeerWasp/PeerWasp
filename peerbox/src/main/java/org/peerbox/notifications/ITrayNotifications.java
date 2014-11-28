@@ -1,13 +1,14 @@
 package org.peerbox.notifications;
 
-import com.google.common.eventbus.Subscribe;
+import net.engio.mbassy.listener.Handler;
+
 
 public interface ITrayNotifications {
 	
-	@Subscribe
+	@Handler
 	public void showInformation(InformationNotification in);
 	
-	@Subscribe
+	@Handler
 	public void showFileEvents(AggregatedFileEventStatus event);
 	
 }
