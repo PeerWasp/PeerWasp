@@ -52,6 +52,7 @@ public class UserConfig {
 	 * The property names
 	 */
 	private static final String PROPERTY_BOOTSTRAPPING_NODES = "bootstrappingnodes";
+	private static final String PROPERTY_LAST_BOOTSTRAPPING_NODE = "lastbootstrappingnode";
 	private static final String PROPERTY_AUTO_LOGIN = "autologin";
 	private static final String PROPERTY_USERNAME = "username";
 	private static final String PROPERTY_PASSWORD = "password";
@@ -277,6 +278,35 @@ public class UserConfig {
 	}
 	
 	/**
+	 * @return true if last bootstrapping node is available. False otherwise.
+	 */
+	public boolean hasLastBootstrappingNode() {
+		return getLastBootstrappingNode() != null && !getLastBootstrappingNode().isEmpty();
+	}
+	
+	/**
+	 * @return the last bootstrapping node 
+	 */
+	public String getLastBootstrappingNode() {
+		String n = prop.getProperty(PROPERTY_LAST_BOOTSTRAPPING_NODE);
+		return n != null ? n.trim() : n;
+	}
+	
+	/**
+	 * Sets the last bootstrapping node
+	 * @param nodeAddress address (domain, IP) of the node.
+	 * @throws IOException
+	 */
+	public synchronized void setLastBootstrappingNode(final String nodeAddress) throws IOException {
+		if(nodeAddress != null && !nodeAddress.trim().isEmpty()) {
+			prop.setProperty(PROPERTY_LAST_BOOTSTRAPPING_NODE, nodeAddress.trim());
+		} else {
+			prop.remove(PROPERTY_LAST_BOOTSTRAPPING_NODE);
+		}
+		saveProperties();
+	}
+	
+	/**
 	 * @return a list of addresses of bootstrapping nodes 
 	 */
 	public List<String> getBootstrappingNodes() {
@@ -313,6 +343,7 @@ public class UserConfig {
 			return;
 		}
 		
+		nodes.remove(null);
 		Collections.sort(nodes);
 		StringBuilder nodeList = new StringBuilder();
 		Set<String> uniqueNodes = new HashSet<String>();

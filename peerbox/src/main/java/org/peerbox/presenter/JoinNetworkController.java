@@ -70,6 +70,10 @@ public class JoinNetworkController implements Initializable {
 	private void loadBootstrapNodes() {
 		bootstrapNodes.getItems().clear();
 		bootstrapNodes.getItems().addAll(userConfig.getBootstrappingNodes());
+		
+		if(userConfig.hasLastBootstrappingNode()) {
+			txtBootstrapAddress.setText(userConfig.getLastBootstrappingNode());
+		}
 	}
 
 	private void initializeValidations() {
@@ -80,6 +84,7 @@ public class JoinNetworkController implements Initializable {
 	private void saveJoinConfig() {
 		try {
 			userConfig.addBootstrapNode(getBootstrapNode());
+			userConfig.setLastBootstrappingNode(getBootstrapNode());
 		} catch (IOException ioex) {
 			logger.warn("Could not save settings: {}", ioex.getMessage());
 			setError("Could not save settings.");

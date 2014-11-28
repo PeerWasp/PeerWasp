@@ -224,6 +224,41 @@ public class UserConfigTest {
 		userConfig.setApiServerPort(65535);
 		assertEquals(userConfig.getApiServerPort(), 65535);
 	}
+	
+	@Test
+	public void testHasLastBootstrappingNode() throws IOException {
+		userConfig.setLastBootstrappingNode("");
+		assertFalse(userConfig.hasLastBootstrappingNode());
+		
+		userConfig.setLastBootstrappingNode(" ");
+		assertFalse(userConfig.hasLastBootstrappingNode());
+		
+		userConfig.setLastBootstrappingNode("localhost");
+		assertTrue(userConfig.hasLastBootstrappingNode());
+		
+		userConfig.setLastBootstrappingNode(null);
+		assertFalse(userConfig.hasLastBootstrappingNode());
+	}
+
+	@Test
+	public void testSetLastBootstrappingNode() throws IOException {
+		userConfig.setLastBootstrappingNode("");
+		assertNull(userConfig.getLastBootstrappingNode());
+		userConfigAssertPersistence(userConfig, new UserConfig());
+		
+		userConfig.setLastBootstrappingNode("localhost");
+		assertEquals(userConfig.getLastBootstrappingNode(), "localhost");
+		userConfigAssertPersistence(userConfig, new UserConfig());
+		
+		userConfig.setLastBootstrappingNode("  127.0.0.1  ");
+		assertNotEquals(userConfig.getLastBootstrappingNode(), "  127.0.0.1  ");
+		assertEquals(userConfig.getLastBootstrappingNode(), "127.0.0.1");
+		userConfigAssertPersistence(userConfig, new UserConfig());
+		
+		userConfig.setLastBootstrappingNode(null);
+		assertNull(userConfig.getLastBootstrappingNode());
+		userConfigAssertPersistence(userConfig, new UserConfig());
+	}
 
 	@SuppressWarnings("serial")
 	@Test
