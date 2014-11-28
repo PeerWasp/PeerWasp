@@ -2,32 +2,66 @@ package org.peerbox.h2h;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 import org.hive2hive.core.file.IFileAgent;
 
-public class PeerboxFileAgent implements IFileAgent{
+public class PeerboxFileAgent implements IFileAgent {
 
-	File fRoot;
-	
-	public PeerboxFileAgent(File root){
-		fRoot = root;
+	private Path root;
+	private Path cache;
+
+	public PeerboxFileAgent(Path root, Path cache) {
+		this.root = root;
+		this.cache = cache;
 	}
 	
 	@Override
 	public File getRoot() {
-		return fRoot;
+		return root.toFile();
 	}
 
 	@Override
 	public void writeCache(String key, byte[] data) throws IOException {
-		// TODO Auto-generated method stub
+		if(cache == null) {
+			return;
+		}
+		if(data == null) {
+			return;
+		}
 		
+		ensureCacheDirExists();
+		Path cacheFile = cache.resolve(key);
+		try {
+			Files.write(cacheFile, data);
+		} catch (IOException e) {
+			// could not write
+		}
+	}
+
+	private void ensureCacheDirExists() throws IOException {
+		if (!Files.exists(cache)) {
+			Files.createDirectories(cache);
+		}
 	}
 
 	@Override
 	public byte[] readCache(String key) {
-		// TODO Auto-generated method stub
-		return null;
+		if(cache == null) {
+			return null;
+		}
+		
+		Path cacheFile = cache.resolve(key);
+		if (!Files.exists(cacheFile)) {
+			return null;
+		}
+		
+		try {
+			return Files.readAllBytes(cacheFile);
+		} catch (IOException e) {
+			// could not read
+			return null;
+		}
 	}
-
 }

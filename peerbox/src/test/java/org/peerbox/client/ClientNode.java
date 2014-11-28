@@ -72,7 +72,7 @@ public class ClientNode {
 	}
 	
 	private void loginUser() throws NoPeerConnectionException {
-		PeerboxFileAgent fileAgent = new PeerboxFileAgent(rootPath.toFile());
+		PeerboxFileAgent fileAgent = new PeerboxFileAgent(rootPath, null);
 		IProcessComponent loginProcess = node.getUserManager().login(credentials, fileAgent);
 		TestExecutionUtil.executeProcessTillSucceded(loginProcess);
 	}
