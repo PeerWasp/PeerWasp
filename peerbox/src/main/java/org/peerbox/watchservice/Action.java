@@ -1,5 +1,7 @@
 package org.peerbox.watchservice;
 
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Base64;
 import java.util.HashSet;
@@ -108,6 +110,7 @@ public class Action implements IAction{
 		} else {
 			updateTimestamp();
 			currentState = currentState.handleLocalCreate();
+			nextState = currentState.getDefaultState();
 		}
 	}
 	
@@ -141,6 +144,7 @@ public class Action implements IAction{
 		} else {
 			updateTimestamp();
 			currentState = currentState.handleLocalUpdate();
+			nextState = currentState.getDefaultState();
 		}
 		releaseLockOnThis();
 	}
@@ -161,9 +165,35 @@ public class Action implements IAction{
 		} else {
 			updateTimestamp();
 			currentState = currentState.handleLocalDelete();
+			nextState = currentState.getDefaultState();
 
 		}
 		releaseLockOnThis();
+	}
+	
+	public void handleLocalHardDeleteEvent(){
+		acquireLockOnThis();
+		logger.trace("handleLocalHardDeleteEvent - File: {}", getFilePath());
+		if(isExecuting){
+			logger.trace("Event occured for {} while executing.", getFilePath());
+//			changedWhileExecuted = true;
+			nextState = nextState.changeStateOnLocalHardDelete();
+			checkIfChanged();
+
+		} else {
+			updateTimestamp();
+			currentState = currentState.handleLocalHardDelete();
+			nextState = currentState.getDefaultState();
+
+		}
+		releaseLockOnThis();
+		
+		try {
+			Files.delete(getFilePath());
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 	
 	public void handleLocalMoveEvent(Path oldFilePath) {
@@ -185,6 +215,7 @@ public class Action implements IAction{
 //				return;
 			}
 			currentState = currentState.handleLocalMove(oldFilePath);
+			nextState = currentState.getDefaultState();
 		}
 		releaseLockOnThis();
 	}
@@ -202,6 +233,7 @@ public class Action implements IAction{
 		} else {
 			updateTimestamp();
 			currentState = currentState.handleRemoteUpdate();
+			nextState = currentState.getDefaultState();
 		}
 		releaseLockOnThis();
 	}
@@ -219,6 +251,7 @@ public class Action implements IAction{
 		} else {
 			updateTimestamp();
 			currentState = currentState.handleRemoteDelete();
+			nextState = currentState.getDefaultState();
 		}
 		releaseLockOnThis();
 	}
@@ -236,6 +269,7 @@ public class Action implements IAction{
 		} else {
 			updateTimestamp();
 			currentState = currentState.handleLocalRecover(versionToRecover);
+			nextState = currentState.getDefaultState();
 		}
 		releaseLockOnThis();
 	}
@@ -253,6 +287,7 @@ public class Action implements IAction{
 		} else {
 			updateTimestamp();
 			currentState = currentState.handleRemoteCreate();
+			nextState = currentState.getDefaultState();
 		}
 		releaseLockOnThis();
 	}
@@ -280,6 +315,7 @@ public class Action implements IAction{
 			logger.trace("Currentstate: {} {}", getFilePath(), getCurrentState().getClass());
 			updateTimestamp();
 			currentState = currentState.handleRemoteMove(path);
+			nextState = currentState.getDefaultState();
 		}		
 		releaseLockOnThis();
 	}

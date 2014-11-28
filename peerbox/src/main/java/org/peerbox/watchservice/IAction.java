@@ -25,6 +25,7 @@ public interface IAction {
 	public void handleLocalMoveEvent(Path filePath);
 	public void handleLocalUpdateEvent();
 	public void handleLocalDeleteEvent();
+	public void handleLocalHardDeleteEvent();
 	public void handleRemoteCreateEvent();
 	public void handleRemoteDeleteEvent();
 	public void handleRemoteUpdateEvent();

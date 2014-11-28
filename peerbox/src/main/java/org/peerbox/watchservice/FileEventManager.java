@@ -117,7 +117,7 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 		if(file == null){
 			logger.trace("FileComponent {} is new and now created.", path);
 			if(event == null){
-				file = createFileComponent(path, Files.isRegularFile(path));
+				file = createFileComponent(path, path.toFile().isDirectory());//Files.isRegularFile(path));
 			} else {
 				file = createFileComponent(path, event.isFile());
 			}
@@ -143,6 +143,7 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 			logger.debug("Content hash did not change for file {}. Update rejected.", path);
 			return;
 		}
+		file.updateContentHash(newHash);
 		file.getAction().handleLocalUpdateEvent();
 	}
 
@@ -220,12 +221,21 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 		FileComponent file = fileTree.getComponent(currentFile.getPath());
 		file.getAction().handleRecoverEvent(fileEvent.getVersionToRecover());
 	}
+	
+	public void onLocalFileHardDelete(Path toDelete){
+		logger.trace("onLocalFileHardDelete: {}", toDelete);
 
-	private FileComponent createFileComponent(Path path, boolean isFile) {
+		FileComponent file = getOrCreateFileComponent(toDelete);
+		file.getAction().handleLocalHardDeleteEvent();
+	}
+
+	private FileComponent createFileComponent(Path path, boolean isDir) {
 		FileComponent component = null;
-		if (isFile) {
+		if (!isDir) {
+			logger.trace("FileComponent {} created.", path);
 			component = new FileLeaf(path, maintainContentHashes);
 		} else {
+			logger.trace("FolderComponent {} created.", path);
 			component = new FolderComposite(path, maintainContentHashes);
 		}
 		return component;

@@ -98,12 +98,13 @@ public class LocalDeleteState extends AbstractActionState {
 	@Override
 	public void execute(FileManager fileManager) throws NoSessionException,
 			NoPeerConnectionException, InvalidProcessStateException {
-		Path path = action.getFilePath();
-		logger.debug("Execute LOCAL DELETE: {}", path);
-		IProcessComponent process = fileManager.delete(path.toFile());
-		if(process != null){
-			process.attachListener(new FileManagerProcessListener());
-		}
+//		Path path = action.getFilePath();
+//		logger.debug("Execute LOCAL DELETE: {}", path);
+//		IProcessComponent process = fileManager.delete(path.toFile());
+//		if(process != null){
+//			process.attachListener(new FileManagerProcessListener());
+//		}
+	logger.trace("File {}: Should be removed from the selective synchronization!");
 	}
 
 	@Override

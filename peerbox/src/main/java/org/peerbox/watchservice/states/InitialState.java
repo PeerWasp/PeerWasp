@@ -120,8 +120,9 @@ public class InitialState extends AbstractActionState {
 				return changeStateOnLocalMove(action.getFilePath());
 			}
 		}
+		logger.trace("Before: File {} content {}", action.getFilePath(), action.getFile().getContentHash());
 		action.getFile().updateContentHash();
-		
+		logger.trace("After: File {} content {}", action.getFilePath(), action.getFile().getContentHash());
 
 		
 		try {

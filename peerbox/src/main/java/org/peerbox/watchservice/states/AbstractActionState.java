@@ -1,5 +1,7 @@
 package org.peerbox.watchservice.states;
 
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -60,6 +62,10 @@ public abstract class AbstractActionState {
 	public abstract AbstractActionState changeStateOnLocalMove(Path oldPath);
 	
 	public abstract AbstractActionState changeStateOnLocalRecover(int versionToRecover);
+	
+	public AbstractActionState changeStateOnLocalHardDelete(){
+		return new LocalHardDeleteState(action);
+	}
 
 	/*
 	 * REMOTE state changers
@@ -78,12 +84,19 @@ public abstract class AbstractActionState {
 	
 	public abstract AbstractActionState handleLocalCreate();
 	
+	public AbstractActionState handleLocalHardDelete(){
+		logger.trace("File {}: entered handleLocalHardDelete", action.getFilePath());
+		updateTimeAndQueue();
+		return changeStateOnLocalHardDelete();
+	}
+	
 	public AbstractActionState handleLocalDelete(){
+		logger.trace("File {}: entered handleLocalDelete", action.getFilePath());
 		IFileEventManager eventManager = action.getEventManager();
 		eventManager.getFileComponentQueue().remove(action.getFile());
 		if(action.getFile().isFile()){
 			String oldHash = action.getFile().getContentHash();
-			action.getFile().updateContentHash();
+//			action.getFile().updateContentHash();
 			logger.debug("File: {}Previous content hash: {} new content hash: ", action.getFilePath(), oldHash, action.getFile().getContentHash());
 			SetMultimap<String, FileComponent> deletedFiles = action.getEventManager().getDeletedFileComponents();
 			deletedFiles.put(action.getFile().getContentHash(), action.getFile());
