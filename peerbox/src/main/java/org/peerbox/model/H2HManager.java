@@ -11,14 +11,13 @@ import org.hive2hive.core.api.configs.FileConfiguration;
 import org.hive2hive.core.api.configs.NetworkConfiguration;
 import org.hive2hive.core.api.interfaces.IH2HNode;
 import org.hive2hive.core.api.interfaces.INetworkConfiguration;
-import org.peerbox.ResultStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.inject.Singleton;
 
 @Singleton
-public class H2HManager {
+public final class H2HManager {
 
 	private static final Logger logger = LoggerFactory.getLogger(H2HManager.class);
 
@@ -28,90 +27,75 @@ public class H2HManager {
 		return node;
 	}
 
-	public String generateNodeID() {
+	private String generateNodeID() {
 		return UUID.randomUUID().toString();
 	}
 
-	public ResultStatus createNode() {
-		INetworkConfiguration defaultNetworkConf = NetworkConfiguration.createInitial(generateNodeID());
-		return createNode(defaultNetworkConf);
+	private void createNode() {
+		INetworkConfiguration defaultNetConf = NetworkConfiguration.createInitial(generateNodeID());
+		createNode(defaultNetConf);
+	}
+	
+	private void createNode(String bootstrapAddress) throws UnknownHostException {
+		String nodeID = generateNodeID();
+		InetAddress bootstrapInetAddress = InetAddress.getByName(bootstrapAddress);
+		createNode(NetworkConfiguration.create(nodeID, bootstrapInetAddress));
 	}
 
-	public ResultStatus createNode(INetworkConfiguration configuration) {
-		node = H2HNode.createNode(configuration, FileConfiguration.createDefault());
+	private void createNode(INetworkConfiguration netConfig) {
+		node = H2HNode.createNode(netConfig, FileConfiguration.createDefault());
 		node.getUserManager().configureAutostart(false);
 		node.getFileManager().configureAutostart(false);
-		boolean success = node.connect();
-		if(success) {
-			return ResultStatus.ok();
-		} else {
-			return ResultStatus.error("Could not connect to network.");
-		}
+		
 	}
 
-	public String getInetAddressAsString() {
-		InetAddress address;
-		try {
-			if (node.getNetworkConfiguration().isInitialPeer()) {
-				address = InetAddress.getLocalHost();
-			} else {
-				address = node.getNetworkConfiguration().getBootstrapAddress();
-			}
-			return address.getHostAddress().toString();
-		} catch (UnknownHostException e) {
-			e.printStackTrace();
-		}
-		return "";
+	public boolean joinNetwork() {
+		createNode();
+		return node.connect();
 	}
-
-	/**
-	 * Tries to access the PeerBox network using a specified node's address or hostname.
-	 * Returns false if the provided String is empty or no node is found at the specified
-	 * address, true if the connection was successful.
-	 * 
-	 * @param bootstrapAddressString contains the host's name or address.
-	 * @throws UnknownHostException if the provided host is rejected (bad format).
-	 */
-	public ResultStatus joinNetwork(String bootstrapAddressString) throws UnknownHostException {
-		if (bootstrapAddressString.isEmpty()) {
-			throw new IllegalArgumentException("Bootstrap address is empty.");
-		}
-		String nodeID = generateNodeID();
-		InetAddress bootstrapAddress = InetAddress.getByName(bootstrapAddressString);
-		return createNode(NetworkConfiguration.create(nodeID, bootstrapAddress));
-	}
-
-	public boolean joinNetwork(List<String> bootstrappingNodes)  {
-		// TODO: maybe introduce try/catch block within the loop and do not throw exception.
-		// required to finish the loop in all cases?
+	
+	public boolean joinNetwork(List<String> bootstrappingNodes) {
 		boolean connected = false;
 		Iterator<String> nodeIt = bootstrappingNodes.iterator();
 		while (nodeIt.hasNext() && !connected) {
 			String node = nodeIt.next();
-			ResultStatus res = null;
+			boolean res = false;
 			try {
 				res = joinNetwork(node);
+				connected = isConnected();
+				if (res && connected) {
+					logger.debug("Successfully connected to node {}", node);
+				} else {
+					logger.debug("Could not connect to node {}", node);
+				}
 			} catch(UnknownHostException e) {
-				res = ResultStatus.error("Address of host could not be determined.");
-			}
-			
-			connected = isConnected();
-			if (res.isOk() && connected) {
-				logger.debug("Successfully connected to node {}", node);
-			} else {
-				logger.debug("Could not connect to node {}", node);
+				logger.warn("Address of host could not be determined: {}", node);
+				res = false;
+				connected = false;
 			}
 		}
 		return connected;
 	}
+	
+	public boolean joinNetwork(String address) throws UnknownHostException {
+		if (address.isEmpty()) {
+			throw new IllegalArgumentException("Bootstrap address is empty.");
+		}
+		
+		createNode(address);
+		return node.connect();
+	}
 
 	public boolean leaveNetwork() {
 		if (node != null) {
-			return node.disconnect();
+			boolean res = node.disconnect();
+			node = null;
+			return res;
 		}
-		return false;
+		
+		return true;
 	}
-
+	
 	public boolean isConnected() {
 		return node != null && node.isConnected();
 	}

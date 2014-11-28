@@ -144,14 +144,19 @@ public class JoinNetworkController implements Initializable {
 	}
 	
 	protected ResultStatus joinNetwork(final String address) {
-			logger.info("Join network '{}'", address);
-			
-			try {
-				return h2hManager.joinNetwork(address);
-			} catch(UnknownHostException ex) {
-				return ResultStatus.error("Could not determine address of host.");
+		logger.info("Join network '{}'", address);
+
+		try {
+			boolean res = h2hManager.joinNetwork(address);
+			if (res) {
+				return ResultStatus.ok();
+			} else {
+				return ResultStatus.error("Could not connect to the network.");
 			}
+		} catch (UnknownHostException ex) {
+			return ResultStatus.error("Could not determine address of host.");
 		}
+	}
 
 	protected void onJoinSucceeded() {
 		logger.info("Join task succeeded: network {} joined.", getBootstrapNode());
