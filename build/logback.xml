@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<included>
+	
+	<!-- location for log files -->
+	<property name="LOG_FOLDER" value="${user.home}/.PeerBox/log" />
+	
+	<!-- Appenders -->
+	<appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<file>${LOG_FOLDER}/app.log</file>
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<!-- daily rollover -->
+			<fileNamePattern>${LOG_FOLDER}/app.%d{yyyy-MM-dd}.gz</fileNamePattern>
+			<!-- days of history to keep -->
+			<maxHistory>2</maxHistory>
+		</rollingPolicy>
+
+		<encoder>
+			<pattern>%d{HH:mm:ss} %-12.-12([%thread])[%-5level] %logger{0} - [%file:%line] - %msg%n</pattern>
+		</encoder>
+	</appender>
+	
+	<appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+		<encoder>
+			<pattern>%d{HH:mm:ss} %-12.-12([%thread])[%-5level] %logger{0} - %msg%n</pattern>
+		</encoder>
+	</appender>
+	
+	<!-- LEVELS: TRACE, DEBUG, INFO, WARN, ERROR, ALL or OFF -->
+	
+	<!-- Loggers -->
+	<logger name="net.tomp2p" level="WARN" /> <!-- mute tomp2p library -->
+	<logger name="io.netty" level="WARN" /> <!-- mute netty library -->
+	<logger name="org.hive2hive.core" level="WARN" /> <!-- mute hive2hive library -->
+	<logger name="org.eclipse.jetty" level="WARN" />
+	
+	<root level="INFO">
+		<appender-ref ref="FILE" />
+		<appender-ref ref="STDOUT" />
+	</root>
+
+</included>

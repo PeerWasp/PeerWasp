@@ -22,6 +22,8 @@
 			<pattern>%d{HH:mm:ss} %-12.-12([%thread])[%-5level] %logger{0} - %msg%n</pattern>
 		</encoder>
 	</appender>
+	
+	<!-- LEVELS: TRACE, DEBUG, INFO, WARN, ERROR, ALL or OFF -->
 
 	<!-- Loggers -->
 	<logger name="net.tomp2p" level="INFO" />

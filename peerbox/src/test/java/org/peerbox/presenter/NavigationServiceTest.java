@@ -10,7 +10,6 @@ import static org.mockito.Mockito.when;
 import java.io.IOException;
 import java.lang.reflect.Field;
 
-import javafx.application.Application;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
@@ -19,16 +18,21 @@ import javafx.scene.control.Label;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.peerbox.helper.JavaFxNoOpApp;
+import org.peerbox.helper.JavaFXThreadingRule;
 import org.peerbox.interfaces.IFxmlLoaderProvider;
 import org.peerbox.interfaces.INavigatable;
 
+
 public class NavigationServiceTest {
 
+	@Rule
+	public JavaFXThreadingRule jfxRule = new JavaFXThreadingRule();
+	
 	/**
 	 * Controller instance of the view
 	 */
@@ -57,21 +61,6 @@ public class NavigationServiceTest {
 	 */
 	private Label[] elements;
 
-	/**
-	 * Initializes the Java FX toolkit by loading an Application instance, which does nothing.
-	 */
-	@BeforeClass
-	public static void initJFX() {
-		Thread t = new Thread("JavaFX Init Thread") {
-			public void run() {
-				if(!JavaFxNoOpApp.isInitialized()) {
-					Application.launch(JavaFxNoOpApp.class, new String[0]);
-				}
-			}
-		};
-		t.setDaemon(true);
-		t.start();
-	}
 
 	@Before
 	public void setupNavigationService() {
