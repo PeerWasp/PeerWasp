@@ -64,6 +64,8 @@ Source: "{#BaseDir}\x86\cpprest120_2_2.dll"; DestDir: "{app}"; Flags: ignorevers
 Source: "{#BaseDir}\x86\msvcp120.dll"; DestDir: "{app}"; Flags: ignoreversion uninsrestartdelete restartreplace 32bit; Check: "not IsWin64";
 Source: "{#BaseDir}\x86\msvcr120.dll"; DestDir: "{app}"; Flags: ignoreversion uninsrestartdelete restartreplace 32bit; Check: "not IsWin64";
 
+Source: "{#BaseDir}\logback.xml"; DestDir: "{app}"; Flags: ignoreversion
+
 Source: "{#BaseDir}\License.rtf"; DestDir: "{app}"; Flags: ignoreversion
 
 [Dirs]

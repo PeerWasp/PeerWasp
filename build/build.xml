@@ -188,6 +188,7 @@
 		<echo>Copy resources ...</echo>
 		<copy file="resources/peerbox64.ico" todir="${peerbox.winbuild}" failonerror="true" />
 		<copy file="resources/License.rtf" todir="${peerbox.winbuild}" failonerror="true" />
+        <copy file="build/logback.xml" todir="${peerbox.winbuild}" failonerror="true" />
 	</target>
 
 </project>
