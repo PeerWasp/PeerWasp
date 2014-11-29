@@ -19,11 +19,21 @@ IconHelper::~IconHelper(void)
 {
 }
 
-IWICImagingFactory *IconHelper::CreateWICFactory()
+// Older Windows versions need special treatment if new visual studio and skd is used (i.e. for win8)
+// http://blogs.msdn.com/b/chuckw/archive/2012/11/19/windows-imaging-component-and-windows-8.aspx
+HRESULT IconHelper::CreateWICFactory(IWICImagingFactory **WICFactory)
 {
-	IWICImagingFactory *WICFactory;
-	CoCreateInstance(CLSID_WICImagingFactory, NULL, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&WICFactory));
-	return WICFactory;
+	HRESULT res = CoCreateInstance(CLSID_WICImagingFactory2, nullptr, CLSCTX_INPROC_SERVER, __uuidof(IWICImagingFactory2), reinterpret_cast<LPVOID*>(WICFactory));
+	if (SUCCEEDED(res)) {
+		// WIC2 is available on Windows 8 and Windows 7 SP1 with KB 2670838 installed
+		// Note you only need to QI IWICImagingFactory2 if you need to call CreateImageEncoder
+	} 
+	else 
+	{
+		// legacy WIC factory with _1_ suffix
+		res = CoCreateInstance(CLSID_WICImagingFactory1, nullptr, CLSCTX_INPROC_SERVER, __uuidof(IWICImagingFactory), reinterpret_cast<LPVOID*>(WICFactory));
+	}
+	return res;
 }
 
 void IconHelper::InitBitmapInfo(__out_bcount(cbInfo) BITMAPINFO *pbmi, ULONG cbInfo, LONG cx, LONG cy, WORD bpp)
@@ -71,37 +81,40 @@ HRESULT IconHelper::LoadBitmapByIcon(UINT iconId, HBITMAP *bitmap)
 
 	if (SUCCEEDED(hr))
 	{
-		WICFactory = CreateWICFactory();
-		hr = WICFactory->CreateBitmapFromHICON(hicon, &pBitmap);
-		if (SUCCEEDED(hr))
+		hr = CreateWICFactory(&WICFactory);
+		if (SUCCEEDED(hr) && WICFactory != NULL)
 		{
-			IWICFormatConverter *pConverter;
-			hr = WICFactory->CreateFormatConverter(&pConverter);
+			hr = WICFactory->CreateBitmapFromHICON(hicon, &pBitmap);
 			if (SUCCEEDED(hr))
 			{
-				hr = pConverter->Initialize(pBitmap, GUID_WICPixelFormat32bppPBGRA, WICBitmapDitherTypeNone, NULL, 0.0f, WICBitmapPaletteTypeCustom);
+				IWICFormatConverter *pConverter;
+				hr = WICFactory->CreateFormatConverter(&pConverter);
 				if (SUCCEEDED(hr))
 				{
-					UINT cx, cy;
-					hr = pConverter->GetSize(&cx, &cy);
+					hr = pConverter->Initialize(pBitmap, GUID_WICPixelFormat32bppPBGRA, WICBitmapDitherTypeNone, NULL, 0.0f, WICBitmapPaletteTypeCustom);
 					if (SUCCEEDED(hr))
 					{
-						const SIZE sizIcon = { (int)cx, -(int)cy };
-						BYTE *pbBuffer;
-						hr = Create32BitHBITMAP(NULL, &sizIcon, reinterpret_cast<void **>(&pbBuffer), bitmap);
+						UINT cx, cy;
+						hr = pConverter->GetSize(&cx, &cy);
 						if (SUCCEEDED(hr))
 						{
-							const UINT cbStride = cx * sizeof(ARGB);
-							const UINT cbBuffer = cy * cbStride;
-							hr = pConverter->CopyPixels(NULL, cbStride, cbBuffer, pbBuffer);
+							const SIZE sizIcon = { (int)cx, -(int)cy };
+							BYTE *pbBuffer;
+							hr = Create32BitHBITMAP(NULL, &sizIcon, reinterpret_cast<void **>(&pbBuffer), bitmap);
+							if (SUCCEEDED(hr))
+							{
+								const UINT cbStride = cx * sizeof(ARGB);
+								const UINT cbBuffer = cy * cbStride;
+								hr = pConverter->CopyPixels(NULL, cbStride, cbBuffer, pbBuffer);
+							}
 						}
 					}
+
+					pConverter->Release();
 				}
 
-				pConverter->Release();
+				pBitmap->Release();
 			}
-
-			pBitmap->Release();
 		}
 
 

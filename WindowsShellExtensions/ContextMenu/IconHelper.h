@@ -1,4 +1,5 @@
 
+#define _WIN7_PLATFORM_UPDATE
 
 #include <wincodec.h>           // WIC
 #include <windows.h>
@@ -27,6 +28,6 @@ private:
 	static HRESULT Create32BitHBITMAP(HDC hdc, const SIZE *psize, __deref_opt_out void **ppvBits, __out HBITMAP* phBmp);
 	static void InitBitmapInfo(__out_bcount(cbInfo) BITMAPINFO *pbmi, ULONG cbInfo, LONG cx, LONG cy, WORD bpp);
 	
-	static IWICImagingFactory *CreateWICFactory();
+	static HRESULT CreateWICFactory(IWICImagingFactory **WICFactory);
 
 };
