@@ -87,76 +87,76 @@ UseRelativePaths=True
 // checks whether Java 1.8 is installed --> RootKey should be either HKLM, HKLM32/HKLM64
 function IsJavaAvailable(const RootKey: Integer): Boolean;
 var
-  JavaInstalled: Boolean;
-  Versions: TArrayOfString;
-  I: Integer;
+    JavaInstalled: Boolean;
+    Versions: TArrayOfString;
+    I: Integer;
 begin
-  if RegGetSubkeyNames(RootKey, 'SOFTWARE\JavaSoft\Java Runtime Environment', Versions) then
-  begin
-    for I := 0 to GetArrayLength(Versions)-1 do
+    if RegGetSubkeyNames(RootKey, 'SOFTWARE\JavaSoft\Java Runtime Environment', Versions) then
     begin
-      Log('Version found: ' + Versions[I]);
-      if JavaInstalled = true then
-      begin
-        //do nothing, already found a version
-      end else
-      begin
-        // check the subkeys: they have the form x.x or x.x.x_xx -> we look at the first and third digit (Java [1].[8])
-        // if the first digit is higher than 1 we also assume requirements are met.
-        if ( Versions[I][2]='.' ) and ( ( StrToInt(Versions[I][1]) > 1 ) or ( ( StrToInt(Versions[I][1]) = 1 ) and ( StrToInt(Versions[I][3]) >= 8 ) ) ) then
+        for I := 0 to GetArrayLength(Versions)-1 do
         begin
-          JavaInstalled := true;
-        end else
-        begin
-          JavaInstalled := false;
-        end;
-      end;
-    end; // for loop
-  end else
-  begin
-    JavaInstalled := false;
-  end;
-  Result := JavaInstalled;
+            Log('Version found: ' + Versions[I]);
+            if JavaInstalled = true then
+            begin
+                //do nothing, already found a version
+            end else
+            begin
+                // check the subkeys: they have the form x.x or x.x.x_xx -> we look at the first and third digit (Java [1].[8])
+                // if the first digit is higher than 1 we also assume requirements are met.
+                if ( Versions[I][2]='.' ) and ( ( StrToInt(Versions[I][1]) > 1 ) or ( ( StrToInt(Versions[I][1]) = 1 ) and ( StrToInt(Versions[I][3]) >= 8 ) ) ) then
+                begin
+                    JavaInstalled := true;
+                end else
+                begin
+                    JavaInstalled := false;
+                end;
+            end;
+        end; // for loop
+    end else
+    begin
+      JavaInstalled := false;
+    end;
+    Result := JavaInstalled;
 end;
 
 function InitializeSetup(): Boolean;
 var
-  ErrorCode: Integer;
-  JavaInstalled : Boolean;
-  Result1 : Boolean;
+    ErrorCode: Integer;
+    JavaInstalled : Boolean;
+    Result1 : Boolean;
 begin
-  Log('Check whetere Java is installed.');
-  JavaInstalled := IsJavaAvailable(HKLM);
-  if not JavaInstalled and IsWin64 then
-  begin
-    // check whether there is a 32bit version of java on 64bit Windows
-    Log('On Windows 64: check whether there is 32-bit Java installed.');
-    JavaInstalled := IsJavaAvailable(HKLM32);
-  end;
-
-  // if java not installed, we show a message box that informs the user and advises them to download java.
-  // we can open a browser with the java.com download page where the user can download the newest java.
-  // the setup quits (user has to restart it)
-  if JavaInstalled then
-  begin
-    Result := true;
-    Log('Java is installed!');
-  end else
-  begin
-    Log('Java is NOT installed!');
-    // ask to install JRE
-    Result1 := MsgBox('This tool requires Java Runtime Environment version 1.8 or newer to run. Please download and install the JRE and run this setup again. Do you want to download it now?',
-    mbConfirmation, MB_YESNO) = idYes;
-    if Result1 = false then
+    Log('Check whetere Java is installed.');
+    JavaInstalled := IsJavaAvailable(HKLM);
+    if not JavaInstalled and IsWin64 then
     begin
-      Result:=false;
+        // check whether there is a 32bit version of java on 64bit Windows
+        Log('On Windows 64: check whether there is 32-bit Java installed.');
+        JavaInstalled := IsJavaAvailable(HKLM32);
+    end;
+
+    // if java not installed, we show a message box that informs the user and advises them to download java.
+    // we can open a browser with the java.com download page where the user can download the newest java.
+    // the setup quits (user has to restart it)
+    if JavaInstalled then
+    begin
+        Result := true;
+        Log('Java is installed!');
     end else
     begin
-      // open browser with java.com download page
-      Result:=false;
-      ShellExec('open', 'http://www.java.com/getjava/', '', '', SW_SHOWNORMAL, ewNoWait, ErrorCode);
+        Log('Java is NOT installed!');
+        // ask to install JRE
+        Result1 := MsgBox('This tool requires Java Runtime Environment version 1.8 or newer to run. Please download and install the JRE and run this setup again. Do you want to download it now?',
+        mbConfirmation, MB_YESNO) = idYes;
+        if Result1 = false then
+        begin
+            Result:=false;
+        end else
+        begin
+            // open browser with java.com download page
+            Result:=false;
+            ShellExec('open', 'http://www.java.com/getjava/', '', '', SW_SHOWNORMAL, ewNoWait, ErrorCode);
+        end;
     end;
-  end;
 
 end;
 
