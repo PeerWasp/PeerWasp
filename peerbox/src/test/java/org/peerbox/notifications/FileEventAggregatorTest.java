@@ -8,20 +8,21 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import net.engio.mbassy.listener.Handler;
+
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.peerbox.events.MessageBus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.common.eventbus.EventBus;
 
 public class FileEventAggregatorTest  {
 
 	private static final Logger logger = LoggerFactory.getLogger(FileEventAggregatorTest.class);
 	
 	private FileEventAggregator aggregator;
-	private EventBus eventBus = new EventBus();
+	private MessageBus messageBus = new MessageBus();
 	
 	private TrayNotificationsStub notifications;
 	
@@ -35,9 +36,9 @@ public class FileEventAggregatorTest  {
 	@Before
 	public void initialization() {
 		notifications = new TrayNotificationsStub();
-		aggregator = new FileEventAggregator(eventBus);
-		eventBus.register(aggregator);
-		eventBus.register(notifications);
+		aggregator = new FileEventAggregator(messageBus);
+		messageBus.subscribe(aggregator);
+		messageBus.subscribe(notifications);
 	}
 	
 	private AggregatedFileEventStatus sendEvents(long timeToSendEvents) throws InterruptedException {
@@ -151,11 +152,13 @@ public class FileEventAggregatorTest  {
 		}
 
 		@Override
+		@Handler
 		public void showInformation(InformationNotification in) {
 			informationNotification.add(in);
 		}
 
 		@Override
+		@Handler
 		public void showFileEvents(AggregatedFileEventStatus event) {
 			aggregatedFileEvents.add(event);
 		}

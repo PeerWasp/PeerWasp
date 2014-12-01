@@ -187,7 +187,7 @@ HRESULT ContextMenuExt::LoadAndSetBitmapByIcon(MENUITEMINFO *mii, CommandId cmd)
 		return hr;
 	}
 	// check whether there is an icon for that cmd
-	if (!Command::hasIcon(&commandInfoMap[CMD_TOP])) {
+	if (!Command::hasIcon(&commandInfoMap[cmd])) {
 		return hr;
 	}
 

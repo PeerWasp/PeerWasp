@@ -1,6 +1,9 @@
 package org.peerbox.notifications;
 
-public class AggregatedFileEventStatus {
+import org.peerbox.events.IMessage;
+
+
+public class AggregatedFileEventStatus implements IMessage {
 	
 	private int numFilesAdded;
 	private int numFilesModified;

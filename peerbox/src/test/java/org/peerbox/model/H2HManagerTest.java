@@ -1,6 +1,8 @@
 package org.peerbox.model;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
@@ -10,7 +12,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import org.hive2hive.core.api.configs.NetworkConfiguration;
 import org.junit.Before;
 import org.junit.Test;
 import org.peerbox.presenter.validation.SelectRootPathUtils;
@@ -29,47 +30,31 @@ public class H2HManagerTest {
 	
 	@Test(expected=UnknownHostException.class)
 	public void accessNetworkTestUnknownHost() throws UnknownHostException{
-		h2hManager.createNode();
 		h2hManager.joinNetwork("unknownhost");
 	}
 	
 	@Test
 	public void accessNetworkTestWrongBootstrapAddress() throws UnknownHostException{
-		h2hManager.createNode();
 		assertFalse(h2hManager.joinNetwork("1.2.3.4"));
 	}
 	
 	@Test
-	public void accessNetworkTestCorrectBootstrapAddress() throws UnknownHostException{
-		h2hManager.createNode();
+	public void accessNetworkTestCorrectBootstrapAddress() throws UnknownHostException {
 		assertTrue(h2hManager.joinNetwork("localhost"));
 	}
 	
 	@Test
-	public void getInetAddressAsStringIfInitialPeer(){
-		try {
-			h2hManager.createNode();
-			String address = h2hManager.getInetAddressAsString();
-			System.out.println(address);
-			String localhost = InetAddress.getLocalHost().getHostAddress();
-			assertEquals(address, localhost);
-		} catch (UnknownHostException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+	public void getInetAddressAsStringIfInitialPeer() {
+		assertTrue(h2hManager.joinNetwork());
+		assertTrue(h2hManager.getNode().getNetworkConfiguration().isInitialPeer());
 	}
+	
 	@Test
-	public void getInetAddressAsStringIfNotInitialPeer(){
-		String nodeID = h2hManager.generateNodeID();
+	public void getInetAddressAsStringIfNotInitialPeer() throws UnknownHostException {
 		String bootstrapAddress = "1.2.3.4";
-		try {
-			h2hManager.createNode(NetworkConfiguration.create(nodeID, InetAddress.getByName(bootstrapAddress)));
-			String address = h2hManager.getInetAddressAsString();
-			assertEquals(address, bootstrapAddress);
-		} catch (UnknownHostException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		h2hManager.joinNetwork(bootstrapAddress);
+		String address = h2hManager.getNode().getNetworkConfiguration().getBootstrapAddress().toString();
+		assertEquals(address, InetAddress.getByName(bootstrapAddress).toString());
 	}
 	
 	@Test

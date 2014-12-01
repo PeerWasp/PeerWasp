@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+	
+	<!-- location for log files -->
+	<property name="LOG_FOLDER" value="log" />
+	
+	<!-- timestamp -->
+  	<timestamp key="bySecond" datePattern="yyyy-MM-dd_HH-mm-ss"/>
+  	
+	<!-- Appenders -->
+	<appender name="FILE" class="ch.qos.logback.core.FileAppender">
+		<file>${LOG_FOLDER}/test-${bySecond}.log</file>
+		
+		<encoder>
+			<pattern>%d{HH:mm:ss} %-12.-12([%thread])[%-5level] [%file:%line] - %msg%n</pattern>
+		</encoder>
+	</appender>
+	
+	<appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+		<encoder>
+			<pattern>%d{HH:mm:ss} %-12.-12([%thread])[%-5level] %logger{0} - %msg%n</pattern>
+		</encoder>
+	</appender>
+	
+	<!-- LEVELS: TRACE, DEBUG, INFO, WARN, ERROR, ALL or OFF -->
+	
+	<!-- Loggers -->
+	<logger name="net.tomp2p" level="WARN" /> 
+	<logger name="io.netty" level="WARN" /> 
+	<logger name="org.hive2hive.core" level="INFO" /> 	
+	<logger name="org.eclipse.jetty" level="INFO" />
+		
+	<root level="DEBUG">
+		<appender-ref ref="FILE" />
+		<appender-ref ref="STDOUT" />
+	</root>
+
+</configuration>

@@ -1,7 +1,5 @@
 package org.peerbox.presenter.validation;
 
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.scene.control.TextField;
 
 import org.peerbox.presenter.validation.ValidationUtils.ValidationResult;
@@ -15,23 +13,17 @@ public final class EmptyTextFieldValidator extends TextFieldValidator {
 		super(txt, null, true);
 		this.trim = trim;
 		this.returnOnError = returnOnError;
-//		initChangeListener();
 	}
-
-//	private void initChangeListener() {
-//		validateTxtField.textProperty().addListener(new ChangeListener<String>() {
-//			@Override
-//			public void changed(ObservableValue<? extends String> observable, String oldValue,
-//					String newValue) {
-//				validate(newValue);
-//			}
-//		});
-//	}
 	
 	@Override
 	public ValidationResult validate(final String newValue) {
-		final String value = trim ? newValue.trim() : newValue;
 		ValidationResult res = ValidationResult.ERROR;
+		
+		if(newValue == null) {
+			return res;
+		}
+		
+		final String value = trim ? newValue.trim() : newValue;
 		if(value.isEmpty()) {
 			decorateError();
 			res = returnOnError;

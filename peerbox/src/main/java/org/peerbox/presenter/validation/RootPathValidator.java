@@ -16,6 +16,11 @@ public class RootPathValidator extends TextFieldValidator {
 	
 	@Override
 	public ValidationResult validate(final String value) {
+		
+		if(value == null) {
+			return ValidationResult.ERROR;
+		}
+		
 		Path path = Paths.get(value);
 		ValidationResult res = SelectRootPathUtils.validateRootPath(path);
 		if (res.isError()) {

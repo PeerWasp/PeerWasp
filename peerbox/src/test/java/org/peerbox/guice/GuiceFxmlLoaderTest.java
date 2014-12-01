@@ -14,8 +14,9 @@ import javafx.scene.Parent;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.Mockito;
-import org.peerbox.JavaFxNoOpApp;
 import org.peerbox.UserConfig;
+import org.peerbox.helper.JavaFxNoOpApp;
+import org.peerbox.interfaces.IFxmlLoaderProvider;
 import org.peerbox.model.H2HManager;
 import org.peerbox.model.UserManager;
 import org.peerbox.presenter.LoginController;
@@ -65,9 +66,9 @@ public class GuiceFxmlLoaderTest {
 			}
 		});
 
-		GuiceFxmlLoader guiceFxmlLoader = new GuiceFxmlLoader(injector);
+		IFxmlLoaderProvider fxmlLoaderProvider = new GuiceFxmlLoader(injector);
 
-		FXMLLoader fxmlLoader = guiceFxmlLoader.create(ViewNames.LOGIN_VIEW);
+		FXMLLoader fxmlLoader = fxmlLoaderProvider.create(ViewNames.LOGIN_VIEW);
 		Parent loginView = fxmlLoader.load();
 		Object loginController = fxmlLoader.getController();
 		assertNotNull(loginView);
@@ -105,9 +106,9 @@ public class GuiceFxmlLoaderTest {
 	public void testCreateMainViewMock() throws IOException {
 		Injector injector = Mockito.mock(Injector.class);
 		when(injector.getInstance(MainController.class)).thenReturn(new MainController());
-		GuiceFxmlLoader guiceFxmlLoader = new GuiceFxmlLoader(injector);
+		IFxmlLoaderProvider fxmlLoaderProvider = new GuiceFxmlLoader(injector);
 		
-		FXMLLoader fxmlLoader = guiceFxmlLoader.create(ViewNames.MAIN_VIEW);
+		FXMLLoader fxmlLoader = fxmlLoaderProvider.create(ViewNames.MAIN_VIEW);
 		Parent mainView = fxmlLoader.load();
 		Object mainController = fxmlLoader.getController();
 		assertNotNull(mainView);
@@ -121,10 +122,10 @@ public class GuiceFxmlLoaderTest {
 	@Test(expected = IOException.class)
 	public void testCreateNoName() throws IOException {
 		Injector injector = Guice.createInjector();
-		GuiceFxmlLoader guiceFxmlLoader = new GuiceFxmlLoader(injector);
+		IFxmlLoaderProvider fxmlLoaderProvider = new GuiceFxmlLoader(injector);
 		
 		FXMLLoader fxmlLoader;
-		fxmlLoader = guiceFxmlLoader.create("");
+		fxmlLoader = fxmlLoaderProvider.create("");
 		Parent mainView = fxmlLoader.load(); /* should throw exception */
 		Object mainController = fxmlLoader.getController();
 	}

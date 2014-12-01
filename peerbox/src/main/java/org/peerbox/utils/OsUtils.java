@@ -25,9 +25,9 @@ public final class OsUtils {
 	/**
 	 * @return true if current OS is Linux
 	 */
-//	public static boolean isLinux() {
-//		return getOsName().equalsIgnoreCase("Linux");
-//	}
+	public static boolean isLinux() {
+		return getOsName().equalsIgnoreCase("Linux");
+	}
 
 	/**
 	 * @return true if current OS is OS X

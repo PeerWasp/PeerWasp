@@ -1,4 +1,4 @@
-package org.peerbox;
+package org.peerbox.helper;
 import java.util.concurrent.CountDownLatch;
  
 import javax.swing.SwingUtilities;
@@ -13,7 +13,7 @@ import org.junit.runners.model.Statement;
  
 /**
  * A JUnit {@link Rule} for running tests on the JavaFX thread and performing
- * JavaFX initialisation.  To include in your test case, add the following code:
+ * JavaFX initialization.  To include in your test case, add the following code:
  * 
  * <pre>
  * {@literal @}Rule

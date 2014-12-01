@@ -53,7 +53,7 @@ public class WinRegistryTest {
 		}
 	}
 
-	private void assertPort(int port) {
+	public static void assertPort(int port) {
 		ProcessBuilder builder = new ProcessBuilder();
 
 		builder.command("reg", /* registry command */

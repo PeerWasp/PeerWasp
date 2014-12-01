@@ -170,8 +170,8 @@ public class LoginController implements Initializable {
 			return userManager.loginUser(username, password, pin, path);
 		} catch (NoPeerConnectionException e) {
 			return ResultStatus.error("Could not login user because connection to network failed.");
-		} catch (InvalidProcessStateException | InterruptedException e) {
-			e.printStackTrace();
+		} catch (InvalidProcessStateException | InterruptedException | IOException e) {
+			logger.warn("Could not login user: ", e);
 		}
 		return ResultStatus.error("Could not login user.");
 	}

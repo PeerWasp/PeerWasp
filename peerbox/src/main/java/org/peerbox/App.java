@@ -1,6 +1,7 @@
 package org.peerbox;
 
 
+import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
 
@@ -12,17 +13,19 @@ import javafx.stage.Stage;
 
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.hive2hive.processframework.exceptions.InvalidProcessStateException;
+import org.peerbox.events.MessageBus;
+import org.peerbox.guice.ApiServerModule;
 import org.peerbox.guice.PeerBoxModule;
 import org.peerbox.model.H2HManager;
 import org.peerbox.model.UserManager;
 import org.peerbox.notifications.InformationNotification;
 import org.peerbox.presenter.tray.TrayException;
 import org.peerbox.presenter.validation.SelectRootPathUtils;
+import org.peerbox.server.IServer;
 import org.peerbox.view.tray.AbstractSystemTray;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.eventbus.EventBus;
 import com.google.inject.Guice;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
@@ -35,15 +38,16 @@ public class App extends Application
 	private static final Logger logger = LoggerFactory.getLogger(App.class);
 
 	private Injector injector;
-	private EventBus eventBus;
+	private MessageBus messageBus;
 	private H2HManager h2hManager;
 	private AbstractSystemTray systemTray;
 	private static Stage primaryStage;
 	private UserConfig userConfig;
+	private IServer server;
 	
 
 	public static void main(String[] args) {
-		logger.info("PeerBox started.");
+		logger.info("{} started.", Constants.APP_NAME);
 		launch(args);
 	}
     
@@ -53,10 +57,11 @@ public class App extends Application
     	
     	initializeGuice();
 
+		initializeServer();
+
 		initializeSysTray();
 		
-		// TODO: if join/login fails -> action required? e.g. launch in foreground? 
-		// do nothing but indicate with icon?
+		// TODO: if join/login fails -> action required? e.g. launch in foreground? do nothing but indicate with icon?
 		if (isAutoLoginFeasible()) {
 			logger.info("Auto login feasible, try to join and login.");
 			launchInBackground();
@@ -64,13 +69,24 @@ public class App extends Application
 			logger.info("Loading startup stage (no auto login)");
 			launchInForeground();
 		}
-		
-		eventBus.post(new InformationNotification("PeerBox started", "Hello..."));
+		messageBus.post(new InformationNotification("PeerBox started", "Hello...")).now();;
     }
 
 	private void initializeGuice() {
-		injector = Guice.createInjector(new PeerBoxModule());
+		injector = Guice.createInjector(new PeerBoxModule(), new ApiServerModule());
 		injector.injectMembers(this);
+	}
+
+	private void initializeServer() {
+		try {
+			boolean success = server.start();
+			if(!success) {
+				logger.warn("Could not start server.");
+			}
+			userConfig.setApiServerPort(server.getPort());
+		} catch(IOException e) {
+			logger.error("Could not save API server port.", e);
+		}
 	}
 
 	private void initializeSysTray() {
@@ -119,9 +135,10 @@ public class App extends Application
 		} catch (NoPeerConnectionException e) {
 			logger.debug("Loggin failed: {}", e);
 			return ResultStatus.error("Could not login user because connection to network failed.");
-		} catch (InvalidProcessStateException | InterruptedException e) {
-			e.printStackTrace();
-		}
+		} catch (InvalidProcessStateException | InterruptedException | IOException e) {
+			logger.warn("Could not login user:", e); 
+		} 
+		
 		return ResultStatus.error("Could not login user.");
 	}
 	
@@ -192,8 +209,13 @@ public class App extends Application
 	}
 	
 	@Inject
-	private void setEventBus(EventBus eventBus) {
-		this.eventBus = eventBus;
+	private void setMessageBus(MessageBus messageBus) {
+		this.messageBus = messageBus;
+	}
+
+	@Inject
+	private void setServer(IServer server) {
+		this.server = server;
 	}
 }
 

@@ -46,6 +46,14 @@
 			<version>3.0</version>
 			<scope>compile</scope>
 		</dependency>
+		
+		<!-- Guice DI for servlets (e.g. jetty http server) -->
+		<dependency>
+			<groupId>com.google.inject.extensions</groupId>
+			<artifactId>guice-servlet</artifactId>
+			<version>3.0</version>
+			<scope>compile</scope>
+		</dependency>
 
 		<!-- Google Guava: https://code.google.com/p/guava-libraries/ -->
 		<dependency>
@@ -90,7 +98,7 @@
 		<dependency>
 			<groupId>org.eclipse.jetty</groupId>
 			<artifactId>jetty-servlet</artifactId>
-			<version>9.3.0.M0</version>
+			<version>9.2.5.v20141112</version>
 			<scope>compile</scope>
 		</dependency>
 		
@@ -107,6 +115,14 @@
 			<groupId>com.thoughtworks.xstream</groupId>
 			<artifactId>xstream</artifactId>
 			<version>1.4.7</version>
+			<scope>compile</scope>
+		</dependency>
+		
+	    <!-- apache common lang: https://commons.apache.org/proper/commons-lang/ -->
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-lang3</artifactId>
+			<version>3.3.2</version>
 			<scope>compile</scope>
 		</dependency>
 		
@@ -135,14 +151,6 @@
 			<scope>test</scope>
 		</dependency>
 		
-		<!-- apache common lang: https://commons.apache.org/proper/commons-lang/ -->
-		<dependency>
-			<groupId>org.apache.commons</groupId>
-			<artifactId>commons-lang3</artifactId>
-			<version>3.3.2</version>
-			<scope>test</scope>
-		</dependency>
-		
 		<!-- H2H Core Test Jar -->
 		<dependency>
 			<groupId>org.hive2hive</groupId>
@@ -160,6 +168,14 @@
 			<type>test-jar</type>
 			<scope>test</scope>
 		</dependency>
+
+		<dependency>
+			<groupId>com.jayway.restassured</groupId>
+			<artifactId>rest-assured</artifactId>
+			<version>2.4.0</version>
+			<scope>test</scope>
+		</dependency>
+		
 
 	</dependencies>
 

@@ -1,9 +1,6 @@
 package org.peerbox.server;
 
 import org.hive2hive.core.network.NetworkUtils;
-import org.peerbox.server.servlets.DeleteServlet;
-import org.peerbox.server.servlets.ShareFolderServlet;
-import org.peerbox.server.servlets.VersionsServlet;
 import org.peerbox.utils.OsUtils;
 import org.peerbox.utils.WinRegistry;
 
@@ -18,6 +15,7 @@ public class ServerFactory {
 	// port range in which we search a free port
 	private static final int MAX_PORT = 65535;
 	private static final int MIN_PORT = 30000;
+	
 	// base path in the URL of the service for context menu
 	private static final String CONTEXT_MENU_PATH_TEMPLATE = "/contextmenu/%s";
 
@@ -39,24 +37,9 @@ public class ServerFactory {
 		}
 
 		HttpServer server = new HttpServer(port);
-
-		configureContextMenuServlets(server);
-
 		return server;
 	}
 
-	/**
-	 * Adds servlets to the server that handle requests from the context menu.
-	 * 
-	 * @param server to configure
-	 */
-	private static void configureContextMenuServlets(HttpServer server) {
-		server.addServlet(DeleteServlet.class, String.format(CONTEXT_MENU_PATH_TEMPLATE, "delete"));
-		server.addServlet(VersionsServlet.class,
-				String.format(CONTEXT_MENU_PATH_TEMPLATE, "versions"));
-		server.addServlet(ShareFolderServlet.class,
-				String.format(CONTEXT_MENU_PATH_TEMPLATE, "share"));
-	}
 
 	/**
 	 * Returns a free (unused) port
@@ -70,5 +53,21 @@ public class ServerFactory {
 			}
 		}
 		return 0;
+	}
+
+	public static String getContextMenuDeletePath() {
+		return getContextMenuPath("delete"); 
+	}
+
+	public static String getContextMenuVersionsPath() {
+		return getContextMenuPath("versions");
+	}
+
+	public static String getContextMenuSharePath() {
+		return getContextMenuPath("share");
+	}
+	
+	private static String getContextMenuPath(String command) {
+		return String.format(ServerFactory.CONTEXT_MENU_PATH_TEMPLATE, command);
 	}
 }

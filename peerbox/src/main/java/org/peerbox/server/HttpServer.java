@@ -1,11 +1,18 @@
 package org.peerbox.server;
 
-import javax.servlet.Servlet;
+import java.util.EnumSet;
 
+import javax.servlet.DispatcherType;
+
+import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.servlet.ServletHandler;
+import org.eclipse.jetty.server.ServerConnector;
+import org.eclipse.jetty.servlet.DefaultServlet;
+import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.inject.servlet.GuiceFilter;
 
 /**
  * Simple HTTP server that handles incoming web requests.
@@ -18,8 +25,6 @@ public class HttpServer implements IServer {
 	private static final Logger logger = LoggerFactory.getLogger(HttpServer.class);
 
 	private Server server;
-	private ServletHandler handler;
-
 	private int port = 0;
 
 	/**
@@ -29,38 +34,54 @@ public class HttpServer implements IServer {
 	 */
 	public HttpServer(int port) {
 		this.port = port;
-		server = new Server(port);
-		handler = new ServletHandler();
-		server.setHandler(handler);
+		server = new Server();
+		initConnector();
+		initHandler();
 	}
 
-	/**
-	 * Add a new servlet that handles server requests.
-	 * 
-	 * @param servlet handling requests to the given mappingPath
-	 * @param mappingPath path that this servlet should serve, e.g. "/utils/getrandomint"
-	 */
-	protected void addServlet(Class<? extends Servlet> servlet, String mappingPath) {
-		handler.addServletWithMapping(servlet, mappingPath);
+	private void initConnector() {
+		ServerConnector connector = new ServerConnector(server);
+		connector.setPort(port);
+		connector.setHost("localhost");
+		server.setConnectors(new Connector[]{connector});
+	}
+
+	private void initHandler() {
+		// default servlet required for jetty to accept all requests 
+		// (guice will define mappings between urls and servlets)
+		ServletContextHandler handler = new ServletContextHandler(server, "/", ServletContextHandler.SESSIONS);
+		handler.addFilter(GuiceFilter.class, "/*", EnumSet.allOf(DispatcherType.class));
+		handler.addServlet(DefaultServlet.class, "/");
 	}
 
 	@Override
-	public void start() {
+	public boolean start() {
 		try {
+			
 			server.start();
 			logger.info("Server started (port {})", getPort());
+			return true;
+			
 		} catch (Exception e) {
 			logger.warn("Could not start the server.", e);
 		}
+		
+		return false;
 	}
 
 	@Override
-	public void stop() {
+	public boolean stop() {
 		try {
+			
 			server.stop();
+			logger.info("Server stopped (port {})", getPort());
+			return true;
+			
 		} catch (Exception e) {
 			logger.warn("Could not stop the server.", e);
 		}
+		
+		return false;
 	}
 
 	@Override

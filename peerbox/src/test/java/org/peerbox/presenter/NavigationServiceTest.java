@@ -1,13 +1,15 @@
 package org.peerbox.presenter;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
 
-import javafx.application.Application;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
@@ -16,16 +18,21 @@ import javafx.scene.control.Label;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.peerbox.JavaFxNoOpApp;
-import org.peerbox.guice.GuiceFxmlLoader;
+import org.peerbox.helper.JavaFXThreadingRule;
+import org.peerbox.interfaces.IFxmlLoaderProvider;
 import org.peerbox.interfaces.INavigatable;
+
 
 public class NavigationServiceTest {
 
+	@Rule
+	public JavaFXThreadingRule jfxRule = new JavaFXThreadingRule();
+	
 	/**
 	 * Controller instance of the view
 	 */
@@ -36,7 +43,7 @@ public class NavigationServiceTest {
 	 * Guice loader, does not do DI in this test.
 	 */
 	@Mock
-	private GuiceFxmlLoader guiceFxmlLoader;
+	private IFxmlLoaderProvider fxmlLoaderProvider;
 	
 	/**
 	 * FXML loader, does not actually load .fxml files
@@ -54,21 +61,6 @@ public class NavigationServiceTest {
 	 */
 	private Label[] elements;
 
-	/**
-	 * Initializes the Java FX toolkit by loading an Application instance, which does nothing.
-	 */
-	@BeforeClass
-	public static void initJFX() {
-		Thread t = new Thread("JavaFX Init Thread") {
-			public void run() {
-				if(!JavaFxNoOpApp.isInitialized()) {
-					Application.launch(JavaFxNoOpApp.class, new String[0]);
-				}
-			}
-		};
-		t.setDaemon(true);
-		t.start();
-	}
 
 	@Before
 	public void setupNavigationService() {
@@ -80,7 +72,7 @@ public class NavigationServiceTest {
 
 		try {
 			/* mock the two methods required for navigation: create(.) and load() */
-			when(guiceFxmlLoader.create(anyString())).thenReturn(fxmlLoader);
+			when(fxmlLoaderProvider.create(anyString())).thenReturn(fxmlLoader);
 			when(fxmlLoader.load()).thenReturn(elements[0], elements[1], elements[2], elements[3]);
 		} catch (IOException e) {
 			/* should not happen as we do not actually load the fxml files */
@@ -88,7 +80,7 @@ public class NavigationServiceTest {
 		}
 		
 		/* initialize the navigation services using the mocks */
-		navigationService = new NavigationService(guiceFxmlLoader);
+		navigationService = new NavigationService(fxmlLoaderProvider);
 		navigationService.setNavigationController(controller);
 	}
 	
@@ -111,7 +103,7 @@ public class NavigationServiceTest {
 	@After
 	public void destroyNavigationService() {
 		controller = null;
-		guiceFxmlLoader = null;
+		fxmlLoaderProvider = null;
 		fxmlLoader = null;
 		navigationService = null;
 	}
@@ -126,7 +118,7 @@ public class NavigationServiceTest {
 	public void testCreateLoader() throws IOException {
 		final String page = "/testpage1.fxml";
 		navigationService.createLoader(page);
-		Mockito.verify(guiceFxmlLoader, Mockito.times(1)).create(page);
+		Mockito.verify(fxmlLoaderProvider, Mockito.times(1)).create(page);
 	}
 
 	@Test
@@ -137,7 +129,7 @@ public class NavigationServiceTest {
 		/* first page */
 		String page_1 = "/testpage1.fxml";
 		navigationService.navigate(page_1);
-		Mockito.verify(guiceFxmlLoader, Mockito.times(1)).create(page_1);
+		Mockito.verify(fxmlLoaderProvider, Mockito.times(1)).create(page_1);
 		Mockito.verify(fxmlLoader, Mockito.times(1)).load();
 		Mockito.verify(controller, Mockito.times(1)).setContent(elements[0]);
 		assertTrue(pages.size() == 1);
@@ -146,7 +138,7 @@ public class NavigationServiceTest {
 		/* second page */
 		String page_2 = "/testpage2.fxml";
 		navigationService.navigate(page_2);
-		Mockito.verify(guiceFxmlLoader, Mockito.times(1)).create(page_2);
+		Mockito.verify(fxmlLoaderProvider, Mockito.times(1)).create(page_2);
 		Mockito.verify(fxmlLoader, Mockito.times(2)).load();
 		Mockito.verify(controller, Mockito.times(1)).setContent(elements[1]);
 		assertTrue(pages.size() == 2);
@@ -156,7 +148,7 @@ public class NavigationServiceTest {
 		/* third page */
 		String page_3 = "/testpage3.fxml";
 		navigationService.navigate(page_3);
-		Mockito.verify(guiceFxmlLoader, Mockito.times(1)).create(page_3);
+		Mockito.verify(fxmlLoaderProvider, Mockito.times(1)).create(page_3);
 		Mockito.verify(fxmlLoader, Mockito.times(3)).load();
 		Mockito.verify(controller, Mockito.times(1)).setContent(elements[2]);
 		assertTrue(pages.size() == 3);

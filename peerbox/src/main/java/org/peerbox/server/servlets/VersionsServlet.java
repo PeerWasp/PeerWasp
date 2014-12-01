@@ -1,71 +1,81 @@
 package org.peerbox.server.servlets;
 
 import java.io.IOException;
-import java.nio.file.Path;
 
 import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.eclipse.jetty.http.MimeTypes;
-import org.peerbox.server.utils.PathDeserializer;
+import org.peerbox.interfaces.IFileVersionHandler;
+import org.peerbox.server.servlets.messages.ServerReturnCode;
+import org.peerbox.server.servlets.messages.ServerReturnMessage;
+import org.peerbox.server.servlets.messages.VersionsMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonSyntaxException;
+import com.google.inject.Inject;
+import com.google.inject.Provider;
+import com.google.inject.Singleton;
 
-public class VersionsServlet extends HttpServlet implements IServlet {
+@Singleton
+public class VersionsServlet extends BaseServlet {
 
 	private static final Logger logger = LoggerFactory.getLogger(VersionsServlet.class);
 	private static final long serialVersionUID = 1L;
+	
+	private final Provider<IFileVersionHandler> fileRecoveryHandlerProvider;
+	
+	@Inject
+	public VersionsServlet(Provider<IFileVersionHandler> fileRecoveryHandlerProvider) {
+		this.fileRecoveryHandlerProvider = fileRecoveryHandlerProvider;
+	}
 
 	@Override
-	protected void doPost(HttpServletRequest req, HttpServletResponse resp)
-			throws ServletException, IOException {
-		// check content type: json
-		if (!req.getContentType().contains(MimeTypes.Type.APPLICATION_JSON.asString())) {
-			resp.sendError(HttpServletResponse.SC_BAD_REQUEST, String.format(
-					"Only JSON requests supported (MIME %s)",
-					MimeTypes.Type.APPLICATION_JSON.asString()));
-		}
+	protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 
-		// read content
-		char[] buffer = new char[req.getContentLength()];
-		req.getReader().read(buffer);
-		String content = new String(buffer);
-
-		// deserialize into message
-		GsonBuilder gsonBuilder = new GsonBuilder();
-		gsonBuilder.registerTypeAdapter(Path.class, new PathDeserializer());
-		Gson gson = gsonBuilder.create();
-
-		VersionsMessage msg = null;
 		try {
+			
+			if (!checkContentTypeJSON(req, resp)) {
+				logger.error("Received request with wrong ContentType: {}", req.getContentType());
+				sendErrorMessage(resp, new ServerReturnMessage(ServerReturnCode.WRONG_CONTENT_TYPE));
+				return;
+			}
+			
+			String content = readContentAsString(req);
+			if(content.isEmpty()) {
+				sendErrorMessage(resp, new ServerReturnMessage(ServerReturnCode.EMPTY_REQUEST));
+				return;
+			}
+			
+			Gson gson = createGsonInstance();
+	
+			VersionsMessage msg = null;
+		
 			msg = gson.fromJson(content, VersionsMessage.class);
-			logger.info("Got request for file versions: {}", msg.getPath());
-			// todo: handle the message.
-
-		} catch (JsonSyntaxException jsonEx) {
-			logger.info("Could not parse message.");
-			resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Could not deserialize given input");
-		}
-
-	}
-
-	/**
-	 * Versions of file - we expect exactly 1 path to a file as argument
-	 * 
-	 * @author albrecht
-	 *
-	 */
-	private static class VersionsMessage {
-		private Path path;
-
-		public Path getPath() {
-			return path;
+			
+			recover(msg);
+			
+			sendEmptyOK(resp);
+			
+		} catch (Exception e) {
+			sendErrorMessage(resp, new ServerReturnMessage(ServerReturnCode.DESERIALIZE_ERROR));
+			return;
 		}
 	}
+
+
+	private void recover(VersionsMessage msg) throws Exception {
+		if(msg == null) {
+			throw new IllegalArgumentException("msg==null");
+		}
+		if(msg.getPath() == null) {
+			throw new Exception("msg.getPath()==null");
+		}
+		
+		logger.info("Got request for file versions: {}", msg.getPath());
+		IFileVersionHandler handler = fileRecoveryHandlerProvider.get();
+		handler.onFileVersionRequested(msg.getPath());
+	}
+
 }

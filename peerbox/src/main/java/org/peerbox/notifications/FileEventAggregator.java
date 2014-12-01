@@ -6,13 +6,14 @@ import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import com.google.common.eventbus.EventBus;
+import org.peerbox.events.MessageBus;
+
 
 public class FileEventAggregator {
 	
 	protected static final int AGGREGATION_TIMESPAN = 10000;
 	
-	private EventBus eventBus;
+	private MessageBus messageBus;
 	
 	private List<Path> addedFiles;
 	private List<Path> modifiedFiles;
@@ -20,8 +21,8 @@ public class FileEventAggregator {
 	
 	private Timer timer;
 	
-	public FileEventAggregator(EventBus eventBus) {
-		this.eventBus = eventBus;
+	public FileEventAggregator(MessageBus messageBus) {
+		this.messageBus = messageBus;
 		addedFiles = new ArrayList<Path>();
 		modifiedFiles = new ArrayList<Path>();
 		deletedFiles = new ArrayList<Path>();
@@ -75,7 +76,7 @@ public class FileEventAggregator {
 					AggregatedFileEventStatus event = new AggregatedFileEventStatus(added.size(),
 							modified.size(), deleted.size());
 					
-					eventBus.post(event);
+					messageBus.post(event).now();
 					  
 				}
 			}, AGGREGATION_TIMESPAN);

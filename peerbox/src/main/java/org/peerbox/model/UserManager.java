@@ -1,17 +1,20 @@
 package org.peerbox.model;
 
+import java.io.IOException;
 import java.nio.file.Path;
 
 import org.hive2hive.core.api.interfaces.IUserManager;
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.hive2hive.core.exceptions.NoSessionException;
+import org.hive2hive.core.file.IFileAgent;
+import org.hive2hive.core.security.UserCredentials;
 import org.hive2hive.processframework.RollbackReason;
 import org.hive2hive.processframework.concretes.ProcessComponentListener;
 import org.hive2hive.processframework.exceptions.InvalidProcessStateException;
 import org.hive2hive.processframework.interfaces.IProcessComponent;
-import org.hive2hive.core.security.UserCredentials;
 import org.peerbox.ResultStatus;
 import org.peerbox.h2h.PeerboxFileAgent;
+import org.peerbox.utils.AppData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,11 +55,12 @@ public class UserManager {
 
 	public ResultStatus loginUser(final String username, final String password, final String pin,
 			final Path rootPath) throws NoPeerConnectionException, InterruptedException,
-			InvalidProcessStateException {
+			InvalidProcessStateException, IOException {
 		// TODO what if already logged in?
 		userCredentials = new UserCredentials(username, password, pin);
+		IFileAgent fileAgent = new PeerboxFileAgent(rootPath, AppData.getCacheFolder());
 		
-		IProcessComponent loginProcess = h2hUserManager.login(userCredentials, new PeerboxFileAgent(rootPath.toFile()));
+		IProcessComponent loginProcess = h2hUserManager.login(userCredentials, fileAgent);
 		ProcessComponentListener listener = new ProcessComponentListener();
 		loginProcess.attachListener(listener);
 		loginProcess.start().await();
