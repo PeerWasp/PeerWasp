@@ -183,8 +183,7 @@ public class EstablishedState extends AbstractActionState{
 		FileComponent deleted = action.getEventManager().getFileTree().deleteComponent(action.getFilePath().toString());
 		action.getEventManager().getFileTree().putComponent(dstPath.toString(), action.getFile());
 		
-		
-		Path path = action.getFilePath();
+		Path path = dstPath;
 		logger.debug("Execute REMOTE MOVE: {}", path);
 		try {
 			com.google.common.io.Files.move(oldPath.toFile(), path.toFile());
