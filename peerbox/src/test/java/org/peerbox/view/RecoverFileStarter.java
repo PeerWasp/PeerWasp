@@ -1,8 +1,7 @@
 package org.peerbox.view;
 
-import static org.mockito.Matchers.anyObject;
-import static org.mockito.Mockito.when;
-
+import java.io.File;
+import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
@@ -12,15 +11,19 @@ import javafx.fxml.FXMLLoader;
 import javafx.stage.Stage;
 import javafx.util.Callback;
 
-import org.hive2hive.core.model.FileVersion;
-import org.hive2hive.core.model.IFileVersion;
-import org.hive2hive.processframework.RollbackReason;
-import org.hive2hive.processframework.interfaces.IProcessComponent;
-import org.hive2hive.processframework.interfaces.IProcessComponentListener;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.RandomStringUtils;
+import org.apache.commons.lang3.RandomUtils;
+import org.hive2hive.core.H2HJUnitTest;
+import org.hive2hive.core.api.interfaces.IH2HNode;
+import org.hive2hive.core.exceptions.IllegalFileLocation;
+import org.hive2hive.core.exceptions.NoPeerConnectionException;
+import org.hive2hive.core.exceptions.NoSessionException;
+import org.hive2hive.core.security.UserCredentials;
+import org.hive2hive.core.utils.FileTestUtil;
+import org.hive2hive.core.utils.NetworkTestUtil;
+import org.hive2hive.core.utils.helper.TestFileAgent;
+import org.hive2hive.processframework.exceptions.InvalidProcessStateException;
 import org.peerbox.FileManager;
 import org.peerbox.interfaces.IFxmlLoaderProvider;
 import org.peerbox.presenter.FileVersionSelector;
@@ -28,15 +31,25 @@ import org.peerbox.presenter.RecoverFileController;
 
 public class RecoverFileStarter extends Application {
 	
-	@Mock
+	private static final int networkSize = 6;
+	private static List<IH2HNode> network;
+
+	private IH2HNode client;
+	private UserCredentials userCredentials;
+	private File root;
+	private File file;
+	
+	private static final int FILE_SIZE = 512*1024;
+	private static final int NUM_VERSIONS = 5;
+	
+	private static List<String> content;
+	private static final String fileName = "test-file.txt";
+	
 	private FileManager fileManager;
 	
 	private RecoverFileController controller;
 	private FileVersionSelector versionSelector;
 	
-	@Mock
-	private IProcessComponent process;
-	ArgumentCaptor<IProcessComponentListener> processComponentListener;
 	
 	public static void main(String[] args) {
 		launch(args);
@@ -45,14 +58,52 @@ public class RecoverFileStarter extends Application {
 	@Override
 	public void start(Stage primaryStage) throws Exception {
 		
-		MockitoAnnotations.initMocks(this);
-		when(fileManager.recover(anyObject(), anyObject())).thenReturn(process);
+		initNetwork();
 		
+		uploadFileVersions();
 		
+		initGui();
+		
+	}
+
+	private void initNetwork() throws IOException, NoPeerConnectionException, InterruptedException, InvalidProcessStateException {
+		network = NetworkTestUtil.createH2HNetwork(networkSize);
+		userCredentials = H2HJUnitTest.generateRandomCredentials();
+		client = network.get(RandomUtils.nextInt(0, network.size()));;
+	
+		// register a user
+		root = FileTestUtil.getTempDirectory();
+		client.getUserManager().register(userCredentials).start().await();
+		client.getUserManager().login(userCredentials, new TestFileAgent(root)).start().await();
+	}
+
+	private void uploadFileVersions() throws IOException, NoSessionException, NoPeerConnectionException, InterruptedException, InvalidProcessStateException, IllegalFileLocation {
+		content = new ArrayList<String>();
+		
+		// add an intial file to the network
+		file = new File(root, fileName);
+		String fileContent = RandomStringUtils.randomAscii(FILE_SIZE);
+		content.add(fileContent);
+		FileUtils.write(file, fileContent);
+		client.getFileManager().add(file).start().await();
+	
+		// update and upload 
+		for(int i = 0; i < NUM_VERSIONS; ++i) {
+			Thread.sleep(5000); // sleep such that each file has different timestamp
+			fileContent = RandomStringUtils.randomAscii(FILE_SIZE);
+			content.add(fileContent);
+			FileUtils.write(file, fileContent);
+			client.getFileManager().update(file).start().await();
+		}
+	}
+
+	private void initGui() {
+		
+		fileManager = new FileManager(client.getFileManager());
 		
 		RecoverFileStage stage = new RecoverFileStage();
 		controller = new RecoverFileController();
-		controller.setFileManager(null);
+		controller.setFileManager(fileManager);
 		
 		versionSelector = new FileVersionSelector(controller);
 		controller.setVersionSelector(versionSelector);
@@ -75,49 +126,10 @@ public class RecoverFileStarter extends Application {
 			}
 		});
 		
-		stage.onFileVersionRequested(Paths.get("/tmp/peerboxt_test/test"));
-		
-	
-		new Thread(new RecoverySimulation()).start();
-		
-		// capture the event listener
-		processComponentListener = ArgumentCaptor.forClass(IProcessComponentListener.class);
-		Mockito.verify(process).attachListener(processComponentListener.capture());
-		
-		
+		stage.onFileVersionRequested(Paths.get(root.toString(), fileName));
 		
 	}
-	
-	
-	private class RecoverySimulation implements Runnable {
 
-		@Override
-		public void run() {
-			
-			try {
-				
-				Thread.sleep(5000);
-				
-				List<IFileVersion> versions = new ArrayList<IFileVersion>();
-				versions.add(new FileVersion(0, 100, 100, null));
-				versions.add(new FileVersion(1, 200, 200, null));
-				versions.add(new FileVersion(2, 300, 300, null));
-				IFileVersion selected = versionSelector.selectVersion(versions);
-				
-				Thread.sleep(5000);
-				versionSelector.getRecoveredFileName("a", "b", "c");
-				
-				Thread.sleep(1000);
-//				processComponentListener.getValue().onSucceeded();
-				processComponentListener.getValue().onFailed(new RollbackReason("Failed"));
-				
-				
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+	
 
-		}
-		
-	}
 }

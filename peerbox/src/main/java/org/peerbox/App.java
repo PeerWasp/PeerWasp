@@ -69,6 +69,7 @@ public class App extends Application
 			logger.info("Loading startup stage (no auto login)");
 			launchInForeground();
 		}
+		
 		messageBus.post(new InformationNotification("PeerBox started", "Hello...")).now();;
     }
 
@@ -80,10 +81,11 @@ public class App extends Application
 	private void initializeServer() {
 		try {
 			boolean success = server.start();
-			if(!success) {
+			if(success) {
+				userConfig.setApiServerPort(server.getPort());
+			} else {
 				logger.warn("Could not start server.");
 			}
-			userConfig.setApiServerPort(server.getPort());
 		} catch(IOException e) {
 			logger.error("Could not save API server port.", e);
 		}

@@ -3,10 +3,8 @@ package org.peerbox.presenter;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.locks.Condition;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 
 import org.hive2hive.core.model.IFileVersion;
 import org.hive2hive.core.processes.files.recover.IVersionSelector;
@@ -14,8 +12,7 @@ import org.peerbox.interfaces.IFileVersionSelectorEventListener;
 
 final public class FileVersionSelector implements IVersionSelector {
 	
-	private final Lock selectionLock = new ReentrantLock();
-	private final Condition versionSelectedCondition  = selectionLock.newCondition();
+	private final CountDownLatch doneSignal;
 	private final IFileVersionSelectorEventListener listener; 
 	private IFileVersion selectedVersion;
 	private String recoveredFileName;
@@ -29,6 +26,7 @@ final public class FileVersionSelector implements IVersionSelector {
 			throw new IllegalArgumentException("Argument listener must not be null.");
 		}
 		
+		this.doneSignal = new CountDownLatch(1);
 		this.gotAvailableVersions.set(false);
 		this.isCancelled.set(false);
 		this.hasSelected.set(false);
@@ -39,29 +37,29 @@ final public class FileVersionSelector implements IVersionSelector {
 	public void cancel() {
 		isCancelled.set(true);
 		selectedVersion = null;
+		doneSignal.countDown();
 	}
 	
 	public void selectVersion(IFileVersion selectedVersion)  {
-		if(hasSelected.get()) {
-			throw new IllegalStateException("Cannot select multiple times.");
-		}
-		hasSelected.set(true);
-		
-		if(!gotAvailableVersions.get()) {
-			throw new IllegalStateException("Cannot select version before retrieving available versions");
-		}
-		
-		if(selectedVersion == null) {
-			cancel();
-		}
-		
 		try {
-			selectionLock.lock();
+			if(hasSelected.get()) {
+				throw new IllegalStateException("Calling selectVersion multiple times is not allowed.");
+			}
+			hasSelected.set(true);
+			
+			if(!gotAvailableVersions.get()) {
+				throw new IllegalStateException("Cannot select version before retrieving available versions.");
+			}
+			
+			if(selectedVersion == null) {
+				cancel();
+			}
+			
 			this.selectedVersion = selectedVersion;
-			versionSelectedCondition.signal(); // wake up other waiting thread 
-		} finally {
-			selectionLock.unlock();
+		} finally  {
+			doneSignal.countDown(); // wake up other waiting thread 
 		}
+	
 	}
 
 	@Override
@@ -70,23 +68,18 @@ final public class FileVersionSelector implements IVersionSelector {
 			// not interested in versions anymore -> select nothing (i.e. cancel)
 			return null;
 		}
-		
+
 		try {
-			selectionLock.lock();
 			if(availableVersions != null) {
 				gotAvailableVersions.set(true);
-				try {
-					Thread.sleep(10000);
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+	
 				listener.onAvailableVersionsReceived(availableVersions);
+				
 				// wait here until selectVersion(version) is called
-				versionSelectedCondition.awaitUninterruptibly();
+				doneSignal.await();
 			}
-		} finally {
-			selectionLock.unlock();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
 		}
 		
 		return selectedVersion;
