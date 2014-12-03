@@ -13,6 +13,8 @@
 extern HINSTANCE g_hInst;
 extern long g_cDllRef;
 
+// content type of the requests
+#define REQ_CONTENT_TYPE	L"application/json"
 
 std::map<CommandId, CommandInfo> commandInfoMap = Command::CreateCommandMap();
 
@@ -493,18 +495,19 @@ IFACEMETHODIMP ContextMenuExt::InvokeCommand(LPCMINVOKECOMMANDINFO pici)
 		UINT cmdOffset = LOWORD(pici->lpVerb);
 		UINT cmdId = m_firstCmdId + cmdOffset;
 		std::map<UINT, CommandId>::iterator it = m_cmdIdToCommand.find(cmdId);
-
+		
+		int returnCode = 0;
 		if (it != m_cmdIdToCommand.end() && it->first == cmdId) {
 			CommandId cmdId = it->second;
 			switch (cmdId) {
 			case CMD_DELETE:
-				Handle_CmdDelete();
+				returnCode = Handle_CmdDelete();
 				break;
 			case CMD_VERSIONS:
-				Handle_CmdVersions();
+				returnCode = Handle_CmdVersions();
 				break;
 			case CMD_SHARE:
-				Handle_CmdShare();
+				returnCode = Handle_CmdShare();
 				break;
 			default:
 				// unknown command id -- should not happen
@@ -516,6 +519,13 @@ IFACEMETHODIMP ContextMenuExt::InvokeCommand(LPCMINVOKECOMMANDINFO pici)
 			// must return E_FAIL to allow it to be passed on to the other 
 			// context menu handlers that might implement that verb.
 			return E_FAIL;
+		}
+
+		if (returnCode == ERR_HTTP_FAILED) {
+			ShowServerNotRunningMessage(pici->hwnd);
+		}
+		else if (returnCode == ERR_EXCEPTION) {
+			ShowUnexpectedErrorMessage(pici->hwnd);
 		}
     }
 
@@ -598,16 +608,16 @@ std::wstring ContextMenuExt::GetHelpText(UINT cmdOffset)
 // doc: http://msdn.microsoft.com/en-us/library/jj988008.aspx
 //
 
-void ContextMenuExt::Handle_CmdDelete()
+int ContextMenuExt::Handle_CmdDelete()
 {
-	Utils::GetApiServerPort();
 	// check preconditions
 	if (m_files.size() < 1) {
-		return;
+		return 0;
 	}
 
+	int ret = 0;
 	try {
-
+		
 		// collect paths
 		std::vector<web::json::value> jsonPaths;
 		std::vector<std::wstring>::const_iterator it;
@@ -617,13 +627,12 @@ void ContextMenuExt::Handle_CmdDelete()
 
 		// setup message
 		web::json::value data;
-		data[L"command"] = web::json::value::string(L"Delete");
 		data[L"paths"] = web::json::value::array(jsonPaths);
 
 		// post message
 		web::http::uri uri = Utils::CreateUri(L"delete");
 		web::http::client::http_client client(uri);
-		pplx::task<web::http::http_response> task = client.request(web::http::methods::POST, L"", data.serialize(), L"application/json");
+		pplx::task<web::http::http_response> task = client.request(web::http::methods::POST, L"", data.serialize(), REQ_CONTENT_TYPE);
 		task.wait();
 		web::http::http_response response = task.get();
 		if (response.status_code() == web::http::status_codes::OK)
@@ -631,32 +640,40 @@ void ContextMenuExt::Handle_CmdDelete()
 			// everything ok
 		}
 		else {
-			// log somehow? show message box?
+			// log somehow? 
+			ret = ERR_HTTP_FAILED;
 		}
 	}
-	catch (...) {
-
+	catch (web::http::http_exception e) {
+		// may happen if server not running
+		ret = ERR_HTTP_FAILED;
 	}
+	catch (...) {
+		// need a catch all, otherwise explorer would crash here
+		ret = ERR_EXCEPTION;
+	}
+
+	return ret;
 }
 
-void ContextMenuExt::Handle_CmdVersions()
+int ContextMenuExt::Handle_CmdVersions()
 {
 	// check preconditions
 	if (m_files.size() != 1) {
-		return;
+		return 0;
 	}
 
+	int ret = 0;
 	try {
 
 		// setup message
 		web::json::value data;
-		data[L"command"] = web::json::value::string(L"Versions");
 		data[L"path"] = web::json::value::string(m_files.at(0));
 
 		// post message
 		web::http::uri uri = Utils::CreateUri(L"versions");
 		web::http::client::http_client client(uri);
-		pplx::task<web::http::http_response> task = client.request(web::http::methods::POST, L"", data.serialize(), L"application/json");
+		pplx::task<web::http::http_response> task = client.request(web::http::methods::POST, L"", data.serialize(), REQ_CONTENT_TYPE);
 		task.wait();
 		web::http::http_response response = task.get();
 		if (response.status_code() == web::http::status_codes::OK)
@@ -664,33 +681,41 @@ void ContextMenuExt::Handle_CmdVersions()
 			// everything ok
 		}
 		else {
-			// log somehow? show message box?
+			// log somehow?
+			return ERR_HTTP_FAILED;
 		}
 	}
-	catch (...) {
-
+	catch (web::http::http_exception e) {
+		// may happen if server not running
+		ret = ERR_HTTP_FAILED;
 	}
+	catch (...) {
+		// need a catch all, otherwise explorer would crash here
+		ret = ERR_EXCEPTION;
+	}
+
+	return ret;
 }
 
 
-void ContextMenuExt::Handle_CmdShare()
+int ContextMenuExt::Handle_CmdShare()
 {
 	// check preconditions
 	if (m_files.size() != 1) {
-		return;
+		return 0;
 	}
 
+	int ret = 0;
 	try {
 
 		// setup message
 		web::json::value data;
-		data[L"command"] = web::json::value::string(L"ShareFolder");
 		data[L"path"] = web::json::value::string(m_files.at(0));
 
 		// post message
 		web::http::uri uri = Utils::CreateUri(L"share");
 		web::http::client::http_client client(uri);
-		pplx::task<web::http::http_response> task = client.request(web::http::methods::POST, L"", data.serialize(), L"application/json");
+		pplx::task<web::http::http_response> task = client.request(web::http::methods::POST, L"", data.serialize(), REQ_CONTENT_TYPE);
 		task.wait();
 		web::http::http_response response = task.get();
 		if (response.status_code() == web::http::status_codes::OK)
@@ -698,12 +723,29 @@ void ContextMenuExt::Handle_CmdShare()
 			// everything ok
 		}
 		else {
-			// log somehow? show message box?
+			// log somehow? 
+			return ERR_HTTP_FAILED;
 		}
 	}
-	catch (...) {
-
+	catch (web::http::http_exception e) {
+		// may happen if server not running
+		ret = ERR_HTTP_FAILED;
 	}
+	catch (...) {
+		// need a catch all, otherwise explorer would crash here
+		ret = ERR_EXCEPTION;
+	}
+
+	return ret;
 }
 
+void ContextMenuExt::ShowServerNotRunningMessage(HWND hwnd)
+{
+	MessageBox(hwnd, L"Could not process the command. Please make sure that PeerBox is running.", L"Command Failed", MB_ICONINFORMATION);
+}
+
+void ContextMenuExt::ShowUnexpectedErrorMessage(HWND hwnd)
+{
+	MessageBox(hwnd, L"Could not process the command due to an unexpected error. Please make sure that PeerBox is running or restart the application.", L"Command Failed", MB_ICONERROR);
+}
 #pragma endregion

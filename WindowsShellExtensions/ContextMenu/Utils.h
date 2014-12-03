@@ -6,6 +6,11 @@
 
 #include <cpprest/http_client.h>
 
+// error codes 
+#define ERR_CODE			100000
+#define ERR_HTTP_FAILED		ERR_CODE+1
+#define ERR_EXCEPTION		ERR_CODE+2
+
 class Utils {
 public:
 	Utils();

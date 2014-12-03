@@ -96,7 +96,11 @@ private:
 	bool MenuItemInitShare(UINT pos, UINT cmdId);
 
 	// CommandInvocation handlers
-	void Handle_CmdDelete();
-	void Handle_CmdVersions();
-	void Handle_CmdShare();
+	int Handle_CmdDelete();
+	int Handle_CmdVersions();
+	int Handle_CmdShare();
+
+	// message box
+	void ShowServerNotRunningMessage(HWND hwnd);
+	void ShowUnexpectedErrorMessage(HWND hwnd);
 };
