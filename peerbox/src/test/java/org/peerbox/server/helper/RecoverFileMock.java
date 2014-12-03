@@ -2,12 +2,12 @@ package org.peerbox.server.helper;
 
 import java.nio.file.Path;
 
-import org.peerbox.interfaces.IFileVersionHandler;
+import org.peerbox.filerecovery.IFileRecoveryHandler;
 
-public class RecoverFileMock implements IFileVersionHandler {
+public class RecoverFileMock implements IFileRecoveryHandler {
 
 	@Override
-	public void onFileVersionRequested(Path fileToRecover) {
+	public void recoverFile(Path fileToRecover) {
 		System.out.println(fileToRecover.toString());
 	}
 

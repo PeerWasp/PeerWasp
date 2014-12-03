@@ -1,4 +1,4 @@
-package org.peerbox;
+package org.peerbox.filerecovery;
 
 import static org.junit.Assert.*;
 
@@ -31,8 +31,8 @@ import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.peerbox.interfaces.IFileVersionSelectorEventListener;
-import org.peerbox.presenter.FileVersionSelector;
+import org.peerbox.filerecovery.FileVersionSelector;
+import org.peerbox.filerecovery.IFileVersionSelectorListener;
 
 public class FileVersionSelectorTest {
 	
@@ -166,7 +166,7 @@ public class FileVersionSelectorTest {
 	}
 	
 	
-	private class FileVersionSelectorListener implements IFileVersionSelectorEventListener {
+	private class FileVersionSelectorListener implements IFileVersionSelectorListener {
 
 		private FileVersionSelector versionSelector;
 		private int versionToRecover;

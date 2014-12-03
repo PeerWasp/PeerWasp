@@ -1,4 +1,4 @@
-package org.peerbox;
+package org.peerbox.app;
 
 
 public final class Constants {

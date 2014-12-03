@@ -1,4 +1,4 @@
-package org.peerbox.presenter;
+package org.peerbox.filerecovery;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -8,12 +8,11 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.hive2hive.core.model.IFileVersion;
 import org.hive2hive.core.processes.files.recover.IVersionSelector;
-import org.peerbox.interfaces.IFileVersionSelectorEventListener;
 
-final public class FileVersionSelector implements IVersionSelector {
+public final class FileVersionSelector implements IVersionSelector {
 	
 	private final CountDownLatch doneSignal;
-	private final IFileVersionSelectorEventListener listener; 
+	private final IFileVersionSelectorListener listener; 
 	private IFileVersion selectedVersion;
 	private String recoveredFileName;
 	
@@ -21,7 +20,7 @@ final public class FileVersionSelector implements IVersionSelector {
 	private final AtomicBoolean isCancelled = new AtomicBoolean();
 	private final AtomicBoolean hasSelected = new AtomicBoolean();
 	
-	public FileVersionSelector(final IFileVersionSelectorEventListener listener) {
+	public FileVersionSelector(final IFileVersionSelectorListener listener) {
 		if(listener == null) {
 			throw new IllegalArgumentException("Argument listener must not be null.");
 		}

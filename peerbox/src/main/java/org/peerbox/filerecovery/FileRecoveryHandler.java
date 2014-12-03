@@ -1,4 +1,4 @@
-package org.peerbox.view;
+package org.peerbox.filerecovery;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -12,19 +12,17 @@ import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 
 import org.peerbox.ResultStatus;
-import org.peerbox.interfaces.IFileVersionHandler;
 import org.peerbox.interfaces.IFxmlLoaderProvider;
 import org.peerbox.model.H2HManager;
 import org.peerbox.model.UserManager;
-import org.peerbox.presenter.RecoverFileController;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.inject.Inject;
 
-public class RecoverFileStage implements IFileVersionHandler {
+public class FileRecoveryHandler implements IFileRecoveryHandler {
 	
-	private static final Logger logger = LoggerFactory.getLogger(RecoverFileStage.class);
+	private static final Logger logger = LoggerFactory.getLogger(FileRecoveryHandler.class);
 	private Stage stage;
 	private IFxmlLoaderProvider fxmlLoaderProvider;
 	private Path fileToRecover;
@@ -73,7 +71,7 @@ public class RecoverFileStage implements IFileVersionHandler {
 	}
 	
 	@Override
-	public void onFileVersionRequested(Path fileToRecover) {
+	public void recoverFile(Path fileToRecover) {
 		this.fileToRecover = fileToRecover;
 		
 		ResultStatus res = checkPreconditions();

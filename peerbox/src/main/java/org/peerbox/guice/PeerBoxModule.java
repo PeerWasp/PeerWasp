@@ -5,11 +5,11 @@ import org.peerbox.FileManager;
 import org.peerbox.app.ExitHandler;
 import org.peerbox.app.IExitHandler;
 import org.peerbox.events.MessageBus;
-import org.peerbox.interfaces.IFileVersionHandler;
+import org.peerbox.filerecovery.FileRecoveryHandler;
+import org.peerbox.filerecovery.IFileRecoveryHandler;
 import org.peerbox.interfaces.IFxmlLoaderProvider;
 import org.peerbox.model.H2HManager;
 import org.peerbox.model.UserManager;
-import org.peerbox.view.RecoverFileStage;
 import org.peerbox.view.tray.AbstractSystemTray;
 import org.peerbox.view.tray.JSystemTray;
 
@@ -33,7 +33,7 @@ public class PeerBoxModule extends AbstractModule {
 		bindPrimaryStage();
 		
 		bind(IFxmlLoaderProvider.class).to(GuiceFxmlLoader.class);
-		bind(IFileVersionHandler.class).to(RecoverFileStage.class);
+		bind(IFileRecoveryHandler.class).to(FileRecoveryHandler.class);
 		bind(IExitHandler.class).to(ExitHandler.class);
 	}
 

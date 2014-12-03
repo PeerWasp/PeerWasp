@@ -6,10 +6,10 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.peerbox.interfaces.IFileVersionHandler;
+import org.peerbox.filerecovery.IFileRecoveryHandler;
 import org.peerbox.server.servlets.messages.ServerReturnCode;
 import org.peerbox.server.servlets.messages.ServerReturnMessage;
-import org.peerbox.server.servlets.messages.VersionsMessage;
+import org.peerbox.server.servlets.messages.FileRecoveryMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,15 +19,15 @@ import com.google.inject.Provider;
 import com.google.inject.Singleton;
 
 @Singleton
-public class VersionsServlet extends BaseServlet {
+public class FileRecoveryServlet extends BaseServlet {
 
-	private static final Logger logger = LoggerFactory.getLogger(VersionsServlet.class);
+	private static final Logger logger = LoggerFactory.getLogger(FileRecoveryServlet.class);
 	private static final long serialVersionUID = 1L;
 	
-	private final Provider<IFileVersionHandler> fileRecoveryHandlerProvider;
+	private final Provider<IFileRecoveryHandler> fileRecoveryHandlerProvider;
 	
 	@Inject
-	public VersionsServlet(Provider<IFileVersionHandler> fileRecoveryHandlerProvider) {
+	public FileRecoveryServlet(Provider<IFileRecoveryHandler> fileRecoveryHandlerProvider) {
 		this.fileRecoveryHandlerProvider = fileRecoveryHandlerProvider;
 	}
 
@@ -50,11 +50,11 @@ public class VersionsServlet extends BaseServlet {
 			
 			Gson gson = createGsonInstance();
 	
-			VersionsMessage msg = null;
+			FileRecoveryMessage msg = null;
 		
-			msg = gson.fromJson(content, VersionsMessage.class);
+			msg = gson.fromJson(content, FileRecoveryMessage.class);
 			
-			recover(msg);
+			handleRecovery(msg);
 			
 			sendEmptyOK(resp);
 			
@@ -65,7 +65,7 @@ public class VersionsServlet extends BaseServlet {
 	}
 
 
-	private void recover(VersionsMessage msg) throws Exception {
+	private void handleRecovery(FileRecoveryMessage msg) throws Exception {
 		if(msg == null) {
 			throw new IllegalArgumentException("msg==null");
 		}
@@ -73,9 +73,9 @@ public class VersionsServlet extends BaseServlet {
 			throw new Exception("msg.getPath()==null");
 		}
 		
-		logger.info("Got request for file versions: {}", msg.getPath());
-		IFileVersionHandler handler = fileRecoveryHandlerProvider.get();
-		handler.onFileVersionRequested(msg.getPath());
+		logger.info("Got request for file recovery: {}", msg.getPath());
+		IFileRecoveryHandler handler = fileRecoveryHandlerProvider.get();
+		handler.recoverFile(msg.getPath());
 	}
 
 }

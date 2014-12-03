@@ -6,7 +6,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import org.apache.commons.io.FileUtils;
-import org.peerbox.Constants;
+import org.peerbox.app.Constants;
 
 public final class AppData {
 	

@@ -1,4 +1,4 @@
-package org.peerbox.presenter;
+package org.peerbox.filerecovery;
 
 import java.io.FileNotFoundException;
 import java.net.URL;
@@ -44,13 +44,12 @@ import org.hive2hive.processframework.exceptions.InvalidProcessStateException;
 import org.hive2hive.processframework.interfaces.IProcessComponent;
 import org.hive2hive.processframework.interfaces.IProcessComponentListener;
 import org.peerbox.FileManager;
-import org.peerbox.interfaces.IFileVersionSelectorEventListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.inject.Inject;
 
-public class RecoverFileController  implements Initializable, IFileVersionSelectorEventListener {
+public final class RecoverFileController  implements Initializable, IFileVersionSelectorListener {
 	
 	private static final Logger logger = LoggerFactory.getLogger(RecoverFileController.class);
 	

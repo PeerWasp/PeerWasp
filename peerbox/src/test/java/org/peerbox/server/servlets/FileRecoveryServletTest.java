@@ -16,17 +16,17 @@ import org.junit.Test;
 import org.peerbox.server.ServerFactory;
 import org.peerbox.server.servlets.messages.DeleteMessage;
 import org.peerbox.server.servlets.messages.ServerReturnCode;
-import org.peerbox.server.servlets.messages.VersionsMessage;
+import org.peerbox.server.servlets.messages.FileRecoveryMessage;
 
 import com.jayway.restassured.http.ContentType;
 
 
 
-public class VersionServletTest extends ServletTest {
+public class FileRecoveryServletTest extends ServletTest {
 
 	private String url;
 	
-	public VersionServletTest() {
+	public FileRecoveryServletTest() {
 		url = getUrl(ServerFactory.getContextMenuVersionsPath());
 	}
 	
@@ -130,7 +130,7 @@ public class VersionServletTest extends ServletTest {
 	
 	@Test
 	public void testPostFile() {
-		VersionsMessage msg = new VersionsMessage();
+		FileRecoveryMessage msg = new FileRecoveryMessage();
 		msg.setPath(Paths.get("/tmp/PeerBox_test/file"));
 
 		given().

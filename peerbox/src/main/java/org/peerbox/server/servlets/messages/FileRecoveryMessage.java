@@ -8,7 +8,7 @@ import java.nio.file.Path;
  * @author albrecht
  *
  */
-public class VersionsMessage {
+public class FileRecoveryMessage {
 	private Path path;
 	
 	public Path getPath() {

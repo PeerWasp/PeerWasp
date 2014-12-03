@@ -1,4 +1,4 @@
-package org.peerbox.view;
+package org.peerbox.filerecovery;
 
 import java.io.File;
 import java.io.IOException;
@@ -25,9 +25,10 @@ import org.hive2hive.core.utils.NetworkTestUtil;
 import org.hive2hive.core.utils.helper.TestFileAgent;
 import org.hive2hive.processframework.exceptions.InvalidProcessStateException;
 import org.peerbox.FileManager;
+import org.peerbox.filerecovery.FileRecoveryHandler;
+import org.peerbox.filerecovery.FileVersionSelector;
+import org.peerbox.filerecovery.RecoverFileController;
 import org.peerbox.interfaces.IFxmlLoaderProvider;
-import org.peerbox.presenter.FileVersionSelector;
-import org.peerbox.presenter.RecoverFileController;
 
 public class RecoverFileStarter extends Application {
 	
@@ -101,7 +102,7 @@ public class RecoverFileStarter extends Application {
 		
 		fileManager = new FileManager(client.getFileManager());
 		
-		RecoverFileStage stage = new RecoverFileStage();
+		FileRecoveryHandler stage = new FileRecoveryHandler();
 		controller = new RecoverFileController();
 		controller.setFileManager(fileManager);
 		
@@ -125,7 +126,7 @@ public class RecoverFileStarter extends Application {
 			}
 		});
 		
-		stage.onFileVersionRequested(Paths.get(root.toString(), fileName));
+		stage.recoverFile(Paths.get(root.toString(), fileName));
 		
 	}
 
