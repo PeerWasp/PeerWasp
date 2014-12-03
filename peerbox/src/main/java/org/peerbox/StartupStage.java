@@ -2,7 +2,6 @@ package org.peerbox;
 
 import java.io.IOException;
 
-import javafx.application.Platform;
 import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -12,6 +11,7 @@ import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.stage.WindowEvent;
 
+import org.peerbox.app.IExitHandler;
 import org.peerbox.interfaces.INavigatable;
 import org.peerbox.presenter.NavigationService;
 import org.peerbox.view.ViewNames;
@@ -26,6 +26,7 @@ public class StartupStage {
 	private Stage stage;
 	private Parent mainView;
 	private NavigationService navigationService;
+	private IExitHandler exitHandler;
 
 	
 	public StartupStage() {
@@ -45,6 +46,11 @@ public class StartupStage {
 		this.stage = stage;
 	}
 	
+	@Inject
+	public void setExitHandler(IExitHandler exitHandler) {
+		this.exitHandler = exitHandler;
+	}
+	
 	private void initializeStage() {
 		stage.setTitle("PeerBox");
 		stage.getIcons().add(new Image(getClass().getResourceAsStream("/images/icon.png")));
@@ -62,9 +68,7 @@ public class StartupStage {
 		stage.setOnCloseRequest(new EventHandler<WindowEvent>() {
 	        @Override
 	        public void handle(WindowEvent t) {
-	            // TODO: close application properly or hide to tray.
-	        	Platform.exit();
-	            System.exit(0);
+	            exitHandler.exit();
 	        }
 	    });
 	}

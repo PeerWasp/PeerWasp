@@ -1,8 +1,6 @@
 package org.peerbox.server;
 
 import org.hive2hive.core.network.NetworkUtils;
-import org.peerbox.utils.OsUtils;
-import org.peerbox.utils.WinRegistry;
 
 /**
  * Factory that creates and initializes a new server instance.

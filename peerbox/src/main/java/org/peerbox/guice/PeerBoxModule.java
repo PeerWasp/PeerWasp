@@ -2,6 +2,8 @@ package org.peerbox.guice;
 
 
 import org.peerbox.FileManager;
+import org.peerbox.app.ExitHandler;
+import org.peerbox.app.IExitHandler;
 import org.peerbox.events.MessageBus;
 import org.peerbox.interfaces.IFileVersionHandler;
 import org.peerbox.interfaces.IFxmlLoaderProvider;
@@ -32,6 +34,7 @@ public class PeerBoxModule extends AbstractModule {
 		
 		bind(IFxmlLoaderProvider.class).to(GuiceFxmlLoader.class);
 		bind(IFileVersionHandler.class).to(RecoverFileStage.class);
+		bind(IExitHandler.class).to(ExitHandler.class);
 	}
 
 	private void bindSystemTray() {
