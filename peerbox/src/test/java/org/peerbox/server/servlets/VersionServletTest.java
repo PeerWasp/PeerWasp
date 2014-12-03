@@ -80,6 +80,24 @@ public class VersionServletTest extends ServletTest {
 	}
 	
 	@Test
+	public void testCollectionOfUrls() {
+		StringBuilder sb = new StringBuilder();
+		sb.append("{").append("\"path\":").append("[")
+		.append("\"").append(Paths.get("/tmp/testpath/file1")).append("\"")
+		.append(",\"").append(Paths.get("/tmp/testpath/file2")).append("\"")
+		.append("]}");
+		
+		given().
+			contentType(ContentType.JSON).
+			content(sb.toString()).
+		post(url).
+		then().
+			assertThat().statusCode(HttpServletResponse.SC_BAD_REQUEST).
+			assertThat().contentType(ContentType.JSON).
+			assertThat().body("returnCode", equalTo(ServerReturnCode.DESERIALIZE_ERROR.ordinal()));
+	}
+	
+	@Test
 	public void testPostWrongJson() {	
 		given().
 			contentType(ContentType.JSON).
@@ -118,6 +136,23 @@ public class VersionServletTest extends ServletTest {
 		given().
 			contentType(ContentType.JSON).
 			content(msg).
+		post(url).
+		then().
+			assertThat().statusCode(HttpServletResponse.SC_OK).
+			assertThat().contentType(ContentType.JSON);
+	}
+	
+	@Test
+	public void testPostFileAndAdditionalParameter() {
+		StringBuilder sb = new StringBuilder();
+		sb.append("{").append("\"path\":")
+		.append("\"").append(Paths.get("/tmp/testpath/file1")).append("\"")
+		.append(", \"code\":\"4\"")
+		.append("}");
+
+		given().
+			contentType(ContentType.JSON).
+			content(sb.toString()).
 		post(url).
 		then().
 			assertThat().statusCode(HttpServletResponse.SC_OK).

@@ -89,7 +89,7 @@ public class RecoverFileStarter extends Application {
 	
 		// update and upload 
 		for(int i = 0; i < NUM_VERSIONS; ++i) {
-			Thread.sleep(5000); // sleep such that each file has different timestamp
+			Thread.sleep(2000); // sleep such that each file has different timestamp
 			fileContent = RandomStringUtils.randomAscii(FILE_SIZE);
 			content.add(fileContent);
 			FileUtils.write(file, fileContent);
@@ -115,7 +115,6 @@ public class RecoverFileStarter extends Application {
 				FXMLLoader loader = new FXMLLoader();
 				loader.setLocation(getClass().getResource(fxmlFile));
 				loader.setControllerFactory( new Callback<Class<?>, Object>() {
-					
 					@Override
 					public Object call(Class<?> param) {
 						controller.setFileManager(fileManager);

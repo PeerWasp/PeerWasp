@@ -229,11 +229,14 @@ public class RecoverFileController  implements Initializable, IFileVersionSelect
 			setBusy(false);
 			setStatus("");
 			
-			Alert a = new Alert(AlertType.ERROR);
-			a.setTitle("File Recovery Failed");
-			a.setHeaderText("File recovery did not succeeed.");
-			a.setContentText(message);
-			a.showAndWait();
+			if(!versionSelector.isCancelled()) {
+				// show error if user did not initiate cancel action
+				Alert a = new Alert(AlertType.ERROR);
+				a.setTitle("File Recovery Failed");
+				a.setHeaderText("File recovery did not succeed.");
+				a.setContentText(message);
+				a.showAndWait();
+			}
 			getStage().close();
 		});
 	}

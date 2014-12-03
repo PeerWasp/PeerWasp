@@ -106,4 +106,8 @@ final public class FileVersionSelector implements IVersionSelector {
 		recoveredFileName = newFileName;
 		return newFileName;
 	}
+
+	public boolean isCancelled() {
+		return isCancelled.get();
+	}
 }

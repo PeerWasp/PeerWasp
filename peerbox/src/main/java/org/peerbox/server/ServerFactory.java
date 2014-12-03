@@ -31,11 +31,6 @@ public class ServerFactory {
 			throw new IllegalStateException("Could not find a free port.");
 		}
 
-		// update registry
-		if (OsUtils.isWindows()) {
-			WinRegistry.setApiServerPort(port);
-		}
-
 		HttpServer server = new HttpServer(port);
 		return server;
 	}
