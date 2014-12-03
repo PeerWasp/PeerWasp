@@ -117,8 +117,11 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 		if(file == null){
 			logger.trace("FileComponent {} is new and now created.", path);
 			if(event == null){
-				file = createFileComponent(path, path.toFile().isDirectory());//Files.isRegularFile(path));
+				logger.trace("FileComponent {} has no fileevent.", path);
+				//TODO check for directory wrong if it does not exist yet!
+				file = createFileComponent(path, Files.isRegularFile(path));
 			} else {
+				logger.trace("FileComponent {} has a fileevent isfile= {}", path, event.isFile());
 				file = createFileComponent(path, event.isFile());
 			}
 
@@ -229,9 +232,9 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 		file.getAction().handleLocalHardDeleteEvent();
 	}
 
-	private FileComponent createFileComponent(Path path, boolean isDir) {
+	private FileComponent createFileComponent(Path path, boolean isFile) {
 		FileComponent component = null;
-		if (!isDir) {
+		if (isFile) {
 			logger.trace("FileComponent {} created.", path);
 			component = new FileLeaf(path, maintainContentHashes);
 		} else {

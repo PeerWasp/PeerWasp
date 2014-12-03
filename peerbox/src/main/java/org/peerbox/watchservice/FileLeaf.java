@@ -58,7 +58,7 @@ public class FileLeaf extends AbstractFileComponent implements FileComponent{
 
 	@Override
 	public FileComponent getComponent(String path) {
-		System.err.println("get on file not defined");
+		logger.error("get on file not defined {} {}", this.path, path);
 		return null;
 	}
 	

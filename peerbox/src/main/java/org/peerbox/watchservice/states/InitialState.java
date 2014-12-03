@@ -180,6 +180,7 @@ public class InitialState extends AbstractActionState {
 
 	@Override
 	public AbstractActionState handleRemoteCreate() {
+		logger.trace("{}", action.getEventManager().getFileTree().getClass().toString());
 		action.getEventManager().getFileTree().putComponent(action.getFilePath().toString(), action.getFile());
 		updateTimeAndQueue();
 		return changeStateOnRemoteCreate();

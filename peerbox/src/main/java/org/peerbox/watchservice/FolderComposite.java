@@ -31,6 +31,7 @@ public class FolderComposite extends AbstractFileComponent implements FileCompon
 	private String contentNamesHash;
 	private FolderComposite parent;
 	private boolean updateContentHashes;
+	private boolean isRoot = false;
 	
 	private static final Logger logger = LoggerFactory.getLogger(FolderComposite.class);
 	
@@ -42,6 +43,7 @@ public class FolderComposite extends AbstractFileComponent implements FileCompon
 		this.contentHash = "";
 		this.updateContentHashes = updateContentHashes;
 		this.contentNamesHash = "";
+		this.isRoot = isRoot;
 		
 		if(isRoot){
 			action.setIsUploaded(true);
@@ -363,10 +365,16 @@ public class FolderComposite extends AbstractFileComponent implements FileCompon
 
 	@Override
 	public boolean isReady() {
-		if(parent.getActionIsUploaded()){
+		if(isRoot){
 			return true;
+		} else {
+			if(parent.getActionIsUploaded()){
+				return true;
+			}
+			return false;
 		}
-		return false;
+		
+		
 	}
 
 	@Override

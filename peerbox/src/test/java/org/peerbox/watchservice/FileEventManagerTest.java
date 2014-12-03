@@ -59,6 +59,26 @@ public class FileEventManagerTest {
 	 */
 	@BeforeClass
 	public static void staticSetup(){
+		
+		manager = new FileEventManager(Paths.get(parentPath), false);
+	}
+	
+	/**
+	 * Delete the test directory and the files.
+	 */
+	@AfterClass
+	public static void rollback(){
+		for(int i = 0; i < nrFiles; i++){
+			files.get(i).delete();
+		}
+		assertTrue(testDirectory.delete());
+	}
+	
+	@Before
+	public void setup(){
+		MockitoAnnotations.initMocks(this);
+		manager.setFileManager(fileManager);
+		
 		testDirectory = new File(parentPath);
 		testDirectory.mkdir();
 		try {
@@ -71,25 +91,7 @@ public class FileEventManagerTest {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		manager = new FileEventManager(Paths.get(parentPath), false);
 
-	}
-	
-	/**
-	 * Delete the test directory and the files.
-	 */
-	@AfterClass
-	public static void rollback(){
-//		for(int i = 0; i < nrFiles; i++){
-//			files.get(i).delete();
-//		}
-//		assertTrue(testDirectory.delete());
-	}
-	
-	@Before
-	public void setup(){
-		MockitoAnnotations.initMocks(this);
-		manager.setFileManager(fileManager);
 	}
 	
 	/**
@@ -127,6 +129,7 @@ public class FileEventManagerTest {
 		manager.onLocalFileDeleted(Paths.get(filePaths.get(0)));
 		sleepMillis(ActionExecutor.ACTION_WAIT_TIME_MS * 2);
 		System.out.println("Current state: " + file.getAction().getCurrentState().getClass());
+		assertTrue(manager.getFileTree().getComponent(filePaths.get(0)) == null);
 		assertTrue(file.getAction().getCurrentState() instanceof InitialState);
 		assertTrue(fileComponentsToCheck.size() == 0);
 	}
@@ -137,7 +140,7 @@ public class FileEventManagerTest {
 	 * the same file and a create event on a new file with the same content (but different name).
 	 */
 	@Test
-	public void fromDeleteToModifyTest(){
+	public void fromDeleteToMoveTest(){
 		//handle artificial create event, wait for handling
 		manager.onLocalFileCreated(Paths.get(filePaths.get(7)));
 		BlockingQueue<FileComponent> actionsToCheck = manager.getFileComponentQueue();
@@ -166,8 +169,9 @@ public class FileEventManagerTest {
 		sleepMillis(ActionExecutor.ACTION_WAIT_TIME_MS * 2);
 		
 		//cleanup
-		manager.onLocalFileHardDelete(Paths.get(filePaths.get(8)));
+		deleteFile(Paths.get(filePaths.get(8)));
 		sleepMillis(ActionExecutor.ACTION_WAIT_TIME_MS * 2);
+		assertTrue(manager.getFileTree().getComponent(filePaths.get(8)) == null);
 		assertTrue(actionsToCheck.size() == 0);
 		assertTrue(file1.getAction().getCurrentState() instanceof InitialState);
 		assertTrue(file1.getAction().getCurrentState() instanceof InitialState);
@@ -221,6 +225,7 @@ public class FileEventManagerTest {
 		sleepMillis(ActionExecutor.ACTION_WAIT_TIME_MS * 5);
 		
 		assertTrue(actionsToCheck.size() == 0);
+		assertTrue(manager.getFileTree().getComponent(filePaths.get(0)) == null);
 		System.out.println(createdFile.getAction().getCurrentState().getClass());
 		assertTrue(createdFile.getAction().getCurrentState() instanceof InitialState);
 		System.out.println(actionsToCheck.size());
@@ -275,6 +280,7 @@ public class FileEventManagerTest {
 		sleepMillis(200);
 		manager.onLocalFileDeleted(Paths.get(filePaths.get(0)));
 		sleepMillis(ActionExecutor.ACTION_WAIT_TIME_MS * 5);
+		assertTrue(manager.getFileTree().getComponent(filePaths.get(0)) == null);
 		assertTrue(comp.getAction().getCurrentState() instanceof InitialState);
 		assertTrue(actionsToCheck.size() == 0);
 		
@@ -393,6 +399,16 @@ public class FileEventManagerTest {
 		
 		assertTrue(end - start <= ActionExecutor.ACTION_WAIT_TIME_MS);	
 		
+		//cleanup:
+		
+		deleteFile(Paths.get(filePaths.get(0)));
+		deleteFile(Paths.get(filePaths.get(1)));
+		deleteFile(Paths.get(filePaths.get(2)));
+		deleteFile(Paths.get(filePaths.get(3)));
+		assertTrue(manager.getFileTree().getComponent(filePaths.get(0)) == null);
+		assertTrue(manager.getFileTree().getComponent(filePaths.get(1)) == null);
+		assertTrue(manager.getFileTree().getComponent(filePaths.get(2)) == null);
+		assertTrue(manager.getFileTree().getComponent(filePaths.get(3)) == null);
 		
 		sleepMillis(ActionExecutor.ACTION_WAIT_TIME_MS * 5);
 	}
@@ -402,6 +418,13 @@ public class FileEventManagerTest {
 		for(int i = 0; i < files.size(); i++){
 			System.out.println(i + ". File :" + files.get(i).getPath() + " - " + files.get(i).getAction().getCurrentState());
 		}
+	}
+	
+	private void deleteFile(Path filePath){
+		manager.onLocalFileHardDelete(filePath);
+		sleepMillis(200);
+		manager.onLocalFileDeleted(filePath);
+		sleepMillis(10);
 	}
 
 	/**
