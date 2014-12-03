@@ -11,6 +11,7 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 
+import org.peerbox.ResultStatus;
 import org.peerbox.interfaces.IFxmlLoaderProvider;
 import org.peerbox.presenter.ShareFolderController;
 import org.slf4j.Logger;
@@ -48,6 +49,11 @@ public class ShareFolderStage {
 					stage = null;
 				}
 			});
+			
+			
+			Platform.runLater(() -> { 
+				stage.show();
+			});
 
 		} catch (IOException e) {
 			logger.error("Could not load settings stage: {}", e.getMessage());
@@ -55,11 +61,20 @@ public class ShareFolderStage {
 		}
 	}
 	
-	public void show() {
-		Platform.runLater(() -> { 
+		
+	public void onShareFolderRequested(Path folderToShare) {
+		this.folderToShare = folderToShare;
+		
+		ResultStatus res = checkPreconditions();
+		if(res.isOk()) {
 			load();
-			stage.show();
-		});
+		} else {
+			// TODO: show error message
+		}
+	}
+
+	private ResultStatus checkPreconditions() {
+		return ResultStatus.ok();
 	}
 
 	public void setFolderToShare(Path folderToShare) {

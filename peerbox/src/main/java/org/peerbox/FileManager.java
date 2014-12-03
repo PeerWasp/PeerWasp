@@ -2,6 +2,7 @@ package org.peerbox;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.nio.file.Path;
 import java.util.List;
 
 import org.hive2hive.core.api.interfaces.IFileManager;
@@ -99,10 +100,14 @@ public class FileManager {
 
 	public IProcessComponent share(File folder, String userId, PermissionType permission)
 			throws IllegalFileLocation, IllegalArgumentException, NoSessionException,
-			NoPeerConnectionException {
-		logger.debug("SHARE");
-		// TODO: implement sharing
-		return null;
+			NoPeerConnectionException, InvalidProcessStateException {
+		logger.debug("SHARE - User: '{}', Permission: '{}', Folder: '{}'", userId, permission.name(), folder);
+		
+		IProcessComponent component = h2hFileManager.share(folder,  userId, permission);
+		component.attachListener(new FileOperationListener(folder));
+		component.start();
+		
+		return component;
 	}
 
 	public IResultProcessComponent<List<FileTaste>> getFileList() throws NoSessionException {

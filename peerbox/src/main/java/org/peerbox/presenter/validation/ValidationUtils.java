@@ -12,6 +12,7 @@ public class ValidationUtils {
 		
 		USERNAME_EMPTY("Username cannot be empty."),
 		USERNAME_ALREADY_TAKEN("Username is already taken."),
+		USER_NOT_EXISTS("Username does not exist."),
 		
 		PASSWORD_EMPTY("Password cannot be empty."),
 		PASSWORD_TOO_SHORT(String.format(
@@ -63,6 +64,27 @@ public class ValidationUtils {
 		if(checkIfRegistered && userManager != null) {
 			if(userManager.isRegistered(username)) {
 				return ValidationResult.USERNAME_ALREADY_TAKEN;
+			}
+		}
+		
+		return ValidationResult.OK;
+	}
+	
+	public static ValidationResult validateUserExists(final String username, boolean checkIfRegistered, final UserManager userManager) throws NoPeerConnectionException {
+		if(username == null) {
+			throw new IllegalArgumentException("Argument username must not be null.");
+		}
+		if(checkIfRegistered && userManager == null) {
+			throw new IllegalArgumentException("Argument userManager must not be null if checkIfRegistered is true.");
+		}
+		
+		if(username.trim().isEmpty()) {
+			return ValidationResult.USERNAME_EMPTY;
+		}
+		
+		if(checkIfRegistered && userManager != null) {
+			if(!userManager.isRegistered(username)) {
+				return ValidationResult.USER_NOT_EXISTS;
 			}
 		}
 		
