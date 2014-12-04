@@ -10,6 +10,8 @@ import org.peerbox.filerecovery.IFileRecoveryHandler;
 import org.peerbox.interfaces.IFxmlLoaderProvider;
 import org.peerbox.model.H2HManager;
 import org.peerbox.model.UserManager;
+import org.peerbox.share.IShareFolderHandler;
+import org.peerbox.share.ShareFolderHandler;
 import org.peerbox.view.tray.AbstractSystemTray;
 import org.peerbox.view.tray.JSystemTray;
 
@@ -34,6 +36,8 @@ public class PeerBoxModule extends AbstractModule {
 		
 		bind(IFxmlLoaderProvider.class).to(GuiceFxmlLoader.class);
 		bind(IFileRecoveryHandler.class).to(FileRecoveryHandler.class);
+		bind(IShareFolderHandler.class).to(ShareFolderHandler.class);
+		
 		bind(IExitHandler.class).to(ExitHandler.class);
 	}
 

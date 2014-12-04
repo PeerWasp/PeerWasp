@@ -1,4 +1,4 @@
-package org.peerbox.presenter;
+package org.peerbox.share;
 
 import java.net.URL;
 import java.nio.file.Path;
@@ -41,7 +41,7 @@ import org.peerbox.presenter.validation.ValidationUtils.ValidationResult;
 import com.google.inject.Inject;
 
 
-public class ShareFolderController implements Initializable {
+public final class ShareFolderController implements Initializable {
 	
 	@FXML
 	private AnchorPane pane;
@@ -61,6 +61,7 @@ public class ShareFolderController implements Initializable {
 	private UsernameRegisteredValidator usernameValidator;
 	
 	private Path folderToShare;
+	private final StringProperty folderToShareProperty;
 	
 	private final BooleanProperty busyProperty;
 	private final StringProperty statusProperty;
@@ -74,6 +75,8 @@ public class ShareFolderController implements Initializable {
 		this.busyProperty = new SimpleBooleanProperty(false);
 		this.fileManager = fileManager;
 		this.userManager = userManager;
+		
+		this.folderToShareProperty = new SimpleStringProperty();
 	}
 	
 	@Override
@@ -82,6 +85,7 @@ public class ShareFolderController implements Initializable {
 		initializeStatusBar();
 		
 		grdForm.disableProperty().bind(busyProperty);
+		txtFolderPath.textProperty().bind(folderToShareProperty);
 	}
 	
 	private void initializeValidations() {
@@ -148,11 +152,9 @@ public class ShareFolderController implements Initializable {
 		getStage().close();
 	}
 	
-	public void setFolderToShare(Path path) {
+	public void setFolderToShare(final Path path) {
 		folderToShare = path;
-		if(path != null) {
-			txtFolderPath.setText(folderToShare.toString());
-		}
+		folderToShareProperty.set(path.toString());
 	}
 	
 	private PermissionType getPermissionType() {

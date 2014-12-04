@@ -1,4 +1,4 @@
-package org.peerbox.view;
+package org.peerbox.share;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -13,16 +13,15 @@ import javafx.stage.WindowEvent;
 
 import org.peerbox.ResultStatus;
 import org.peerbox.interfaces.IFxmlLoaderProvider;
-import org.peerbox.presenter.ShareFolderController;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.inject.Inject;
 
-public class ShareFolderStage {
+public final class ShareFolderHandler implements IShareFolderHandler {
 	
 	
-	private static final Logger logger = LoggerFactory.getLogger(ShareFolderStage.class);
+	private static final Logger logger = LoggerFactory.getLogger(ShareFolderHandler.class);
 	private Stage stage;
 	private IFxmlLoaderProvider fxmlLoaderProvider;
 	private Path folderToShare;
@@ -50,10 +49,7 @@ public class ShareFolderStage {
 				}
 			});
 			
-			
-			Platform.runLater(() -> { 
-				stage.show();
-			});
+			stage.show();
 
 		} catch (IOException e) {
 			logger.error("Could not load settings stage: {}", e.getMessage());
@@ -62,12 +58,15 @@ public class ShareFolderStage {
 	}
 	
 		
-	public void onShareFolderRequested(Path folderToShare) {
+	@Override
+	public void shareFolder(Path folderToShare) {
 		this.folderToShare = folderToShare;
 		
 		ResultStatus res = checkPreconditions();
 		if(res.isOk()) {
-			load();
+			Platform.runLater(() -> { 
+				load();
+			});
 		} else {
 			// TODO: show error message
 		}

@@ -23,7 +23,8 @@ import org.hive2hive.processframework.exceptions.InvalidProcessStateException;
 import org.peerbox.FileManager;
 import org.peerbox.interfaces.IFxmlLoaderProvider;
 import org.peerbox.model.UserManager;
-import org.peerbox.presenter.ShareFolderController;
+import org.peerbox.share.ShareFolderController;
+import org.peerbox.share.ShareFolderHandler;
 
 public class ShareFolderStarter extends Application {
 	
@@ -43,7 +44,7 @@ public class ShareFolderStarter extends Application {
 	
 	private String sharedFolderName = "SharedFolder";
 	
-	private ShareFolderStage stage;
+	private ShareFolderHandler stage;
 	
 	
 	public static void main(String[] args) {
@@ -78,7 +79,7 @@ public class ShareFolderStarter extends Application {
 	private void shareFolder() throws IOException {
 		Path toShare = basePath.resolve("ClientA").resolve(sharedFolderName);
 		
-		stage.onShareFolderRequested(toShare);
+		stage.shareFolder(toShare);
 		
 	}
 
@@ -112,7 +113,7 @@ public class ShareFolderStarter extends Application {
 		FileManager fileManager = new FileManager(clientsA[0].getFileManager());
 		UserManager userManager = new UserManager(clientsA[0].getUserManager());
 		
-		stage = new ShareFolderStage();
+		stage = new ShareFolderHandler();
 		ShareFolderController controller = new ShareFolderController(fileManager, userManager);
 		
 		stage.setFxmlLoaderProvider(new IFxmlLoaderProvider() {

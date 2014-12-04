@@ -14,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.Singleton;
@@ -43,29 +44,29 @@ public class FileRecoveryServlet extends BaseServlet {
 			}
 			
 			String content = readContentAsString(req);
-			if(content.isEmpty()) {
+			if (content.isEmpty()) {
 				sendErrorMessage(resp, new ServerReturnMessage(ServerReturnCode.EMPTY_REQUEST));
 				return;
 			}
 			
 			Gson gson = createGsonInstance();
-	
 			FileRecoveryMessage msg = null;
-		
 			msg = gson.fromJson(content, FileRecoveryMessage.class);
 			
-			handleRecovery(msg);
+			handleRecoveryRequest(msg);
 			
 			sendEmptyOK(resp);
-			
-		} catch (Exception e) {
+		} catch (JsonSyntaxException e) {
 			sendErrorMessage(resp, new ServerReturnMessage(ServerReturnCode.DESERIALIZE_ERROR));
-			return;
+			logger.error("Could not deserialize json.", e);
+		} catch (Exception e) {
+			sendErrorMessage(resp, new ServerReturnMessage(ServerReturnCode.REQUEST_EXCEPTION));
+			logger.error("Unexpected exception. ", e);
 		}
 	}
 
 
-	private void handleRecovery(FileRecoveryMessage msg) throws Exception {
+	private void handleRecoveryRequest(FileRecoveryMessage msg) throws Exception {
 		if(msg == null) {
 			throw new IllegalArgumentException("msg==null");
 		}

@@ -25,12 +25,9 @@ import org.hive2hive.core.utils.NetworkTestUtil;
 import org.hive2hive.core.utils.helper.TestFileAgent;
 import org.hive2hive.processframework.exceptions.InvalidProcessStateException;
 import org.peerbox.FileManager;
-import org.peerbox.filerecovery.FileRecoveryHandler;
-import org.peerbox.filerecovery.FileVersionSelector;
-import org.peerbox.filerecovery.RecoverFileController;
 import org.peerbox.interfaces.IFxmlLoaderProvider;
 
-public class RecoverFileStarter extends Application {
+public class FileRecoveryStarter extends Application {
 	
 	private static final int networkSize = 6;
 	private static List<IH2HNode> network;
@@ -49,8 +46,6 @@ public class RecoverFileStarter extends Application {
 	private FileManager fileManager;
 	
 	private RecoverFileController controller;
-	private FileVersionSelector versionSelector;
-	
 	
 	public static void main(String[] args) {
 		launch(args);
@@ -105,9 +100,6 @@ public class RecoverFileStarter extends Application {
 		FileRecoveryHandler stage = new FileRecoveryHandler();
 		controller = new RecoverFileController();
 		controller.setFileManager(fileManager);
-		
-		versionSelector = new FileVersionSelector(controller);
-		controller.setVersionSelector(versionSelector);
 		
 		stage.setFxmlLoaderProvider(new IFxmlLoaderProvider() {
 			

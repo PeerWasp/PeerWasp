@@ -272,11 +272,6 @@ public final class RecoverFileController  implements Initializable, IFileVersion
 		}
 	}
 	
-	@Inject 
-	public void setVersionSelector(FileVersionSelector versionSelector) {
-		this.versionSelector = versionSelector;
-	}
-	
 	@Inject
 	public void setFileManager(FileManager fileManager) {
 		this.fileManager = fileManager;

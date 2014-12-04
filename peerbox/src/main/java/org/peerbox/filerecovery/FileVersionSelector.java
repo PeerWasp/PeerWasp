@@ -39,6 +39,10 @@ public final class FileVersionSelector implements IVersionSelector {
 		doneSignal.countDown();
 	}
 	
+	public boolean isCancelled() {
+		return isCancelled.get();
+	}
+
 	public void selectVersion(IFileVersion selectedVersion)  {
 		try {
 			if(hasSelected.get()) {
@@ -104,9 +108,5 @@ public final class FileVersionSelector implements IVersionSelector {
 		}
 		recoveredFileName = newFileName;
 		return newFileName;
-	}
-
-	public boolean isCancelled() {
-		return isCancelled.get();
 	}
 }
