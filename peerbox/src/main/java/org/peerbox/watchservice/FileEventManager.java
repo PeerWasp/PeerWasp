@@ -100,7 +100,7 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 	 */
 	@Override
 	public void onLocalFileCreated(Path path) {
-		logger.trace("onLocalFileCreated: {}", path);
+		logger.trace("onLocalFileCreated: {} Manager ID {}", path, hashCode());
 		FileComponent file = getOrCreateFileComponent(path);
 
 		if(path.toFile().isDirectory()){
@@ -233,7 +233,7 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 	}
 	
 	public void onLocalFileHardDelete(Path toDelete){
-		logger.trace("onLocalFileHardDelete: {}", toDelete);
+		logger.trace("onLocalFileHardDelete: {} Manager ID {}", toDelete, this.hashCode());
 
 		FileComponent file = getOrCreateFileComponent(toDelete);
 		file.getAction().handleLocalHardDeleteEvent();
@@ -309,9 +309,9 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 		return deletedComponent;
 	}
 
-	public FileComponent deleteFileComponent(Path filePath){
-		return getFileTree().deleteComponent(filePath.toString());
-	}
+//	public FileComponent deleteFileComponent(Path filePath){
+//		return getFileTree().deleteComponent(filePath.toString());
+//	}
 	
 	/**
 	 * @param moveCandidate represents the component, which is mostly

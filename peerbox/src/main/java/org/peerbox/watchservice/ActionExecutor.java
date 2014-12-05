@@ -74,13 +74,13 @@ public class ActionExecutor implements Runnable, IActionEventListener {
 		while (true) {
 			try {
 				FileComponent next = null;
-				logger.debug("Currently executing/pending actions: {}/{}", executingActions.size(), fileEventManager.getFileComponentQueue().size());
+//				logger.debug("Currently executing/pending actions: {}/{}", executingActions.size(), fileEventManager.getFileComponentQueue().size());
 				next = fileEventManager.getFileComponentQueue().take();
 				if(!isFileComponentReady(next)){
 					fileEventManager.getFileComponentQueue().remove(next);
 					next.getAction().updateTimestamp();
 					fileEventManager.getFileComponentQueue().add(next);
-					logger.trace("FileComponent {} was not ready yet: timestamp updated and put back to queue.", next.getPath());
+//					logger.trace("FileComponent {} was not ready yet: timestamp updated and put back to queue.", next.getPath());
 					continue;
 				}
 				if (isTimerReady(next.getAction()) && isExecuteSlotFree()) {

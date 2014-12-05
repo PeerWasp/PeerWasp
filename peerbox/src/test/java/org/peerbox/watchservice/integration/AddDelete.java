@@ -13,7 +13,7 @@ import org.peerbox.utils.FileTestUtils;
 
 public class AddDelete extends FileIntegrationTest {
 	
-	@Test @Ignore
+	@Test
 	public void singleFolderTest() throws IOException {
 		// ADD
 		Path folder = addSingleFolder();
@@ -23,7 +23,7 @@ public class AddDelete extends FileIntegrationTest {
 		assertRootContains(0);
 	}
 	
-	@Test @Ignore
+	@Test
 	public void manyFoldersTest() throws IOException {
 		List<Path> folders = addManyFolders();
 		deleteManyFiles(folders);
@@ -39,7 +39,7 @@ public class AddDelete extends FileIntegrationTest {
 		return folders;
 	}
 	
-	@Test  @Ignore
+	@Test
 	public void singleFolderInFolderTest() throws IOException {
 		List<Path> folders = addSingleFolderInFolder();
 		deleteSingleFolderInFolder(folders);
@@ -73,7 +73,7 @@ public class AddDelete extends FileIntegrationTest {
 		assertRootContains(0);
 	}
 	
-	@Test @Ignore
+	@Test
 	public void manyFoldersInFolderTest() throws IOException {
 		// ADD
 		System.out.println("--------------------- Start manyFoldersInFolderTest -------------------------");
@@ -127,13 +127,13 @@ public class AddDelete extends FileIntegrationTest {
 //		assertSyncClientPaths();
 //	}
 	
-	@Test @Ignore
+	@Test
 	public void manyFilesTest() throws IOException {
 		List<Path> files = addManyFiles();
 		deleteManyFiles(files);
 	}
 	
-	@Test @Ignore
+	@Test
 	public void manyFilesStressTest() throws IOException {
 		List<Path> files = addManyFiles(300, WAIT_TIME_STRESSTEST);
 		deleteManyFiles(files);
@@ -165,16 +165,11 @@ public class AddDelete extends FileIntegrationTest {
 		assertRootContains(0);
 	}
 
-	@Test @Ignore
+	@Test
 	public void manyFilesInFolderTest() throws IOException {
 		// ADD
 		List<Path> files = addManyFilesInFolder();
-		try {
-			Thread.sleep(10000);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+
 		deleteManyFilesInManyFolders(files);
 		// DELETE
 		
@@ -196,7 +191,7 @@ public class AddDelete extends FileIntegrationTest {
 		assertQueuesAreEmpty();
 	}
 
-	@Test @Ignore
+	@Test
 	public void manyFilesInManyFoldersTest() throws IOException {
 		List<Path> files = addManyFilesInManyFolders(10);
 		deleteManyFilesInManyFolders(files);

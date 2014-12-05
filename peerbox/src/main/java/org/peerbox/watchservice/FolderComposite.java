@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Base64;
+import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.concurrent.ConcurrentSkipListMap;
@@ -178,7 +179,7 @@ public class FolderComposite extends AbstractFileComponent implements FileCompon
 		
 		if(newRemainingPath.equals("")){
 			FileComponent removed = children.remove(nextLevelPath);
-			
+			logger.debug("Removed {}", removed.getPath());
 			if(updateContentHashes){
 				bubbleContentHashUpdate();
 			}
@@ -201,6 +202,7 @@ public class FolderComposite extends AbstractFileComponent implements FileCompon
 	@Override
 	public synchronized FileComponent getComponent(String remainingPath){
 		//if the path it absolute, cut off the absolute path to the root directory!
+		logger.debug("Root: {} FilePath: {}", path, remainingPath);
 		if(remainingPath.startsWith(path.toString())){
 			remainingPath = remainingPath.substring(path.toString().length() + 1);
 		}
@@ -209,6 +211,9 @@ public class FolderComposite extends AbstractFileComponent implements FileCompon
 		String newRemainingPath = PathUtils.getRemainingPathFragment(remainingPath);
 		
 		FileComponent nextLevelComponent = children.get(nextLevelPath);
+		for(Map.Entry<String, FileComponent> child : children.entrySet()){
+			logger.debug("{} has child {}", getPath(), child.getKey());
+		}
 		
 		if(newRemainingPath.equals("")){
 //			if(nextLevelComponent != null && updateContentHashes){

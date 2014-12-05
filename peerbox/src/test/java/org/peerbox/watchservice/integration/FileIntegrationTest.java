@@ -94,7 +94,9 @@ public abstract class FileIntegrationTest {
 	
 	@After
 	public void afterTest() throws IOException {
+		logger.debug("Stop!!!");
 		network.stop();
+		network = null;
 //		FileUtils.cleanDirectory(network.getBasePath().toFile());
 	}
 	
@@ -198,8 +200,13 @@ public abstract class FileIntegrationTest {
 
 	private void deleteFileOnClient(Path filePath, int i) {
 		// TODO Auto-generated method stub
-		FileEventManager manager = getNetwork().getClientNode(0).getFileEventManager();
+
+		System.out.println(network.getClients().size());
+		assertTrue(network.getClients().size() == 2);
+		FileEventManager manager = network.getClientNode(0).getFileEventManager();
+		
 		logger.debug("Delete file: {}", filePath);
+		logger.debug("Manager ID: {}", manager.hashCode());
 		manager.onLocalFileHardDelete(filePath);
 		sleepMillis(10);
 	}

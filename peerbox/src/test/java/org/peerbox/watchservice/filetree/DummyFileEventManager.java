@@ -37,12 +37,6 @@ public class DummyFileEventManager implements IFileEventManager{
 	}
 
 	@Override
-	public FileComponent deleteFileComponent(Path path) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
 	public Map<String, FolderComposite> getDeletedByContentNamesHash() {
 		// TODO Auto-generated method stub
 		return null;

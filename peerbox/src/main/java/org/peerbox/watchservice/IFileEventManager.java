@@ -12,6 +12,6 @@ public interface IFileEventManager {
 	public BlockingQueue<FileComponent> getFileComponentQueue();
 	public SetMultimap<String, FileComponent> getDeletedFileComponents();
 	public FileComponent findDeletedByContent(FileComponent file);
-	public FileComponent deleteFileComponent(Path path);
+
 	public Map<String, FolderComposite> getDeletedByContentNamesHash();
 }
