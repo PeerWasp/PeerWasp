@@ -1,6 +1,7 @@
 package org.peerbox.watchservice.states;
 
 import java.io.IOException;
+import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 
 import org.apache.commons.lang3.NotImplementedException;
@@ -162,7 +163,7 @@ public class EstablishedState extends AbstractActionState{
 		IFileEventManager eventManager = action.getEventManager();
 		eventManager.getFileTree().deleteComponent(action.getFilePath().toString());
 		eventManager.getFileComponentQueue().remove(action.getFile());
-		action.getFilePath().toFile().delete();
+//		action.getFilePath().toFile().delete();
 		try {
 			java.nio.file.Files.delete(action.getFilePath());
 		} catch (IOException e) {

@@ -112,7 +112,7 @@ public class ActionExecutor implements Runnable, IActionEventListener {
 				fileEventManager.getFileComponentQueue().put(next);
 			} catch (InterruptedException iex) {
 				iex.printStackTrace();
-				return;
+				//return;
 			} catch (Throwable t){
 				logger.error("Throwable occurred: {}", t.getMessage());
 				for(int i = 0; i < t.getStackTrace().length; i++){

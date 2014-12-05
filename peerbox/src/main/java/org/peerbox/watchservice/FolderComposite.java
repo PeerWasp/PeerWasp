@@ -178,6 +178,7 @@ public class FolderComposite extends AbstractFileComponent implements FileCompon
 		
 		if(newRemainingPath.equals("")){
 			FileComponent removed = children.remove(nextLevelPath);
+			
 			if(updateContentHashes){
 				bubbleContentHashUpdate();
 			}
@@ -290,6 +291,7 @@ public class FolderComposite extends AbstractFileComponent implements FileCompon
 //			logger.trace("COMPONENT IS NULL");
 //		}
 		component.setParent(this);
+		logger.trace("SET Parent for {} is {}", component.getPath(), getPath());
 //		logger.trace("after setParent {}", nextLevelPath);
 		if(updateContentHashes){
 //			logger.trace("START bubbleContentHashUpdate {}", nextLevelPath);
@@ -368,6 +370,7 @@ public class FolderComposite extends AbstractFileComponent implements FileCompon
 		if(isRoot){
 			return true;
 		} else {
+			logger.trace("Parent for {} is {}", path, parent);
 			if(parent.getActionIsUploaded()){
 				return true;
 			}

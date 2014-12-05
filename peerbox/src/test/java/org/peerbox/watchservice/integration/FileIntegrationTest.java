@@ -31,6 +31,7 @@ import org.peerbox.client.ITestNetwork;
 import org.peerbox.client.NetworkStarter;
 import org.peerbox.utils.FileTestUtils;
 import org.peerbox.watchservice.FileComponent;
+import org.peerbox.watchservice.FileEventManager;
 import org.peerbox.watchservice.IAction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -102,6 +103,7 @@ public abstract class FileIntegrationTest {
 		
 		waitForExists(folder, WAIT_TIME_SHORT);
 		assertSyncClientPaths();
+		assertQueuesAreEmpty();
 		return folder;
 	}
 
@@ -110,6 +112,7 @@ public abstract class FileIntegrationTest {
 		
 		waitForExists(file, WAIT_TIME_SHORT);
 		assertSyncClientPaths();
+		assertQueuesAreEmpty();
 		return file;
 	}
 	
@@ -126,6 +129,7 @@ public abstract class FileIntegrationTest {
 		
 		waitForExists(files, toWait);
 		assertSyncClientPaths();
+		assertQueuesAreEmpty();
 		return files;
 	}
 	
@@ -145,29 +149,59 @@ public abstract class FileIntegrationTest {
 		
 		waitForExists(files, WAIT_TIME_SHORT);
 		assertSyncClientPaths();
+		assertQueuesAreEmpty();
 		return files;
 	}
 
 	protected List<Path> addManyFilesInFolder() throws IOException {
-		List<Path> files = FileTestUtils.createFolderWithFiles(masterRootPath, 10, NUMBER_OF_CHARS);
+		List<Path> files = addManyFilesInManyFolders(1); //FileTestUtils.createFolderWithFiles(masterRootPath, 10, NUMBER_OF_CHARS);
 		
-		waitForExists(files, WAIT_TIME_LONG);
-		assertSyncClientPaths();
+//		waitForExists(files, WAIT_TIME_LONG);
+//		assertSyncClientPaths();
+//		assertQueuesAreEmpty();
 		return files;
 	}
 
-	protected List<Path> addManyFilesInManyFolders() throws IOException {
+	protected List<Path> addManyFilesInManyFolders(int nrFolders) throws IOException {
 		List<Path> files = new ArrayList<>();
-		int numFolders = 10;
+		
 		int numFilesPerFolder = 10;
-		for(int i = 0; i < numFolders; ++i) {
+		for(int i = 0; i < nrFolders; ++i) {
 			List<Path> f = FileTestUtils.createFolderWithFiles(masterRootPath, numFilesPerFolder, NUMBER_OF_CHARS);
 			files.addAll(f);
 		}
 		
 		waitForExists(files, WAIT_TIME_LONG);		
 		assertSyncClientPaths();
+		assertQueuesAreEmpty();
 		return files;
+	}
+	
+	protected void deleteSingleFile(Path filePath) throws IOException{
+		deleteFileOnClient(filePath, 0);
+//		assertSyncClientPaths();
+//		assertQueuesAreEmpty();
+	}
+	
+	protected void deleteManyFiles(List<Path> files) throws IOException {
+
+		for(Path file : files){
+			deleteFileOnClient(file, 0);
+		}
+		
+		waitForNotExists(files, WAIT_TIME_LONG);
+		assertSyncClientPaths();
+		assertQueuesAreEmpty();
+		assertRootContains(0);
+	}
+	
+
+	private void deleteFileOnClient(Path filePath, int i) {
+		// TODO Auto-generated method stub
+		FileEventManager manager = getNetwork().getClientNode(0).getFileEventManager();
+		logger.debug("Delete file: {}", filePath);
+		manager.onLocalFileHardDelete(filePath);
+		sleepMillis(10);
 	}
 
 	protected void waitForExists(Path path, int seconds) {
@@ -334,6 +368,12 @@ public abstract class FileIntegrationTest {
 		logger.info("Client paths are SYNC!");
 	}
 	
+	protected void assertRootContains(int nrFiles) throws IOException {
+		IndexRootPath clientIndex = new IndexRootPath(masterRootPath);
+		Files.walkFileTree(masterRootPath, clientIndex);
+		assertTrue(clientIndex.getHashes().size() == nrFiles + 1);
+	}
+	
 	protected void assertQueuesAreEmpty(){
 		try {
 			Thread.sleep(10000);
@@ -409,6 +449,21 @@ public abstract class FileIntegrationTest {
 			}
 			// hashes need to be equal for sync folders
 			assertTrue(hashesEqual);
+		}
+	}
+	
+	/**
+	 * Wait the defined time interval. Useful to guarantee different timestamps in
+	 * milliseconds if events are programatically created. Furthermore allows to wait
+	 * for a cleaned action queue if ActionExecutor.ACTION_TIME_TO_WAIT * 2 is passed
+	 * as millisToSleep
+	 */
+	public static void sleepMillis(long millisToSleep){
+		try {
+			Thread.sleep(millisToSleep);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 	}
 

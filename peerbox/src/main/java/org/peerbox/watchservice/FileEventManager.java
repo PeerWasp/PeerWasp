@@ -59,6 +59,13 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
     	return actionExecutor;
     }
     
+    public void stopExecutor() throws InterruptedException{
+    	executorThread.stop();
+//    	executorThread.interrupt();
+//    	executorThread.join();
+//    	executorThread = null;
+    }
+    
     /**
      * @param rootPath is the root folder of the tree
      * @param maintainContentHashes set to true if content hashes have to be maintained. Content hash changes are

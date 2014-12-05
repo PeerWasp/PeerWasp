@@ -2,10 +2,13 @@ package org.peerbox.watchservice;
 
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.util.Base64;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
+import java.util.Vector;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -172,6 +175,18 @@ public class Action implements IAction{
 	}
 	
 	public void handleLocalHardDeleteEvent(){
+		if(getFile().isFolder()){
+			logger.trace("File {}: is a folder", getFile().getPath());
+			FolderComposite folder = (FolderComposite)getFile();
+			Map<String, FileComponent> children = folder.getChildren();
+			
+//			Vector<FileComponent> children = new Vector<FileComponent>(folder.getChildren().values());
+			for(Map.Entry<String, FileComponent> childEntry : children.entrySet()){
+				FileComponent child = childEntry.getValue();
+				logger.trace("Child {}: handleLocalHardDelete", getFile().getPath());
+				child.getAction().handleLocalHardDeleteEvent();
+			}
+		}
 		acquireLockOnThis();
 		logger.trace("handleLocalHardDeleteEvent - File: {}", getFilePath());
 		if(isExecuting){
@@ -190,6 +205,7 @@ public class Action implements IAction{
 		
 		try {
 			Files.delete(getFilePath());
+			logger.trace("DELETED FROM DISK: {}", getFilePath());
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -240,6 +256,20 @@ public class Action implements IAction{
 	
 	public void handleRemoteDeleteEvent() {	
 		logger.trace("handleRemoteDeleteEvent - File: {}", getFilePath());
+		
+		if(getFile().isFolder()){
+			logger.trace("File {}: is a folder", getFile().getPath());
+			FolderComposite folder = (FolderComposite)getFile();
+			Map<String, FileComponent> children = folder.getChildren();
+			
+//			Vector<FileComponent> children = new Vector<FileComponent>(folder.getChildren().values());
+			for(Map.Entry<String, FileComponent> childEntry : children.entrySet()){
+				FileComponent child = childEntry.getValue();
+				logger.trace("Child {}: handleLocalHardDelete", getFile().getPath());
+				child.getAction().handleRemoteDeleteEvent();
+			}
+		}
+		
 		acquireLockOnThis();
 		if(isExecuting){
 

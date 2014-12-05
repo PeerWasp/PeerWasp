@@ -147,7 +147,7 @@ public class FolderWatchServiceTest {
 		out.close();
 		sleep();
 		
-		Files.delete(file);
+		//Files.delete(file);
 		sleep();
 		return file;
 	}
@@ -295,7 +295,7 @@ public class FolderWatchServiceTest {
 		Path folder = Paths.get(basePath.toString(), "todelete");
 		Files.createDirectory(folder);
 		watchService.start();
-		Files.delete(folder);
+		//Files.delete(folder);
 		sleep();
 		Mockito.verify(fileEventListener, Mockito.times(1)).onLocalFileDeleted(folder);
 	}

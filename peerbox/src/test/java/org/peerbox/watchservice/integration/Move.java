@@ -114,7 +114,7 @@ public class Move extends FileIntegrationTest{
 	@Test
 	public void manyNonEmptyFolderMoveTest() throws IOException{
 		Path destination = addSingleFolder();
-		List<Path> paths = addManyFilesInManyFolders();
+		List<Path> paths = addManyFilesInManyFolders(10);
 		Path lastDestination = null;
 		for(Path path: paths){
 			if(path.toFile().isDirectory()){

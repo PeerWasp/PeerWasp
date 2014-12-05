@@ -83,7 +83,7 @@ public class Update extends FileIntegrationTest {
 	@Test
 	public void manyFilesInManyFoldersTest() throws IOException {
 		// ADD
-		List<Path> files = addManyFilesInManyFolders();
+		List<Path> files = addManyFilesInManyFolders(10);
 
 		logger.info("Adding finished.");
 		
