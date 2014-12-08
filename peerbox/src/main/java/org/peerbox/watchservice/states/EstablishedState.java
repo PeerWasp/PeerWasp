@@ -58,7 +58,7 @@ public class EstablishedState extends AbstractActionState{
 
 	@Override
 	public AbstractActionState changeStateOnLocalRecover(int version) {
-		// TODO Auto-generated method stub
+		logger.trace("Switch from EstablishedState to RecoverState: {}", action.getFilePath());
 		return new RecoverState(action, version);
 	}
 

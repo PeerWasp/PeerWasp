@@ -36,17 +36,35 @@ public class PathUtils {
 		return Paths.get(fileWithoutExt + "_v" + version + "_recovered." + ext);
 	}
 	
+	/**This method computes the hash over a file. If the file 
+	 * is not accessible for some reason (i.e. locked by another
+	 * process), then the method makes three consecutive tries 
+	 * after waiting 3 seconds.
+	 * @param path
+	 * @return
+	 */
+	
 	public static String computeFileContentHash(Path path){
 		String newHash = "";
 		if(path != null && path.toFile() != null){
-			try {
-				byte[] rawHash = HashUtil.hash(path.toFile());
-				if(rawHash != null){
-					newHash = PathUtils.createStringFromByteArray(rawHash);
+			for(int i = 0; i < 3; i++){
+				try {
+					byte[] rawHash = HashUtil.hash(path.toFile());
+					if(rawHash != null){
+						newHash = PathUtils.createStringFromByteArray(rawHash);
+					}
+					break;
+				} catch (IOException e) {
+					e.printStackTrace();
+					try {
+						Thread.sleep(3000);
+					} catch (InterruptedException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
 				}
-			} catch (IOException e) {
-				e.printStackTrace();
 			}
+			
 		}
 		return newHash;
 	}

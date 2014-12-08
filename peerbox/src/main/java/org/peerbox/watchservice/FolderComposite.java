@@ -211,9 +211,9 @@ public class FolderComposite extends AbstractFileComponent implements FileCompon
 		String newRemainingPath = PathUtils.getRemainingPathFragment(remainingPath);
 		
 		FileComponent nextLevelComponent = children.get(nextLevelPath);
-		for(Map.Entry<String, FileComponent> child : children.entrySet()){
-			logger.debug("{} has child {}", getPath(), child.getKey());
-		}
+//		for(Map.Entry<String, FileComponent> child : children.entrySet()){
+//			logger.debug("{} has child {}", getPath(), child.getKey());
+//		}
 		
 		if(newRemainingPath.equals("")){
 //			if(nextLevelComponent != null && updateContentHashes){

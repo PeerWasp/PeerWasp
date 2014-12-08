@@ -222,6 +222,7 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 	}
 	
 	public void onFileRecoveryRequest(IFileRecoveryRequestEvent fileEvent){
+		logger.trace("onFileRecoveryRequest: {}", fileEvent.getFile().getAbsolutePath());
 		File currentFile = fileEvent.getFile();
 		if(currentFile == null || currentFile.isDirectory()){
 			logger.error("Try to recover non-existing file or directory: {}", currentFile.getPath());
