@@ -12,6 +12,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Vector;
 import java.util.concurrent.BlockingQueue;
 
 import org.junit.AfterClass;
@@ -27,10 +28,12 @@ import org.peerbox.watchservice.states.EstablishedState;
 import org.peerbox.watchservice.states.LocalCreateState;
 import org.peerbox.watchservice.states.LocalDeleteState;
 import org.peerbox.watchservice.states.InitialState;
+import org.peerbox.watchservice.states.LocalHardDeleteState;
 import org.peerbox.watchservice.states.LocalUpdateState;
 import org.peerbox.watchservice.states.LocalMoveState;
 
 import com.google.common.collect.SetMultimap;
+import com.google.common.io.Files;
 /**
  * 
  * @author Claudio
@@ -56,20 +59,8 @@ public class FileEventManagerTest {
 	 */
 	@BeforeClass
 	public static void staticSetup(){
-		testDirectory = new File(parentPath);
-		testDirectory.mkdir();
-		try {
-			for(int i = 0; i < nrFiles; i++){
-				filePaths.add(parentPath + "file" + i + ".txt");
-				files.add(new File(filePaths.get(i)));
-				files.get(i).createNewFile();
-			}
-			
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		
 		manager = new FileEventManager(Paths.get(parentPath), false);
-
 	}
 	
 	/**
@@ -87,6 +78,20 @@ public class FileEventManagerTest {
 	public void setup(){
 		MockitoAnnotations.initMocks(this);
 		manager.setFileManager(fileManager);
+		
+		testDirectory = new File(parentPath);
+		testDirectory.mkdir();
+		try {
+			for(int i = 0; i < nrFiles; i++){
+				filePaths.add(parentPath + "file" + i + ".txt");
+				files.add(new File(filePaths.get(i)));
+				files.get(i).createNewFile();
+			}
+			
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
 	}
 	
 	/**
@@ -99,7 +104,7 @@ public class FileEventManagerTest {
 		BlockingQueue<FileComponent> fileComponentsToCheck = manager.getFileComponentQueue();
 		
 		long start = System.currentTimeMillis();
-		
+		System.out.println("Start onFileCreatedTest");
 		manager.onLocalFileCreated(Paths.get(filePaths.get(0)));
 		assertTrue(fileComponentsToCheck.size() == 1);
 		assertTrue(fileComponentsToCheck.peek().getAction().getCurrentState() instanceof LocalCreateState);
@@ -119,8 +124,12 @@ public class FileEventManagerTest {
 		assertTrue(fileComponentsToCheck.size() == 0);
 		
 		//cleanup
+		manager.onLocalFileHardDelete(Paths.get(filePaths.get(0)));
+		sleepMillis(200); //wait for the state machine before delete is simulated
 		manager.onLocalFileDeleted(Paths.get(filePaths.get(0)));
 		sleepMillis(ActionExecutor.ACTION_WAIT_TIME_MS * 2);
+		System.out.println("Current state: " + file.getAction().getCurrentState().getClass());
+		assertTrue(manager.getFileTree().getComponent(filePaths.get(0)) == null);
 		assertTrue(file.getAction().getCurrentState() instanceof InitialState);
 		assertTrue(fileComponentsToCheck.size() == 0);
 	}
@@ -131,7 +140,7 @@ public class FileEventManagerTest {
 	 * the same file and a create event on a new file with the same content (but different name).
 	 */
 	@Test
-	public void fromDeleteToModifyTest(){
+	public void fromDeleteToMoveTest(){
 		//handle artificial create event, wait for handling
 		manager.onLocalFileCreated(Paths.get(filePaths.get(7)));
 		BlockingQueue<FileComponent> actionsToCheck = manager.getFileComponentQueue();
@@ -160,8 +169,9 @@ public class FileEventManagerTest {
 		sleepMillis(ActionExecutor.ACTION_WAIT_TIME_MS * 2);
 		
 		//cleanup
-		manager.onLocalFileDeleted(Paths.get(filePaths.get(8)));
+		deleteFile(Paths.get(filePaths.get(8)));
 		sleepMillis(ActionExecutor.ACTION_WAIT_TIME_MS * 2);
+		assertTrue(manager.getFileTree().getComponent(filePaths.get(8)) == null);
 		assertTrue(actionsToCheck.size() == 0);
 		assertTrue(file1.getAction().getCurrentState() instanceof InitialState);
 		assertTrue(file1.getAction().getCurrentState() instanceof InitialState);
@@ -175,10 +185,10 @@ public class FileEventManagerTest {
 	public void onFileDeletedTest(){
 		BlockingQueue<FileComponent> actionsToCheck = manager.getFileComponentQueue();
 		SetMultimap<String, FileComponent> deletedFiles = manager.getDeletedFileComponents();
-		
+		System.out.println("Start onFileDeletedTest");
 		manager.onLocalFileCreated(Paths.get(filePaths.get(0)));
 		FileComponent createdFile = actionsToCheck.peek();
-		
+		//HERE
 		assertTrue(actionsToCheck.size() == 1);
 		assertTrue(createdFile.getAction().getCurrentState() instanceof LocalCreateState);
 		
@@ -189,20 +199,22 @@ public class FileEventManagerTest {
 		
 		long start = System.currentTimeMillis();
 		
+		manager.onLocalFileHardDelete(Paths.get(filePaths.get(0)));
+		sleepMillis(200);
 		manager.onLocalFileDeleted(Paths.get(filePaths.get(0)));
 		System.out.println(actionsToCheck.size());
 		assertTrue(actionsToCheck.size() == 1);
-		assertTrue(actionsToCheck.peek().getAction().getCurrentState() instanceof LocalDeleteState);
+		assertTrue(actionsToCheck.peek().getAction().getCurrentState() instanceof LocalHardDeleteState);
 
 		manager.onLocalFileModified(Paths.get(filePaths.get(0)));
 		assertTrue(actionsToCheck.size() == 1);
-		assertTrue(actionsToCheck.peek().getAction().getCurrentState() instanceof LocalDeleteState);
+		assertTrue(actionsToCheck.peek().getAction().getCurrentState() instanceof LocalHardDeleteState);
 		
 		System.out.println("deletedFiles.size(): " + deletedFiles.size());
-		assertTrue(deletedFiles.size() == 1);
-		Set<FileComponent> equalHashes = deletedFiles.get(createdFile.getContentHash());
-		assertTrue(equalHashes.size() == 1);
-		assertTrue(equalHashes.contains(createdFile));
+		//assertTrue(deletedFiles.size() == 1);
+		//Set<FileComponent> equalHashes = deletedFiles.get(createdFile.getContentHash());
+		//assertTrue(equalHashes.size() == 1);
+		//assertTrue(equalHashes.contains(createdFile));
 		
 		//check if the testcase was run in time
 		long end = System.currentTimeMillis();
@@ -210,11 +222,13 @@ public class FileEventManagerTest {
 		
 
 		
-		sleepMillis(ActionExecutor.ACTION_WAIT_TIME_MS * 2);
+		sleepMillis(ActionExecutor.ACTION_WAIT_TIME_MS * 5);
 		
 		assertTrue(actionsToCheck.size() == 0);
+		assertTrue(manager.getFileTree().getComponent(filePaths.get(0)) == null);
 		System.out.println(createdFile.getAction().getCurrentState().getClass());
 		assertTrue(createdFile.getAction().getCurrentState() instanceof InitialState);
+		System.out.println(actionsToCheck.size());
 		assertTrue(deletedFiles.size() == 0);
 	}
 	
@@ -228,7 +242,7 @@ public class FileEventManagerTest {
 		BlockingQueue<FileComponent> actionsToCheck = manager.getFileComponentQueue();
 		
 		long start = System.currentTimeMillis();
-		
+		System.out.println("Start onFileModifiedTest");
 		manager.onLocalFileCreated(Paths.get(filePaths.get(0)));
 		manager.onLocalFileModified(Paths.get(filePaths.get(0)));
 		assertTrue(actionsToCheck.size() == 1);
@@ -262,8 +276,11 @@ public class FileEventManagerTest {
 		System.out.println(comp.getAction().getCurrentState().getClass());
 		
 		//cleanup
+		manager.onLocalFileHardDelete(Paths.get(filePaths.get(0)));
+		sleepMillis(200);
 		manager.onLocalFileDeleted(Paths.get(filePaths.get(0)));
-		sleepMillis(ActionExecutor.ACTION_WAIT_TIME_MS * 2);
+		sleepMillis(ActionExecutor.ACTION_WAIT_TIME_MS * 5);
+		assertTrue(manager.getFileTree().getComponent(filePaths.get(0)) == null);
 		assertTrue(comp.getAction().getCurrentState() instanceof InitialState);
 		assertTrue(actionsToCheck.size() == 0);
 		
@@ -298,7 +315,7 @@ public class FileEventManagerTest {
 	@Test
 	public void multipleFilesTest() throws IOException{
 		//measure start time to ensure the testcase runs before the queue is processed
-
+		System.out.println("Start multipleFilesTest");
 		BlockingQueue<FileComponent> actionsToCheck = manager.getFileComponentQueue();
 		
 		//issue all the events, check state of head and if the action corresponds to the correct file
@@ -310,7 +327,8 @@ public class FileEventManagerTest {
 		long start = System.currentTimeMillis();
 		FileTestUtils.writeRandomData(files.get(0).toPath(), 50);
 		manager.onLocalFileModified(Paths.get(filePaths.get(0)));
-		sleepMillis(10);
+		sleepMillis(50);
+		printQueue(actionsToCheck);
 		assertTrue(actionsToCheck.size() == 1);
 		assertTrue(actionsToCheck.peek().getAction().getCurrentState() instanceof LocalUpdateState);
 		assertTrue(actionsToCheck.peek().getPath().toString().equals(filePaths.get(0)));
@@ -322,6 +340,8 @@ public class FileEventManagerTest {
 		assertTrue(actionsToCheck.peek().getPath().toString().equals(filePaths.get(0)));
 		
 		
+		manager.onLocalFileHardDelete(Paths.get(filePaths.get(0)));
+		sleepMillis(200);
 		manager.onLocalFileDeleted(Paths.get(filePaths.get(0)));
 		sleepMillis(10);
 		System.out.println("actionsToCheck.size() " + actionsToCheck.size());
@@ -332,12 +352,13 @@ public class FileEventManagerTest {
 		
 		FileTestUtils.writeRandomData(files.get(2).toPath(), 50);
 		manager.onLocalFileModified(Paths.get(filePaths.get(2)));
+		
 		sleepMillis(10);
 		System.out.println("actionsToCheck.size() " + actionsToCheck.size());
 		assertTrue(actionsToCheck.size() == 3);
 		assertTrue(actionsToCheck.peek().getAction().getCurrentState() instanceof LocalCreateState);
 		assertTrue(actionsToCheck.peek().getPath().toString().equals(filePaths.get(1)));
-		
+		Files.move(files.get(2), files.get(3));
 		
 		manager.onLocalFileDeleted(Paths.get(filePaths.get(2)));
 		sleepMillis(10);
@@ -348,6 +369,10 @@ public class FileEventManagerTest {
 		manager.onLocalFileCreated(Paths.get(filePaths.get(3)));
 		sleepMillis(10);
 		System.out.println("actionsToCheck.size() " + actionsToCheck.size());
+		Vector<FileComponent> actions = new Vector<FileComponent>(actionsToCheck);
+		for(int i = 0; i < actions.size(); i++){
+			System.out.println(i + ": " + actions.get(i).getPath() + " - " + actions.get(i).getAction().getCurrentState().getClass());
+		}
 		assertTrue(actionsToCheck.size() == 3);
 		assertTrue(actionsToCheck.peek().getAction().getCurrentState() instanceof LocalCreateState);
 		assertTrue(actionsToCheck.peek().getPath().toString().equals(filePaths.get(1)));
@@ -361,7 +386,7 @@ public class FileEventManagerTest {
 		assertTrue(head.getPath().toString().equals(filePaths.get(1)));
 		
 		head = actionsList.get(1);
-		assertTrue(head.getAction().getCurrentState() instanceof LocalDeleteState);
+		assertTrue(head.getAction().getCurrentState() instanceof LocalHardDeleteState);
 		assertTrue(head.getPath().toString().equals(filePaths.get(0)));
 		
 		head = actionsList.get(2);
@@ -374,10 +399,34 @@ public class FileEventManagerTest {
 		
 		assertTrue(end - start <= ActionExecutor.ACTION_WAIT_TIME_MS);	
 		
+		//cleanup:
 		
-		sleepMillis(ActionExecutor.ACTION_WAIT_TIME_MS * 2);
+		deleteFile(Paths.get(filePaths.get(0)));
+		deleteFile(Paths.get(filePaths.get(1)));
+		deleteFile(Paths.get(filePaths.get(2)));
+		deleteFile(Paths.get(filePaths.get(3)));
+		assertTrue(manager.getFileTree().getComponent(filePaths.get(0)) == null);
+		assertTrue(manager.getFileTree().getComponent(filePaths.get(1)) == null);
+		assertTrue(manager.getFileTree().getComponent(filePaths.get(2)) == null);
+		assertTrue(manager.getFileTree().getComponent(filePaths.get(3)) == null);
+		
+		sleepMillis(ActionExecutor.ACTION_WAIT_TIME_MS * 5);
 	}
 	
+	private void printQueue(BlockingQueue<FileComponent> queue) {
+		Vector<FileComponent> files = new Vector<FileComponent>(queue);
+		for(int i = 0; i < files.size(); i++){
+			System.out.println(i + ". File :" + files.get(i).getPath() + " - " + files.get(i).getAction().getCurrentState());
+		}
+	}
+	
+	private void deleteFile(Path filePath){
+		manager.onLocalFileHardDelete(filePath);
+		sleepMillis(200);
+		manager.onLocalFileDeleted(filePath);
+		sleepMillis(10);
+	}
+
 	/**
 	 * This test simulates the the process of creating AND moving/renaming a file
 	 * before the upload to the network was triggered. Therefore, the old file should
@@ -409,7 +458,7 @@ public class FileEventManagerTest {
 		
 		long end = System.currentTimeMillis();
 		assertTrue(end - start <= ActionExecutor.ACTION_WAIT_TIME_MS);
-		sleepMillis(ActionExecutor.ACTION_WAIT_TIME_MS * 2);
+		sleepMillis(ActionExecutor.ACTION_WAIT_TIME_MS * 5);
 	}
 
 	/**

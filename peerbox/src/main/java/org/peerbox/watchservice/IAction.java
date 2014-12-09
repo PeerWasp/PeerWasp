@@ -1,6 +1,7 @@
 package org.peerbox.watchservice;
 
 import java.nio.file.Path;
+import java.util.concurrent.locks.Lock;
 
 import org.hive2hive.core.exceptions.IllegalFileLocation;
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
@@ -24,6 +25,7 @@ public interface IAction {
 	public void handleLocalMoveEvent(Path filePath);
 	public void handleLocalUpdateEvent();
 	public void handleLocalDeleteEvent();
+	public void handleLocalHardDeleteEvent();
 	public void handleRemoteCreateEvent();
 	public void handleRemoteDeleteEvent();
 	public void handleRemoteUpdateEvent();
@@ -36,4 +38,12 @@ public interface IAction {
 	public void setFile(FileComponent file);
 	public int getExecutionAttempts();
 	public void onSucceed();
+	public void onFailed();
+	
+	public AbstractActionState getNextState();
+	public boolean isExecuting();
+
+	public boolean getChangedWhileExecuted();
+	
+	public Lock getLock();
 }

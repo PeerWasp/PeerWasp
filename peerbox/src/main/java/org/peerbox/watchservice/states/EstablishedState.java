@@ -1,6 +1,7 @@
 package org.peerbox.watchservice.states;
 
 import java.io.IOException;
+import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 
 import org.apache.commons.lang3.NotImplementedException;
@@ -33,7 +34,8 @@ public class EstablishedState extends AbstractActionState{
 
 	@Override
 	public AbstractActionState changeStateOnLocalCreate() {
-		// TODO Auto-generated method stub
+		logger.debug("File {} - LocalCreateEvent captured, update content hash for file", action.getFilePath());
+		action.getFile().updateContentHash();
 		return this;
 	}
 
@@ -56,7 +58,7 @@ public class EstablishedState extends AbstractActionState{
 
 	@Override
 	public AbstractActionState changeStateOnLocalRecover(int version) {
-		// TODO Auto-generated method stub
+		logger.trace("Switch from EstablishedState to RecoverState: {}", action.getFilePath());
 		return new RecoverState(action, version);
 	}
 
@@ -88,7 +90,8 @@ public class EstablishedState extends AbstractActionState{
 	public void execute(FileManager fileManager) throws NoSessionException,
 			NoPeerConnectionException, IllegalFileLocation, InvalidProcessStateException {
 		// TODO Auto-generated method stub
-		
+		logger.error("Execute in the ESTABLISHED state is only called due to wrong behaviour! {}", action.getFilePath());
+		notifyActionExecuteSucceeded();
 	}
 
 	@Override
@@ -113,12 +116,13 @@ public class EstablishedState extends AbstractActionState{
 	@Override
 	public AbstractActionState handleLocalUpdate() {
 		// TODO Auto-generated method stub
-		String newHash = PathUtils.computeFileContentHash(action.getFile().getPath());
-		if(action.getFile().getContentHash().equals(newHash)){
-			logger.info("The content hash has not changed despite the onLocalFileModified event. No actions taken & returned.");
-			return this;
-		}
-		action.getFile().updateContentHash(newHash);
+//		String newHash = PathUtils.computeFileContentHash(action.getFile().getPath());
+//		logger.debug("File {} - Old hash: {} New Hash {}", action.getFilePath(), action.getFile().getContentHash(), newHash);
+//		if(action.getFile().getContentHash().equals(newHash)){
+//			logger.info("The content hash has not changed despite the onLocalFileModified event. No actions taken & returned.");
+//			return this;
+//		}
+//		action.getFile().updateContentHash(newHash);
 
 		updateTimeAndQueue();
 		return changeStateOnLocalUpdate();
@@ -159,7 +163,7 @@ public class EstablishedState extends AbstractActionState{
 		IFileEventManager eventManager = action.getEventManager();
 		eventManager.getFileTree().deleteComponent(action.getFilePath().toString());
 		eventManager.getFileComponentQueue().remove(action.getFile());
-		action.getFilePath().toFile().delete();
+//		action.getFilePath().toFile().delete();
 		try {
 			java.nio.file.Files.delete(action.getFilePath());
 		} catch (IOException e) {

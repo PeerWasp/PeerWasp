@@ -1,6 +1,7 @@
 package org.peerbox.watchservice.filetree;
 
 import java.nio.file.Path;
+import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 
 import org.peerbox.watchservice.FileComponent;
@@ -36,7 +37,7 @@ public class DummyFileEventManager implements IFileEventManager{
 	}
 
 	@Override
-	public FileComponent deleteFileComponent(Path path) {
+	public Map<String, FolderComposite> getDeletedByContentNamesHash() {
 		// TODO Auto-generated method stub
 		return null;
 	}

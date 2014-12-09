@@ -5,6 +5,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Vector;
 
 import org.hive2hive.core.api.interfaces.IH2HNode;
 import org.hive2hive.core.security.UserCredentials;
@@ -18,7 +19,7 @@ public class NetworkStarter extends AbstractStarter implements ITestNetwork {
 
 	private static final int NETWORK_SIZE = 2;
 	private static List<IH2HNode> network;
-	private static List<ClientNode> clients = new ArrayList<ClientNode>();
+	private static Vector<ClientNode> clients = new Vector<ClientNode>();
 
 	public static void main(String[] args) {
 		try {
@@ -50,6 +51,7 @@ public class NetworkStarter extends AbstractStarter implements ITestNetwork {
 	}
 
 	private void setup() throws Exception {
+		clients = new Vector<ClientNode>();
 		network = NetworkTestUtil.createH2HNetwork(NETWORK_SIZE);
 		logger.info("Create network with {} nodes", NETWORK_SIZE);
 

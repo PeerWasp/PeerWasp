@@ -24,6 +24,8 @@ public class RemoteCreateState extends AbstractActionState{
 	@Override
 	public AbstractActionState changeStateOnLocalCreate() {
 		logger.debug("Local Create Event in RemoteCreateState!  ({}) {}", action.getFilePath(), action.hashCode());
+		
+		action.getFile().updateContentHash();
 		return new EstablishedState(action);
 	}
 

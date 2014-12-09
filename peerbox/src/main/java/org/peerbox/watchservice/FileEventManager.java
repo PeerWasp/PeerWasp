@@ -1,14 +1,12 @@
 package org.peerbox.watchservice;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-import java.util.SortedMap;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.PriorityBlockingQueue;
 
@@ -20,9 +18,6 @@ import org.hive2hive.core.events.framework.interfaces.file.IFileEvent;
 import org.hive2hive.core.events.framework.interfaces.file.IFileMoveEvent;
 import org.hive2hive.core.events.framework.interfaces.file.IFileShareEvent;
 import org.hive2hive.core.events.framework.interfaces.file.IFileUpdateEvent;
-import org.hive2hive.core.exceptions.NoPeerConnectionException;
-import org.hive2hive.core.exceptions.NoSessionException;
-import org.hive2hive.processframework.exceptions.InvalidProcessStateException;
 import org.peerbox.FileManager;
 import org.peerbox.h2h.IFileRecoveryRequestEvent;
 import org.slf4j.Logger;
@@ -41,10 +36,10 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
     
     private BlockingQueue<FileComponent> fileComponentQueue; 
     private FolderComposite fileTree;
+    private ActionExecutor actionExecutor;
     
     private SetMultimap<String, FileComponent> deletedByContentHash = HashMultimap.create();
     private Map<String, FolderComposite> deletedByContentNamesHash = new HashMap<String, FolderComposite>();
-    private Map<String, FileLeaf> recoveredFileVersions = new HashMap<String, FileLeaf>();
     
     private boolean maintainContentHashes = true;
     private Path rootPath;
@@ -54,9 +49,21 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
     	fileComponentQueue = new PriorityBlockingQueue<FileComponent>(2000, new FileActionTimeComparator());
     	fileTree = new FolderComposite(rootPath, true, true);
     	this.rootPath = rootPath;
-		executorThread = new Thread(new ActionExecutor(this, waitForNotifications));
+    	this.actionExecutor = new ActionExecutor(this, waitForNotifications);
+		executorThread = new Thread(actionExecutor);
 		executorThread.start();
 		
+    }
+    
+    public ActionExecutor getActionExecutor(){
+    	return actionExecutor;
+    }
+    
+    public void stopExecutor() throws InterruptedException{
+    	executorThread.stop();
+//    	executorThread.interrupt();
+//    	executorThread.join();
+//    	executorThread = null;
     }
     
     /**
@@ -93,14 +100,18 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 	 */
 	@Override
 	public void onLocalFileCreated(Path path) {
-		logger.trace("onLocalFileCreated: {}", path);
+		logger.trace("onLocalFileCreated: {} Manager ID {}", path, hashCode());
 		FileComponent file = getOrCreateFileComponent(path);
 
+		if(path.toFile().isDirectory()){
+			String structureHash = discoverSubtreeStructure(path);
+			file.setStructureHash(structureHash);	
+		}
 		file.getAction().handleLocalCreateEvent();
 		
 		if(path.toFile().isDirectory()){
 			discoverSubtreeCompletely(path);
-//			discoverSubtreeStructure(path);
+
 		}
 	}
 	
@@ -113,8 +124,11 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 		if(file == null){
 			logger.trace("FileComponent {} is new and now created.", path);
 			if(event == null){
+				logger.trace("FileComponent {} has no fileevent.", path);
+				//TODO check for directory wrong if it does not exist yet!
 				file = createFileComponent(path, Files.isRegularFile(path));
 			} else {
+				logger.trace("FileComponent {} has a fileevent isfile= {}", path, event.isFile());
 				file = createFileComponent(path, event.isFile());
 			}
 
@@ -124,18 +138,6 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 		logger.debug("File {} has state {}", file.getPath(), file.getAction().getCurrentState().getClass());
 		return file;
 	}
-
-//	public void onFileRecovered(Path path){
-//		FileComponent fileComponent = getFileComponent(path);
-//		if(fileComponent == null){
-//			logger.trace("Recovered file component has to be created.");
-//			fileComponent = createFileComponent(path, Files.isRegularFile(path));
-//			getFileTree().putComponent(path.toString(), fileComponent);
-//		} else {
-//			logger.trace("Recovered file component exists.");
-//		}
-//		fileComponent.getAction().
-//	}
 
 	@Override
 	public void onLocalFileModified(Path path) {
@@ -151,6 +153,7 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 			logger.debug("Content hash did not change for file {}. Update rejected.", path);
 			return;
 		}
+		file.updateContentHash(newHash);
 		file.getAction().handleLocalUpdateEvent();
 	}
 
@@ -168,6 +171,7 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 	public void onLocalFileDeleted(Path path) {
 		logger.debug("onLocalFileDelete: {}", path);
 		FileComponent file = getOrCreateFileComponent(path);
+		logger.debug("OnLocalFileDelete structure hash of {} is  {}", path, file.getStructureHash());
 		file.getAction().handleLocalDeleteEvent();
 	}
 	
@@ -218,8 +222,8 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 	}
 	
 	public void onFileRecoveryRequest(IFileRecoveryRequestEvent fileEvent){
+		logger.trace("onFileRecoveryRequest: {}", fileEvent.getFile().getAbsolutePath());
 		File currentFile = fileEvent.getFile();
-		Path recoveredFilePath = PathUtils.getRecoveredFilePath(currentFile.toString(), fileEvent.getVersionToRecover());
 		if(currentFile == null || currentFile.isDirectory()){
 			logger.error("Try to recover non-existing file or directory: {}", currentFile.getPath());
 			return;
@@ -227,35 +231,22 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 		
 		FileComponent file = fileTree.getComponent(currentFile.getPath());
 		file.getAction().handleRecoverEvent(fileEvent.getVersionToRecover());
-//		File currentFile = fileEvent.getFile();
-//		Path recoveredFilePath = PathUtils.getRecoveredFilePath(currentFile.toString(), fileEvent.getVersionToRecover());
-//		
-//		if(currentFile == null || currentFile.isDirectory()){
-//			logger.error("Try to recover non-existing file or directory: {}", currentFile.getPath());
-//			return;
-//		}
-//		logger.trace("Put file recover request to map using key: {}", recoveredFilePath.toString());
-//		FileLeaf versionToRecover = new FileLeaf(recoveredFilePath);
-//		recoveredFileVersions.put(recoveredFilePath.toString(), versionToRecover);
-//		versionToRecover.getAction().handleRecoverEvent(fileEvent.getVersionToRecover());
-//		fileComponentQueue.add(versionToRecover);
-//		
-//		try {
-//			logger.trace("Initiate file recovery in FileEventManager for file {}", recoveredFilePath);
-//			fileManager.recover(currentFile, new PeerboxVersionSelector(fileEvent.getVersionToRecover()));
-//		} catch (FileNotFoundException | IllegalArgumentException | NoSessionException | NoPeerConnectionException | InvalidProcessStateException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		} 
+	}
+	
+	public void onLocalFileHardDelete(Path toDelete){
+		logger.trace("onLocalFileHardDelete: {} Manager ID {}", toDelete, this.hashCode());
 
-		
+		FileComponent file = getOrCreateFileComponent(toDelete);
+		file.getAction().handleLocalHardDeleteEvent();
 	}
 
 	private FileComponent createFileComponent(Path path, boolean isFile) {
 		FileComponent component = null;
 		if (isFile) {
+			logger.trace("FileComponent {} created.", path);
 			component = new FileLeaf(path, maintainContentHashes);
 		} else {
+			logger.trace("FolderComponent {} created.", path);
 			component = new FolderComposite(path, maintainContentHashes);
 		}
 		return component;
@@ -269,7 +260,7 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 	 * @param filePath represents the root of the subtree
 	 * @return the complete subtree as a FolderComposite
 	 */
-	private FolderComposite discoverSubtreeCompletely(Path filePath) {
+	public FolderComposite discoverSubtreeCompletely(Path filePath) {
 		FileWalker walker = new FileWalker(filePath, this);
 		logger.debug("start complete subtree discovery at : {}", filePath);
 		return walker.indexContentRecursively();
@@ -283,7 +274,7 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 	 * @param filePath represents the root of the subtree
 	 * @return the hash representing the folder's structure
 	 */
-	private String discoverSubtreeStructure(Path filePath) {
+	public String discoverSubtreeStructure(Path filePath) {
 		FileWalker walker = new FileWalker(filePath, this);
 		logger.debug("start discovery of subtree structure at : {}", filePath);
 		walker.indexNamesRecursively();
@@ -319,9 +310,9 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 		return deletedComponent;
 	}
 
-	public FileComponent deleteFileComponent(Path filePath){
-		return getFileTree().deleteComponent(filePath.toString());
-	}
+//	public FileComponent deleteFileComponent(Path filePath){
+//		return getFileTree().deleteComponent(filePath.toString());
+//	}
 	
 	/**
 	 * @param moveCandidate represents the component, which is mostly
@@ -373,8 +364,5 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 	@Override
 	public void onFileShare(IFileShareEvent fileEvent) {
 		// TODO Auto-generated method stub
-		
 	}
-
-
 }

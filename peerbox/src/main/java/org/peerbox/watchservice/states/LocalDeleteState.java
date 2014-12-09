@@ -36,8 +36,8 @@ public class LocalDeleteState extends AbstractActionState {
 
 	@Override
 	public AbstractActionState changeStateOnLocalCreate() {
-		logger.debug("Local Create Event: Local Delete -> Local Update ({})", action.getFilePath());
-		return new LocalUpdateState(action);
+		logger.debug("Local Create Event: Local Delete -> Established ({})", action.getFilePath());
+		return new EstablishedState(action);
 	}
 
 	@Override
@@ -98,12 +98,13 @@ public class LocalDeleteState extends AbstractActionState {
 	@Override
 	public void execute(FileManager fileManager) throws NoSessionException,
 			NoPeerConnectionException, InvalidProcessStateException {
-		Path path = action.getFilePath();
-		logger.debug("Execute LOCAL DELETE: {}", path);
-		IProcessComponent process = fileManager.delete(path.toFile());
-		if(process != null){
-			process.attachListener(new FileManagerProcessListener());
-		}
+//		Path path = action.getFilePath();
+//		logger.debug("Execute LOCAL DELETE: {}", path);
+//		IProcessComponent process = fileManager.delete(path.toFile());
+//		if(process != null){
+//			process.attachListener(new FileManagerProcessListener());
+//		}
+	logger.trace("File {}: Should be removed from the selective synchronization!");
 	}
 
 	@Override
@@ -121,7 +122,8 @@ public class LocalDeleteState extends AbstractActionState {
 	@Override
 	public AbstractActionState handleLocalCreate() {
 		// TODO Auto-generated method stub
-		throw new NotImplementedException("LocalDeleteState.handleLocalCreate");
+//		throw new NotImplementedException("LocalDeleteState.handleLocalCreate");
+		return changeStateOnLocalCreate();//new EstablishedState(action);
 	}
 
 	@Override
@@ -145,12 +147,17 @@ public class LocalDeleteState extends AbstractActionState {
 		IFileEventManager eventManager = action.getEventManager();
 		action.getFile().setParentPath(newPath.getParent());
 		action.getFile().setPath(newPath);
+//		action.getFile().propagatePathChangeToChildren();
 		System.out.println("oldPath: " + newPath);
 		System.out.println("action.getFile().getPath(): " + action.getFile().getPath());
 		eventManager.getFileTree().putComponent(newPath.toString(), action.getFile());
-		eventManager.getFileComponentQueue().remove(action.getFile());
-		action.updateTimestamp();
-		eventManager.getFileComponentQueue().add(action.getFile());
+		
+		if(oldPath.equals(newPath)){
+			logger.debug("This is a local move on place caused by the file system throwing DEL/ADD instead of MOD");
+			eventManager.getFileComponentQueue().remove(action.getFile());
+			return new EstablishedState(action);
+		}
+		updateTimeAndQueue();
 		System.out.println("action.getFilePath(): " + action.getFilePath() + " action.getFile().getPath(): " + action.getFile().getPath());
 		AbstractActionState newState = changeStateOnLocalMove(oldPath);
 		return newState;

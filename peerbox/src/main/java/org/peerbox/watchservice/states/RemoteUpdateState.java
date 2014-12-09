@@ -24,7 +24,7 @@ public class RemoteUpdateState extends AbstractActionState {
 	@Override
 	public AbstractActionState changeStateOnLocalCreate() {
 		logger.debug("Local Create Event in RemoteUpdateState!  ({})", action.getFilePath());
-		return new InitialState(action);
+		return new EstablishedState(action);
 	}
 
 	@Override
@@ -70,10 +70,10 @@ public class RemoteUpdateState extends AbstractActionState {
 		return null;
 	}
 	
-	@Override
-	public AbstractActionState getDefaultState(){
-		return this;
-	}
+//	@Override
+//	public AbstractActionState getDefaultState(){
+//		return this;
+//	}
 
 	@Override
 	public AbstractActionState changeStateOnRemoteCreate() {

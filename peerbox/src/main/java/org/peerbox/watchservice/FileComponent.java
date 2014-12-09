@@ -2,6 +2,9 @@ package org.peerbox.watchservice;
 
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Map;
+
+import org.peerbox.watchservice.states.AbstractActionState;
 
 public interface FileComponent {
 	
@@ -10,6 +13,8 @@ public interface FileComponent {
 	public boolean isFile();
 	
 	public String getContentHash();
+	public String getStructureHash();
+	public void setStructureHash(String hash);
 
 	public IAction getAction();
 	
@@ -47,5 +52,7 @@ public interface FileComponent {
 	public void setActionIsUploaded(boolean isUploaded);
 	
 	public boolean isReady();
+	
+	public void propagatePathChangeToChildren();
 
 }

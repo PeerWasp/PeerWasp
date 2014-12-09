@@ -8,6 +8,7 @@ import java.util.List;
 
 import org.hive2hive.core.security.EncryptionUtil;
 import org.hive2hive.core.security.HashUtil;
+import org.peerbox.watchservice.states.AbstractActionState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,7 +58,7 @@ public class FileLeaf extends AbstractFileComponent implements FileComponent{
 
 	@Override
 	public FileComponent getComponent(String path) {
-		System.err.println("get on file not defined");
+		logger.error("get on file not defined {} {}", this.path, path);
 		return null;
 	}
 	
@@ -105,12 +106,11 @@ public class FileLeaf extends AbstractFileComponent implements FileComponent{
 			newHash = PathUtils.computeFileContentHash(getPath());
 		} 
 		if(!contentHash.equals(newHash)){
-			logger.debug("Updated contenthash from {} to {}", contentHash, newHash);
 			contentHash = newHash;
 			
 			return true;
 		} else {
-			logger.debug("No content hash update: {}", contentHash);
+//			logger.debug("No content hash update: {}", contentHash);
 			return false;
 		}
 	}
@@ -134,7 +134,7 @@ public class FileLeaf extends AbstractFileComponent implements FileComponent{
 	public void setParentPath(Path parentPath){	
 		if(parentPath != null){
 			this.path = Paths.get(new File(parentPath.toString(), fileName.toString()).getPath());
-			logger.debug("Set path to {}", path);
+//			logger.debug("Set path to {}", path);
 		}
 		
 	}
@@ -156,6 +156,22 @@ public class FileLeaf extends AbstractFileComponent implements FileComponent{
 			return true;
 		}
 		return false;
+	}
+
+	@Override
+	public String getStructureHash() {
+		// TODO Auto-generated method stub
+		return "";
+	}
+
+	@Override
+	public void setStructureHash(String hash) {
+		logger.debug("setStructureHash(String) is not defined on FileLeaf.");
+	}
+
+	@Override
+	public void propagatePathChangeToChildren() {
+		return;
 	}
 
 }

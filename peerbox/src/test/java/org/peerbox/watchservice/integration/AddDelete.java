@@ -17,25 +17,16 @@ public class AddDelete extends FileIntegrationTest {
 	public void singleFolderTest() throws IOException {
 		// ADD
 		Path folder = addSingleFolder();
-		deleteSingleFolder(folder);
-		// DELETE
-//		deleteSingleFolder(folder);
-	}
-	
-	private void deleteSingleFolder(Path folder) throws IOException {
-		Files.delete(folder);
-		
-		waitForNotExists(folder, WAIT_TIME_SHORT);
+		deleteSingleFile(folder);
 		assertSyncClientPaths();
+		assertQueuesAreEmpty();
+		assertRootContains(0);
 	}
 	
 	@Test
 	public void manyFoldersTest() throws IOException {
-		// ADD
 		List<Path> folders = addManyFolders();
-		deleteManyFolders(folders);
-		// DELETE
-//		deleteManyFolders(folders);
+		deleteManyFiles(folders);
 	}
 
 	private List<Path> addManyFolders() throws IOException {
@@ -44,25 +35,14 @@ public class AddDelete extends FileIntegrationTest {
 	
 		waitForExists(folders, WAIT_TIME_LONG);
 		assertSyncClientPaths();
+		assertQueuesAreEmpty();
 		return folders;
 	}
 	
-	private void deleteManyFolders(List<Path> folders) throws IOException {
-		for(Path f : folders) {
-			Files.delete(f);
-		}
-		
-		waitForNotExists(folders, WAIT_TIME_LONG);
-		assertSyncClientPaths();
-	}
-	
-	@Test 
+	@Test
 	public void singleFolderInFolderTest() throws IOException {
-		// ADD
 		List<Path> folders = addSingleFolderInFolder();
-		
-		// DELETE
-//		deleteSingleFolderInFolder(folders);
+		deleteSingleFolderInFolder(folders);
 	}
 	
 	private List<Path> addSingleFolderInFolder() throws IOException {
@@ -75,6 +55,7 @@ public class AddDelete extends FileIntegrationTest {
 		
 		waitForExists(folders, WAIT_TIME_LONG);
 		assertSyncClientPaths();
+		assertQueuesAreEmpty();
 		return folders;
 	}
 	
@@ -82,24 +63,21 @@ public class AddDelete extends FileIntegrationTest {
 		ListIterator<Path> it = folders.listIterator(folders.size());
 		while(it.hasPrevious()) {
 			Path f = it.previous();
-			Files.delete(f);
+			deleteSingleFile(f);
+//			Files.delete(f);
 		}
 		
 		waitForNotExists(folders, WAIT_TIME_LONG);
 		assertSyncClientPaths();
+		assertQueuesAreEmpty();
+		assertRootContains(0);
 	}
 	
 	@Test
 	public void manyFoldersInFolderTest() throws IOException {
 		// ADD
+		System.out.println("--------------------- Start manyFoldersInFolderTest -------------------------");
 		List<Path> folders = addManyFoldersInFolder();
-		try {
-			Thread.sleep(2000);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		// DELETE
 		deleteManyFoldersInFolder(folders);
 	}
 	
@@ -114,6 +92,7 @@ public class AddDelete extends FileIntegrationTest {
 		
 		waitForExists(folders, WAIT_TIME_LONG);
 		assertSyncClientPaths();
+		assertQueuesAreEmpty();
 		return folders;
 	}
 	
@@ -121,102 +100,100 @@ public class AddDelete extends FileIntegrationTest {
 		ListIterator<Path> it = folders.listIterator(folders.size());
 		while(it.hasPrevious()) {
 			Path f = it.previous();
-			Files.delete(f);
+			deleteSingleFile(f);
+//			Files.delete(f);
 		}
 		
 		waitForNotExists(folders, WAIT_TIME_LONG);
 		assertSyncClientPaths();
+		assertQueuesAreEmpty();
+		assertRootContains(1);
 	}
 	
 	@Test
 	public void singleFileTest() throws IOException {
 		// ADD
 		Path file = addSingleFile();
-		
 		// DELETE
-//		deleteSingleFile(file);
+		deleteSingleFile(file);
+		assertSyncClientPaths();
+		assertQueuesAreEmpty();
+		assertRootContains(0);
 	}
 	
-	private void deleteSingleFile(Path file) throws IOException {
-		Files.delete(file);
-		
-		waitForNotExists(file, WAIT_TIME_SHORT);
-		assertSyncClientPaths();
-	}
+//	private void deleteSingleFile(Path file) throws IOException {
+//		Files.delete(file);
+//		waitForNotExists(file, WAIT_TIME_SHORT);
+//		assertSyncClientPaths();
+//	}
 	
 	@Test
 	public void manyFilesTest() throws IOException {
-		// ADD
 		List<Path> files = addManyFiles();
-		
-		// DELETE
-//		deleteManyFiles(files);
+		deleteManyFiles(files);
 	}
 	
 	@Test
 	public void manyFilesStressTest() throws IOException {
-		// ADD
-		List<Path> files = addManyFiles(600, WAIT_TIME_STRESSTEST);
-		
-		// DELETE
-//		deleteManyFiles(files);
+		List<Path> files = addManyFiles(300, WAIT_TIME_STRESSTEST);
+		deleteManyFiles(files);
+
 	}
 	
-	private void deleteManyFiles(List<Path> files) throws IOException {
-		for(Path f : files) {
-			Files.delete(f);
-		}
-		
-		waitForNotExists(files, WAIT_TIME_LONG);
-		assertSyncClientPaths();
-	}
-	
+
 	@Test
 	public void singleFileInFolderTest() throws IOException {
 		// ADD
+		System.out.println("START singleFileInFolderTest");
 		List<Path> files = addSingleFileInFolder();
 		
 		// DELETE
-//		deleteSingleFileInFolder(files);
+		deleteSingleFileInFolder(files);
 	}
 	
 	private void deleteSingleFileInFolder(List<Path> files) throws IOException {
 		ListIterator<Path> it = files.listIterator(files.size());
 		while(it.hasPrevious()) {
 			Path f = it.previous();
-			Files.delete(f);
+//			Files.delete(f);
+			deleteSingleFile(f);
 		}
 		
 		waitForNotExists(files, WAIT_TIME_SHORT);
 		assertSyncClientPaths();
+		assertQueuesAreEmpty();
+		assertRootContains(0);
 	}
 
 	@Test
 	public void manyFilesInFolderTest() throws IOException {
 		// ADD
 		List<Path> files = addManyFilesInFolder();
-		
+
+		deleteManyFilesInManyFolders(files);
 		// DELETE
-//		deleteManyFilesInFolder(files);
+		
+		//sleepMillis(20000);
+		
 	}
 	
 	private void deleteManyFilesInFolder(List<Path> files) throws IOException {
 		ListIterator<Path> it = files.listIterator(files.size());
+		
 		while(it.hasPrevious()) {
 			Path p = it.previous();
-			Files.delete(p);
+//			Files.delete(p);
+			deleteSingleFile(p);
 		}
 		
 		waitForNotExists(files, WAIT_TIME_LONG);
 		assertSyncClientPaths();
+		assertQueuesAreEmpty();
 	}
 
 	@Test
 	public void manyFilesInManyFoldersTest() throws IOException {
-		// ADD
-		List<Path> files = addManyFilesInManyFolders();
-		
-		// DELETE
+		List<Path> files = addManyFilesInManyFolders(10);
 		deleteManyFilesInManyFolders(files);
 	}
 	
@@ -225,18 +202,24 @@ public class AddDelete extends FileIntegrationTest {
 		// delete files
 		for(Path p : files) {
 			if(Files.isDirectory(p)) {
+				logger.debug("Directory: {}", p);
 				folders.add(p);
 				continue;
 			}
-			Files.delete(p);
+//			Files.delete(p);
+			deleteSingleFile(p);
 		}
 		
 		// delete (now empty) folders
 		for(Path p : folders) {
-			Files.delete(p);
+		//	Files.delete(p);
+			deleteSingleFile(p);
 		}
 		
 		waitForNotExists(files, WAIT_TIME_LONG);
 		assertSyncClientPaths();
+		assertQueuesAreEmpty();
+		assertRootContains(0);
 	}
+
 }

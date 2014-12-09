@@ -33,11 +33,11 @@ import org.peerbox.presenter.validation.SelectRootPathUtils;
 import org.peerbox.presenter.validation.ValidationUtils.ValidationResult;
 import org.peerbox.view.ViewNames;
 import org.peerbox.view.controls.ErrorLabel;
+import org.peerbox.watchservice.FolderWatchService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.inject.Inject;
-
 
 public class LoginController implements Initializable {
 
@@ -86,12 +86,12 @@ public class LoginController implements Initializable {
 		this.fNavigationService = navigationService;
 		this.userManager = userManager;
 	}
-	
+
 	public void initialize(URL location, ResourceBundle resources) {
 		initializeValidations();
 		loadUserConfig();
 	}
-	
+
 	private void loadUserConfig() {
 		if (userConfig.hasUsername()) {
 			txtUsername.setText(userConfig.getUsername());
@@ -146,7 +146,6 @@ public class LoginController implements Initializable {
 		}
 	}
 	
-	
 	private ValidationResult validateAll() {
 		return (usernameValidator.validate() == ValidationResult.OK
 				& passwordValidator.validate() == ValidationResult.OK
@@ -154,6 +153,7 @@ public class LoginController implements Initializable {
 				& pathValidator.validate() == ValidationResult.OK 
 				) ? ValidationResult.OK : ValidationResult.ERROR;
 	}
+
 
 	private boolean checkUserExists() throws NoPeerConnectionException {
 		String username = txtUsername.getText().trim();
@@ -164,8 +164,8 @@ public class LoginController implements Initializable {
 		return true;
 	}
 
-	public ResultStatus loginUser(final String username, final String password, 
-			final String pin, final Path path) {
+	public ResultStatus loginUser(final String username, final String password, final String pin,
+			final Path path) {
 		try {
 			return userManager.loginUser(username, password, pin, path);
 		} catch (NoPeerConnectionException e) {
@@ -219,7 +219,7 @@ public class LoginController implements Initializable {
 
 		return task;
 	}
-	
+
 	private void onLoginFailed(ResultStatus result) {
 		logger.error("Login task failed: {}", result.getErrorMessage());
 		Platform.runLater(() -> {
@@ -229,14 +229,38 @@ public class LoginController implements Initializable {
 			setError(result.getErrorMessage());
 		});
 	}
-	
+
 	private void onLoginSucceeded() {
 		logger.debug("Login task succeeded: user {} logged in.", getUsername());
 		saveLoginConfig();
+
+		// Start FolderWatchService
+		startWatchService();
+
 		resetForm();
 		fNavigationService.navigate(ViewNames.SETUP_COMPLETED_VIEW);
 	}
-	
+
+	private void startWatchService() {
+
+		FolderWatchService watchService = null;
+
+		try {
+			watchService = new FolderWatchService(userConfig.getRootPath());
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		try {
+			watchService.start();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+	}
+
 	private void saveLoginConfig() {
 		try {
 			userConfig.setUsername(getUsername());
