@@ -85,7 +85,7 @@ public class CreateNetworkController implements Initializable {
 	public void createNetworkAction(ActionEvent event) {
 		clearError();
 		if (!h2hManager.isConnected()) {
-			if (h2hManager.joinNetwork()) {
+			if (h2hManager.createNetwork()) {
 				btnCreate.setText("Continue");
 				logger.debug("Network created (Host address: {})", txtIPAddress.getText());
 			} else {

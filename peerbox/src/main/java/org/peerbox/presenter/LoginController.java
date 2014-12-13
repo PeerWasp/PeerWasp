@@ -24,6 +24,7 @@ import javafx.stage.Window;
 
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.hive2hive.processframework.exceptions.InvalidProcessStateException;
+import org.hive2hive.processframework.exceptions.ProcessExecutionException;
 import org.peerbox.ResultStatus;
 import org.peerbox.UserConfig;
 import org.peerbox.model.UserManager;
@@ -170,7 +171,7 @@ public class LoginController implements Initializable {
 			return userManager.loginUser(username, password, pin, path);
 		} catch (NoPeerConnectionException e) {
 			return ResultStatus.error("Could not login user because connection to network failed.");
-		} catch (InvalidProcessStateException | InterruptedException | IOException e) {
+		} catch (InvalidProcessStateException | IOException | ProcessExecutionException e) {
 			logger.warn("Could not login user: ", e);
 		}
 		return ResultStatus.error("Could not login user.");

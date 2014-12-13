@@ -12,7 +12,6 @@ import java.util.Vector;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-import org.hive2hive.core.exceptions.IllegalFileLocation;
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.hive2hive.core.exceptions.NoSessionException;
 import org.hive2hive.processframework.exceptions.InvalidProcessStateException;
@@ -360,7 +359,7 @@ public class Action implements IAction{
 	 * @throws InvalidProcessStateException 
 	 */
 	public void execute(FileManager fileManager) throws NoSessionException,
-			NoPeerConnectionException, IllegalFileLocation, InvalidProcessStateException {
+			NoPeerConnectionException, InvalidProcessStateException {
 		// this may be async, i.e. do not wait on completion of the process
 		// maybe return the IProcessComponent object such that the
 		// executor can be aware of the status (completion of task etc)

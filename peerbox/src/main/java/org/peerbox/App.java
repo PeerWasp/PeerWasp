@@ -13,6 +13,7 @@ import javafx.stage.Stage;
 
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.hive2hive.processframework.exceptions.InvalidProcessStateException;
+import org.hive2hive.processframework.exceptions.ProcessExecutionException;
 import org.peerbox.app.Constants;
 import org.peerbox.events.MessageBus;
 import org.peerbox.guice.ApiServerModule;
@@ -138,7 +139,7 @@ public class App extends Application
 		} catch (NoPeerConnectionException e) {
 			logger.debug("Loggin failed: {}", e);
 			return ResultStatus.error("Could not login user because connection to network failed.");
-		} catch (InvalidProcessStateException | InterruptedException | IOException e) {
+		} catch (InvalidProcessStateException | IOException | ProcessExecutionException e) {
 			logger.warn("Could not login user:", e); 
 		} 
 		

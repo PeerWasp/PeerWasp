@@ -3,7 +3,6 @@ package org.peerbox.watchservice;
 import java.nio.file.Path;
 import java.util.concurrent.locks.Lock;
 
-import org.hive2hive.core.exceptions.IllegalFileLocation;
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.hive2hive.core.exceptions.NoSessionException;
 import org.hive2hive.processframework.exceptions.InvalidProcessStateException;
@@ -20,7 +19,7 @@ public interface IAction {
 	public void setEventManager(IFileEventManager fileEventManager);
 	
 	public void execute(FileManager fileManager) throws NoSessionException,
-	NoPeerConnectionException, IllegalFileLocation, InvalidProcessStateException;
+	NoPeerConnectionException, InvalidProcessStateException;
 	public void handleLocalCreateEvent();
 	public void handleLocalMoveEvent(Path filePath);
 	public void handleLocalUpdateEvent();

@@ -5,6 +5,7 @@ import javafx.application.Platform;
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.hive2hive.core.exceptions.NoSessionException;
 import org.hive2hive.processframework.exceptions.InvalidProcessStateException;
+import org.hive2hive.processframework.exceptions.ProcessExecutionException;
 import org.peerbox.model.H2HManager;
 import org.peerbox.model.UserManager;
 import org.peerbox.server.IServer;
@@ -45,7 +46,7 @@ public class ExitHandler implements IExitHandler {
 	private void logout() {
 		try {
 			
-			if(userManager != null && userManager.isLoggedIn(null)) {
+			if(userManager != null && userManager.isLoggedIn()) {
 				userManager.logoutUser();
 			}
 			
@@ -53,9 +54,9 @@ public class ExitHandler implements IExitHandler {
 			logger.debug("Cannot logout - no peer connection. ", npc);
 		} catch(NoSessionException nse) {
 			logger.debug("Cannot logout - no session. ", nse);
-		} catch(InvalidProcessStateException | InterruptedException  e) {
-			logger.debug("Cannot logout. ", e);
-		}
+		} catch(InvalidProcessStateException | ProcessExecutionException  e) {
+			logger.debug("Cannot logout, process exception ", e);
+		} 
 	}
 	
 	private void disconnect() {

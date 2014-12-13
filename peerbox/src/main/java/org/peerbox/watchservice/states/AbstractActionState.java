@@ -8,7 +8,6 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
-import org.hive2hive.core.exceptions.IllegalFileLocation;
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.hive2hive.core.exceptions.NoSessionException;
 import org.hive2hive.processframework.RollbackReason;
@@ -137,7 +136,7 @@ public abstract class AbstractActionState {
 	 */
 
 	public abstract void execute(FileManager fileManager) throws NoSessionException,
-			NoPeerConnectionException, IllegalFileLocation, InvalidProcessStateException;
+			NoPeerConnectionException, InvalidProcessStateException;
 	
 	
 	protected void notifyActionExecuteSucceeded() {

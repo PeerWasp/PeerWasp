@@ -19,6 +19,7 @@ import javafx.scene.layout.GridPane;
 
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.hive2hive.processframework.exceptions.InvalidProcessStateException;
+import org.hive2hive.processframework.exceptions.ProcessExecutionException;
 import org.peerbox.ResultStatus;
 import org.peerbox.model.UserManager;
 import org.peerbox.presenter.validation.CombinedPasswordValidator;
@@ -168,7 +169,7 @@ public class RegisterController implements Initializable {
 			return fUserManager.registerUser(username, password, pin);
 		} catch (NoPeerConnectionException e) {
 			return ResultStatus.error("Could not register user because connection to network failed.");
-		} catch (InvalidProcessStateException | InterruptedException e) {
+		} catch (InvalidProcessStateException | ProcessExecutionException e) {
 			e.printStackTrace();
 		}
 		return ResultStatus.error("Could not register user.");

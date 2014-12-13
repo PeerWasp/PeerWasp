@@ -25,12 +25,12 @@
 	<!-- LEVELS: TRACE, DEBUG, INFO, WARN, ERROR, ALL or OFF -->
 	
 	<!-- Loggers -->
-	<logger name="net.tomp2p" level="WARN" /> <!-- mute tomp2p library -->
-	<logger name="io.netty" level="WARN" /> <!-- mute netty library -->
-	<logger name="org.hive2hive.core" level="INFO" /> <!-- mute hive2hive library -->
+	<logger name="net.tomp2p" level="WARN" /> 
+	<logger name="io.netty" level="WARN" /> 
+	<logger name="org.hive2hive.core" level="DEBUG" /> 
 	<logger name="org.eclipse.jetty" level="WARN" />
 	
-	<root level="INFO">
+	<root level="DEBUG">
 		<appender-ref ref="FILE" />
 		<appender-ref ref="STDOUT" />
 	</root>

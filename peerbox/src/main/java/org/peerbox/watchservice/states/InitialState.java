@@ -7,7 +7,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang3.NotImplementedException;
-import org.hive2hive.core.exceptions.IllegalFileLocation;
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.hive2hive.core.exceptions.NoSessionException;
 import org.peerbox.FileManager;
@@ -207,7 +206,7 @@ public class InitialState extends AbstractActionState {
 
 	@Override
 	public void execute(FileManager fileManager) throws NoSessionException,
-			NoPeerConnectionException, IllegalFileLocation {
+			NoPeerConnectionException {
 		logger.warn("Execute is not defined in the initial state  ({})", action.getFilePath());
 		notifyActionExecuteSucceeded();
 	}

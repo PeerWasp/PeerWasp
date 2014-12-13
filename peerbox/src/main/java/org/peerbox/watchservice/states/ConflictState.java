@@ -2,7 +2,6 @@ package org.peerbox.watchservice.states;
 
 import java.nio.file.Path;
 
-import org.hive2hive.core.exceptions.IllegalFileLocation;
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.hive2hive.core.exceptions.NoSessionException;
 import org.peerbox.FileManager;
@@ -63,7 +62,7 @@ public class ConflictState extends AbstractActionState {
 
 	@Override
 	public void execute(FileManager fileManager) throws NoSessionException,
-			NoPeerConnectionException, IllegalFileLocation {
+			NoPeerConnectionException {
 		// TODO Auto-generated method stub
 //		Path fileInConflict = action.getFilePath();
 //		Path renamedFile = ConflictHandler.rename(fileInConflict);

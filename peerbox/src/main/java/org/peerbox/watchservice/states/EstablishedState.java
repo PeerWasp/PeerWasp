@@ -5,7 +5,6 @@ import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 
 import org.apache.commons.lang3.NotImplementedException;
-import org.hive2hive.core.exceptions.IllegalFileLocation;
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.hive2hive.core.exceptions.NoSessionException;
 import org.hive2hive.processframework.exceptions.InvalidProcessStateException;
@@ -88,7 +87,7 @@ public class EstablishedState extends AbstractActionState{
 
 	@Override
 	public void execute(FileManager fileManager) throws NoSessionException,
-			NoPeerConnectionException, IllegalFileLocation, InvalidProcessStateException {
+			NoPeerConnectionException, InvalidProcessStateException {
 		// TODO Auto-generated method stub
 		logger.error("Execute in the ESTABLISHED state is only called due to wrong behaviour! {}", action.getFilePath());
 		notifyActionExecuteSucceeded();

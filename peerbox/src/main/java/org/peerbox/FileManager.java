@@ -1,25 +1,21 @@
 package org.peerbox;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.nio.file.Path;
 import java.util.List;
+import java.util.concurrent.Future;
 
 import org.hive2hive.core.api.interfaces.IFileManager;
-import org.hive2hive.core.exceptions.IllegalFileLocation;
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.hive2hive.core.exceptions.NoSessionException;
 import org.hive2hive.core.model.PermissionType;
-import org.hive2hive.core.processes.files.list.FileTaste;
+import org.hive2hive.core.processes.files.list.FileNode;
 import org.hive2hive.core.processes.files.recover.IVersionSelector;
-import org.hive2hive.processframework.RollbackReason;
 import org.hive2hive.processframework.exceptions.InvalidProcessStateException;
+import org.hive2hive.processframework.exceptions.ProcessExecutionException;
 import org.hive2hive.processframework.interfaces.IProcessComponent;
 import org.hive2hive.processframework.interfaces.IProcessComponentListener;
-import org.hive2hive.processframework.interfaces.IResultProcessComponent;
+import org.hive2hive.processframework.interfaces.IProcessEventArgs;
 import org.peerbox.watchservice.FileEventManager;
-import org.peerbox.watchservice.PathUtils;
-import org.peerbox.watchservice.PeerboxVersionSelector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,73 +41,72 @@ public class FileManager {
 		this.fileEventManager = fileEventManager;
 	}
 
-	public IProcessComponent add(File file) throws NoSessionException, NoPeerConnectionException,
-			IllegalFileLocation, InvalidProcessStateException {
+	public IProcessComponent<Void> add(File file) throws NoSessionException, NoPeerConnectionException, InvalidProcessStateException, ProcessExecutionException {
 		logger.debug("ADD - {}", file);
-		IProcessComponent component = h2hFileManager.add(file);
+		IProcessComponent<Void> component = h2hFileManager.createAddProcess(file);
 		component.attachListener(new FileOperationListener(file));
-		component.start();
+		component.executeAsync();
 		return component;
 	}
 
-	public IProcessComponent update(File file) throws NoSessionException, IllegalArgumentException,
-			NoPeerConnectionException, InvalidProcessStateException {
+	public IProcessComponent<Void> update(File file) throws NoSessionException, IllegalArgumentException,
+			NoPeerConnectionException, InvalidProcessStateException, ProcessExecutionException {
 		logger.debug("UPDATE - {}", file);
-		IProcessComponent component = h2hFileManager.update(file);
+		IProcessComponent<Void> component = h2hFileManager.createUpdateProcess(file);
 		component.attachListener(new FileOperationListener(file));
-		component.start();
+		component.executeAsync();
 		return component;
 	}
 
-	public IProcessComponent delete(File file) throws NoSessionException,
-			NoPeerConnectionException, InvalidProcessStateException {
+	public IProcessComponent<Void> delete(File file) throws NoSessionException,
+			NoPeerConnectionException, InvalidProcessStateException, ProcessExecutionException {
 		logger.debug("DELETE - {}", file);
-		IProcessComponent component = h2hFileManager.delete(file);
+		IProcessComponent<Void> component = h2hFileManager.createDeleteProcess(file);
 		component.attachListener(new FileOperationListener(file));
-		component.start();
+		component.executeAsync();
 		return component;
 	}
 
-	public IProcessComponent move(File source, File destination) throws NoSessionException,
-			NoPeerConnectionException, InvalidProcessStateException {
+	public IProcessComponent<Void> move(File source, File destination) throws NoSessionException,
+			NoPeerConnectionException, InvalidProcessStateException, ProcessExecutionException {
 		logger.debug("MOVE - from: {}, to: {}", source, destination);
 		// TODO: implement move.
-		IProcessComponent component = h2hFileManager.move(source, destination);
+		IProcessComponent<Void> component = h2hFileManager.createMoveProcess(source, destination);
 		component.attachListener(new FileOperationListener(source));
 		component.attachListener(new FileOperationListener(destination));
-		component.start();
+		component.executeAsync();
 		return component;
 	}
 
-	public IProcessComponent recover(File file, IVersionSelector versionSelector) throws FileNotFoundException, NoSessionException, NoPeerConnectionException, InvalidProcessStateException {
+	public IProcessComponent<Void> recover(File file, IVersionSelector versionSelector) throws NoSessionException, NoPeerConnectionException, InvalidProcessStateException, ProcessExecutionException {
 		logger.debug("RECOVER - {}", file);
-		IProcessComponent component = h2hFileManager.recover(file, versionSelector);
-		component.start();
+		IProcessComponent<Void> component = h2hFileManager.createRecoverProcess(file, versionSelector);
+		component.executeAsync();
 		return component;
 	}
 	
-	public IProcessComponent download(File file) throws NoSessionException, IllegalArgumentException,
-	NoPeerConnectionException, InvalidProcessStateException {
-		IProcessComponent component = h2hFileManager.download(file);
+	public IProcessComponent<Void> download(File file) throws NoSessionException, IllegalArgumentException,
+	NoPeerConnectionException, InvalidProcessStateException, ProcessExecutionException {
+		IProcessComponent<Void> component = h2hFileManager.createDownloadProcess(file);
 		component.attachListener(new FileOperationListener(file));
-		component.start();
+		component.executeAsync();
 		return component;
 	}
 
-	public IProcessComponent share(File folder, String userId, PermissionType permission)
-			throws IllegalFileLocation, IllegalArgumentException, NoSessionException,
-			NoPeerConnectionException, InvalidProcessStateException {
+	public IProcessComponent<Void> share(File folder, String userId, PermissionType permission)
+			throws IllegalArgumentException, NoSessionException,
+			NoPeerConnectionException, InvalidProcessStateException, ProcessExecutionException {
 		logger.debug("SHARE - User: '{}', Permission: '{}', Folder: '{}'", userId, permission.name(), folder);
 		
-		IProcessComponent component = h2hFileManager.share(folder,  userId, permission);
+		IProcessComponent<Void> component = h2hFileManager.createShareProcess(folder,  userId, permission);
 		component.attachListener(new FileOperationListener(folder));
-		component.start();
-		
+		component.executeAsync();
 		return component;
 	}
 
-	public IResultProcessComponent<List<FileTaste>> getFileList() throws NoSessionException {
-		return null;
+	public IProcessComponent<FileNode> getFileList() {
+		// createFileListProcess
+		throw new RuntimeException("Not implemented!");
 	}
 	
 	
@@ -122,67 +117,45 @@ public class FileManager {
 		}
 		
 		@Override
-		public void onSucceeded() {
+		public void onExecuting(IProcessEventArgs args) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public void onRollbacking(IProcessEventArgs args) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public void onPaused(IProcessEventArgs args) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public void onExecutionSucceeded(IProcessEventArgs args) {
 			logger.debug("Operation succeeded: {}", path);
 		}
+
 		@Override
-		public void onFailed(RollbackReason reason) {
-			logger.debug("Operation failed: {} ({})", path, reason.getHint());
+		public void onExecutionFailed(IProcessEventArgs args) {
+			logger.debug("Operation failed: {}", path);
+		}
+
+		@Override
+		public void onRollbackSucceeded(IProcessEventArgs args) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public void onRollbackFailed(IProcessEventArgs args) {
+			// TODO Auto-generated method stub
+			
 		}
 	}
-	
-	
-	// TODO(CA): still needed?
-//	private class FileRecoveryListener implements IProcessComponentListener {
-//		private File file;
-//		public FileRecoveryListener(File file, int version) {
-//			this.file = PathUtils.getRecoveredFilePath(file.getPath(), version).toFile();
-//		}
-//
-//		@Override
-//		public void onSucceeded() {
-//			logger.debug("Recovery Operation succeeded: {}", file);
-//			if(!file.exists()){
-//				logger.error("File {} does not exist after recovery.", file);
-//			} else {
-//
-//				if(fileEventManager == null){
-//					logger.error("fileEventManager is null! Recovered file {} is not added.", file);
-//				} else {
-//					logger.info("File {} has been added after successful recovery.", file);
-//					fileEventManager.onLocalFileCreated(file.toPath(), false);
-//					try {
-//						Thread.sleep(5000);
-//					} catch (InterruptedException e) {
-//						// TODO Auto-generated catch block
-//						e.printStackTrace();
-//					}
-//					fileEventManager.onLocalFileCreated(file.toPath(), false);
-//				}
-//				
-//				IProcessComponent process;
-//				try {
-//					process = add(path);
-//					if(process != null){
-//						//process.attachListener(new FileManagerProcessListener());
-//						//process.start();
-//					} else {
-//						System.err.println("process is null");
-//					}
-//				} catch (NoSessionException | NoPeerConnectionException | IllegalFileLocation
-//						| InvalidProcessStateException e) {
-//					// TODO Auto-generated catch block
-//					e.printStackTrace();
-//				}
-//				
-//			}
-//			
-//		}
-//		@Override
-//		public void onFailed(RollbackReason reason) {
-//			logger.debug("Operation failed: {} ({})", file, reason.getHint());
-//		}
-//	}
 
 	public void setFileEventManager(FileEventManager fileEventManager) {
 		this.fileEventManager = fileEventManager;

@@ -31,14 +31,6 @@
 			<scope>compile</scope>
 		</dependency>
 		
-		<!-- process framework -->
-		<dependency>
-			<groupId>org.hive2hive</groupId>
-			<artifactId>org.hive2hive.processframework</artifactId>
-			<version>${h2h.version}</version>
-			<scope>compile</scope>
-		</dependency>
-		
 		<!-- Guice Dependency Injection: https://github.com/google/guice -->
 		<dependency>
 			<groupId>com.google.inject</groupId>
@@ -160,15 +152,6 @@
 			<scope>test</scope>
 		</dependency>
 		
-		<!-- H2H ProcessFramework Test Jar -->
-		<dependency>
-			<groupId>org.hive2hive</groupId>
-			<artifactId>org.hive2hive.processframework</artifactId>
-			<version>${h2h.version}</version>
-			<type>test-jar</type>
-			<scope>test</scope>
-		</dependency>
-
 		<dependency>
 			<groupId>com.jayway.restassured</groupId>
 			<artifactId>rest-assured</artifactId>

@@ -8,12 +8,12 @@ import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.hive2hive.core.exceptions.NoSessionException;
 import org.hive2hive.core.file.IFileAgent;
 import org.hive2hive.core.security.UserCredentials;
-import org.hive2hive.processframework.RollbackReason;
-import org.hive2hive.processframework.concretes.ProcessComponentListener;
 import org.hive2hive.processframework.exceptions.InvalidProcessStateException;
+import org.hive2hive.processframework.exceptions.ProcessExecutionException;
 import org.hive2hive.processframework.interfaces.IProcessComponent;
 import org.peerbox.ResultStatus;
 import org.peerbox.h2h.PeerboxFileAgent;
+import org.peerbox.h2h.ProcessListener;
 import org.peerbox.utils.AppData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,22 +29,20 @@ public class UserManager {
 		this.h2hUserManager = h2hUserManager;
 	}
 
-	public ResultStatus registerUser(final String username, final String password, final String pin)
-			throws NoPeerConnectionException, InterruptedException, InvalidProcessStateException {
+	public ResultStatus registerUser(final String username, final String password, final String pin) 
+			throws InvalidProcessStateException, ProcessExecutionException, NoPeerConnectionException {
 		UserCredentials credentials = new UserCredentials(username, password, pin);
-		IProcessComponent registerProcess = h2hUserManager.register(credentials);
-		ProcessComponentListener listener = new ProcessComponentListener();
+		IProcessComponent<Void> registerProcess = h2hUserManager.createRegisterProcess(credentials);
+		ProcessListener listener = new ProcessListener();
 		registerProcess.attachListener(listener);
-		registerProcess.start().await();
+		registerProcess.execute();
 
-		if (listener.hasSucceeded() && isRegistered(credentials.getUserId())) {
+		if (listener.hasExecutionSucceeded() && isRegistered(credentials.getUserId())) {
 			return ResultStatus.ok();
 		}
-		if (listener.hasFailed()) {
-			RollbackReason reason = listener.getRollbackReason();
-			if (reason != null) {
-				return ResultStatus.error(reason.getHint());
-			}
+		if (listener.hasExecutionFailed()) {
+			// TODO: rollback reason?
+			return ResultStatus.error("Could not register user.");
 		}
 		return ResultStatus.error("Could not register user.");
 	}
@@ -54,48 +52,44 @@ public class UserManager {
 	}
 
 	public ResultStatus loginUser(final String username, final String password, final String pin,
-			final Path rootPath) throws NoPeerConnectionException, InterruptedException,
-			InvalidProcessStateException, IOException {
+			final Path rootPath) throws NoPeerConnectionException,
+			InvalidProcessStateException, ProcessExecutionException, IOException {
 		// TODO what if already logged in?
 		userCredentials = new UserCredentials(username, password, pin);
 		IFileAgent fileAgent = new PeerboxFileAgent(rootPath, AppData.getCacheFolder());
-		
-		IProcessComponent loginProcess = h2hUserManager.login(userCredentials, fileAgent);
-		ProcessComponentListener listener = new ProcessComponentListener();
-		loginProcess.attachListener(listener);
-		loginProcess.start().await();
 
-		if (listener.hasSucceeded() && isLoggedIn(userCredentials.getUserId())) {
+		IProcessComponent<Void> loginProcess = h2hUserManager.createLoginProcess(userCredentials, fileAgent);
+		ProcessListener listener = new ProcessListener();
+		loginProcess.attachListener(listener);
+		loginProcess.execute();
+
+		if (listener.hasExecutionSucceeded() && isLoggedIn()) {
 			return ResultStatus.ok();
 		}
-		if (listener.hasFailed()) {
-			RollbackReason reason = listener.getRollbackReason();
-			if (reason != null) {
-				return ResultStatus.error(reason.getHint());
-			}
+		if (listener.hasExecutionFailed()) {
+			// TODO: rollback reason?
+			return ResultStatus.error("Could not login user.");
 		}
 		return ResultStatus.error("Could not login user.");
 	}
 
-	public boolean isLoggedIn(final String userName) throws NoPeerConnectionException {
-		return h2hUserManager.isLoggedIn(userName);
+	public boolean isLoggedIn() throws NoPeerConnectionException {
+		return h2hUserManager.isLoggedIn();
 	}
 
-	public ResultStatus logoutUser() throws InvalidProcessStateException, InterruptedException,
+	public ResultStatus logoutUser() throws InvalidProcessStateException, ProcessExecutionException, 
 			NoPeerConnectionException, NoSessionException {
-		IProcessComponent logoutProcess = h2hUserManager.logout();
-		ProcessComponentListener listener = new ProcessComponentListener();
+		IProcessComponent<Void> logoutProcess = h2hUserManager.createLogoutProcess();
+		ProcessListener listener = new ProcessListener();
 		logoutProcess.attachListener(listener);
-		logoutProcess.start().await();
+		logoutProcess.execute();
 
-		if (listener.hasSucceeded()) {
+		if (listener.hasExecutionSucceeded()) {
 			return ResultStatus.ok();
 		}
-		if (listener.hasFailed()) {
-			RollbackReason reason = listener.getRollbackReason();
-			if (reason != null) {
-				return ResultStatus.error(reason.getHint());
-			}
+		if (listener.hasExecutionFailed()) {
+			// TODO: rollback reason?
+			return ResultStatus.error("Could not logout user.");
 		}
 		return ResultStatus.error("Could not logout user.");
 	}

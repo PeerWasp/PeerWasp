@@ -24,14 +24,14 @@ import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
 
 import org.controlsfx.control.StatusBar;
-import org.hive2hive.core.exceptions.IllegalFileLocation;
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.hive2hive.core.exceptions.NoSessionException;
 import org.hive2hive.core.model.PermissionType;
-import org.hive2hive.processframework.RollbackReason;
 import org.hive2hive.processframework.exceptions.InvalidProcessStateException;
+import org.hive2hive.processframework.exceptions.ProcessExecutionException;
 import org.hive2hive.processframework.interfaces.IProcessComponent;
 import org.hive2hive.processframework.interfaces.IProcessComponentListener;
+import org.hive2hive.processframework.interfaces.IProcessEventArgs;
 import org.peerbox.FileManager;
 import org.peerbox.model.UserManager;
 import org.peerbox.presenter.validation.TextFieldValidator;
@@ -133,10 +133,13 @@ public final class ShareFolderController implements Initializable {
 				setStatus("Sharing folder...");
 				setBusy(true);
 				
-				IProcessComponent process = fileManager.share(folderToShare.toFile(), user, permission);
+				IProcessComponent<Void> process = fileManager.share(folderToShare.toFile(), user, permission);
 				process.attachListener(new ShareProcessListener());
-			} catch (IllegalFileLocation | IllegalArgumentException | NoSessionException
+			} catch (IllegalArgumentException | NoSessionException
 					| NoPeerConnectionException | InvalidProcessStateException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (ProcessExecutionException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
@@ -220,14 +223,45 @@ public final class ShareFolderController implements Initializable {
 	}
 	
 	private class ShareProcessListener implements IProcessComponentListener {
+
 		@Override
-		public void onSucceeded() {
+		public void onExecuting(IProcessEventArgs args) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public void onRollbacking(IProcessEventArgs args) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public void onPaused(IProcessEventArgs args) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public void onExecutionSucceeded(IProcessEventArgs args) {
 			onFolderShareSucceeded();
 		}
 
 		@Override
-		public void onFailed(RollbackReason reason) {
-			onFolderShareFailed(reason.getHint());
+		public void onExecutionFailed(IProcessEventArgs args) {
+			onFolderShareFailed("Sharing folder failed.");
+		}
+
+		@Override
+		public void onRollbackSucceeded(IProcessEventArgs args) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public void onRollbackFailed(IProcessEventArgs args) {
+			// TODO Auto-generated method stub
+			
 		}
 	}
 	

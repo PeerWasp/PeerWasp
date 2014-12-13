@@ -10,7 +10,6 @@ import java.util.Iterator;
 import java.util.Set;
 
 import org.apache.commons.lang3.NotImplementedException;
-import org.hive2hive.core.exceptions.IllegalFileLocation;
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.hive2hive.core.exceptions.NoSessionException;
 import org.hive2hive.processframework.RollbackReason;
@@ -115,7 +114,7 @@ public class LocalCreateState extends AbstractActionState {
 	 */
 	@Override
 	public void execute(FileManager fileManager) throws NoSessionException,
-			NoPeerConnectionException, IllegalFileLocation, InvalidProcessStateException {
+			NoPeerConnectionException, InvalidProcessStateException {
 		Path path = action.getFile().getPath();
 		logger.debug("Execute LOCAL CREATE: {}", path);
 		IProcessComponent process = fileManager.add(path.toFile());

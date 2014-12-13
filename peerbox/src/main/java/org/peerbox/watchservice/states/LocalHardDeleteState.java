@@ -4,7 +4,6 @@ import java.nio.file.Path;
 import java.util.Map;
 
 import org.apache.commons.lang3.NotImplementedException;
-import org.hive2hive.core.exceptions.IllegalFileLocation;
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.hive2hive.core.exceptions.NoSessionException;
 import org.hive2hive.processframework.exceptions.InvalidProcessStateException;
@@ -158,7 +157,7 @@ public class LocalHardDeleteState extends AbstractActionState{
 
 	@Override
 	public void execute(FileManager fileManager) throws NoSessionException,
-			NoPeerConnectionException, IllegalFileLocation, InvalidProcessStateException {
+			NoPeerConnectionException, InvalidProcessStateException {
 		Path path = action.getFilePath();
 		logger.debug("Execute LOCAL DELETE: {}", path);
 		IProcessComponent process = fileManager.delete(path.toFile());

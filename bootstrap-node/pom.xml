@@ -32,15 +32,6 @@
 			<version>${h2h.version}</version>
 			<scope>compile</scope>
 		</dependency>
-
-		<!-- process framework -->
-		<dependency>
-			<groupId>org.hive2hive</groupId>
-			<artifactId>org.hive2hive.processframework</artifactId>
-			<version>${h2h.version}</version>
-			<scope>compile</scope>
-		</dependency>
-		
 		
 		<!-- logback logging: http://logback.qos.ch/ -->
 		<dependency>

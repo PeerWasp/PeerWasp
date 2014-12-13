@@ -10,7 +10,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
 
-import org.hive2hive.core.exceptions.IllegalFileLocation;
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.hive2hive.core.exceptions.NoSessionException;
 import org.hive2hive.core.exceptions.PutFailedException;
@@ -244,14 +243,12 @@ public class ActionExecutor implements Runnable, IActionEventListener {
 			e.printStackTrace();
 		} catch (NoPeerConnectionException e) {
 			e.printStackTrace();
-		} catch (IllegalFileLocation e) {
-			e.printStackTrace();
 		} catch (InvalidProcessStateException e) {
 			e.printStackTrace();
 		}
 	}
 
-	public void handleExecutionError(RollbackReason reason, IAction action) throws NoSessionException, NoPeerConnectionException, IllegalFileLocation, InvalidProcessStateException{
+	public void handleExecutionError(RollbackReason reason, IAction action) throws NoSessionException, NoPeerConnectionException, InvalidProcessStateException{
 		ProcessError error = reason.getErrorType();
 		executingActions.remove(action);
 		switch(error){

@@ -39,10 +39,12 @@ import org.controlsfx.control.StatusBar;
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.hive2hive.core.exceptions.NoSessionException;
 import org.hive2hive.core.model.IFileVersion;
-import org.hive2hive.processframework.RollbackReason;
 import org.hive2hive.processframework.exceptions.InvalidProcessStateException;
+import org.hive2hive.processframework.exceptions.ProcessExecutionException;
+import org.hive2hive.processframework.exceptions.ProcessRollbackException;
 import org.hive2hive.processframework.interfaces.IProcessComponent;
 import org.hive2hive.processframework.interfaces.IProcessComponentListener;
+import org.hive2hive.processframework.interfaces.IProcessEventArgs;
 import org.peerbox.FileManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -80,7 +82,7 @@ public final class RecoverFileController  implements Initializable, IFileVersion
 	private FileVersionSelector versionSelector;
 
 	private FileManager fileManager;
-	private IProcessComponent process;
+	private IProcessComponent<Void> process;
 	
 	public RecoverFileController() {
 		this.fileToRecoverProperty = new SimpleStringProperty();
@@ -179,9 +181,6 @@ public final class RecoverFileController  implements Initializable, IFileVersion
 			process = fileManager.recover(fileToRecover.toFile(), versionSelector);
 			process.attachListener(new RecoveryProcessListener());
 	
-		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		} catch (NoSessionException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -189,6 +188,9 @@ public final class RecoverFileController  implements Initializable, IFileVersion
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (InvalidProcessStateException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (ProcessExecutionException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
@@ -263,9 +265,9 @@ public final class RecoverFileController  implements Initializable, IFileVersion
 				versionSelector.cancel();
 			}
 			if(process != null) {
-				process.cancel(new RollbackReason("User cancelled"));
+				process.rollback();
 			}
-		} catch (InvalidProcessStateException e) {
+		} catch (InvalidProcessStateException | ProcessRollbackException e) {
 			logger.warn("Could not cancel process.", e);
 		} finally {
 			getStage().close();
@@ -325,14 +327,45 @@ public final class RecoverFileController  implements Initializable, IFileVersion
 	
 	
 	private class RecoveryProcessListener implements IProcessComponentListener {
+
 		@Override
-		public void onSucceeded() {
+		public void onExecuting(IProcessEventArgs args) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public void onRollbacking(IProcessEventArgs args) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public void onPaused(IProcessEventArgs args) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public void onExecutionSucceeded(IProcessEventArgs args) {
 			onFileRecoverySucceeded();
 		}
 
 		@Override
-		public void onFailed(RollbackReason reason) {
-			onFileRecoveryFailed(reason.getHint());
+		public void onExecutionFailed(IProcessEventArgs args) {
+			onFileRecoveryFailed("Recovery failed.");
+		}
+
+		@Override
+		public void onRollbackSucceeded(IProcessEventArgs args) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public void onRollbackFailed(IProcessEventArgs args) {
+			// TODO Auto-generated method stub
+			
 		}
 	}
 	

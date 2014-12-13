@@ -9,6 +9,7 @@ import java.util.UUID;
 import org.hive2hive.core.api.H2HNode;
 import org.hive2hive.core.api.configs.FileConfiguration;
 import org.hive2hive.core.api.configs.NetworkConfiguration;
+import org.hive2hive.core.api.interfaces.IFileConfiguration;
 import org.hive2hive.core.api.interfaces.IH2HNode;
 import org.hive2hive.core.api.interfaces.INetworkConfiguration;
 import org.slf4j.Logger;
@@ -32,28 +33,10 @@ public final class H2HManager {
 	}
 
 	private void createNode() {
-		INetworkConfiguration defaultNetConf = NetworkConfiguration.createInitial(generateNodeID());
-		createNode(defaultNetConf);
-	}
-	
-	private void createNode(String bootstrapAddress) throws UnknownHostException {
-		String nodeID = generateNodeID();
-		InetAddress bootstrapInetAddress = InetAddress.getByName(bootstrapAddress);
-		createNode(NetworkConfiguration.create(nodeID, bootstrapInetAddress));
+		IFileConfiguration fileConfig = FileConfiguration.createDefault();
+		node = H2HNode.createNode(fileConfig);
 	}
 
-	private void createNode(INetworkConfiguration netConfig) {
-		node = H2HNode.createNode(netConfig, FileConfiguration.createDefault());
-		node.getUserManager().configureAutostart(false);
-		node.getFileManager().configureAutostart(false);
-		
-	}
-
-	public boolean joinNetwork() {
-		createNode();
-		return node.connect();
-	}
-	
 	public boolean joinNetwork(List<String> bootstrappingNodes) {
 		boolean connected = false;
 		Iterator<String> nodeIt = bootstrappingNodes.iterator();
@@ -82,10 +65,20 @@ public final class H2HManager {
 			throw new IllegalArgumentException("Bootstrap address is empty.");
 		}
 		
-		createNode(address);
-		return node.connect();
+		createNode();
+		String nodeID = generateNodeID();
+		InetAddress bootstrapInetAddress = InetAddress.getByName(address);
+		INetworkConfiguration networkConfig = NetworkConfiguration.create(nodeID, bootstrapInetAddress);
+		return node.connect(networkConfig);
 	}
-
+	
+	public boolean createNetwork() {
+		createNode();
+		String nodeID = generateNodeID();
+		INetworkConfiguration networkConfig = NetworkConfiguration.createInitial(nodeID);
+		return node.connect(networkConfig);
+	}
+	
 	public boolean leaveNetwork() {
 		if (node != null) {
 			boolean res = node.disconnect();

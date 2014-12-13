@@ -3,7 +3,6 @@ package org.peerbox.watchservice.states;
 import java.nio.file.Path;
 
 import org.apache.commons.lang3.NotImplementedException;
-import org.hive2hive.core.exceptions.IllegalFileLocation;
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.hive2hive.core.exceptions.NoSessionException;
 import org.hive2hive.processframework.exceptions.InvalidProcessStateException;
@@ -130,7 +129,7 @@ public class RemoteCreateState extends AbstractActionState{
 	
 	@Override
 	public void execute(FileManager fileManager) throws NoSessionException,
-			NoPeerConnectionException, IllegalFileLocation, InvalidProcessStateException {
+			NoPeerConnectionException, InvalidProcessStateException {
 		Path path = action.getFilePath();
 		logger.debug("Execute REMOTE ADD, download the file: {}", path);
 		IProcessComponent process = fileManager.download(path.toFile());
