@@ -8,7 +8,7 @@ import org.hive2hive.processframework.exceptions.InvalidProcessStateException;
 import org.hive2hive.processframework.exceptions.ProcessExecutionException;
 import org.peerbox.FileManager;
 import org.peerbox.exceptions.NotImplException;
-import org.peerbox.h2h.AsyncHandle;
+import org.peerbox.h2h.ProcessHandle;
 import org.peerbox.watchservice.Action;
 import org.peerbox.watchservice.FileComponent;
 import org.peerbox.watchservice.IFileEventManager;
@@ -132,10 +132,10 @@ public class LocalHardDeleteState extends AbstractActionState{
 	public void execute(FileManager fileManager) throws InvalidProcessStateException, ProcessExecutionException, NoSessionException, NoPeerConnectionException {
 		Path path = action.getFilePath();
 		logger.debug("Execute LOCAL DELETE: {}", path);
-		AsyncHandle<Void> handle = fileManager.delete(path.toFile());
+		ProcessHandle<Void> handle = fileManager.delete(path.toFile());
 		if (handle != null && handle.getProcess() != null) {
 			handle.getProcess().attachListener(new FileManagerProcessListener(handle));
-			handle.start();
+			handle.executeAsync();
 		} else {
 			System.err.println("handle or process is null.");
 		}

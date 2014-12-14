@@ -8,7 +8,7 @@ import org.hive2hive.processframework.exceptions.InvalidProcessStateException;
 import org.hive2hive.processframework.exceptions.ProcessExecutionException;
 import org.peerbox.FileManager;
 import org.peerbox.exceptions.NotImplException;
-import org.peerbox.h2h.AsyncHandle;
+import org.peerbox.h2h.ProcessHandle;
 import org.peerbox.watchservice.Action;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -120,10 +120,10 @@ public class RemoteUpdateState extends AbstractActionState {
 	public void execute(FileManager fileManager) throws NoSessionException, NoPeerConnectionException, InvalidProcessStateException, ProcessExecutionException {
 		Path path = action.getFilePath();
 		logger.debug("Execute REMOTE UPDATE, download the file: {}", path);
-		AsyncHandle<Void> handle = fileManager.download(path.toFile());
+		ProcessHandle<Void> handle = fileManager.download(path.toFile());
 		if (handle != null && handle.getProcess() != null) {
 			handle.getProcess().attachListener(new FileManagerProcessListener(handle));
-			handle.start();
+			handle.executeAsync();
 		} else {
 			System.err.println("process or handle is null");
 		}

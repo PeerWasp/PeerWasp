@@ -10,7 +10,7 @@ import org.hive2hive.processframework.exceptions.InvalidProcessStateException;
 import org.hive2hive.processframework.exceptions.ProcessExecutionException;
 import org.peerbox.FileManager;
 import org.peerbox.exceptions.NotImplException;
-import org.peerbox.h2h.AsyncHandle;
+import org.peerbox.h2h.ProcessHandle;
 import org.peerbox.watchservice.Action;
 import org.peerbox.watchservice.ConflictHandler;
 import org.peerbox.watchservice.IFileEventManager;
@@ -112,10 +112,10 @@ public class LocalCreateState extends AbstractActionState {
 			ProcessExecutionException, NoSessionException, NoPeerConnectionException {
 		Path path = action.getFile().getPath();
 		logger.debug("Execute LOCAL CREATE: {}", path);
-		AsyncHandle<Void> handle = fileManager.add(path.toFile());
+		ProcessHandle<Void> handle = fileManager.add(path.toFile());
 		if (handle != null && handle.getProcess() != null) {
 			handle.getProcess().attachListener(new FileManagerProcessListener(handle));
-			handle.start();
+			handle.executeAsync();
 		} else {
 			System.err.println("process or handle is null");
 		}

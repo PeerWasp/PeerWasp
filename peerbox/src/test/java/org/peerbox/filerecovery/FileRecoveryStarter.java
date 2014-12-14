@@ -16,7 +16,6 @@ import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.RandomUtils;
 import org.hive2hive.core.H2HJUnitTest;
 import org.hive2hive.core.api.interfaces.IH2HNode;
-import org.hive2hive.core.exceptions.IllegalFileLocation;
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.hive2hive.core.exceptions.NoSessionException;
 import org.hive2hive.core.security.UserCredentials;
@@ -24,6 +23,7 @@ import org.hive2hive.core.utils.FileTestUtil;
 import org.hive2hive.core.utils.NetworkTestUtil;
 import org.hive2hive.core.utils.helper.TestFileAgent;
 import org.hive2hive.processframework.exceptions.InvalidProcessStateException;
+import org.hive2hive.processframework.exceptions.ProcessExecutionException;
 import org.peerbox.FileManager;
 import org.peerbox.interfaces.IFxmlLoaderProvider;
 
@@ -62,18 +62,18 @@ public class FileRecoveryStarter extends Application {
 		
 	}
 
-	private void initNetwork() throws IOException, NoPeerConnectionException, InterruptedException, InvalidProcessStateException {
+	private void initNetwork() throws NoPeerConnectionException, InvalidProcessStateException, ProcessExecutionException {
 		network = NetworkTestUtil.createH2HNetwork(networkSize);
 		userCredentials = H2HJUnitTest.generateRandomCredentials();
 		client = network.get(RandomUtils.nextInt(0, network.size()));;
 	
 		// register a user
 		root = FileTestUtil.getTempDirectory();
-		client.getUserManager().register(userCredentials).start().await();
-		client.getUserManager().login(userCredentials, new TestFileAgent(root)).start().await();
+		client.getUserManager().createRegisterProcess(userCredentials).execute();
+		client.getUserManager().createLoginProcess(userCredentials, new TestFileAgent(root)).execute();
 	}
 
-	private void uploadFileVersions() throws IOException, NoSessionException, NoPeerConnectionException, InterruptedException, InvalidProcessStateException, IllegalFileLocation {
+	private void uploadFileVersions() throws IOException, NoSessionException, NoPeerConnectionException, InvalidProcessStateException, ProcessExecutionException, IllegalArgumentException, InterruptedException {
 		content = new ArrayList<String>();
 		
 		// add an intial file to the network
@@ -81,7 +81,7 @@ public class FileRecoveryStarter extends Application {
 		String fileContent = RandomStringUtils.randomAscii(FILE_SIZE);
 		content.add(fileContent);
 		FileUtils.write(file, fileContent);
-		client.getFileManager().add(file).start().await();
+		client.getFileManager().createAddProcess(file).execute();
 	
 		// update and upload 
 		for(int i = 0; i < NUM_VERSIONS; ++i) {
@@ -89,7 +89,7 @@ public class FileRecoveryStarter extends Application {
 			fileContent = RandomStringUtils.randomAscii(FILE_SIZE);
 			content.add(fileContent);
 			FileUtils.write(file, fileContent);
-			client.getFileManager().update(file).start().await();
+			client.getFileManager().createUpdateProcess(file).execute();
 		}
 	}
 

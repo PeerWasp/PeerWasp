@@ -16,16 +16,16 @@ import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.RandomUtils;
 import org.hive2hive.core.H2HJUnitTest;
 import org.hive2hive.core.api.interfaces.IH2HNode;
-import org.hive2hive.core.exceptions.IllegalFileLocation;
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.hive2hive.core.exceptions.NoSessionException;
 import org.hive2hive.core.model.IFileVersion;
 import org.hive2hive.core.security.UserCredentials;
 import org.hive2hive.core.utils.FileTestUtil;
 import org.hive2hive.core.utils.NetworkTestUtil;
+import org.hive2hive.core.utils.TestProcessComponentListener;
 import org.hive2hive.core.utils.helper.TestFileAgent;
-import org.hive2hive.processframework.concretes.ProcessComponentListener;
 import org.hive2hive.processframework.exceptions.InvalidProcessStateException;
+import org.hive2hive.processframework.exceptions.ProcessExecutionException;
 import org.hive2hive.processframework.interfaces.IProcessComponent;
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -52,26 +52,24 @@ public class FileVersionSelectorTest {
 	
 	
 	@BeforeClass
-	public static void beforeClass() throws NoPeerConnectionException, InterruptedException, InvalidProcessStateException, IOException, NoSessionException, IllegalFileLocation {
+	public static void beforeClass() throws NoPeerConnectionException, InterruptedException, InvalidProcessStateException, IOException, NoSessionException, ProcessExecutionException {
 		initNetwork();
 		uploadVersions();
 	}
 
-	private static void initNetwork() throws InterruptedException, InvalidProcessStateException,
-			NoPeerConnectionException {
+	private static void initNetwork() throws InvalidProcessStateException,
+			NoPeerConnectionException, ProcessExecutionException {
 		network = NetworkTestUtil.createH2HNetwork(networkSize);
 		client = network.get(RandomUtils.nextInt(0, network.size()));
 	
 		// register a user
 		userCredentials = H2HJUnitTest.generateRandomCredentials();
 		root = FileTestUtil.getTempDirectory();
-		client.getUserManager().register(userCredentials).start().await();
-		client.getUserManager().login(userCredentials, new TestFileAgent(root)).start().await();
+		client.getUserManager().createRegisterProcess(userCredentials).execute();
+		client.getUserManager().createLoginProcess(userCredentials, new TestFileAgent(root)).execute();
 	}
 
-	private static void uploadVersions() throws IOException, InterruptedException,
-			InvalidProcessStateException, NoSessionException, NoPeerConnectionException,
-			IllegalFileLocation {
+	private static void uploadVersions() throws  NoSessionException, NoPeerConnectionException, ProcessExecutionException, IllegalArgumentException, IOException, InvalidProcessStateException, InterruptedException {
 		content = new ArrayList<String>();
 		
 		// add an intial file to the network
@@ -79,7 +77,7 @@ public class FileVersionSelectorTest {
 		String fileContent = RandomStringUtils.randomAscii(FILE_SIZE);
 		content.add(fileContent);
 		FileUtils.write(file, fileContent);
-		client.getFileManager().add(file).start().await();
+		client.getFileManager().createAddProcess(file).execute();
 	
 		// update and upload 
 		for(int i = 0; i < NUM_VERSIONS; ++i) {
@@ -87,7 +85,7 @@ public class FileVersionSelectorTest {
 			fileContent = RandomStringUtils.randomAscii(FILE_SIZE);
 			content.add(fileContent);
 			FileUtils.write(file, fileContent);
-			client.getFileManager().update(file).start().await();
+			client.getFileManager().createUpdateProcess(file).execute();
 		}
 	}
 	
@@ -97,14 +95,14 @@ public class FileVersionSelectorTest {
 	}
 	
 	@Test
-	public void testRecoverAllVersions() throws NoSessionException, NoPeerConnectionException, InterruptedException, InvalidProcessStateException, IOException {
+	public void testRecoverAllVersions() throws NoSessionException, NoPeerConnectionException, InterruptedException, InvalidProcessStateException, IOException, ProcessExecutionException, IllegalArgumentException {
 		
 		// recover all versions
 		for(int i = 0; i < NUM_VERSIONS; ++ i) {
 			
 			// recover version
 			FileVersionSelectorListener versionSelectorListener = new FileVersionSelectorListener(i);
-			client.getFileManager().recover(file, versionSelectorListener.getFileVersionSelector()).start().await();
+			client.getFileManager().createRecoverProcess(file, versionSelectorListener.getFileVersionSelector()).execute();
 			
 			// assert content equality
 			String recoveredFileName = versionSelectorListener.getRecoveredFileName();
@@ -121,31 +119,30 @@ public class FileVersionSelectorTest {
 	}
 	
 	@Test
-	public void testCancel() throws FileNotFoundException, NoSessionException, NoPeerConnectionException, InterruptedException, InvalidProcessStateException {
+	public void testCancel() throws NoSessionException, NoPeerConnectionException, InvalidProcessStateException, ProcessExecutionException {
 		// count number of files to make sure no file recovered
 		int numElementsBefore = root.list().length;
 		
 		// recover version and cancel
 		FileVersionSelectorListener versionSelectorListener = new FileVersionSelectorListener(-1);
-		client.getFileManager().recover(file, versionSelectorListener.getFileVersionSelector()).start().await();
+		client.getFileManager().createRecoverProcess(file, versionSelectorListener.getFileVersionSelector()).execute();
 	
 		int numElementsAfter = root.list().length;
 		assertEquals(numElementsBefore, numElementsAfter);
 	}
 	
 	@Test
-	public void testCancelBeforeSelect() throws FileNotFoundException, NoSessionException, NoPeerConnectionException, InterruptedException, InvalidProcessStateException {
+	public void testCancelBeforeSelect() throws NoSessionException, NoPeerConnectionException, InvalidProcessStateException, ProcessExecutionException {
 		// recover version and cancel
 		FileVersionSelectorListener versionSelectorListener = new FileVersionSelectorListener(0);
 		versionSelectorListener.getFileVersionSelector().cancel(); // cancel before onAvailableVersionsReceived
-		IProcessComponent p = client.getFileManager().recover(file, versionSelectorListener.getFileVersionSelector());
-		ProcessComponentListener plistener = new ProcessComponentListener();
+		IProcessComponent<Void> p = client.getFileManager().createRecoverProcess(file, versionSelectorListener.getFileVersionSelector());
+		TestProcessComponentListener plistener = new TestProcessComponentListener();
 		p.attachListener(plistener);
-		p.start().await();
+		p.execute();
 		
-		assertTrue(plistener.hasFinished());
-		assertTrue(plistener.hasFailed());
-		assertFalse(plistener.hasSucceeded());
+		assertTrue(plistener.hasExecutionFailed());
+		assertFalse(plistener.hasExecutionSucceeded());
 	}
 	
 	@Test(expected=IllegalStateException.class)

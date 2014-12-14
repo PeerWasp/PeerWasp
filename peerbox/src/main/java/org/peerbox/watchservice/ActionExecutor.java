@@ -7,7 +7,6 @@ import java.util.Vector;
 
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.hive2hive.core.exceptions.NoSessionException;
-import org.hive2hive.processframework.exceptions.InvalidProcessStateException;
 import org.hive2hive.processframework.exceptions.ProcessExecutionException;
 import org.peerbox.watchservice.states.LocalDeleteState;
 import org.slf4j.Logger;
@@ -230,29 +229,34 @@ public class ActionExecutor implements Runnable, IActionEventListener {
 	@Override
 	public void onActionExecuteFailed(IAction action, ProcessExecutionException pex) {
 		logger.info("Action failed: {} {}.", action.getFilePath(), action.getCurrentState().getClass().toString());
-		try {
-			handleExecutionError(pex, action);
-		} catch (NoSessionException e) {
-			e.printStackTrace();
-		} catch (NoPeerConnectionException e) {
-			e.printStackTrace();
-		} catch (InvalidProcessStateException e) {
-			e.printStackTrace();
-		}
+		handleExecutionError(action, pex);
 	}
 
-	public void handleExecutionError(ProcessExecutionException pex, IAction action) throws NoSessionException, NoPeerConnectionException, InvalidProcessStateException{
+	public void handleExecutionError(IAction action, ProcessExecutionException pex) {
+		// !! NOTE: pex may be NULL !! 
 		executingActions.remove(action);
+		if(pex != null) {
+			/*
+			 * TODO: unwrap exception and handle inner exception that caused ProcesssExecutionException
+			 * 
+			 * Previous error codes: 
+			 * - PARENT_IN_USERFILE_NOT_FOUND --> [ ParentInUserProfileNotFoundException ]
+			 * - SAME_CONTENT --> [ NewVersionSameContentException ]
+			 * - ?? rest was not used I think
+			 */
+		}
+		
+		// temporary default
 		logger.trace("Re-initiate execution of {} {}.", action.getFilePath(), action.getCurrentState().getClass().toString());
 		if(action.getExecutionAttempts() <= MAX_EXECUTION_ATTEMPTS){
 			action.updateTimestamp();
 			fileEventManager.getFileComponentQueue().add(action.getFile());
 		} else {
 			logger.error("To many attempts, action of {} has not been executed again. Reason: default", action.getFilePath());
-			
-			onActionExecuteSucceeded(action);//action.onSucceed();
+			onActionExecuteSucceeded(action);
 		}
-		
+
+
 //		ProcessError error = reason.getErrorType();
 //		executingActions.remove(action);
 //		switch(error){

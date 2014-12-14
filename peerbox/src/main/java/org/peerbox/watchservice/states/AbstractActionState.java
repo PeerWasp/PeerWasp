@@ -15,7 +15,7 @@ import org.hive2hive.processframework.exceptions.ProcessExecutionException;
 import org.hive2hive.processframework.interfaces.IProcessComponentListener;
 import org.hive2hive.processframework.interfaces.IProcessEventArgs;
 import org.peerbox.FileManager;
-import org.peerbox.h2h.AsyncHandle;
+import org.peerbox.h2h.ProcessHandle;
 import org.peerbox.watchservice.Action;
 import org.peerbox.watchservice.FileComponent;
 import org.peerbox.watchservice.FolderComposite;
@@ -158,9 +158,9 @@ public abstract class AbstractActionState {
 	}	
 	
 	protected class FileManagerProcessListener implements IProcessComponentListener {
-		private final AsyncHandle<Void> asyncHandle;
+		private final ProcessHandle<Void> asyncHandle;
 		
-		public FileManagerProcessListener(AsyncHandle<Void> handle) {
+		public FileManagerProcessListener(ProcessHandle<Void> handle) {
 			this.asyncHandle = handle;
 		}
 

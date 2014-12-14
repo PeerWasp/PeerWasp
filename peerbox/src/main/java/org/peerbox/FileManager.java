@@ -12,7 +12,7 @@ import org.hive2hive.processframework.exceptions.ProcessExecutionException;
 import org.hive2hive.processframework.interfaces.IProcessComponent;
 import org.hive2hive.processframework.interfaces.IProcessComponentListener;
 import org.hive2hive.processframework.interfaces.IProcessEventArgs;
-import org.peerbox.h2h.AsyncHandle;
+import org.peerbox.h2h.ProcessHandle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,45 +26,43 @@ public final class FileManager {
 		this.h2hFileManager = h2hFileManager;
 	}
 
-	public AsyncHandle<Void> add(final File file) throws NoSessionException, NoPeerConnectionException {
+	public ProcessHandle<Void> add(final File file) throws NoSessionException, NoPeerConnectionException {
 		logger.debug("ADD - {}", file);
 		IProcessComponent<Void> component = h2hFileManager.createAddProcess(file);
 		component.attachListener(new FileOperationListener(file));
-		AsyncHandle<Void> handle = new AsyncHandle<Void>(component);
+		ProcessHandle<Void> handle = new ProcessHandle<Void>(component);
 		return handle;
 	}
 
-	public AsyncHandle<Void> update(final File file) throws NoSessionException, NoPeerConnectionException {
+	public ProcessHandle<Void> update(final File file) throws NoSessionException, NoPeerConnectionException {
 		logger.debug("UPDATE - {}", file);
 		IProcessComponent<Void> component = h2hFileManager.createUpdateProcess(file);
 		component.attachListener(new FileOperationListener(file));
-		AsyncHandle<Void> handle = new AsyncHandle<Void>(component);
+		ProcessHandle<Void> handle = new ProcessHandle<Void>(component);
 		return handle;
 	}
 
-	public AsyncHandle<Void> delete(final File file) throws NoSessionException, NoPeerConnectionException {
+	public ProcessHandle<Void> delete(final File file) throws NoSessionException, NoPeerConnectionException {
 		logger.debug("DELETE - {}", file);
 		IProcessComponent<Void> component = h2hFileManager.createDeleteProcess(file);
 		component.attachListener(new FileOperationListener(file));
-		AsyncHandle<Void> handle = new AsyncHandle<Void>(component);
+		ProcessHandle<Void> handle = new ProcessHandle<Void>(component);
 		return handle;
 	}
 
-	// TODO(AA): return async handle
-	public IProcessComponent<Void> move(final File source, final File destination) throws NoSessionException, NoPeerConnectionException, InvalidProcessStateException, ProcessExecutionException {
+	public ProcessHandle<Void> move(final File source, final File destination) throws NoSessionException, NoPeerConnectionException, InvalidProcessStateException, ProcessExecutionException {
 		logger.debug("MOVE - from: {}, to: {}", source, destination);
-		// TODO: implement move.
 		IProcessComponent<Void> component = h2hFileManager.createMoveProcess(source, destination);
 		component.attachListener(new FileOperationListener(source));
 		component.attachListener(new FileOperationListener(destination));
-		component.executeAsync();
-		return component;
+		ProcessHandle<Void> handle = new ProcessHandle<Void>(component);
+		return handle;
 	}
 
-	public AsyncHandle<Void> download(final File file) throws NoSessionException, NoPeerConnectionException {
+	public ProcessHandle<Void> download(final File file) throws NoSessionException, NoPeerConnectionException {
 		IProcessComponent<Void> component = h2hFileManager.createDownloadProcess(file);
 		component.attachListener(new FileOperationListener(file));
-		AsyncHandle<Void> handle = new AsyncHandle<Void>(component);
+		ProcessHandle<Void> handle = new ProcessHandle<Void>(component);
 		return handle;
 	}
 
