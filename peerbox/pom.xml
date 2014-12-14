@@ -115,15 +115,23 @@
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-lang3</artifactId>
 			<version>3.3.2</version>
-			<scope>compile</scope>
+			<scope>test</scope>
 		</dependency>
-		
 
 		<!-- JUnit http://junit.org/ -->
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
 			<version>4.11</version>
+			<scope>test</scope>
+		</dependency>
+		
+		<!-- H2H Core Test Jar -->
+		<dependency>
+			<groupId>org.hive2hive</groupId>
+			<artifactId>org.hive2hive.core</artifactId>
+			<version>${h2h.version}</version>
+			<type>test-jar</type>
 			<scope>test</scope>
 		</dependency>
 
@@ -142,23 +150,14 @@
 			<version>3.1.2</version>
 			<scope>test</scope>
 		</dependency>
-		
-		<!-- H2H Core Test Jar -->
-		<dependency>
-			<groupId>org.hive2hive</groupId>
-			<artifactId>org.hive2hive.core</artifactId>
-			<version>${h2h.version}</version>
-			<type>test-jar</type>
-			<scope>test</scope>
-		</dependency>
-		
+
+		<!-- REST test library: https://code.google.com/p/rest-assured/ -->
 		<dependency>
 			<groupId>com.jayway.restassured</groupId>
 			<artifactId>rest-assured</artifactId>
 			<version>2.4.0</version>
 			<scope>test</scope>
 		</dependency>
-		
 
 	</dependencies>
 
@@ -221,6 +220,5 @@
 			</plugin>
 		</plugins>
 	</build>
-
-
+	
 </project>
