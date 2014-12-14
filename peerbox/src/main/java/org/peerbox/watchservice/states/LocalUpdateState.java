@@ -4,16 +4,16 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import org.apache.commons.lang3.NotImplementedException;
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.hive2hive.core.exceptions.NoSessionException;
 import org.hive2hive.processframework.exceptions.InvalidProcessStateException;
-import org.hive2hive.processframework.interfaces.IProcessComponent;
+import org.hive2hive.processframework.exceptions.ProcessExecutionException;
 import org.peerbox.FileManager;
+import org.peerbox.exceptions.NotImplException;
+import org.peerbox.h2h.AsyncHandle;
 import org.peerbox.watchservice.Action;
 import org.peerbox.watchservice.ConflictHandler;
 import org.peerbox.watchservice.IFileEventManager;
-import org.peerbox.watchservice.states.AbstractActionState.FileManagerProcessListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -61,7 +61,7 @@ public class LocalUpdateState extends AbstractActionState {
 	@Override
 	public AbstractActionState changeStateOnRemoteUpdate() {
 		logger.debug("Remote Update Event: Local Update -> Conflict ({})", action.getFilePath());
-		
+
 		Path fileInConflict = action.getFilePath();
 		Path renamedFile = ConflictHandler.rename(fileInConflict);
 		try {
@@ -72,14 +72,14 @@ public class LocalUpdateState extends AbstractActionState {
 		}
 		fileInConflict = renamedFile;
 		logger.debug("Conflict handling complete.");
-		
+
 		return new ConflictState(action);
 	}
 
 	@Override
 	public AbstractActionState changeStateOnRemoteDelete() {
 		logger.debug("Remote Delete Event: Local Update -> Conflict ({})", action.getFilePath());
-		
+
 		Path fileInConflict = action.getFilePath();
 		Path renamedFile = ConflictHandler.rename(fileInConflict);
 		try {
@@ -90,7 +90,7 @@ public class LocalUpdateState extends AbstractActionState {
 		}
 		fileInConflict = renamedFile;
 		logger.debug("Conflict handling complete.");
-		
+
 		return new ConflictState(action);
 	}
 
@@ -101,35 +101,26 @@ public class LocalUpdateState extends AbstractActionState {
 	}
 
 	@Override
-	public void execute(FileManager fileManager) throws NoSessionException,
-			IllegalArgumentException, NoPeerConnectionException, InvalidProcessStateException {
+	public void execute(FileManager fileManager) throws NoSessionException, NoPeerConnectionException, InvalidProcessStateException, ProcessExecutionException {
 		Path path = action.getFilePath();
 		logger.debug("Execute LOCAL UPDATE: {}", path);
-		IProcessComponent process = fileManager.update(path.toFile());
-		if(process == null){
-			System.err.println("process is null");
+		AsyncHandle<Void> handle = fileManager.update(path.toFile());
+		if (handle != null && handle.getProcess() != null) {
+			handle.getProcess().attachListener(new FileManagerProcessListener(handle));
+			handle.start();
 		} else {
-			process.attachListener(new FileManagerProcessListener());
+			System.err.println("Process or handle is null.");
 		}
-		
-	}
-
-	@Override
-	public AbstractActionState changeStateOnLocalRecover(int versionToRecover) {
-		// TODO Auto-generated method stub
-		return null;
 	}
 
 	@Override
 	public AbstractActionState changeStateOnRemoteCreate() {
-		// TODO Auto-generated method stub
 		return new ConflictState(action);
 	}
 
 	@Override
 	public AbstractActionState handleLocalCreate() {
-		// TODO Auto-generated method stub
-		throw new NotImplementedException("LocalUpdateState.handleLocalCreate");
+		throw new NotImplException("LocalUpdateState.handleLocalCreate");
 	}
 
 //	@Override
@@ -149,37 +140,26 @@ public class LocalUpdateState extends AbstractActionState {
 
 	@Override
 	public AbstractActionState handleLocalMove(Path oldPath) {
-		// TODO Auto-generated method stub
-		throw new NotImplementedException("LocalUpdateState.handleLocalMove");
-	}
-
-	@Override
-	public AbstractActionState handleLocalRecover(int version) {
-		// TODO Auto-generated method stub
-		throw new NotImplementedException("LocalUpdateState.handleLocalRecover");
+		throw new NotImplException("LocalUpdateState.handleLocalMove");
 	}
 
 	@Override
 	public AbstractActionState handleRemoteCreate() {
-		// TODO Auto-generated method stub
-		throw new NotImplementedException("LocalUpdateState.handleRemoteCreate");
+		throw new NotImplException("LocalUpdateState.handleRemoteCreate");
 	}
 
 	@Override
 	public AbstractActionState handleRemoteDelete() {
-		// TODO Auto-generated method stub
-		throw new NotImplementedException("LocalUpdateState.handleRemoteDelete");
+		throw new NotImplException("LocalUpdateState.handleRemoteDelete");
 	}
 
 	@Override
 	public AbstractActionState handleRemoteUpdate() {
-		// TODO Auto-generated method stub
-		throw new NotImplementedException("LocalUpdateState.handleRemoteUpdate");
+		throw new NotImplException("LocalUpdateState.handleRemoteUpdate");
 	}
 
 	@Override
 	public AbstractActionState handleRemoteMove(Path path) {
-		// TODO Auto-generated method stub
-		throw new NotImplementedException("LocalUpdateState.handleRemoteMove");
+		throw new NotImplException("LocalUpdateState.handleRemoteMove");
 	}
 }

@@ -1,21 +1,14 @@
 package org.peerbox.watchservice;
 
-import java.io.File;
-import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
 
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.hive2hive.core.exceptions.NoSessionException;
-import org.hive2hive.core.exceptions.PutFailedException;
-import org.hive2hive.processframework.ProcessError;
-import org.hive2hive.processframework.RollbackReason;
 import org.hive2hive.processframework.exceptions.InvalidProcessStateException;
+import org.hive2hive.processframework.exceptions.ProcessExecutionException;
 import org.peerbox.watchservice.states.LocalDeleteState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -235,10 +228,10 @@ public class ActionExecutor implements Runnable, IActionEventListener {
 
 
 	@Override
-	public void onActionExecuteFailed(IAction action, RollbackReason reason) {
+	public void onActionExecuteFailed(IAction action, ProcessExecutionException pex) {
 		logger.info("Action failed: {} {}.", action.getFilePath(), action.getCurrentState().getClass().toString());
 		try {
-			handleExecutionError(reason, action);
+			handleExecutionError(pex, action);
 		} catch (NoSessionException e) {
 			e.printStackTrace();
 		} catch (NoPeerConnectionException e) {
@@ -248,37 +241,48 @@ public class ActionExecutor implements Runnable, IActionEventListener {
 		}
 	}
 
-	public void handleExecutionError(RollbackReason reason, IAction action) throws NoSessionException, NoPeerConnectionException, InvalidProcessStateException{
-		ProcessError error = reason.getErrorType();
+	public void handleExecutionError(ProcessExecutionException pex, IAction action) throws NoSessionException, NoPeerConnectionException, InvalidProcessStateException{
 		executingActions.remove(action);
-		switch(error){
-	
-			case SAME_CONTENT:
-				logger.trace("H2H update of file {} failed, content hash did not change. {}", action.getFilePath(), fileEventManager.getRootPath().toString());
-				FileComponent notModified = fileEventManager.getFileTree().getComponent(action.getFilePath().toString());
-				if(notModified == null){
-					logger.trace("FileComponent with path {} is null", action.getFilePath().toString());
-				}
-				action.onSucceed();
-				break;
-			case PARENT_IN_USERFILE_NOT_FOUND:
-				logger.error("Code PARENT_IN_USERFILE_NOT_FOUND {} {}.", action.getFilePath(), action.getCurrentState().getClass().toString());
-				if(action.getExecutionAttempts() <= MAX_EXECUTION_ATTEMPTS){
-					action.updateTimestamp();
-					fileEventManager.getFileComponentQueue().add(action.getFile());
-				} else {
-					logger.error("To many attempts, action of {} has not been executed again. Reason: PARENT_IN_USERFILE_NOT_FOUND", action.getFilePath());
-				}
-			default:
-				logger.trace("Re-initiate execution of {} {}.", action.getFilePath(), action.getCurrentState().getClass().toString());
-				if(action.getExecutionAttempts() <= MAX_EXECUTION_ATTEMPTS){
-					action.updateTimestamp();
-					fileEventManager.getFileComponentQueue().add(action.getFile());
-				} else {
-					logger.error("To many attempts, action of {} has not been executed again. Reason: default", action.getFilePath());
-					
-					onActionExecuteSucceeded(action);//action.onSucceed();
-				}
+		logger.trace("Re-initiate execution of {} {}.", action.getFilePath(), action.getCurrentState().getClass().toString());
+		if(action.getExecutionAttempts() <= MAX_EXECUTION_ATTEMPTS){
+			action.updateTimestamp();
+			fileEventManager.getFileComponentQueue().add(action.getFile());
+		} else {
+			logger.error("To many attempts, action of {} has not been executed again. Reason: default", action.getFilePath());
+			
+			onActionExecuteSucceeded(action);//action.onSucceed();
 		}
+		
+//		ProcessError error = reason.getErrorType();
+//		executingActions.remove(action);
+//		switch(error){
+//	
+//			case SAME_CONTENT:
+//				logger.trace("H2H update of file {} failed, content hash did not change. {}", action.getFilePath(), fileEventManager.getRootPath().toString());
+//				FileComponent notModified = fileEventManager.getFileTree().getComponent(action.getFilePath().toString());
+//				if(notModified == null){
+//					logger.trace("FileComponent with path {} is null", action.getFilePath().toString());
+//				}
+//				action.onSucceed();
+//				break;
+//			case PARENT_IN_USERFILE_NOT_FOUND:
+//				logger.error("Code PARENT_IN_USERFILE_NOT_FOUND {} {}.", action.getFilePath(), action.getCurrentState().getClass().toString());
+//				if(action.getExecutionAttempts() <= MAX_EXECUTION_ATTEMPTS){
+//					action.updateTimestamp();
+//					fileEventManager.getFileComponentQueue().add(action.getFile());
+//				} else {
+//					logger.error("To many attempts, action of {} has not been executed again. Reason: PARENT_IN_USERFILE_NOT_FOUND", action.getFilePath());
+//				}
+//			default:
+//				logger.trace("Re-initiate execution of {} {}.", action.getFilePath(), action.getCurrentState().getClass().toString());
+//				if(action.getExecutionAttempts() <= MAX_EXECUTION_ATTEMPTS){
+//					action.updateTimestamp();
+//					fileEventManager.getFileComponentQueue().add(action.getFile());
+//				} else {
+//					logger.error("To many attempts, action of {} has not been executed again. Reason: default", action.getFilePath());
+//					
+//					onActionExecuteSucceeded(action);//action.onSucceed();
+//				}
+//		}
 	}
 }

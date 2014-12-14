@@ -8,10 +8,9 @@ import java.nio.file.Paths;
 import org.apache.commons.io.FileUtils;
 import org.hive2hive.core.api.interfaces.IH2HNode;
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
-import org.hive2hive.core.exceptions.NoSessionException;
 import org.hive2hive.core.security.UserCredentials;
+import org.hive2hive.core.utils.TestExecutionUtil;
 import org.hive2hive.processframework.interfaces.IProcessComponent;
-import org.hive2hive.processframework.util.TestExecutionUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,7 +34,7 @@ public abstract class AbstractStarter {
 	}
 	
 	protected void registerUser(IH2HNode registerNode, UserCredentials credentials) throws NoPeerConnectionException {
-		IProcessComponent registerProcess = registerNode.getUserManager().register(credentials);
+		IProcessComponent<Void> registerProcess = registerNode.getUserManager().createRegisterProcess(credentials);
 		TestExecutionUtil.executeProcessTillSucceded(registerProcess);
 		logger.info("Registered new user.");
 	}

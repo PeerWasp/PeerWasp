@@ -12,7 +12,6 @@ import javafx.util.Callback;
 
 import org.apache.commons.lang3.RandomStringUtils;
 import org.hive2hive.core.api.interfaces.IH2HNode;
-import org.hive2hive.core.exceptions.IllegalFileLocation;
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.hive2hive.core.exceptions.NoSessionException;
 import org.hive2hive.core.security.UserCredentials;
@@ -20,6 +19,7 @@ import org.hive2hive.core.utils.FileTestUtil;
 import org.hive2hive.core.utils.NetworkTestUtil;
 import org.hive2hive.core.utils.helper.TestFileAgent;
 import org.hive2hive.processframework.exceptions.InvalidProcessStateException;
+import org.hive2hive.processframework.exceptions.ProcessExecutionException;
 import org.peerbox.FileManager;
 import org.peerbox.interfaces.IFxmlLoaderProvider;
 import org.peerbox.model.UserManager;
@@ -64,7 +64,7 @@ public class ShareFolderStarter extends Application {
 		
 	}
 
-	private void initFiles() throws IOException, NoSessionException, NoPeerConnectionException, IllegalFileLocation, InterruptedException, InvalidProcessStateException {
+	private void initFiles() throws IOException, InvalidProcessStateException, ProcessExecutionException, NoPeerConnectionException, NoSessionException, IllegalArgumentException {
 		Path toShare = rootA.resolve(sharedFolderName);
 		Files.createDirectory(toShare);
 		
@@ -72,8 +72,8 @@ public class ShareFolderStarter extends Application {
 		String content = RandomStringUtils.randomAscii(512*1024);
 		Files.write(f, content.getBytes());
 		
-		clientsA[0].getFileManager().add(toShare.toFile()).start().await();
-		clientsA[0].getFileManager().add(f.toFile()).start().await();
+		clientsA[0].getFileManager().createAddProcess(toShare.toFile()).execute();
+		clientsA[0].getFileManager().createAddProcess(f.toFile()).execute();
 	}
 
 	private void shareFolder() throws IOException {
@@ -83,7 +83,7 @@ public class ShareFolderStarter extends Application {
 		
 	}
 
-	private void initNetwork() throws IOException, NoPeerConnectionException, InterruptedException, InvalidProcessStateException {
+	private void initNetwork() throws IOException, NoPeerConnectionException, InterruptedException, InvalidProcessStateException, ProcessExecutionException {
 		network = NetworkTestUtil.createH2HNetwork(networkSize);
 		
 		UserCredentials credentialsA = new UserCredentials("UserA", "PasswordA", "PinA");
@@ -98,13 +98,13 @@ public class ShareFolderStarter extends Application {
 		// register 2 users and login
 		rootA = basePath.resolve("ClientA");
 		Files.createDirectory(rootA);
-		clientsA[0].getUserManager().register(credentialsA).start().await();
-		clientsA[0].getUserManager().login(credentialsA, new TestFileAgent(rootA.toFile())).start().await();
+		clientsA[0].getUserManager().createRegisterProcess(credentialsA).execute();
+		clientsA[0].getUserManager().createLoginProcess(credentialsA, new TestFileAgent(rootA.toFile())).execute();
 		
 		rootB = basePath.resolve("ClientB");
 		Files.createDirectory(rootB);
-		clientsB[0].getUserManager().register(credentialsB).start().await();
-		clientsB[0].getUserManager().login(credentialsB, new TestFileAgent(rootB.toFile())).start().await();
+		clientsB[0].getUserManager().createRegisterProcess(credentialsB).execute();
+		clientsB[0].getUserManager().createLoginProcess(credentialsB, new TestFileAgent(rootB.toFile())).execute();
 	
 	}
 	

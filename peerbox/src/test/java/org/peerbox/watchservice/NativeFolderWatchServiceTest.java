@@ -1,29 +1,22 @@
 package org.peerbox.watchservice;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.io.File;
 import java.io.FileWriter;
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Random;
-import java.util.Set;
 
 import org.apache.commons.io.FileUtils;
-import org.hive2hive.core.exceptions.IllegalFileLocation;
-import org.hive2hive.core.exceptions.NoPeerConnectionException;
-import org.hive2hive.core.exceptions.NoSessionException;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Matchers;
 import org.mockito.Mock;

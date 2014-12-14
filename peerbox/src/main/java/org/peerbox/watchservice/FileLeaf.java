@@ -1,14 +1,9 @@
 package org.peerbox.watchservice;
 
 import java.io.File;
-import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.List;
 
-import org.hive2hive.core.security.EncryptionUtil;
-import org.hive2hive.core.security.HashUtil;
-import org.peerbox.watchservice.states.AbstractActionState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

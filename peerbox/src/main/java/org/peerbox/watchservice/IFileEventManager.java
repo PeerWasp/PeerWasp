@@ -1,6 +1,5 @@
 package org.peerbox.watchservice;
 
-import java.nio.file.Path;
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 

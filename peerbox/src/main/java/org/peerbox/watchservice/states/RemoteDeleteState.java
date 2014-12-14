@@ -2,10 +2,10 @@ package org.peerbox.watchservice.states;
 
 import java.nio.file.Path;
 
-import org.apache.commons.lang3.NotImplementedException;
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.hive2hive.core.exceptions.NoSessionException;
 import org.peerbox.FileManager;
+import org.peerbox.exceptions.NotImplException;
 import org.peerbox.watchservice.Action;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,7 +33,6 @@ public class RemoteDeleteState extends AbstractActionState {
 	@Override
 	public AbstractActionState changeStateOnLocalDelete() {
 		logger.debug("Local Delete Event in RemoteDeleteState ({})", action.getFilePath());
-		
 		return this;
 	}
 
@@ -70,69 +69,48 @@ public class RemoteDeleteState extends AbstractActionState {
 	}
 
 	@Override
-	public AbstractActionState changeStateOnLocalRecover(int versionToRecover) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
 	public AbstractActionState changeStateOnRemoteCreate() {
-		// TODO Auto-generated method stub
 		return new ConflictState(action);
 	}
 
 	@Override
 	public AbstractActionState handleLocalCreate() {
-		// TODO Auto-generated method stub
-		throw new NotImplementedException("RemoteDeleteState.handleLocalCreate");
+		throw new NotImplException("RemoteDeleteState.handleLocalCreate");
 	}
 
 	@Override
 	public AbstractActionState handleLocalDelete() {
-		// TODO Auto-generated method stub
-		throw new NotImplementedException("RemoteDeleteState.handleLocalDelete");
+		throw new NotImplException("RemoteDeleteState.handleLocalDelete");
 	}
 
 	@Override
 	public AbstractActionState handleLocalUpdate() {
-		// TODO Auto-generated method stub
-		throw new NotImplementedException("RemoteDeleteState.handleLocalUpdate");
+		throw new NotImplException("RemoteDeleteState.handleLocalUpdate");
 	}
 
 	@Override
 	public AbstractActionState handleLocalMove(Path oldPath) {
-		// TODO Auto-generated method stub
-		throw new NotImplementedException("RemoteDeleteState.handleLocalMove");
-	}
-
-	@Override
-	public AbstractActionState handleLocalRecover(int version) {
-		// TODO Auto-generated method stub
-		throw new NotImplementedException("RemoteDeleteState.handleLocalRecover");
+		throw new NotImplException("RemoteDeleteState.handleLocalMove");
 	}
 
 	@Override
 	public AbstractActionState handleRemoteCreate() {
-		// TODO Auto-generated method stub
-		throw new NotImplementedException("RemoteDeleteState.handleRemoteCreate");
+		throw new NotImplException("RemoteDeleteState.handleRemoteCreate");
 	}
 
 	@Override
 	public AbstractActionState handleRemoteDelete() {
-		// TODO Auto-generated method stub
-		throw new NotImplementedException("RemoteDeleteState.handleRemoteDelete");
+		throw new NotImplException("RemoteDeleteState.handleRemoteDelete");
 	}
 
 	@Override
 	public AbstractActionState handleRemoteUpdate() {
-		// TODO Auto-generated method stub
-		throw new NotImplementedException("RemoteDeleteState.handleRemoteUpdate");
+		throw new NotImplException("RemoteDeleteState.handleRemoteUpdate");
 	}
 
 	@Override
 	public AbstractActionState handleRemoteMove(Path path) {
-		// TODO Auto-generated method stub
-		throw new NotImplementedException("RemoteDeleteState.handleRemoteMove");
+		throw new NotImplException("RemoteDeleteState.handleRemoteMove");
 	}
 
 }

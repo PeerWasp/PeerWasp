@@ -4,16 +4,14 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import org.apache.commons.lang3.NotImplementedException;
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.hive2hive.core.exceptions.NoSessionException;
 import org.hive2hive.processframework.exceptions.InvalidProcessStateException;
-import org.hive2hive.processframework.interfaces.IProcessComponent;
 import org.peerbox.FileManager;
+import org.peerbox.exceptions.NotImplException;
 import org.peerbox.watchservice.Action;
 import org.peerbox.watchservice.ConflictHandler;
 import org.peerbox.watchservice.IFileEventManager;
-import org.peerbox.watchservice.states.AbstractActionState.FileManagerProcessListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,14 +52,15 @@ public class LocalDeleteState extends AbstractActionState {
 
 	@Override
 	public AbstractActionState changeStateOnLocalMove(Path oldFilePath) {
-		logger.debug("Local Move Event: Delete -> Local Move ({} > {})", oldFilePath, action.getFilePath());
+		logger.debug("Local Move Event: Delete -> Local Move ({} > {})", 
+				oldFilePath, action.getFilePath());
 		return new LocalMoveState(action, oldFilePath);
 	}
 
 	@Override
 	public AbstractActionState changeStateOnRemoteUpdate() {
 		logger.debug("Remote Update Event: Local Delete -> Conflict ({})", action.getFilePath());
-		
+
 		Path fileInConflict = action.getFilePath();
 		Path renamedFile = ConflictHandler.rename(fileInConflict);
 		try {
@@ -72,7 +71,7 @@ public class LocalDeleteState extends AbstractActionState {
 		}
 		fileInConflict = renamedFile;
 		logger.debug("Conflict handling complete.");
-		
+
 		return new ConflictState(action);
 	}
 
@@ -104,39 +103,29 @@ public class LocalDeleteState extends AbstractActionState {
 //		if(process != null){
 //			process.attachListener(new FileManagerProcessListener());
 //		}
-	logger.trace("File {}: Should be removed from the selective synchronization!");
-	}
-
-	@Override
-	public AbstractActionState changeStateOnLocalRecover(int versionToRecover) {
-		// TODO Auto-generated method stub
-		return null;
+		logger.trace("File {}: Should be removed from the selective synchronization!");
 	}
 
 	@Override
 	public AbstractActionState changeStateOnRemoteCreate() {
-		// TODO Auto-generated method stub
 		return this;
 	}
 
 	@Override
 	public AbstractActionState handleLocalCreate() {
-		// TODO Auto-generated method stub
-//		throw new NotImplementedException("LocalDeleteState.handleLocalCreate");
-		return changeStateOnLocalCreate();//new EstablishedState(action);
+		// throw new NotImplException("LocalDeleteState.handleLocalCreate");
+		return changeStateOnLocalCreate();// new EstablishedState(action);
 	}
 
 	@Override
 	public AbstractActionState handleLocalDelete() {
-		// TODO Auto-generated method stub
-		throw new NotImplementedException("LocalDeleteState.handleLocalDelete");
+		throw new NotImplException("LocalDeleteState.handleLocalDelete");
 	}
 
 	@Override
 	public AbstractActionState handleLocalUpdate() {
-		// TODO Auto-generated method stub
 		logger.debug("Local Update has no effect. File: {}", action.getFilePath());
-		throw new NotImplementedException("LocalDeleteState.handleLocalUpdate");
+		throw new NotImplException("LocalDeleteState.handleLocalUpdate");
 	}
 
 	@Override
@@ -164,39 +153,29 @@ public class LocalDeleteState extends AbstractActionState {
 	}
 
 	@Override
-	public AbstractActionState handleLocalRecover(int version) {
-		// TODO Auto-generated method stub
-		throw new NotImplementedException("LocalDeleteState.handleLocalRecover");
-	}
-
-	@Override
 	public AbstractActionState handleRemoteCreate() {
-		// TODO Auto-generated method stub
-		throw new NotImplementedException("LocalDeleteState.handleRemoteCreate");
+		throw new NotImplException("LocalDeleteState.handleRemoteCreate");
 	}
 
 	@Override
 	public AbstractActionState handleRemoteDelete() {
-		// TODO Auto-generated method stub
-		throw new NotImplementedException("LocalDeleteState.handleRemoteDelete");
+		throw new NotImplException("LocalDeleteState.handleRemoteDelete");
 	}
 
 	@Override
 	public AbstractActionState handleRemoteUpdate() {
-		// TODO Auto-generated method stub
-		throw new NotImplementedException("LocalDeleteState.handleRemoteUpdate");
+		throw new NotImplException("LocalDeleteState.handleRemoteUpdate");
 	}
 
 	@Override
 	public AbstractActionState handleRemoteMove(Path path) {
-		// TODO Auto-generated method stub
-		throw new NotImplementedException("LocalDeleteState.handleRemoteMove");
-	}
-	
-	
-	public AbstractActionState getDefaultState(){
-		logger.debug("Return to default state 'InitialState' as component was removed from the tree: {}", action.getFilePath());
-		return new InitialState(action);
+		throw new NotImplException("LocalDeleteState.handleRemoteMove");
 	}
 
+	public AbstractActionState getDefaultState() {
+		logger.debug(
+				"Return to default state 'InitialState' as component was removed from the tree: {}",
+				action.getFilePath());
+		return new InitialState(action);
+	}
 }

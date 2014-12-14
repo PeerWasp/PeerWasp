@@ -11,6 +11,7 @@ import org.hive2hive.core.api.configs.FileConfiguration;
 import org.hive2hive.core.api.configs.NetworkConfiguration;
 import org.hive2hive.core.api.interfaces.IH2HNode;
 import org.hive2hive.core.api.interfaces.INetworkConfiguration;
+import org.hive2hive.core.security.FSTSerializer;
 import org.hive2hive.core.security.H2HDummyEncryption;
 import org.hive2hive.core.security.UserCredentials;
 import org.slf4j.Logger;
@@ -129,11 +130,9 @@ public class ClientStarter extends AbstractStarter {
 					bootstrapAddress);
 		}
 		
-		IH2HNode node = H2HNode.createNode(networkConf, FileConfiguration.createDefault(),
-				new H2HDummyEncryption());
-		node.connect();
-		node.getFileManager().configureAutostart(false);
-		node.getUserManager().configureAutostart(false);
+		FSTSerializer serializer = new FSTSerializer();
+		IH2HNode node = H2HNode.createNode(FileConfiguration.createDefault(), new H2HDummyEncryption(), serializer);
+		node.connect(networkConf);
 		return node;
 	}
 

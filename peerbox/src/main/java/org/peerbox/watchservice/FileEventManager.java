@@ -1,6 +1,5 @@
 package org.peerbox.watchservice;
 
-import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Comparator;
@@ -19,7 +18,6 @@ import org.hive2hive.core.events.framework.interfaces.file.IFileMoveEvent;
 import org.hive2hive.core.events.framework.interfaces.file.IFileShareEvent;
 import org.hive2hive.core.events.framework.interfaces.file.IFileUpdateEvent;
 import org.peerbox.FileManager;
-import org.peerbox.h2h.IFileRecoveryRequestEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -219,18 +217,6 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 		
 		FileComponent source = getOrCreateFileComponent(srcPath);
 		source.getAction().handleRemoteMoveEvent(dstPath);
-	}
-	
-	public void onFileRecoveryRequest(IFileRecoveryRequestEvent fileEvent){
-		logger.trace("onFileRecoveryRequest: {}", fileEvent.getFile().getAbsolutePath());
-		File currentFile = fileEvent.getFile();
-		if(currentFile == null || currentFile.isDirectory()){
-			logger.error("Try to recover non-existing file or directory: {}", currentFile.getPath());
-			return;
-		}
-		
-		FileComponent file = fileTree.getComponent(currentFile.getPath());
-		file.getAction().handleRecoverEvent(fileEvent.getVersionToRecover());
 	}
 	
 	public void onLocalFileHardDelete(Path toDelete){

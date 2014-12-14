@@ -4,11 +4,11 @@ import java.io.IOException;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 
-import org.apache.commons.lang3.NotImplementedException;
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.hive2hive.core.exceptions.NoSessionException;
 import org.hive2hive.processframework.exceptions.InvalidProcessStateException;
 import org.peerbox.FileManager;
+import org.peerbox.exceptions.NotImplException;
 import org.peerbox.watchservice.Action;
 import org.peerbox.watchservice.FileComponent;
 import org.peerbox.watchservice.FileEventManager;
@@ -53,12 +53,6 @@ public class EstablishedState extends AbstractActionState{
 	public AbstractActionState changeStateOnLocalMove(Path oldFilePath) {
 		// TODO Auto-generated method stub
 		return new RemoteMoveState(action, oldFilePath);
-	}
-
-	@Override
-	public AbstractActionState changeStateOnLocalRecover(int version) {
-		logger.trace("Switch from EstablishedState to RecoverState: {}", action.getFilePath());
-		return new RecoverState(action, version);
 	}
 
 	@Override
@@ -130,7 +124,7 @@ public class EstablishedState extends AbstractActionState{
 	@Override
 	public AbstractActionState handleLocalMove(Path newPath) {
 		// TODO Auto-generated method stub
-//		throw new NotImplementedException("EstablishedState.handleLocalMove");
+//		throw new NotImplException("EstablishedState.handleLocalMove");
 //		try {
 //			Files.move(action.getFilePath().toFile(), newPath.toFile());
 //		} catch (IOException e) {
@@ -144,16 +138,9 @@ public class EstablishedState extends AbstractActionState{
 	}
 
 	@Override
-	public AbstractActionState handleLocalRecover(int version) {
-		// TODO Auto-generated method stub
-		updateTimeAndQueue();
-		return changeStateOnLocalRecover(version);
-	}
-
-	@Override
 	public AbstractActionState handleRemoteCreate() {
 		// TODO Auto-generated method stub
-		throw new NotImplementedException("EstablishedState.handleRemoteCreate");
+		throw new NotImplException("EstablishedState.handleRemoteCreate");
 	}
 
 	@Override

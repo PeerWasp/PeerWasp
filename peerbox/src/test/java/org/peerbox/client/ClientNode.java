@@ -7,10 +7,10 @@ import org.hive2hive.core.api.interfaces.IH2HNode;
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.hive2hive.core.exceptions.NoSessionException;
 import org.hive2hive.core.security.UserCredentials;
+import org.hive2hive.core.utils.TestExecutionUtil;
 import org.hive2hive.processframework.interfaces.IProcessComponent;
-import org.hive2hive.processframework.util.TestExecutionUtil;
 import org.peerbox.FileManager;
-import org.peerbox.h2h.PeerboxFileAgent;
+import org.peerbox.h2h.FileAgent;
 import org.peerbox.watchservice.FileEventManager;
 import org.peerbox.watchservice.FolderWatchService;
 import org.slf4j.Logger;
@@ -58,12 +58,11 @@ public class ClientNode {
 		
 		//TODO remove cycle dependency
 		fileEventManager.setFileManager(fileManager);
-		fileManager.setFileEventManager(fileEventManager);
 		
 		node.getFileManager().subscribeFileEvents(fileEventManager);
 
 		// login
-		logger.debug("Login user {} (node ̣{})", credentials.getUserId(), node.getNetworkConfiguration().getNodeID());
+		logger.debug("Login user {}", credentials.getUserId());
 		loginUser();
 
 		// start monitoring folder
@@ -72,19 +71,19 @@ public class ClientNode {
 	}
 	
 	private void loginUser() throws NoPeerConnectionException {
-		PeerboxFileAgent fileAgent = new PeerboxFileAgent(rootPath, null);
-		IProcessComponent loginProcess = node.getUserManager().login(credentials, fileAgent);
+		FileAgent fileAgent = new FileAgent(rootPath, null);
+		IProcessComponent<Void> loginProcess = node.getUserManager().createLoginProcess(credentials, fileAgent);
 		TestExecutionUtil.executeProcessTillSucceded(loginProcess);
 	}
 	
 	private void logoutUser() throws NoPeerConnectionException, NoSessionException {
-		IProcessComponent registerProcess = node.getUserManager().logout();
+		IProcessComponent<Void> registerProcess = node.getUserManager().createLogoutProcess();
 		TestExecutionUtil.executeProcessTillSucceded(registerProcess);
 	}
 	
 	public void stop() {
 		try {
-			logger.debug("Stop watchservice {} (node ̣{})", credentials.getUserId(), node.getNetworkConfiguration().getNodeID());
+			logger.debug("Stop watchservice {}", credentials.getUserId());
 			
 //			fileEventManager.stopExecutor();
 			watchService.stop();
@@ -94,7 +93,7 @@ public class ClientNode {
 		}
 		
 		try {
-			logger.debug("Logout user {} (node ̣{})", credentials.getUserId(), node.getNetworkConfiguration().getNodeID());
+			logger.debug("Logout user {}", credentials.getUserId());
 			logoutUser();
 		} catch (NoPeerConnectionException | NoSessionException e) {
 			// ignore

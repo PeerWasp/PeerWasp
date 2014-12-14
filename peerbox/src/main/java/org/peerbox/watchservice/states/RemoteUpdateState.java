@@ -2,12 +2,13 @@ package org.peerbox.watchservice.states;
 
 import java.nio.file.Path;
 
-import org.apache.commons.lang3.NotImplementedException;
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.hive2hive.core.exceptions.NoSessionException;
 import org.hive2hive.processframework.exceptions.InvalidProcessStateException;
-import org.hive2hive.processframework.interfaces.IProcessComponent;
+import org.hive2hive.processframework.exceptions.ProcessExecutionException;
 import org.peerbox.FileManager;
+import org.peerbox.exceptions.NotImplException;
+import org.peerbox.h2h.AsyncHandle;
 import org.peerbox.watchservice.Action;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,7 +30,6 @@ public class RemoteUpdateState extends AbstractActionState {
 	@Override
 	public AbstractActionState changeStateOnLocalUpdate() {
 		logger.debug("Local Update Event:  ({})", action.getFilePath());
-
 		return this;
 	}
 
@@ -63,12 +63,6 @@ public class RemoteUpdateState extends AbstractActionState {
 		return this;
 	}
 
-	@Override
-	public AbstractActionState changeStateOnLocalRecover(int versionToRecover) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-	
 //	@Override
 //	public AbstractActionState getDefaultState(){
 //		return this;
@@ -76,78 +70,64 @@ public class RemoteUpdateState extends AbstractActionState {
 
 	@Override
 	public AbstractActionState changeStateOnRemoteCreate() {
-		// TODO Auto-generated method stub
 		return new ConflictState(action);
 	}
 
 	@Override
 	public AbstractActionState handleLocalCreate() {
-		// TODO Auto-generated method stub
-//		throw new NotImplementedException("RemoteUpdateState.handleLocalCreate");
+//		throw new NotImplException("RemoteUpdateState.handleLocalCreate");
 		return changeStateOnLocalCreate();
 	}
 
 	@Override
 	public AbstractActionState handleLocalDelete() {
-		// TODO Auto-generated method stub
 		return changeStateOnLocalDelete();
 	}
 
 	@Override
 	public AbstractActionState handleLocalUpdate() {
-		// TODO Auto-generated method stub
-//		throw new NotImplementedException("RemoteUpdateState.handleLocalUpdate");
+//		throw new NotImplException("RemoteUpdateState.handleLocalUpdate");
 		action.getFile().bubbleContentHashUpdate();
 		return changeStateOnLocalUpdate();
 	}
 
 	@Override
 	public AbstractActionState handleLocalMove(Path oldPath) {
-		// TODO Auto-generated method stub
-		throw new NotImplementedException("RemoteUpdateState.handleLocalMove");
-	}
-
-	@Override
-	public AbstractActionState handleLocalRecover(int version) {
-		// TODO Auto-generated method stub
-		throw new NotImplementedException("RemoteUpdateState.handleLocalRecover");
+		throw new NotImplException("RemoteUpdateState.handleLocalMove");
 	}
 
 	@Override
 	public AbstractActionState handleRemoteCreate() {
-		// TODO Auto-generated method stub
-		throw new NotImplementedException("RemoteUpdateState.handleRemoteCreate");
+		throw new NotImplException("RemoteUpdateState.handleRemoteCreate");
 	}
 
 	@Override
 	public AbstractActionState handleRemoteDelete() {
-		throw new NotImplementedException("RemoteUpdateState.handleRemoteDelete");
+		throw new NotImplException("RemoteUpdateState.handleRemoteDelete");
 	}
 
 	@Override
 	public AbstractActionState handleRemoteUpdate() {
-		// TODO Auto-generated method stub
-		throw new NotImplementedException("RemoteUpdateState.handleRemoteUpdate");
+		throw new NotImplException("RemoteUpdateState.handleRemoteUpdate");
 	}
 
 	@Override
 	public AbstractActionState handleRemoteMove(Path path) {
-		// TODO Auto-generated method stub
-		throw new NotImplementedException("RemoteUpdateState.handleRemoteMove");
+		throw new NotImplException("RemoteUpdateState.handleRemoteMove");
 	}
 
 	@Override
-	public void execute(FileManager fileManager) throws NoSessionException,
-			NoPeerConnectionException, InvalidProcessStateException {
+	public void execute(FileManager fileManager) throws NoSessionException, NoPeerConnectionException, InvalidProcessStateException, ProcessExecutionException {
 		Path path = action.getFilePath();
 		logger.debug("Execute REMOTE UPDATE, download the file: {}", path);
-		IProcessComponent process = fileManager.download(path.toFile());
-		if(process != null){
-			process.attachListener(new FileManagerProcessListener());
+		AsyncHandle<Void> handle = fileManager.download(path.toFile());
+		if (handle != null && handle.getProcess() != null) {
+			handle.getProcess().attachListener(new FileManagerProcessListener(handle));
+			handle.start();
 		} else {
-			System.err.println("process is null");
+			System.err.println("process or handle is null");
 		}
-		
-//		notifyActionExecuteSucceeded();
+
+		// notifyActionExecuteSucceeded();
 	}
 }

@@ -1,19 +1,21 @@
 package org.peerbox.watchservice.states;
 
-import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.CancellationException;
+import java.util.concurrent.ExecutionException;
 
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.hive2hive.core.exceptions.NoSessionException;
-import org.hive2hive.processframework.RollbackReason;
 import org.hive2hive.processframework.exceptions.InvalidProcessStateException;
+import org.hive2hive.processframework.exceptions.ProcessExecutionException;
 import org.hive2hive.processframework.interfaces.IProcessComponentListener;
+import org.hive2hive.processframework.interfaces.IProcessEventArgs;
 import org.peerbox.FileManager;
+import org.peerbox.h2h.AsyncHandle;
 import org.peerbox.watchservice.Action;
 import org.peerbox.watchservice.FileComponent;
 import org.peerbox.watchservice.FolderComposite;
@@ -59,8 +61,6 @@ public abstract class AbstractActionState {
 	public abstract AbstractActionState changeStateOnLocalUpdate();
 
 	public abstract AbstractActionState changeStateOnLocalMove(Path oldPath);
-	
-	public abstract AbstractActionState changeStateOnLocalRecover(int versionToRecover);
 	
 	public AbstractActionState changeStateOnLocalHardDelete(){
 		return new LocalHardDeleteState(action);
@@ -117,8 +117,6 @@ public abstract class AbstractActionState {
 	
 	public abstract AbstractActionState handleLocalMove(Path oldFilePath);
 	
-	public abstract AbstractActionState handleLocalRecover(int version);
-	
 	/*
 	 * REMOTE event handler
 	 */
@@ -136,7 +134,7 @@ public abstract class AbstractActionState {
 	 */
 
 	public abstract void execute(FileManager fileManager) throws NoSessionException,
-			NoPeerConnectionException, InvalidProcessStateException;
+			NoPeerConnectionException, InvalidProcessStateException, ProcessExecutionException;
 	
 	
 	protected void notifyActionExecuteSucceeded() {
@@ -149,25 +147,66 @@ public abstract class AbstractActionState {
 		}
 	}
 
-	protected void notifyActionExecuteFailed(RollbackReason reason) {
+	protected void notifyActionExecuteFailed(ProcessExecutionException pex) {
 		//action.setIsExecuting(false);
 		Set<IActionEventListener> listener = 
 				new HashSet<IActionEventListener>(action.getEventListener());
 		Iterator<IActionEventListener> it = listener.iterator();
 		while(it.hasNext()) {
-			it.next().onActionExecuteFailed(action, reason);
+			it.next().onActionExecuteFailed(action, pex);
 		}
 	}	
 	
 	protected class FileManagerProcessListener implements IProcessComponentListener {
+		private final AsyncHandle<Void> asyncHandle;
+		
+		public FileManagerProcessListener(AsyncHandle<Void> handle) {
+			this.asyncHandle = handle;
+		}
+
 		@Override
-		public void onSucceeded() {
+		public void onExecuting(IProcessEventArgs args) {
+			
+		}
+
+		@Override
+		public void onRollbacking(IProcessEventArgs args) {
+			
+		}
+
+		@Override
+		public void onPaused(IProcessEventArgs args) {
+			
+		}
+
+		@Override
+		public void onExecutionSucceeded(IProcessEventArgs args) {
 			notifyActionExecuteSucceeded();
 		}
 
 		@Override
-		public void onFailed(RollbackReason reason) {
-			notifyActionExecuteFailed(reason);
+		public void onExecutionFailed(IProcessEventArgs args) {
+			ProcessExecutionException pex = null;
+			try {
+				asyncHandle.getFuture().get();
+			} catch(InterruptedException iex) {
+				
+			} catch(ExecutionException | CancellationException ex) {
+				if(ex.getCause() instanceof ProcessExecutionException) {
+					pex = (ProcessExecutionException) ex.getCause();
+				}
+			}
+			notifyActionExecuteFailed(pex);
+		}
+
+		@Override
+		public void onRollbackSucceeded(IProcessEventArgs args) {
+			
+		}
+
+		@Override
+		public void onRollbackFailed(IProcessEventArgs args) {
+			
 		}
 	}
 }

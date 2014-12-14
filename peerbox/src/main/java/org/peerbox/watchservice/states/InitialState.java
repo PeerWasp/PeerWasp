@@ -6,10 +6,10 @@ import java.nio.file.Path;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.lang3.NotImplementedException;
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.hive2hive.core.exceptions.NoSessionException;
 import org.peerbox.FileManager;
+import org.peerbox.exceptions.NotImplException;
 import org.peerbox.watchservice.Action;
 import org.peerbox.watchservice.FileComponent;
 import org.peerbox.watchservice.FileEventManager;
@@ -90,14 +90,8 @@ public class InitialState extends AbstractActionState {
 //			// TODO Auto-generated catch block
 //			e.printStackTrace();
 //		}
-		throw new NotImplementedException("InitialState.onremoteMove");
+		throw new NotImplException("InitialState.onremoteMove");
 //		return new RemoteMoveState(action, oldFilePath);
-	}
-
-	@Override
-	public AbstractActionState changeStateOnLocalRecover(int versionToRecover) {
-		logger.debug("Recover Event: Initial -> Recover ({})", action.getFilePath());
-		return new RecoverState(action, versionToRecover);
 	}
 
 	@Override
@@ -149,7 +143,7 @@ public class InitialState extends AbstractActionState {
 
 	@Override
 	public AbstractActionState handleLocalDelete() {
-		//throw new NotImplementedException("InitialState.handleLocalDelete");
+		//throw new NotImplException("InitialState.handleLocalDelete");
 		logger.debug("Local Delete is ignored i InitialState for {}", action.getFilePath());
 		return this;
 	}
@@ -168,13 +162,7 @@ public class InitialState extends AbstractActionState {
 //		eventManager.deleteFileComponent(action.getFilePath());
 //		
 //		return changeStateOnLocalMove(oldPath);
-		throw new NotImplementedException("InitialState.handleLocalMove");
-	}
-
-	@Override
-	public AbstractActionState handleLocalRecover(int version) {
-		// TODO Auto-generated method stub
-		throw new NotImplementedException("InitialState.handleLocalRecover");
+		throw new NotImplException("InitialState.handleLocalMove");
 	}
 
 	@Override
@@ -188,19 +176,19 @@ public class InitialState extends AbstractActionState {
 	@Override
 	public AbstractActionState handleRemoteDelete() {
 		// TODO Auto-generated method stub
-		throw new NotImplementedException("InitialState.handleRemoteDelete");
+		throw new NotImplException("InitialState.handleRemoteDelete");
 	}
 
 	@Override
 	public AbstractActionState handleRemoteUpdate() {
 		// TODO Auto-generated method stub
-		throw new NotImplementedException("InitialState.handleRemoteUpdate");
+		throw new NotImplException("InitialState.handleRemoteUpdate");
 	}
 
 	@Override
 	public AbstractActionState handleRemoteMove(Path path) {
 		// TODO Auto-generated method stub
-		throw new NotImplementedException("InitialState.handleRemoteMove");
+		throw new NotImplException("InitialState.handleRemoteMove");
 	}
 	
 

@@ -70,12 +70,6 @@ public class ConflictState extends AbstractActionState {
 	}
 
 	@Override
-	public AbstractActionState changeStateOnLocalRecover(int versionToRecover) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
 	public AbstractActionState changeStateOnRemoteCreate() {
 		// TODO Auto-generated method stub
 		return this;
@@ -102,13 +96,6 @@ public class ConflictState extends AbstractActionState {
 
 	@Override
 	public AbstractActionState handleLocalMove(Path oldPath) {
-		return null;
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public AbstractActionState handleLocalRecover(int version) {
 		return null;
 		// TODO Auto-generated method stub
 		

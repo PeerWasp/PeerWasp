@@ -2,13 +2,10 @@ package org.peerbox.watchservice;
 
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
-import java.util.Base64;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.Vector;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -18,12 +15,7 @@ import org.hive2hive.processframework.exceptions.InvalidProcessStateException;
 import org.peerbox.FileManager;
 import org.peerbox.watchservice.states.AbstractActionState;
 import org.peerbox.watchservice.states.EstablishedState;
-import org.peerbox.watchservice.states.LocalCreateState;
-import org.peerbox.watchservice.states.LocalDeleteState;
 import org.peerbox.watchservice.states.InitialState;
-import org.peerbox.watchservice.states.LocalUpdateState;
-import org.peerbox.watchservice.states.LocalMoveState;
-import org.peerbox.watchservice.states.ConflictState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -280,24 +272,6 @@ public class Action implements IAction{
 		} else {
 			updateTimestamp();
 			currentState = currentState.handleRemoteDelete();
-			nextState = currentState.getDefaultState();
-		}
-		releaseLockOnThis();
-	}
-	
-	public void handleRecoverEvent(int versionToRecover){
-		logger.trace("handleRecoverEvent - File: {}", getFilePath());
-		acquireLockOnThis();
-		if(isExecuting){
-
-			logger.trace("Event occured for {} while executing.", getFilePath());
-//			changedWhileExecuted = true;
-			nextState = nextState.changeStateOnLocalRecover(versionToRecover);
-			checkIfChanged();
-
-		} else {
-			updateTimestamp();
-			currentState = currentState.handleLocalRecover(versionToRecover);
 			nextState = currentState.getDefaultState();
 		}
 		releaseLockOnThis();
