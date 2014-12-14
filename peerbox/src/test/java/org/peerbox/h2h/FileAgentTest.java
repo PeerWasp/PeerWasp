@@ -19,7 +19,7 @@ public class FileAgentTest {
 	private Path root;
 	private Path cache;
 	
-	private PeerboxFileAgent fileAgent;
+	private FileAgent fileAgent;
 	
 	@Before
 	public void before() {
@@ -27,7 +27,7 @@ public class FileAgentTest {
 		root = base.resolve("root");
 		cache = base.resolve("cache");
 		
-		fileAgent = new PeerboxFileAgent(root, cache);
+		fileAgent = new FileAgent(root, cache);
 	}
 	
 	@After

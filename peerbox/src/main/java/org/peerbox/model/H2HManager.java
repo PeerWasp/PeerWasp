@@ -23,6 +23,7 @@ public final class H2HManager {
 	private static final Logger logger = LoggerFactory.getLogger(H2HManager.class);
 
 	private IH2HNode node;
+	private INetworkConfiguration networkConfiguration;
 
 	public IH2HNode getNode() {
 		return node;
@@ -68,15 +69,15 @@ public final class H2HManager {
 		createNode();
 		String nodeID = generateNodeID();
 		InetAddress bootstrapInetAddress = InetAddress.getByName(address);
-		INetworkConfiguration networkConfig = NetworkConfiguration.create(nodeID, bootstrapInetAddress);
-		return node.connect(networkConfig);
+		networkConfiguration = NetworkConfiguration.create(nodeID, bootstrapInetAddress);
+		return node.connect(networkConfiguration);
 	}
 	
 	public boolean createNetwork() {
 		createNode();
 		String nodeID = generateNodeID();
-		INetworkConfiguration networkConfig = NetworkConfiguration.createInitial(nodeID);
-		return node.connect(networkConfig);
+		networkConfiguration = NetworkConfiguration.createInitial(nodeID);
+		return node.connect(networkConfiguration);
 	}
 	
 	public boolean leaveNetwork() {
@@ -91,5 +92,9 @@ public final class H2HManager {
 	
 	public boolean isConnected() {
 		return node != null && node.isConnected();
+	}
+	
+	public INetworkConfiguration getNetworkConfiguration() {
+		return networkConfiguration;
 	}
 }

@@ -7,16 +7,16 @@ import java.nio.file.Path;
 
 import org.hive2hive.core.file.IFileAgent;
 
-public class PeerboxFileAgent implements IFileAgent {
-
+public final class FileAgent implements IFileAgent {
+	
 	private Path root;
 	private Path cache;
 
-	public PeerboxFileAgent(Path root, Path cache) {
+	public FileAgent(final Path root, final Path cache) {
 		this.root = root;
 		this.cache = cache;
 	}
-	
+
 	@Override
 	public File getRoot() {
 		return root.toFile();
@@ -24,13 +24,13 @@ public class PeerboxFileAgent implements IFileAgent {
 
 	@Override
 	public void writeCache(String key, byte[] data) throws IOException {
-		if(cache == null) {
+		if (cache == null) {
 			return;
 		}
-		if(data == null) {
+		if (data == null) {
 			return;
 		}
-		
+
 		ensureCacheDirExists();
 		Path cacheFile = cache.resolve(key);
 		try {
@@ -40,28 +40,28 @@ public class PeerboxFileAgent implements IFileAgent {
 		}
 	}
 
-	private void ensureCacheDirExists() throws IOException {
-		if (!Files.exists(cache)) {
-			Files.createDirectories(cache);
-		}
-	}
-
 	@Override
 	public byte[] readCache(String key) {
-		if(cache == null) {
+		if (cache == null) {
 			return null;
 		}
-		
+
 		Path cacheFile = cache.resolve(key);
 		if (!Files.exists(cacheFile)) {
 			return null;
 		}
-		
+
 		try {
 			return Files.readAllBytes(cacheFile);
 		} catch (IOException e) {
 			// could not read
 			return null;
+		}
+	}
+
+	private void ensureCacheDirExists() throws IOException {
+		if (!Files.exists(cache)) {
+			Files.createDirectories(cache);
 		}
 	}
 }

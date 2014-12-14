@@ -1,8 +1,8 @@
 package org.peerbox.model;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
@@ -10,14 +10,13 @@ import java.util.List;
 import org.apache.commons.lang3.RandomUtils;
 import org.hive2hive.core.H2HJUnitTest;
 import org.hive2hive.core.api.interfaces.IH2HNode;
-import org.hive2hive.core.exceptions.IllegalFileLocation;
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.hive2hive.core.exceptions.NoSessionException;
 import org.hive2hive.core.security.UserCredentials;
 import org.hive2hive.core.utils.FileTestUtil;
 import org.hive2hive.core.utils.NetworkTestUtil;
-import org.hive2hive.core.utils.helper.TestFileAgent;
 import org.hive2hive.processframework.exceptions.InvalidProcessStateException;
+import org.hive2hive.processframework.exceptions.ProcessExecutionException;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -55,7 +54,7 @@ public class UserManagerTest {
 	}
 	
 	@Test
-	public void testRegister() throws NoPeerConnectionException, InterruptedException, InvalidProcessStateException {
+	public void testRegister() throws NoPeerConnectionException, InterruptedException, InvalidProcessStateException, ProcessExecutionException {
 		// check registered
 		for(int i = 0; i < network.size(); ++i) {
 			UserManager usrMgr = new UserManager(network.get(i).getUserManager());
@@ -73,7 +72,7 @@ public class UserManagerTest {
 	}
 	
 	@Test
-	public void testAlreadyRegistered() throws NoPeerConnectionException, InterruptedException, InvalidProcessStateException {
+	public void testAlreadyRegistered() throws NoPeerConnectionException, InterruptedException, InvalidProcessStateException, ProcessExecutionException {
 		
 		ResultStatus res = userManager.registerUser(userCredentials.getUserId(), userCredentials.getPassword(), userCredentials.getPin());
 		assertTrue(res.isOk());
@@ -87,36 +86,36 @@ public class UserManagerTest {
 	}
 	
 	@Test
-	public void testNotRegisteredLogin() throws NoPeerConnectionException, InterruptedException, InvalidProcessStateException, IOException {
+	public void testNotRegisteredLogin() throws NoPeerConnectionException, InterruptedException, InvalidProcessStateException, IOException, ProcessExecutionException {
 		assertFalse(userManager.isRegistered(userCredentials.getUserId()));
 		
 		ResultStatus res = userManager.loginUser(userCredentials.getUserId(), userCredentials.getPassword(), userCredentials.getPin(), root);
 		assertTrue(res.isError());
 		
-		assertFalse(userManager.isLoggedIn(null));
+		assertFalse(userManager.isLoggedIn());
 	}
 	
 	@Test
-	public void testLogin() throws NoPeerConnectionException, InterruptedException, InvalidProcessStateException, IOException {
-		assertFalse(userManager.isLoggedIn(null));
+	public void testLogin() throws NoPeerConnectionException, InterruptedException, InvalidProcessStateException, IOException, ProcessExecutionException {
+		assertFalse(userManager.isLoggedIn());
 		
 		ResultStatus res = userManager.registerUser(userCredentials.getUserId(), userCredentials.getPassword(), userCredentials.getPin());
 		assertTrue(res.isOk());
-		assertFalse(userManager.isLoggedIn(null));
+		assertFalse(userManager.isLoggedIn());
 		
 		res = userManager.loginUser(userCredentials.getUserId(), userCredentials.getPassword(), userCredentials.getPin(), root);
 		assertTrue(res.isOk());
-		assertTrue(userManager.isLoggedIn(null));
+		assertTrue(userManager.isLoggedIn());
 	}
 	
 	@Test
-	public void testLogout() throws NoPeerConnectionException, InterruptedException, InvalidProcessStateException, NoSessionException, IOException {
+	public void testLogout() throws NoPeerConnectionException, InterruptedException, InvalidProcessStateException, NoSessionException, IOException, ProcessExecutionException {
 		testLogin();
 		
-		assertTrue(userManager.isLoggedIn(null));
+		assertTrue(userManager.isLoggedIn());
 		ResultStatus res = userManager.logoutUser();
 		assertTrue(res.isOk());
-		assertFalse(userManager.isLoggedIn(null));
+		assertFalse(userManager.isLoggedIn());
 	}
 
 }

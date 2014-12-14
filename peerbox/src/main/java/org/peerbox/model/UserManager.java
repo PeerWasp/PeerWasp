@@ -12,13 +12,13 @@ import org.hive2hive.processframework.exceptions.InvalidProcessStateException;
 import org.hive2hive.processframework.exceptions.ProcessExecutionException;
 import org.hive2hive.processframework.interfaces.IProcessComponent;
 import org.peerbox.ResultStatus;
-import org.peerbox.h2h.PeerboxFileAgent;
+import org.peerbox.h2h.FileAgent;
 import org.peerbox.h2h.ProcessListener;
 import org.peerbox.utils.AppData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class UserManager {
+public final class UserManager {
 
 	private static final Logger logger = LoggerFactory.getLogger(UserManager.class);
 
@@ -29,12 +29,13 @@ public class UserManager {
 		this.h2hUserManager = h2hUserManager;
 	}
 
-	public ResultStatus registerUser(final String username, final String password, final String pin) 
-			throws InvalidProcessStateException, ProcessExecutionException, NoPeerConnectionException {
+	public ResultStatus registerUser(final String username, final String password, final String pin) throws NoPeerConnectionException, InvalidProcessStateException, ProcessExecutionException {
 		UserCredentials credentials = new UserCredentials(username, password, pin);
 		IProcessComponent<Void> registerProcess = h2hUserManager.createRegisterProcess(credentials);
 		ProcessListener listener = new ProcessListener();
 		registerProcess.attachListener(listener);
+		
+		// TODO: catch exception here and wrap it in code
 		registerProcess.execute();
 
 		if (listener.hasExecutionSucceeded() && isRegistered(credentials.getUserId())) {
@@ -56,11 +57,13 @@ public class UserManager {
 			InvalidProcessStateException, ProcessExecutionException, IOException {
 		// TODO what if already logged in?
 		userCredentials = new UserCredentials(username, password, pin);
-		IFileAgent fileAgent = new PeerboxFileAgent(rootPath, AppData.getCacheFolder());
+		IFileAgent fileAgent = new FileAgent(rootPath, AppData.getCacheFolder());
 
 		IProcessComponent<Void> loginProcess = h2hUserManager.createLoginProcess(userCredentials, fileAgent);
 		ProcessListener listener = new ProcessListener();
 		loginProcess.attachListener(listener);
+		
+		// TODO: catch exception here and wrap it in code
 		loginProcess.execute();
 
 		if (listener.hasExecutionSucceeded() && isLoggedIn()) {
@@ -82,6 +85,7 @@ public class UserManager {
 		IProcessComponent<Void> logoutProcess = h2hUserManager.createLogoutProcess();
 		ProcessListener listener = new ProcessListener();
 		logoutProcess.attachListener(listener);
+		// TODO: catch exception here and wrap it in code
 		logoutProcess.execute();
 
 		if (listener.hasExecutionSucceeded()) {

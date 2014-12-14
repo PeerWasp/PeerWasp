@@ -45,15 +45,15 @@ public class H2HManagerTest {
 	
 	@Test
 	public void getInetAddressAsStringIfInitialPeer() {
-		assertTrue(h2hManager.joinNetwork());
-		assertTrue(h2hManager.getNode().getNetworkConfiguration().isInitialPeer());
+		assertTrue(h2hManager.createNetwork());
+		assertTrue(h2hManager.getNetworkConfiguration().isInitialPeer());
 	}
 	
 	@Test
 	public void getInetAddressAsStringIfNotInitialPeer() throws UnknownHostException {
 		String bootstrapAddress = "1.2.3.4";
 		h2hManager.joinNetwork(bootstrapAddress);
-		String address = h2hManager.getNode().getNetworkConfiguration().getBootstrapAddress().toString();
+		String address = h2hManager.getNetworkConfiguration().getBootstrapAddress().toString();
 		assertEquals(address, InetAddress.getByName(bootstrapAddress).toString());
 	}
 	
