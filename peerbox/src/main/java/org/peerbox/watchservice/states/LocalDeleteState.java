@@ -92,10 +92,11 @@ public class LocalDeleteState extends AbstractActionState {
 	 * deletes the file with the corresponding Hive2Hive method
 	 * 
 	 * @param file The file which should be deleted
+	 * @return 
 	 * @throws InvalidProcessStateException 
 	 */
 	@Override
-	public void execute(FileManager fileManager) throws NoSessionException,
+	public ExecutionHandle execute(FileManager fileManager) throws NoSessionException,
 			NoPeerConnectionException, InvalidProcessStateException {
 //		Path path = action.getFilePath();
 //		logger.debug("Execute LOCAL DELETE: {}", path);
@@ -104,6 +105,7 @@ public class LocalDeleteState extends AbstractActionState {
 //			process.attachListener(new FileManagerProcessListener());
 //		}
 		logger.trace("File {}: Should be removed from the selective synchronization!");
+		return null;
 	}
 
 	@Override

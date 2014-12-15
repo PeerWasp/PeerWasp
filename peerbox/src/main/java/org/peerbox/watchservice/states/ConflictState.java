@@ -61,12 +61,13 @@ public class ConflictState extends AbstractActionState {
 	}
 
 	@Override
-	public void execute(FileManager fileManager) throws NoSessionException,
+	public ExecutionHandle execute(FileManager fileManager) throws NoSessionException,
 			NoPeerConnectionException {
 		// TODO Auto-generated method stub
 //		Path fileInConflict = action.getFilePath();
 //		Path renamedFile = ConflictHandler.rename(fileInConflict);
 //		fileInConflict = renamedFile;
+		return null;
 	}
 
 	@Override

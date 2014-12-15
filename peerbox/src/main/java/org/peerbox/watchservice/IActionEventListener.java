@@ -1,9 +1,9 @@
 package org.peerbox.watchservice;
 
-import org.hive2hive.processframework.exceptions.ProcessExecutionException;
+import org.peerbox.h2h.ProcessHandle;
 
 
 public interface IActionEventListener {
 	void onActionExecuteSucceeded(IAction action);
-	void onActionExecuteFailed(IAction action, ProcessExecutionException pex);
+	void onActionExecuteFailed(IAction action, ProcessHandle<Void> asyncHandle);
 }

@@ -5,8 +5,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.CancellationException;
-import java.util.concurrent.ExecutionException;
 
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.hive2hive.core.exceptions.NoSessionException;
@@ -15,7 +13,6 @@ import org.hive2hive.processframework.exceptions.ProcessExecutionException;
 import org.hive2hive.processframework.interfaces.IProcessComponentListener;
 import org.hive2hive.processframework.interfaces.IProcessEventArgs;
 import org.peerbox.FileManager;
-import org.peerbox.h2h.ProcessHandle;
 import org.peerbox.watchservice.Action;
 import org.peerbox.watchservice.FileComponent;
 import org.peerbox.watchservice.FolderComposite;
@@ -133,7 +130,7 @@ public abstract class AbstractActionState {
 	 * Execution and notification related functions
 	 */
 
-	public abstract void execute(FileManager fileManager) throws NoSessionException,
+	public abstract ExecutionHandle execute(FileManager fileManager) throws NoSessionException,
 			NoPeerConnectionException, InvalidProcessStateException, ProcessExecutionException;
 	
 	
@@ -147,21 +144,20 @@ public abstract class AbstractActionState {
 		}
 	}
 
-	protected void notifyActionExecuteFailed(ProcessExecutionException pex) {
-		//action.setIsExecuting(false);
-		Set<IActionEventListener> listener = 
-				new HashSet<IActionEventListener>(action.getEventListener());
-		Iterator<IActionEventListener> it = listener.iterator();
-		while(it.hasNext()) {
-			it.next().onActionExecuteFailed(action, pex);
-		}
-	}	
+//	private void notifyActionExecuteFailed(ProcessHandle<Void> asyncHandle) {
+//		//action.setIsExecuting(false);
+//		Set<IActionEventListener> listener = 
+//				new HashSet<IActionEventListener>(action.getEventListener());
+//		Iterator<IActionEventListener> it = listener.iterator();
+//		while(it.hasNext()) {
+//			it.next().onActionExecuteFailed(action, asyncHandle);
+//		}
+//	}	
 	
 	protected class FileManagerProcessListener implements IProcessComponentListener {
-		private final ProcessHandle<Void> asyncHandle;
 		
-		public FileManagerProcessListener(ProcessHandle<Void> handle) {
-			this.asyncHandle = handle;
+		public FileManagerProcessListener() {
+			
 		}
 
 		@Override
@@ -186,17 +182,7 @@ public abstract class AbstractActionState {
 
 		@Override
 		public void onExecutionFailed(IProcessEventArgs args) {
-			ProcessExecutionException pex = null;
-			try {
-				asyncHandle.getFuture().get();
-			} catch(InterruptedException iex) {
-				
-			} catch(ExecutionException | CancellationException ex) {
-				if(ex.getCause() instanceof ProcessExecutionException) {
-					pex = (ProcessExecutionException) ex.getCause();
-				}
-			}
-			notifyActionExecuteFailed(pex);
+			
 		}
 
 		@Override

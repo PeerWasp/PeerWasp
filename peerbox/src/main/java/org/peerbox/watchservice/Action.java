@@ -15,6 +15,7 @@ import org.hive2hive.processframework.exceptions.InvalidProcessStateException;
 import org.peerbox.FileManager;
 import org.peerbox.watchservice.states.AbstractActionState;
 import org.peerbox.watchservice.states.EstablishedState;
+import org.peerbox.watchservice.states.ExecutionHandle;
 import org.peerbox.watchservice.states.InitialState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -327,22 +328,24 @@ public class Action implements IAction{
 	/**
 	 * Each state is able to execute an action as soon the state is considered as stable. 
 	 * The action itself depends on the current state (e.g. add file, delete file, etc.)
+	 * @return 
 	 * @throws NoSessionException
 	 * @throws NoPeerConnectionException
 	 * @throws IllegalFileLocation
 	 * @throws InvalidProcessStateException 
 	 */
-	public void execute(FileManager fileManager) throws NoSessionException,
+	public ExecutionHandle execute(FileManager fileManager) throws NoSessionException,
 			NoPeerConnectionException, InvalidProcessStateException {
 		// this may be async, i.e. do not wait on completion of the process
 		// maybe return the IProcessComponent object such that the
 		// executor can be aware of the status (completion of task etc)
-		
+		ExecutionHandle ehandle = null;
 		try{
 			setIsExecuting(true);
 			executionAttempts++;
-			currentState.execute(fileManager);
+			ehandle = currentState.execute(fileManager);
 		} catch (Throwable t){
+			// FIXME: Why catch throwable? Why here? Would this block an execution slot?
 			logger.error("onLocalFileModified: Catched a throwable of type {} with message {}", t.getClass().toString(),  t.getMessage());
 			for(int i = 0; i < t.getStackTrace().length; i++){
 				StackTraceElement curr = t.getStackTrace()[i];
@@ -350,6 +353,8 @@ public class Action implements IAction{
 				logger.error("{} : {} ", curr.getFileName(), curr.getLineNumber());
 			}
 		}
+		
+		return ehandle;
 	}
 	
 	public Path getFilePath(){

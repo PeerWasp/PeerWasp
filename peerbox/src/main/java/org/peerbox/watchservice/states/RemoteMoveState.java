@@ -68,7 +68,7 @@ public class RemoteMoveState extends AbstractActionState {
 	}
 
 	@Override
-	public void execute(FileManager fileManager) throws NoSessionException,
+	public ExecutionHandle execute(FileManager fileManager) throws NoSessionException,
 			NoPeerConnectionException {
 		Path path = action.getFilePath();
 		logger.debug("Execute REMOTE MOVE: {}", path);
@@ -79,6 +79,7 @@ public class RemoteMoveState extends AbstractActionState {
 //			e.printStackTrace();
 //		}
 //		notifyActionExecuteSucceeded();
+		return null;
 	}
 
 	@Override

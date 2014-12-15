@@ -80,11 +80,12 @@ public class EstablishedState extends AbstractActionState{
 	}
 
 	@Override
-	public void execute(FileManager fileManager) throws NoSessionException,
+	public ExecutionHandle execute(FileManager fileManager) throws NoSessionException,
 			NoPeerConnectionException, InvalidProcessStateException {
 		// TODO Auto-generated method stub
 		logger.error("Execute in the ESTABLISHED state is only called due to wrong behaviour! {}", action.getFilePath());
 		notifyActionExecuteSucceeded();
+		return null;
 	}
 
 	@Override

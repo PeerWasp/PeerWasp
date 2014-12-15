@@ -61,11 +61,12 @@ public class RemoteDeleteState extends AbstractActionState {
 	}
 
 	@Override
-	public void execute(FileManager fileManager) throws NoSessionException,
+	public ExecutionHandle execute(FileManager fileManager) throws NoSessionException,
 			NoPeerConnectionException {
 		Path path = action.getFilePath();
 		logger.debug("Execute REMOTE DELETE: {}", path);
 		notifyActionExecuteSucceeded();
+		return null;
 	}
 
 	@Override

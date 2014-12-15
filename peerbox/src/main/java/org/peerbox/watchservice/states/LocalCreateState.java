@@ -102,23 +102,27 @@ public class LocalCreateState extends AbstractActionState {
 	 * uploads the file with the corresponding Hive2Hive method
 	 * 
 	 * @param file The file which should be uploaded
+	 * @return 
+	 * @return 
 	 * @throws ProcessExecutionException
 	 * @throws InvalidProcessStateException
 	 * @throws NoPeerConnectionException
 	 * @throws NoSessionException
 	 */
 	@Override
-	public void execute(FileManager fileManager) throws InvalidProcessStateException,
+	public ExecutionHandle execute(FileManager fileManager) throws InvalidProcessStateException,
 			ProcessExecutionException, NoSessionException, NoPeerConnectionException {
 		Path path = action.getFile().getPath();
 		logger.debug("Execute LOCAL CREATE: {}", path);
 		ProcessHandle<Void> handle = fileManager.add(path.toFile());
 		if (handle != null && handle.getProcess() != null) {
-			handle.getProcess().attachListener(new FileManagerProcessListener(handle));
+			handle.getProcess().attachListener(new FileManagerProcessListener());
 			handle.executeAsync();
 		} else {
 			System.err.println("process or handle is null");
 		}
+		
+		return new ExecutionHandle(action, handle);
 	}
 
 	@Override

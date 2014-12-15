@@ -4,10 +4,18 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.CancellationException;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.PriorityBlockingQueue;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.hive2hive.core.exceptions.NoSessionException;
 import org.hive2hive.processframework.exceptions.ProcessExecutionException;
+import org.peerbox.h2h.ProcessHandle;
+import org.peerbox.watchservice.states.ExecutionHandle;
 import org.peerbox.watchservice.states.LocalDeleteState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,6 +42,9 @@ public class ActionExecutor implements Runnable, IActionEventListener {
 	private FileEventManager fileEventManager;
 	private Vector<IAction> executingActions;
 	private boolean useNotifications;
+	
+	private BlockingQueue<ExecutionHandle> asyncHandles; 
+	private Thread asyncHandlesThread;
 
 	public ActionExecutor(FileEventManager eventManager) {
 		this(eventManager, true);
@@ -43,6 +54,9 @@ public class ActionExecutor implements Runnable, IActionEventListener {
 		this.fileEventManager = eventManager;
 		executingActions = new Vector<IAction>();//Collections.synchronizedList(new ArrayList<IAction>());
 		useNotifications = waitForCompletion;
+		
+		asyncHandles = new PriorityBlockingQueue<ExecutionHandle>();
+		asyncHandlesThread = new Thread(new AsyncActionHandler());
 	}
 	
 	public Vector<IAction> getExecutingActions(){
@@ -52,6 +66,7 @@ public class ActionExecutor implements Runnable, IActionEventListener {
 
 	@Override
 	public void run() {
+		asyncHandlesThread.start();
 		processActions();
 	}
 
@@ -83,7 +98,10 @@ public class ActionExecutor implements Runnable, IActionEventListener {
 					next.getAction().addEventListener(this);
 					
 					logger.debug("Start execution: {}", next.getPath());
-					next.getAction().execute(fileEventManager.getFileManager());
+					ExecutionHandle ehandle = next.getAction().execute(fileEventManager.getFileManager());
+					if(ehandle != null && ehandle.getProcessHandle() != null) {
+						asyncHandles.put(ehandle);
+					}
 					if(useNotifications){
 						executingActions.add(next.getAction());
 					} else {
@@ -227,12 +245,17 @@ public class ActionExecutor implements Runnable, IActionEventListener {
 
 
 	@Override
-	public void onActionExecuteFailed(IAction action, ProcessExecutionException pex) {
-		logger.info("Action failed: {} {}.", action.getFilePath(), action.getCurrentState().getClass().toString());
-		handleExecutionError(action, pex);
+	public void onActionExecuteFailed(IAction action, ProcessHandle<Void> handle) {
+		logger.warn("Action failed: {} {}.", action.getFilePath(), action.getCurrentState().getClass().toString());
+		try {
+			asyncHandles.put(new ExecutionHandle(action, handle));
+		} catch (InterruptedException e) {
+			logger.warn("Could not put failed item into queue.");
+		}
 	}
-
-	public void handleExecutionError(IAction action, ProcessExecutionException pex) {
+	
+	
+	private void handleExecutionError(IAction action, ProcessExecutionException pex) {
 		// !! NOTE: pex may be NULL !! 
 		executingActions.remove(action);
 		if(pex != null) {
@@ -288,5 +311,67 @@ public class ActionExecutor implements Runnable, IActionEventListener {
 //					onActionExecuteSucceeded(action);//action.onSucceed();
 //				}
 //		}
+		
+	}
+
+	
+//	private class FailedActionItem {
+//		private IAction action;
+//		private ProcessHandle<Void> handle;
+//
+//		public FailedActionItem(IAction action, ProcessHandle<Void> handle) {
+//			this.action = action;
+//			this.handle = handle;
+//		}
+//		
+//		public IAction getAction() {
+//			return action;
+//		}
+//		
+//		public ProcessHandle<Void> getHandle() {
+//			return handle;
+//		}
+//	}
+	
+	private class AsyncActionHandler implements Runnable {
+
+		@Override
+		public void run() {
+			processFailedActions();
+		}
+
+		private void processFailedActions() {
+			while(true) {
+				try {
+					
+					ExecutionHandle next = asyncHandles.take();
+					
+					try {
+						// get should be ready because onFailed event already happened,
+						// but we do not want to block forever!
+						next.getProcessHandle().getFuture().get(5, TimeUnit.SECONDS);
+					} catch(ExecutionException eex) {
+						
+						ProcessExecutionException pex = null;
+						if(eex.getCause() instanceof ProcessExecutionException) {
+							pex = (ProcessExecutionException)eex.getCause();
+						} 
+						handleExecutionError(next.getAction(), pex);
+						
+					} catch(CancellationException | InterruptedException e) {
+						logger.warn("Exception while getting future result: {}", e.getMessage());
+					} catch(TimeoutException tex) {
+						logger.debug("Could not get result of failed item, timed out. {}", next.getAction().getFilePath());
+						// add it again 
+						asyncHandles.put(next);
+					}
+					// if this point reached, no error occurred (get() did not throw exception)
+					
+				} catch(Exception e) {
+					logger.warn("Exception in processFailedActions: ", e);
+				}
+			}
+		}
+		
 	}
 }
