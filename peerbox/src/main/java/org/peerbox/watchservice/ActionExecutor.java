@@ -7,7 +7,7 @@ import java.util.Vector;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.PriorityBlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
@@ -55,7 +55,7 @@ public class ActionExecutor implements Runnable, IActionEventListener {
 		executingActions = new Vector<IAction>();//Collections.synchronizedList(new ArrayList<IAction>());
 		useNotifications = waitForCompletion;
 		
-		asyncHandles = new PriorityBlockingQueue<ExecutionHandle>();
+		asyncHandles = new LinkedBlockingQueue<ExecutionHandle>();
 		asyncHandlesThread = new Thread(new AsyncActionHandler());
 	}
 	
@@ -314,24 +314,6 @@ public class ActionExecutor implements Runnable, IActionEventListener {
 		
 	}
 
-	
-//	private class FailedActionItem {
-//		private IAction action;
-//		private ProcessHandle<Void> handle;
-//
-//		public FailedActionItem(IAction action, ProcessHandle<Void> handle) {
-//			this.action = action;
-//			this.handle = handle;
-//		}
-//		
-//		public IAction getAction() {
-//			return action;
-//		}
-//		
-//		public ProcessHandle<Void> getHandle() {
-//			return handle;
-//		}
-//	}
 	
 	private class AsyncActionHandler implements Runnable {
 
