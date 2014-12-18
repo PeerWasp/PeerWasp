@@ -35,7 +35,7 @@ public class LocalDeleteState extends AbstractActionState {
 	@Override
 	public AbstractActionState changeStateOnLocalCreate() {
 		logger.debug("Local Create Event: Local Delete -> Established ({})", action.getFilePath());
-		return new EstablishedState(action);
+		return new LocalUpdateState(action); //EstablishedState(action);
 	}
 
 	@Override
@@ -72,19 +72,19 @@ public class LocalDeleteState extends AbstractActionState {
 		fileInConflict = renamedFile;
 		logger.debug("Conflict handling complete.");
 
-		return new ConflictState(action);
+		return new RemoteUpdateState(action); //ConflictState(action);
 	}
 
 	@Override
 	public AbstractActionState changeStateOnRemoteDelete() {
 		logger.debug("Remote Delete Event: Local Delete -> Conflict ({})", action.getFilePath());
-		return new ConflictState(action);
+		return new InitialState(action); //new ConflictState(action);
 	}
 
 	@Override
 	public AbstractActionState changeStateOnRemoteMove(Path oldFilePath) {
 		logger.debug("Remote Move Event: Local Delete -> Conflict ({})", action.getFilePath());
-		return new ConflictState(action);
+		return this; //new ConflictState(action);
 	}
 
 	/**
