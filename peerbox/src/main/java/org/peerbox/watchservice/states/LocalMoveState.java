@@ -150,4 +150,16 @@ public class LocalMoveState extends AbstractActionState {
 	public AbstractActionState handleRemoteMove(Path path) {
 		throw new NotImplException("LocalMoveState.handleRemoteMove");
 	}
+
+	@Override
+	public AbstractActionState changeStateOnLocalRecover(int version) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public AbstractActionState handleLocalRecover(int version) {
+		// TODO Auto-generated method stub
+		throw new NotImplException("LocalRecoverState.handleLocalRecover");
+	}
 }

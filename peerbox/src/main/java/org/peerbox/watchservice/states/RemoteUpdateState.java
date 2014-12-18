@@ -24,44 +24,46 @@ public class RemoteUpdateState extends AbstractActionState {
 	@Override
 	public AbstractActionState changeStateOnLocalCreate() {
 		logger.debug("Local Create Event in RemoteUpdateState!  ({})", action.getFilePath());
-		return new EstablishedState(action);
+		logStateTransission(getStateType(), EventType.LOCAL_CREATE, StateType.REMOTE_UPDATE);
+		return this;//new EstablishedState(action);
 		//TODO: maybe we should return 'this.' as soon as the update is successful, transission into ESTABLISHED happens!
 	}
 
 	@Override
 	public AbstractActionState changeStateOnLocalUpdate() {
-		logger.debug("Local Update Event:  ({})", action.getFilePath());
+		logStateTransission(getStateType(), EventType.LOCAL_UPDATE, StateType.REMOTE_UPDATE);
 		return this;
 	}
 
 	@Override
 	public AbstractActionState changeStateOnLocalDelete() {
-		logger.debug("Local Delete Event in RemoteUpdateState ({})", action.getFilePath());
+		logStateTransission(getStateType(), EventType.LOCAL_DELETE, StateType.REMOTE_UPDATE);
 		return this;
 	}
 
 	@Override
 	public AbstractActionState changeStateOnLocalMove(Path oldPath) {
 		logger.debug("Local Move Event:  ({})", action.getFilePath());
-		return this;
+		throw new NotImplException("RemoteUpdateState.LocalMove");
 	}
 
 	@Override
 	public AbstractActionState changeStateOnRemoteUpdate() {
 		logger.debug("Remote Update Event:  ({})", action.getFilePath());
+		logStateTransission(getStateType(), EventType.REMOTE_UPDATE, StateType.REMOTE_UPDATE);
 		return this;
 	}
 
 	@Override
 	public AbstractActionState changeStateOnRemoteDelete() {
 		logger.debug("Remote Delete Event:  ({})", action.getFilePath());
-		return this;
+		throw new NotImplException("RemoteUpdate.remoteDelete");
 	}
 
 	@Override
 	public AbstractActionState changeStateOnRemoteMove(Path oldFilePath) {
 		logger.debug("Remote Move Event:  ({})", action.getFilePath());
-		return this;
+		throw new NotImplException("RemoteUpdate.remoteMove");
 	}
 
 //	@Override
@@ -131,5 +133,17 @@ public class RemoteUpdateState extends AbstractActionState {
 
 		return new ExecutionHandle(action, handle);
 		// notifyActionExecuteSucceeded();
+	}
+
+	@Override
+	public AbstractActionState changeStateOnLocalRecover(int version) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public AbstractActionState handleLocalRecover(int version) {
+		// TODO Auto-generated method stub
+		throw new NotImplException("RemoteUpdateState.handleLocalRecover");
 	}
 }

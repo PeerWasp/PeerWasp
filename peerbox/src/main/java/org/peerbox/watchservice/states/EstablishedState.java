@@ -33,6 +33,7 @@ public class EstablishedState extends AbstractActionState{
 
 	@Override
 	public AbstractActionState changeStateOnLocalCreate() {
+		logStateTransission(getStateType(), EventType.LOCAL_CREATE, StateType.LOCAL_CREATE);
 		logger.debug("File {} - LocalCreateEvent captured, update content hash for file", action.getFilePath());
 		action.getFile().updateContentHash();
 		return this;
@@ -40,24 +41,28 @@ public class EstablishedState extends AbstractActionState{
 
 	@Override
 	public AbstractActionState changeStateOnLocalDelete() {
+		logStateTransission(getStateType(), EventType.LOCAL_CREATE, StateType.LOCAL_DELETE);
 		return new LocalDeleteState(action);
 	}
 
 	@Override
 	public AbstractActionState changeStateOnLocalUpdate() {
 		// TODO Auto-generated method stub
+		logStateTransission(getStateType(), EventType.LOCAL_CREATE, StateType.LOCAL_UPDATE);
 		return new LocalUpdateState(action);
 	}
 
 	@Override
 	public AbstractActionState changeStateOnLocalMove(Path oldFilePath) {
 		// TODO Auto-generated method stub
-		return new RemoteMoveState(action, oldFilePath);
+		logStateTransission(getStateType(), EventType.LOCAL_CREATE, StateType.LOCAL_MOVE);
+		return new LocalMoveState(action, oldFilePath);
 	}
 
 	@Override
 	public AbstractActionState changeStateOnRemoteDelete() {
 		// TODO Auto-generated method stub
+		logStateTransission(getStateType(), EventType.LOCAL_CREATE, StateType.INITIAL);
 		return new InitialState(action);
 	}
 
@@ -75,7 +80,7 @@ public class EstablishedState extends AbstractActionState{
 
 	@Override
 	public AbstractActionState changeStateOnRemoteMove(Path oldFilePath) {
-		logger.debug("Switched to RemoteMoveState!");
+		logStateTransission(getStateType(), EventType.LOCAL_CREATE, StateType.REMOTE_MOVE);
 		return new RemoteMoveState(action, oldFilePath);
 	}
 
@@ -195,6 +200,19 @@ public class EstablishedState extends AbstractActionState{
 		
 		//updateTimeAndQueue();
 		return changeStateOnRemoteMove(oldPath);
+	}
+
+	@Override
+	public AbstractActionState changeStateOnLocalRecover(int version) {
+		// TODO Auto-generated method stub
+		return new RecoverState(action, version);
+	}
+
+	@Override
+	public AbstractActionState handleLocalRecover(int version) {
+		// TODO Auto-generated method stub
+		updateTimeAndQueue();
+		return changeStateOnLocalRecover(version);
 	}
 
 }

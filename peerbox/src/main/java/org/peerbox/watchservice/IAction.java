@@ -30,6 +30,7 @@ public interface IAction {
 	public void handleRemoteDeleteEvent();
 	public void handleRemoteUpdateEvent();
 	public void handleRemoteMoveEvent(Path srcPath);
+	public void handleRecoverEvent(int versionToRecover);
 //	public void setPath(Path path);
 	public void setIsUploaded(boolean isUploaded);
 	public boolean getIsUploaded();

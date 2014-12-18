@@ -67,12 +67,13 @@ public final class FileManager {
 	}
 
 	// TODO(AA): return async handle
-	public IProcessComponent<Void> recover(final File file, final IVersionSelector versionSelector) throws NoSessionException, NoPeerConnectionException, InvalidProcessStateException, ProcessExecutionException {
+	public ProcessHandle<Void> recover(final File file, final IVersionSelector versionSelector) throws NoSessionException, NoPeerConnectionException, InvalidProcessStateException, ProcessExecutionException {
 		logger.debug("RECOVER - {}", file);
 		IProcessComponent<Void> component = h2hFileManager.createRecoverProcess(file,
 				versionSelector);
 		component.executeAsync();
-		return component;
+		ProcessHandle<Void> handle = new ProcessHandle<Void>(component);
+		return handle;
 	}
 	
 	// TODO(AA): return async handle

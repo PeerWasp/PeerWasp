@@ -180,4 +180,16 @@ public class LocalDeleteState extends AbstractActionState {
 				action.getFilePath());
 		return new InitialState(action);
 	}
+
+	@Override
+	public AbstractActionState changeStateOnLocalRecover(int version) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public AbstractActionState handleLocalRecover(int version) {
+		// TODO Auto-generated method stub
+		throw new NotImplException("LocalDeleteState.handleLocalRecover");
+	}
 }

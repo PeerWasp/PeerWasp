@@ -37,45 +37,50 @@ public class InitialState extends AbstractActionState {
 
 	@Override
 	public AbstractActionState changeStateOnLocalCreate() {
-		logger.debug("Local Create Event: Initial -> Local Create ({})", action.getFilePath());
+		logStateTransission(getStateType(), EventType.LOCAL_CREATE, StateType.LOCAL_CREATE);
 		return new LocalCreateState(action);
 	}
 
 	@Override
 	public AbstractActionState changeStateOnLocalUpdate() {
-		logger.debug("Local Update Event: Initial -> Local Update ({})", action.getFilePath());
+		logStateTransission(getStateType(), EventType.LOCAL_UPDATE, StateType.INITIAL);
 		return new InitialState(action);
-	
 	}
 
 	@Override
 	public AbstractActionState changeStateOnLocalDelete() {
-		logger.debug("Local Delete Event: Initial -> Local Delete ({})", action.getFilePath());
+		logStateTransission(getStateType(), EventType.LOCAL_DELETE, StateType.LOCAL_DELETE);
 		return new LocalDeleteState(action);
 	}
 
 	@Override
 	public AbstractActionState changeStateOnLocalMove(Path oldPath) {
-		logger.debug("Local Move Event: Initial -> Local Move ({})", action.getFilePath());
+		logStateTransission(getStateType(), EventType.LOCAL_MOVE, StateType.INITIAL);
 		return this;//new LocalMoveState(action, oldPath);
+	}
+	
+	@Override
+	public AbstractActionState changeStateOnLocalRecover(int versionToRecover) {
+		//logStateTransission(getStateType(), EventType.LOCAL_RECOVER, StateType.LOCAL_RECOVER);
+		throw new NotImplException("InitialState.localRecover");// new NRecoverState(action, versionToRecover);
 	}
 
 	@Override
 	public AbstractActionState changeStateOnRemoteUpdate() {
-		logger.debug("Remote Update Event: Initial -> Remote Update ({})", action.getFilePath());
+		logStateTransission(getStateType(), EventType.REMOTE_UPDATE, StateType.REMOTE_UPDATE);
 		return new RemoteUpdateState(action);
 	}
 	
 	@Override
 	public AbstractActionState changeStateOnRemoteCreate() {
-		logger.debug("Remote Create Event: Initial -> Remote Create ({})", action.getFilePath());
+		logStateTransission(getStateType(), EventType.REMOTE_CREATE, StateType.REMOTE_CREATE);
 		return new RemoteCreateState(action);
 	}
 
 	@Override
 	public AbstractActionState changeStateOnRemoteDelete() {
-		logger.debug("Remote Delete Event: Initial -> Remote Delete ({})", action.getFilePath());
-		return new RemoteDeleteState(action);
+		logStateTransission(getStateType(), EventType.REMOTE_DELETE, StateType.INITIAL);
+		return this; //new RemoteDeleteState(action);
 	}
 
 	@Override
@@ -84,20 +89,12 @@ public class InitialState extends AbstractActionState {
 		
 		Path path = action.getFilePath();
 		logger.debug("Execute REMOTE MOVE: {}", path);
-//		try {
-//			Files.move(oldFilePath, path);
-//		} catch (IOException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
 		throw new NotImplException("InitialState.onremoteMove");
-//		return new RemoteMoveState(action, oldFilePath);
 	}
 
 	@Override
 	public AbstractActionState handleLocalCreate() {
 
-//		action.putFile(action.getFilePath().toString(), action.getFile());
 		IFileEventManager eventManager = action.getEventManager();
 		if(action.getFilePath().toFile().isDirectory()){
 			//find deleted by structure hash
@@ -117,7 +114,6 @@ public class InitialState extends AbstractActionState {
 		action.getFile().updateContentHash();
 		logger.trace("After: File {} content {}", action.getFilePath(), action.getFile().getContentHash());
 
-		
 		try {
 			Thread.sleep(50);
 		} catch (InterruptedException e) {
@@ -150,18 +146,12 @@ public class InitialState extends AbstractActionState {
 
 	@Override
 	public AbstractActionState handleLocalUpdate() {
-		// TODO Auto-generated method stub
 		logger.debug("Local Update is ignored for {}", action.getFilePath());
 		return changeStateOnLocalUpdate();
 	}
 
 	@Override
 	public AbstractActionState handleLocalMove(Path oldPath) {
-		// TODO Auto-generated method stub
-//		IFileEventManager eventManager = action.getFileEventManager();
-//		eventManager.deleteFileComponent(action.getFilePath());
-//		
-//		return changeStateOnLocalMove(oldPath);
 		throw new NotImplException("InitialState.handleLocalMove");
 	}
 
@@ -198,5 +188,11 @@ public class InitialState extends AbstractActionState {
 		logger.warn("Execute is not defined in the initial state  ({})", action.getFilePath());
 		notifyActionExecuteSucceeded();
 		return null;
+	}
+
+	@Override
+	public AbstractActionState handleLocalRecover(int version) {
+		// TODO Auto-generated method stub
+		throw new NotImplException("InitialState.handleLocalRecover");
 	}
 }

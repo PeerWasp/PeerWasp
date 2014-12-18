@@ -432,6 +432,25 @@ public class Action implements IAction{
 		return lock;
 	}
 
+	@Override
+	public void handleRecoverEvent(int versionToRecover) {
+		logger.trace("handleRecoverEvent - File: {}", getFilePath());
+		acquireLockOnThis();
+		if(isExecuting){
+
+			logger.trace("Event occured for {} while executing.", getFilePath());
+//			changedWhileExecuted = true;
+			nextState = nextState.changeStateOnLocalRecover(versionToRecover);
+			checkIfChanged();
+
+		} else {
+			updateTimestamp();
+			currentState = currentState.handleLocalRecover(versionToRecover);
+			nextState = currentState.getDefaultState();
+		}
+		releaseLockOnThis();
+	}
+
 //	@Override
 //	public void handleException(ProcessExceptionVisitor visitor) {
 //		// TODO Auto-generated method stub

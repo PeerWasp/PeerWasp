@@ -46,6 +46,7 @@ import org.hive2hive.processframework.interfaces.IProcessComponent;
 import org.hive2hive.processframework.interfaces.IProcessComponentListener;
 import org.hive2hive.processframework.interfaces.IProcessEventArgs;
 import org.peerbox.FileManager;
+import org.peerbox.h2h.ProcessHandle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -82,7 +83,7 @@ public final class RecoverFileController  implements Initializable, IFileVersion
 	private FileVersionSelector versionSelector;
 
 	private FileManager fileManager;
-	private IProcessComponent<Void> process;
+	private ProcessHandle<Void> process;
 	
 	public RecoverFileController() {
 		this.fileToRecoverProperty = new SimpleStringProperty();
@@ -179,7 +180,7 @@ public final class RecoverFileController  implements Initializable, IFileVersion
 			setStatus("Retrieving available versions...");
 	
 			process = fileManager.recover(fileToRecover.toFile(), versionSelector);
-			process.attachListener(new RecoveryProcessListener());
+			process.getProcess().attachListener(new RecoveryProcessListener());
 	
 		} catch (NoSessionException e) {
 			// TODO Auto-generated catch block
@@ -265,7 +266,7 @@ public final class RecoverFileController  implements Initializable, IFileVersion
 				versionSelector.cancel();
 			}
 			if(process != null) {
-				process.rollback();
+				process.getProcess().rollback();
 			}
 		} catch (InvalidProcessStateException | ProcessRollbackException e) {
 			logger.warn("Could not cancel process.", e);

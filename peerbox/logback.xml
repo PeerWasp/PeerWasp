@@ -27,10 +27,10 @@
 	<!-- Loggers -->
 	<logger name="net.tomp2p" level="WARN" /> 
 	<logger name="io.netty" level="WARN" /> 
-	<logger name="org.hive2hive.core" level="DEBUG" /> 
+	<logger name="org.hive2hive.core" level="ALL" /> 
 	<logger name="org.eclipse.jetty" level="WARN" />
 	
-	<root level="TRACE">
+	<root level="ALL">
 		<appender-ref ref="FILE" />
 		<appender-ref ref="STDOUT" />
 	</root>

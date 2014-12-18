@@ -5,6 +5,7 @@ import java.nio.file.Path;
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.hive2hive.core.exceptions.NoSessionException;
 import org.peerbox.FileManager;
+import org.peerbox.exceptions.NotImplException;
 import org.peerbox.watchservice.Action;
 import org.peerbox.watchservice.ConflictHandler;
 import org.slf4j.Logger;
@@ -128,6 +129,18 @@ public class ConflictState extends AbstractActionState {
 		return null;
 		// TODO Auto-generated method stub
 		
+	}
+
+	@Override
+	public AbstractActionState changeStateOnLocalRecover(int version) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public AbstractActionState handleLocalRecover(int version) {
+		// TODO Auto-generated method stub
+		throw new NotImplException("ConflictState.handleLocalRecover");
 	}
 
 }

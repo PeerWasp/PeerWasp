@@ -6,6 +6,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang3.NotImplementedException;
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.hive2hive.core.exceptions.NoSessionException;
 import org.hive2hive.processframework.exceptions.InvalidProcessStateException;
@@ -32,9 +33,14 @@ import com.google.common.collect.SetMultimap;
 public abstract class AbstractActionState {
 	private final static Logger logger = LoggerFactory.getLogger(AbstractActionState.class);
 	protected Action action;
+	protected StateType type = StateType.ABSTRACT;
 
 	public AbstractActionState(Action action) {
 		this.action = action;
+	}
+	
+	public StateType getStateType(){
+		return type;
 	}
 	
 	public AbstractActionState getDefaultState(){
@@ -47,6 +53,11 @@ public abstract class AbstractActionState {
 		action.updateTimestamp();
 		action.getEventManager().getFileComponentQueue().add(action.getFile());
 	}
+	
+	protected void logStateTransission(StateType stateBefore, EventType event, StateType stateAfter){
+		logger.debug("File {}: {} + {}  --> {}", action.getFilePath(), 
+				stateBefore.getString(), event.getString(), stateAfter.getString());
+	}
 
 	/*
 	 * LOCAL state changers
@@ -58,6 +69,8 @@ public abstract class AbstractActionState {
 	public abstract AbstractActionState changeStateOnLocalUpdate();
 
 	public abstract AbstractActionState changeStateOnLocalMove(Path oldPath);
+	
+	public abstract AbstractActionState changeStateOnLocalRecover(int version);
 	
 	public AbstractActionState changeStateOnLocalHardDelete(){
 		return new LocalHardDeleteState(action);
@@ -113,6 +126,8 @@ public abstract class AbstractActionState {
 	public abstract AbstractActionState handleLocalUpdate();
 	
 	public abstract AbstractActionState handleLocalMove(Path oldFilePath);
+
+	public abstract AbstractActionState handleLocalRecover(int version);
 	
 	/*
 	 * REMOTE event handler
@@ -143,16 +158,6 @@ public abstract class AbstractActionState {
 			it.next().onActionExecuteSucceeded(action);
 		}
 	}
-
-//	private void notifyActionExecuteFailed(ProcessHandle<Void> asyncHandle) {
-//		//action.setIsExecuting(false);
-//		Set<IActionEventListener> listener = 
-//				new HashSet<IActionEventListener>(action.getEventListener());
-//		Iterator<IActionEventListener> it = listener.iterator();
-//		while(it.hasNext()) {
-//			it.next().onActionExecuteFailed(action, asyncHandle);
-//		}
-//	}	
 	
 	protected class FileManagerProcessListener implements IProcessComponentListener {
 		
