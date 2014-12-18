@@ -1,9 +1,9 @@
 package org.peerbox.watchservice;
 
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import org.slf4j.Logger;
@@ -19,13 +19,13 @@ public abstract class AbstractWatchService {
 
 	public AbstractWatchService() {
 		super();
-		this.eventListeners = new ArrayList<ILocalFileEventListener>();
+		this.eventListeners = new CopyOnWriteArrayList<ILocalFileEventListener>();
 		this.eventQueue = new LinkedBlockingQueue<INotifyFileEvent>();
 	}
 
 	public void start() throws Exception {
 		eventQueue.clear();
-		notifyThread = new Thread(new NotifyEventListeners());
+		notifyThread = new Thread(new NotifyEventListeners(), "WatchServiceNotifyThread");
 		notifyThread.start();
 		logger.info("Watch Service started.");
 	}
@@ -49,22 +49,19 @@ public abstract class AbstractWatchService {
 	}
 
 	private void notifyFileCreated(final Path path) {
-		List<ILocalFileEventListener> listeners = new ArrayList<ILocalFileEventListener>(eventListeners);
-		for(ILocalFileEventListener l : listeners) {
+		for(ILocalFileEventListener l : eventListeners) {
 			l.onLocalFileCreated(path);
 		}
 	}
 
 	private void notifyFileModified(final Path path) {
-		List<ILocalFileEventListener> listeners = new ArrayList<ILocalFileEventListener>(eventListeners);
-		for(ILocalFileEventListener l : listeners) {
+		for(ILocalFileEventListener l : eventListeners) {
 			l.onLocalFileModified(path);
 		}
 	}
 
 	private void notifyFileDeleted(final Path path) {
-		List<ILocalFileEventListener> listeners = new ArrayList<ILocalFileEventListener>(eventListeners);
-		for(ILocalFileEventListener l : listeners) {
+		for(ILocalFileEventListener l : eventListeners) {
 			l.onLocalFileDeleted(path);
 		}
 	}
