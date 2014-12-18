@@ -14,6 +14,7 @@ import org.hive2hive.processframework.exceptions.ProcessExecutionException;
 import org.hive2hive.processframework.interfaces.IProcessComponentListener;
 import org.hive2hive.processframework.interfaces.IProcessEventArgs;
 import org.peerbox.FileManager;
+import org.peerbox.exceptions.NotImplException;
 import org.peerbox.watchservice.Action;
 import org.peerbox.watchservice.FileComponent;
 import org.peerbox.watchservice.FolderComposite;
@@ -62,15 +63,25 @@ public abstract class AbstractActionState {
 	/*
 	 * LOCAL state changers
 	 */
-	public abstract AbstractActionState changeStateOnLocalCreate();
+	public AbstractActionState changeStateOnLocalCreate(){
+		throw new NotImplException(action.getCurrentState().getStateType().getString() + ".changeStateOnLocalCreate");
+	}
 
-	public abstract AbstractActionState changeStateOnLocalDelete();
+	public AbstractActionState changeStateOnLocalDelete(){
+		throw new NotImplException(action.getCurrentState().getStateType().getString() + ".changeStateOnLocalDelete");
+	}
 
-	public abstract AbstractActionState changeStateOnLocalUpdate();
+	public AbstractActionState changeStateOnLocalUpdate(){
+		throw new NotImplException(action.getCurrentState().getStateType().getString() + ".changeStateOnLocalUpdate");
+	}
 
-	public abstract AbstractActionState changeStateOnLocalMove(Path oldPath);
+	public AbstractActionState changeStateOnLocalMove(Path oldPath){
+		throw new NotImplException(action.getCurrentState().getStateType().getString() + ".changeStateOnLocalMove");
+	}
 	
-	public abstract AbstractActionState changeStateOnLocalRecover(int version);
+	public AbstractActionState changeStateOnLocalRecover(int version){
+		throw new NotImplException(action.getCurrentState().getStateType().getString() + ".changeStateOnLocalRecover");
+	}
 	
 	public AbstractActionState changeStateOnLocalHardDelete(){
 		return new LocalHardDeleteState(action);
@@ -79,13 +90,21 @@ public abstract class AbstractActionState {
 	/*
 	 * REMOTE state changers
 	 */
-	public abstract AbstractActionState changeStateOnRemoteDelete();
+	public AbstractActionState changeStateOnRemoteDelete(){
+		throw new NotImplException(action.getCurrentState().getStateType().getString() + ".changeStateOnRemoteDelete");
+	}
 	
-	public abstract AbstractActionState changeStateOnRemoteCreate();
+	public AbstractActionState changeStateOnRemoteCreate(){
+		throw new NotImplException(action.getCurrentState().getStateType().getString() + ".changeStateOnRemoteCreate");
+	}
 
-	public abstract AbstractActionState changeStateOnRemoteUpdate();
+	public AbstractActionState changeStateOnRemoteUpdate(){
+		throw new NotImplException(action.getCurrentState().getStateType().getString() + ".changeStateOnRemoteUpdate");
+	}
 
-	public abstract AbstractActionState changeStateOnRemoteMove(Path oldFilePath);
+	public AbstractActionState changeStateOnRemoteMove(Path oldFilePath){
+		throw new NotImplException(action.getCurrentState().getStateType().getString() + ".changeStateOnRemoteMove");
+	}
 	
 	/*
 	 * LOCAL event handler
@@ -123,23 +142,37 @@ public abstract class AbstractActionState {
 		return changeStateOnLocalDelete();
 	}
 	
-	public abstract AbstractActionState handleLocalUpdate();
+	public AbstractActionState handleLocalUpdate(){
+		return changeStateOnLocalUpdate();
+	}
 	
-	public abstract AbstractActionState handleLocalMove(Path oldFilePath);
+	public AbstractActionState handleLocalMove(Path oldFilePath){
+		return changeStateOnLocalMove(oldFilePath);
+	}
 
-	public abstract AbstractActionState handleLocalRecover(int version);
+	public AbstractActionState handleLocalRecover(int version){
+		return changeStateOnLocalRecover(version);
+	}
 	
 	/*
 	 * REMOTE event handler
 	 */
 	
-	public abstract AbstractActionState handleRemoteCreate();
+	public AbstractActionState handleRemoteCreate(){
+		return changeStateOnRemoteCreate();
+	}
 	
-	public abstract AbstractActionState handleRemoteDelete();
+	public AbstractActionState handleRemoteDelete(){
+		return changeStateOnRemoteDelete();
+	}
 	
-	public abstract AbstractActionState handleRemoteUpdate();
+	public AbstractActionState handleRemoteUpdate(){
+		return changeStateOnRemoteUpdate();
+	}
 	
-	public abstract AbstractActionState handleRemoteMove(Path path);
+	public AbstractActionState handleRemoteMove(Path path){
+		return changeStateOnRemoteMove(path);
+	}
 	
 	/*
 	 * Execution and notification related functions

@@ -50,7 +50,8 @@ public class InitialState extends AbstractActionState {
 	@Override
 	public AbstractActionState changeStateOnLocalDelete() {
 		logStateTransission(getStateType(), EventType.LOCAL_DELETE, StateType.LOCAL_DELETE);
-		return new LocalDeleteState(action);
+//		return new LocalDeleteState(action);
+		return this;
 	}
 
 	@Override
