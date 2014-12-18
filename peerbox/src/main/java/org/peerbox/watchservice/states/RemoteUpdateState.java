@@ -25,6 +25,7 @@ public class RemoteUpdateState extends AbstractActionState {
 	public AbstractActionState changeStateOnLocalCreate() {
 		logger.debug("Local Create Event in RemoteUpdateState!  ({})", action.getFilePath());
 		return new EstablishedState(action);
+		//TODO: maybe we should return 'this.' as soon as the update is successful, transission into ESTABLISHED happens!
 	}
 
 	@Override

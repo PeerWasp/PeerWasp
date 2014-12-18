@@ -11,6 +11,9 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import org.hive2hive.core.exceptions.AbortModificationCode;
+import org.hive2hive.core.exceptions.ErrorCode;
+import org.hive2hive.core.exceptions.Hive2HiveException;
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.hive2hive.core.exceptions.NoSessionException;
 import org.hive2hive.processframework.exceptions.ProcessExecutionException;
@@ -40,7 +43,7 @@ public class ActionExecutor implements Runnable, IActionEventListener {
 	public static final int MAX_EXECUTION_ATTEMPTS = 3;
 	
 	private FileEventManager fileEventManager;
-	private Vector<IAction> executingActions;
+//	private Vector<IAction> executingActions;
 	private boolean useNotifications;
 	
 	private BlockingQueue<ExecutionHandle> asyncHandles; 
@@ -52,15 +55,15 @@ public class ActionExecutor implements Runnable, IActionEventListener {
 	
 	public ActionExecutor(FileEventManager eventManager, boolean waitForCompletion){
 		this.fileEventManager = eventManager;
-		executingActions = new Vector<IAction>();//Collections.synchronizedList(new ArrayList<IAction>());
+//		executingActions = new Vector<IAction>();//Collections.synchronizedList(new ArrayList<IAction>());
 		useNotifications = waitForCompletion;
 		
 		asyncHandles = new LinkedBlockingQueue<ExecutionHandle>();
 		asyncHandlesThread = new Thread(new AsyncActionHandler());
 	}
 	
-	public Vector<IAction> getExecutingActions(){
-		return executingActions;
+	public BlockingQueue<ExecutionHandle> getExecutingActions(){
+		return asyncHandles;
 	}
 	
 
@@ -99,19 +102,20 @@ public class ActionExecutor implements Runnable, IActionEventListener {
 					
 					logger.debug("Start execution: {}", next.getPath());
 					ExecutionHandle ehandle = next.getAction().execute(fileEventManager.getFileManager());
-					if(ehandle != null && ehandle.getProcessHandle() != null) {
-						asyncHandles.put(ehandle);
-					}
 					if(useNotifications){
-						executingActions.add(next.getAction());
+//						executingActions.add(next.getAction());
+						if(ehandle != null && ehandle.getProcessHandle() != null) {
+							asyncHandles.put(ehandle);
+						}
 					} else {
 						onActionExecuteSucceeded(next.getAction());
 					}
 				} else {
 					if(!isExecuteSlotFree()){
-						for(int i = 0; i < executingActions.size(); i++){
-							logger.trace("{}: {} {}", i, executingActions.get(i).getFilePath(), executingActions.get(i).getCurrentState().getClass());
-						}
+						logger.debug("All slots used!");
+//						for(int i = 0; i < asyncHandles.size(); i++){
+//							logger.trace("{}: {} {}", i, asyncHandles.get(i).getAction().getFilePath(), executingActions.get(i).getCurrentState().getClass());
+//						}
 					}
 					fileEventManager.getFileComponentQueue().put(next);
 					long timeToWait = calculateWaitTime(next);
@@ -139,7 +143,8 @@ public class ActionExecutor implements Runnable, IActionEventListener {
 	}
 
 	private boolean isExecuteSlotFree() {
-		return executingActions.size() < NUMBER_OF_EXECUTE_SLOTS;
+//		return executingActions.size() < NUMBER_OF_EXECUTE_SLOTS;
+		return asyncHandles.size() < NUMBER_OF_EXECUTE_SLOTS;
 	}
 
 
@@ -209,12 +214,12 @@ public class ActionExecutor implements Runnable, IActionEventListener {
 				action.setIsUploaded(true);
 				logger.trace("Release lock of action {} at {}", action.getFilePath(), System.currentTimeMillis());
 				
-				boolean changed = executingActions.remove(action);
-				if(changed){
-					logger.debug("changed on remove of {}", action.hashCode());
-				} else{
-					logger.debug("NOT changed on remove of {}", action.hashCode());
-				}
+//				boolean changed = executingActions.remove(action);
+//				if(changed){
+//					logger.debug("changed on remove of {}", action.hashCode());
+//				} else{
+//					logger.debug("NOT changed on remove of {}", action.hashCode());
+//				}
 				
 				if(changedWhileExecuted){
 					logger.trace("File {} changed during the execution process"
@@ -233,9 +238,9 @@ public class ActionExecutor implements Runnable, IActionEventListener {
 			logger.debug("Action successful: {} {} {}", action.getFilePath(), action.hashCode(), action.getCurrentState().getClass().toString());
 			
 			action.getLock().unlock();
-			for(int i = 0; i < executingActions.size(); i++){
-				logger.trace("{}: {} - {}", i, executingActions.get(i).getFilePath(), executingActions.get(i).getCurrentState().getClass());
-			}
+//			for(int i = 0; i < executingActions.size(); i++){
+//				logger.trace("{}: {} - {}", i, executingActions.get(i).getFilePath(), executingActions.get(i).getCurrentState().getClass());
+//			}
 			
 		//}
 		
@@ -257,7 +262,7 @@ public class ActionExecutor implements Runnable, IActionEventListener {
 	
 	private void handleExecutionError(IAction action, ProcessExecutionException pex) {
 		// !! NOTE: pex may be NULL !! 
-		executingActions.remove(action);
+		//executingActions.remove(action);
 		if(pex != null) {
 			/*
 			 * TODO: unwrap exception and handle inner exception that caused ProcesssExecutionException
@@ -267,17 +272,46 @@ public class ActionExecutor implements Runnable, IActionEventListener {
 			 * - SAME_CONTENT --> [ NewVersionSameContentException ]
 			 * - ?? rest was not used I think
 			 */
+			
+			Hive2HiveException h2hex = (Hive2HiveException) pex.getCause();
+			
+			ErrorCode error = h2hex.getError();
+			if(error == AbortModificationCode.SAME_CONTENT){
+				logger.debug("H2H update of file {} failed, content hash did not change. {}", action.getFilePath(), fileEventManager.getRootPath().toString());
+				FileComponent notModified = fileEventManager.getFileTree().getComponent(action.getFilePath().toString());
+				if(notModified == null){
+					logger.trace("FileComponent with path {} is null", action.getFilePath().toString());
+				}
+				action.onSucceed();
+			} else if(error == AbortModificationCode.FOLDER_UPDATE){
+				logger.debug("Attempt to update folder {} failed as folder cannot be updated.", action.getFilePath());
+			} else if(error == AbortModificationCode.ROOT_DELETE_ATTEMPT){
+				logger.debug("Attempt to delete the root folder {} failed. Delete is not defined on this folder.", action.getFilePath());
+			} else if(error == AbortModificationCode.NO_WRITE_PERM){
+				logger.debug("Attempt to delete or write to {} failed. No write-permissions hold by user.", action.getFilePath());
+			} else {
+				logger.trace("Re-initiate execution of {} {}.", action.getFilePath(), action.getCurrentState().getClass().toString());
+				if(action.getExecutionAttempts() <= MAX_EXECUTION_ATTEMPTS){
+					action.updateTimestamp();
+					fileEventManager.getFileComponentQueue().add(action.getFile());
+				} else {
+					logger.error("To many attempts, action of {} has not been executed again. Reason: default", action.getFilePath());
+					onActionExecuteSucceeded(action);
+				}
+			}
+		} else {
+			// temporary default
+			logger.trace("Re-initiate execution of {} {}.", action.getFilePath(), action.getCurrentState().getClass().toString());
+			if(action.getExecutionAttempts() <= MAX_EXECUTION_ATTEMPTS){
+				action.updateTimestamp();
+				fileEventManager.getFileComponentQueue().add(action.getFile());
+			} else {
+				logger.error("To many attempts, action of {} has not been executed again. Reason: default", action.getFilePath());
+				onActionExecuteSucceeded(action);
+			}
 		}
 		
-		// temporary default
-		logger.trace("Re-initiate execution of {} {}.", action.getFilePath(), action.getCurrentState().getClass().toString());
-		if(action.getExecutionAttempts() <= MAX_EXECUTION_ATTEMPTS){
-			action.updateTimestamp();
-			fileEventManager.getFileComponentQueue().add(action.getFile());
-		} else {
-			logger.error("To many attempts, action of {} has not been executed again. Reason: default", action.getFilePath());
-			onActionExecuteSucceeded(action);
-		}
+	
 
 
 //		ProcessError error = reason.getErrorType();

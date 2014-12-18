@@ -30,7 +30,7 @@
 	<logger name="org.hive2hive.core" level="DEBUG" /> 
 	<logger name="org.eclipse.jetty" level="WARN" />
 	
-	<root level="DEBUG">
+	<root level="TRACE">
 		<appender-ref ref="FILE" />
 		<appender-ref ref="STDOUT" />
 	</root>

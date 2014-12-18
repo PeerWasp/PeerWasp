@@ -27,6 +27,7 @@ import org.peerbox.utils.FileTestUtils;
 import org.peerbox.watchservice.FileComponent;
 import org.peerbox.watchservice.FileEventManager;
 import org.peerbox.watchservice.IAction;
+import org.peerbox.watchservice.states.ExecutionHandle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -386,7 +387,7 @@ public abstract class FileIntegrationTest {
 		List<ClientNode> clients = network.getClients();
 		for(ClientNode client : clients){
 			Vector<FileComponent> queue = new Vector<FileComponent>(client.getFileEventManager().getFileComponentQueue());
-			Vector<IAction> execs = client.getFileEventManager().getActionExecutor().getExecutingActions();
+			Vector<ExecutionHandle> execs = new Vector<ExecutionHandle>(client.getFileEventManager().getActionExecutor().getExecutingActions());
 			if(queue.size() != 0){
 				for(int i = 0; i < queue.size(); i++){
 					logger.debug("Pending in queue: {}. {}:{}", i, queue.get(i).getPath(), queue.get(i).getAction().getCurrentState());
@@ -394,7 +395,7 @@ public abstract class FileIntegrationTest {
 			}
 			if(execs.size() != 0){
 				for(int i = 0; i < execs.size(); i++){
-					logger.debug("Pending executions: {}. {}:{}", i, execs.get(i).getFilePath(), execs.get(i).getCurrentState());
+					logger.debug("Pending executions: {}. {}:{}", i, execs.get(i).getAction().getFilePath(), execs.get(i).getAction().getCurrentState());
 				}
 			}
 			assertTrue(client.getFileEventManager().getFileComponentQueue().size() == 0);
