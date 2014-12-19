@@ -50,7 +50,7 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
     	fileTree = new FolderComposite(rootPath, true, true);
     	this.rootPath = rootPath;
     	this.actionExecutor = new ActionExecutor(this, waitForNotifications);
-		executorThread = new Thread(actionExecutor);
+		executorThread = new Thread(actionExecutor, "ActionExecutorThread");
 		executorThread.start();
 		
     }
@@ -76,7 +76,7 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
     	fileTree = new FolderComposite(rootPath, true);
         this.maintainContentHashes = maintainContentHashes;
 		this.rootPath = rootPath;
-        executorThread = new Thread(new ActionExecutor(this, waitForNotifications));
+        executorThread = new Thread(new ActionExecutor(this, waitForNotifications), "ActionExecutorThread");
 		executorThread.start();
     }
     

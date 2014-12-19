@@ -57,7 +57,7 @@ public class ActionExecutor implements Runnable, IActionEventListener {
 		useNotifications = waitForCompletion;
 		
 		asyncHandles = new LinkedBlockingQueue<ExecutionHandle>();
-		asyncHandlesThread = new Thread(new AsyncActionHandler());
+		asyncHandlesThread = new Thread(new AsyncActionHandler(), "AsyncActionHandlerThread");
 	}
 	
 	public BlockingQueue<ExecutionHandle> getExecutingActions(){

@@ -56,7 +56,7 @@ public class FolderWatchService extends AbstractWatchService {
 		registerFoldersRecursive(folderToWatch);
 		logger.info("Scanning done.");
 		
-		fileEventProcessor = new Thread(new FolderWatchEventProcessor());
+		fileEventProcessor = new Thread(new FolderWatchEventProcessor(), "WatchServiceEventProcessorThread");
 		fileEventProcessor.start();
 	}
 
