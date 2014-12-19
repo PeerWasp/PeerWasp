@@ -34,48 +34,12 @@ public class RecoverState extends AbstractActionState{
 		return new LocalCreateState(action);
 	}
 
-	@Override
-	public AbstractActionState changeStateOnLocalDelete() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public AbstractActionState changeStateOnLocalUpdate() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public AbstractActionState changeStateOnLocalMove(Path oldPath) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public AbstractActionState changeStateOnLocalRecover(int versionToRecover) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public AbstractActionState changeStateOnRemoteDelete() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public AbstractActionState changeStateOnRemoteUpdate() {
-		// TODO Auto-generated method stub
-		return new InitialState(action);
-	}
-
-	@Override
-	public AbstractActionState changeStateOnRemoteMove(Path oldFilePath) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
+//	@Override
+//	public AbstractActionState changeStateOnRemoteUpdate() {
+//		// TODO Auto-generated method stub
+//		return new InitialState(action);
+//	}
+//	
 	@Override
 	public ExecutionHandle execute(FileManager fileManager) throws NoSessionException,
 			NoPeerConnectionException, InvalidProcessStateException, ProcessExecutionException {
@@ -111,55 +75,7 @@ public class RecoverState extends AbstractActionState{
 	@Override
 	public AbstractActionState handleLocalCreate() {
 		// TODO Auto-generated method stub
-		throw new NotImplementedException("RecoverState.handleLocalCreate");
-	}
-
-	@Override
-	public AbstractActionState handleLocalDelete() {
-		// TODO Auto-generated method stub
-		throw new NotImplementedException("RecoverState.handleLocalDelete");
-	}
-
-	@Override
-	public AbstractActionState handleLocalUpdate() {
-		// TODO Auto-generated method stub
-		throw new NotImplementedException("RecoverState.handleLocalUpdate");
-	}
-
-	@Override
-	public AbstractActionState handleLocalRecover(int version) {
-		// TODO Auto-generated method stub
-		throw new NotImplementedException("RecoverState.handleLocalRecover");
-	}
-
-	@Override
-	public AbstractActionState handleRemoteCreate() {
-		// TODO Auto-generated method stub
-		throw new NotImplementedException("RecoverState.handleRemoteCreate");
-	}
-
-	@Override
-	public AbstractActionState handleRemoteDelete() {
-		// TODO Auto-generated method stub
-		throw new NotImplementedException("RecoverState.handleRemoteDelete");
-	}
-
-	@Override
-	public AbstractActionState handleRemoteUpdate() {
-		// TODO Auto-generated method stub
-		throw new NotImplementedException("RecoverState.handleRemoteUpdate");
-	}
-
-	@Override
-	public AbstractActionState handleRemoteMove(Path path) {
-		// TODO Auto-generated method stub
-		throw new NotImplementedException("RecoverState.handleRemoteMove");
-	}
-
-	@Override
-	public AbstractActionState handleLocalMove(Path handleLocalMove) {
-		// TODO Auto-generated method stub
-		throw new NotImplementedException("RecoverState.handleLocalMove");
+		return null;
 	}
 
 }

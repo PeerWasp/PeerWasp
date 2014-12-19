@@ -110,6 +110,8 @@ public class Move extends FileIntegrationTest{
 		for(int i = 0; i < nrFolders; i++){
 			sources.add(addSingleFolder());
 		}
+		assertSyncClientPaths();
+		assertQueuesAreEmpty();
 		Path currentSource = null;
 		Path currentDestination = null;
 		for(int i = 0; i < nrFolders; i++){
@@ -128,6 +130,9 @@ public class Move extends FileIntegrationTest{
 		logger.debug("Start manyNonEmptyFolderMoveTest");
 		Path destination = addSingleFolder();
 		List<Path> paths = addManyFilesInManyFolders(10);
+		
+		assertSyncClientPaths();
+		assertQueuesAreEmpty();
 		Path lastDestination = null;
 		for(Path path: paths){
 			if(path.toFile().isDirectory()){

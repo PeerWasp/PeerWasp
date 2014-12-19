@@ -31,7 +31,7 @@ public class LocalHardDeleteState extends AbstractActionState{
 	
 	@Override
 	public AbstractActionState changeStateOnLocalCreate() {
-		return this;
+		return new LocalUpdateState(action); //e.g. hard delete -> Ctrl + Z;
 	}
 
 	@Override
@@ -41,32 +41,27 @@ public class LocalHardDeleteState extends AbstractActionState{
 
 	@Override
 	public AbstractActionState changeStateOnLocalUpdate() {
-		return this;
-	}
-
-	@Override
-	public AbstractActionState changeStateOnLocalMove(Path oldPath) {
-		return this;
+		return new LocalUpdateState(action); //e.g. hard delete -> Ctrl + Z;
 	}
 
 	@Override
 	public AbstractActionState changeStateOnRemoteDelete() {
-		return this;
+		return new InitialState(action); //File has already been deleted, finish.
 	}
 
 	@Override
 	public AbstractActionState changeStateOnRemoteCreate() {
-		return this;
+		return new RemoteCreateState(action); // The network wins
 	}
 
 	@Override
 	public AbstractActionState changeStateOnRemoteUpdate() {
-		return this;
+		return new RemoteUpdateState(action); // The network wins
 	}
 
 	@Override
 	public AbstractActionState changeStateOnRemoteMove(Path oldFilePath) {
-		return this;
+		return this; // TODO: remote create at target location!
 	}
 
 	@Override

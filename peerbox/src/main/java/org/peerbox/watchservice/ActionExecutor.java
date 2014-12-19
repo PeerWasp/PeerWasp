@@ -38,12 +38,11 @@ public class ActionExecutor implements Runnable, IActionEventListener {
 	/**
 	 *  amount of time that an action has to be "stable" in order to be executed 
 	 */
-	public static final long ACTION_WAIT_TIME_MS = 2000;
-	public static final int NUMBER_OF_EXECUTE_SLOTS = 10;
+	public static final long ACTION_WAIT_TIME_MS = 500;
+	public static final int NUMBER_OF_EXECUTE_SLOTS = 2;
 	public static final int MAX_EXECUTION_ATTEMPTS = 3;
 	
 	private FileEventManager fileEventManager;
-//	private Vector<IAction> executingActions;
 	private boolean useNotifications;
 	
 	private BlockingQueue<ExecutionHandle> asyncHandles; 
@@ -55,7 +54,6 @@ public class ActionExecutor implements Runnable, IActionEventListener {
 	
 	public ActionExecutor(FileEventManager eventManager, boolean waitForCompletion){
 		this.fileEventManager = eventManager;
-//		executingActions = new Vector<IAction>();//Collections.synchronizedList(new ArrayList<IAction>());
 		useNotifications = waitForCompletion;
 		
 		asyncHandles = new LinkedBlockingQueue<ExecutionHandle>();
@@ -83,13 +81,11 @@ public class ActionExecutor implements Runnable, IActionEventListener {
 		while (true) {
 			try {
 				FileComponent next = null;
-//				logger.debug("Currently executing/pending actions: {}/{}", executingActions.size(), fileEventManager.getFileComponentQueue().size());
 				next = fileEventManager.getFileComponentQueue().take();
 				if(!isFileComponentReady(next)){
 					fileEventManager.getFileComponentQueue().remove(next);
 					next.getAction().updateTimestamp();
 					fileEventManager.getFileComponentQueue().add(next);
-//					logger.trace("FileComponent {} was not ready yet: timestamp updated and put back to queue.", next.getPath());
 					continue;
 				}
 				if (isTimerReady(next.getAction()) && isExecuteSlotFree()) {
@@ -97,13 +93,12 @@ public class ActionExecutor implements Runnable, IActionEventListener {
 					if (next.getAction().getCurrentState() instanceof LocalDeleteState) {
 						removeFromDeleted(next);
 					}
-					// execute
+					
 					next.getAction().addEventListener(this);
 					
 					logger.debug("Start execution: {}", next.getPath());
 					ExecutionHandle ehandle = next.getAction().execute(fileEventManager.getFileManager());
 					if(useNotifications){
-//						executingActions.add(next.getAction());
 						if(ehandle != null && ehandle.getProcessHandle() != null) {
 							asyncHandles.put(ehandle);
 						}
@@ -143,7 +138,6 @@ public class ActionExecutor implements Runnable, IActionEventListener {
 	}
 
 	private boolean isExecuteSlotFree() {
-//		return executingActions.size() < NUMBER_OF_EXECUTE_SLOTS;
 		return asyncHandles.size() < NUMBER_OF_EXECUTE_SLOTS;
 	}
 
@@ -201,51 +195,30 @@ public class ActionExecutor implements Runnable, IActionEventListener {
 //			IAction a = executingActions.get(i);
 //			logger.trace("{}     Action {} with ID {} and State {}", i, a.getFilePath(), a.getFilePath().hashCode(), a.getCurrentState().getClass());
 //		}
-		//synchronized(action.getLock()){
-			logger.debug("Action {} with state {} and ID {} removed", action.getFilePath(), action.getCurrentState().getClass(), action.hashCode());
-			boolean changedWhileExecuted = false;
-//			try {
-				logger.trace("Wait for lock of action {} at {}", action.getFilePath(), System.currentTimeMillis());
-				action.getLock().lock();
-				logger.trace("Received lock of action {} at {}", action.getFilePath(), System.currentTimeMillis());
-				changedWhileExecuted = action.getChangedWhileExecuted();
-				
-				action.onSucceed();
-				action.setIsUploaded(true);
-				logger.trace("Release lock of action {} at {}", action.getFilePath(), System.currentTimeMillis());
-				
-//				boolean changed = executingActions.remove(action);
-//				if(changed){
-//					logger.debug("changed on remove of {}", action.hashCode());
-//				} else{
-//					logger.debug("NOT changed on remove of {}", action.hashCode());
-//				}
-				
-				if(changedWhileExecuted){
-					logger.trace("File {} changed during the execution process"
-							+ " to state {}. It has been put back to the queue", 
-							action.getFilePath(), action.getCurrentState().getClass());
-					action.updateTimestamp();
-					fileEventManager.getFileComponentQueue().add(action.getFile());
-					
-				}
-				
-//			} catch (InterruptedException e) {
-//				// TODO Auto-generated catch block
-//				e.printStackTrace();
-//			}
+		logger.debug("Action {} with state {} and ID {} removed", action.getFilePath(), action.getCurrentState().getClass(), action.hashCode());
+		boolean changedWhileExecuted = false;
+		
+		logger.trace("Wait for lock of action {} at {}", action.getFilePath(), System.currentTimeMillis());
+		action.getLock().lock();
+		logger.trace("Received lock of action {} at {}", action.getFilePath(), System.currentTimeMillis());
+		changedWhileExecuted = action.getChangedWhileExecuted();
+		
+		action.onSucceed();
+		action.setIsUploaded(true);
+		logger.trace("Release lock of action {} at {}", action.getFilePath(), System.currentTimeMillis());
+		
+		if(changedWhileExecuted){
+			logger.trace("File {} changed during the execution process"
+					+ " to state {}. It has been put back to the queue", 
+					action.getFilePath(), action.getCurrentState().getClass());
+			action.updateTimestamp();
+			fileEventManager.getFileComponentQueue().add(action.getFile());
+			
+		}
 
-			logger.debug("Action successful: {} {} {}", action.getFilePath(), action.hashCode(), action.getCurrentState().getClass().toString());
-			
-			action.getLock().unlock();
-//			for(int i = 0; i < executingActions.size(); i++){
-//				logger.trace("{}: {} - {}", i, executingActions.get(i).getFilePath(), executingActions.get(i).getCurrentState().getClass());
-//			}
-			
-		//}
+		logger.debug("Action successful: {} {} {}", action.getFilePath(), action.hashCode(), action.getCurrentState().getClass().toString());
 		
-		
-//		if(action.getNextState())
+		action.getLock().unlock();		
 	}
 
 
@@ -261,8 +234,6 @@ public class ActionExecutor implements Runnable, IActionEventListener {
 	
 	
 	private void handleExecutionError(IAction action, ProcessExecutionException pex) {
-		// !! NOTE: pex may be NULL !! 
-		//executingActions.remove(action);
 		if(pex != null) {
 			/*
 			 * TODO: unwrap exception and handle inner exception that caused ProcesssExecutionException
@@ -309,43 +280,7 @@ public class ActionExecutor implements Runnable, IActionEventListener {
 				logger.error("To many attempts, action of {} has not been executed again. Reason: default", action.getFilePath());
 				onActionExecuteSucceeded(action);
 			}
-		}
-		
-	
-
-
-//		ProcessError error = reason.getErrorType();
-//		executingActions.remove(action);
-//		switch(error){
-//	
-//			case SAME_CONTENT:
-//				logger.trace("H2H update of file {} failed, content hash did not change. {}", action.getFilePath(), fileEventManager.getRootPath().toString());
-//				FileComponent notModified = fileEventManager.getFileTree().getComponent(action.getFilePath().toString());
-//				if(notModified == null){
-//					logger.trace("FileComponent with path {} is null", action.getFilePath().toString());
-//				}
-//				action.onSucceed();
-//				break;
-//			case PARENT_IN_USERFILE_NOT_FOUND:
-//				logger.error("Code PARENT_IN_USERFILE_NOT_FOUND {} {}.", action.getFilePath(), action.getCurrentState().getClass().toString());
-//				if(action.getExecutionAttempts() <= MAX_EXECUTION_ATTEMPTS){
-//					action.updateTimestamp();
-//					fileEventManager.getFileComponentQueue().add(action.getFile());
-//				} else {
-//					logger.error("To many attempts, action of {} has not been executed again. Reason: PARENT_IN_USERFILE_NOT_FOUND", action.getFilePath());
-//				}
-//			default:
-//				logger.trace("Re-initiate execution of {} {}.", action.getFilePath(), action.getCurrentState().getClass().toString());
-//				if(action.getExecutionAttempts() <= MAX_EXECUTION_ATTEMPTS){
-//					action.updateTimestamp();
-//					fileEventManager.getFileComponentQueue().add(action.getFile());
-//				} else {
-//					logger.error("To many attempts, action of {} has not been executed again. Reason: default", action.getFilePath());
-//					
-//					onActionExecuteSucceeded(action);//action.onSucceed();
-//				}
-//		}
-		
+		}	
 	}
 
 	

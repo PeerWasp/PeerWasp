@@ -47,16 +47,14 @@ public class LocalMoveState extends AbstractActionState {
 
 	@Override
 	public AbstractActionState changeStateOnLocalCreate() {
-		logger.debug("Local Create Event: not defined ({})", action.getFilePath());
-//		throw new IllegalStateException("Local Create Event: not defined");
-		return new InitialState(action);
+		return new InitialState(action); //Move is applied to source files, this is the destination, hence the event is ignored
 	}
 
 	// TODO Needs to be verified (Patrick, 21.10.14)
 	@Override
 	public AbstractActionState changeStateOnLocalUpdate() {
 		logger.debug("Local Update Event: Local Move -> Local Update ({})", action.getFilePath());
-//		throw new IllegalStateException("Local Update Event: not defined");
+
 		return new LocalUpdateState(action);
 	}
 

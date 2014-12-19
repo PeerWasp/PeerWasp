@@ -16,6 +16,7 @@ public class Update extends FileIntegrationTest {
 	public void singleFileTest() throws IOException {
 		// ADD
 		Path f = addSingleFile();
+		assertSyncClientPaths();
 		assertQueuesAreEmpty();
 		logger.info("Adding finished.");
 		
