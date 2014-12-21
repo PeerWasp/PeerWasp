@@ -1,6 +1,8 @@
 package org.peerbox.watchservice;
 
 import java.io.IOException;
+import java.nio.channels.FileChannel;
+import java.nio.channels.FileLock;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashSet;
@@ -205,7 +207,7 @@ public class Action implements IAction{
 	}
 	
 	public void handleLocalMoveEvent(Path oldFilePath) {
-		logger.trace("handleLocalMoveEvent - File: {}", getFilePath());
+		logger.debug("handleLocalMoveEvent - File: {}", getFilePath());
 		acquireLockOnThis();
 		if(isExecuting){
 
@@ -393,6 +395,7 @@ public class Action implements IAction{
 	public void onSucceed() {
 		setIsExecuting(false);
 		logger.trace("onSucceed: File {}. Switch state from {} to {}", getFilePath(), currentState.getClass(), nextState.getClass());
+		currentState.performCleanup();
 		currentState = nextState;
 		nextState = nextState.getDefaultState();
 		changedWhileExecuted = false;

@@ -23,7 +23,7 @@ public class RecoverState extends AbstractActionState{
 	
 	private int fVersionToRecover = 0;
 	public RecoverState(Action action, int versionToRecover) {
-		super(action);
+		super(action, StateType.LOCAL_RECOVER);
 		fVersionToRecover = versionToRecover;
 		// TODO Auto-generated constructor stub
 	}

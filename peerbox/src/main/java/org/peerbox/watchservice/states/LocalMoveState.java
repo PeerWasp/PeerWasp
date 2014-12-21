@@ -29,13 +29,13 @@ public class LocalMoveState extends AbstractActionState {
 	private boolean reversePaths;
 
 	public LocalMoveState(Action action, Path sourcePath) {
-		super(action);
+		super(action, StateType.LOCAL_MOVE);
 		this.sourcePath = sourcePath;
 		reversePaths = false;
 	}
 	
 	public LocalMoveState(Action action, Path sourcePath, boolean reversePaths) {
-		super(action);
+		super(action, StateType.LOCAL_MOVE);
 		this.sourcePath = sourcePath;
 		this.reversePaths = reversePaths;
 	}

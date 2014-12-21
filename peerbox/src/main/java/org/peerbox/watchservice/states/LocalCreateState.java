@@ -31,7 +31,7 @@ public class LocalCreateState extends AbstractActionState {
 	private final static Logger logger = LoggerFactory.getLogger(LocalCreateState.class);
 
 	public LocalCreateState(Action action) {
-		super(action);
+		super(action, StateType.LOCAL_CREATE);
 	}
 
 	@Override

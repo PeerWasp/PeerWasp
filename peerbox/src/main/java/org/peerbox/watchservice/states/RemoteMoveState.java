@@ -16,7 +16,7 @@ public class RemoteMoveState extends AbstractActionState {
 
 	private Path oldPath;
 	public RemoteMoveState(Action action, Path oldPath) {
-		super(action);
+		super(action, StateType.REMOTE_MOVE);
 		this.oldPath = oldPath;
 	}
 

@@ -31,7 +31,7 @@ public class LocalUpdateState extends AbstractActionState {
 	private final static Logger logger = LoggerFactory.getLogger(LocalUpdateState.class);
 
 	public LocalUpdateState(Action action) {
-		super(action);
+		super(action, StateType.LOCAL_UPDATE);
 	}
 
 	@Override

@@ -27,7 +27,7 @@ public class EstablishedState extends AbstractActionState{
 	private static final Logger logger = LoggerFactory.getLogger(EstablishedState.class);
 	
 	public EstablishedState(Action action) {
-		super(action);
+		super(action, StateType.ESTABLISHED);
 		// TODO Auto-generated constructor stub
 	}
 

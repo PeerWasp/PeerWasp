@@ -18,6 +18,7 @@ import java.util.TreeMap;
 import java.util.Vector;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.RandomUtils;
 import org.hive2hive.core.utils.H2HWaiter;
 import org.junit.After;
 import org.junit.Before;
@@ -39,6 +40,7 @@ public abstract class FileIntegrationTest {
 	
 	private static NetworkStarter network;
 	protected static Path masterRootPath;
+	protected static Path clientRootPath;
 	
 //	protected static final int NUMBER_OF_CHARS = 1000*100; // approx. 100kb
 	protected static final int NUMBER_OF_CHARS = 10;
@@ -84,6 +86,7 @@ public abstract class FileIntegrationTest {
 		// select random path as master path (operations will be executed within this path)
 		masterRootPath = network.getRootPaths().get(0);
 				//RandomUtils.nextInt(0, network.getRootPaths().size()));
+		clientRootPath = network.getRootPaths().get(1);
 		
 	}
 	
@@ -204,6 +207,12 @@ public abstract class FileIntegrationTest {
 		logger.debug("Manager ID: {}", manager.hashCode());
 		manager.onLocalFileHardDelete(filePath);
 		sleepMillis(10);
+	}
+	
+	protected void updateSingleFile(Path f) throws IOException {
+		double scale = RandomUtils.nextDouble(0.01, 2.0);
+//		FileTestUtils.writeRandomData(f, (int)(NUMBER_OF_CHARS*scale));
+		FileTestUtils.writeRandomData(f, 100000);
 	}
 
 	protected void waitForExists(Path path, int seconds) {

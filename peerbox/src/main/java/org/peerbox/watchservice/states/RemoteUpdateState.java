@@ -1,5 +1,10 @@
 package org.peerbox.watchservice.states;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.RandomAccessFile;
+import java.nio.channels.FileChannel;
+import java.nio.channels.FileLock;
 import java.nio.file.Path;
 
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
@@ -13,12 +18,14 @@ import org.peerbox.watchservice.Action;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.io.Files;
+
 public class RemoteUpdateState extends AbstractActionState {
 
 	private final static Logger logger = LoggerFactory.getLogger(RemoteUpdateState.class);
 
 	public RemoteUpdateState(Action action) {
-		super(action);
+		super(action, StateType.REMOTE_UPDATE);
 	}
 
 	@Override
@@ -42,9 +49,16 @@ public class RemoteUpdateState extends AbstractActionState {
 	}
 
 	@Override
-	public AbstractActionState changeStateOnLocalMove(Path oldPath) {
-		logger.debug("Local Move Event:  ({})", action.getFilePath());
-		throw new NotImplException("RemoteUpdateState.LocalMove");
+	public AbstractActionState changeStateOnLocalMove(Path newPath) {
+		logger.debug("Cannot accept local move right now, since update is happening.");
+		logStateTransission(getStateType(), EventType.LOCAL_MOVE, getStateType());
+//		try {
+//			Files.move(newPath.toFile(), action.getFilePath().toFile());
+//		} catch (IOException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+		return new LocalMoveState(action, newPath);
 	}
 
 	@Override
@@ -83,11 +97,6 @@ public class RemoteUpdateState extends AbstractActionState {
 	}
 
 	@Override
-	public AbstractActionState handleLocalDelete() {
-		return changeStateOnLocalDelete();
-	}
-
-	@Override
 	public AbstractActionState handleLocalUpdate() {
 //		throw new NotImplException("RemoteUpdateState.handleLocalUpdate");
 		action.getFile().bubbleContentHashUpdate();
@@ -96,7 +105,10 @@ public class RemoteUpdateState extends AbstractActionState {
 
 	@Override
 	public AbstractActionState handleLocalMove(Path oldPath) {
-		throw new NotImplException("RemoteUpdateState.handleLocalMove");
+		
+		action.getNextState().changeStateOnRemoteUpdate();
+		return changeStateOnLocalMove(oldPath);
+//		return handleLocalMove(oldPath);//throw new NotImplException("RemoteUpdateState.handleLocalMove");
 	}
 
 	@Override
@@ -123,6 +135,16 @@ public class RemoteUpdateState extends AbstractActionState {
 	public ExecutionHandle execute(FileManager fileManager) throws NoSessionException, NoPeerConnectionException, InvalidProcessStateException, ProcessExecutionException {
 		Path path = action.getFilePath();
 		logger.debug("Execute REMOTE UPDATE, download the file: {}", path);
+//		FileChannel channel;
+//		try {
+//			channel = new RandomAccessFile(path.toFile(), "rw").getChannel();
+//			action.setFileChannel(channel);
+//			FileLock lock = channel.lock();
+//		} catch ( IOException e1) {
+//			// TODO Auto-generated catch block
+//			e1.printStackTrace();
+//		}
+
 		ProcessHandle<Void> handle = fileManager.download(path.toFile());
 		if (handle != null && handle.getProcess() != null) {
 			handle.getProcess().attachListener(new FileManagerProcessListener());
@@ -145,5 +167,18 @@ public class RemoteUpdateState extends AbstractActionState {
 	public AbstractActionState handleLocalRecover(int version) {
 		// TODO Auto-generated method stub
 		throw new NotImplException("RemoteUpdateState.handleLocalRecover");
+	}
+	
+	public void performCleanup(){
+		//nothing to do by default!
+//		try {
+//			action.getFileLock().release();
+//			action.getFileChannel().close();
+//			action.setFileChannel(null);
+//		} catch (IOException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+
 	}
 }

@@ -20,7 +20,7 @@ public class LocalHardDeleteState extends AbstractActionState{
 	private final static Logger logger = LoggerFactory.getLogger(LocalHardDeleteState.class);
 	
 	public LocalHardDeleteState(Action action) {
-		super(action);
+		super(action, StateType.LOCAL_HARD_DELETE);
 	}
 
 	public AbstractActionState getDefaultState() {

@@ -3,7 +3,6 @@ package org.peerbox.watchservice;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
-import java.util.Vector;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
@@ -38,8 +37,8 @@ public class ActionExecutor implements Runnable, IActionEventListener {
 	/**
 	 *  amount of time that an action has to be "stable" in order to be executed 
 	 */
-	public static final long ACTION_WAIT_TIME_MS = 500;
-	public static final int NUMBER_OF_EXECUTE_SLOTS = 2;
+	public static final long ACTION_WAIT_TIME_MS = 2000;
+	public static final int NUMBER_OF_EXECUTE_SLOTS = 10;
 	public static final int MAX_EXECUTION_ATTEMPTS = 3;
 	
 	private FileEventManager fileEventManager;

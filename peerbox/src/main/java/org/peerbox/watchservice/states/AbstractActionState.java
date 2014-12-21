@@ -36,8 +36,9 @@ public abstract class AbstractActionState {
 	protected Action action;
 	protected StateType type = StateType.ABSTRACT;
 
-	public AbstractActionState(Action action) {
+	public AbstractActionState(Action action, StateType type) {
 		this.action = action;
+		this.type = type;
 	}
 	
 	public StateType getStateType(){
@@ -45,7 +46,7 @@ public abstract class AbstractActionState {
 	}
 	
 	public AbstractActionState getDefaultState(){
-		logger.debug("Return to default state 'EstablishedState': {}", action.getFile().getPath());
+//		logger.debug("Return to default state 'EstablishedState': {}", action.getFile().getPath());
 		return new EstablishedState(action);
 	}
 	
@@ -58,6 +59,10 @@ public abstract class AbstractActionState {
 	protected void logStateTransission(StateType stateBefore, EventType event, StateType stateAfter){
 		logger.debug("File {}: {} + {}  --> {}", action.getFilePath(), 
 				stateBefore.getString(), event.getString(), stateAfter.getString());
+	}
+	
+	public void performCleanup(){
+		//nothing to do by default!
 	}
 
 	/*

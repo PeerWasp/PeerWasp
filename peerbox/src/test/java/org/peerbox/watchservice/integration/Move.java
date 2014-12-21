@@ -14,6 +14,9 @@ import org.junit.Test;
 import org.junit.Assert;
 import org.mockito.Mockito;
 import org.peerbox.utils.FileTestUtils;
+import org.peerbox.watchservice.ActionExecutor;
+
+import ch.qos.logback.core.joran.spi.ActionException;
 
 import com.google.common.io.Files;
 
@@ -150,8 +153,33 @@ public class Move extends FileIntegrationTest{
 		logger.debug("End manyNonEmptyFolderMoveTest");
 	}
 	
+	@Test @Ignore
+	public void localMoveOnRemoteUpdateTest() throws IOException{
+		Path folder = addSingleFolder();
+		Path srcFile = FileTestUtils.createRandomFile(masterRootPath, NUMBER_OF_CHARS);
+		waitForExists(srcFile, WAIT_TIME_SHORT);
+		assertSyncClientPaths();
+		assertQueuesAreEmpty();
+		
+		updateSingleFile(srcFile);
+		sleepMillis(2*ActionExecutor.ACTION_WAIT_TIME_MS);
+		Path srcOnClient = Paths.get(clientRootPath + File.separator + srcFile.getFileName());
+		Path dstOnClient = Paths.get(clientRootPath + File.separator + folder.getFileName() + File.separator + srcFile.getFileName());
+		tryToMoveFile(srcOnClient, dstOnClient);
+		
+		waitForNotExists(srcOnClient, WAIT_TIME_SHORT);
+		waitForExists(dstOnClient, WAIT_TIME_SHORT);
+		//waitForNotExists(srcFile, WAIT_TIME_SHORT);
+		assertSyncClientPaths();
+		assertQueuesAreEmpty();
+	}
 	
+	private void tryToMoveFile(Path srcFile, Path dstFile) throws IOException {
+		System.out.println("Move " + srcFile + " to " + dstFile);
+		Files.move(srcFile.toFile(), dstFile.toFile());
+	}
 	private void moveFileOrFolder(Path srcFile, Path dstFile) throws IOException {
+		System.out.println("Move " + srcFile + " to " + dstFile);
 		Files.move(srcFile.toFile(), dstFile.toFile());
 		waitForExists(dstFile, WAIT_TIME_SHORT);
 	}

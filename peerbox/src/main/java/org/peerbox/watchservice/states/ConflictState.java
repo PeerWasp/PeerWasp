@@ -16,7 +16,7 @@ public class ConflictState extends AbstractActionState {
 	private final static Logger logger = LoggerFactory.getLogger(ConflictState.class);
 
 	public ConflictState(Action action) {
-		super(action);
+		super(action, StateType.CONFLICT);
 	}
 
 	@Override
@@ -65,9 +65,9 @@ public class ConflictState extends AbstractActionState {
 	public ExecutionHandle execute(FileManager fileManager) throws NoSessionException,
 			NoPeerConnectionException {
 		// TODO Auto-generated method stub
-//		Path fileInConflict = action.getFilePath();
-//		Path renamedFile = ConflictHandler.rename(fileInConflict);
-//		fileInConflict = renamedFile;
+		Path fileInConflict = action.getFilePath();
+		Path renamedFile = ConflictHandler.rename(fileInConflict);
+		fileInConflict = renamedFile;
 		return null;
 	}
 

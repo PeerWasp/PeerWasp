@@ -100,7 +100,7 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 	 */
 	@Override
 	public void onLocalFileCreated(Path path) {
-		logger.trace("onLocalFileCreated: {} Manager ID {}", path, hashCode());
+		logger.debug("onLocalFileCreated: {} Manager ID {}", path, hashCode());
 		FileComponent file = getOrCreateFileComponent(path);
 
 		if(path.toFile().isDirectory()){

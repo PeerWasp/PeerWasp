@@ -29,7 +29,7 @@ public class LocalDeleteState extends AbstractActionState {
 	private final static Logger logger = LoggerFactory.getLogger(LocalDeleteState.class);
 
 	public LocalDeleteState(Action action) {
-		super(action);
+		super(action, StateType.LOCAL_DELETE);
 	}
 
 	@Override

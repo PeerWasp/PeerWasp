@@ -32,7 +32,7 @@ public class InitialState extends AbstractActionState {
 	private final static Logger logger = LoggerFactory.getLogger(InitialState.class);
 
 	public InitialState(Action action) {
-		super(action);
+		super(action, StateType.INITIAL);
 	}
 
 	@Override
