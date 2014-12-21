@@ -42,6 +42,47 @@ public class Move extends FileIntegrationTest{
 		logger.debug("End singleFileMoveTest");
 	}
 	
+	
+	@Test
+	public void singleFileDoubleMoveTest() throws IOException{
+		Path folder = addSingleFolder();
+		Path srcFile = FileTestUtils.createRandomFile(masterRootPath, NUMBER_OF_CHARS);
+		waitForExists(srcFile, WAIT_TIME_SHORT);
+		assertSyncClientPaths();
+		assertQueuesAreEmpty();
+		
+		moveFileOrFolder(srcFile, folder.resolve(srcFile.getFileName()));
+		assertSyncClientPaths();
+		assertQueuesAreEmpty();
+		
+		moveFileOrFolder(folder.resolve(srcFile.getFileName()), srcFile);
+		assertSyncClientPaths();
+		assertQueuesAreEmpty();
+	}
+	
+	@Test
+	public void singleFileDoubleMoveRemoteTest() throws IOException{
+		Path localFolder = addSingleFolder();
+		Path localSrcFile = FileTestUtils.createRandomFile(masterRootPath, NUMBER_OF_CHARS);
+		Path localDstFile = localFolder.resolve(localSrcFile.getFileName());
+		
+		waitForExists(localSrcFile, WAIT_TIME_SHORT);
+		assertSyncClientPaths();
+		assertQueuesAreEmpty();
+		
+		moveFileOrFolder(localSrcFile, localDstFile);
+		assertSyncClientPaths();
+		assertQueuesAreEmpty();
+		
+		Path remoteFolder = clientRootPath.resolve(localFolder.getFileName());
+		Path remoteDestFile = remoteFolder.resolve(localSrcFile.getFileName());
+		Path remoteSrcFile = clientRootPath.resolve(localSrcFile.getFileName());
+		
+		moveFileOrFolder(remoteDestFile, remoteSrcFile);
+		assertSyncClientPaths();
+		assertQueuesAreEmpty();
+	}
+	
 	@Test
 	public void severalFilesMoveTest() throws IOException{
 		logger.debug("Start severalFilesMoveTest");
@@ -127,6 +168,7 @@ public class Move extends FileIntegrationTest{
 		assertQueuesAreEmpty();
 		logger.debug("End manyEmptyFolderMoveTest");
 	}
+
 	
 	@Test
 	public void manyNonEmptyFolderMoveTest() throws IOException{
