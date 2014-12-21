@@ -79,6 +79,7 @@ public class Move extends FileIntegrationTest{
 		Path remoteSrcFile = clientRootPath.resolve(localSrcFile.getFileName());
 		
 		moveFileOrFolder(remoteDestFile, remoteSrcFile);
+		waitForExists(localSrcFile, WAIT_TIME_SHORT);
 		assertSyncClientPaths();
 		assertQueuesAreEmpty();
 	}
