@@ -273,7 +273,7 @@ public class FileEventManagerTest {
 		sleepMillis(ActionExecutor.ACTION_WAIT_TIME_MS * 2);
 		printBlockingQueue(actionsToCheck);
 		assertTrue(actionsToCheck.size() == 0);
-		System.out.println(comp.getAction().getCurrentState().getClass());
+	//	System.out.println(comp.getAction().getCurrentState().getClass());
 		
 		//cleanup
 		manager.onLocalFileHardDelete(Paths.get(filePaths.get(0)));

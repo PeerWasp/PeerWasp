@@ -46,6 +46,8 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
     private boolean maintainContentHashes = true;
     private Path rootPath;
     
+    private ISynchronize synchronizer = new Synchronizer();
+    
     public FileEventManager(Path rootPath, boolean waitForNotifications) {
     	fileComponentQueue = new PriorityBlockingQueue<FileComponent>(2000, new FileActionTimeComparator());
     	fileTree = new FolderComposite(rootPath, true, true);
@@ -58,6 +60,10 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
     
     public ActionExecutor getActionExecutor(){
     	return actionExecutor;
+    }
+    
+    public ISynchronize getSynchronizer(){
+    	return synchronizer;
     }
     
     public void stopExecutor() throws InterruptedException{

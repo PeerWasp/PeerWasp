@@ -4,6 +4,7 @@ import java.nio.file.Path;
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 
+import org.peerbox.selectivesync.ISynchronize;
 import org.peerbox.watchservice.FileComponent;
 import org.peerbox.watchservice.FolderComposite;
 import org.peerbox.watchservice.IFileEventManager;
@@ -38,6 +39,12 @@ public class DummyFileEventManager implements IFileEventManager{
 
 	@Override
 	public Map<String, FolderComposite> getDeletedByContentNamesHash() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public ISynchronize getSynchronizer() {
 		// TODO Auto-generated method stub
 		return null;
 	}

@@ -15,4 +15,6 @@ public interface IFileEventManager {
 	public FileComponent findDeletedByContent(FileComponent file);
 
 	public Map<String, FolderComposite> getDeletedByContentNamesHash();
+	
+	public ISynchronize getSynchronizer();
 }

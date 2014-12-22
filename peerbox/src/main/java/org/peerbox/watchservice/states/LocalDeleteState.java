@@ -9,6 +9,8 @@ import org.hive2hive.core.exceptions.NoSessionException;
 import org.hive2hive.processframework.exceptions.InvalidProcessStateException;
 import org.peerbox.FileManager;
 import org.peerbox.exceptions.NotImplException;
+import org.peerbox.selectivesync.ISynchronize;
+import org.peerbox.selectivesync.Synchronizer;
 import org.peerbox.watchservice.Action;
 import org.peerbox.watchservice.ConflictHandler;
 import org.peerbox.watchservice.IFileEventManager;
@@ -27,6 +29,7 @@ import org.slf4j.LoggerFactory;
 public class LocalDeleteState extends AbstractActionState {
 
 	private final static Logger logger = LoggerFactory.getLogger(LocalDeleteState.class);
+	private final ISynchronize synchronizer = new Synchronizer();
 
 	public LocalDeleteState(Action action) {
 		super(action, StateType.LOCAL_DELETE);
@@ -104,6 +107,8 @@ public class LocalDeleteState extends AbstractActionState {
 //		if(process != null){
 //			process.attachListener(new FileManagerProcessListener());
 //		}
+		
+		synchronizer.desynchronize(action.getFilePath());
 		logger.trace("File {}: Should be removed from the selective synchronization!");
 		return null;
 	}
