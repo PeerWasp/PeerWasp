@@ -21,16 +21,21 @@ public interface FileComponent {
 	 * This function should propagate a content hash update to the parent FolderComposite
 	 * in which this FileComponent is contained.
 	 */
-	public default void bubbleContentHashUpdate(){
-		bubbleContentHashUpdate(null);
-	}
 	
-	public default void bubbleContentHashUpdate(String contentHash){
-		boolean hasChanged = updateContentHash(contentHash);
-		if(hasChanged){
-			getParent().bubbleContentHashUpdate();
-		}
-	}
+	public void bubbleContentHashUpdate();
+
+	public void bubbleContentHashUpdate(String contentHash);
+	
+//	public default void bubbleContentHashUpdate(){
+//		bubbleContentHashUpdate(null);
+//	}
+//	
+//	public default void bubbleContentHashUpdate(String contentHash){
+//		boolean hasChanged = updateContentHash(contentHash);
+//		if(hasChanged){
+//			getParent().bubbleContentHashUpdate();
+//		}
+//	}
 	
 	public void putComponent(String path, FileComponent component);
 	
@@ -38,8 +43,8 @@ public interface FileComponent {
 	
 	public FileComponent getComponent(String path);
 	
-	public boolean updateContentHash(String contentHash);
-	public boolean updateContentHash();
+	//public boolean updateContentHash(String contentHash);
+	//public boolean updateContentHash();
 	public Path getPath();
 	public void setParentPath(Path parent);
 	public void setPath(Path path);

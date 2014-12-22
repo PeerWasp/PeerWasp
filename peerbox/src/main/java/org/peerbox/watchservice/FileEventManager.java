@@ -160,7 +160,7 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 			logger.debug("Content hash did not change for file {}. Update rejected.", path);
 			return;
 		}
-		file.updateContentHash(newHash);
+		file.bubbleContentHashUpdate(newHash);
 		file.getAction().handleLocalUpdateEvent();
 	}
 	

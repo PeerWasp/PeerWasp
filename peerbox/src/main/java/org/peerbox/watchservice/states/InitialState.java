@@ -112,7 +112,7 @@ public class InitialState extends AbstractActionState {
 			}
 		}
 		logger.trace("Before: File {} content {}", action.getFilePath(), action.getFile().getContentHash());
-		action.getFile().updateContentHash();
+		action.getFile().bubbleContentHashUpdate();//updateContentHash();
 		logger.trace("After: File {} content {}", action.getFilePath(), action.getFile().getContentHash());
 
 		try {

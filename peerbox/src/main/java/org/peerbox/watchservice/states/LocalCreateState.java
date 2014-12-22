@@ -146,7 +146,7 @@ public class LocalCreateState extends AbstractActionState {
 
 	@Override
 	public AbstractActionState handleLocalUpdate() {
-		action.getFile().updateContentHash();
+		action.getFile().bubbleContentHashUpdate();
 		return changeStateOnLocalUpdate();
 	}
 

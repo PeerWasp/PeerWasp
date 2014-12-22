@@ -35,7 +35,7 @@ public class EstablishedState extends AbstractActionState{
 	public AbstractActionState changeStateOnLocalCreate() {
 		logStateTransission(getStateType(), EventType.LOCAL_CREATE, StateType.LOCAL_CREATE);
 		logger.debug("File {} - LocalCreateEvent captured, update content hash for file", action.getFilePath());
-		action.getFile().updateContentHash();
+		action.getFile().bubbleContentHashUpdate();//updateContentHash();
 		return this;
 	}
 
@@ -96,7 +96,7 @@ public class EstablishedState extends AbstractActionState{
 	@Override
 	public AbstractActionState handleLocalCreate() {
 		// TODO Auto-generated method stub
-		action.getFile().updateContentHash();
+		action.getFile().bubbleContentHashUpdate();//updateContentHash();
 		return changeStateOnLocalCreate();
 	}
 

@@ -64,12 +64,15 @@ public class FileLeaf extends AbstractFileComponent implements FileComponent{
 
 	@Override
 	public void bubbleContentHashUpdate() {
-		boolean hasChanged = updateContentHash();
-		if(path == null){
-			logger.trace("path is null!!!");
-		}
+		bubbleContentHashUpdate(null);
+	}
+	
+
+	@Override
+	public void bubbleContentHashUpdate(String contentHash) {
+		boolean hasChanged = updateContentHash(contentHash);
 		if(hasChanged){
-			parent.bubbleContentHashUpdate();
+			getParent().bubbleContentHashUpdate();
 		}
 	}
 
@@ -95,8 +98,8 @@ public class FileLeaf extends AbstractFileComponent implements FileComponent{
 	 * calculated on the fly. If this is not null, it is assumed to be the correct
 	 * hash of the file's content at the time of the call.
 	 */
-	@Override
-	public boolean updateContentHash(String newHash) {
+
+	private boolean updateContentHash(String newHash) {
 		if(newHash == null){
 			newHash = PathUtils.computeFileContentHash(getPath());
 		} 

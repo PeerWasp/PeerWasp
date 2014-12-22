@@ -231,8 +231,7 @@ public class FolderComposite extends AbstractFileComponent implements FileCompon
 		return updateContentHash(null);
 	}
 	
-	@Override
-	public boolean updateContentHash(String newHash) {
+	private boolean updateContentHash(String newHash) {
 //		logger.debug("enter updateContentHash(String) in FolderComposite()");
 		if(newHash == null){
 //			logger.debug("enter newHash == null");
@@ -258,14 +257,18 @@ public class FolderComposite extends AbstractFileComponent implements FileCompon
 	
 	@Override
 	public void bubbleContentHashUpdate() {
+		bubbleContentHashUpdate(null);
+	
+	}
+	
+	@Override
+	public void bubbleContentHashUpdate(String contentHash) {
+		// TODO Auto-generated method stub
 		boolean hasChanged = updateContentHash();
-//		logger.debug("after: hasChanged {}", hasChanged);
 		if(hasChanged && parent != null){
-//			logger.debug("ENTER IF");
 			parent.bubbleContentHashUpdate();
-//			logger.debug("LEAVE IF");
 		}
-		//logger.debug("success: parent.bubbleContentHashUpdate()");
+
 	}
 	
 	private void bubbleContentNamesHashUpdate() {
@@ -396,4 +399,8 @@ public class FolderComposite extends AbstractFileComponent implements FileCompon
 	public void setStructureHash(String hash) {
 		contentNamesHash = hash;
 	}
+
+
+	
+	
 }
