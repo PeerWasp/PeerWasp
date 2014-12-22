@@ -17,7 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
-public final class FileManager {
+public class FileManager {
 
 	private static final Logger logger = LoggerFactory.getLogger(FileManager.class);
 	private IFileManager h2hFileManager;

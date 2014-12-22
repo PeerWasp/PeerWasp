@@ -4,10 +4,10 @@ import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.PriorityBlockingQueue;
 
 import net.engio.mbassy.listener.Handler;
@@ -20,6 +20,8 @@ import org.hive2hive.core.events.framework.interfaces.file.IFileShareEvent;
 import org.hive2hive.core.events.framework.interfaces.file.IFileUpdateEvent;
 import org.peerbox.FileManager;
 import org.peerbox.h2h.IFileRecoveryRequestEvent;
+import org.peerbox.selectivesync.ISynchronize;
+import org.peerbox.selectivesync.Synchronizer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,11 +41,10 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
     private ActionExecutor actionExecutor;
     
     private SetMultimap<String, FileComponent> deletedByContentHash = HashMultimap.create();
-    private Map<String, FolderComposite> deletedByContentNamesHash = new HashMap<String, FolderComposite>();
+    private Map<String, FolderComposite> deletedByContentNamesHash = new ConcurrentHashMap<String, FolderComposite>();
     
     private boolean maintainContentHashes = true;
     private Path rootPath;
-
     
     public FileEventManager(Path rootPath, boolean waitForNotifications) {
     	fileComponentQueue = new PriorityBlockingQueue<FileComponent>(2000, new FileActionTimeComparator());
