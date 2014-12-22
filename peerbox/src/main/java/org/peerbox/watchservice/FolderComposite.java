@@ -171,10 +171,10 @@ public class FolderComposite extends AbstractFileComponent implements FileCompon
 		String newRemainingPath = PathUtils.getRemainingPathFragment(remainingPath);
 		
 		FileComponent nextLevelComponent = children.get(nextLevelPath);
-		
+
 		if(newRemainingPath.equals("")){
 			FileComponent removed = children.remove(nextLevelPath);
-			logger.debug("Removed {}", removed.getPath());
+			//logger.debug("Removed {}", removed.getPath());
 			if(updateContentHashes){
 				bubbleContentHashUpdate();
 			}
