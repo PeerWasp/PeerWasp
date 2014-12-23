@@ -7,6 +7,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Iterator;
+import java.util.List;
 import java.util.ResourceBundle;
 import java.util.stream.Stream;
 
@@ -15,6 +16,7 @@ import org.peerbox.UserConfig;
 import com.google.inject.Inject;
 
 import javafx.application.Application;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Scene;
@@ -56,7 +58,7 @@ public class Synchronization implements Initializable {
 	        	Iterator<Path> iter = dirs.iterator();
 	        	while(iter.hasNext()){
 	        		Path folder = iter.next();
-	        		System.out.println("Path: " + folder);
+//	        		System.out.println("Path: " + folder);
 	        		PathTreeItem checkBoxTreeItem = new PathTreeItem(folder.getFileName());
 	        		rootItem.getChildren().add(checkBoxTreeItem);
 	        	}
@@ -69,57 +71,16 @@ public class Synchronization implements Initializable {
 	                       
 	        fileTreeView.setRoot(rootItem);
 	        fileTreeView.setShowRoot(true);
-	 
-	      //  StackPane root = new StackPane();
-	      //  root.getChildren().add(fileTreeView);
-	        //primaryStage.setScene(new Scene(root, 300, 250));
-	        //primaryStage.show();
-	        
-//	        Files.newD
 	}
 
-//    @Override
-//    public void start(Stage primaryStage) {
-//        primaryStage.setTitle("Tree View Sample");        
-//        
-//        PathTreeItem rootItem = 
-//            new PathTreeItem(Paths.get("A:/Dropbox/Dropbox"));
-//        rootItem.setExpanded(true);                  
-//      
-//        final TreeView tree = new TreeView(rootItem);  
-//        tree.setEditable(false);
-//        
-//        tree.setCellFactory(CheckBoxTreeCell.<String>forTreeView());    
-//        
-//        Iterable<Path> rootDirectories=FileSystems.getDefault().getRootDirectories();
-//        
-//        System.out.println("START");
-//        Path rootFolder = Paths.get("A:/Dropbox/Dropbox");
-//        try(Stream<Path> dirs = Files.list(rootFolder)){
-//        	Iterator<Path> iter = dirs.iterator();
-//        	while(iter.hasNext()){
-//        		Path folder = iter.next();
-//        		System.out.println("Path: " + folder);
-//        		PathTreeItem checkBoxTreeItem = new PathTreeItem(folder.getFileName());
-//        		rootItem.getChildren().add(checkBoxTreeItem);
-//        	}
-//
-//        } catch (IOException ex){
-//        	ex.printStackTrace();
-//        }
-//        //rootItem.getChildren().setAll(children);
-//        
-//                       
-//        tree.setRoot(rootItem);
-//        tree.setShowRoot(true);
-// 
-//        StackPane root = new StackPane();
-//        root.getChildren().add(tree);
-//        primaryStage.setScene(new Scene(root, 300, 250));
-//        primaryStage.show();
-//        
-////        Files.newD
-//    }
 
 
+
+	public void acceptSyncAction(ActionEvent event) {
+		//TODO write button handler
+	}
+	
+	public void cancelAction(ActionEvent event) {
+		//TODO write button handler
+	}
 }
