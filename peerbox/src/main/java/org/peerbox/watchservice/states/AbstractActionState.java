@@ -140,9 +140,10 @@ public abstract class AbstractActionState {
 			logger.debug("Added folder {} with structure hash {} to deleted folders.", action.getFilePath(), action.getFile().getStructureHash());
 			deletedFolders.put(action.getFile().getStructureHash(), (FolderComposite)action.getFile());
 		}
-		FileComponent comp = eventManager.getFileTree().deleteComponent(action.getFile().getPath().toString());
-		logger.debug("After delete hash of {} is {}", comp.getPath(), comp.getStructureHash());
-//		eventManager.getFileComponentQueue().add(action.getFile());
+//		FileComponent comp = eventManager.getFileTree().deleteComponent(action.getFile().getPath().toString());
+//		logger.debug("After delete hash of {} is {}", comp.getPath(), comp.getStructureHash());
+
+		//		eventManager.getFileComponentQueue().add(action.getFile());
 		updateTimeAndQueue();
 		return changeStateOnLocalDelete();
 	}

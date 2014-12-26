@@ -28,6 +28,7 @@ public class FolderComposite extends AbstractFileComponent implements FileCompon
 	private FolderComposite parent;
 	private boolean updateContentHashes;
 	private boolean isRoot = false;
+	private boolean isSynchronized = false;
 	
 	private static final Logger logger = LoggerFactory.getLogger(FolderComposite.class);
 	
@@ -398,6 +399,17 @@ public class FolderComposite extends AbstractFileComponent implements FileCompon
 	@Override
 	public void setStructureHash(String hash) {
 		contentNamesHash = hash;
+	}
+
+	@Override
+	public boolean getIsSynchronized() {
+		// TODO Auto-generated method stub
+		return isSynchronized;
+	}
+
+	@Override
+	public void setIsSynchronized(boolean isSynchronized) {
+		this.isSynchronized = isSynchronized;
 	}
 
 

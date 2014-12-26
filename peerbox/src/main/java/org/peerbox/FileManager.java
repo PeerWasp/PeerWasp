@@ -6,6 +6,7 @@ import org.hive2hive.core.api.interfaces.IFileManager;
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.hive2hive.core.exceptions.NoSessionException;
 import org.hive2hive.core.model.PermissionType;
+import org.hive2hive.core.processes.files.list.FileNode;
 import org.hive2hive.core.processes.files.recover.IVersionSelector;
 import org.hive2hive.processframework.exceptions.InvalidProcessStateException;
 import org.hive2hive.processframework.exceptions.ProcessExecutionException;
@@ -17,7 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
-public class FileManager {
+public class FileManager implements IPeerboxFileManager{
 
 	private static final Logger logger = LoggerFactory.getLogger(FileManager.class);
 	private IFileManager h2hFileManager;
@@ -85,6 +86,17 @@ public class FileManager {
 		component.attachListener(new FileOperationListener(folder));
 		component.executeAsync();
 		return component;
+	}
+	
+	public FileNode listFiles(IProcessComponentListener listener) throws IllegalArgumentException, NoSessionException, NoPeerConnectionException, InvalidProcessStateException, ProcessExecutionException {
+		IProcessComponent<FileNode> component = h2hFileManager.createFileListProcess();
+		component.attachListener(listener);
+		return component.execute();
+	}
+
+	public FileNode listFiles() throws IllegalArgumentException, NoSessionException, NoPeerConnectionException, InvalidProcessStateException, ProcessExecutionException {
+		IProcessComponent<FileNode> component = h2hFileManager.createFileListProcess();
+		return component.execute();
 	}
 
 

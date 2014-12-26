@@ -17,6 +17,9 @@ public interface FileComponent {
 	public void setParent(FolderComposite parent);
 	public FolderComposite getParent();
 	
+	public boolean getIsSynchronized();
+	public void setIsSynchronized(boolean isSynchronized);
+	
 	/**
 	 * This function should propagate a content hash update to the parent FolderComposite
 	 * in which this FileComponent is contained.

@@ -13,6 +13,7 @@ public class FileLeaf extends AbstractFileComponent implements FileComponent{
 	private Path fileName;
 	private String contentHash;
 	private FolderComposite parent;
+	private boolean isSynchronized = false;
 	
 	private static final Logger logger = LoggerFactory.getLogger(FileLeaf.class);
 	
@@ -170,6 +171,17 @@ public class FileLeaf extends AbstractFileComponent implements FileComponent{
 	@Override
 	public void propagatePathChangeToChildren() {
 		return;
+	}
+
+	@Override
+	public boolean getIsSynchronized() {
+		// TODO Auto-generated method stub
+		return isSynchronized;
+	}
+	
+	@Override
+	public void setIsSynchronized(boolean isSynchronized) {
+		this.isSynchronized = isSynchronized;
 	}
 
 }

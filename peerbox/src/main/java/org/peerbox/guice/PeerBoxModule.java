@@ -2,6 +2,7 @@ package org.peerbox.guice;
 
 
 import org.peerbox.FileManager;
+import org.peerbox.IPeerboxFileManager;
 import org.peerbox.app.ExitHandler;
 import org.peerbox.app.IExitHandler;
 import org.peerbox.events.MessageBus;
@@ -75,7 +76,7 @@ public class PeerBoxModule extends AbstractModule {
 	}
 	
 	@Provides
-	FileManager providesFileManager(H2HManager manager) {
+	IPeerboxFileManager providesFileManager(H2HManager manager) {
 		return new FileManager(manager.getNode().getFileManager());
 	}
 

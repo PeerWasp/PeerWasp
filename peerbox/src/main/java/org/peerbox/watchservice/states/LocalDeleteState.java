@@ -6,6 +6,7 @@ import java.nio.file.Path;
 
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.hive2hive.core.exceptions.NoSessionException;
+import org.hive2hive.core.processes.notify.GetAllLocationsStep;
 import org.hive2hive.processframework.exceptions.InvalidProcessStateException;
 import org.peerbox.FileManager;
 import org.peerbox.exceptions.NotImplException;
@@ -107,6 +108,7 @@ public class LocalDeleteState extends AbstractActionState {
 //		if(process != null){
 //			process.attachListener(new FileManagerProcessListener());
 //		}
+		action.getFile().setIsSynchronized(false);
 		
 		synchronizer.desynchronize(action.getFilePath());
 		logger.trace("File {}: Should be removed from the selective synchronization!");
@@ -146,6 +148,7 @@ public class LocalDeleteState extends AbstractActionState {
 //		action.getFile().propagatePathChangeToChildren();
 		System.out.println("oldPath: " + newPath);
 		System.out.println("action.getFile().getPath(): " + action.getFile().getPath());
+		eventManager.getFileTree().deleteComponent(oldPath.toString());
 		eventManager.getFileTree().putComponent(newPath.toString(), action.getFile());
 		
 		if(oldPath.equals(newPath)){
