@@ -90,7 +90,7 @@ public class SelectRootPathController implements Initializable {
 	public void continueAction(ActionEvent event) {
 		clearError();
 		String path = txtRootPath.getText();
-		ValidationResult result = pathValidator.validate();
+		ValidationResult result = ValidationResult.OK;//pathValidator.validate();
 		if (!result.isError()) {
 			try {
 				logger.info("Root path set to '{}'", path);

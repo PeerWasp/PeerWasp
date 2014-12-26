@@ -1,23 +1,27 @@
 package org.peerbox.watchservice;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Comparator;
 import java.util.Map;
 import java.util.Set;
+import java.util.Vector;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.PriorityBlockingQueue;
 
 import net.engio.mbassy.listener.Handler;
 
+import org.eclipse.jetty.util.ConcurrentHashSet;
 import org.hive2hive.core.events.framework.interfaces.file.IFileAddEvent;
 import org.hive2hive.core.events.framework.interfaces.file.IFileDeleteEvent;
 import org.hive2hive.core.events.framework.interfaces.file.IFileEvent;
 import org.hive2hive.core.events.framework.interfaces.file.IFileMoveEvent;
 import org.hive2hive.core.events.framework.interfaces.file.IFileShareEvent;
 import org.hive2hive.core.events.framework.interfaces.file.IFileUpdateEvent;
+import org.hive2hive.core.events.implementations.FileUpdateEvent;
 import org.peerbox.FileManager;
 import org.peerbox.h2h.IFileRecoveryRequestEvent;
 import org.peerbox.selectivesync.ISynchronize;
@@ -27,6 +31,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.SetMultimap;
+import com.google.inject.Inject;
 
 public class FileEventManager implements IFileEventManager, ILocalFileEventListener, org.hive2hive.core.events.framework.interfaces.IFileEventListener {
 	
@@ -42,7 +47,7 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
     
     private SetMultimap<String, FileComponent> deletedByContentHash = HashMultimap.create();
     private Map<String, FolderComposite> deletedByContentNamesHash = new ConcurrentHashMap<String, FolderComposite>();
-    
+    private Set<Path> synchronizedFiles = new ConcurrentHashSet<Path>();
     private boolean maintainContentHashes = true;
     private Path rootPath;
     
@@ -56,6 +61,14 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 		executorThread = new Thread(actionExecutor, "ActionExecutorThread");
 		executorThread.start();
 		
+    }
+    @Inject
+    public FileEventManager(){
+    	
+    }
+    
+    public Set<Path> getSynchronizedFiles(){
+    	return synchronizedFiles;
     }
     
     public ActionExecutor getActionExecutor(){
@@ -194,6 +207,23 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 		file.getAction().handleLocalDeleteEvent();
 	}
 	
+	public void onFileDesynchronized(Path path){
+		FileComponent file = getOrCreateFileComponent(path);
+		file.setIsSynchronized(false);
+		try {
+			Files.delete(path);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	public void onFileSynchonized(Path path, boolean isFolder){
+		FileComponent file = getOrCreateFileComponent(path);
+		file.setIsSynchronized(true);
+		onFileUpdate(new FileUpdateEvent(null, isFolder));
+	}
+	
 	@Override
 	@Handler
 	public void onFileAdd(IFileAddEvent fileEvent){
@@ -256,6 +286,8 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 			logger.trace("FolderComponent {} created.", path);
 			component = new FolderComposite(path, maintainContentHashes);
 		}
+		
+		synchronizedFiles.add(path);
 		return component;
 	}
 

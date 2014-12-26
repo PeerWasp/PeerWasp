@@ -1,16 +1,21 @@
 package org.peerbox.presenter.settings.synchronization;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.ResourceBundle;
+import java.util.Set;
+import java.util.Vector;
 import java.util.stream.Stream;
 
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.hive2hive.core.exceptions.NoSessionException;
+import org.hive2hive.core.model.UserPermission;
 import org.hive2hive.core.processes.files.list.FileNode;
 import org.hive2hive.processframework.ProcessComponent;
 import org.hive2hive.processframework.exceptions.InvalidProcessStateException;
@@ -21,6 +26,7 @@ import org.hive2hive.processframework.interfaces.IProcessEventArgs;
 import org.peerbox.FileManager;
 import org.peerbox.UserConfig;
 import org.peerbox.model.H2HManager;
+import org.peerbox.watchservice.FileComponent;
 import org.peerbox.watchservice.FileEventManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,17 +46,34 @@ public class Synchronization implements Initializable {
 	@FXML
 	private TreeView<PathItem> fileTreeView;
 	
-//	private UserConfig userConfig;
-//	private FileEventManager eventManager;
+	private UserConfig userConfig;
+	private FileEventManager eventManager;
 	private FileManager fileManager;
-	private H2HManager manager;
+//	private H2HManager manager;
+	
+	private Set<Path> toSynchronize = new HashSet<Path>();
+	private Set<Path> toDesynchronize = new HashSet<Path>();
+	
+	public Set<Path> getToSynchronize(){
+		return toSynchronize;
+	}
+	
+	public Set<Path> getToDesynchronize(){
+		return toDesynchronize;
+	}
+	
+	private Vector<FileComponent> toSync = new Vector<FileComponent>();
 	
 	@Inject
-	public Synchronization(FileManager fileManager) {
-//		this.userConfig = userConfig;
-//		this.eventManager = eventManager;
+	public Synchronization(FileManager fileManager, FileEventManager eventManager, UserConfig userConfig) {
+		this.userConfig = userConfig;
+		this.eventManager = eventManager;
 		this.fileManager = fileManager;
 		
+	}
+	
+	public FileEventManager getFileEventManager(){
+		return eventManager;
 	}
 	
 	@Override
@@ -60,35 +83,37 @@ public class Synchronization implements Initializable {
 //			logger.debug("FileManager not yet initialized.");
 //			return;
 //		}
+		
 //		getFileListFromNetwork();
-    
-//	        PathTreeItem rootItem = 
-//	            new PathTreeItem(userConfig.getRootPath());
-//	        rootItem.setExpanded(true);                  
-//	      
-//	        fileTreeView.setEditable(false);
-//	        
-//	        fileTreeView.setCellFactory(CheckBoxTreeCell.<PathItem>forTreeView());    
-//	        
-//
-//	        Path rootFolder = userConfig.getRootPath();
-//	        
-//	        try(Stream<Path> dirs = Files.list(rootFolder)){
-//	        	Iterator<Path> iter = dirs.iterator();
-//	        	while(iter.hasNext()){
-//	        		Path folder = iter.next();
-//
-//	        		PathTreeItem checkBoxTreeItem = new PathTreeItem(folder.getFileName());
-//	        		rootItem.getChildren().add(checkBoxTreeItem);
-//	        	}
-//
-//	        } catch (IOException ex){
-//	        	ex.printStackTrace();
-//	        }
-//	        
-//	                       
-//	        fileTreeView.setRoot(rootItem);
-//	        fileTreeView.setShowRoot(true);
+		//(FileNode parent, File file, String path, byte[] md5, Set<UserPermission> userPermissions) {
+    FileNode root = new FileNode(null, userConfig.getRootPath().toFile(), userConfig.getRootPath().toString(), null, null);
+	        PathTreeItem rootItem = 
+	            new PathTreeItem(root, this, false);
+	        rootItem.setExpanded(true);                  
+	      
+	        fileTreeView.setEditable(false);
+	        
+	        fileTreeView.setCellFactory(CheckBoxTreeCell.<PathItem>forTreeView());    
+	        
+
+	        Path rootFolder = userConfig.getRootPath();
+	        
+	        try(Stream<Path> dirs = Files.list(rootFolder)){
+	        	Iterator<Path> iter = dirs.iterator();
+	        	while(iter.hasNext()){
+	        		Path folder = iter.next();
+	        		FileNode item = new FileNode(null, folder.toFile(), userConfig.getRootPath().toString(), null, null);
+	        		PathTreeItem checkBoxTreeItem = new PathTreeItem(item, this, false);
+	        		rootItem.getChildren().add(checkBoxTreeItem);
+	        	}
+
+	        } catch (IOException ex){
+	        	ex.printStackTrace();
+	        }
+	        
+	                       
+	        fileTreeView.setRoot(rootItem);
+	        fileTreeView.setShowRoot(true);
 	}
 
 
@@ -106,9 +131,9 @@ public class Synchronization implements Initializable {
 	}
 	
 	private void listFiles(FileNode fileNode){
-		
-        PathTreeItem rootItem = new PathTreeItem(fileNode);
-    rootItem.setExpanded(true);     
+		boolean isSynched = eventManager.getSynchronizedFiles().contains(fileNode.getFile().toPath());
+        PathTreeItem rootItem = new PathTreeItem(fileNode, this, isSynched);
+        rootItem.setExpanded(true);     
 		for(FileNode child : fileNode.getChildren()){
 			System.out.println("File " + child.getFile());
 		}
@@ -117,9 +142,14 @@ public class Synchronization implements Initializable {
 		}
 	}
 
-//	public void acceptSyncAction(ActionEvent event) {
-//		//TODO write button handler
-//	}
+	public void acceptSyncAction(ActionEvent event) {
+//		for(Path path : toSynchronize){
+//			eventManager.onFileSynchonized(path, isFolder)
+//		}
+		for(Path path: toDesynchronize){
+			eventManager.onFileDesynchronized(path);
+		}
+	}
 //	
 //	public void cancelAction(ActionEvent event) {
 //		//TODO write button handler

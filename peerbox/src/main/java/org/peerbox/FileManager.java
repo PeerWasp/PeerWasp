@@ -17,6 +17,8 @@ import org.peerbox.h2h.ProcessHandle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.inject.Inject;
+
 
 public class FileManager implements IPeerboxFileManager{
 
@@ -25,6 +27,11 @@ public class FileManager implements IPeerboxFileManager{
 
 	public FileManager(final IFileManager h2hFileManager) {
 		this.h2hFileManager = h2hFileManager;
+	}
+	
+	@Inject
+	public FileManager(){
+		this.h2hFileManager = null;
 	}
 
 	public ProcessHandle<Void> add(final File file) throws NoSessionException, NoPeerConnectionException {
