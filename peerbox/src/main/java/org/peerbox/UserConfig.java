@@ -34,7 +34,7 @@ import com.google.inject.Singleton;
  *
  */
 @Singleton
-public class UserConfig {
+public class UserConfig implements IUserConfig{
 
 	private static final Logger logger = LoggerFactory.getLogger(UserConfig.class);
 	

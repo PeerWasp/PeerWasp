@@ -218,7 +218,7 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 		}
 	}
 	
-	public void onFileSynchonized(Path path, boolean isFolder){
+	public void onFileSynchronized(Path path, boolean isFolder){
 		FileComponent file = getOrCreateFileComponent(path);
 		file.setIsSynchronized(true);
 		onFileUpdate(new FileUpdateEvent(null, isFolder));

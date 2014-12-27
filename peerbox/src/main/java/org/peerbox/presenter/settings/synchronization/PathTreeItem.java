@@ -1,20 +1,15 @@
 package org.peerbox.presenter.settings.synchronization;
 
-import java.io.IOException;
-import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 
 import org.hive2hive.core.processes.files.list.FileNode;
-import org.peerbox.watchservice.FileComponent;
-import org.peerbox.watchservice.FileEventManager;
+import org.peerbox.watchservice.IFileEventManager;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.scene.control.CheckBoxTreeItem;
 import javafx.scene.control.TreeItem;
@@ -25,7 +20,7 @@ public class PathTreeItem extends CheckBoxTreeItem<PathItem> {
     private boolean isFirstTimeLeft = true;
     private FileNode fileNode;
     private Path path;
-    private FileEventManager fileEventManager;
+    private IFileEventManager fileEventManager;
     private Synchronization sync;
 
     public PathTreeItem(FileNode file, Synchronization sync, boolean isSelected) {
@@ -42,15 +37,14 @@ public class PathTreeItem extends CheckBoxTreeItem<PathItem> {
 			@Override
 			public void handle(
 					javafx.scene.control.CheckBoxTreeItem.TreeModificationEvent<PathItem> arg0) {
-				// TODO Auto-generated method stub
 				System.out.println("Catched Event!");
 				PathTreeItem source = (PathTreeItem)arg0.getSource();
 				if(source.isSelected()){
-					sync.getToSynchronize().add(source.getValue().getPath());
-					sync.getToDesynchronize().remove(source.getValue().getPath());
+					sync.getToSynchronize().add(source.getFileNode());
+					sync.getToDesynchronize().remove(source.getFileNode());
 				} else {
-					sync.getToSynchronize().remove(source.getValue().getPath());
-					sync.getToDesynchronize().add(source.getValue().getPath());
+					sync.getToSynchronize().remove(source.getFileNode());
+					sync.getToDesynchronize().add(source.getFileNode());
 				}
 				
 			}
@@ -62,6 +56,10 @@ public class PathTreeItem extends CheckBoxTreeItem<PathItem> {
         return new PathTreeItem(fileNode, sync, isSelected);
     }
 
+    public FileNode getFileNode(){
+    	return fileNode;
+    }
+    
     @Override
     public ObservableList<TreeItem<PathItem>> getChildren() {
         if (isFirstTimeChildren) {
@@ -83,24 +81,16 @@ public class PathTreeItem extends CheckBoxTreeItem<PathItem> {
 
     private ObservableList<TreeItem<PathItem>> buildChildren(TreeItem<PathItem> treeItem) {
         Path path = treeItem.getValue().getPath();
-        if (path != null && Files.isDirectory(path, LinkOption.NOFOLLOW_LINKS)) {
+        if (path != null && fileNode.isFolder()) {
             ObservableList<TreeItem<PathItem>> children = FXCollections.observableArrayList();
-           // try (DirectoryStream<Path> dirs = Files.newDirectoryStream(path)) {
-            	List<FileNode> fileNodes = fileNode.getChildren();
-                for (FileNode node : fileNodes) {
-                    //path pathItem = new PathItem(dir);
-                	
-                	FileComponent comp = fileEventManager.getFileTree().getComponent(node.getPath());
-                	if(comp != null && comp.getIsSynchronized()){
-                		 children.add(createNode(node, sync, true));
-                	} else {
-                		children.add(createNode(node, sync, false));
-                	}
-                    
-                }
-//            } catch (IOException ex) {
-//                ex.printStackTrace();
-//            }
+        	List<FileNode> fileNodes = fileNode.getChildren();
+            for (FileNode node : fileNodes) {
+            	if(fileEventManager.getSynchronizedFiles().contains(node.getFile().toPath())){
+            		children.add(createNode(node, sync, true));
+            	} else {
+            		children.add(createNode(node, sync, false));
+            	}
+            }
             return children;
         }
         return FXCollections.emptyObservableList();

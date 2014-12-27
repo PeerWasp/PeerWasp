@@ -1,6 +1,10 @@
-package org.peerbox.presenter.settings.synchonization;
+package org.peerbox.presenter.settings.synchronization;
 
 import java.io.File;
+import java.nio.file.Path;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 import org.hive2hive.core.model.PermissionType;
 import org.hive2hive.core.processes.files.list.FileNode;
@@ -10,67 +14,78 @@ import org.hive2hive.processframework.interfaces.IProcessComponentListener;
 import org.peerbox.IPeerboxFileManager;
 import org.peerbox.h2h.ProcessHandle;
 
-public class DummyFileManager implements IPeerboxFileManager {
+import com.google.inject.Inject;
 
+public class DummyFileManager implements IPeerboxFileManager {
+	private DummyUserConfig userConfig = new DummyUserConfig();
+	
+	@Inject
+	public DummyFileManager(){
+		
+	}
+	
 	@Override
 	public ProcessHandle<Void> add(File file) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public ProcessHandle<Void> update(File file) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public ProcessHandle<Void> delete(File file) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public ProcessHandle<Void> move(File source, File destination) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public ProcessHandle<Void> download(File file) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public ProcessHandle<Void> recover(File file, IVersionSelector versionSelector) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public IProcessComponent<Void> share(File folder, String userId, PermissionType permission) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public FileNode listFiles(IProcessComponentListener listener) {
-		// TODO Auto-generated method stub
-		return generateDummyFileTree();
-	}
-
-	private FileNode generateDummyFileTree() {
-		// TODO Auto-generated method stub
-		return null;
-//		File file = new File()
-//		return FileNode(n)
+		return listFiles();
 	}
 
 	@Override
 	public FileNode listFiles() {
-		// TODO Auto-generated method stub
-		return null;
+		Set<Path> remoteFiles = SynchronizationTestUtils.generateRemoteFiles(userConfig);
+		Map<Path, FileNode> tmpMap = new HashMap<Path, FileNode>();
+		Path rootPath = userConfig.getRootPath();
+		FileNode root = new FileNode(null, rootPath.toFile(), rootPath.toString(), null, null);
+		tmpMap.put(rootPath, root);
+		for(Path path : remoteFiles){
+
+			FileNode parent = tmpMap.get(path.getParent());
+			File file = path.toFile();
+			file.isDirectory();
+			String pathStr = path.toString();
+			FileNode current = new FileNode(parent, file, pathStr, null, null);
+			System.out.println("File: " + path.toString() + ": " + file.isDirectory() );
+			if(parent != null){
+				parent.getChildren().add(current);
+			}
+
+			tmpMap.put(path, current);
+		}
+		return root;
 	}
 
 }
