@@ -132,8 +132,10 @@ public class Synchronization implements Initializable {
 	}
 
 	public void acceptSyncAction(ActionEvent event) {
+		
 		for(FileNode node : toSynchronize){
-			eventManager.onFileSynchronized(node.getFile().toPath(), node.isFolder());
+			if(!eventManager.getSynchronizedFiles().contains(node.getFile().toPath()))
+				eventManager.onFileSynchronized(node.getFile().toPath(), node.isFolder());
 		}
 		for(FileNode node: toDesynchronize){
 			eventManager.onFileDesynchronized(node.getFile().toPath());

@@ -37,15 +37,20 @@ public class PathTreeItem extends CheckBoxTreeItem<PathItem> {
 			@Override
 			public void handle(
 					javafx.scene.control.CheckBoxTreeItem.TreeModificationEvent<PathItem> arg0) {
-				System.out.println("Catched Event!");
+				PathTreeItem pathItem = (PathTreeItem) arg0.getSource();
+				Path path = pathItem.getValue().getPath();
+				System.out.println("Catched Event: " + path);
 				PathTreeItem source = (PathTreeItem)arg0.getSource();
-				if(source.isSelected()){
-					sync.getToSynchronize().add(source.getFileNode());
-					sync.getToDesynchronize().remove(source.getFileNode());
-				} else {
-					sync.getToSynchronize().remove(source.getFileNode());
-					sync.getToDesynchronize().add(source.getFileNode());
+				if(!source.isIndeterminate()){
+					if(source.isSelected()){
+						sync.getToSynchronize().add(source.getFileNode());
+						sync.getToDesynchronize().remove(source.getFileNode());
+					} else {
+						sync.getToSynchronize().remove(source.getFileNode());
+						sync.getToDesynchronize().add(source.getFileNode());
+					}
 				}
+				arg0.consume();
 				
 			}
 
