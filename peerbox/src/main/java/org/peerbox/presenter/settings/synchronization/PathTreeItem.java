@@ -19,14 +19,12 @@ public class PathTreeItem extends CheckBoxTreeItem<PathItem> {
     private boolean isFirstTimeChildren = true;
     private boolean isFirstTimeLeft = true;
     private FileNode fileNode;
-    private Path path;
     private IFileEventManager fileEventManager;
     private Synchronization sync;
 
     public PathTreeItem(FileNode file, Synchronization sync, boolean isSelected) {
 
         super(new PathItem(file.getFile().toPath()));
-    	this.path = file.getFile().toPath();
     	this.fileEventManager = sync.getFileEventManager(); //fileEventManager;
     	this.fileNode = file;
     	this.sync = sync;
