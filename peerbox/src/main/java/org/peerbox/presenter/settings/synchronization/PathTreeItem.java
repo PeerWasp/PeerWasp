@@ -4,6 +4,7 @@ import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Set;
 
 import org.hive2hive.core.processes.files.list.FileNode;
 import org.peerbox.watchservice.IFileEventManager;
@@ -87,8 +88,10 @@ public class PathTreeItem extends CheckBoxTreeItem<PathItem> {
         if (path != null && fileNode.isFolder()) {
             ObservableList<TreeItem<PathItem>> children = FXCollections.observableArrayList();
         	List<FileNode> fileNodes = fileNode.getChildren();
+        	
+        	Set<Path> synchronizedFiles = fileEventManager.getFileTree().getSynchronizedFiles();
             for (FileNode node : fileNodes) {
-            	if(fileEventManager.getSynchronizedFiles().contains(node.getFile().toPath())){
+            	if(synchronizedFiles.contains(node.getFile().toPath())){
             		children.add(createNode(node, sync, true));
             	} else {
             		children.add(createNode(node, sync, false));

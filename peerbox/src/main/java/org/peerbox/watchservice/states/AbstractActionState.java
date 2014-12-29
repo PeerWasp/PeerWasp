@@ -16,10 +16,10 @@ import org.hive2hive.processframework.interfaces.IProcessEventArgs;
 import org.peerbox.FileManager;
 import org.peerbox.exceptions.NotImplException;
 import org.peerbox.watchservice.Action;
-import org.peerbox.watchservice.FileComponent;
-import org.peerbox.watchservice.FolderComposite;
 import org.peerbox.watchservice.IActionEventListener;
 import org.peerbox.watchservice.IFileEventManager;
+import org.peerbox.watchservice.filetree.composite.FileComponent;
+import org.peerbox.watchservice.filetree.composite.FolderComposite;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -131,12 +131,12 @@ public abstract class AbstractActionState {
 			String oldHash = action.getFile().getContentHash();
 //			action.getFile().updateContentHash();
 			logger.debug("File: {}Previous content hash: {} new content hash: ", action.getFilePath(), oldHash, action.getFile().getContentHash());
-			SetMultimap<String, FileComponent> deletedFiles = action.getEventManager().getDeletedFileComponents();
+			SetMultimap<String, FileComponent> deletedFiles = action.getEventManager().getFileTree().getDeletedByContentHash();
 			deletedFiles.put(action.getFile().getContentHash(), action.getFile());
 			logger.debug("Put deleted file {} with hash {} to SetMultimap<String, FileComponent>", action.getFilePath(), action.getFile().getContentHash());
 		} else {
 
-			Map<String, FolderComposite> deletedFolders = eventManager.getDeletedByContentNamesHash();
+			Map<String, FolderComposite> deletedFolders = eventManager.getFileTree().getDeletedByContentNamesHash();
 			logger.debug("Added folder {} with structure hash {} to deleted folders.", action.getFilePath(), action.getFile().getStructureHash());
 			deletedFolders.put(action.getFile().getStructureHash(), (FolderComposite)action.getFile());
 		}

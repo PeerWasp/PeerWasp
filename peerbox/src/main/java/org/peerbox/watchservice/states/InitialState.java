@@ -1,24 +1,18 @@
 package org.peerbox.watchservice.states;
 
-import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Map;
-import java.util.Set;
 
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.hive2hive.core.exceptions.NoSessionException;
 import org.peerbox.FileManager;
 import org.peerbox.exceptions.NotImplException;
 import org.peerbox.watchservice.Action;
-import org.peerbox.watchservice.FileComponent;
-import org.peerbox.watchservice.FileEventManager;
-import org.peerbox.watchservice.FolderComposite;
 import org.peerbox.watchservice.IFileEventManager;
+import org.peerbox.watchservice.filetree.composite.FileComponent;
+import org.peerbox.watchservice.filetree.composite.FolderComposite;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.common.collect.SetMultimap;
 
 /**
  * the Initial state is given when a file is considered as new, synced or unknown.
@@ -99,7 +93,7 @@ public class InitialState extends AbstractActionState {
 		IFileEventManager eventManager = action.getEventManager();
 		if(action.getFilePath().toFile().isDirectory()){
 			//find deleted by structure hash
-			Map<String, FolderComposite> deletedFolders = eventManager.getDeletedByContentNamesHash();
+			Map<String, FolderComposite> deletedFolders = eventManager.getFileTree().getDeletedByContentNamesHash();
 			String structureHash = action.getFile().getStructureHash();
 			logger.trace("LocalCreate: structure hash of {} is {}", action.getFilePath(), structureHash);
 			FolderComposite moveSource = deletedFolders.get(structureHash);
@@ -121,10 +115,11 @@ public class InitialState extends AbstractActionState {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		FileComponent moveSource = eventManager.findDeletedByContent(action.getFile());
+		FileComponent moveSource = eventManager.getFileTree().findDeletedByContent(action.getFile());
 		logger.debug("File {} has hash {}", action.getFilePath(), action.getFile().getContentHash());
 		if(moveSource == null){
-			eventManager.getFileTree().putComponent(action.getFilePath().toString(), action.getFile());
+//			eventManager.getFileTree().putComponent(action.getFilePath().toString(), action.getFile());
+			eventManager.getFileTree().putFile(action.getFile());
 			logger.trace("Handle regular create of {}, as no possible move source has been found.", action.getFilePath());
 			updateTimeAndQueue();
 			return changeStateOnLocalCreate();
@@ -159,7 +154,8 @@ public class InitialState extends AbstractActionState {
 	@Override
 	public AbstractActionState handleRemoteCreate() {
 		logger.trace("{}", action.getEventManager().getFileTree().getClass().toString());
-		action.getEventManager().getFileTree().putComponent(action.getFilePath().toString(), action.getFile());
+//		action.getEventManager().getFileTree().putComponent(action.getFilePath().toString(), action.getFile());
+		action.getEventManager().getFileTree().putFile(action.getFile());
 		updateTimeAndQueue();
 		return changeStateOnRemoteCreate();
 	}

@@ -13,8 +13,8 @@ import org.peerbox.exceptions.NotImplException;
 import org.peerbox.selectivesync.ISynchronize;
 import org.peerbox.selectivesync.Synchronizer;
 import org.peerbox.watchservice.Action;
-import org.peerbox.watchservice.ConflictHandler;
 import org.peerbox.watchservice.IFileEventManager;
+import org.peerbox.watchservice.conflicthandling.ConflictHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -148,8 +148,11 @@ public class LocalDeleteState extends AbstractActionState {
 //		action.getFile().propagatePathChangeToChildren();
 		System.out.println("oldPath: " + newPath);
 		System.out.println("action.getFile().getPath(): " + action.getFile().getPath());
-		eventManager.getFileTree().deleteComponent(oldPath.toString());
-		eventManager.getFileTree().putComponent(newPath.toString(), action.getFile());
+//		eventManager.getFileTree().deleteComponent(oldPath.toString());
+//		eventManager.getFileTree().putComponent(newPath.toString(), action.getFile());
+		
+		eventManager.getFileTree().deleteFile(oldPath);
+		eventManager.getFileTree().putFile(action.getFile());
 		
 		if(oldPath.equals(newPath)){
 			logger.debug("This is a local move on place caused by the file system throwing DEL/ADD instead of MOD");

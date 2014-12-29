@@ -10,10 +10,10 @@ import java.nio.file.Paths;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.peerbox.watchservice.FileComponent;
-import org.peerbox.watchservice.FileLeaf;
-import org.peerbox.watchservice.FolderComposite;
 import org.peerbox.watchservice.SerializeService;
+import org.peerbox.watchservice.filetree.composite.FileComponent;
+import org.peerbox.watchservice.filetree.composite.FileLeaf;
+import org.peerbox.watchservice.filetree.composite.FolderComposite;
 
 public class TreePersistenceTest {
 	

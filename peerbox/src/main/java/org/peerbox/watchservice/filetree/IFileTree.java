@@ -2,7 +2,7 @@ package org.peerbox.watchservice.filetree;
 
 import java.nio.file.Path;
 
-import org.peerbox.watchservice.FileComponent;
+import org.peerbox.watchservice.filetree.composite.FileComponent;
 
 public interface IFileTree {
 

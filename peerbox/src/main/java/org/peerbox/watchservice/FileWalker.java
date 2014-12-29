@@ -9,6 +9,8 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.peerbox.watchservice.filetree.composite.FileLeaf;
+import org.peerbox.watchservice.filetree.composite.FolderComposite;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

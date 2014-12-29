@@ -1,4 +1,5 @@
-package org.peerbox.watchservice;
+package org.peerbox.watchservice.filetree.composite;
+
 
 public abstract class AbstractFileComponent implements FileComponent {
 	

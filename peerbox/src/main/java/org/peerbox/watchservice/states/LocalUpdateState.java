@@ -12,8 +12,8 @@ import org.peerbox.FileManager;
 import org.peerbox.exceptions.NotImplException;
 import org.peerbox.h2h.ProcessHandle;
 import org.peerbox.watchservice.Action;
-import org.peerbox.watchservice.ConflictHandler;
 import org.peerbox.watchservice.IFileEventManager;
+import org.peerbox.watchservice.conflicthandling.ConflictHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

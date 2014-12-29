@@ -1,13 +1,17 @@
-package org.peerbox.watchservice;
+package org.peerbox.watchservice.filetree.composite;
 
 import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Set;
 
+import org.peerbox.watchservice.Action;
+import org.peerbox.watchservice.IAction;
+import org.peerbox.watchservice.PathUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class FileLeaf extends AbstractFileComponent implements FileComponent{
+public class FileLeaf extends AbstractFileComponent{
 	private IAction action;
 	private Path path;
 	private Path fileName;
@@ -182,6 +186,11 @@ public class FileLeaf extends AbstractFileComponent implements FileComponent{
 	@Override
 	public void setIsSynchronized(boolean isSynchronized) {
 		this.isSynchronized = isSynchronized;
+	}
+
+	@Override
+	public void getSynchronizedChildrenPaths(Set<Path> synchronizedPaths) {
+		return;
 	}
 
 }

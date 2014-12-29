@@ -10,8 +10,8 @@ import org.peerbox.FileManager;
 import org.peerbox.exceptions.NotImplException;
 import org.peerbox.h2h.ProcessHandle;
 import org.peerbox.watchservice.Action;
-import org.peerbox.watchservice.FileComponent;
 import org.peerbox.watchservice.IFileEventManager;
+import org.peerbox.watchservice.filetree.composite.FileComponent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -86,8 +86,10 @@ public class LocalHardDeleteState extends AbstractActionState{
 //			logger.debug("Added folder {} with structure hash {} to deleted folders.", action.getFilePath(), action.getFile().getStructureHash());
 //			deletedFolders.put(action.getFile().getStructureHash(), (FolderComposite)action.getFile());
 //		}
-		FileComponent comp = eventManager.getFileTree().deleteComponent(action.getFile().getPath().toString());
-//		logger.debug("After delete hash of {} is {}", comp.getPath(), comp.getStructureHash());
+		
+//		FileComponent comp = eventManager.getFileTree().deleteComponent(action.getFile().getPath().toString());
+		FileComponent comp = eventManager.getFileTree().deleteFile(action.getFile().getPath());
+		//		logger.debug("After delete hash of {} is {}", comp.getPath(), comp.getStructureHash());
 //		eventManager.getFileComponentQueue().add(action.getFile());
 		updateTimeAndQueue();
 		return changeStateOnLocalDelete();

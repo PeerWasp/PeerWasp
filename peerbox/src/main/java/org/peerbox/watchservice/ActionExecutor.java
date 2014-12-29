@@ -17,6 +17,8 @@ import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.hive2hive.core.exceptions.NoSessionException;
 import org.hive2hive.processframework.exceptions.ProcessExecutionException;
 import org.peerbox.h2h.ProcessHandle;
+import org.peerbox.watchservice.filetree.composite.FileComponent;
+import org.peerbox.watchservice.filetree.composite.FolderComposite;
 import org.peerbox.watchservice.states.ExecutionHandle;
 import org.peerbox.watchservice.states.LocalDeleteState;
 import org.slf4j.Logger;
@@ -151,7 +153,7 @@ public class ActionExecutor implements Runnable, IActionEventListener {
 
 
 	private void removeFromDeleted(FileComponent next) {
-		Set<FileComponent> sameHashDeletes = fileEventManager.getDeletedFileComponents().get(next.getContentHash());
+		Set<FileComponent> sameHashDeletes = fileEventManager.getFileTree().getDeletedByContentHash().get(next.getContentHash());
 		Iterator<FileComponent> componentIterator = sameHashDeletes.iterator();
 		while(componentIterator.hasNext()){
 			FileComponent candidate = componentIterator.next();
@@ -160,7 +162,7 @@ public class ActionExecutor implements Runnable, IActionEventListener {
 				break;
 			}
 		}
-		Map<String, FolderComposite> deletedByContentNamesHash = fileEventManager.getDeletedByContentNamesHash();
+		Map<String, FolderComposite> deletedByContentNamesHash = fileEventManager.getFileTree().getDeletedByContentNamesHash();
 		if(next instanceof FolderComposite){
 			FolderComposite nextAsFolder = (FolderComposite)next;
 			deletedByContentNamesHash.remove(nextAsFolder.getContentNamesHash());
@@ -247,8 +249,9 @@ public class ActionExecutor implements Runnable, IActionEventListener {
 			
 			ErrorCode error = h2hex.getError();
 			if(error == AbortModificationCode.SAME_CONTENT){
-				logger.debug("H2H update of file {} failed, content hash did not change. {}", action.getFilePath(), fileEventManager.getRootPath().toString());
-				FileComponent notModified = fileEventManager.getFileTree().getComponent(action.getFilePath().toString());
+				logger.debug("H2H update of file {} failed, content hash did not change. {}", action.getFilePath(), fileEventManager.getFileTree().getRootPath().toString());
+//				FileComponent notModified = fileEventManager.getFileTree().getComponent(action.getFilePath().toString());
+				FileComponent notModified = fileEventManager.getFileTree().getFile(action.getFilePath());
 				if(notModified == null){
 					logger.trace("FileComponent with path {} is null", action.getFilePath().toString());
 				}

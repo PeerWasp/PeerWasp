@@ -1,13 +1,17 @@
-package org.peerbox.watchservice;
+package org.peerbox.watchservice.filetree.composite;
 
 import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Base64;
+import java.util.Map;
+import java.util.Set;
 import java.util.SortedMap;
 import java.util.concurrent.ConcurrentSkipListMap;
 
 import org.hive2hive.core.security.HashUtil;
+import org.peerbox.watchservice.Action;
+import org.peerbox.watchservice.PathUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,7 +21,7 @@ import org.slf4j.LoggerFactory;
  * @author Claudio
  * Folder composite represents a file system directory.
  */
-public class FolderComposite extends AbstractFileComponent implements FileComponent{
+public class FolderComposite extends AbstractFileComponent{
 
 	private SortedMap<String, FileComponent> children = new ConcurrentSkipListMap<String, FileComponent>();
 	private Action action;
@@ -412,7 +416,10 @@ public class FolderComposite extends AbstractFileComponent implements FileCompon
 		this.isSynchronized = isSynchronized;
 	}
 
-
-	
-	
+	@Override
+	public void getSynchronizedChildrenPaths(Set<Path> synchronizedPaths) {
+		for(Map.Entry<String, FileComponent> entry : children.entrySet()){
+			synchronizedPaths.add(entry.getValue().getPath());
+		}
+	}
 }

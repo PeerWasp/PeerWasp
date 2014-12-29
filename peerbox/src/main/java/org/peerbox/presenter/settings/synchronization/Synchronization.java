@@ -32,9 +32,9 @@ import org.peerbox.model.H2HManager;
 import org.peerbox.presenter.settings.synchronization.DummyFileEventManager;
 import org.peerbox.presenter.settings.synchronization.DummyFileManager;
 import org.peerbox.presenter.settings.synchronization.DummyUserConfig;
-import org.peerbox.watchservice.FileComponent;
 import org.peerbox.watchservice.FileEventManager;
 import org.peerbox.watchservice.IFileEventManager;
+import org.peerbox.watchservice.filetree.composite.FileComponent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -102,7 +102,7 @@ public class Synchronization implements Initializable {
 	}
 	
 	private void listFiles(FileNode fileNode){
-		boolean isSynched = eventManager.getSynchronizedFiles().contains(fileNode.getFile().toPath());
+		boolean isSynched = eventManager.getFileTree().getSynchronizedFiles().contains(fileNode.getFile().toPath());
         PathTreeItem rootItem = new PathTreeItem(fileNode, this, isSynched);
         rootItem.setExpanded(true);                         
         fileTreeView.setEditable(false);
@@ -120,7 +120,7 @@ public class Synchronization implements Initializable {
 	}
 	
 	private void listFilesRec(FileNode fileNode){
-		boolean isSynched = eventManager.getSynchronizedFiles().contains(fileNode.getFile().toPath());
+		boolean isSynched = eventManager.getFileTree().getSynchronizedFiles().contains(fileNode.getFile().toPath());
         PathTreeItem rootItem = new PathTreeItem(fileNode, this, isSynched);
         rootItem.setExpanded(true);     
 		for(FileNode child : fileNode.getChildren()){
@@ -134,7 +134,7 @@ public class Synchronization implements Initializable {
 	public void acceptSyncAction(ActionEvent event) {
 		
 		for(FileNode node : toSynchronize){
-			if(!eventManager.getSynchronizedFiles().contains(node.getFile().toPath()))
+			if(!eventManager.getFileTree().getSynchronizedFiles().contains(node.getFile().toPath()))
 				eventManager.onFileSynchronized(node.getFile().toPath(), node.isFolder());
 		}
 		for(FileNode node: toDesynchronize){

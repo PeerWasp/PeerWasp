@@ -1,4 +1,4 @@
-package org.peerbox.watchservice;
+package org.peerbox.watchservice.conflicthandling;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.DateFormat;

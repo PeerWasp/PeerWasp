@@ -1,6 +1,9 @@
-package org.peerbox.watchservice;
+package org.peerbox.watchservice.filetree.composite;
 
 import java.nio.file.Path;
+import java.util.Set;
+
+import org.peerbox.watchservice.IAction;
 
 public interface FileComponent {
 	
@@ -58,5 +61,7 @@ public interface FileComponent {
 	public boolean isReady();
 	
 	public void propagatePathChangeToChildren();
+	
+	public void getSynchronizedChildrenPaths(Set<Path> synchronizedPaths);
 
 }

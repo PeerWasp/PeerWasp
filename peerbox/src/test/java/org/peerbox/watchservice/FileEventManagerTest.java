@@ -24,6 +24,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.peerbox.FileManager;
 import org.peerbox.utils.FileTestUtils;
+import org.peerbox.watchservice.filetree.composite.FileComponent;
 import org.peerbox.watchservice.states.EstablishedState;
 import org.peerbox.watchservice.states.LocalCreateState;
 import org.peerbox.watchservice.states.LocalDeleteState;
@@ -129,7 +130,7 @@ public class FileEventManagerTest {
 		manager.onLocalFileDeleted(Paths.get(filePaths.get(0)));
 		sleepMillis(ActionExecutor.ACTION_WAIT_TIME_MS * 2);
 		System.out.println("Current state: " + file.getAction().getCurrentState().getClass());
-		assertTrue(manager.getFileTree().getComponent(filePaths.get(0)) == null);
+		assertTrue(manager.getFileTree().getFile(files.get(0).toPath()) == null);
 		assertTrue(file.getAction().getCurrentState() instanceof InitialState);
 		assertTrue(fileComponentsToCheck.size() == 0);
 	}
@@ -171,7 +172,7 @@ public class FileEventManagerTest {
 		//cleanup
 		deleteFile(Paths.get(filePaths.get(8)));
 		sleepMillis(ActionExecutor.ACTION_WAIT_TIME_MS * 2);
-		assertTrue(manager.getFileTree().getComponent(filePaths.get(8)) == null);
+		assertTrue(manager.getFileTree().getFile(files.get(8).toPath()) == null);
 		assertTrue(actionsToCheck.size() == 0);
 		assertTrue(file1.getAction().getCurrentState() instanceof InitialState);
 		assertTrue(file1.getAction().getCurrentState() instanceof InitialState);
@@ -184,7 +185,7 @@ public class FileEventManagerTest {
 	@Test
 	public void onFileDeletedTest(){
 		BlockingQueue<FileComponent> actionsToCheck = manager.getFileComponentQueue();
-		SetMultimap<String, FileComponent> deletedFiles = manager.getDeletedFileComponents();
+		SetMultimap<String, FileComponent> deletedFiles = manager.getFileTree().getDeletedByContentHash();
 		System.out.println("Start onFileDeletedTest");
 		manager.onLocalFileCreated(Paths.get(filePaths.get(0)));
 		FileComponent createdFile = actionsToCheck.peek();
@@ -225,7 +226,7 @@ public class FileEventManagerTest {
 		sleepMillis(ActionExecutor.ACTION_WAIT_TIME_MS * 5);
 		
 		assertTrue(actionsToCheck.size() == 0);
-		assertTrue(manager.getFileTree().getComponent(filePaths.get(0)) == null);
+		assertTrue(manager.getFileTree().getFile(files.get(0).toPath()) == null);
 		System.out.println(createdFile.getAction().getCurrentState().getClass());
 		assertTrue(createdFile.getAction().getCurrentState() instanceof InitialState);
 		System.out.println(actionsToCheck.size());
@@ -280,7 +281,7 @@ public class FileEventManagerTest {
 		sleepMillis(200);
 		manager.onLocalFileDeleted(Paths.get(filePaths.get(0)));
 		sleepMillis(ActionExecutor.ACTION_WAIT_TIME_MS * 5);
-		assertTrue(manager.getFileTree().getComponent(filePaths.get(0)) == null);
+		assertTrue(manager.getFileTree().getFile(files.get(0).toPath()) == null);
 		assertTrue(comp.getAction().getCurrentState() instanceof InitialState);
 		assertTrue(actionsToCheck.size() == 0);
 		
@@ -405,10 +406,10 @@ public class FileEventManagerTest {
 		deleteFile(Paths.get(filePaths.get(1)));
 		deleteFile(Paths.get(filePaths.get(2)));
 		deleteFile(Paths.get(filePaths.get(3)));
-		assertTrue(manager.getFileTree().getComponent(filePaths.get(0)) == null);
-		assertTrue(manager.getFileTree().getComponent(filePaths.get(1)) == null);
-		assertTrue(manager.getFileTree().getComponent(filePaths.get(2)) == null);
-		assertTrue(manager.getFileTree().getComponent(filePaths.get(3)) == null);
+		assertTrue(manager.getFileTree().getFile(files.get(0).toPath()) == null);
+		assertTrue(manager.getFileTree().getFile(files.get(1).toPath()) == null);
+		assertTrue(manager.getFileTree().getFile(files.get(2).toPath()) == null);
+		assertTrue(manager.getFileTree().getFile(files.get(3).toPath()) == null);
 		
 		sleepMillis(ActionExecutor.ACTION_WAIT_TIME_MS * 5);
 	}

@@ -10,10 +10,10 @@ import org.hive2hive.processframework.exceptions.InvalidProcessStateException;
 import org.peerbox.FileManager;
 import org.peerbox.exceptions.NotImplException;
 import org.peerbox.watchservice.Action;
-import org.peerbox.watchservice.FileComponent;
 import org.peerbox.watchservice.FileEventManager;
 import org.peerbox.watchservice.IFileEventManager;
 import org.peerbox.watchservice.PathUtils;
+import org.peerbox.watchservice.filetree.composite.FileComponent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -153,7 +153,8 @@ public class EstablishedState extends AbstractActionState{
 	public AbstractActionState handleRemoteDelete() {
 		logger.debug("EstablishedState.handleRemoteDelete");
 		IFileEventManager eventManager = action.getEventManager();
-		eventManager.getFileTree().deleteComponent(action.getFilePath().toString());
+//		eventManager.getFileTree().deleteComponent(action.getFilePath().toString());
+		eventManager.getFileTree().deleteFile(action.getFilePath());
 		eventManager.getFileComponentQueue().remove(action.getFile());
 //		action.getFilePath().toFile().delete();
 		try {
@@ -176,8 +177,11 @@ public class EstablishedState extends AbstractActionState{
 	public AbstractActionState handleRemoteMove(Path dstPath) {
 		Path oldPath = action.getFilePath();
 		logger.debug("Modify the tree accordingly. Src: {} Dst: {}", action.getFilePath(), dstPath);
-		FileComponent deleted = action.getEventManager().getFileTree().deleteComponent(action.getFilePath().toString());
-		action.getEventManager().getFileTree().putComponent(dstPath.toString(), action.getFile());
+//		FileComponent deleted = action.getEventManager().getFileTree().deleteComponent(action.getFilePath().toString());
+//		action.getEventManager().getFileTree().putComponent(dstPath.toString(), action.getFile());
+		
+		FileComponent deleted = action.getEventManager().getFileTree().deleteFile(action.getFilePath());
+		action.getEventManager().getFileTree().putFile(action.getFile());
 		
 		Path path = dstPath;
 		logger.debug("Execute REMOTE MOVE: {}", path);

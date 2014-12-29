@@ -31,10 +31,10 @@ public class NativeFolderWatchServiceTest {
 	private static final Logger logger = LoggerFactory.getLogger(NativeFolderWatchServiceTest.class);
 	private FolderWatchService watchService;
 	private FileEventManager eventManager;
+	
 	@Mock
 	private FileManager fileManager;
 	private static Path basePath;
-	
 	
 	private static final int NUM_CHARS_SMALL_FILE = 50*1024;
 	private static final int NUM_CHARS_BIG_FILE = 50*1024*1024;

@@ -7,7 +7,7 @@ import org.hive2hive.core.exceptions.NoSessionException;
 import org.peerbox.FileManager;
 import org.peerbox.exceptions.NotImplException;
 import org.peerbox.watchservice.Action;
-import org.peerbox.watchservice.ConflictHandler;
+import org.peerbox.watchservice.conflicthandling.ConflictHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -6,12 +6,11 @@ import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 
 import org.eclipse.jetty.util.ConcurrentHashSet;
-
 import org.peerbox.selectivesync.ISynchronize;
-import org.peerbox.watchservice.FileComponent;
-import org.peerbox.watchservice.FolderComposite;
 import org.peerbox.watchservice.IFileEventManager;
-
+import org.peerbox.watchservice.filetree.FileTree;
+import org.peerbox.watchservice.filetree.composite.FileComponent;
+import org.peerbox.watchservice.filetree.composite.FolderComposite;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,7 +28,7 @@ public class DummyFileEventManager implements IFileEventManager{
 		synchronizedFiles = SynchronizationTestUtils.generateLocalFiles(userConfig);
 	}
 	@Override
-	public FolderComposite getFileTree() {
+	public FileTree getFileTree() {
 		return null;
 	}
 
@@ -38,30 +37,6 @@ public class DummyFileEventManager implements IFileEventManager{
 		return null;
 	}
 
-	@Override
-	public SetMultimap<String, FileComponent> getDeletedFileComponents() {
-		return null;
-	}
-
-	@Override
-	public FileComponent findDeletedByContent(FileComponent file) {
-		return null;
-	}
-
-	@Override
-	public Map<String, FolderComposite> getDeletedByContentNamesHash() {
-		return null;
-	}
-
-	@Override
-	public ISynchronize getSynchronizer() {
-		return null;
-	}
-	
-	@Override
-    public Set<Path> getSynchronizedFiles(){
-    	return synchronizedFiles;
-    }
 	@Override
 	public void onFileDesynchronized(Path path) {
 		logger.debug("Triggered desynchronization of {}", path);

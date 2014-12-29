@@ -11,12 +11,8 @@ import java.util.List;
 
 import org.junit.Ignore;
 import org.junit.Test;
-import org.junit.Assert;
-import org.mockito.Mockito;
 import org.peerbox.utils.FileTestUtils;
 import org.peerbox.watchservice.ActionExecutor;
-
-import ch.qos.logback.core.joran.spi.ActionException;
 
 import com.google.common.io.Files;
 
