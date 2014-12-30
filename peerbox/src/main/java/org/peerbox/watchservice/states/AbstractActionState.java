@@ -15,6 +15,7 @@ import org.hive2hive.processframework.interfaces.IProcessComponentListener;
 import org.hive2hive.processframework.interfaces.IProcessEventArgs;
 import org.peerbox.FileManager;
 import org.peerbox.exceptions.NotImplException;
+import org.peerbox.h2h.ProcessHandle;
 import org.peerbox.watchservice.Action;
 import org.peerbox.watchservice.IActionEventListener;
 import org.peerbox.watchservice.IFileEventManager;
@@ -35,6 +36,7 @@ public abstract class AbstractActionState {
 	private final static Logger logger = LoggerFactory.getLogger(AbstractActionState.class);
 	protected Action action;
 	protected StateType type = StateType.ABSTRACT;
+	protected ProcessHandle<Void> handle;
 
 	public AbstractActionState(Action action, StateType type) {
 		this.action = action;
@@ -198,6 +200,17 @@ public abstract class AbstractActionState {
 		}
 	}
 	
+
+	protected void notifyActionExecuteFailed() {
+		//action.setIsExecuting(false);
+		Set<IActionEventListener> listener = 
+				new HashSet<IActionEventListener>(action.getEventListener());
+		Iterator<IActionEventListener> it = listener.iterator();
+		while(it.hasNext()) {
+			it.next().onActionExecuteFailed(action, handle);
+		}
+	}
+	
 	protected class FileManagerProcessListener implements IProcessComponentListener {
 		
 		public FileManagerProcessListener() {
@@ -211,7 +224,7 @@ public abstract class AbstractActionState {
 
 		@Override
 		public void onRollbacking(IProcessEventArgs args) {
-			
+			System.out.println("Rollback started!");
 		}
 
 		@Override
@@ -226,8 +239,10 @@ public abstract class AbstractActionState {
 
 		@Override
 		public void onExecutionFailed(IProcessEventArgs args) {
-			
+			System.out.println("Execution failed!");
+			notifyActionExecuteFailed();
 		}
+
 
 		@Override
 		public void onRollbackSucceeded(IProcessEventArgs args) {

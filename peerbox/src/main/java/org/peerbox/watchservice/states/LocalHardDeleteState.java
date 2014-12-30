@@ -129,7 +129,7 @@ public class LocalHardDeleteState extends AbstractActionState{
 	public ExecutionHandle execute(FileManager fileManager) throws InvalidProcessStateException, ProcessExecutionException, NoSessionException, NoPeerConnectionException {
 		Path path = action.getFilePath();
 		logger.debug("Execute LOCAL DELETE: {}", path);
-		ProcessHandle<Void> handle = fileManager.delete(path.toFile());
+		handle = fileManager.delete(path.toFile());
 		if (handle != null && handle.getProcess() != null) {
 			handle.getProcess().attachListener(new FileManagerProcessListener());
 			handle.executeAsync();

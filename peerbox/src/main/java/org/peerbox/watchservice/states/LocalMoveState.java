@@ -93,7 +93,7 @@ public class LocalMoveState extends AbstractActionState {
 	@Override
 	public ExecutionHandle execute(FileManager fileManager) throws NoSessionException, NoPeerConnectionException, ProcessExecutionException, InvalidProcessStateException {
 	
-		ProcessHandle<Void> handle = fileManager.move(sourcePath.toFile(), action.getFilePath().toFile());
+		handle = fileManager.move(sourcePath.toFile(), action.getFilePath().toFile());
 		if(handle != null){
 			handle.getProcess().attachListener(new FileManagerProcessListener());
 			handle.executeAsync();

@@ -119,9 +119,9 @@ public class ActionExecutor implements Runnable, IActionEventListener {
 				} else {
 					if(!isExecuteSlotFree()){
 						logger.debug("All slots used!");
-//						for(int i = 0; i < asyncHandles.size(); i++){
-//							logger.trace("{}: {} {}", i, asyncHandles.get(i).getAction().getFilePath(), executingActions.get(i).getCurrentState().getClass());
-//						}
+						for(int i = 0; i < runningJobs.size(); i++){
+							logger.trace("{}: {} {}", i, runningJobs.get(i).getFilePath(), runningJobs.get(i).getCurrentState().getClass());
+						}
 					}
 					fileEventManager.getFileComponentQueue().put(next);
 					long timeToWait = calculateWaitTime(next);
@@ -202,6 +202,7 @@ public class ActionExecutor implements Runnable, IActionEventListener {
 
 	@Override
 	public void onActionExecuteSucceeded(IAction action) {
+		logger.debug("Action successful: {} {}.", action.getFilePath(), action.getCurrentState().getClass().toString());
 //		for(int i = 0; i < executingActions.size(); i++){
 //			IAction a = executingActions.get(i);
 //			logger.trace("{}     Action {} with ID {} and State {}", i, a.getFilePath(), a.getFilePath().hashCode(), a.getCurrentState().getClass());
@@ -234,7 +235,7 @@ public class ActionExecutor implements Runnable, IActionEventListener {
 			
 		}
 
-		logger.debug("Action successful: {} {} {}", action.getFilePath(), action.hashCode(), action.getCurrentState().getClass().toString());
+		//logger.debug("Action successful: {} {} {}", action.getFilePath(), action.hashCode(), action.getCurrentState().getClass().toString());
 		
 		action.getLock().unlock();		
 	}
@@ -242,8 +243,9 @@ public class ActionExecutor implements Runnable, IActionEventListener {
 
 	@Override
 	public void onActionExecuteFailed(IAction action, ProcessHandle<Void> handle) {
-		logger.warn("Action failed: {} {}.", action.getFilePath(), action.getCurrentState().getClass().toString());
+		logger.debug("Action failed: {} {}.", action.getFilePath(), action.getCurrentState().getClass().toString());
 		try {
+			boolean hasChanged = runningJobs.remove(action);
 			asyncHandles.put(new ExecutionHandle(action, handle));
 		} catch (InterruptedException e) {
 			logger.warn("Could not put failed item into queue.");

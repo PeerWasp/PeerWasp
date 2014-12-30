@@ -47,7 +47,6 @@ public class RecoverState extends AbstractActionState{
 		Path path = action.getFilePath();
 		logger.debug("Execute RECOVER: {}", path);
 		File currentFile = path.toFile();
-		ProcessHandle<Void> handle;
 		try {
 			handle = fileManager.recover(currentFile, new PeerboxVersionSelector(fVersionToRecover));
 			if(handle != null && handle.getProcess() != null){

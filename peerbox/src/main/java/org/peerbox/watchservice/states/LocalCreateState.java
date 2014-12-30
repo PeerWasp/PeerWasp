@@ -114,7 +114,7 @@ public class LocalCreateState extends AbstractActionState {
 			ProcessExecutionException, NoSessionException, NoPeerConnectionException {
 		Path path = action.getFile().getPath();
 		logger.debug("Execute LOCAL CREATE: {}", path);
-		ProcessHandle<Void> handle = fileManager.add(path.toFile());
+		handle = fileManager.add(path.toFile());
 		if (handle != null && handle.getProcess() != null) {
 			handle.getProcess().attachListener(new FileManagerProcessListener());
 			handle.executeAsync();

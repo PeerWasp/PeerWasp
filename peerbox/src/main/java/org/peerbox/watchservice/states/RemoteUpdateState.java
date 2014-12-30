@@ -145,7 +145,7 @@ public class RemoteUpdateState extends AbstractActionState {
 //			e1.printStackTrace();
 //		}
 
-		ProcessHandle<Void> handle = fileManager.download(path.toFile());
+		handle = fileManager.download(path.toFile());
 		if (handle != null && handle.getProcess() != null) {
 			handle.getProcess().attachListener(new FileManagerProcessListener());
 			handle.executeAsync();

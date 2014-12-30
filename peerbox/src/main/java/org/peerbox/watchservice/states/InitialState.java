@@ -106,6 +106,7 @@ public class InitialState extends AbstractActionState {
 			}
 		}
 		logger.trace("Before: File {} content {}", action.getFilePath(), action.getFile().getContentHash());
+		eventManager.getFileTree().putFile(action.getFile());
 		action.getFile().bubbleContentHashUpdate();//updateContentHash();
 		logger.trace("After: File {} content {}", action.getFilePath(), action.getFile().getContentHash());
 
@@ -119,13 +120,13 @@ public class InitialState extends AbstractActionState {
 		logger.debug("File {} has hash {}", action.getFilePath(), action.getFile().getContentHash());
 		if(moveSource == null){
 //			eventManager.getFileTree().putComponent(action.getFilePath().toString(), action.getFile());
-			eventManager.getFileTree().putFile(action.getFile());
+//			eventManager.getFileTree().putFile(action.getFile());
 			logger.trace("Handle regular create of {}, as no possible move source has been found.", action.getFilePath());
 			updateTimeAndQueue();
 			return changeStateOnLocalCreate();
 		} else {
 			logger.trace("Handle move of {}, from {}.", action.getFilePath(), moveSource.getPath());
-
+			eventManager.getFileTree().deleteFile(action.getFilePath());
 			moveSource.getAction().handleLocalMoveEvent(action.getFilePath());
 			eventManager.getFileComponentQueue().remove(action.getFile());
 			return changeStateOnLocalMove(action.getFilePath());
