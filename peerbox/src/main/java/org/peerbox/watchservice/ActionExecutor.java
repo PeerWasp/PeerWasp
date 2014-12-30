@@ -3,6 +3,7 @@ package org.peerbox.watchservice;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+import java.util.Vector;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
@@ -47,6 +48,7 @@ public class ActionExecutor implements Runnable, IActionEventListener {
 	private boolean useNotifications;
 	
 	private BlockingQueue<ExecutionHandle> asyncHandles; 
+	private Vector<IAction> runningJobs;
 	private Thread asyncHandlesThread;
 
 	public ActionExecutor(FileEventManager eventManager) {
@@ -58,11 +60,16 @@ public class ActionExecutor implements Runnable, IActionEventListener {
 		useNotifications = waitForCompletion;
 		
 		asyncHandles = new LinkedBlockingQueue<ExecutionHandle>();
+		runningJobs = new Vector<IAction>();
 		asyncHandlesThread = new Thread(new AsyncActionHandler(), "AsyncActionHandlerThread");
 	}
 	
-	public BlockingQueue<ExecutionHandle> getExecutingActions(){
+	public BlockingQueue<ExecutionHandle> getFailedJobs(){
 		return asyncHandles;
+	}
+	
+	public Vector<IAction> getRunningJobs(){
+		return runningJobs;
 	}
 	
 
@@ -101,7 +108,10 @@ public class ActionExecutor implements Runnable, IActionEventListener {
 					ExecutionHandle ehandle = next.getAction().execute(fileEventManager.getFileManager());
 					if(useNotifications){
 						if(ehandle != null && ehandle.getProcessHandle() != null) {
-							asyncHandles.put(ehandle);
+							logger.debug("Put into async handles!");
+//							asyncHandles.put(ehandle);
+							runningJobs.add(next.getAction());
+							
 						}
 					} else {
 						onActionExecuteSucceeded(next.getAction());
@@ -139,7 +149,7 @@ public class ActionExecutor implements Runnable, IActionEventListener {
 	}
 
 	private boolean isExecuteSlotFree() {
-		return asyncHandles.size() < NUMBER_OF_EXECUTE_SLOTS;
+		return runningJobs.size() < NUMBER_OF_EXECUTE_SLOTS;
 	}
 
 
@@ -196,7 +206,14 @@ public class ActionExecutor implements Runnable, IActionEventListener {
 //			IAction a = executingActions.get(i);
 //			logger.trace("{}     Action {} with ID {} and State {}", i, a.getFilePath(), a.getFilePath().hashCode(), a.getCurrentState().getClass());
 //		}
-		logger.debug("Action {} with state {} and ID {} removed", action.getFilePath(), action.getCurrentState().getClass(), action.hashCode());
+		boolean hasChanged = runningJobs.remove(action);
+		if(!hasChanged){
+			logger.error("The action was successful, but the running jobs did not"
+					+ "change on its remove: {}", action.getFilePath());
+		} else {
+			logger.debug("Action {} with state {} and ID {} removed", action.getFilePath(), action.getCurrentState().getClass(), action.hashCode());
+		}
+		
 		boolean changedWhileExecuted = false;
 		
 		logger.trace("Wait for lock of action {} at {}", action.getFilePath(), System.currentTimeMillis());

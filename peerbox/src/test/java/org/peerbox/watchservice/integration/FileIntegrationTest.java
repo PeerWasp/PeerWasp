@@ -387,7 +387,7 @@ public abstract class FileIntegrationTest {
 	
 	protected void assertQueuesAreEmpty(){
 		try {
-			Thread.sleep(10000);
+			Thread.sleep(20000);
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -396,7 +396,7 @@ public abstract class FileIntegrationTest {
 		List<ClientNode> clients = network.getClients();
 		for(ClientNode client : clients){
 			Vector<FileComponent> queue = new Vector<FileComponent>(client.getFileEventManager().getFileComponentQueue());
-			Vector<ExecutionHandle> execs = new Vector<ExecutionHandle>(client.getFileEventManager().getActionExecutor().getExecutingActions());
+			Vector<ExecutionHandle> execs = new Vector<ExecutionHandle>(client.getFileEventManager().getActionExecutor().getFailedJobs());
 			if(queue.size() != 0){
 				for(int i = 0; i < queue.size(); i++){
 					logger.debug("Pending in queue: {}. {}:{}", i, queue.get(i).getPath(), queue.get(i).getAction().getCurrentState());
@@ -408,7 +408,7 @@ public abstract class FileIntegrationTest {
 				}
 			}
 			assertTrue(client.getFileEventManager().getFileComponentQueue().size() == 0);
-			assertTrue(client.getFileEventManager().getActionExecutor().getExecutingActions().size() == 0);
+			assertTrue(client.getFileEventManager().getActionExecutor().getFailedJobs().size() == 0);
 		}
 	}
 

@@ -219,12 +219,8 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 		Path dstPath = fileEvent.getDstFile().toPath();
 		logger.debug("Handle move from {} to {}", srcPath, dstPath);
 		
-//		FileComponent source = getOrCreateFileComponent(srcPath);
-		FileComponent source = fileTree.getFile(srcPath);
-		if(source == null){
-			logger.error("Source of move operation not found: {}", srcPath);
-			return;
-		}
+		FileComponent source = fileTree.getOrCreateFileComponent(srcPath, this);
+
 		source.getAction().handleRemoteMoveEvent(dstPath);
 	}
 	
