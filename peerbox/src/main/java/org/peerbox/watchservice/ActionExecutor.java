@@ -21,7 +21,6 @@ import org.peerbox.h2h.ProcessHandle;
 import org.peerbox.watchservice.filetree.composite.FileComponent;
 import org.peerbox.watchservice.filetree.composite.FolderComposite;
 import org.peerbox.watchservice.states.ExecutionHandle;
-import org.peerbox.watchservice.states.LocalDeleteState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -98,9 +97,9 @@ public class ActionExecutor implements Runnable, IActionEventListener {
 				}
 				if (isTimerReady(next.getAction()) && isExecuteSlotFree()) {
 
-					if (next.getAction().getCurrentState() instanceof LocalDeleteState) {
+//					if (next.getAction().getCurrentState() instanceof LocalDeleteState) {
 						removeFromDeleted(next);
-					}
+//					}
 					
 					next.getAction().addEventListener(this);
 					

@@ -43,7 +43,7 @@ public class LocalUpdateState extends AbstractActionState {
 	@Override
 	public AbstractActionState changeStateOnLocalDelete() {
 		logger.debug("Local Delete Event: Local Update -> Local Delete ({})", action.getFilePath());
-		return new LocalDeleteState(action);
+		return new InitialState(action);
 	}
 
 	@Override
@@ -80,24 +80,24 @@ public class LocalUpdateState extends AbstractActionState {
 	public AbstractActionState changeStateOnRemoteDelete() {
 		logger.debug("Remote Delete Event: Local Update -> Conflict ({})", action.getFilePath());
 
-		Path fileInConflict = action.getFilePath();
-		Path renamedFile = ConflictHandler.rename(fileInConflict);
-		try {
-			Files.move(fileInConflict, renamedFile);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		fileInConflict = renamedFile;
-		logger.debug("Conflict handling complete.");
+//		Path fileInConflict = action.getFilePath();
+//		Path renamedFile = ConflictHandler.rename(fileInConflict);
+//		try {
+//			Files.move(fileInConflict, renamedFile);
+//		} catch (IOException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+//		fileInConflict = renamedFile;
+//		logger.debug("Conflict handling complete.");
 
-		return new ConflictState(action);
+		return new LocalCreateState(action);
 	}
 
 	@Override
 	public AbstractActionState changeStateOnRemoteMove(Path oldFilePath) {
-		logger.debug("Remote Move Event: Local Update -> Conflict ({})", action.getFilePath());
-		return new ConflictState(action);
+		logger.debug("Remote Move Event: Local Update -> Local Update ({})", action.getFilePath());
+		return this;
 	}
 
 	@Override
@@ -121,7 +121,7 @@ public class LocalUpdateState extends AbstractActionState {
 
 	@Override
 	public AbstractActionState handleLocalCreate() {
-		throw new NotImplException("LocalUpdateState.handleLocalCreate");
+		return changeStateOnLocalCreate();
 	}
 
 //	@Override
@@ -146,33 +146,31 @@ public class LocalUpdateState extends AbstractActionState {
 
 	@Override
 	public AbstractActionState handleRemoteCreate() {
-		throw new NotImplException("LocalUpdateState.handleRemoteCreate");
+		return changeStateOnRemoteCreate();
 	}
 
 	@Override
 	public AbstractActionState handleRemoteDelete() {
-		throw new NotImplException("LocalUpdateState.handleRemoteDelete");
+		return changeStateOnRemoteDelete();
 	}
 
 	@Override
 	public AbstractActionState handleRemoteUpdate() {
-		throw new NotImplException("LocalUpdateState.handleRemoteUpdate");
+		return changeStateOnRemoteUpdate();
 	}
 
 	@Override
 	public AbstractActionState handleRemoteMove(Path path) {
-		throw new NotImplException("LocalUpdateState.handleRemoteMove");
+		return changeStateOnRemoteMove(path);
 	}
 
 	@Override
 	public AbstractActionState changeStateOnLocalRecover(int version) {
-		// TODO Auto-generated method stub
-		return null;
+		return this;
 	}
 
 	@Override
 	public AbstractActionState handleLocalRecover(int version) {
-		// TODO Auto-generated method stub
-		throw new NotImplException("LocalUpdateState.handleLocalRecover");
+		return changeStateOnLocalRecover(version);
 	}
 }

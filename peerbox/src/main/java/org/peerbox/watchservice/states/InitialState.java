@@ -35,18 +35,12 @@ public class InitialState extends AbstractActionState {
 		return new LocalCreateState(action);
 	}
 
-	@Override
-	public AbstractActionState changeStateOnLocalUpdate() {
-		logStateTransission(getStateType(), EventType.LOCAL_UPDATE, StateType.INITIAL);
-		return new InitialState(action);
-	}
-
-	@Override
-	public AbstractActionState changeStateOnLocalDelete() {
-		logStateTransission(getStateType(), EventType.LOCAL_DELETE, StateType.LOCAL_DELETE);
-//		return new LocalDeleteState(action);
-		return this;
-	}
+//	@Override
+//	public AbstractActionState changeStateOnLocalDelete() {
+//		logStateTransission(getStateType(), EventType.LOCAL_DELETE, StateType.LOCAL_DELETE);
+////		return new LocalDeleteState(action);
+//		return this;
+//	}
 
 	@Override
 	public AbstractActionState changeStateOnLocalMove(Path oldPath) {
@@ -57,7 +51,8 @@ public class InitialState extends AbstractActionState {
 	@Override
 	public AbstractActionState changeStateOnLocalRecover(int versionToRecover) {
 		//logStateTransission(getStateType(), EventType.LOCAL_RECOVER, StateType.LOCAL_RECOVER);
-		throw new NotImplException("InitialState.localRecover");// new NRecoverState(action, versionToRecover);
+//		throw new NotImplException("InitialState.localRecover");
+		return new RecoverState(action, versionToRecover);
 	}
 
 	@Override
@@ -142,12 +137,6 @@ public class InitialState extends AbstractActionState {
 	}
 
 	@Override
-	public AbstractActionState handleLocalUpdate() {
-		logger.debug("Local Update is ignored for {}", action.getFilePath());
-		return changeStateOnLocalUpdate();
-	}
-
-	@Override
 	public AbstractActionState handleLocalMove(Path oldPath) {
 		throw new NotImplException("InitialState.handleLocalMove");
 	}
@@ -192,5 +181,9 @@ public class InitialState extends AbstractActionState {
 	public AbstractActionState handleLocalRecover(int version) {
 		// TODO Auto-generated method stub
 		throw new NotImplException("InitialState.handleLocalRecover");
+	}
+	
+	public AbstractActionState getDefaultState(){
+		return this;
 	}
 }

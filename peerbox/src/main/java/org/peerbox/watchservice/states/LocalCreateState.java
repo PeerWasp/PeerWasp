@@ -40,11 +40,11 @@ public class LocalCreateState extends AbstractActionState {
 		return this;
 	}
 
-	@Override
-	public AbstractActionState changeStateOnLocalDelete() {
-		logger.debug("Local Delete Event: Local Create -> Initial ({})", action.getFile().getPath());
-		return new InitialState(action);
-	}
+//	@Override
+//	public AbstractActionState changeStateOnLocalDelete() {
+//		logger.debug("Local Delete Event: Local Create -> Initial ({})", action.getFile().getPath());
+//		return new InitialState(action);
+//	}
 
 	@Override
 	public AbstractActionState changeStateOnLocalUpdate() {
@@ -88,13 +88,14 @@ public class LocalCreateState extends AbstractActionState {
 	public AbstractActionState changeStateOnRemoteDelete() {
 		logger.debug("Remote Delete Event: Local Create -> Conflict ({})", action.getFile()
 				.getPath());
-		return this;//new ConflictState(action);
+		return this;
 	}
 
 	@Override
 	public AbstractActionState changeStateOnRemoteMove(Path oldFilePath) {
 		logger.debug("Remote Move Event: Local Create -> Conflict ({})", action.getFile().getPath());
-		return new ConflictState(action);
+//		return new ConflictState(action);
+		throw new IllegalStateException("Remote Move Event: not defined");
 	}
 
 	/**
@@ -135,40 +136,34 @@ public class LocalCreateState extends AbstractActionState {
 		return changeStateOnLocalCreate();
 	}
 
-	@Override
-	public AbstractActionState handleLocalDelete() {
-		IFileEventManager eventManager = action.getEventManager();
-		logger.debug("DELETE STUFF {}", action.getFile().getPath());
-//		eventManager.getFileTree().deleteComponent(action.getFile().getPath().toString());
-		eventManager.getFileTree().deleteFile(action.getFilePath());
-		action.getEventManager().getFileComponentQueue().remove(action.getFile());
-		return changeStateOnLocalDelete();
-	}
-
-	@Override
-	public AbstractActionState handleLocalUpdate() {
-		action.getFile().bubbleContentHashUpdate();
-		return changeStateOnLocalUpdate();
-	}
+//	@Override
+//	public AbstractActionState handleLocalDelete() {
+//		IFileEventManager eventManager = action.getEventManager();
+//		logger.debug("DELETE STUFF {}", action.getFile().getPath());
+////		eventManager.getFileTree().deleteComponent(action.getFile().getPath().toString());
+//		eventManager.getFileTree().deleteFile(action.getFilePath());
+//		action.getEventManager().getFileComponentQueue().remove(action.getFile());
+//		return changeStateOnLocalDelete();
+//	}
 
 	@Override
 	public AbstractActionState handleLocalMove(Path oldPath) {
-		throw new NotImplException("LocalCreateState.handleLocalMove");
+		return changeStateOnLocalMove(oldPath);
 	}
 
 	@Override
 	public AbstractActionState handleRemoteCreate() {
-		throw new NotImplException("LocalCreateState.handleRemoteCreate");
+		return changeStateOnRemoteCreate();
 	}
 
 	@Override
 	public AbstractActionState handleRemoteDelete() {
-		throw new NotImplException("LocalCreateState.handleRemoteDelete");
+		return changeStateOnRemoteDelete();
 	}
 
 	@Override
 	public AbstractActionState handleRemoteUpdate() {
-		throw new NotImplException("LocalCreateState.handleRemoteUpdate");
+		return changeStateOnRemoteUpdate();
 	}
 
 	@Override
@@ -179,12 +174,21 @@ public class LocalCreateState extends AbstractActionState {
 	@Override
 	public AbstractActionState changeStateOnLocalRecover(int version) {
 		// TODO Auto-generated method stub
-		return null;
+		return this;
 	}
 
 	@Override
 	public AbstractActionState handleLocalRecover(int version) {
 		// TODO Auto-generated method stub
-		throw new NotImplException("LocalCreateState.handleLocalRecover");
+		return changeStateOnLocalRecover(version);
+	}
+	
+	@Override
+	public AbstractActionState handleLocalHardDelete(){
+		return changeStateOnLocalHardDelete();
+	}
+	
+	public AbstractActionState changeStateOnLocalHardDelete(){
+		return new InitialState(action);
 	}
 }

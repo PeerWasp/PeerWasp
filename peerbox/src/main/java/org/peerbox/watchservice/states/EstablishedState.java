@@ -39,24 +39,18 @@ public class EstablishedState extends AbstractActionState{
 		return this;
 	}
 
-	@Override
-	public AbstractActionState changeStateOnLocalDelete() {
-		logStateTransission(getStateType(), EventType.LOCAL_CREATE, StateType.LOCAL_DELETE);
-		return new LocalDeleteState(action);
-	}
-
-	@Override
-	public AbstractActionState changeStateOnLocalUpdate() {
-		// TODO Auto-generated method stub
-		logStateTransission(getStateType(), EventType.LOCAL_CREATE, StateType.LOCAL_UPDATE);
-		return new LocalUpdateState(action);
-	}
+//	@Override
+//	public AbstractActionState changeStateOnLocalDelete() {
+//		logStateTransission(getStateType(), EventType.LOCAL_CREATE, StateType.LOCAL_DELETE);
+//		return new LocalDeleteState(action);
+//	}
 
 	@Override
 	public AbstractActionState changeStateOnLocalMove(Path oldFilePath) {
 		// TODO Auto-generated method stub
 		logStateTransission(getStateType(), EventType.LOCAL_CREATE, StateType.LOCAL_MOVE);
-		return new LocalMoveState(action, oldFilePath);
+		throw new IllegalStateException("Local Move Event: not defined");
+//		return new LocalMoveState(action, oldFilePath);
 	}
 
 	@Override
@@ -80,8 +74,8 @@ public class EstablishedState extends AbstractActionState{
 
 	@Override
 	public AbstractActionState changeStateOnRemoteMove(Path oldFilePath) {
-		logStateTransission(getStateType(), EventType.LOCAL_CREATE, StateType.REMOTE_MOVE);
-		return new RemoteMoveState(action, oldFilePath);
+		logStateTransission(getStateType(), EventType.REMOTE_MOVE, StateType.ESTABLISHED);
+		return this; //new RemoteMoveState(action, oldFilePath);
 	}
 
 	@Override
@@ -113,21 +107,6 @@ public class EstablishedState extends AbstractActionState{
 //	}
 
 	@Override
-	public AbstractActionState handleLocalUpdate() {
-		// TODO Auto-generated method stub
-//		String newHash = PathUtils.computeFileContentHash(action.getFile().getPath());
-//		logger.debug("File {} - Old hash: {} New Hash {}", action.getFilePath(), action.getFile().getContentHash(), newHash);
-//		if(action.getFile().getContentHash().equals(newHash)){
-//			logger.info("The content hash has not changed despite the onLocalFileModified event. No actions taken & returned.");
-//			return this;
-//		}
-//		action.getFile().updateContentHash(newHash);
-
-		updateTimeAndQueue();
-		return changeStateOnLocalUpdate();
-	}
-
-	@Override
 	public AbstractActionState handleLocalMove(Path newPath) {
 		// TODO Auto-generated method stub
 //		throw new NotImplException("EstablishedState.handleLocalMove");
@@ -149,22 +128,7 @@ public class EstablishedState extends AbstractActionState{
 		throw new NotImplException("EstablishedState.handleRemoteCreate");
 	}
 
-	@Override
-	public AbstractActionState handleRemoteDelete() {
-		logger.debug("EstablishedState.handleRemoteDelete");
-		IFileEventManager eventManager = action.getEventManager();
-//		eventManager.getFileTree().deleteComponent(action.getFilePath().toString());
-		eventManager.getFileTree().deleteFile(action.getFilePath());
-		eventManager.getFileComponentQueue().remove(action.getFile());
-//		action.getFilePath().toFile().delete();
-		try {
-			java.nio.file.Files.delete(action.getFilePath());
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return changeStateOnRemoteDelete();
-	}
+	
 
 	@Override
 	public AbstractActionState handleRemoteUpdate() {

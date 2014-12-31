@@ -27,7 +27,6 @@ import org.peerbox.utils.FileTestUtils;
 import org.peerbox.watchservice.filetree.composite.FileComponent;
 import org.peerbox.watchservice.states.EstablishedState;
 import org.peerbox.watchservice.states.LocalCreateState;
-import org.peerbox.watchservice.states.LocalDeleteState;
 import org.peerbox.watchservice.states.InitialState;
 import org.peerbox.watchservice.states.LocalHardDeleteState;
 import org.peerbox.watchservice.states.LocalUpdateState;
@@ -156,7 +155,7 @@ public class FileEventManagerTest {
 		
 		manager.onLocalFileDeleted(Paths.get(filePaths.get(7)));
 		assertTrue(actionsToCheck.size() == 1);
-		assertTrue(actionsToCheck.peek().getAction().getCurrentState() instanceof LocalDeleteState);
+		assertTrue(actionsToCheck.peek().getAction().getCurrentState() instanceof InitialState);
 		
 		//initiate re-creation, ensure that all happens in time
 		manager.onLocalFileCreated(Paths.get(filePaths.get(8)));

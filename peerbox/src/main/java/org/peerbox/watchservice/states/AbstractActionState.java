@@ -1,5 +1,6 @@
 package org.peerbox.watchservice.states;
 
+import java.io.IOException;
 import java.nio.file.Path;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -75,11 +76,11 @@ public abstract class AbstractActionState {
 	}
 
 	public AbstractActionState changeStateOnLocalDelete(){
-		throw new NotImplException(action.getCurrentState().getStateType().getString() + ".changeStateOnLocalDelete");
+		return new InitialState(action);
 	}
 
 	public AbstractActionState changeStateOnLocalUpdate(){
-		throw new NotImplException(action.getCurrentState().getStateType().getString() + ".changeStateOnLocalUpdate");
+		return new LocalUpdateState(action);
 	}
 
 	public AbstractActionState changeStateOnLocalMove(Path oldPath){
@@ -102,7 +103,7 @@ public abstract class AbstractActionState {
 	}
 	
 	public AbstractActionState changeStateOnRemoteCreate(){
-		throw new NotImplException(action.getCurrentState().getStateType().getString() + ".changeStateOnRemoteCreate");
+		return new RemoteUpdateState(action);
 	}
 
 	public AbstractActionState changeStateOnRemoteUpdate(){
@@ -132,27 +133,29 @@ public abstract class AbstractActionState {
 		if(action.getFile().isFile()){
 			String oldHash = action.getFile().getContentHash();
 //			action.getFile().updateContentHash();
-			logger.debug("File: {}Previous content hash: {} new content hash: ", action.getFilePath(), oldHash, action.getFile().getContentHash());
+//			logger.debug("File: {}Previous content hash: {} new content hash: ", action.getFilePath(), oldHash, action.getFile().getContentHash());
 			SetMultimap<String, FileComponent> deletedFiles = action.getEventManager().getFileTree().getDeletedByContentHash();
 			deletedFiles.put(action.getFile().getContentHash(), action.getFile());
-			logger.debug("Put deleted file {} with hash {} to SetMultimap<String, FileComponent>", action.getFilePath(), action.getFile().getContentHash());
+//			logger.debug("Put deleted file {} with hash {} to SetMultimap<String, FileComponent>", action.getFilePath(), action.getFile().getContentHash());
 		} else {
 
 			Map<String, FolderComposite> deletedFolders = eventManager.getFileTree().getDeletedByContentNamesHash();
-			logger.debug("Added folder {} with structure hash {} to deleted folders.", action.getFilePath(), action.getFile().getStructureHash());
+//			logger.debug("Added folder {} with structure hash {} to deleted folders.", action.getFilePath(), action.getFile().getStructureHash());
 			deletedFolders.put(action.getFile().getStructureHash(), (FolderComposite)action.getFile());
 		}
 //		FileComponent comp = eventManager.getFileTree().deleteComponent(action.getFile().getPath().toString());
 //		logger.debug("After delete hash of {} is {}", comp.getPath(), comp.getStructureHash());
 
 		//		eventManager.getFileComponentQueue().add(action.getFile());
-		updateTimeAndQueue();
+//		updateTimeAndQueue();
 		return changeStateOnLocalDelete();
 	}
 	
-	public AbstractActionState handleLocalUpdate(){
+	public AbstractActionState handleLocalUpdate() {
+		updateTimeAndQueue();
 		return changeStateOnLocalUpdate();
 	}
+
 	
 	public AbstractActionState handleLocalMove(Path oldFilePath){
 		return changeStateOnLocalMove(oldFilePath);
@@ -170,7 +173,19 @@ public abstract class AbstractActionState {
 		return changeStateOnRemoteCreate();
 	}
 	
-	public AbstractActionState handleRemoteDelete(){
+	public AbstractActionState handleRemoteDelete() {
+		logger.debug("EstablishedState.handleRemoteDelete");
+		IFileEventManager eventManager = action.getEventManager();
+//		eventManager.getFileTree().deleteComponent(action.getFilePath().toString());
+		eventManager.getFileTree().deleteFile(action.getFilePath());
+		eventManager.getFileComponentQueue().remove(action.getFile());
+//		action.getFilePath().toFile().delete();
+		try {
+			java.nio.file.Files.delete(action.getFilePath());
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		return changeStateOnRemoteDelete();
 	}
 	

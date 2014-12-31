@@ -32,14 +32,14 @@ public class RemoteUpdateState extends AbstractActionState {
 	public AbstractActionState changeStateOnLocalCreate() {
 		logger.debug("Local Create Event in RemoteUpdateState!  ({})", action.getFilePath());
 		logStateTransission(getStateType(), EventType.LOCAL_CREATE, StateType.REMOTE_UPDATE);
-		return this;//new EstablishedState(action);
+		return new LocalUpdateState(action);//new EstablishedState(action);
 		//TODO: maybe we should return 'this.' as soon as the update is successful, transission into ESTABLISHED happens!
 	}
 
 	@Override
 	public AbstractActionState changeStateOnLocalUpdate() {
 		logStateTransission(getStateType(), EventType.LOCAL_UPDATE, StateType.REMOTE_UPDATE);
-		return this;
+		return new LocalUpdateState(action);
 	}
 
 	@Override
@@ -87,7 +87,7 @@ public class RemoteUpdateState extends AbstractActionState {
 
 	@Override
 	public AbstractActionState changeStateOnRemoteCreate() {
-		return new ConflictState(action);
+		return this;
 	}
 
 	@Override
@@ -113,7 +113,7 @@ public class RemoteUpdateState extends AbstractActionState {
 
 	@Override
 	public AbstractActionState handleRemoteCreate() {
-		throw new NotImplException("RemoteUpdateState.handleRemoteCreate");
+		return changeStateOnRemoteCreate();
 	}
 
 	@Override
@@ -123,7 +123,7 @@ public class RemoteUpdateState extends AbstractActionState {
 
 	@Override
 	public AbstractActionState handleRemoteUpdate() {
-		throw new NotImplException("RemoteUpdateState.handleRemoteUpdate");
+		return changeStateOnRemoteUpdate();
 	}
 
 	@Override

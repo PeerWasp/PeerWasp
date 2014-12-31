@@ -198,7 +198,12 @@ public class Action implements IAction{
 			updateTimestamp();
 			currentState = currentState.handleLocalHardDelete();
 			nextState = currentState.getDefaultState();
-
+			try {
+				Files.delete(getFilePath());
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 		releaseLockOnThis();
 		
