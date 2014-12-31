@@ -1,5 +1,6 @@
 package org.peerbox.watchservice.states;
 
+import java.io.File;
 import java.nio.file.Path;
 import java.util.Map;
 
@@ -43,16 +44,16 @@ public class InitialState extends AbstractActionState {
 //	}
 
 	@Override
-	public AbstractActionState changeStateOnLocalMove(Path oldPath) {
+	public AbstractActionState changeStateOnLocalMove(Path destination) {
 		logStateTransission(getStateType(), EventType.LOCAL_MOVE, StateType.INITIAL);
-		return this;//new LocalMoveState(action, oldPath);
+		return new LocalMoveState(action, destination);
 	}
 	
 	@Override
-	public AbstractActionState changeStateOnLocalRecover(int versionToRecover) {
+	public AbstractActionState changeStateOnLocalRecover(File currentFile, int versionToRecover) {
 		//logStateTransission(getStateType(), EventType.LOCAL_RECOVER, StateType.LOCAL_RECOVER);
 //		throw new NotImplException("InitialState.localRecover");
-		return new RecoverState(action, versionToRecover);
+		return new RecoverState(action, currentFile, versionToRecover);
 	}
 
 	@Override
@@ -138,7 +139,9 @@ public class InitialState extends AbstractActionState {
 
 	@Override
 	public AbstractActionState handleLocalMove(Path oldPath) {
-		throw new NotImplException("InitialState.handleLocalMove");
+		updateTimeAndQueue();
+		return changeStateOnLocalMove(oldPath);
+//		throw new NotImplException("InitialState.handleLocalMove");
 	}
 
 	@Override
@@ -178,9 +181,10 @@ public class InitialState extends AbstractActionState {
 	}
 
 	@Override
-	public AbstractActionState handleLocalRecover(int version) {
+	public AbstractActionState handleLocalRecover(File currentFile, int version) {
 		// TODO Auto-generated method stub
-		throw new NotImplException("InitialState.handleLocalRecover");
+		updateTimeAndQueue();
+		return new RecoverState(action, currentFile, version);
 	}
 	
 	public AbstractActionState getDefaultState(){

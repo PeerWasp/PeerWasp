@@ -139,7 +139,8 @@ public class EstablishedState extends AbstractActionState{
 
 	@Override
 	public AbstractActionState handleRemoteMove(Path dstPath) {
-		Path oldPath = action.getFilePath();
+		action.getEventManager().getFileComponentQueue().remove(action.getFile())
+;		Path oldPath = action.getFilePath();
 		logger.debug("Modify the tree accordingly. Src: {} Dst: {}", action.getFilePath(), dstPath);
 //		FileComponent deleted = action.getEventManager().getFileTree().deleteComponent(action.getFilePath().toString());
 //		action.getEventManager().getFileTree().putComponent(dstPath.toString(), action.getFile());
@@ -168,19 +169,6 @@ public class EstablishedState extends AbstractActionState{
 		
 		//updateTimeAndQueue();
 		return changeStateOnRemoteMove(oldPath);
-	}
-
-	@Override
-	public AbstractActionState changeStateOnLocalRecover(int version) {
-		// TODO Auto-generated method stub
-		return new RecoverState(action, version);
-	}
-
-	@Override
-	public AbstractActionState handleLocalRecover(int version) {
-		// TODO Auto-generated method stub
-		updateTimeAndQueue();
-		return changeStateOnLocalRecover(version);
 	}
 
 }

@@ -139,16 +139,4 @@ public class LocalHardDeleteState extends AbstractActionState{
 		
 		return new ExecutionHandle(action, handle);
 	}
-
-	@Override
-	public AbstractActionState changeStateOnLocalRecover(int version) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public AbstractActionState handleLocalRecover(int version) {
-		// TODO Auto-generated method stub
-		throw new NotImplException("LocalHardDeleteState.handleLocalRecover");
-	}
 }

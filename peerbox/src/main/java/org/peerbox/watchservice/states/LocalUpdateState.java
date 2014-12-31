@@ -1,5 +1,6 @@
 package org.peerbox.watchservice.states;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -164,13 +165,5 @@ public class LocalUpdateState extends AbstractActionState {
 		return changeStateOnRemoteMove(path);
 	}
 
-	@Override
-	public AbstractActionState changeStateOnLocalRecover(int version) {
-		return this;
-	}
 
-	@Override
-	public AbstractActionState handleLocalRecover(int version) {
-		return changeStateOnLocalRecover(version);
-	}
 }

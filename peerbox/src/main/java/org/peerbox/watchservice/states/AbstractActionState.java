@@ -1,5 +1,6 @@
 package org.peerbox.watchservice.states;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.HashSet;
@@ -87,8 +88,8 @@ public abstract class AbstractActionState {
 		throw new NotImplException(action.getCurrentState().getStateType().getString() + ".changeStateOnLocalMove");
 	}
 	
-	public AbstractActionState changeStateOnLocalRecover(int version){
-		throw new NotImplException(action.getCurrentState().getStateType().getString() + ".changeStateOnLocalRecover");
+	public AbstractActionState changeStateOnLocalRecover(File currentFile, int version){
+		return new RecoverState(action, currentFile, version);
 	}
 	
 	public AbstractActionState changeStateOnLocalHardDelete(){
@@ -161,8 +162,8 @@ public abstract class AbstractActionState {
 		return changeStateOnLocalMove(oldFilePath);
 	}
 
-	public AbstractActionState handleLocalRecover(int version){
-		return changeStateOnLocalRecover(version);
+	public AbstractActionState handleLocalRecover(File currentFile, int version){
+		throw new NotImplementedException("Recovery Event occured in invalid state!");
 	}
 	
 	/*

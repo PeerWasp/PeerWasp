@@ -1,5 +1,6 @@
 package org.peerbox.watchservice.states;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
@@ -7,6 +8,7 @@ import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
 import java.nio.file.Path;
 
+import org.apache.commons.lang3.NotImplementedException;
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.hive2hive.core.exceptions.NoSessionException;
 import org.hive2hive.processframework.exceptions.InvalidProcessStateException;
@@ -155,18 +157,6 @@ public class RemoteUpdateState extends AbstractActionState {
 
 		return new ExecutionHandle(action, handle);
 		// notifyActionExecuteSucceeded();
-	}
-
-	@Override
-	public AbstractActionState changeStateOnLocalRecover(int version) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public AbstractActionState handleLocalRecover(int version) {
-		// TODO Auto-generated method stub
-		throw new NotImplException("RemoteUpdateState.handleLocalRecover");
 	}
 	
 	public void performCleanup(){

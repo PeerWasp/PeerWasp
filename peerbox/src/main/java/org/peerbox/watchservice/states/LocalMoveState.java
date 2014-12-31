@@ -25,24 +25,15 @@ public class LocalMoveState extends AbstractActionState {
 
 	private final static Logger logger = LoggerFactory.getLogger(LocalMoveState.class);
 
-	private Path sourcePath;
-	private boolean reversePaths;
+	private Path destination;
 
-	public LocalMoveState(Action action, Path sourcePath) {
+	public LocalMoveState(Action action, Path destination) {
 		super(action, StateType.LOCAL_MOVE);
-		this.sourcePath = sourcePath;
-		reversePaths = false;
+		this.destination = destination;
 	}
-	
-	public LocalMoveState(Action action, Path sourcePath, boolean reversePaths) {
-		super(action, StateType.LOCAL_MOVE);
-		this.sourcePath = sourcePath;
-		this.reversePaths = reversePaths;
-	}
-
 
 	public Path getSourcePath() {
-		return sourcePath;
+		return destination;
 	}
 
 	@Override
@@ -59,14 +50,7 @@ public class LocalMoveState extends AbstractActionState {
 	}
 
 	@Override
-	public AbstractActionState changeStateOnLocalDelete() {
-		logger.debug("Local Delete Event: not defined ({})", action.getFilePath());
-//		throw new IllegalStateException("Local Delete Event: not defined");
-		return new InitialState(action);
-	}
-
-	@Override
-	public AbstractActionState changeStateOnLocalMove(Path oldPath) {
+	public AbstractActionState changeStateOnLocalMove(Path destination) {
 		logger.debug("Local Move Event: not defined ({})", action.getFilePath());
 //		throw new IllegalStateException("Local Move Event: not defined");
 		return new InitialState(action);
@@ -80,8 +64,8 @@ public class LocalMoveState extends AbstractActionState {
 
 	@Override
 	public AbstractActionState changeStateOnRemoteDelete() {
-		logger.debug("Remote Delete Event: Local Move -> Conflict ({})", action.getFilePath());
-		return new ConflictState(action);
+		logger.debug("Remote Delete Event: Local Move -> Local Create ({})", action.getFilePath());
+		return new LocalCreateState(action);
 	}
 
 	@Override
@@ -93,13 +77,13 @@ public class LocalMoveState extends AbstractActionState {
 	@Override
 	public ExecutionHandle execute(FileManager fileManager) throws NoSessionException, NoPeerConnectionException, ProcessExecutionException, InvalidProcessStateException {
 	
-		handle = fileManager.move(sourcePath.toFile(), action.getFilePath().toFile());
+		handle = fileManager.move(action.getFilePath().toFile(), destination.toFile());
 		if(handle != null){
 			handle.getProcess().attachListener(new FileManagerProcessListener());
 			handle.executeAsync();
 		}
 			
-		logger.debug("Task \"Move File\" executed from: " + sourcePath.toString() + " to " + action.getFilePath().toFile().toPath());
+		logger.debug("Task \"Move File\" executed from: " + destination.toString() + " to " + action.getFilePath().toFile().toPath());
 //		notifyActionExecuteSucceeded();
 		return new ExecutionHandle(action, handle);
 	}
@@ -111,12 +95,8 @@ public class LocalMoveState extends AbstractActionState {
 
 	@Override
 	public AbstractActionState handleLocalCreate() {
-		throw new NotImplException("LocalMoveState.handleLocalRecover");
-	}
-
-	@Override
-	public AbstractActionState handleLocalDelete() {
-		throw new NotImplException("LocalMoveState.handleLocalRecover");
+		updateTimeAndQueue();
+		return this;
 	}
 
 	@Override
@@ -131,33 +111,24 @@ public class LocalMoveState extends AbstractActionState {
 
 	@Override
 	public AbstractActionState handleRemoteCreate() {
-		throw new NotImplException("LocalMoveState.handleRemoteCreate");
+		updateTimeAndQueue();
+		return changeStateOnRemoteCreate();
 	}
 
 	@Override
 	public AbstractActionState handleRemoteDelete() {
-		throw new NotImplException("LocalMoveState.handleRemoteDelete");
+		updateTimeAndQueue();
+		return changeStateOnRemoteDelete();
 	}
 
 	@Override
 	public AbstractActionState handleRemoteUpdate() {
-		throw new NotImplException("LocalMoveState.handleRemoteUpdate");
+		updateTimeAndQueue();
+		return changeStateOnRemoteUpdate();
 	}
 
 	@Override
 	public AbstractActionState handleRemoteMove(Path path) {
 		throw new NotImplException("LocalMoveState.handleRemoteMove");
-	}
-
-	@Override
-	public AbstractActionState changeStateOnLocalRecover(int version) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public AbstractActionState handleLocalRecover(int version) {
-		// TODO Auto-generated method stub
-		throw new NotImplException("LocalRecoverState.handleLocalRecover");
 	}
 }

@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Comparator;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.PriorityBlockingQueue;
@@ -137,8 +138,13 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 		}
 		
 //		FileComponent file = fileTree.getComponent(currentFile.getPath());
-		FileComponent file = fileTree.getFile(currentFile.toPath());
-		file.getAction().handleRecoverEvent(fileEvent.getVersionToRecover());
+		int version = fileEvent.getVersionToRecover();
+		
+		String recoveredFileName = PathUtils.getRecoveredFilePath(fileEvent.getFile().getName(), version).toString();
+		Path pathOfRecoveredFile = Paths.get(currentFile.getParent()).resolve(Paths.get(recoveredFileName));
+		FileComponent file = fileTree.getOrCreateFileComponent(pathOfRecoveredFile, this);
+		fileTree.putFile(file);
+		file.getAction().handleRecoverEvent(currentFile, fileEvent.getVersionToRecover());
 	}
 
 

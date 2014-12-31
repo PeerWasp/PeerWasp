@@ -1,5 +1,6 @@
 package org.peerbox.watchservice;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
@@ -21,6 +22,7 @@ import org.peerbox.watchservice.states.AbstractActionState;
 import org.peerbox.watchservice.states.EstablishedState;
 import org.peerbox.watchservice.states.ExecutionHandle;
 import org.peerbox.watchservice.states.InitialState;
+import org.peerbox.watchservice.states.LocalMoveState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -145,8 +147,13 @@ public class Action implements IAction{
 			logger.trace("Set next state for {} to {}", getFilePath(), nextState.getClass());
 		} else {
 			updateTimestamp();
-			currentState = currentState.handleLocalUpdate();
-			nextState = currentState.getDefaultState();
+			if(currentState instanceof LocalMoveState){
+				
+				nextState = nextState.changeStateOnLocalUpdate();
+			} else {
+				currentState = currentState.handleLocalUpdate();
+				nextState = currentState.getDefaultState();
+			}
 		}
 		releaseLockOnThis();
 	}
@@ -198,12 +205,12 @@ public class Action implements IAction{
 			updateTimestamp();
 			currentState = currentState.handleLocalHardDelete();
 			nextState = currentState.getDefaultState();
-			try {
-				Files.delete(getFilePath());
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+//			try {
+//				Files.delete(getFilePath());
+//			} catch (IOException e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			}
 		}
 		releaseLockOnThis();
 		
@@ -446,19 +453,19 @@ public class Action implements IAction{
 	}
 
 	@Override
-	public void handleRecoverEvent(int versionToRecover) {
+	public void handleRecoverEvent(File currentFile, int versionToRecover) {
 		logger.trace("handleRecoverEvent - File: {}", getFilePath());
 		acquireLockOnThis();
 		if(isExecuting){
 
 			logger.trace("Event occured for {} while executing.", getFilePath());
 //			changedWhileExecuted = true;
-			nextState = nextState.changeStateOnLocalRecover(versionToRecover);
+			nextState = nextState.changeStateOnLocalRecover(currentFile, versionToRecover);
 			checkIfChanged();
 
 		} else {
 			updateTimestamp();
-			currentState = currentState.handleLocalRecover(versionToRecover);
+			currentState = currentState.handleLocalRecover(currentFile, versionToRecover);
 			nextState = currentState.getDefaultState();
 		}
 		releaseLockOnThis();

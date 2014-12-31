@@ -1,5 +1,6 @@
 package org.peerbox.watchservice.states;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -169,18 +170,6 @@ public class LocalCreateState extends AbstractActionState {
 	@Override
 	public AbstractActionState handleRemoteMove(Path path) {
 		throw new NotImplException("LocalCreateState.handleRemoteMove");
-	}
-
-	@Override
-	public AbstractActionState changeStateOnLocalRecover(int version) {
-		// TODO Auto-generated method stub
-		return this;
-	}
-
-	@Override
-	public AbstractActionState handleLocalRecover(int version) {
-		// TODO Auto-generated method stub
-		return changeStateOnLocalRecover(version);
 	}
 	
 	@Override

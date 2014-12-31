@@ -131,16 +131,4 @@ public class ConflictState extends AbstractActionState {
 		
 	}
 
-	@Override
-	public AbstractActionState changeStateOnLocalRecover(int version) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public AbstractActionState handleLocalRecover(int version) {
-		// TODO Auto-generated method stub
-		throw new NotImplException("ConflictState.handleLocalRecover");
-	}
-
 }

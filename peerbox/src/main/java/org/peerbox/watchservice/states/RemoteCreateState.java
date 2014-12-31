@@ -1,5 +1,6 @@
 package org.peerbox.watchservice.states;
 
+import java.io.File;
 import java.nio.file.Path;
 
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
@@ -122,18 +123,6 @@ public class RemoteCreateState extends AbstractActionState {
 			System.err.println("process or handle is null");
 		}
 		return new ExecutionHandle(action, handle);
-	}
-
-	@Override
-	public AbstractActionState changeStateOnLocalRecover(int version) {
-		// TODO Auto-generated method stub
-		return this;
-	}
-
-	@Override
-	public AbstractActionState handleLocalRecover(int version) {
-		// TODO Auto-generated method stub
-		return changeStateOnLocalRecover(version);
 	}
 
 }

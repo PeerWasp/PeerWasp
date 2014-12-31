@@ -21,10 +21,12 @@ public class RecoverState extends AbstractActionState{
 	
 	private final static Logger logger = LoggerFactory.getLogger(RecoverState.class);
 	
-	private int fVersionToRecover = 0;
-	public RecoverState(Action action, int versionToRecover) {
+	private int versionToRecover = 0;
+	private File currentFile;
+	public RecoverState(Action action, File currentFile, int versionToRecover) {
 		super(action, StateType.LOCAL_RECOVER);
-		fVersionToRecover = versionToRecover;
+		this.versionToRecover = versionToRecover;
+		this.currentFile = currentFile;
 		// TODO Auto-generated constructor stub
 	}
 
@@ -46,9 +48,9 @@ public class RecoverState extends AbstractActionState{
 			
 		Path path = action.getFilePath();
 		logger.debug("Execute RECOVER: {}", path);
-		File currentFile = path.toFile();
+//		File currentFile = path.toFile();
 		try {
-			handle = fileManager.recover(currentFile, new PeerboxVersionSelector(fVersionToRecover));
+			handle = fileManager.recover(currentFile, new PeerboxVersionSelector(versionToRecover));
 			if(handle != null && handle.getProcess() != null){
 				handle.getProcess().attachListener(new FileManagerProcessListener());
 				handle.executeAsync();

@@ -1,5 +1,6 @@
 package org.peerbox.watchservice;
 
+import java.io.File;
 import java.nio.file.Path;
 import java.util.concurrent.locks.Lock;
 
@@ -31,7 +32,7 @@ public interface IAction {
 	public void handleRemoteDeleteEvent();
 	public void handleRemoteUpdateEvent();
 	public void handleRemoteMoveEvent(Path srcPath);
-	public void handleRecoverEvent(int versionToRecover);
+	public void handleRecoverEvent(File currentFile, int versionToRecover);
 //	public void setPath(Path path);
 	public void setIsUploaded(boolean isUploaded);
 	public boolean getIsUploaded();
