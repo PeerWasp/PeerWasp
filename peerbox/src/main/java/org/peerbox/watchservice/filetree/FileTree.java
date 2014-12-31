@@ -45,9 +45,9 @@ public class FileTree implements IFileTree{
     }
 	
 	@Override
-	public void putFile(FileComponent fileToPut) {
+	public void putFile(Path dstPath, FileComponent fileToPut) {
 		// TODO Auto-generated method stub
-		rootOfFileTree.putComponent(fileToPut.getPath().toString(), fileToPut);
+		rootOfFileTree.putComponent(dstPath.toString(), fileToPut);
 	}
 
 	@Override

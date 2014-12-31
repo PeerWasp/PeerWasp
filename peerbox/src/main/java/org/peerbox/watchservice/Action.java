@@ -235,11 +235,13 @@ public class Action implements IAction{
 
 		} else {
 			updateTimestamp();
+			System.out.println("OLDPATH: " + oldFilePath + " NEWPATH: " + getFilePath());
 			if(oldFilePath.equals(getFilePath())){
 				logger.trace("File {}:Move to same location due to update!", getFilePath());
-				
-//				eventManager.getDeletedFileComponents().gremove(oldFilePath.toString());
-//				return;
+				eventManager.getFileTree().getDeletedByContentHash().get(getFile().getContentHash()).remove(oldFilePath);
+//				eventManager.
+				//gremove(oldFilePath.toString());
+				return;
 			}
 			currentState = currentState.handleLocalMove(oldFilePath);
 			nextState = currentState.getDefaultState();
@@ -326,6 +328,7 @@ public class Action implements IAction{
 
 	public void handleRemoteMoveEvent(Path path) {
 		logger.trace("handleRemoteMoveEvent - File: {}", getFilePath());
+		Path oldPath = getFilePath();
 		acquireLockOnThis();
 		if(isExecuting){
 
@@ -339,6 +342,13 @@ public class Action implements IAction{
 			updateTimestamp();
 			currentState = currentState.handleRemoteMove(path);
 			nextState = currentState.getDefaultState();
+			
+			try {
+				com.google.common.io.Files.move(oldPath.toFile(), path.toFile());
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}		
 		releaseLockOnThis();
 	}

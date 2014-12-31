@@ -44,9 +44,9 @@ public class InitialState extends AbstractActionState {
 //	}
 
 	@Override
-	public AbstractActionState changeStateOnLocalMove(Path destination) {
-		logStateTransission(getStateType(), EventType.LOCAL_MOVE, StateType.INITIAL);
-		return new LocalMoveState(action, destination);
+	public AbstractActionState changeStateOnLocalMove(Path source) {
+		logStateTransission(getStateType(), EventType.LOCAL_MOVE, StateType.LOCAL_MOVE);
+		return new LocalMoveState(action, source);
 	}
 	
 	@Override
@@ -102,16 +102,10 @@ public class InitialState extends AbstractActionState {
 			}
 		}
 		logger.trace("Before: File {} content {}", action.getFilePath(), action.getFile().getContentHash());
-		eventManager.getFileTree().putFile(action.getFile());
+		eventManager.getFileTree().putFile(action.getFile().getPath(), action.getFile());
 		action.getFile().bubbleContentHashUpdate();//updateContentHash();
 		logger.trace("After: File {} content {}", action.getFilePath(), action.getFile().getContentHash());
 
-		try {
-			Thread.sleep(50);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 		FileComponent moveSource = eventManager.getFileTree().findDeletedByContent(action.getFile());
 		logger.debug("File {} has hash {}", action.getFilePath(), action.getFile().getContentHash());
 		if(moveSource == null){
@@ -138,7 +132,11 @@ public class InitialState extends AbstractActionState {
 	}
 
 	@Override
-	public AbstractActionState handleLocalMove(Path oldPath) {
+	public AbstractActionState handleLocalMove(Path newPath) {
+		System.out.println("newPath: " + newPath);
+		Path oldPath = action.getFilePath();
+		action.getFile().setPath(newPath);
+		action.getEventManager().getFileTree().putFile(newPath, action.getFile());
 		updateTimeAndQueue();
 		return changeStateOnLocalMove(oldPath);
 //		throw new NotImplException("InitialState.handleLocalMove");
@@ -148,7 +146,7 @@ public class InitialState extends AbstractActionState {
 	public AbstractActionState handleRemoteCreate() {
 		logger.trace("{}", action.getEventManager().getFileTree().getClass().toString());
 //		action.getEventManager().getFileTree().putComponent(action.getFilePath().toString(), action.getFile());
-		action.getEventManager().getFileTree().putFile(action.getFile());
+		action.getEventManager().getFileTree().putFile(action.getFile().getPath(), action.getFile());
 		updateTimeAndQueue();
 		return changeStateOnRemoteCreate();
 	}

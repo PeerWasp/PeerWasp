@@ -93,6 +93,13 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 	 */
 	@Override
 	public void onLocalFileCreated(Path path) {
+
+//		try {
+//			Thread.sleep(50);
+//		} catch (InterruptedException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
 		logger.debug("onLocalFileCreated: {} Manager ID {}", path, hashCode());
 		FileComponent file = fileTree.getOrCreateFileComponent(path, this);
 
@@ -143,7 +150,7 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 		String recoveredFileName = PathUtils.getRecoveredFilePath(fileEvent.getFile().getName(), version).toString();
 		Path pathOfRecoveredFile = Paths.get(currentFile.getParent()).resolve(Paths.get(recoveredFileName));
 		FileComponent file = fileTree.getOrCreateFileComponent(pathOfRecoveredFile, this);
-		fileTree.putFile(file);
+		fileTree.putFile(file.getPath(), file);
 		file.getAction().handleRecoverEvent(currentFile, fileEvent.getVersionToRecover());
 	}
 

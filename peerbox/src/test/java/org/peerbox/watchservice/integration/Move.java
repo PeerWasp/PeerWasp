@@ -46,12 +46,13 @@ public class Move extends FileIntegrationTest{
 		waitForExists(srcFile, WAIT_TIME_SHORT);
 		assertSyncClientPaths();
 		assertQueuesAreEmpty();
-		
+		System.out.println("MV: " + srcFile + ": " + folder.resolve(srcFile.getFileName()));
 		moveFileOrFolder(srcFile, folder.resolve(srcFile.getFileName()));
 		assertSyncClientPaths();
 		assertQueuesAreEmpty();
 		
 		moveFileOrFolder(folder.resolve(srcFile.getFileName()), srcFile);
+		System.out.println("MV: " + folder.resolve(srcFile.getFileName()) + ": " + srcFile);
 		assertSyncClientPaths();
 		assertQueuesAreEmpty();
 	}

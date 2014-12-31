@@ -119,6 +119,7 @@ public class EstablishedState extends AbstractActionState{
 //		action.getFileEventManager().getFileTree().deleteComponent(action.getFilePath().toString());
 //		action.getFileEventManager().getFileTree().putComponent(newPath.toString(), action.getFile());
 
+		action.getEventManager().getFileTree().putFile(newPath, action.getFile());
 		return changeStateOnLocalMove(newPath);
 	}
 
@@ -146,16 +147,19 @@ public class EstablishedState extends AbstractActionState{
 //		action.getEventManager().getFileTree().putComponent(dstPath.toString(), action.getFile());
 		
 		FileComponent deleted = action.getEventManager().getFileTree().deleteFile(action.getFilePath());
-		action.getEventManager().getFileTree().putFile(action.getFile());
+		action.getEventManager().getFileTree().putFile(dstPath, action.getFile());
 		
 		Path path = dstPath;
 		logger.debug("Execute REMOTE MOVE: {}", path);
-		try {
-			com.google.common.io.Files.move(oldPath.toFile(), path.toFile());
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		
+		AbstractActionState returnState = changeStateOnRemoteMove(oldPath);
+		return returnState;
+//		try {
+//			com.google.common.io.Files.move(oldPath.toFile(), path.toFile());
+//		} catch (IOException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
 //		notifyActionExecuteSucceeded();
 //		if(deleted.equals(action.getFile())){
 //			logger.debug("EQUALS {}", action.getCurrentState().getClass());
@@ -168,7 +172,7 @@ public class EstablishedState extends AbstractActionState{
 //		logger.debug("--oldPath {} ", oldPath);
 		
 		//updateTimeAndQueue();
-		return changeStateOnRemoteMove(oldPath);
+//		return changeStateOnRemoteMove(oldPath);
 	}
 
 }

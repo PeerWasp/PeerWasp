@@ -6,7 +6,7 @@ import org.peerbox.watchservice.filetree.composite.FileComponent;
 
 public interface IFileTree {
 
-	public void putFile(FileComponent fileToPut);
+	public void putFile(Path path, FileComponent fileToPut);
 	public FileComponent getFile(Path fileToGet);
 	public FileComponent updateFile(Path fileToUpdate);
 	public FileComponent deleteFile(Path fileToDelete);

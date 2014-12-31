@@ -25,15 +25,15 @@ public class LocalMoveState extends AbstractActionState {
 
 	private final static Logger logger = LoggerFactory.getLogger(LocalMoveState.class);
 
-	private Path destination;
+	private Path source;
 
-	public LocalMoveState(Action action, Path destination) {
+	public LocalMoveState(Action action, Path source) {
 		super(action, StateType.LOCAL_MOVE);
-		this.destination = destination;
+		this.source = source;
 	}
 
 	public Path getSourcePath() {
-		return destination;
+		return source;
 	}
 
 	@Override
@@ -77,13 +77,13 @@ public class LocalMoveState extends AbstractActionState {
 	@Override
 	public ExecutionHandle execute(FileManager fileManager) throws NoSessionException, NoPeerConnectionException, ProcessExecutionException, InvalidProcessStateException {
 	
-		handle = fileManager.move(action.getFilePath().toFile(), destination.toFile());
+		handle = fileManager.move(source.toFile(), action.getFilePath().toFile());
 		if(handle != null){
 			handle.getProcess().attachListener(new FileManagerProcessListener());
 			handle.executeAsync();
 		}
 			
-		logger.debug("Task \"Move File\" executed from: " + destination.toString() + " to " + action.getFilePath().toFile().toPath());
+		logger.debug("Task \"Move File\" executed from: " + source.toString()  + " to " + action.getFilePath().toFile().toPath() );
 //		notifyActionExecuteSucceeded();
 		return new ExecutionHandle(action, handle);
 	}

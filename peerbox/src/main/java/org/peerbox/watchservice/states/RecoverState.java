@@ -11,6 +11,7 @@ import org.hive2hive.processframework.exceptions.InvalidProcessStateException;
 import org.hive2hive.processframework.exceptions.ProcessExecutionException;
 import org.hive2hive.processframework.interfaces.IProcessComponent;
 import org.peerbox.FileManager;
+import org.peerbox.exceptions.NotImplException;
 import org.peerbox.h2h.ProcessHandle;
 import org.peerbox.watchservice.Action;
 import org.peerbox.watchservice.PeerboxVersionSelector;
@@ -76,7 +77,16 @@ public class RecoverState extends AbstractActionState{
 	@Override
 	public AbstractActionState handleLocalCreate() {
 		// TODO Auto-generated method stub
-		return null;
+		return this;
+	}
+	
+	@Override
+	public AbstractActionState handleLocalUpdate(){
+		return this;
+	}
+	@Override
+	public AbstractActionState handleRemoteUpdate(){
+		throw new NotImplException("A remote update is not valid in RecoverState");
 	}
 
 }

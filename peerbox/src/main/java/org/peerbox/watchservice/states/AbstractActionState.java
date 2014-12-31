@@ -73,7 +73,7 @@ public abstract class AbstractActionState {
 	 * LOCAL state changers
 	 */
 	public AbstractActionState changeStateOnLocalCreate(){
-		throw new NotImplException(action.getCurrentState().getStateType().getString() + ".changeStateOnLocalCreate");
+		return new LocalCreateState(action);
 	}
 
 	public AbstractActionState changeStateOnLocalDelete(){
@@ -100,11 +100,11 @@ public abstract class AbstractActionState {
 	 * REMOTE state changers
 	 */
 	public AbstractActionState changeStateOnRemoteDelete(){
-		throw new NotImplException(action.getCurrentState().getStateType().getString() + ".changeStateOnRemoteDelete");
+		return new InitialState(action);
 	}
 	
 	public AbstractActionState changeStateOnRemoteCreate(){
-		return new RemoteUpdateState(action);
+		return new RemoteCreateState(action);
 	}
 
 	public AbstractActionState changeStateOnRemoteUpdate(){
@@ -131,25 +131,20 @@ public abstract class AbstractActionState {
 		logger.trace("File {}: entered handleLocalDelete", action.getFilePath());
 		IFileEventManager eventManager = action.getEventManager();
 		eventManager.getFileComponentQueue().remove(action.getFile());
+		eventManager.getFileTree().deleteFile(action.getFile().getPath());
 		if(action.getFile().isFile()){
 			String oldHash = action.getFile().getContentHash();
-//			action.getFile().updateContentHash();
-//			logger.debug("File: {}Previous content hash: {} new content hash: ", action.getFilePath(), oldHash, action.getFile().getContentHash());
+
+			logger.debug("File: {}Previous content hash: {} new content hash: ", action.getFilePath(), oldHash, action.getFile().getContentHash());
 			SetMultimap<String, FileComponent> deletedFiles = action.getEventManager().getFileTree().getDeletedByContentHash();
 			deletedFiles.put(action.getFile().getContentHash(), action.getFile());
-//			logger.debug("Put deleted file {} with hash {} to SetMultimap<String, FileComponent>", action.getFilePath(), action.getFile().getContentHash());
+			logger.debug("Put deleted file {} with hash {} to SetMultimap<String, FileComponent>", action.getFilePath(), action.getFile().getContentHash());
 		} else {
 
 			Map<String, FolderComposite> deletedFolders = eventManager.getFileTree().getDeletedByContentNamesHash();
-//			logger.debug("Added folder {} with structure hash {} to deleted folders.", action.getFilePath(), action.getFile().getStructureHash());
 			deletedFolders.put(action.getFile().getStructureHash(), (FolderComposite)action.getFile());
 		}
-//		FileComponent comp = eventManager.getFileTree().deleteComponent(action.getFile().getPath().toString());
-//		logger.debug("After delete hash of {} is {}", comp.getPath(), comp.getStructureHash());
-
-		//		eventManager.getFileComponentQueue().add(action.getFile());
-//		updateTimeAndQueue();
-		return changeStateOnLocalDelete();
+		return this.changeStateOnLocalDelete();
 	}
 	
 	public AbstractActionState handleLocalUpdate() {

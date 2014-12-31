@@ -253,7 +253,8 @@ public class ActionExecutor implements Runnable, IActionEventListener {
 	
 	
 	private void handleExecutionError(IAction action, ProcessExecutionException pex) {
-		if(pex != null) {
+		Hive2HiveException h2hex = (Hive2HiveException) pex.getCause();
+		if(pex != null && pex.getCause() != null && h2hex.getError() != null) {
 			/*
 			 * TODO: unwrap exception and handle inner exception that caused ProcesssExecutionException
 			 * 
@@ -263,8 +264,10 @@ public class ActionExecutor implements Runnable, IActionEventListener {
 			 * - ?? rest was not used I think
 			 */
 			
-			Hive2HiveException h2hex = (Hive2HiveException) pex.getCause();
+
 			
+
+//			if(h2hex != null && h2hex.getError() != null){
 			ErrorCode error = h2hex.getError();
 			if(error == AbortModificationCode.SAME_CONTENT){
 				logger.debug("H2H update of file {} failed, content hash did not change. {}", action.getFilePath(), fileEventManager.getFileTree().getRootPath().toString());
@@ -290,6 +293,7 @@ public class ActionExecutor implements Runnable, IActionEventListener {
 					onActionExecuteSucceeded(action);
 				}
 			}
+//			}
 		} else {
 			// temporary default
 			logger.trace("Re-initiate execution of {} {}.", action.getFilePath(), action.getCurrentState().getClass().toString());
