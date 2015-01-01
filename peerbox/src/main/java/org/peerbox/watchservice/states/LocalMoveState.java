@@ -8,7 +8,6 @@ import org.hive2hive.processframework.exceptions.InvalidProcessStateException;
 import org.hive2hive.processframework.exceptions.ProcessExecutionException;
 import org.peerbox.FileManager;
 import org.peerbox.exceptions.NotImplException;
-import org.peerbox.h2h.ProcessHandle;
 import org.peerbox.watchservice.Action;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

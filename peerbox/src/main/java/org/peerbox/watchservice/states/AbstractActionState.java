@@ -50,7 +50,6 @@ public abstract class AbstractActionState {
 	}
 	
 	public AbstractActionState getDefaultState(){
-//		logger.debug("Return to default state 'EstablishedState': {}", action.getFile().getPath());
 		return new EstablishedState(action);
 	}
 	
@@ -128,19 +127,16 @@ public abstract class AbstractActionState {
 	}
 	
 	public AbstractActionState handleLocalDelete(){
-		logger.trace("File {}: entered handleLocalDelete", action.getFilePath());
 		IFileEventManager eventManager = action.getEventManager();
 		eventManager.getFileComponentQueue().remove(action.getFile());
 		eventManager.getFileTree().deleteFile(action.getFile().getPath());
 		if(action.getFile().isFile()){
-			String oldHash = action.getFile().getContentHash();
-
-			logger.debug("File: {}Previous content hash: {} new content hash: ", action.getFilePath(), oldHash, action.getFile().getContentHash());
+//			String oldHash = action.getFile().getContentHash();
+//			logger.debug("File: {}Previous content hash: {} new content hash: ", action.getFilePath(), oldHash, action.getFile().getContentHash());
 			SetMultimap<String, FileComponent> deletedFiles = action.getEventManager().getFileTree().getDeletedByContentHash();
 			deletedFiles.put(action.getFile().getContentHash(), action.getFile());
-			logger.debug("Put deleted file {} with hash {} to SetMultimap<String, FileComponent>", action.getFilePath(), action.getFile().getContentHash());
+//			logger.debug("Put deleted file {} with hash {} to SetMultimap<String, FileComponent>", action.getFilePath(), action.getFile().getContentHash());
 		} else {
-
 			Map<String, FolderComposite> deletedFolders = eventManager.getFileTree().getDeletedByContentNamesHash();
 			deletedFolders.put(action.getFile().getStructureHash(), (FolderComposite)action.getFile());
 		}
@@ -172,14 +168,12 @@ public abstract class AbstractActionState {
 	public AbstractActionState handleRemoteDelete() {
 		logger.debug("EstablishedState.handleRemoteDelete");
 		IFileEventManager eventManager = action.getEventManager();
-//		eventManager.getFileTree().deleteComponent(action.getFilePath().toString());
 		eventManager.getFileTree().deleteFile(action.getFilePath());
 		eventManager.getFileComponentQueue().remove(action.getFile());
-//		action.getFilePath().toFile().delete();
+
 		try {
 			java.nio.file.Files.delete(action.getFilePath());
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return changeStateOnRemoteDelete();
@@ -203,7 +197,6 @@ public abstract class AbstractActionState {
 	
 	
 	protected void notifyActionExecuteSucceeded() {
-		//action.setIsExecuting(false);
 		Set<IActionEventListener> listener = 
 				new HashSet<IActionEventListener>(action.getEventListener());
 		Iterator<IActionEventListener> it = listener.iterator();
@@ -211,10 +204,8 @@ public abstract class AbstractActionState {
 			it.next().onActionExecuteSucceeded(action);
 		}
 	}
-	
 
 	protected void notifyActionExecuteFailed() {
-		//action.setIsExecuting(false);
 		Set<IActionEventListener> listener = 
 				new HashSet<IActionEventListener>(action.getEventListener());
 		Iterator<IActionEventListener> it = listener.iterator();

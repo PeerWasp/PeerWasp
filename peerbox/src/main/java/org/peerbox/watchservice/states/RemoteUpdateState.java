@@ -35,7 +35,6 @@ public class RemoteUpdateState extends AbstractActionState {
 		logger.debug("Local Create Event in RemoteUpdateState!  ({})", action.getFilePath());
 		logStateTransission(getStateType(), EventType.LOCAL_CREATE, StateType.REMOTE_UPDATE);
 		return new LocalUpdateState(action);//new EstablishedState(action);
-		//TODO: maybe we should return 'this.' as soon as the update is successful, transission into ESTABLISHED happens!
 	}
 
 	@Override
@@ -54,12 +53,6 @@ public class RemoteUpdateState extends AbstractActionState {
 	public AbstractActionState changeStateOnLocalMove(Path newPath) {
 		logger.debug("Cannot accept local move right now, since update is happening.");
 		logStateTransission(getStateType(), EventType.LOCAL_MOVE, getStateType());
-//		try {
-//			Files.move(newPath.toFile(), action.getFilePath().toFile());
-//		} catch (IOException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
 		return new LocalMoveState(action, newPath);
 	}
 
@@ -81,12 +74,7 @@ public class RemoteUpdateState extends AbstractActionState {
 		logger.debug("Remote Move Event:  ({})", action.getFilePath());
 		throw new NotImplException("RemoteUpdate.remoteMove");
 	}
-
-//	@Override
-//	public AbstractActionState getDefaultState(){
-//		return this;
-//	}
-
+	
 	@Override
 	public AbstractActionState changeStateOnRemoteCreate() {
 		return this;
@@ -94,13 +82,11 @@ public class RemoteUpdateState extends AbstractActionState {
 
 	@Override
 	public AbstractActionState handleLocalCreate() {
-//		throw new NotImplException("RemoteUpdateState.handleLocalCreate");
 		return changeStateOnLocalCreate();
 	}
 
 	@Override
 	public AbstractActionState handleLocalUpdate() {
-//		throw new NotImplException("RemoteUpdateState.handleLocalUpdate");
 		action.getFile().bubbleContentHashUpdate();
 		return changeStateOnLocalUpdate();
 	}
@@ -110,7 +96,6 @@ public class RemoteUpdateState extends AbstractActionState {
 		
 		action.getNextState().changeStateOnRemoteUpdate();
 		return changeStateOnLocalMove(oldPath);
-//		return handleLocalMove(oldPath);//throw new NotImplException("RemoteUpdateState.handleLocalMove");
 	}
 
 	@Override
@@ -137,15 +122,6 @@ public class RemoteUpdateState extends AbstractActionState {
 	public ExecutionHandle execute(FileManager fileManager) throws NoSessionException, NoPeerConnectionException, InvalidProcessStateException, ProcessExecutionException {
 		Path path = action.getFilePath();
 		logger.debug("Execute REMOTE UPDATE, download the file: {}", path);
-//		FileChannel channel;
-//		try {
-//			channel = new RandomAccessFile(path.toFile(), "rw").getChannel();
-//			action.setFileChannel(channel);
-//			FileLock lock = channel.lock();
-//		} catch ( IOException e1) {
-//			// TODO Auto-generated catch block
-//			e1.printStackTrace();
-//		}
 
 		handle = fileManager.download(path.toFile());
 		if (handle != null && handle.getProcess() != null) {
@@ -156,19 +132,5 @@ public class RemoteUpdateState extends AbstractActionState {
 		}
 
 		return new ExecutionHandle(action, handle);
-		// notifyActionExecuteSucceeded();
-	}
-	
-	public void performCleanup(){
-		//nothing to do by default!
-//		try {
-//			action.getFileLock().release();
-//			action.getFileChannel().close();
-//			action.setFileChannel(null);
-//		} catch (IOException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
-
 	}
 }
