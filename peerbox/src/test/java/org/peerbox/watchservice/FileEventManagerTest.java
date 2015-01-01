@@ -154,8 +154,7 @@ public class FileEventManagerTest {
 		long start = System.currentTimeMillis();
 		
 		manager.onLocalFileDeleted(Paths.get(filePaths.get(7)));
-		assertTrue(actionsToCheck.size() == 1);
-		assertTrue(actionsToCheck.peek().getAction().getCurrentState() instanceof InitialState);
+		assertTrue(actionsToCheck.size() == 0);
 		
 		//initiate re-creation, ensure that all happens in time
 		manager.onLocalFileCreated(Paths.get(filePaths.get(8)));
@@ -362,7 +361,8 @@ public class FileEventManagerTest {
 		
 		manager.onLocalFileDeleted(Paths.get(filePaths.get(2)));
 		sleepMillis(10);
-		assertTrue(actionsToCheck.size() == 3);
+		System.out.println("size: " + actionsToCheck.size());
+		assertTrue(actionsToCheck.size() == 2);
 		assertTrue(actionsToCheck.peek().getAction().getCurrentState() instanceof LocalCreateState);
 		assertTrue(actionsToCheck.peek().getPath().toString().equals(filePaths.get(1)));
 		
@@ -453,6 +453,7 @@ public class FileEventManagerTest {
 		manager.onLocalFileCreated(Paths.get(filePaths.get(5)));
 		
 		FileComponent head = actionsToCheck.peek();
+		assertTrue(actionsToCheck.size() == 1);
 		assertTrue(head.getAction().getCurrentState() instanceof LocalCreateState);
 		assertTrue(head.getPath().toString().equals(filePaths.get(5)));
 		

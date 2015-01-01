@@ -79,7 +79,7 @@ public class FileManager implements IPeerboxFileManager{
 		logger.debug("RECOVER - {}", file);
 		IProcessComponent<Void> component = h2hFileManager.createRecoverProcess(file,
 				versionSelector);
-		component.executeAsync();
+//		component.executeAsync();
 		ProcessHandle<Void> handle = new ProcessHandle<Void>(component);
 		return handle;
 	}

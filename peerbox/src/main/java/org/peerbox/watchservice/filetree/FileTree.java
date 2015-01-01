@@ -183,6 +183,8 @@ public class FileTree implements IFileTree{
 	}
 	
 	public Set<Path> getSynchronizedPathsAsSet(){
-		return null;
+		Set<Path> synchronizedFiles = new ConcurrentHashSet<Path>();
+		rootOfFileTree.getSynchronizedChildrenPaths(synchronizedFiles);
+		return synchronizedFiles;
 	}
 }

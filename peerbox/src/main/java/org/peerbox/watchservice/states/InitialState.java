@@ -36,6 +36,13 @@ public class InitialState extends AbstractActionState {
 		return new LocalCreateState(action);
 	}
 
+//	@Override
+//	public AbstractActionState changeStateOnLocalDelete() {
+//		logStateTransission(getStateType(), EventType.LOCAL_DELETE, StateType.LOCAL_DELETE);
+////		return new LocalDeleteState(action);
+//		return this;
+//	}
+
 	@Override
 	public AbstractActionState changeStateOnLocalMove(Path source) {
 		logStateTransission(getStateType(), EventType.LOCAL_MOVE, StateType.LOCAL_MOVE);
@@ -44,6 +51,8 @@ public class InitialState extends AbstractActionState {
 	
 	@Override
 	public AbstractActionState changeStateOnLocalRecover(File currentFile, int versionToRecover) {
+		//logStateTransission(getStateType(), EventType.LOCAL_RECOVER, StateType.LOCAL_RECOVER);
+//		throw new NotImplException("InitialState.localRecover");
 		return new RecoverState(action, currentFile, versionToRecover);
 	}
 	
@@ -56,7 +65,7 @@ public class InitialState extends AbstractActionState {
 	@Override
 	public AbstractActionState changeStateOnRemoteDelete() {
 		logStateTransission(getStateType(), EventType.REMOTE_DELETE, StateType.INITIAL);
-		return this;
+		return this; //new RemoteDeleteState(action);
 	}
 
 	@Override
@@ -94,15 +103,23 @@ public class InitialState extends AbstractActionState {
 		FileComponent moveSource = eventManager.getFileTree().findDeletedByContent(action.getFile());
 		logger.debug("File {} has hash {}", action.getFilePath(), action.getFile().getContentHash());
 		if(moveSource == null){
+//			eventManager.getFileTree().putComponent(action.getFilePath().toString(), action.getFile());
+			eventManager.getFileTree().putFile(action.getFilePath(), action.getFile());
 			logger.trace("Handle regular create of {}, as no possible move source has been found.", action.getFilePath());
 			updateTimeAndQueue();
 			return changeStateOnLocalCreate();
 		} else {
-			logger.trace("Handle move of {}, from {}.", action.getFilePath(), moveSource.getPath());
-			eventManager.getFileTree().deleteFile(action.getFilePath());
-			moveSource.getAction().handleLocalMoveEvent(action.getFilePath());
 			eventManager.getFileComponentQueue().remove(action.getFile());
-			return changeStateOnLocalMove(action.getFilePath());
+			if(moveSource.getActionIsUploaded()){
+				logger.trace("Handle move of {}, from {}.", action.getFilePath(), moveSource.getPath());
+				eventManager.getFileTree().deleteFile(action.getFilePath());
+				moveSource.getAction().handleLocalMoveEvent(action.getFilePath());
+				return changeStateOnLocalMove(action.getFilePath());
+			} else {
+				eventManager.getFileTree().putFile(action.getFilePath(), action.getFile());
+				updateTimeAndQueue();
+				return changeStateOnLocalCreate();
+			}
 		}
 		
 	}
@@ -122,11 +139,13 @@ public class InitialState extends AbstractActionState {
 		action.getEventManager().getFileTree().putFile(newPath, action.getFile());
 		updateTimeAndQueue();
 		return changeStateOnLocalMove(oldPath);
+//		throw new NotImplException("InitialState.handleLocalMove");
 	}
 
 	@Override
 	public AbstractActionState handleRemoteCreate() {
 		logger.trace("{}", action.getEventManager().getFileTree().getClass().toString());
+//		action.getEventManager().getFileTree().putComponent(action.getFilePath().toString(), action.getFile());
 		action.getEventManager().getFileTree().putFile(action.getFile().getPath(), action.getFile());
 		updateTimeAndQueue();
 		return changeStateOnRemoteCreate();
@@ -154,6 +173,7 @@ public class InitialState extends AbstractActionState {
 
 	@Override
 	public AbstractActionState handleLocalRecover(File currentFile, int version) {
+		// TODO Auto-generated method stub
 		updateTimeAndQueue();
 		return new RecoverState(action, currentFile, version);
 	}

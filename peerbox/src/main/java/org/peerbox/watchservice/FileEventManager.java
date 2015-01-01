@@ -22,6 +22,7 @@ import org.peerbox.FileManager;
 import org.peerbox.h2h.IFileRecoveryRequestEvent;
 import org.peerbox.watchservice.filetree.FileTree;
 import org.peerbox.watchservice.filetree.composite.FileComponent;
+import org.peerbox.watchservice.filetree.composite.FolderComposite;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -93,13 +94,6 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 	 */
 	@Override
 	public void onLocalFileCreated(Path path) {
-
-//		try {
-//			Thread.sleep(50);
-//		} catch (InterruptedException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
 		logger.debug("onLocalFileCreated: {} Manager ID {}", path, hashCode());
 		FileComponent file = fileTree.getOrCreateFileComponent(path, this);
 
@@ -150,7 +144,7 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 		String recoveredFileName = PathUtils.getRecoveredFilePath(fileEvent.getFile().getName(), version).toString();
 		Path pathOfRecoveredFile = Paths.get(currentFile.getParent()).resolve(Paths.get(recoveredFileName));
 		FileComponent file = fileTree.getOrCreateFileComponent(pathOfRecoveredFile, this);
-		fileTree.putFile(file.getPath(), file);
+		fileTree.putFile(pathOfRecoveredFile, file);
 		file.getAction().handleRecoverEvent(currentFile, fileEvent.getVersionToRecover());
 	}
 
@@ -197,11 +191,31 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 		
 		Path path = fileEvent.getFile().toPath();
 		FileComponent file = fileTree.getOrCreateFileComponent(path, fileEvent, this);
+		if(!checkForSynchronizedAncestor(path)){
+			logger.debug("The file {} is in folder that is not synchronized. Event ignored.", path);
+			return;
+		} else {
+			logger.debug("The file {} is in folder that is synchronized: ", path);
+			file.getAction().setFile(file);
+			file.getAction().setEventManager(this);
+			file.getAction().handleRemoteCreateEvent();
+		}
 		file.getAction().setFile(file);
 		file.getAction().setEventManager(this);
 		file.getAction().handleRemoteCreateEvent();
 	}
 	
+	private boolean checkForSynchronizedAncestor(Path path){
+		logger.debug("Path {}", path);
+		FileComponent file = fileTree.getFile(path);
+		if(file == null){
+			logger.debug("Didnt find {}", path);
+			return checkForSynchronizedAncestor(path.getParent());
+		} else {
+			logger.debug("Return : {}", file.getIsSynchronized());
+			return file.getIsSynchronized();
+		}
+	}
 
 	@Override
 	@Handler
@@ -220,6 +234,11 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 		logger.debug("onFileUpdate: {}", path);
 
 		FileComponent file = fileTree.getOrCreateFileComponent(path, this);
+		
+//		if(!checkForSynchronizedAncestor(path)){
+//			return;
+//		}
+		
 		file.getAction().handleRemoteUpdateEvent();
 	}
 	

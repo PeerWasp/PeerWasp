@@ -37,19 +37,12 @@ public class RecoverState extends AbstractActionState{
 		return new LocalCreateState(action);
 	}
 
-//	@Override
-//	public AbstractActionState changeStateOnRemoteUpdate() {
-//		// TODO Auto-generated method stub
-//		return new InitialState(action);
-//	}
-//	
 	@Override
 	public ExecutionHandle execute(FileManager fileManager) throws NoSessionException,
 			NoPeerConnectionException, InvalidProcessStateException, ProcessExecutionException {
 			
 		Path path = action.getFilePath();
 		logger.debug("Execute RECOVER: {}", path);
-//		File currentFile = path.toFile();
 		try {
 			handle = fileManager.recover(currentFile, new PeerboxVersionSelector(versionToRecover));
 			if(handle != null && handle.getProcess() != null){
@@ -88,5 +81,11 @@ public class RecoverState extends AbstractActionState{
 	public AbstractActionState handleRemoteUpdate(){
 		throw new NotImplException("A remote update is not valid in RecoverState");
 	}
+	
+	public AbstractActionState getDefaultState(){
+		System.out.println("Go to LOCALCREATE!");
+		return new LocalCreateState(action);
+	}
+	
 
 }

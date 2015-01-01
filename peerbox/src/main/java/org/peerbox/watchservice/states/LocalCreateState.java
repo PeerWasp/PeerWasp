@@ -137,6 +137,8 @@ public class LocalCreateState extends AbstractActionState {
 	
 	@Override
 	public AbstractActionState handleLocalHardDelete(){
+		action.getEventManager().getFileTree().deleteFile(action.getFile().getPath());
+		action.getEventManager().getFileComponentQueue().remove(action.getFile());
 		return changeStateOnLocalHardDelete();
 	}
 	

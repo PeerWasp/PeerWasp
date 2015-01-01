@@ -216,6 +216,9 @@ public class Action implements IAction{
 		}
 		releaseLockOnThis();
 		
+		if(!Files.exists(getFilePath())){
+			return;
+		}
 		try {
 			Files.delete(getFilePath());
 			logger.trace("DELETED FROM DISK: {}", getFilePath());

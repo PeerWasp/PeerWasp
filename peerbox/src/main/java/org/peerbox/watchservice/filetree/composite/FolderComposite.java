@@ -48,6 +48,7 @@ public class FolderComposite extends AbstractFileComponent{
 		
 		if(isRoot){
 			action.setIsUploaded(true);
+			setIsSynchronized(true);
 		}
 		if(updateContentHashes){
 			updateContentHash();	
@@ -203,9 +204,14 @@ public class FolderComposite extends AbstractFileComponent{
 	public synchronized FileComponent getComponent(String remainingPath){
 		//if the path it absolute, cut off the absolute path to the root directory!
 		logger.debug("Root: {} FilePath: {}", path, remainingPath);
+		if(remainingPath.toString().equals(path.toString())){
+			logger.debug("Return root");
+			return this;
+		}
 		if(remainingPath.startsWith(path.toString())){
 			remainingPath = remainingPath.substring(path.toString().length() + 1);
 		}
+		
 		
 		String nextLevelPath = PathUtils.getNextPathFragment(remainingPath);
 		String newRemainingPath = PathUtils.getRemainingPathFragment(remainingPath);
@@ -418,8 +424,13 @@ public class FolderComposite extends AbstractFileComponent{
 
 	@Override
 	public void getSynchronizedChildrenPaths(Set<Path> synchronizedPaths) {
+		if(getIsSynchronized()){
+			synchronizedPaths.add(getPath());	
+		}
 		for(Map.Entry<String, FileComponent> entry : children.entrySet()){
-			synchronizedPaths.add(entry.getValue().getPath());
+			if(entry.getValue().getIsSynchronized()){
+				synchronizedPaths.add(entry.getValue().getPath());	
+			}
 		}
 	}
 }
