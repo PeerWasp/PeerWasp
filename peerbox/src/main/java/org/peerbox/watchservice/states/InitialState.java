@@ -55,12 +55,6 @@ public class InitialState extends AbstractActionState {
 //		throw new NotImplException("InitialState.localRecover");
 		return new RecoverState(action, currentFile, versionToRecover);
 	}
-
-	@Override
-	public AbstractActionState changeStateOnRemoteUpdate() {
-		logStateTransission(getStateType(), EventType.REMOTE_UPDATE, StateType.REMOTE_UPDATE);
-		return new RemoteUpdateState(action);
-	}
 	
 	@Override
 	public AbstractActionState changeStateOnRemoteCreate() {
@@ -156,13 +150,6 @@ public class InitialState extends AbstractActionState {
 		// TODO Auto-generated method stub
 		throw new NotImplException("InitialState.handleRemoteDelete");
 	}
-
-	@Override
-	public AbstractActionState handleRemoteUpdate() {
-		// TODO Auto-generated method stub
-		throw new NotImplException("InitialState.handleRemoteUpdate");
-	}
-
 	@Override
 	public AbstractActionState handleRemoteMove(Path path) {
 		// TODO Auto-generated method stub

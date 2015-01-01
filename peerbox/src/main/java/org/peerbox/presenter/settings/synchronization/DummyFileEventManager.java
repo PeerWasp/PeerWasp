@@ -6,6 +6,7 @@ import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 
 import org.eclipse.jetty.util.ConcurrentHashSet;
+import org.hive2hive.core.events.framework.interfaces.file.IFileAddEvent;
 import org.peerbox.selectivesync.ISynchronize;
 import org.peerbox.watchservice.IFileEventManager;
 import org.peerbox.watchservice.filetree.FileTree;
@@ -44,6 +45,11 @@ public class DummyFileEventManager implements IFileEventManager{
 	@Override
 	public void onFileSynchronized(Path path, boolean isFolder) {
 		logger.debug("Triggered synchronization of {}", path);
+	}
+	@Override
+	public void onFileAdd(IFileAddEvent fileEvent) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

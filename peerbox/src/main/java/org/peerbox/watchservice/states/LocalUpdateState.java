@@ -15,6 +15,7 @@ import org.peerbox.h2h.ProcessHandle;
 import org.peerbox.watchservice.Action;
 import org.peerbox.watchservice.IFileEventManager;
 import org.peerbox.watchservice.conflicthandling.ConflictHandler;
+import org.peerbox.watchservice.filetree.composite.FileComponent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,13 +53,7 @@ public class LocalUpdateState extends AbstractActionState {
 		logger.debug("Local Update Event: Stay in Local Update ({})", action.getFilePath());
 		return this;
 	}
-
-	@Override
-	public AbstractActionState changeStateOnLocalMove(Path oldPath) {
-		logger.debug("Local Move Event: not defined");
-		throw new IllegalStateException("Local Move Event: not defined");
-	}
-
+	
 	@Override
 	public AbstractActionState changeStateOnRemoteUpdate() {
 		logger.debug("Remote Update Event: Local Update -> Conflict ({})", action.getFilePath());
@@ -97,7 +92,7 @@ public class LocalUpdateState extends AbstractActionState {
 
 	@Override
 	public AbstractActionState changeStateOnRemoteMove(Path oldFilePath) {
-		logger.debug("Remote Move Event: Local Update -> Local Update ({})", action.getFilePath());
+		logStateTransission(getStateType(), EventType.REMOTE_MOVE, StateType.LOCAL_UPDATE);
 		return this;
 	}
 
@@ -140,10 +135,6 @@ public class LocalUpdateState extends AbstractActionState {
 		return changeStateOnLocalUpdate();
 	}
 
-	@Override
-	public AbstractActionState handleLocalMove(Path oldPath) {
-		throw new NotImplException("LocalUpdateState.handleLocalMove");
-	}
 
 	@Override
 	public AbstractActionState handleRemoteCreate() {
@@ -160,8 +151,22 @@ public class LocalUpdateState extends AbstractActionState {
 		return changeStateOnRemoteUpdate();
 	}
 
+	//TODO write test-case for this!
 	@Override
 	public AbstractActionState handleRemoteMove(Path path) {
+		//Remove the file from the queue, move it in the tree, put it to the queue, move it on disk.
+		Path srcPath = action.getFilePath();
+		action.getEventManager().getFileComponentQueue().remove(action.getFile());
+		FileComponent src = action.getEventManager().getFileTree().deleteFile(action.getFilePath());
+		action.getEventManager().getFileTree().putFile(path, src);
+		updateTimeAndQueue();
+		if(Files.exists(srcPath)){
+			try {
+				Files.move(srcPath, path);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
 		return changeStateOnRemoteMove(path);
 	}
 

@@ -108,7 +108,7 @@ public abstract class AbstractActionState {
 	}
 
 	public AbstractActionState changeStateOnRemoteUpdate(){
-		throw new NotImplException(action.getCurrentState().getStateType().getString() + ".changeStateOnRemoteUpdate");
+		return new RemoteUpdateState(action);
 	}
 
 	public AbstractActionState changeStateOnRemoteMove(Path oldFilePath){
@@ -185,7 +185,8 @@ public abstract class AbstractActionState {
 		return changeStateOnRemoteDelete();
 	}
 	
-	public AbstractActionState handleRemoteUpdate(){
+	public AbstractActionState handleRemoteUpdate() {
+		updateTimeAndQueue();
 		return changeStateOnRemoteUpdate();
 	}
 	

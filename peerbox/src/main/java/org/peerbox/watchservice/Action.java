@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
 import java.nio.file.Files;
+import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.util.HashSet;
 import java.util.Map;
@@ -23,6 +24,7 @@ import org.peerbox.watchservice.states.EstablishedState;
 import org.peerbox.watchservice.states.ExecutionHandle;
 import org.peerbox.watchservice.states.InitialState;
 import org.peerbox.watchservice.states.LocalMoveState;
+import org.peerbox.watchservice.states.RemoteUpdateState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -243,8 +245,13 @@ public class Action implements IAction{
 				//gremove(oldFilePath.toString());
 				return;
 			}
-			currentState = currentState.handleLocalMove(oldFilePath);
-			nextState = currentState.getDefaultState();
+//			if(currentState instanceof RemoteUpdateState){
+//				nextState = nextState.changeStateOnLocalMove(oldFilePath);
+//				checkIfChanged();
+//			} else {
+				currentState = currentState.handleLocalMove(oldFilePath);
+				nextState = currentState.getDefaultState();
+//			}
 		}
 		releaseLockOnThis();
 	}
@@ -343,6 +350,9 @@ public class Action implements IAction{
 			currentState = currentState.handleRemoteMove(path);
 			nextState = currentState.getDefaultState();
 			
+			if(!Files.exists(oldPath)){
+				return;
+			}
 			try {
 				com.google.common.io.Files.move(oldPath.toFile(), path.toFile());
 			} catch (IOException e) {

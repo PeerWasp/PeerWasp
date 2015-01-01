@@ -1,5 +1,6 @@
 package org.peerbox.watchservice.states;
 
+import java.io.File;
 import java.nio.file.Path;
 
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
@@ -57,17 +58,18 @@ public class LocalHardDeleteState extends AbstractActionState{
 
 	@Override
 	public AbstractActionState changeStateOnRemoteUpdate() {
-		return new RemoteUpdateState(action); // The network wins
+		return new RemoteCreateState(action); // The network wins
 	}
 
 	@Override
 	public AbstractActionState changeStateOnRemoteMove(Path oldFilePath) {
-		return this; // TODO: remote create at target location!
+		return this;
 	}
 
 	@Override
 	public AbstractActionState handleLocalCreate() {
-		throw new NotImplException("LocalHardDeleteState.handleLocalCreate()");
+		updateTimeAndQueue();
+		return changeStateOnLocalCreate();
 	}
 	
 	public AbstractActionState handleLocalDelete(){
@@ -81,7 +83,8 @@ public class LocalHardDeleteState extends AbstractActionState{
 
 	@Override
 	public AbstractActionState handleLocalUpdate() {
-		throw new NotImplException("LocalHardDeleteState.handleLocalUpdate()");
+		updateTimeAndQueue();
+		return changeStateOnLocalUpdate();
 	}
 
 	@Override
@@ -91,22 +94,33 @@ public class LocalHardDeleteState extends AbstractActionState{
 
 	@Override
 	public AbstractActionState handleRemoteCreate() {
-		throw new NotImplException("LocalHardDeleteState.handleRemoteCreate()");
+		updateTimeAndQueue();
+		return changeStateOnRemoteCreate();
 	}
 
 	@Override
 	public AbstractActionState handleRemoteDelete() {
-		throw new NotImplException("LocalHardDeleteState.handleRemoteDelete()");
+		action.getEventManager().getFileComponentQueue().remove(action.getFile());
+		return changeStateOnRemoteDelete();
 	}
 
 	@Override
 	public AbstractActionState handleRemoteUpdate() {
-		throw new NotImplException("LocalHardDeleteState.handleRemoteUpdate()");
+		updateTimeAndQueue();
+		return changeStateOnRemoteUpdate();
 	}
 
 	@Override
 	public AbstractActionState handleRemoteMove(Path path) {
-		throw new NotImplException("LocalHardDeleteState.handleRemoteMove()");
+		logger.info("The file which was locally deleted has been moved remotely. RemoteCreate at destination"
+				+ "of move operation initiated to download the file: {}", path);
+		updateTimeAndQueue();
+		FileComponent moveDest = action.getEventManager().getFileTree().getOrCreateFileComponent(path, action.getEventManager());
+		action.getEventManager().getFileTree().putFile(path, moveDest);
+		moveDest.getAction().handleRemoteCreateEvent();
+		
+		
+		return changeStateOnRemoteMove(path);
 	}
 
 	@Override

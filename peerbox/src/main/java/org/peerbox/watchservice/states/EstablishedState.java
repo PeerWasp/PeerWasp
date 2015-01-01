@@ -129,15 +129,6 @@ public class EstablishedState extends AbstractActionState{
 		throw new NotImplException("EstablishedState.handleRemoteCreate");
 	}
 
-	
-
-	@Override
-	public AbstractActionState handleRemoteUpdate() {
-		// TODO Auto-generated method stub
-		updateTimeAndQueue();
-		return changeStateOnRemoteUpdate();
-	}
-
 	@Override
 	public AbstractActionState handleRemoteMove(Path dstPath) {
 		action.getEventManager().getFileComponentQueue().remove(action.getFile())

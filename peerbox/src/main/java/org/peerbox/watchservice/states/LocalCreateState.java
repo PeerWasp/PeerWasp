@@ -92,13 +92,6 @@ public class LocalCreateState extends AbstractActionState {
 		return this;
 	}
 
-	@Override
-	public AbstractActionState changeStateOnRemoteMove(Path oldFilePath) {
-		logger.debug("Remote Move Event: Local Create -> Conflict ({})", action.getFile().getPath());
-//		return new ConflictState(action);
-		throw new IllegalStateException("Remote Move Event: not defined");
-	}
-
 	/**
 	 * If the create state is considered as stable, the execute method will be invoked which eventually
 	 * uploads the file with the corresponding Hive2Hive method
@@ -165,11 +158,6 @@ public class LocalCreateState extends AbstractActionState {
 	@Override
 	public AbstractActionState handleRemoteUpdate() {
 		return changeStateOnRemoteUpdate();
-	}
-
-	@Override
-	public AbstractActionState handleRemoteMove(Path path) {
-		throw new NotImplException("LocalCreateState.handleRemoteMove");
 	}
 	
 	@Override
