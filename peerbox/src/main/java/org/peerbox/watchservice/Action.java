@@ -112,11 +112,12 @@ public class Action implements IAction{
 			checkIfChanged();
 			releaseLockOnThis();
 		} else {
+			acquireLockOnThis();
 			updateTimestamp();
 			getFile().setIsSynchronized(true);
 			currentState = currentState.handleLocalCreate();
-			
 			nextState = currentState.getDefaultState();
+			releaseLockOnThis();
 		}
 	}
 	
