@@ -420,6 +420,9 @@ public class FolderComposite extends AbstractFileComponent{
 	@Override
 	public void setIsSynchronized(boolean isSynchronized) {
 		this.isSynchronized = isSynchronized;
+		for(FileComponent comp : children.values()){
+			comp.setIsSynchronized(isSynchronized);
+		}
 	}
 
 	@Override

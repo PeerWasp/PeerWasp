@@ -44,6 +44,7 @@ public abstract class FileIntegrationTest {
 	
 //	protected static final int NUMBER_OF_CHARS = 1000*100; // approx. 100kb
 	protected static final int NUMBER_OF_CHARS = 10;
+	protected static final int WAIT_TIME_VERY_SHORT = 5;
 	protected static final int WAIT_TIME_SHORT = 30;
 	protected static final int WAIT_TIME_LONG = 120;
 	protected static final int WAIT_TIME_STRESSTEST = 300;
@@ -229,6 +230,20 @@ public abstract class FileIntegrationTest {
 		} while(!pathExistsLocally(path));
 	}
 	
+	protected void waitForNotExistsLocally(List<Path> paths, int seconds){
+		H2HWaiter waiter = new H2HWaiter(seconds);
+		do{
+			waiter.tickASecond();
+		} while(!pathNotExistsLocally(paths));
+	}
+	
+	protected void waitForNotExistsLocally(Path path, int seconds){
+		H2HWaiter waiter = new H2HWaiter(seconds);
+		do{
+			waiter.tickASecond();
+		} while(!pathNotExistsLocally(path));
+	}
+	
 	protected void waitIfNotExist(Path path, int seconds){
 		H2HWaiter waiter = new H2HWaiter(seconds);
 		while(!pathExistsOnAllNodes(path)){
@@ -265,6 +280,19 @@ public abstract class FileIntegrationTest {
 	
 	private boolean pathExistsLocally(Path path){
 		return path.toFile().exists();
+	}
+	
+	private boolean pathNotExistsLocally(List<Path> paths){
+		for(Path p : paths) {
+			if(!pathNotExistsLocally(p)) {
+				return false;
+			}
+		}
+		return true;
+	}
+	
+	private boolean pathNotExistsLocally(Path path){
+		return !path.toFile().exists();
 	}
 	
 	protected void waitForNotExists(Path path, int seconds) {

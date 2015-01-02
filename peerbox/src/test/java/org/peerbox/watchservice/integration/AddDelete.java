@@ -114,6 +114,8 @@ public class AddDelete extends FileIntegrationTest {
 	public void singleFileTest() throws IOException {
 		// ADD
 		Path file = addSingleFile();
+		assertSyncClientPaths();
+		assertQueuesAreEmpty();
 		// DELETE
 		deleteSingleFile(file);
 		assertSyncClientPaths();

@@ -73,4 +73,21 @@ public class PathUtils {
 		String hashString = Base64.getEncoder().encodeToString(bytes);
 		return hashString;
 	}
+	
+	public static boolean deleteRecursively(File path) {
+		if (path.exists()) {
+			if(path.isDirectory()){
+				File[] files = path.listFiles();
+				for (int i = 0; i < files.length; i++) {
+					if (files[i].isDirectory()) {
+						deleteRecursively(files[i]);
+					} else {
+						files[i].delete();
+					}
+				}
+			}
+			return (path.delete());
+		}
+		return false;
+	}
 }

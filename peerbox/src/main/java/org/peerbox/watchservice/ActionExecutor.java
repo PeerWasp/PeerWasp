@@ -296,7 +296,7 @@ public class ActionExecutor implements Runnable, IActionEventListener {
 //			}
 		} else {
 			// temporary default
-			logger.trace("Re-initiate execution of {} {}.", action.getFilePath(), action.getCurrentState().getClass().toString());
+			logger.trace("Default: Re-initiate execution of {} {}.", action.getFilePath(), action.getCurrentState().getClass().toString());
 			if(action.getExecutionAttempts() <= MAX_EXECUTION_ATTEMPTS){
 				action.updateTimestamp();
 				fileEventManager.getFileComponentQueue().add(action.getFile());

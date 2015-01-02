@@ -17,6 +17,7 @@ import org.hive2hive.core.events.framework.interfaces.file.IFileEvent;
 import org.hive2hive.core.events.framework.interfaces.file.IFileMoveEvent;
 import org.hive2hive.core.events.framework.interfaces.file.IFileShareEvent;
 import org.hive2hive.core.events.framework.interfaces.file.IFileUpdateEvent;
+import org.hive2hive.core.events.implementations.FileAddEvent;
 import org.hive2hive.core.events.implementations.FileUpdateEvent;
 import org.peerbox.FileManager;
 import org.peerbox.h2h.IFileRecoveryRequestEvent;
@@ -169,19 +170,15 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 	public void onFileDesynchronized(Path path){
 		FileComponent file = fileTree.getOrCreateFileComponent(path, this);
 		file.setIsSynchronized(false);
-		try {
-			Files.delete(path);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		PathUtils.deleteRecursively(path.toFile());
 	}
 	
 	public void onFileSynchronized(Path path, boolean isFolder){
 		FileComponent file = fileTree.getOrCreateFileComponent(path, this);
+		fileTree.putFile(path, file);
 //		FileComponent file = fileTree.addAndPutFile(path);
 		file.setIsSynchronized(true);
-		onFileUpdate(new FileUpdateEvent(null, isFolder));
+		onFileAdd(new FileAddEvent(path.toFile(), isFolder));
 	}
 	
 	@Override
