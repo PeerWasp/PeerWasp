@@ -148,11 +148,12 @@ public abstract class FileIntegrationTest {
 	protected List<Path> addSingleFileInFolder() throws IOException {
 		List<Path> files = FileTestUtils.createFolderWithFiles(masterRootPath, 1, NUMBER_OF_CHARS);
 		
-		waitForExists(files, WAIT_TIME_SHORT);
-		assertSyncClientPaths();
-		assertQueuesAreEmpty();
+//		waitForExists(files, WAIT_TIME_SHORT);
+//		assertSyncClientPaths();
+//		assertQueuesAreEmpty();
 		return files;
 	}
+	
 
 	protected List<Path> addManyFilesInFolder() throws IOException {
 		List<Path> files = addManyFilesInManyFolders(1); //FileTestUtils.createFolderWithFiles(masterRootPath, 10, NUMBER_OF_CHARS);
@@ -272,6 +273,7 @@ public abstract class FileIntegrationTest {
 	private boolean pathExistsOnAllNodes(List<Path> absPaths) {
 		for(Path p : absPaths) {
 			if(!pathExistsOnAllNodes(p)) {
+				logger.debug("Missing {}", p);
 				return false;
 			}
 		}
@@ -322,6 +324,7 @@ public abstract class FileIntegrationTest {
 	private boolean pathNotExistsOnAllNodes(List<Path> absPaths) {
 		for(Path p : absPaths) {
 			if(!pathNotExistsOnAllNodes(p)) {
+				logger.debug("Missing {}", p);
 				return false;
 			}
 		}

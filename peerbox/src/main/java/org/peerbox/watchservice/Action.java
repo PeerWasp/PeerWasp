@@ -108,13 +108,12 @@ public class Action implements IAction{
 			logger.trace("Event occured for {} while executing.", getFilePath());
 //			changedWhileExecuted = true;
 			nextState = nextState.changeStateOnLocalCreate();
-			getFile().setIsSynchronized(true);
 			checkIfChanged();
 			releaseLockOnThis();
 		} else {
 			acquireLockOnThis();
 			updateTimestamp();
-			getFile().setIsSynchronized(true);
+
 			currentState = currentState.handleLocalCreate();
 			nextState = currentState.getDefaultState();
 			releaseLockOnThis();

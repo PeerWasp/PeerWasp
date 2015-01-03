@@ -97,7 +97,7 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 	public void onLocalFileCreated(Path path) {
 		logger.debug("onLocalFileCreated: {} Manager ID {}", path, hashCode());
 		FileComponent file = fileTree.getOrCreateFileComponent(path, this);
-
+		file.setIsSynchronized(true);
 		if(path.toFile().isDirectory()){
 			String structureHash = fileTree.discoverSubtreeStructure(path, this);
 			file.setStructureHash(structureHash);	
@@ -193,6 +193,7 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 			return;
 		} else {
 			logger.debug("The file {} is in folder that is synchronized: ", path);
+			file.setIsSynchronized(true);
 			file.getAction().setFile(file);
 			file.getAction().setEventManager(this);
 			file.getAction().handleRemoteCreateEvent();

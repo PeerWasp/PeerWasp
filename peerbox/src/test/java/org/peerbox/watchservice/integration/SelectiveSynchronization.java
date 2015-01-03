@@ -97,6 +97,7 @@ public class SelectiveSynchronization extends FileIntegrationTest{
 	public void isFileInUnsyncedFolderUnsyncedByDefaultTest() throws IOException{
 		//onFileDesync -> check if unsynced recursively
 		List<Path> paths = addSingleFileInFolder();
+		waitForExists(paths, WAIT_TIME_SHORT);
 		assertSyncClientPaths();
 		assertQueuesAreEmpty();
 		waitForSynchronized(paths, WAIT_TIME_VERY_SHORT, true);

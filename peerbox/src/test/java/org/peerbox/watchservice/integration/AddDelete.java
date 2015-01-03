@@ -164,7 +164,7 @@ public class AddDelete extends FileIntegrationTest {
 		waitForNotExists(files, WAIT_TIME_SHORT);
 		assertSyncClientPaths();
 		assertQueuesAreEmpty();
-		assertRootContains(0);
+//		assertRootContains(0);
 	}
 
 	@Test
@@ -199,6 +199,47 @@ public class AddDelete extends FileIntegrationTest {
 		deleteManyFilesInManyFolders(files);
 	}
 	
+	@Test
+	public void singleFileInManyFoldersTest() throws IOException{
+		List<List<Path>> allPaths = new ArrayList<List<Path>>();
+		for(int i = 0; i < 100; i++){
+			allPaths.add(addSingleFileInFolder());
+		}
+		for(List<Path> paths : allPaths){
+			waitForExists(paths, WAIT_TIME_LONG);
+		}
+		assertSyncClientPaths();
+		assertQueuesAreEmpty();
+		
+		List<Path> allPathsInOne = new ArrayList<Path>();
+		for(List<Path> paths : allPaths){
+			allPathsInOne.addAll(paths);	
+		}
+		
+		deleteManyFilesInManyFolders(allPathsInOne);
+		for(Path path : allPathsInOne){
+			waitForNotExists(path, WAIT_TIME_SHORT);
+		}
+		
+		assertSyncClientPaths();
+		assertQueuesAreEmpty();
+		assertRootContains(0);
+		
+	}
+	
+	
+//	List<Path> files = new ArrayList<>();
+//	
+//	int numFilesPerFolder = 10;
+//	for(int i = 0; i < nrFolders; ++i) {
+//		List<Path> f = FileTestUtils.createFolderWithFiles(masterRootPath, numFilesPerFolder, NUMBER_OF_CHARS);
+//		files.addAll(f);
+//	}
+//	
+//	waitForExists(files, WAIT_TIME_LONG);		
+//	assertSyncClientPaths();
+//	assertQueuesAreEmpty();
+//	return files;
 	private void deleteManyFilesInManyFolders(List<Path> files) throws IOException {
 		List<Path> folders = new ArrayList<Path>();
 		// delete files
