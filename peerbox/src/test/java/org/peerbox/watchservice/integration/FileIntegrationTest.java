@@ -103,17 +103,12 @@ public abstract class FileIntegrationTest {
 		Path folder = FileTestUtils.createRandomFolder(masterRootPath);
 		
 		waitForExists(folder, WAIT_TIME_SHORT);
-		//assertSyncClientPaths();
-		//assertQueuesAreEmpty();
 		return folder;
 	}
 
 	protected Path addSingleFile() throws IOException {
 		Path file = FileTestUtils.createRandomFile(masterRootPath, NUMBER_OF_CHARS);
-		
 		waitForExists(file, WAIT_TIME_SHORT);
-		//assertSyncClientPaths();
-	//	assertQueuesAreEmpty();
 		return file;
 	}
 	
@@ -129,14 +124,12 @@ public abstract class FileIntegrationTest {
 		List<Path> files = FileTestUtils.createRandomFiles(masterRootPath, nrFiles, 100);
 		
 		waitForExists(files, toWait);
-		assertSyncClientPaths();
-		assertQueuesAreEmpty();
 		return files;
 	}
 	
-	protected List<Path> addManyFiles() throws IOException {
-		return addManyFiles(100, WAIT_TIME_LONG);
-	}
+//	protected List<Path> addManyFiles() throws IOException {
+//		return addManyFiles(100, WAIT_TIME_LONG);
+//	}
 	
 	protected List<Path> addManyFiles(Path dirPath) throws IOException {
 		List<Path> files = FileTestUtils.createRandomFiles(dirPath, 100, NUMBER_OF_CHARS);
@@ -148,41 +141,41 @@ public abstract class FileIntegrationTest {
 	protected List<Path> addSingleFileInFolder() throws IOException {
 		List<Path> files = FileTestUtils.createFolderWithFiles(masterRootPath, 1, NUMBER_OF_CHARS);
 		
-//		waitForExists(files, WAIT_TIME_SHORT);
-//		assertSyncClientPaths();
-//		assertQueuesAreEmpty();
+		waitForExists(files, WAIT_TIME_SHORT);
+		return files;
+	}
+	
+	protected List<Path> addSingleFileInManyFolders(int nrFolders) throws IOException {
+		List<Path> files = new ArrayList<Path>();
+		for(int i = 0; i < nrFolders; i++){
+			files.addAll(FileTestUtils.createFolderWithFiles(masterRootPath, 1, NUMBER_OF_CHARS));
+		}
+		waitForExists(files, WAIT_TIME_LONG);
 		return files;
 	}
 	
 
-	protected List<Path> addManyFilesInFolder() throws IOException {
-		List<Path> files = addManyFilesInManyFolders(1); //FileTestUtils.createFolderWithFiles(masterRootPath, 10, NUMBER_OF_CHARS);
+	protected List<Path> addManyFilesInFolder(int nrFiles) throws IOException {
+		List<Path> files = addManyFilesInManyFolders(1, nrFiles); //FileTestUtils.createFolderWithFiles(masterRootPath, 10, NUMBER_OF_CHARS);
 		
-//		waitForExists(files, WAIT_TIME_LONG);
-//		assertSyncClientPaths();
-//		assertQueuesAreEmpty();
+		waitForExists(files, WAIT_TIME_LONG);
 		return files;
 	}
 
-	protected List<Path> addManyFilesInManyFolders(int nrFolders) throws IOException {
+	protected List<Path> addManyFilesInManyFolders(int nrFolders, int nrFilesPerFolder) throws IOException {
 		List<Path> files = new ArrayList<>();
 		
-		int numFilesPerFolder = 10;
 		for(int i = 0; i < nrFolders; ++i) {
-			List<Path> f = FileTestUtils.createFolderWithFiles(masterRootPath, numFilesPerFolder, NUMBER_OF_CHARS);
+			List<Path> f = FileTestUtils.createFolderWithFiles(masterRootPath, nrFilesPerFolder, NUMBER_OF_CHARS);
 			files.addAll(f);
 		}
 		
 		waitForExists(files, WAIT_TIME_LONG);		
-		assertSyncClientPaths();
-		assertQueuesAreEmpty();
 		return files;
 	}
 	
 	protected void deleteSingleFile(Path filePath) throws IOException{
 		deleteFileOnClient(filePath, 0);
-//		assertSyncClientPaths();
-//		assertQueuesAreEmpty();
 	}
 	
 	protected void deleteManyFiles(List<Path> files) throws IOException {
@@ -192,9 +185,6 @@ public abstract class FileIntegrationTest {
 		}
 		
 		waitForNotExists(files, WAIT_TIME_LONG);
-		assertSyncClientPaths();
-		assertQueuesAreEmpty();
-		assertRootContains(0);
 	}
 	
 
@@ -211,10 +201,12 @@ public abstract class FileIntegrationTest {
 		sleepMillis(10);
 	}
 	
-	protected void updateSingleFile(Path f) throws IOException {
-		double scale = RandomUtils.nextDouble(0.01, 2.0);
-//		FileTestUtils.writeRandomData(f, (int)(NUMBER_OF_CHARS*scale));
+	protected void updateSingleFile(Path f, boolean wait) throws IOException {
 		FileTestUtils.writeRandomData(f, 100000);
+		if(wait){
+			waitForUpdate(f, WAIT_TIME_SHORT);
+		}
+
 	}
 
 	protected void waitForExists(Path path, int seconds) {
@@ -413,7 +405,9 @@ public abstract class FileIntegrationTest {
 	protected void assertRootContains(int nrFiles) throws IOException {
 		IndexRootPath clientIndex = new IndexRootPath(masterRootPath);
 		Files.walkFileTree(masterRootPath, clientIndex);
-		assertTrue(clientIndex.getHashes().size() == nrFiles + 1);
+		int contained = clientIndex.getHashes().size();
+		logger.info("Root contains/expected: {}/{}", contained, nrFiles + 1);
+		assertTrue(contained == nrFiles + 1);
 	}
 	
 	protected void assertQueuesAreEmpty(){
@@ -554,5 +548,12 @@ public abstract class FileIntegrationTest {
 		}
 
 	}
+	
+	protected void assertCleanedUpState(int existingFiles) throws IOException {
+		assertSyncClientPaths();
+		assertQueuesAreEmpty();
+		assertRootContains(existingFiles);
+	}
+
 	
 }

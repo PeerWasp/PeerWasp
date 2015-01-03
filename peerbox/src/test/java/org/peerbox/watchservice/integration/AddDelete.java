@@ -11,38 +11,197 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.peerbox.utils.FileTestUtils;
 
+/**
+ * @author Claudio Anliker
+ * 
+ * This set of integration tests is designed to verify correct end-to-end execution of add 
+ * and delete operations. Every test consists of two stages. In the first stage, files 
+ * and/or folders are created. In the second stage, they are deleted again. At the end of 
+ * both stages, the following checks are performed:
+ * 
+ * - Do the two folders contain the same objects?
+ * - Are any pending executions left in the queue (this indicates a bug in the FileEventManager)?
+ * - Is the number of objects contained in both folders as expected (i.e. same file might be 
+ * missing in both places)?
+ * 
+ * Besides that, the test waits for a specified maximal amount of time after the first stage if
+ * files are missing. This is done to discover incorrect/incomplete synchronization.
+ */
 public class AddDelete extends FileIntegrationTest {
 	
+	/**
+	 * This test verifies the correct add and delete operations
+	 * of a single empty folder.
+	 * @throws IOException
+	 */
 	@Test
 	public void singleFolderTest() throws IOException {
-		// ADD
 		Path folder = addSingleFolder();
+		assertCleanedUpState(1);
+		
 		deleteSingleFile(folder);
-		assertSyncClientPaths();
-		assertQueuesAreEmpty();
-		assertRootContains(0);
-	}
-	
-	@Test
-	public void manyFoldersTest() throws IOException {
-		List<Path> folders = addManyFolders();
-		deleteManyFiles(folders);
+		assertCleanedUpState(0);
 	}
 
-	private List<Path> addManyFolders() throws IOException {
+	/**
+	 * This test verifies the correct add and delete operations
+	 * of many empty folders.
+	 * @throws IOException
+	 */
+	@Test
+	public void manyFoldersTest() throws IOException {
 		int numFolders = 20;
-		List<Path> folders = FileTestUtils.createRandomFolders(masterRootPath, numFolders);
-	
-		waitForExists(folders, WAIT_TIME_LONG);
-		assertSyncClientPaths();
-		assertQueuesAreEmpty();
-		return folders;
+		List<Path> folders = addManyFolders(numFolders);
+		assertCleanedUpState(numFolders);
+		
+		deleteManyFiles(folders);
+		assertCleanedUpState(0);
 	}
 	
+	/**
+	 * This test verifies the correct add and delete operations
+	 * of a single folder containing a single empty folder.
+	 * @throws IOException
+	 */
 	@Test
 	public void singleFolderInFolderTest() throws IOException {
 		List<Path> folders = addSingleFolderInFolder();
+		assertCleanedUpState(2);
+		
 		deleteSingleFolderInFolder(folders);
+		assertCleanedUpState(0);
+	}
+	
+	/**
+	 * This test verifies the correct add and delete operations
+	 * of a single folder containing many empty folders.
+	 * @throws IOException
+	 */
+	@Test
+	public void manyFoldersInFolderTest() throws IOException {
+		int nrFolders = 20;
+		List<Path> folders = addManyFoldersInFolder(nrFolders);
+		assertCleanedUpState(nrFolders + 1);
+		
+		deleteManyFoldersInFolder(folders);
+		assertCleanedUpState(1);
+	}
+	
+	/**
+	 * This test verifies the correct add and delete operations
+	 * of a single file.
+	 * @throws IOException
+	 */
+	@Test
+	public void singleFileTest() throws IOException {
+		Path file = addSingleFile();
+		assertCleanedUpState(1);
+		
+		deleteSingleFile(file);
+		assertCleanedUpState(0);
+	}
+	
+	/**
+	 * This test verifies the correct add and delete operations
+	 * of many files.
+	 * @throws IOException
+	 */
+	@Test
+	public void manyFilesTest() throws IOException {
+		manyFilesTest(100, WAIT_TIME_LONG);
+	}
+
+	
+	/**
+	 * This test verifies the correct add and delete operations
+	 * of a very high number of files. This test is used to verify
+	 * stable execution under a huge load which implies high CPU time
+	 * and memory consumption.
+	 * @throws IOException
+	 */
+	@Test @Ignore
+	public void manyFilesStressTest() throws IOException {
+		manyFilesTest(10000, WAIT_TIME_STRESSTEST);
+
+	}
+
+	/**
+	 * This test verifies the correct add and delete operations
+	 * of a single folder containing a single file.
+	 * @throws IOException
+	 */
+	@Test
+	public void singleFileInFolderTest() throws IOException {
+		List<Path> files = addSingleFileInFolder();
+		assertCleanedUpState(2);
+		
+		deleteSingleFileInFolder(files);
+		assertCleanedUpState(0);
+	}
+	
+	/**
+	 * This test verifies the correct add and delete operations
+	 * of a single folder containing many files.
+	 * @throws IOException
+	 */
+	@Test
+	public void manyFilesInFolderTest() throws IOException {
+		int nrFiles = 20;
+		List<Path> files = addManyFilesInFolder(nrFiles);
+		assertCleanedUpState(nrFiles + 1);
+
+		deleteManyFilesInManyFolders(files);
+		assertCleanedUpState(0);
+
+	}
+	
+	/**
+	 * This test verifies the correct add and delete operations
+	 * of many folders containing many files.
+	 * @throws IOException
+	 */
+	@Test
+	public void manyFilesInManyFoldersTest() throws IOException {
+		int nrFolders = 10;
+		int nrFilesPerFolder = 10;
+		
+		List<Path> files = addManyFilesInManyFolders(nrFolders, nrFilesPerFolder);
+		assertCleanedUpState(nrFolders + nrFolders * nrFilesPerFolder);
+		
+		deleteManyFilesInManyFolders(files);
+		assertCleanedUpState(0);
+	}
+	
+	/**
+	 * This test verifies the correct add and delete operations
+	 * of many folders containing each a single files. A fail of
+	 * this test is mostly implied by incorrect execution order,
+	 * i.e. a file cannot be synchronized as the parent folder was
+	 * not yet synchronized.
+	 * @throws IOException
+	 */
+	@Test
+	public void singleFileInManyFoldersTest() throws IOException{
+		int nrFolders = 100;
+		List<Path> allPathsInOne = addSingleFileInManyFolders(nrFolders);
+		assertCleanedUpState(nrFolders * 2);
+		
+		deleteManyFilesInManyFolders(allPathsInOne);
+		assertCleanedUpState(0);
+		
+	}
+	
+	private void manyFilesTest(int nrFiles, int waitTime) throws IOException {
+		List<Path> files = addManyFiles(nrFiles, waitTime);
+		assertCleanedUpState(nrFiles);
+		deleteManyFiles(files);
+		assertCleanedUpState(0);
+	}
+	
+	private List<Path> addManyFolders(int numFolders) throws IOException {
+		List<Path> folders = FileTestUtils.createRandomFolders(masterRootPath, numFolders);
+		waitForExists(folders, WAIT_TIME_LONG);
+		return folders;
 	}
 	
 	private List<Path> addSingleFolderInFolder() throws IOException {
@@ -54,8 +213,6 @@ public class AddDelete extends FileIntegrationTest {
 		folders.add(subFolder);
 		
 		waitForExists(folders, WAIT_TIME_LONG);
-		assertSyncClientPaths();
-		assertQueuesAreEmpty();
 		return folders;
 	}
 	
@@ -64,35 +221,18 @@ public class AddDelete extends FileIntegrationTest {
 		while(it.hasPrevious()) {
 			Path f = it.previous();
 			deleteSingleFile(f);
-//			Files.delete(f);
 		}
-		
 		waitForNotExists(folders, WAIT_TIME_LONG);
-		assertSyncClientPaths();
-		assertQueuesAreEmpty();
-		assertRootContains(0);
 	}
 	
-	@Test
-	public void manyFoldersInFolderTest() throws IOException {
-		// ADD
-		System.out.println("--------------------- Start manyFoldersInFolderTest -------------------------");
-		List<Path> folders = addManyFoldersInFolder();
-		deleteManyFoldersInFolder(folders);
-	}
-	
-	private List<Path> addManyFoldersInFolder() throws IOException {
+	private List<Path> addManyFoldersInFolder(int nrSubFolders) throws IOException {
 		List<Path> folders = new ArrayList<>();
 		
 		Path folder = FileTestUtils.createRandomFolder(masterRootPath);
-		List<Path> subFolders = FileTestUtils.createRandomFolders(folder, 20);
-		
-//		folders.add(folder);
+		List<Path> subFolders = FileTestUtils.createRandomFolders(folder, nrSubFolders);
 		folders.addAll(subFolders);
 		
 		waitForExists(folders, WAIT_TIME_LONG);
-		assertSyncClientPaths();
-		assertQueuesAreEmpty();
 		return folders;
 	}
 	
@@ -101,145 +241,20 @@ public class AddDelete extends FileIntegrationTest {
 		while(it.hasPrevious()) {
 			Path f = it.previous();
 			deleteSingleFile(f);
-//			Files.delete(f);
 		}
 		
 		waitForNotExists(folders, WAIT_TIME_LONG);
-		assertSyncClientPaths();
-		assertQueuesAreEmpty();
-		assertRootContains(1);
 	}
-	
-	@Test
-	public void singleFileTest() throws IOException {
-		// ADD
-		Path file = addSingleFile();
-		assertSyncClientPaths();
-		assertQueuesAreEmpty();
-		// DELETE
-		deleteSingleFile(file);
-		assertSyncClientPaths();
-		assertQueuesAreEmpty();
-		assertRootContains(0);
-	}
-	
-//	private void deleteSingleFile(Path file) throws IOException {
-//		Files.delete(file);
-//		waitForNotExists(file, WAIT_TIME_SHORT);
-//		assertSyncClientPaths();
-//	}
-	
-	@Test
-	public void manyFilesTest() throws IOException {
-		List<Path> files = addManyFiles();
-		deleteManyFiles(files);
-	}
-	
-	@Test @Ignore
-	public void manyFilesStressTest() throws IOException {
-		List<Path> files = addManyFiles(600, WAIT_TIME_STRESSTEST);
-		deleteManyFiles(files);
 
-	}
-	
-
-	@Test
-	public void singleFileInFolderTest() throws IOException {
-		// ADD
-		System.out.println("START singleFileInFolderTest");
-		List<Path> files = addSingleFileInFolder();
-		
-		// DELETE
-		deleteSingleFileInFolder(files);
-	}
-	
 	private void deleteSingleFileInFolder(List<Path> files) throws IOException {
 		ListIterator<Path> it = files.listIterator(files.size());
 		while(it.hasPrevious()) {
 			Path f = it.previous();
-//			Files.delete(f);
 			deleteSingleFile(f);
 		}
-		
 		waitForNotExists(files, WAIT_TIME_SHORT);
-		assertSyncClientPaths();
-		assertQueuesAreEmpty();
-//		assertRootContains(0);
 	}
 
-	@Test
-	public void manyFilesInFolderTest() throws IOException {
-		// ADD
-		List<Path> files = addManyFilesInFolder();
-
-		deleteManyFilesInManyFolders(files);
-		// DELETE
-		
-		//sleepMillis(20000);
-		
-	}
-	
-	private void deleteManyFilesInFolder(List<Path> files) throws IOException {
-		ListIterator<Path> it = files.listIterator(files.size());
-		
-		while(it.hasPrevious()) {
-			Path p = it.previous();
-//			Files.delete(p);
-			deleteSingleFile(p);
-		}
-		
-		waitForNotExists(files, WAIT_TIME_LONG);
-		assertSyncClientPaths();
-		assertQueuesAreEmpty();
-	}
-
-	@Test
-	public void manyFilesInManyFoldersTest() throws IOException {
-		List<Path> files = addManyFilesInManyFolders(10);
-		deleteManyFilesInManyFolders(files);
-	}
-	
-	@Test
-	public void singleFileInManyFoldersTest() throws IOException{
-		List<List<Path>> allPaths = new ArrayList<List<Path>>();
-		for(int i = 0; i < 100; i++){
-			allPaths.add(addSingleFileInFolder());
-		}
-		for(List<Path> paths : allPaths){
-			waitForExists(paths, WAIT_TIME_LONG);
-		}
-		assertSyncClientPaths();
-		assertQueuesAreEmpty();
-		
-		List<Path> allPathsInOne = new ArrayList<Path>();
-		for(List<Path> paths : allPaths){
-			allPathsInOne.addAll(paths);	
-		}
-		
-		deleteManyFilesInManyFolders(allPathsInOne);
-		for(Path path : allPathsInOne){
-			waitForNotExists(path, WAIT_TIME_SHORT);
-		}
-		
-		assertSyncClientPaths();
-		assertQueuesAreEmpty();
-		assertRootContains(0);
-		
-	}
-	
-	
-//	List<Path> files = new ArrayList<>();
-//	
-//	int numFilesPerFolder = 10;
-//	for(int i = 0; i < nrFolders; ++i) {
-//		List<Path> f = FileTestUtils.createFolderWithFiles(masterRootPath, numFilesPerFolder, NUMBER_OF_CHARS);
-//		files.addAll(f);
-//	}
-//	
-//	waitForExists(files, WAIT_TIME_LONG);		
-//	assertSyncClientPaths();
-//	assertQueuesAreEmpty();
-//	return files;
 	private void deleteManyFilesInManyFolders(List<Path> files) throws IOException {
 		List<Path> folders = new ArrayList<Path>();
 		// delete files
@@ -249,20 +264,13 @@ public class AddDelete extends FileIntegrationTest {
 				folders.add(p);
 				continue;
 			}
-//			Files.delete(p);
 			deleteSingleFile(p);
 		}
-		
 		// delete (now empty) folders
 		for(Path p : folders) {
-		//	Files.delete(p);
 			deleteSingleFile(p);
 		}
 		
 		waitForNotExists(files, WAIT_TIME_LONG);
-		assertSyncClientPaths();
-		assertQueuesAreEmpty();
-		assertRootContains(0);
 	}
-
 }
