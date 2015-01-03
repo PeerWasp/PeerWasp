@@ -21,7 +21,7 @@ import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.hive2hive.processframework.exceptions.InvalidProcessStateException;
 import org.hive2hive.processframework.exceptions.ProcessExecutionException;
 import org.peerbox.ResultStatus;
-import org.peerbox.model.UserManager;
+import org.peerbox.app.manager.UserManager;
 import org.peerbox.presenter.validation.CombinedPasswordValidator;
 import org.peerbox.presenter.validation.CombinedPinValidator;
 import org.peerbox.presenter.validation.UsernameValidator;

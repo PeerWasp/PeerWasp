@@ -1,9 +1,8 @@
-package org.peerbox.model;
+package org.peerbox.app.manager;
 
 import java.io.IOException;
 import java.nio.file.Path;
 
-import org.hive2hive.core.api.interfaces.IUserManager;
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.hive2hive.core.exceptions.NoSessionException;
 import org.hive2hive.core.file.IFileAgent;
@@ -18,20 +17,24 @@ import org.peerbox.utils.AppData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public final class UserManager {
+import com.google.inject.Inject;
+
+public final class UserManager extends AbstractManager implements IUserManager {
 
 	private static final Logger logger = LoggerFactory.getLogger(UserManager.class);
 
-	private IUserManager h2hUserManager;
 	private UserCredentials userCredentials;
-
-	public UserManager(IUserManager h2hUserManager) {
-		this.h2hUserManager = h2hUserManager;
+	
+	@Inject
+	public UserManager(final IH2HManager h2hManager) {
+		super(h2hManager);
 	}
-
+	
+	@Override
 	public ResultStatus registerUser(final String username, final String password, final String pin) throws NoPeerConnectionException, InvalidProcessStateException, ProcessExecutionException {
+		logger.debug("REGISTER - Username: {}", username);
 		UserCredentials credentials = new UserCredentials(username, password, pin);
-		IProcessComponent<Void> registerProcess = h2hUserManager.createRegisterProcess(credentials);
+		IProcessComponent<Void> registerProcess = getUserManager().createRegisterProcess(credentials);
 		ProcessListener listener = new ProcessListener();
 		registerProcess.attachListener(listener);
 		
@@ -48,18 +51,21 @@ public final class UserManager {
 		return ResultStatus.error("Could not register user.");
 	}
 
+	@Override
 	public boolean isRegistered(final String userName) throws NoPeerConnectionException {
-		return h2hUserManager.isRegistered(userName);
+		return getUserManager().isRegistered(userName);
 	}
 
+	@Override
 	public ResultStatus loginUser(final String username, final String password, final String pin,
 			final Path rootPath) throws NoPeerConnectionException,
 			InvalidProcessStateException, ProcessExecutionException, IOException {
 		// TODO what if already logged in?
+		logger.debug("LOGIN - Username: {}", username);
 		userCredentials = new UserCredentials(username, password, pin);
 		IFileAgent fileAgent = new FileAgent(rootPath, AppData.getCacheFolder());
 
-		IProcessComponent<Void> loginProcess = h2hUserManager.createLoginProcess(userCredentials, fileAgent);
+		IProcessComponent<Void> loginProcess = getUserManager().createLoginProcess(userCredentials, fileAgent);
 		ProcessListener listener = new ProcessListener();
 		loginProcess.attachListener(listener);
 		
@@ -76,13 +82,16 @@ public final class UserManager {
 		return ResultStatus.error("Could not login user.");
 	}
 
+	@Override
 	public boolean isLoggedIn() throws NoPeerConnectionException {
-		return h2hUserManager.isLoggedIn();
+		return getUserManager().isLoggedIn();
 	}
 
+	@Override
 	public ResultStatus logoutUser() throws InvalidProcessStateException, ProcessExecutionException, 
 			NoPeerConnectionException, NoSessionException {
-		IProcessComponent<Void> logoutProcess = h2hUserManager.createLogoutProcess();
+		logger.debug("LOGOUT");
+		IProcessComponent<Void> logoutProcess = getUserManager().createLogoutProcess();
 		ProcessListener listener = new ProcessListener();
 		logoutProcess.attachListener(listener);
 		// TODO: catch exception here and wrap it in code

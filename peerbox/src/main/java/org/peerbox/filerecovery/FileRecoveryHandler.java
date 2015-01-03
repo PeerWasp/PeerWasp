@@ -12,9 +12,9 @@ import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 
 import org.peerbox.ResultStatus;
+import org.peerbox.app.manager.UserManager;
 import org.peerbox.interfaces.IFxmlLoaderProvider;
 import org.peerbox.model.H2HManager;
-import org.peerbox.model.UserManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -20,9 +20,11 @@ import org.hive2hive.core.utils.NetworkTestUtil;
 import org.hive2hive.core.utils.helper.TestFileAgent;
 import org.hive2hive.processframework.exceptions.InvalidProcessStateException;
 import org.hive2hive.processframework.exceptions.ProcessExecutionException;
+import org.mockito.Mockito;
 import org.peerbox.FileManager;
+import org.peerbox.app.manager.IH2HManager;
+import org.peerbox.app.manager.UserManager;
 import org.peerbox.interfaces.IFxmlLoaderProvider;
-import org.peerbox.model.UserManager;
 import org.peerbox.share.ShareFolderController;
 import org.peerbox.share.ShareFolderHandler;
 
@@ -110,8 +112,10 @@ public class ShareFolderStarter extends Application {
 	
 
 	private void initGui() {
-		FileManager fileManager = new FileManager(clientsA[0].getFileManager());
-		UserManager userManager = new UserManager(clientsA[0].getUserManager());
+		IH2HManager manager = Mockito.mock(IH2HManager.class);
+		Mockito.stub(manager.getNode()).toReturn(clientsA[0]);
+		FileManager fileManager = new FileManager(manager);
+		UserManager userManager = new UserManager(manager);
 		
 		stage = new ShareFolderHandler();
 		ShareFolderController controller = new ShareFolderController(fileManager, userManager);

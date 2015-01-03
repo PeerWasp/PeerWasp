@@ -4,7 +4,7 @@ import javafx.beans.property.StringProperty;
 import javafx.scene.control.TextField;
 
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
-import org.peerbox.model.UserManager;
+import org.peerbox.app.manager.UserManager;
 import org.peerbox.presenter.validation.ValidationUtils.ValidationResult;
 
 public final class UsernameValidator extends TextFieldValidator {

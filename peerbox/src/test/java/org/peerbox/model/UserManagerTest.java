@@ -21,7 +21,11 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.mockito.Mockito;
 import org.peerbox.ResultStatus;
+import org.peerbox.app.manager.IH2HManager;
+import org.peerbox.app.manager.IUserManager;
+import org.peerbox.app.manager.UserManager;
 
 public class UserManagerTest {
 	private static final int networkSize = 6;
@@ -32,7 +36,7 @@ public class UserManagerTest {
 	
 	private static Path root;
 	
-	private UserManager userManager;
+	private IUserManager userManager;
 	
 	@BeforeClass
 	public static void beforeClass() {
@@ -50,14 +54,18 @@ public class UserManagerTest {
 		root = FileTestUtil.getTempDirectory().toPath();
 		
 		client = network.get(RandomUtils.nextInt(0, network.size()));
-		userManager = new UserManager(client.getUserManager());
+		IH2HManager manager = Mockito.mock(IH2HManager.class);
+		Mockito.stub(manager.getNode()).toReturn(client);
+		userManager = new UserManager(manager);
 	}
 	
 	@Test
 	public void testRegister() throws NoPeerConnectionException, InterruptedException, InvalidProcessStateException, ProcessExecutionException {
 		// check registered
 		for(int i = 0; i < network.size(); ++i) {
-			UserManager usrMgr = new UserManager(network.get(i).getUserManager());
+			IH2HManager manager = Mockito.mock(IH2HManager.class);
+			Mockito.stub(manager.getNode()).toReturn(network.get(i));
+			UserManager usrMgr = new UserManager(manager);
 			assertFalse(usrMgr.isRegistered(userCredentials.getUserId()));
 		}
 		
@@ -66,7 +74,9 @@ public class UserManagerTest {
 		
 		// check again whether registered
 		for(int i = 0; i < network.size(); ++i) {
-			UserManager usrMgr = new UserManager(network.get(i).getUserManager());
+			IH2HManager manager = Mockito.mock(IH2HManager.class);
+			Mockito.stub(manager.getNode()).toReturn(network.get(i));
+			IUserManager usrMgr = new UserManager(manager);
 			assertTrue(usrMgr.isRegistered(userCredentials.getUserId()));
 		}
 	}
@@ -79,7 +89,9 @@ public class UserManagerTest {
 		
 		// check again whether registered
 		for(int i = 0; i < network.size(); ++i) {
-			UserManager usrMgr = new UserManager(network.get(i).getUserManager());
+			IH2HManager manager = Mockito.mock(IH2HManager.class);
+			Mockito.stub(manager.getNode()).toReturn(network.get(i));
+			IUserManager usrMgr = new UserManager(manager);
 			res = usrMgr.registerUser(userCredentials.getUserId(), userCredentials.getPassword(), userCredentials.getPin());
 			assertTrue(res.isError());
 		}

@@ -5,19 +5,20 @@ import org.peerbox.FileManager;
 import org.peerbox.IPeerboxFileManager;
 import org.peerbox.app.ExitHandler;
 import org.peerbox.app.IExitHandler;
+import org.peerbox.app.manager.IH2HManager;
+import org.peerbox.app.manager.IUserManager;
+import org.peerbox.app.manager.UserManager;
 import org.peerbox.events.MessageBus;
 import org.peerbox.filerecovery.FileRecoveryHandler;
 import org.peerbox.filerecovery.IFileRecoveryHandler;
 import org.peerbox.interfaces.IFxmlLoaderProvider;
 import org.peerbox.model.H2HManager;
-import org.peerbox.model.UserManager;
 import org.peerbox.share.IShareFolderHandler;
 import org.peerbox.share.ShareFolderHandler;
 import org.peerbox.view.tray.AbstractSystemTray;
 import org.peerbox.view.tray.JSystemTray;
 
 import com.google.inject.AbstractModule;
-import com.google.inject.Provides;
 import com.google.inject.TypeLiteral;
 import com.google.inject.matcher.Matchers;
 import com.google.inject.name.Names;
@@ -34,6 +35,8 @@ public class PeerBoxModule extends AbstractModule {
 		bindMessageBus();
 		bindSystemTray();
 		bindPrimaryStage();
+		
+		bindManagers();
 		
 		bind(IFxmlLoaderProvider.class).to(GuiceFxmlLoader.class);
 		bind(IFileRecoveryHandler.class).to(FileRecoveryHandler.class);
@@ -70,14 +73,10 @@ public class PeerBoxModule extends AbstractModule {
 			.toInstance(org.peerbox.App.getPrimaryStage());
 	}
 
-	@Provides
-	UserManager providesUserManager(H2HManager manager) {
-		return new UserManager(manager.getNode().getUserManager());
+	private void bindManagers() {
+		bind(IH2HManager.class).to(H2HManager.class);
+		bind(IUserManager.class).to(UserManager.class);
+		bind(IPeerboxFileManager.class).to(FileManager.class);
 	}
 	
-	@Provides
-	IPeerboxFileManager providesFileManager(H2HManager manager) {
-		return new FileManager(manager.getNode().getFileManager());
-	}
-
 }

@@ -9,7 +9,9 @@ import org.hive2hive.core.exceptions.NoSessionException;
 import org.hive2hive.core.security.UserCredentials;
 import org.hive2hive.core.utils.TestExecutionUtil;
 import org.hive2hive.processframework.interfaces.IProcessComponent;
+import org.mockito.Mockito;
 import org.peerbox.FileManager;
+import org.peerbox.app.manager.IH2HManager;
 import org.peerbox.h2h.FileAgent;
 import org.peerbox.watchservice.FileEventManager;
 import org.peerbox.watchservice.FolderWatchService;
@@ -51,7 +53,9 @@ public class ClientNode {
 		}
 
 		// create managers and initialization
-		fileManager = new FileManager(node.getFileManager());
+		IH2HManager manager = Mockito.mock(IH2HManager.class);
+		Mockito.stub(manager.getNode()).toReturn(node);
+		fileManager = new FileManager(manager);
 		fileEventManager = new FileEventManager(rootPath, true);
 		watchService = new FolderWatchService(rootPath);
 		watchService.addFileEventListener(fileEventManager);

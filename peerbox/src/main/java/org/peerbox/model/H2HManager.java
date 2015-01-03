@@ -12,19 +12,21 @@ import org.hive2hive.core.api.configs.NetworkConfiguration;
 import org.hive2hive.core.api.interfaces.IFileConfiguration;
 import org.hive2hive.core.api.interfaces.IH2HNode;
 import org.hive2hive.core.api.interfaces.INetworkConfiguration;
+import org.peerbox.app.manager.IH2HManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.inject.Singleton;
 
 @Singleton
-public final class H2HManager {
+public final class H2HManager implements IH2HManager {
 
 	private static final Logger logger = LoggerFactory.getLogger(H2HManager.class);
 
 	private IH2HNode node;
 	private INetworkConfiguration networkConfiguration;
 
+	@Override
 	public IH2HNode getNode() {
 		return node;
 	}
@@ -61,6 +63,7 @@ public final class H2HManager {
 		return connected;
 	}
 	
+	@Override
 	public boolean joinNetwork(String address) throws UnknownHostException {
 		if (address.isEmpty()) {
 			throw new IllegalArgumentException("Bootstrap address is empty.");
@@ -73,6 +76,7 @@ public final class H2HManager {
 		return node.connect(networkConfiguration);
 	}
 	
+	@Override
 	public boolean createNetwork() {
 		createNode();
 		String nodeID = generateNodeID();
@@ -80,6 +84,7 @@ public final class H2HManager {
 		return node.connect(networkConfiguration);
 	}
 	
+	@Override
 	public boolean leaveNetwork() {
 		if (node != null) {
 			boolean res = node.disconnect();
@@ -90,6 +95,7 @@ public final class H2HManager {
 		return true;
 	}
 	
+	@Override
 	public boolean isConnected() {
 		return node != null && node.isConnected();
 	}

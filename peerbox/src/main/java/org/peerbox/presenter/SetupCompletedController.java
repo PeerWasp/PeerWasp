@@ -17,7 +17,7 @@ import org.hive2hive.core.exceptions.NoSessionException;
 import org.hive2hive.processframework.exceptions.InvalidProcessStateException;
 import org.hive2hive.processframework.exceptions.ProcessExecutionException;
 import org.peerbox.ResultStatus;
-import org.peerbox.model.UserManager;
+import org.peerbox.app.manager.UserManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
