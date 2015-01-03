@@ -22,6 +22,7 @@ import org.hive2hive.core.events.implementations.FileUpdateEvent;
 import org.peerbox.FileManager;
 import org.peerbox.h2h.IFileRecoveryRequestEvent;
 import org.peerbox.watchservice.filetree.FileTree;
+import org.peerbox.watchservice.filetree.IFileTree;
 import org.peerbox.watchservice.filetree.composite.FileComponent;
 import org.peerbox.watchservice.filetree.composite.FolderComposite;
 import org.slf4j.Logger;
@@ -267,7 +268,7 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 		return fileComponentQueue;
 	}
 	
-	public synchronized FileTree getFileTree(){
+	public synchronized IFileTree getFileTree(){
 		return fileTree;
 	}
 

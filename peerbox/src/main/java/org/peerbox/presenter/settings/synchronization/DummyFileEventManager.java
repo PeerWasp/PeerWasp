@@ -10,6 +10,7 @@ import org.hive2hive.core.events.framework.interfaces.file.IFileAddEvent;
 import org.peerbox.selectivesync.ISynchronize;
 import org.peerbox.watchservice.IFileEventManager;
 import org.peerbox.watchservice.filetree.FileTree;
+import org.peerbox.watchservice.filetree.IFileTree;
 import org.peerbox.watchservice.filetree.composite.FileComponent;
 import org.peerbox.watchservice.filetree.composite.FolderComposite;
 import org.slf4j.Logger;
@@ -21,16 +22,16 @@ import com.google.inject.Inject;
 public class DummyFileEventManager implements IFileEventManager{
 
 	private static final Logger logger = LoggerFactory.getLogger(DummyFileEventManager.class);
-    private Set<Path> synchronizedFiles = new ConcurrentHashSet<Path>();
+    private IFileTree fileTree;
     
     @Inject
 	public DummyFileEventManager(){
 		DummyUserConfig userConfig = new DummyUserConfig();
-		synchronizedFiles = SynchronizationTestUtils.generateLocalFiles(userConfig);
+		fileTree = new DummyFileTree(userConfig);
 	}
 	@Override
-	public FileTree getFileTree() {
-		return null;
+	public IFileTree getFileTree() {
+		return fileTree;
 	}
 
 	@Override

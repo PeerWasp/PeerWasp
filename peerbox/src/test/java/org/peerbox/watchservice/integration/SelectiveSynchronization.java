@@ -2,23 +2,19 @@ package org.peerbox.watchservice.integration;
 
 import static org.junit.Assert.assertTrue;
 
-import java.io.File;
+
+
 import java.io.IOException;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.hive2hive.core.utils.H2HWaiter;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.mockito.Mock;
-import org.peerbox.FileManager;
 import org.peerbox.watchservice.FileEventManager;
-import org.peerbox.watchservice.FileEventManagerTest;
 import org.peerbox.watchservice.filetree.FileTree;
+import org.peerbox.watchservice.filetree.IFileTree;
 import org.peerbox.watchservice.filetree.composite.FileComponent;
 
 public class SelectiveSynchronization extends FileIntegrationTest{
@@ -145,7 +141,7 @@ public class SelectiveSynchronization extends FileIntegrationTest{
 	}
 	
 	protected boolean pathIsSynchronized(Path path, boolean sync){
-		FileTree fileTree = getNetwork().getClients().get(0).getFileEventManager().getFileTree();
+		IFileTree fileTree = getNetwork().getClients().get(0).getFileEventManager().getFileTree();
 		if(sync){
 			if(fileTree.getFile(path) != null && !fileTree.getFile(path).getIsSynchronized()){
 				return false;
@@ -161,7 +157,7 @@ public class SelectiveSynchronization extends FileIntegrationTest{
 
 	private boolean allPathsAreSynchronized(List<Path> paths, boolean sync) {
 		// TODO Auto-generated method stub
-		FileTree fileTree = getNetwork().getClients().get(0).getFileEventManager().getFileTree();
+		IFileTree fileTree = getNetwork().getClients().get(0).getFileEventManager().getFileTree();
 		for(Path path : paths){
 			if(sync){
 				if(fileTree.getFile(path) != null && !fileTree.getFile(path).getIsSynchronized()){
