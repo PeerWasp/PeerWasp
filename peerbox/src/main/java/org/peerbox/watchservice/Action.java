@@ -2,10 +2,7 @@ package org.peerbox.watchservice;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.channels.FileChannel;
-import java.nio.channels.FileLock;
 import java.nio.file.Files;
-import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.util.HashSet;
 import java.util.Map;
@@ -24,7 +21,6 @@ import org.peerbox.watchservice.states.EstablishedState;
 import org.peerbox.watchservice.states.ExecutionHandle;
 import org.peerbox.watchservice.states.InitialState;
 import org.peerbox.watchservice.states.LocalMoveState;
-import org.peerbox.watchservice.states.RemoteUpdateState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -106,7 +102,6 @@ public class Action implements IAction{
 			
 			acquireLockOnThis();
 			logger.trace("Event occured for {} while executing.", getFilePath());
-//			changedWhileExecuted = true;
 			nextState = nextState.changeStateOnLocalCreate();
 			checkIfChanged();
 			releaseLockOnThis();
@@ -121,9 +116,7 @@ public class Action implements IAction{
 	}
 	
 	private void releaseLockOnThis() {
-		// TODO Auto-generated method stub
 		logger.trace("File {}: Release lock on this at {}", getFilePath(), System.currentTimeMillis());
-		//this.notify();
 		lock.unlock();
 	}
 
@@ -167,9 +160,7 @@ public class Action implements IAction{
 		acquireLockOnThis();
 		logger.trace("handleLocalDeleteEvent - File: {}", getFilePath());
 		if(isExecuting){
-
 			logger.trace("Event occured for {} while executing.", getFilePath());
-//			changedWhileExecuted = true;
 			nextState = nextState.changeStateOnLocalDelete();
 			checkIfChanged();
 
@@ -187,8 +178,6 @@ public class Action implements IAction{
 			logger.trace("File {}: is a folder", getFile().getPath());
 			FolderComposite folder = (FolderComposite)getFile();
 			Map<String, FileComponent> children = folder.getChildren();
-			
-//			Vector<FileComponent> children = new Vector<FileComponent>(folder.getChildren().values());
 			for(Map.Entry<String, FileComponent> childEntry : children.entrySet()){
 				FileComponent child = childEntry.getValue();
 				logger.trace("Child {}: handleLocalHardDelete", getFile().getPath());
@@ -199,7 +188,6 @@ public class Action implements IAction{
 		logger.trace("handleLocalHardDeleteEvent - File: {}", getFilePath());
 		if(isExecuting){
 			logger.trace("Event occured for {} while executing.", getFilePath());
-//			changedWhileExecuted = true;
 			nextState = nextState.changeStateOnLocalHardDelete();
 			checkIfChanged();
 
@@ -207,12 +195,6 @@ public class Action implements IAction{
 			updateTimestamp();
 			currentState = currentState.handleLocalHardDelete();
 			nextState = currentState.getDefaultState();
-//			try {
-//				Files.delete(getFilePath());
-//			} catch (IOException e) {
-//				// TODO Auto-generated catch block
-//				e.printStackTrace();
-//			}
 		}
 		releaseLockOnThis();
 		
@@ -223,7 +205,6 @@ public class Action implements IAction{
 			Files.delete(getFilePath());
 			logger.trace("DELETED FROM DISK: {}", getFilePath());
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -232,29 +213,19 @@ public class Action implements IAction{
 		logger.debug("handleLocalMoveEvent - File: {}", getFilePath());
 		acquireLockOnThis();
 		if(isExecuting){
-
 			logger.trace("Event occured for {} while executing.", getFilePath());
-//			changedWhileExecuted = true;
 			nextState = nextState.changeStateOnLocalMove(oldFilePath);
 			checkIfChanged();
-
 		} else {
 			updateTimestamp();
-			System.out.println("OLDPATH: " + oldFilePath + " NEWPATH: " + getFilePath());
 			if(oldFilePath.equals(getFilePath())){
 				logger.trace("File {}:Move to same location due to update!", getFilePath());
 				eventManager.getFileTree().getDeletedByContentHash().get(getFile().getContentHash()).remove(oldFilePath);
-//				eventManager.
-				//gremove(oldFilePath.toString());
 				return;
 			}
-//			if(currentState instanceof RemoteUpdateState){
-//				nextState = nextState.changeStateOnLocalMove(oldFilePath);
-//				checkIfChanged();
-//			} else {
-				currentState = currentState.handleLocalMove(oldFilePath);
-				nextState = currentState.getDefaultState();
-//			}
+			currentState = currentState.handleLocalMove(oldFilePath);
+			nextState = currentState.getDefaultState();
+
 		}
 		releaseLockOnThis();
 	}
@@ -297,7 +268,6 @@ public class Action implements IAction{
 		if(isExecuting){
 
 			logger.trace("Event occured for {} while executing.", getFilePath());
-//			changedWhileExecuted = true;
 			nextState = nextState.changeStateOnRemoteDelete();
 			checkIfChanged();
 
@@ -359,7 +329,6 @@ public class Action implements IAction{
 			try {
 				com.google.common.io.Files.move(oldPath.toFile(), path.toFile());
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}		
@@ -464,14 +433,12 @@ public class Action implements IAction{
 
 	@Override
 	public void onFailed() {
-		// TODO Auto-generated method stub
 		setIsExecuting(false);
 		isExecuting = false;
 	}
 
 	@Override
 	public Lock getLock() {
-		// TODO Auto-generated method stub
 		return lock;
 	}
 
@@ -480,12 +447,9 @@ public class Action implements IAction{
 		logger.trace("handleRecoverEvent - File: {}", getFilePath());
 		acquireLockOnThis();
 		if(isExecuting){
-
 			logger.trace("Event occured for {} while executing.", getFilePath());
-//			changedWhileExecuted = true;
 			nextState = nextState.changeStateOnLocalRecover(currentFile, versionToRecover);
 			checkIfChanged();
-
 		} else {
 			updateTimestamp();
 			currentState = currentState.handleLocalRecover(currentFile, versionToRecover);
@@ -493,11 +457,4 @@ public class Action implements IAction{
 		}
 		releaseLockOnThis();
 	}
-
-//	@Override
-//	public void handleException(ProcessExceptionVisitor visitor) {
-//		// TODO Auto-generated method stub
-//		visitor.visit(this);
-//		System.out.println("Action handle exception");
-//	}
 }
