@@ -1,6 +1,5 @@
 package org.peerbox.filerecovery;
 
-import java.io.FileNotFoundException;
 import java.net.URL;
 import java.nio.file.Path;
 import java.text.DateFormat;
@@ -40,9 +39,7 @@ import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.hive2hive.core.exceptions.NoSessionException;
 import org.hive2hive.core.model.IFileVersion;
 import org.hive2hive.processframework.exceptions.InvalidProcessStateException;
-import org.hive2hive.processframework.exceptions.ProcessExecutionException;
 import org.hive2hive.processframework.exceptions.ProcessRollbackException;
-import org.hive2hive.processframework.interfaces.IProcessComponent;
 import org.hive2hive.processframework.interfaces.IProcessComponentListener;
 import org.hive2hive.processframework.interfaces.IProcessEventArgs;
 import org.peerbox.FileManager;
@@ -188,13 +185,7 @@ public final class RecoverFileController  implements Initializable, IFileVersion
 		} catch (NoPeerConnectionException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		} catch (InvalidProcessStateException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (ProcessExecutionException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		} 
 	}
 
 	@Override

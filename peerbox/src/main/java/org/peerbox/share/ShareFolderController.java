@@ -33,6 +33,7 @@ import org.hive2hive.processframework.interfaces.IProcessComponent;
 import org.hive2hive.processframework.interfaces.IProcessComponentListener;
 import org.hive2hive.processframework.interfaces.IProcessEventArgs;
 import org.peerbox.FileManager;
+import org.peerbox.h2h.ProcessHandle;
 import org.peerbox.model.UserManager;
 import org.peerbox.presenter.validation.TextFieldValidator;
 import org.peerbox.presenter.validation.ValidationUtils;
@@ -133,8 +134,8 @@ public final class ShareFolderController implements Initializable {
 				setStatus("Sharing folder...");
 				setBusy(true);
 				
-				IProcessComponent<Void> process = fileManager.share(folderToShare.toFile(), user, permission);
-				process.attachListener(new ShareProcessListener());
+				ProcessHandle<Void> handle = fileManager.share(folderToShare.toFile(), user, permission);
+				handle.getProcess().attachListener(new ShareProcessListener());
 			} catch (IllegalArgumentException | NoSessionException
 					| NoPeerConnectionException | InvalidProcessStateException e) {
 				// TODO Auto-generated catch block

@@ -55,7 +55,7 @@ public class DummyFileManager implements IPeerboxFileManager {
 	}
 
 	@Override
-	public IProcessComponent<Void> share(File folder, String userId, PermissionType permission) {
+	public ProcessHandle<Void> share(File folder, String userId, PermissionType permission) {
 		return null;
 	}
 

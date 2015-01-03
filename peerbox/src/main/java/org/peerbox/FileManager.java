@@ -20,20 +20,17 @@ import org.slf4j.LoggerFactory;
 import com.google.inject.Inject;
 
 
-public class FileManager implements IPeerboxFileManager{
+public final class FileManager implements IPeerboxFileManager {
 
 	private static final Logger logger = LoggerFactory.getLogger(FileManager.class);
-	private IFileManager h2hFileManager;
+	private final IFileManager h2hFileManager;
 
+	@Inject
 	public FileManager(final IFileManager h2hFileManager) {
 		this.h2hFileManager = h2hFileManager;
 	}
 	
-	@Inject
-	public FileManager(){
-		this.h2hFileManager = null;
-	}
-
+	@Override
 	public ProcessHandle<Void> add(final File file) throws NoSessionException, NoPeerConnectionException {
 		logger.debug("ADD - {}", file);
 		IProcessComponent<Void> component = h2hFileManager.createAddProcess(file);
@@ -42,6 +39,7 @@ public class FileManager implements IPeerboxFileManager{
 		return handle;
 	}
 
+	@Override
 	public ProcessHandle<Void> update(final File file) throws NoSessionException, NoPeerConnectionException {
 		logger.debug("UPDATE - {}", file);
 		IProcessComponent<Void> component = h2hFileManager.createUpdateProcess(file);
@@ -50,6 +48,7 @@ public class FileManager implements IPeerboxFileManager{
 		return handle;
 	}
 
+	@Override
 	public ProcessHandle<Void> delete(final File file) throws NoSessionException, NoPeerConnectionException {
 		logger.debug("DELETE - {}", file);
 		IProcessComponent<Void> component = h2hFileManager.createDeleteProcess(file);
@@ -58,7 +57,8 @@ public class FileManager implements IPeerboxFileManager{
 		return handle;
 	}
 
-	public ProcessHandle<Void> move(final File source, final File destination) throws NoSessionException, NoPeerConnectionException, InvalidProcessStateException, ProcessExecutionException {
+	@Override
+	public ProcessHandle<Void> move(final File source, final File destination) throws NoSessionException, NoPeerConnectionException {
 		logger.debug("MOVE - from: {}, to: {}", source, destination);
 		IProcessComponent<Void> component = h2hFileManager.createMoveProcess(source, destination);
 		component.attachListener(new FileOperationListener(source));
@@ -67,41 +67,41 @@ public class FileManager implements IPeerboxFileManager{
 		return handle;
 	}
 
+	@Override
 	public ProcessHandle<Void> download(final File file) throws NoSessionException, NoPeerConnectionException {
+		logger.debug("DOWNLOAD - {}", file);
 		IProcessComponent<Void> component = h2hFileManager.createDownloadProcess(file);
 		component.attachListener(new FileOperationListener(file));
 		ProcessHandle<Void> handle = new ProcessHandle<Void>(component);
 		return handle;
 	}
 
-	// TODO(AA): return async handle
-	public ProcessHandle<Void> recover(final File file, final IVersionSelector versionSelector) throws NoSessionException, NoPeerConnectionException, InvalidProcessStateException, ProcessExecutionException {
+	@Override
+	public ProcessHandle<Void> recover(final File file, final IVersionSelector versionSelector) throws NoSessionException, NoPeerConnectionException, IllegalArgumentException {
 		logger.debug("RECOVER - {}", file);
-		IProcessComponent<Void> component = h2hFileManager.createRecoverProcess(file,
-				versionSelector);
-//		component.executeAsync();
+		IProcessComponent<Void> component = h2hFileManager.createRecoverProcess(file, versionSelector);
 		ProcessHandle<Void> handle = new ProcessHandle<Void>(component);
 		return handle;
 	}
 	
-	// TODO(AA): return async handle
-	public IProcessComponent<Void> share(final File folder, final String userId, final PermissionType permission) throws IllegalArgumentException, NoSessionException, NoPeerConnectionException, InvalidProcessStateException, ProcessExecutionException {
-		logger.debug("SHARE - User: '{}', Permission: '{}', Folder: '{}'", userId,
-				permission.name(), folder);
-
+	@Override
+	public ProcessHandle<Void> share(final File folder, final String userId, final PermissionType permission) throws IllegalArgumentException, NoSessionException, NoPeerConnectionException, InvalidProcessStateException, ProcessExecutionException {
+		logger.debug("SHARE - User: '{}', Permission: '{}', Folder: '{}'", userId, permission.name(), folder);
 		IProcessComponent<Void> component = h2hFileManager.createShareProcess(folder, userId, permission);
 		component.attachListener(new FileOperationListener(folder));
-		component.executeAsync();
-		return component;
+		ProcessHandle<Void> handle = new ProcessHandle<Void>(component);
+		return handle;
 	}
 	
-	public FileNode listFiles(IProcessComponentListener listener) throws IllegalArgumentException, NoSessionException, NoPeerConnectionException, InvalidProcessStateException, ProcessExecutionException {
+	@Override
+	public FileNode listFiles(IProcessComponentListener listener) throws NoPeerConnectionException, NoSessionException, InvalidProcessStateException, ProcessExecutionException {
 		IProcessComponent<FileNode> component = h2hFileManager.createFileListProcess();
 		component.attachListener(listener);
 		return component.execute();
 	}
 
-	public FileNode listFiles() throws IllegalArgumentException, NoSessionException, NoPeerConnectionException, InvalidProcessStateException, ProcessExecutionException {
+	@Override
+	public FileNode listFiles() throws NoPeerConnectionException, NoSessionException, InvalidProcessStateException, ProcessExecutionException {
 		IProcessComponent<FileNode> component = h2hFileManager.createFileListProcess();
 		return component.execute();
 	}
