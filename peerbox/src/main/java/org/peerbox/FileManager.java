@@ -2,7 +2,6 @@ package org.peerbox;
 
 import java.io.File;
 
-import org.hive2hive.core.api.interfaces.IFileManager;
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.hive2hive.core.exceptions.NoSessionException;
 import org.hive2hive.core.model.PermissionType;
@@ -13,6 +12,8 @@ import org.hive2hive.processframework.exceptions.ProcessExecutionException;
 import org.hive2hive.processframework.interfaces.IProcessComponent;
 import org.hive2hive.processframework.interfaces.IProcessComponentListener;
 import org.hive2hive.processframework.interfaces.IProcessEventArgs;
+import org.peerbox.app.manager.AbstractManager;
+import org.peerbox.app.manager.IH2HManager;
 import org.peerbox.h2h.ProcessHandle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,20 +21,19 @@ import org.slf4j.LoggerFactory;
 import com.google.inject.Inject;
 
 
-public final class FileManager implements IPeerboxFileManager {
+public final class FileManager extends AbstractManager implements IPeerboxFileManager {
 
 	private static final Logger logger = LoggerFactory.getLogger(FileManager.class);
-	private final IFileManager h2hFileManager;
 
 	@Inject
-	public FileManager(final IFileManager h2hFileManager) {
-		this.h2hFileManager = h2hFileManager;
+	public FileManager(final IH2HManager h2hManager) {
+		super(h2hManager);
 	}
 	
 	@Override
 	public ProcessHandle<Void> add(final File file) throws NoSessionException, NoPeerConnectionException {
 		logger.debug("ADD - {}", file);
-		IProcessComponent<Void> component = h2hFileManager.createAddProcess(file);
+		IProcessComponent<Void> component = getFileManager().createAddProcess(file);
 		component.attachListener(new FileOperationListener(file));
 		ProcessHandle<Void> handle = new ProcessHandle<Void>(component);
 		return handle;
@@ -42,7 +42,7 @@ public final class FileManager implements IPeerboxFileManager {
 	@Override
 	public ProcessHandle<Void> update(final File file) throws NoSessionException, NoPeerConnectionException {
 		logger.debug("UPDATE - {}", file);
-		IProcessComponent<Void> component = h2hFileManager.createUpdateProcess(file);
+		IProcessComponent<Void> component = getFileManager().createUpdateProcess(file);
 		component.attachListener(new FileOperationListener(file));
 		ProcessHandle<Void> handle = new ProcessHandle<Void>(component);
 		return handle;
@@ -51,7 +51,7 @@ public final class FileManager implements IPeerboxFileManager {
 	@Override
 	public ProcessHandle<Void> delete(final File file) throws NoSessionException, NoPeerConnectionException {
 		logger.debug("DELETE - {}", file);
-		IProcessComponent<Void> component = h2hFileManager.createDeleteProcess(file);
+		IProcessComponent<Void> component = getFileManager().createDeleteProcess(file);
 		component.attachListener(new FileOperationListener(file));
 		ProcessHandle<Void> handle = new ProcessHandle<Void>(component);
 		return handle;
@@ -60,7 +60,7 @@ public final class FileManager implements IPeerboxFileManager {
 	@Override
 	public ProcessHandle<Void> move(final File source, final File destination) throws NoSessionException, NoPeerConnectionException {
 		logger.debug("MOVE - from: {}, to: {}", source, destination);
-		IProcessComponent<Void> component = h2hFileManager.createMoveProcess(source, destination);
+		IProcessComponent<Void> component = getFileManager().createMoveProcess(source, destination);
 		component.attachListener(new FileOperationListener(source));
 		component.attachListener(new FileOperationListener(destination));
 		ProcessHandle<Void> handle = new ProcessHandle<Void>(component);
@@ -70,7 +70,7 @@ public final class FileManager implements IPeerboxFileManager {
 	@Override
 	public ProcessHandle<Void> download(final File file) throws NoSessionException, NoPeerConnectionException {
 		logger.debug("DOWNLOAD - {}", file);
-		IProcessComponent<Void> component = h2hFileManager.createDownloadProcess(file);
+		IProcessComponent<Void> component = getFileManager().createDownloadProcess(file);
 		component.attachListener(new FileOperationListener(file));
 		ProcessHandle<Void> handle = new ProcessHandle<Void>(component);
 		return handle;
@@ -79,7 +79,7 @@ public final class FileManager implements IPeerboxFileManager {
 	@Override
 	public ProcessHandle<Void> recover(final File file, final IVersionSelector versionSelector) throws NoSessionException, NoPeerConnectionException, IllegalArgumentException {
 		logger.debug("RECOVER - {}", file);
-		IProcessComponent<Void> component = h2hFileManager.createRecoverProcess(file, versionSelector);
+		IProcessComponent<Void> component = getFileManager().createRecoverProcess(file, versionSelector);
 		ProcessHandle<Void> handle = new ProcessHandle<Void>(component);
 		return handle;
 	}
@@ -87,7 +87,7 @@ public final class FileManager implements IPeerboxFileManager {
 	@Override
 	public ProcessHandle<Void> share(final File folder, final String userId, final PermissionType permission) throws IllegalArgumentException, NoSessionException, NoPeerConnectionException, InvalidProcessStateException, ProcessExecutionException {
 		logger.debug("SHARE - User: '{}', Permission: '{}', Folder: '{}'", userId, permission.name(), folder);
-		IProcessComponent<Void> component = h2hFileManager.createShareProcess(folder, userId, permission);
+		IProcessComponent<Void> component = getFileManager().createShareProcess(folder, userId, permission);
 		component.attachListener(new FileOperationListener(folder));
 		ProcessHandle<Void> handle = new ProcessHandle<Void>(component);
 		return handle;
@@ -95,14 +95,14 @@ public final class FileManager implements IPeerboxFileManager {
 	
 	@Override
 	public FileNode listFiles(IProcessComponentListener listener) throws NoPeerConnectionException, NoSessionException, InvalidProcessStateException, ProcessExecutionException {
-		IProcessComponent<FileNode> component = h2hFileManager.createFileListProcess();
+		IProcessComponent<FileNode> component = getFileManager().createFileListProcess();
 		component.attachListener(listener);
 		return component.execute();
 	}
 
 	@Override
 	public FileNode listFiles() throws NoPeerConnectionException, NoSessionException, InvalidProcessStateException, ProcessExecutionException {
-		IProcessComponent<FileNode> component = h2hFileManager.createFileListProcess();
+		IProcessComponent<FileNode> component = getFileManager().createFileListProcess();
 		return component.execute();
 	}
 

@@ -15,11 +15,11 @@ import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.hive2hive.processframework.exceptions.InvalidProcessStateException;
 import org.hive2hive.processframework.exceptions.ProcessExecutionException;
 import org.peerbox.app.Constants;
+import org.peerbox.app.manager.UserManager;
 import org.peerbox.events.MessageBus;
 import org.peerbox.guice.ApiServerModule;
 import org.peerbox.guice.PeerBoxModule;
 import org.peerbox.model.H2HManager;
-import org.peerbox.model.UserManager;
 import org.peerbox.notifications.InformationNotification;
 import org.peerbox.presenter.tray.TrayException;
 import org.peerbox.presenter.validation.SelectRootPathUtils;
@@ -133,7 +133,7 @@ public class App extends Application
 			if (!h2hManager.joinNetwork(nodes)) {
 				return ResultStatus.error("Could not join network.");
 			}
-			UserManager userManager = injector.getInstance(org.peerbox.model.UserManager.class);
+			UserManager userManager = injector.getInstance(org.peerbox.app.manager.UserManager.class);
 			return userManager.loginUser(username, password, pin, path);
 			
 		} catch (NoPeerConnectionException e) {

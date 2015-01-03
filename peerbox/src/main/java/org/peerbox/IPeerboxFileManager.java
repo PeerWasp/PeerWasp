@@ -14,21 +14,21 @@ import org.peerbox.h2h.ProcessHandle;
 
 public interface IPeerboxFileManager {
 
-	public ProcessHandle<Void> add(final File file) throws NoSessionException, NoPeerConnectionException;
+	ProcessHandle<Void> add(final File file) throws NoSessionException, NoPeerConnectionException;
 
-	public ProcessHandle<Void> update(final File file) throws NoSessionException, NoPeerConnectionException;
+	ProcessHandle<Void> update(final File file) throws NoSessionException, NoPeerConnectionException;
 
-	public ProcessHandle<Void> delete(final File file) throws NoSessionException, NoPeerConnectionException;
+	ProcessHandle<Void> delete(final File file) throws NoSessionException, NoPeerConnectionException;
 
-	public ProcessHandle<Void> move(final File source, final File destination) throws NoSessionException, NoPeerConnectionException;
+	ProcessHandle<Void> move(final File source, final File destination) throws NoSessionException, NoPeerConnectionException;
 
-	public ProcessHandle<Void> download(final File file) throws NoSessionException, NoPeerConnectionException;
+	ProcessHandle<Void> download(final File file) throws NoSessionException, NoPeerConnectionException;
 
-	public ProcessHandle<Void> recover(final File file, final IVersionSelector versionSelector) throws NoSessionException, NoPeerConnectionException;
+	ProcessHandle<Void> recover(final File file, final IVersionSelector versionSelector) throws NoSessionException, NoPeerConnectionException;
 	
-	public ProcessHandle<Void> share(final File folder, final String userId, final PermissionType permission) throws NoSessionException, NoPeerConnectionException, IllegalArgumentException, InvalidProcessStateException, ProcessExecutionException;
+	ProcessHandle<Void> share(final File folder, final String userId, final PermissionType permission) throws NoSessionException, NoPeerConnectionException, IllegalArgumentException, InvalidProcessStateException, ProcessExecutionException;
 	
-	public FileNode listFiles(IProcessComponentListener listener) throws NoSessionException, NoPeerConnectionException, InvalidProcessStateException, ProcessExecutionException;
+	FileNode listFiles(IProcessComponentListener listener) throws NoSessionException, NoPeerConnectionException, InvalidProcessStateException, ProcessExecutionException;
 
-	public FileNode listFiles() throws NoSessionException, NoPeerConnectionException, InvalidProcessStateException, ProcessExecutionException;
+	FileNode listFiles() throws NoSessionException, NoPeerConnectionException, InvalidProcessStateException, ProcessExecutionException;
 }
