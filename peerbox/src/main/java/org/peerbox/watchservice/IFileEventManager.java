@@ -1,17 +1,11 @@
 package org.peerbox.watchservice;
 
 import java.nio.file.Path;
-import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 
 import org.hive2hive.core.events.framework.interfaces.file.IFileAddEvent;
-import org.peerbox.selectivesync.ISynchronize;
-import org.peerbox.watchservice.filetree.FileTree;
 import org.peerbox.watchservice.filetree.IFileTree;
 import org.peerbox.watchservice.filetree.composite.FileComponent;
-
-import com.google.common.collect.SetMultimap;
 
 public interface IFileEventManager {
 

@@ -1,6 +1,8 @@
 package org.peerbox.watchservice;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
@@ -15,7 +17,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.Mockito;
 import org.peerbox.FileManager;
 import org.peerbox.watchservice.filetree.composite.FileComponent;
 
@@ -23,8 +25,9 @@ import org.peerbox.watchservice.filetree.composite.FileComponent;
 
 public class FileWalkerTestWhenFolderCreated {
 	
-	@Mock
-	private FileManager fileManager;
+	private static FileManager fileManager;
+	
+	private static ActionExecutor actionExecutor;
 	
 	private static String parentPath = System.getProperty("user.home") + File.separator + "PeerBox_FileWalkerTest" + File.separator; 
 	
@@ -57,7 +60,11 @@ public class FileWalkerTestWhenFolderCreated {
 	public static void staticSetup(){
 		testDirectory = new File(parentPath);
 		testDirectory.mkdir();
-		manager = new FileEventManager(Paths.get(parentPath), false, false);	
+		manager = new FileEventManager(Paths.get(parentPath), false);
+		fileManager = Mockito.mock(FileManager.class);
+		actionExecutor = new ActionExecutor(manager, fileManager);
+		actionExecutor.setWaitForActionCompletion(false);
+		actionExecutor.start();
 		
 		dir1 = new File(dir1Str);
 		dir2 = new File(dir2Str);
@@ -85,7 +92,6 @@ public class FileWalkerTestWhenFolderCreated {
 			watchService = new FolderWatchService(Paths.get(parentPath));
 			watchService.addFileEventListener(manager);
 			watchService.start();
-			//watchService.start();
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -95,8 +101,6 @@ public class FileWalkerTestWhenFolderCreated {
 	
 	@Before
 	public void setup(){
-		MockitoAnnotations.initMocks(this);
-		manager.setFileManager(fileManager);
 		try {
 			Thread.sleep(ActionExecutor.ACTION_WAIT_TIME_MS * 2);
 		} catch (InterruptedException e) {

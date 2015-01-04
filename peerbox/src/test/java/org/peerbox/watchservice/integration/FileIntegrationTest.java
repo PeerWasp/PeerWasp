@@ -18,7 +18,6 @@ import java.util.TreeMap;
 import java.util.Vector;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.RandomUtils;
 import org.hive2hive.core.utils.H2HWaiter;
 import org.junit.After;
 import org.junit.Before;
@@ -26,7 +25,6 @@ import org.peerbox.client.ClientNode;
 import org.peerbox.client.NetworkStarter;
 import org.peerbox.utils.FileTestUtils;
 import org.peerbox.watchservice.FileEventManager;
-import org.peerbox.watchservice.IAction;
 import org.peerbox.watchservice.filetree.composite.FileComponent;
 import org.peerbox.watchservice.states.ExecutionHandle;
 import org.slf4j.Logger;
@@ -421,7 +419,7 @@ public abstract class FileIntegrationTest {
 		List<ClientNode> clients = network.getClients();
 		for(ClientNode client : clients){
 			Vector<FileComponent> queue = new Vector<FileComponent>(client.getFileEventManager().getFileComponentQueue());
-			Vector<ExecutionHandle> execs = new Vector<ExecutionHandle>(client.getFileEventManager().getActionExecutor().getFailedJobs());
+			Vector<ExecutionHandle> execs = new Vector<ExecutionHandle>(client.getActionExecutor().getFailedJobs());
 			if(queue.size() != 0){
 				for(int i = 0; i < queue.size(); i++){
 					logger.debug("Pending in queue: {}. {}:{}", i, queue.get(i).getPath(), queue.get(i).getAction().getCurrentState());
@@ -433,7 +431,7 @@ public abstract class FileIntegrationTest {
 				}
 			}
 			assertTrue(client.getFileEventManager().getFileComponentQueue().size() == 0);
-			assertTrue(client.getFileEventManager().getActionExecutor().getFailedJobs().size() == 0);
+			assertTrue(client.getActionExecutor().getFailedJobs().size() == 0);
 		}
 	}
 

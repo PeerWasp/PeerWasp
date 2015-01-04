@@ -13,6 +13,7 @@ import org.mockito.Mockito;
 import org.peerbox.FileManager;
 import org.peerbox.app.manager.IH2HManager;
 import org.peerbox.h2h.FileAgent;
+import org.peerbox.watchservice.ActionExecutor;
 import org.peerbox.watchservice.FileEventManager;
 import org.peerbox.watchservice.FolderWatchService;
 import org.slf4j.Logger;
@@ -27,6 +28,7 @@ public class ClientNode {
 	
 	private FileEventManager fileEventManager;
 	private FileManager fileManager;
+	private ActionExecutor actionExecutor;
 	private FolderWatchService watchService;
 
 	public ClientNode(IH2HNode node, UserCredentials credentials, Path rootPath) throws Exception {
@@ -46,6 +48,10 @@ public class ClientNode {
 		return fileEventManager;
 	}
 
+	public ActionExecutor getActionExecutor() {
+		return actionExecutor;
+	}
+	
 	private void initialization() throws Exception {
 		// create path
 		if (!Files.exists(rootPath)) {
@@ -55,23 +61,26 @@ public class ClientNode {
 		// create managers and initialization
 		IH2HManager manager = Mockito.mock(IH2HManager.class);
 		Mockito.stub(manager.getNode()).toReturn(node);
+		
 		fileManager = new FileManager(manager);
-		fileEventManager = new FileEventManager(rootPath, true, true);
+		fileEventManager = new FileEventManager(rootPath, true);
+		actionExecutor = new ActionExecutor(fileEventManager, fileManager);
 		watchService = new FolderWatchService(rootPath);
 		watchService.addFileEventListener(fileEventManager);
 		
-		//TODO remove cycle dependency
-		fileEventManager.setFileManager(fileManager);
-		
+		// remote events
 		node.getFileManager().subscribeFileEvents(fileEventManager);
 
 		// login
 		logger.debug("Login user {}", credentials.getUserId());
 		loginUser();
 
-		// start monitoring folder
+		// start monitoring folder 
 		logger.debug("Start watchservice");
 		watchService.start();
+		// start processing actions
+		logger.debug("Start action executor");
+		actionExecutor.start();
 	}
 	
 	private void loginUser() throws NoPeerConnectionException {
@@ -106,4 +115,5 @@ public class ClientNode {
 		
 		
 	}
+
 }

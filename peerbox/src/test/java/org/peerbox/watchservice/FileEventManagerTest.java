@@ -1,39 +1,35 @@
 package org.peerbox.watchservice;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Field;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import java.util.Vector;
 import java.util.concurrent.BlockingQueue;
 
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.Mockito;
 import org.peerbox.FileManager;
 import org.peerbox.utils.FileTestUtils;
 import org.peerbox.watchservice.filetree.composite.FileComponent;
 import org.peerbox.watchservice.states.EstablishedState;
-import org.peerbox.watchservice.states.LocalCreateState;
 import org.peerbox.watchservice.states.InitialState;
+import org.peerbox.watchservice.states.LocalCreateState;
 import org.peerbox.watchservice.states.LocalHardDeleteState;
-import org.peerbox.watchservice.states.LocalUpdateState;
 import org.peerbox.watchservice.states.LocalMoveState;
+import org.peerbox.watchservice.states.LocalUpdateState;
 
 import com.google.common.collect.SetMultimap;
 import com.google.common.io.Files;
+
 /**
  * 
  * @author Claudio
@@ -46,21 +42,26 @@ public class FileEventManagerTest {
 
 	private static int nrFiles = 9;
 	private static FileEventManager manager;
+	private static ActionExecutor actionExecutor;
+	private static FileManager fileManager;
+	
 	private static String parentPath = System.getProperty("user.home") + File.separator + "PeerBox_FileEventManagerTest" + File.separator; 
 	private static File testDirectory;
 	private static ArrayList<String> filePaths = new ArrayList<String>();
 	private static ArrayList<File> files = new ArrayList<File>();
 	
-	@Mock
-	private FileManager fileManager;
+	
 	
 	/**
 	 * Create the test directory and the files.
 	 */
 	@BeforeClass
 	public static void staticSetup(){
-		
-		manager = new FileEventManager(Paths.get(parentPath), false, true);
+		manager = new FileEventManager(Paths.get(parentPath), true);
+		fileManager = Mockito.mock(FileManager.class);
+		actionExecutor = new ActionExecutor(manager, fileManager);
+		actionExecutor.setWaitForActionCompletion(false);
+		actionExecutor.start();
 	}
 	
 	/**
@@ -76,9 +77,6 @@ public class FileEventManagerTest {
 	
 	@Before
 	public void setup(){
-		MockitoAnnotations.initMocks(this);
-		manager.setFileManager(fileManager);
-		
 		testDirectory = new File(parentPath);
 		testDirectory.mkdir();
 		try {

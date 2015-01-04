@@ -1,15 +1,10 @@
 package org.peerbox.watchservice;
 
-import static org.junit.Assert.*;
-
-import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import org.apache.commons.io.FileUtils;
-import org.junit.Test;
-import org.peerbox.FileManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 	

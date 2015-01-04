@@ -7,4 +7,5 @@ public interface ILocalFileEventListener {
 	public void onLocalFileCreated(Path path);
 	public void onLocalFileDeleted(Path path);
 	public void onLocalFileModified(Path path);	
+	
 }

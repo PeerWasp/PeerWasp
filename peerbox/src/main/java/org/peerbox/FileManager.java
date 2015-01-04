@@ -21,7 +21,7 @@ import org.slf4j.LoggerFactory;
 import com.google.inject.Inject;
 
 
-public final class FileManager extends AbstractManager implements IPeerboxFileManager {
+public class FileManager extends AbstractManager implements IPeerboxFileManager {
 
 	private static final Logger logger = LoggerFactory.getLogger(FileManager.class);
 

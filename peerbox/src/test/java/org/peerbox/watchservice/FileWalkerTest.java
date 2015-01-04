@@ -46,13 +46,12 @@ public class FileWalkerTest {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		manager = new FileEventManager(Paths.get(parentPath), false, true);
+		manager = new FileEventManager(Paths.get(parentPath), true);
 	}
 	
 	@Before
 	public void setup(){
 		MockitoAnnotations.initMocks(this);
-		manager.setFileManager(fileManager);
 	}
 	
 	@AfterClass @Ignore

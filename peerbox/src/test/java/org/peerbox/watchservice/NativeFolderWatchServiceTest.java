@@ -31,6 +31,7 @@ public class NativeFolderWatchServiceTest {
 	private static final Logger logger = LoggerFactory.getLogger(NativeFolderWatchServiceTest.class);
 	private FolderWatchService watchService;
 	private FileEventManager eventManager;
+	private ActionExecutor actionExecutor;
 	
 	@Mock
 	private FileManager fileManager;
@@ -60,8 +61,9 @@ public class NativeFolderWatchServiceTest {
 		MockitoAnnotations.initMocks(this);
 		
 		watchService = new FolderWatchService(basePath);
-		eventManager = new FileEventManager(basePath, false, true);
-		eventManager.setFileManager(fileManager);
+		eventManager = new FileEventManager(basePath, true);
+		actionExecutor = new ActionExecutor(eventManager, fileManager);
+		actionExecutor.start();
 		watchService.addFileEventListener(eventManager);
 
 		logger.info("Running");

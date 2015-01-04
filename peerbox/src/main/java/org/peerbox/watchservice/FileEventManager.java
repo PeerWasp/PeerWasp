@@ -15,7 +15,6 @@ import org.hive2hive.core.events.framework.interfaces.file.IFileMoveEvent;
 import org.hive2hive.core.events.framework.interfaces.file.IFileShareEvent;
 import org.hive2hive.core.events.framework.interfaces.file.IFileUpdateEvent;
 import org.hive2hive.core.events.implementations.FileAddEvent;
-import org.peerbox.FileManager;
 import org.peerbox.h2h.IFileRecoveryRequestEvent;
 import org.peerbox.watchservice.filetree.FileTree;
 import org.peerbox.watchservice.filetree.IFileTree;
@@ -27,25 +26,17 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 	
 	private static final Logger logger = LoggerFactory.getLogger(FileEventManager.class);
 	
-    private FileManager fileManager;
-    
     private BlockingQueue<FileComponent> fileComponentQueue; 
     private FileTree fileTree;
-    
-    private ActionExecutor actionExecutor;
-    private Thread executorThread;
     
     /**
      * @param rootPath is the root folder of the tree
      * @param maintainContentHashes set to true if content hashes have to be maintained. Content hash changes are
      * then propagated upwards to the parent directory.
      */
-    public FileEventManager(Path rootPath, boolean waitForActionSucceeded, boolean maintainContentHashes) {
+    public FileEventManager(Path rootPath, boolean maintainContentHashes) {
     	fileComponentQueue = new PriorityBlockingQueue<FileComponent>(2000, new FileActionTimeComparator());
     	fileTree = new FileTree(rootPath, maintainContentHashes);
-    	actionExecutor = new ActionExecutor(this, waitForActionSucceeded);
-        executorThread = new Thread(actionExecutor, "ActionExecutorThread");
-		executorThread.start();
     }
     
     /**
@@ -225,14 +216,10 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 		FileComponent file = fileTree.getOrCreateFileComponent(toDelete, this);
 		file.getAction().handleLocalHardDeleteEvent();
 	}
-
-	public ActionExecutor getActionExecutor(){
-		return actionExecutor;
-	}
-
-	public void stopExecutor() throws InterruptedException{
-		// TODO: change stop to something that is not deprecated and recommended.
-		executorThread.stop();
+	
+	@Override
+	public void onFileShare(IFileShareEvent fileEvent) {
+		// TODO: download, notify user?
 	}
 
 	public BlockingQueue<FileComponent> getFileComponentQueue() {
@@ -243,14 +230,6 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 		return fileTree;
 	}
 
-	public FileManager getFileManager() {
-		return fileManager;
-	}
-
-	public void setFileManager(FileManager fileManager) {
-		this.fileManager = fileManager;
-	}
-
 	private class FileActionTimeComparator implements Comparator<FileComponent> {
 		@Override
 		public int compare(FileComponent a, FileComponent b) {
@@ -258,8 +237,4 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 		}
 	}
 
-	@Override
-	public void onFileShare(IFileShareEvent fileEvent) {
-		// TODO Auto-generated method stub
-	}
 }

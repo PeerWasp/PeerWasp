@@ -17,6 +17,7 @@ import org.hive2hive.core.exceptions.Hive2HiveException;
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.hive2hive.core.exceptions.NoSessionException;
 import org.hive2hive.processframework.exceptions.ProcessExecutionException;
+import org.peerbox.FileManager;
 import org.peerbox.h2h.ProcessHandle;
 import org.peerbox.watchservice.filetree.composite.FileComponent;
 import org.peerbox.watchservice.filetree.composite.FolderComposite;
@@ -43,31 +44,45 @@ public class ActionExecutor implements Runnable, IActionEventListener {
 	public static final int NUMBER_OF_EXECUTE_SLOTS = 10;
 	public static final int MAX_EXECUTION_ATTEMPTS = 3;
 	
+	private FileManager fileManager;
 	private FileEventManager fileEventManager;
-	private boolean useNotifications;
+	private boolean waitForActionCompletion = true;
 	
 	private BlockingQueue<ExecutionHandle> asyncHandles; 
 	private Vector<IAction> runningJobs;
 	private Thread asyncHandlesThread;
 
-	public ActionExecutor(FileEventManager eventManager) {
-		this(eventManager, true);
-	}
+	private Thread executorThread;
 	
-	public ActionExecutor(FileEventManager eventManager, boolean waitForCompletion){
+	public ActionExecutor(FileEventManager eventManager, FileManager fileManager){
 		this.fileEventManager = eventManager;
-		useNotifications = waitForCompletion;
+		this.fileManager = fileManager;
 		
 		asyncHandles = new LinkedBlockingQueue<ExecutionHandle>();
 		runningJobs = new Vector<IAction>();
 		asyncHandlesThread = new Thread(new AsyncActionHandler(), "AsyncActionHandlerThread");
+		
+        executorThread = new Thread(this, "ActionExecutorThread");
 	}
 	
-	public BlockingQueue<ExecutionHandle> getFailedJobs(){
+	public void start() {
+		executorThread.start();
+	}
+	
+	public void stop() {
+		// TODO: change stop to something that is not deprecated and recommended.
+		executorThread.stop();
+	}
+	
+	public void setWaitForActionCompletion(boolean wait) {
+		this.waitForActionCompletion = wait;
+	}
+	
+	public BlockingQueue<ExecutionHandle> getFailedJobs() {
 		return asyncHandles;
 	}
 	
-	public Vector<IAction> getRunningJobs(){
+	public Vector<IAction> getRunningJobs() {
 		return runningJobs;
 	}
 	
@@ -104,8 +119,8 @@ public class ActionExecutor implements Runnable, IActionEventListener {
 					next.getAction().addEventListener(this);
 					
 					logger.debug("Start execution: {}", next.getPath());
-					ExecutionHandle ehandle = next.getAction().execute(fileEventManager.getFileManager());
-					if(useNotifications){
+					ExecutionHandle ehandle = next.getAction().execute(fileManager);
+					if(waitForActionCompletion){
 						if(ehandle != null && ehandle.getProcessHandle() != null) {
 							logger.debug("Put into async handles!");
 //							asyncHandles.put(ehandle);
