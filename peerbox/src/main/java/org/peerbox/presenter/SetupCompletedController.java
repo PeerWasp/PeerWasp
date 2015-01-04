@@ -17,7 +17,7 @@ import org.hive2hive.core.exceptions.NoSessionException;
 import org.hive2hive.processframework.exceptions.InvalidProcessStateException;
 import org.hive2hive.processframework.exceptions.ProcessExecutionException;
 import org.peerbox.ResultStatus;
-import org.peerbox.app.manager.UserManager;
+import org.peerbox.app.manager.IUserManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,10 +31,10 @@ public class SetupCompletedController implements Initializable {
 	private Pane pane;
 	
 	private NavigationService fNavigationService;
-	private UserManager fUserManager;
+	private IUserManager fUserManager;
 	
 	@Inject
-	public SetupCompletedController(NavigationService navigationService, UserManager userManager) {
+	public SetupCompletedController(NavigationService navigationService, IUserManager userManager) {
 		this.fNavigationService = navigationService;
 		this.fUserManager = userManager;
 	}

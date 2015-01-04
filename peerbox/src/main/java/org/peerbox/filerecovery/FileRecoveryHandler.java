@@ -12,7 +12,7 @@ import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 
 import org.peerbox.ResultStatus;
-import org.peerbox.app.manager.UserManager;
+import org.peerbox.app.manager.IUserManager;
 import org.peerbox.interfaces.IFxmlLoaderProvider;
 import org.peerbox.model.H2HManager;
 import org.slf4j.Logger;
@@ -28,7 +28,7 @@ public class FileRecoveryHandler implements IFileRecoveryHandler {
 	private Path fileToRecover;
 	private RecoverFileController controller;
 	private H2HManager h2hManager; 
-	private UserManager userManager;
+	private IUserManager userManager;
 	
 	@Inject
 	public void setH2HManager(H2HManager h2hManager) {

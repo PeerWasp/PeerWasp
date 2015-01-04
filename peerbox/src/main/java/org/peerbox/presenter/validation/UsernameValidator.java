@@ -4,14 +4,14 @@ import javafx.beans.property.StringProperty;
 import javafx.scene.control.TextField;
 
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
-import org.peerbox.app.manager.UserManager;
+import org.peerbox.app.manager.IUserManager;
 import org.peerbox.presenter.validation.ValidationUtils.ValidationResult;
 
 public final class UsernameValidator extends TextFieldValidator {
 
-	private UserManager userManager;
+	private IUserManager userManager;
 
-	public UsernameValidator(TextField txtUsername, StringProperty errorProperty, UserManager userManager) {
+	public UsernameValidator(TextField txtUsername, StringProperty errorProperty, IUserManager userManager) {
 		super(txtUsername, errorProperty, true);
 		this.userManager = userManager;
 	}

@@ -65,7 +65,7 @@ public class UserManagerTest {
 		for(int i = 0; i < network.size(); ++i) {
 			IH2HManager manager = Mockito.mock(IH2HManager.class);
 			Mockito.stub(manager.getNode()).toReturn(network.get(i));
-			UserManager usrMgr = new UserManager(manager);
+			IUserManager usrMgr = new UserManager(manager);
 			assertFalse(usrMgr.isRegistered(userCredentials.getUserId()));
 		}
 		

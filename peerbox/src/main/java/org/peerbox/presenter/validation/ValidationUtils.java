@@ -2,7 +2,7 @@ package org.peerbox.presenter.validation;
 
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.peerbox.app.Constants;
-import org.peerbox.app.manager.UserManager;
+import org.peerbox.app.manager.IUserManager;
 
 public class ValidationUtils {
 	
@@ -49,7 +49,7 @@ public class ValidationUtils {
 		}
 	}
 	
-	public static ValidationResult validateUsername(final String username, boolean checkIfRegistered, final UserManager userManager) throws NoPeerConnectionException {
+	public static ValidationResult validateUsername(final String username, boolean checkIfRegistered, final IUserManager userManager) throws NoPeerConnectionException {
 		if(username == null) {
 			throw new IllegalArgumentException("Argument username must not be null.");
 		}
@@ -70,7 +70,7 @@ public class ValidationUtils {
 		return ValidationResult.OK;
 	}
 	
-	public static ValidationResult validateUserExists(final String username, boolean checkIfRegistered, final UserManager userManager) throws NoPeerConnectionException {
+	public static ValidationResult validateUserExists(final String username, boolean checkIfRegistered, final IUserManager userManager) throws NoPeerConnectionException {
 		if(username == null) {
 			throw new IllegalArgumentException("Argument username must not be null.");
 		}

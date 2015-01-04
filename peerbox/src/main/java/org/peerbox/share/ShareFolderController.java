@@ -32,7 +32,7 @@ import org.hive2hive.processframework.exceptions.ProcessExecutionException;
 import org.hive2hive.processframework.interfaces.IProcessComponentListener;
 import org.hive2hive.processframework.interfaces.IProcessEventArgs;
 import org.peerbox.FileManager;
-import org.peerbox.app.manager.UserManager;
+import org.peerbox.app.manager.IUserManager;
 import org.peerbox.h2h.ProcessHandle;
 import org.peerbox.presenter.validation.TextFieldValidator;
 import org.peerbox.presenter.validation.ValidationUtils;
@@ -67,10 +67,10 @@ public final class ShareFolderController implements Initializable {
 	private final StringProperty statusProperty;
 	
 	private FileManager fileManager;
-	private UserManager userManager;
+	private IUserManager userManager;
 	
 	@Inject
-	public ShareFolderController(FileManager fileManager, UserManager userManager) {
+	public ShareFolderController(FileManager fileManager, IUserManager userManager) {
 		this.statusProperty = new SimpleStringProperty();
 		this.busyProperty = new SimpleBooleanProperty(false);
 		this.fileManager = fileManager;
@@ -267,9 +267,9 @@ public final class ShareFolderController implements Initializable {
 	
 	public final class UsernameRegisteredValidator extends TextFieldValidator {
 
-		private UserManager userManager;
+		private IUserManager userManager;
 
-		public UsernameRegisteredValidator(TextField txtUsername, StringProperty errorProperty, UserManager userManager) {
+		public UsernameRegisteredValidator(TextField txtUsername, StringProperty errorProperty, IUserManager userManager) {
 			super(txtUsername, errorProperty, true);
 			this.userManager = userManager;
 		}

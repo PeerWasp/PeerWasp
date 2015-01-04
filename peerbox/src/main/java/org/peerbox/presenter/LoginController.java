@@ -27,7 +27,7 @@ import org.hive2hive.processframework.exceptions.InvalidProcessStateException;
 import org.hive2hive.processframework.exceptions.ProcessExecutionException;
 import org.peerbox.ResultStatus;
 import org.peerbox.UserConfig;
-import org.peerbox.app.manager.UserManager;
+import org.peerbox.app.manager.IUserManager;
 import org.peerbox.presenter.validation.EmptyTextFieldValidator;
 import org.peerbox.presenter.validation.RootPathValidator;
 import org.peerbox.presenter.validation.SelectRootPathUtils;
@@ -45,7 +45,7 @@ public class LoginController implements Initializable {
 	private static final Logger logger = LoggerFactory.getLogger(LoginController.class);
 
 	private NavigationService fNavigationService;
-	private UserManager userManager;
+	private IUserManager userManager;
 	private UserConfig userConfig;
 
 	@FXML
@@ -83,7 +83,7 @@ public class LoginController implements Initializable {
 	private RootPathValidator pathValidator;
 	
 	@Inject
-	public LoginController(NavigationService navigationService, UserManager userManager) {
+	public LoginController(NavigationService navigationService, IUserManager userManager) {
 		this.fNavigationService = navigationService;
 		this.userManager = userManager;
 	}

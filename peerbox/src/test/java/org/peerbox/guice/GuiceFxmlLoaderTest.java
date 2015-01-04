@@ -15,6 +15,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.peerbox.UserConfig;
+import org.peerbox.app.manager.IUserManager;
 import org.peerbox.app.manager.UserManager;
 import org.peerbox.helper.JavaFxNoOpApp;
 import org.peerbox.interfaces.IFxmlLoaderProvider;
@@ -61,7 +62,7 @@ public class GuiceFxmlLoaderTest {
 			}
 
 			@Provides
-			UserManager providesUserManager(H2HManager manager) {
+			IUserManager providesUserManager(H2HManager manager) {
 				return new UserManager(null);
 			}
 		});
@@ -92,7 +93,7 @@ public class GuiceFxmlLoaderTest {
 		userManagerField.setAccessible(true);
 		Object userManager = userManagerField.get(loginController);
 		assertNotNull(userManager);
-		assertTrue(userManager instanceof UserManager);
+		assertTrue(userManager instanceof IUserManager);
 
 		/* navigation service */
 		Field navigationServiceField = ctrl.getDeclaredField("fNavigationService");

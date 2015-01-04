@@ -21,7 +21,7 @@ import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.hive2hive.processframework.exceptions.InvalidProcessStateException;
 import org.hive2hive.processframework.exceptions.ProcessExecutionException;
 import org.peerbox.ResultStatus;
-import org.peerbox.app.manager.UserManager;
+import org.peerbox.app.manager.IUserManager;
 import org.peerbox.presenter.validation.CombinedPasswordValidator;
 import org.peerbox.presenter.validation.CombinedPinValidator;
 import org.peerbox.presenter.validation.UsernameValidator;
@@ -42,7 +42,7 @@ public class RegisterController implements Initializable {
 
 	private static final Logger logger = LoggerFactory.getLogger(RegisterController.class);
 	private NavigationService fNavigationService;
-	private UserManager fUserManager;
+	private IUserManager fUserManager;
 	
 	@FXML
 	private TextField txtUsername;
@@ -77,7 +77,7 @@ public class RegisterController implements Initializable {
 	private CombinedPinValidator pinValidator;
 
 	@Inject
-	public RegisterController(NavigationService navigationService, UserManager userManager) {
+	public RegisterController(NavigationService navigationService, IUserManager userManager) {
 		fNavigationService = navigationService;
 		fUserManager = userManager;
 	}
