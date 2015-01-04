@@ -38,7 +38,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.mockito.internal.matchers.Any;
-import org.peerbox.model.H2HManager;
+import org.peerbox.app.manager.H2HManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

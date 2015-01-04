@@ -6,8 +6,8 @@ import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.hive2hive.core.exceptions.NoSessionException;
 import org.hive2hive.processframework.exceptions.InvalidProcessStateException;
 import org.hive2hive.processframework.exceptions.ProcessExecutionException;
+import org.peerbox.app.manager.IH2HManager;
 import org.peerbox.app.manager.IUserManager;
-import org.peerbox.model.H2HManager;
 import org.peerbox.server.IServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,7 +21,7 @@ public class ExitHandler implements IExitHandler {
 	// TODO(AA): make these references available.
 	private IServer server;
 	private IUserManager userManager;
-	private H2HManager h2hManager;
+	private IH2HManager h2hManager;
 	
 	@Override
 	public void exit() {

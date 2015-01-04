@@ -1,4 +1,4 @@
-package org.peerbox.model;
+package org.peerbox.app.manager;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -12,7 +12,6 @@ import org.hive2hive.core.api.configs.NetworkConfiguration;
 import org.hive2hive.core.api.interfaces.IFileConfiguration;
 import org.hive2hive.core.api.interfaces.IH2HNode;
 import org.hive2hive.core.api.interfaces.INetworkConfiguration;
-import org.peerbox.app.manager.IH2HManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,7 +38,8 @@ public final class H2HManager implements IH2HManager {
 		IFileConfiguration fileConfig = FileConfiguration.createDefault();
 		node = H2HNode.createNode(fileConfig);
 	}
-
+	
+	@Override
 	public boolean joinNetwork(List<String> bootstrappingNodes) {
 		boolean connected = false;
 		Iterator<String> nodeIt = bootstrappingNodes.iterator();
@@ -100,6 +100,7 @@ public final class H2HManager implements IH2HManager {
 		return node != null && node.isConnected();
 	}
 	
+	@Override
 	public INetworkConfiguration getNetworkConfiguration() {
 		return networkConfiguration;
 	}

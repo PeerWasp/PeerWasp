@@ -15,7 +15,7 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.TextField;
 import javafx.stage.Window;
 
-import org.peerbox.model.H2HManager;
+import org.peerbox.app.manager.IH2HManager;
 import org.peerbox.view.ViewNames;
 import org.peerbox.view.controls.ErrorLabel;
 import org.slf4j.Logger;
@@ -27,7 +27,7 @@ public class CreateNetworkController implements Initializable {
 
 	private static final Logger logger = LoggerFactory.getLogger(CreateNetworkController.class);
 			
-	private H2HManager h2hManager;
+	private IH2HManager h2hManager;
 	private NavigationService fNavigationService;
 	
 	@FXML
@@ -38,7 +38,7 @@ public class CreateNetworkController implements Initializable {
 	private ErrorLabel lblError;
 	
 	@Inject
-	public CreateNetworkController(NavigationService navigationService, H2HManager h2hManager) {
+	public CreateNetworkController(NavigationService navigationService, IH2HManager h2hManager) {
 		this.fNavigationService = navigationService;
 		this.h2hManager = h2hManager;
 	}

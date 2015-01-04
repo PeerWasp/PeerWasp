@@ -28,7 +28,7 @@ import org.peerbox.FileManager;
 import org.peerbox.IPeerboxFileManager;
 import org.peerbox.IUserConfig;
 import org.peerbox.UserConfig;
-import org.peerbox.model.H2HManager;
+import org.peerbox.app.manager.H2HManager;
 import org.peerbox.presenter.settings.synchronization.DummyFileEventManager;
 import org.peerbox.presenter.settings.synchronization.DummyFileManager;
 import org.peerbox.presenter.settings.synchronization.DummyUserConfig;

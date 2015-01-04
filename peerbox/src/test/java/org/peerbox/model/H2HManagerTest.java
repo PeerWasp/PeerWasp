@@ -14,17 +14,19 @@ import java.nio.file.Paths;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.peerbox.app.manager.H2HManager;
+import org.peerbox.app.manager.IH2HManager;
 import org.peerbox.presenter.validation.SelectRootPathUtils;
 import org.peerbox.presenter.validation.ValidationUtils.ValidationResult;
 
 public class H2HManagerTest {
 	
 	private String path;
-	private H2HManager h2hManager;
+	private IH2HManager h2hManager;
 	
 	@Before
-	public void initializeVariables(){
-		path = System.getProperty("user.dir").replace("\\", "/") + "/"; 
+	public void initialize() {
+		path = System.getProperty("user.dir").replace("\\", "/") + "/";
 		h2hManager = new H2HManager();
 	}
 	

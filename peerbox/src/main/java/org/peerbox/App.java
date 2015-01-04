@@ -15,11 +15,11 @@ import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.hive2hive.processframework.exceptions.InvalidProcessStateException;
 import org.hive2hive.processframework.exceptions.ProcessExecutionException;
 import org.peerbox.app.Constants;
+import org.peerbox.app.manager.IH2HManager;
 import org.peerbox.app.manager.IUserManager;
 import org.peerbox.events.MessageBus;
 import org.peerbox.guice.ApiServerModule;
 import org.peerbox.guice.PeerBoxModule;
-import org.peerbox.model.H2HManager;
 import org.peerbox.notifications.InformationNotification;
 import org.peerbox.presenter.tray.TrayException;
 import org.peerbox.presenter.validation.SelectRootPathUtils;
@@ -41,7 +41,7 @@ public class App extends Application
 
 	private Injector injector;
 	private MessageBus messageBus;
-	private H2HManager h2hManager;
+	private IH2HManager h2hManager;
 	private AbstractSystemTray systemTray;
 	private static Stage primaryStage;
 	private UserConfig userConfig;
@@ -208,7 +208,7 @@ public class App extends Application
 	}
 	
 	@Inject
-	private void setH2HManager(H2HManager manager) {
+	private void setH2HManager(IH2HManager manager) {
 		this.h2hManager = manager;
 	}
 	

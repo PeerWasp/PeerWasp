@@ -15,11 +15,11 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.peerbox.UserConfig;
+import org.peerbox.app.manager.IH2HManager;
 import org.peerbox.app.manager.IUserManager;
 import org.peerbox.app.manager.UserManager;
 import org.peerbox.helper.JavaFxNoOpApp;
 import org.peerbox.interfaces.IFxmlLoaderProvider;
-import org.peerbox.model.H2HManager;
 import org.peerbox.presenter.LoginController;
 import org.peerbox.presenter.MainController;
 import org.peerbox.presenter.NavigationService;
@@ -62,7 +62,7 @@ public class GuiceFxmlLoaderTest {
 			}
 
 			@Provides
-			IUserManager providesUserManager(H2HManager manager) {
+			IUserManager providesUserManager(IH2HManager manager) {
 				return new UserManager(null);
 			}
 		});

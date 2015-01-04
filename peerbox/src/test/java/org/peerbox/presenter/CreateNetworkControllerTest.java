@@ -3,15 +3,16 @@ package org.peerbox.presenter;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.peerbox.model.H2HManager;
+import org.peerbox.app.manager.H2HManager;
+import org.peerbox.app.manager.IH2HManager;
 import org.peerbox.presenter.CreateNetworkController;
 
 public class CreateNetworkControllerTest {
 	
-	private H2HManager h2hmanager;
+	private IH2HManager h2hmanager;
 	
 	@Before
-	public void initializeVariables(){
+	public void initialize() {
 		h2hmanager = new H2HManager();
 	}
 	
