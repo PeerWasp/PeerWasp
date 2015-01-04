@@ -16,6 +16,7 @@ import org.peerbox.h2h.FileAgent;
 import org.peerbox.watchservice.ActionExecutor;
 import org.peerbox.watchservice.FileEventManager;
 import org.peerbox.watchservice.FolderWatchService;
+import org.peerbox.watchservice.filetree.FileTree;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,6 +27,7 @@ public class ClientNode {
 	private UserCredentials credentials;
 	private Path rootPath;
 	
+	private FileTree fileTree;
 	private FileEventManager fileEventManager;
 	private FileManager fileManager;
 	private ActionExecutor actionExecutor;
@@ -63,7 +65,8 @@ public class ClientNode {
 		Mockito.stub(manager.getNode()).toReturn(node);
 		
 		fileManager = new FileManager(manager);
-		fileEventManager = new FileEventManager(rootPath, true);
+		fileTree = new FileTree(rootPath, true);
+		fileEventManager = new FileEventManager(fileTree);
 		actionExecutor = new ActionExecutor(fileEventManager, fileManager);
 		watchService = new FolderWatchService(rootPath);
 		watchService.addFileEventListener(fileEventManager);

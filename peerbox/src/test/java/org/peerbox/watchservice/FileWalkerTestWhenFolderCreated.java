@@ -19,6 +19,7 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.peerbox.FileManager;
+import org.peerbox.watchservice.filetree.FileTree;
 import org.peerbox.watchservice.filetree.composite.FileComponent;
 
 //import com.google.common.io.Files;
@@ -54,13 +55,15 @@ public class FileWalkerTestWhenFolderCreated {
 	
 	
 	private static FileEventManager manager;
+	private static FileTree fileTree;
 	private static FolderWatchService watchService;
 	
 	@BeforeClass
 	public static void staticSetup(){
 		testDirectory = new File(parentPath);
 		testDirectory.mkdir();
-		manager = new FileEventManager(Paths.get(parentPath), false);
+		fileTree = new FileTree(Paths.get(parentPath), false);
+		manager = new FileEventManager(fileTree);
 		fileManager = Mockito.mock(FileManager.class);
 		actionExecutor = new ActionExecutor(manager, fileManager);
 		actionExecutor.setWaitForActionCompletion(false);

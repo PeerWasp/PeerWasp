@@ -19,6 +19,7 @@ import org.junit.Test;
 import org.mockito.Mockito;
 import org.peerbox.FileManager;
 import org.peerbox.utils.FileTestUtils;
+import org.peerbox.watchservice.filetree.FileTree;
 import org.peerbox.watchservice.filetree.composite.FileComponent;
 import org.peerbox.watchservice.states.EstablishedState;
 import org.peerbox.watchservice.states.InitialState;
@@ -41,6 +42,7 @@ import com.google.common.io.Files;
 public class FileEventManagerTest {
 
 	private static int nrFiles = 9;
+	private static FileTree fileTree;
 	private static FileEventManager manager;
 	private static ActionExecutor actionExecutor;
 	private static FileManager fileManager;
@@ -57,7 +59,8 @@ public class FileEventManagerTest {
 	 */
 	@BeforeClass
 	public static void staticSetup(){
-		manager = new FileEventManager(Paths.get(parentPath), true);
+		fileTree = new FileTree(Paths.get(parentPath), true);
+		manager = new FileEventManager(fileTree);
 		fileManager = Mockito.mock(FileManager.class);
 		actionExecutor = new ActionExecutor(manager, fileManager);
 		actionExecutor.setWaitForActionCompletion(false);

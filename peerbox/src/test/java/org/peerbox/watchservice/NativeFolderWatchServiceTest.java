@@ -23,6 +23,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.peerbox.FileManager;
+import org.peerbox.watchservice.filetree.FileTree;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,6 +33,7 @@ public class NativeFolderWatchServiceTest {
 	private FolderWatchService watchService;
 	private FileEventManager eventManager;
 	private ActionExecutor actionExecutor;
+	private FileTree fileTree;
 	
 	@Mock
 	private FileManager fileManager;
@@ -61,7 +63,8 @@ public class NativeFolderWatchServiceTest {
 		MockitoAnnotations.initMocks(this);
 		
 		watchService = new FolderWatchService(basePath);
-		eventManager = new FileEventManager(basePath, true);
+		fileTree = new FileTree(basePath, true);
+		eventManager = new FileEventManager(fileTree);
 		actionExecutor = new ActionExecutor(eventManager, fileManager);
 		actionExecutor.start();
 		watchService.addFileEventListener(eventManager);

@@ -37,6 +37,11 @@ public class FileTree implements IFileTree{
 		rootOfFileTree = new FolderComposite(rootPath, true, true);
 	}
     
+    /**
+     * @param rootPath is the root folder of the tree
+     * @param maintainContentHashes set to true if content hashes have to be maintained. Content hash changes are
+     * then propagated upwards to the parent directory.
+     */
     public FileTree(Path rootPath, boolean maintainContentHashes){
     	this.maintainContentHashes = maintainContentHashes;
 		rootOfFileTree = new FolderComposite(rootPath, maintainContentHashes, true);

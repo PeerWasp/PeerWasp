@@ -26,18 +26,13 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 	
 	private static final Logger logger = LoggerFactory.getLogger(FileEventManager.class);
 	
-    private BlockingQueue<FileComponent> fileComponentQueue; 
-    private FileTree fileTree;
+    private final BlockingQueue<FileComponent> fileComponentQueue; 
+    private final FileTree fileTree;
     
-    /**
-     * @param rootPath is the root folder of the tree
-     * @param maintainContentHashes set to true if content hashes have to be maintained. Content hash changes are
-     * then propagated upwards to the parent directory.
-     */
-    public FileEventManager(Path rootPath, boolean maintainContentHashes) {
-    	fileComponentQueue = new PriorityBlockingQueue<FileComponent>(2000, new FileActionTimeComparator());
-    	fileTree = new FileTree(rootPath, maintainContentHashes);
-    }
+	public FileEventManager(final FileTree fileTree) {
+		fileComponentQueue = new PriorityBlockingQueue<FileComponent>(2000, new FileActionTimeComparator());
+		this.fileTree = fileTree;
+	}
     
     /**
 	 * Handles incoming create events the following way:

@@ -18,6 +18,7 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.peerbox.FileManager;
+import org.peerbox.watchservice.filetree.FileTree;
 
 @Deprecated
 public class FileWalkerTest {
@@ -28,6 +29,7 @@ public class FileWalkerTest {
 	private static ArrayList<String> filePaths = new ArrayList<String>();
 	private static ArrayList<File> files = new ArrayList<File>();
 	private static FileEventManager manager;
+	private static FileTree fileTree;
 	
 	@Mock
 	private FileManager fileManager;
@@ -46,7 +48,8 @@ public class FileWalkerTest {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		manager = new FileEventManager(Paths.get(parentPath), true);
+		fileTree = new FileTree(Paths.get(parentPath), true);
+		manager = new FileEventManager(fileTree);
 	}
 	
 	@Before
