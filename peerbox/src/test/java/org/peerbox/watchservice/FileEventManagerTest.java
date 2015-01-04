@@ -60,7 +60,7 @@ public class FileEventManagerTest {
 	@BeforeClass
 	public static void staticSetup(){
 		
-		manager = new FileEventManager(Paths.get(parentPath), false);
+		manager = new FileEventManager(Paths.get(parentPath), false, true);
 	}
 	
 	/**

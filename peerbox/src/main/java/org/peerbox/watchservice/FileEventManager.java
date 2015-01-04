@@ -1,8 +1,6 @@
 package org.peerbox.watchservice;
 
 import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Comparator;
@@ -13,72 +11,42 @@ import net.engio.mbassy.listener.Handler;
 
 import org.hive2hive.core.events.framework.interfaces.file.IFileAddEvent;
 import org.hive2hive.core.events.framework.interfaces.file.IFileDeleteEvent;
-import org.hive2hive.core.events.framework.interfaces.file.IFileEvent;
 import org.hive2hive.core.events.framework.interfaces.file.IFileMoveEvent;
 import org.hive2hive.core.events.framework.interfaces.file.IFileShareEvent;
 import org.hive2hive.core.events.framework.interfaces.file.IFileUpdateEvent;
 import org.hive2hive.core.events.implementations.FileAddEvent;
-import org.hive2hive.core.events.implementations.FileUpdateEvent;
 import org.peerbox.FileManager;
 import org.peerbox.h2h.IFileRecoveryRequestEvent;
 import org.peerbox.watchservice.filetree.FileTree;
 import org.peerbox.watchservice.filetree.IFileTree;
 import org.peerbox.watchservice.filetree.composite.FileComponent;
-import org.peerbox.watchservice.filetree.composite.FolderComposite;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.inject.Inject;
 
 public class FileEventManager implements IFileEventManager, ILocalFileEventListener, org.hive2hive.core.events.framework.interfaces.IFileEventListener {
 	
 	private static final Logger logger = LoggerFactory.getLogger(FileEventManager.class);
 	
-	private Thread executorThread;
-
     private FileManager fileManager;
     
     private BlockingQueue<FileComponent> fileComponentQueue; 
     private FileTree fileTree;
-    private ActionExecutor actionExecutor;
     
-    public FileEventManager(Path rootPath, boolean waitForNotifications) {
-    	fileComponentQueue = new PriorityBlockingQueue<FileComponent>(2000, new FileActionTimeComparator());
-    	fileTree = new FileTree(rootPath);
-    	this.actionExecutor = new ActionExecutor(this, waitForNotifications);
-		executorThread = new Thread(actionExecutor, "ActionExecutorThread");
-		executorThread.start();
-		
-    }
+    private ActionExecutor actionExecutor;
+    private Thread executorThread;
     
     /**
      * @param rootPath is the root folder of the tree
      * @param maintainContentHashes set to true if content hashes have to be maintained. Content hash changes are
      * then propagated upwards to the parent directory.
      */
-    public FileEventManager(Path rootPath, boolean waitForNotifications, boolean maintainContentHashes) {
-    	fileComponentQueue = new PriorityBlockingQueue<FileComponent>(10, new FileActionTimeComparator());
+    public FileEventManager(Path rootPath, boolean waitForActionSucceeded, boolean maintainContentHashes) {
+    	fileComponentQueue = new PriorityBlockingQueue<FileComponent>(2000, new FileActionTimeComparator());
     	fileTree = new FileTree(rootPath, maintainContentHashes);
-       
-        executorThread = new Thread(new ActionExecutor(this, waitForNotifications), "ActionExecutorThread");
+    	actionExecutor = new ActionExecutor(this, waitForActionSucceeded);
+        executorThread = new Thread(actionExecutor, "ActionExecutorThread");
 		executorThread.start();
     }
-    @Inject
-    public FileEventManager(){
-    	
-    }
-    
-
-    
-    public ActionExecutor getActionExecutor(){
-    	return actionExecutor;
-    }
-    
-    public void stopExecutor() throws InterruptedException{
-    	executorThread.stop();
-    }
-    
-
     
     /**
 	 * Handles incoming create events the following way:
@@ -109,10 +77,6 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 			fileTree.discoverSubtreeCompletely(path, this);
 		}
 	}
-	
-
-	
-
 
 	@Override
 	public void onLocalFileModified(Path path) {
@@ -262,7 +226,14 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 		file.getAction().handleLocalHardDeleteEvent();
 	}
 
-	
+	public ActionExecutor getActionExecutor(){
+		return actionExecutor;
+	}
+
+	public void stopExecutor() throws InterruptedException{
+		// TODO: change stop to something that is not deprecated and recommended.
+		executorThread.stop();
+	}
 
 	public BlockingQueue<FileComponent> getFileComponentQueue() {
 		return fileComponentQueue;

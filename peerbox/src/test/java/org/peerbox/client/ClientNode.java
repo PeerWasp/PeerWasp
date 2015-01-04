@@ -56,7 +56,7 @@ public class ClientNode {
 		IH2HManager manager = Mockito.mock(IH2HManager.class);
 		Mockito.stub(manager.getNode()).toReturn(node);
 		fileManager = new FileManager(manager);
-		fileEventManager = new FileEventManager(rootPath, true);
+		fileEventManager = new FileEventManager(rootPath, true, true);
 		watchService = new FolderWatchService(rootPath);
 		watchService.addFileEventListener(fileEventManager);
 		
