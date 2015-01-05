@@ -27,14 +27,15 @@ import org.hive2hive.processframework.exceptions.InvalidProcessStateException;
 import org.hive2hive.processframework.exceptions.ProcessExecutionException;
 import org.peerbox.ResultStatus;
 import org.peerbox.UserConfig;
+import org.peerbox.app.ClientContext;
 import org.peerbox.app.manager.IUserManager;
+import org.peerbox.guice.provider.ClientContextProvider;
 import org.peerbox.presenter.validation.EmptyTextFieldValidator;
 import org.peerbox.presenter.validation.RootPathValidator;
 import org.peerbox.presenter.validation.SelectRootPathUtils;
 import org.peerbox.presenter.validation.ValidationUtils.ValidationResult;
 import org.peerbox.view.ViewNames;
 import org.peerbox.view.controls.ErrorLabel;
-import org.peerbox.watchservice.FolderWatchService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,6 +48,8 @@ public class LoginController implements Initializable {
 	private NavigationService fNavigationService;
 	private IUserManager userManager;
 	private UserConfig userConfig;
+	@Inject
+	private ClientContextProvider clientContext;
 
 	@FXML
 	private TextField txtUsername;
@@ -235,31 +238,28 @@ public class LoginController implements Initializable {
 		logger.debug("Login task succeeded: user {} logged in.", getUsername());
 		saveLoginConfig();
 
-		// Start FolderWatchService
-		startWatchService();
-
-		resetForm();
+		initializeServices();
+		
+	    resetForm();
 		fNavigationService.navigate(ViewNames.SETUP_COMPLETED_VIEW);
 	}
 
-	private void startWatchService() {
-
-		FolderWatchService watchService = null;
-
+	private void initializeServices() {
 		try {
-			watchService = new FolderWatchService(userConfig.getRootPath());
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-		try {
-			watchService.start();
+			
+			ClientContext ctx = clientContext.get();
+			ctx.getActionExecutor().start();
+				
+			// register for local/remote events
+			ctx.getFolderWatchService().addFileEventListener(ctx.getFileEventManager());
+			ctx.getH2hManager().getNode().getFileManager().subscribeFileEvents(ctx.getFileEventManager());
+		
+			ctx.getFolderWatchService().start();
+			
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-
 	}
 
 	private void saveLoginConfig() {
