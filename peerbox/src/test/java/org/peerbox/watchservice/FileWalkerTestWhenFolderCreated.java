@@ -92,9 +92,9 @@ public class FileWalkerTestWhenFolderCreated {
 		}
 		
 		try {
-			watchService = new FolderWatchService(Paths.get(parentPath));
+			watchService = new FolderWatchService();
 			watchService.addFileEventListener(manager);
-			watchService.start();
+			watchService.start(Paths.get(parentPath));
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

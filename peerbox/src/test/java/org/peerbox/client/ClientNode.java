@@ -68,7 +68,7 @@ public class ClientNode {
 		fileTree = new FileTree(rootPath, true);
 		fileEventManager = new FileEventManager(fileTree);
 		actionExecutor = new ActionExecutor(fileEventManager, fileManager);
-		watchService = new FolderWatchService(rootPath);
+		watchService = new FolderWatchService();
 		watchService.addFileEventListener(fileEventManager);
 		
 		// remote events
@@ -80,7 +80,7 @@ public class ClientNode {
 
 		// start monitoring folder 
 		logger.debug("Start watchservice");
-		watchService.start();
+		watchService.start(rootPath);
 		// start processing actions
 		logger.debug("Start action executor");
 		actionExecutor.start();

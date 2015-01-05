@@ -62,7 +62,7 @@ public class NativeFolderWatchServiceTest {
 		
 		MockitoAnnotations.initMocks(this);
 		
-		watchService = new FolderWatchService(basePath);
+		watchService = new FolderWatchService();
 		fileTree = new FileTree(basePath, true);
 		eventManager = new FileEventManager(fileTree);
 		actionExecutor = new ActionExecutor(eventManager, fileManager);
@@ -91,7 +91,7 @@ public class NativeFolderWatchServiceTest {
 	 */
 	@Test
 	public void testFileCreate() throws Exception {
-		watchService.start();
+		watchService.start(basePath);
 		
 		// create new file
 		File add = Paths.get(basePath.toString(), "add_empty.txt").toFile();
@@ -109,7 +109,7 @@ public class NativeFolderWatchServiceTest {
 	 */
 	@Test
 	public void testSmallFileCreate() throws Exception {
-		watchService.start();
+		watchService.start(basePath);
 		
 		// create new small file
 		File add = Paths.get(basePath.toString(), "add_small.txt").toFile();
@@ -130,7 +130,7 @@ public class NativeFolderWatchServiceTest {
 	 */
 	@Test
 	public void testBigFileCreate() throws Exception {
-		watchService.start();
+		watchService.start(basePath);
 		
 		// create new big file
 		File add = Paths.get(basePath.toString(), "add_big.txt").toFile();
@@ -156,7 +156,7 @@ public class NativeFolderWatchServiceTest {
 		delete.createNewFile();
 		sleep();
 		
-		watchService.start();
+		watchService.start(basePath);
 		//delete newly created file
 		FileUtils.forceDelete(delete);
 		sleep();
@@ -172,7 +172,7 @@ public class NativeFolderWatchServiceTest {
 	 */
 	@Test
 	public void testFileModify() throws Exception {
-		watchService.start();
+		watchService.start(basePath);
 		
 		// create new small file
 		File modify = Paths.get(basePath.toString(), "modify_small.txt").toFile();
@@ -200,7 +200,7 @@ public class NativeFolderWatchServiceTest {
 	 */
 	@Test
 	public void testBigFileModify() throws Exception {
-		watchService.start();
+		watchService.start(basePath);
 		
 		// create new small file
 		File modify = Paths.get(basePath.toString(), "modify_big.txt").toFile();
@@ -227,7 +227,7 @@ public class NativeFolderWatchServiceTest {
 	 */
 	@Test
 	public void testFileRename() throws Exception {
-		watchService.start();
+		watchService.start(basePath);
 	
 		File rename = Paths.get(basePath.toString(), "rename.txt").toFile();
 		File newName = Paths.get(basePath.toString(), "rename_rename.txt").toFile();
@@ -253,7 +253,7 @@ public class NativeFolderWatchServiceTest {
 	 */
 	@Test
 	public void testFileMove() throws Exception {
-		watchService.start();
+		watchService.start(basePath);
 		
 		// create new sub directory
 		String subDirString = "subDir";
@@ -292,7 +292,7 @@ public class NativeFolderWatchServiceTest {
 		WatchServiceTestHelpers.writeRandomData(out, NUM_CHARS_SMALL_FILE);
 		out.close();
 		
-		watchService.start();
+		watchService.start(basePath);
 		FileUtils.copyFile(file, newFile);
 		sleep();
 		Mockito.verify(fileManager, Mockito.times(1)).add(newFile);
@@ -309,7 +309,7 @@ public class NativeFolderWatchServiceTest {
 		WatchServiceTestHelpers.writeRandomData(out, NUM_CHARS_BIG_FILE);
 		out.close();
 		
-		watchService.start();
+		watchService.start(basePath);
 		FileUtils.copyFile(file, newFile);
 		sleep();
 		Mockito.verify(fileManager, Mockito.times(1)).add(newFile);
@@ -319,7 +319,7 @@ public class NativeFolderWatchServiceTest {
 
 	@Test
 	public void testManySimultaneousEvents() throws Exception {
-		watchService.start();
+		watchService.start(basePath);
 		
 		List<File> folderList = new ArrayList<File>();
 		List<File> fileList = new ArrayList<File>();
@@ -383,7 +383,7 @@ public class NativeFolderWatchServiceTest {
 	@Test
 	public void createManyFiles() throws Exception{
 		int numFiles = 1000;
-		watchService.start();
+		watchService.start(basePath);
 		List<Path> files = new ArrayList<Path>();
 		
 		while(numFiles > 0) {
@@ -420,7 +420,7 @@ public class NativeFolderWatchServiceTest {
 			files.add(f);
 		}
 		
-		watchService.start();
+		watchService.start(basePath);
 		
 		// copy folder
 		Path copy = Paths.get(basePath.toString(), "copy_folder");
@@ -442,7 +442,7 @@ public class NativeFolderWatchServiceTest {
 	
 	@Test
 	public void testCreateManyFiles() throws Exception{
-		watchService.start();
+		watchService.start(basePath);
 		File file = null;
 		int fileNumbers = 1000;
 		

@@ -53,7 +53,7 @@ public class FolderWatchServiceTest {
 		
 		MockitoAnnotations.initMocks(this);
 		
-		watchService = new FolderWatchService(basePath);
+		watchService = new FolderWatchService();
 		watchService.addFileEventListener(fileEventListener);
 	}
 	
@@ -72,7 +72,7 @@ public class FolderWatchServiceTest {
 		Mockito.verify(fileEventListener, Mockito.never()).onLocalFileModified(file);
 		Mockito.verify(fileEventListener, Mockito.never()).onLocalFileDeleted(file);
 		
-		watchService.start();
+		watchService.start(basePath);
 		
 		file = addModifyDelete("file_2.txt");
 		// service started -> events should be processed
@@ -83,7 +83,7 @@ public class FolderWatchServiceTest {
 
 	@Test
 	public void testServiceStop() throws Exception {
-		watchService.start();
+		watchService.start(basePath);
 		sleep();
 		watchService.stop();
 		
@@ -97,7 +97,7 @@ public class FolderWatchServiceTest {
 	
 	@Test
 	public void testServiceRestart() throws Exception {
-		watchService.start();
+		watchService.start(basePath);
 		Path file = addModifyDelete("file_1.txt");
 		// service started -> events should be processed
 		Mockito.verify(fileEventListener, Mockito.times(1)).onLocalFileCreated(file);
@@ -110,7 +110,7 @@ public class FolderWatchServiceTest {
 		Mockito.verify(fileEventListener, Mockito.never()).onLocalFileCreated(file);
 		Mockito.verify(fileEventListener, Mockito.never()).onLocalFileModified(file);
 		Mockito.verify(fileEventListener, Mockito.never()).onLocalFileDeleted(file);
-		watchService.start();
+		watchService.start(basePath);
 		// service stopped -> no events should be processed
 		Mockito.verify(fileEventListener, Mockito.never()).onLocalFileCreated(file);
 		Mockito.verify(fileEventListener, Mockito.never()).onLocalFileModified(file);
@@ -135,7 +135,7 @@ public class FolderWatchServiceTest {
 
 	@Test
 	public void testFileAddEvent() throws Exception {
-		watchService.start();
+		watchService.start(basePath);
 		
 		// new file
 		Path add = Paths.get(basePath.toString(), "add.txt");
@@ -152,7 +152,7 @@ public class FolderWatchServiceTest {
 		Path modify = Paths.get(basePath.toString(), "modify.txt");
 		assertTrue(modify.toFile().createNewFile());
 		
-		watchService.start();
+		watchService.start(basePath);
 		
 		// write some content
 		FileWriter out = new FileWriter(modify.toFile());
@@ -175,7 +175,7 @@ public class FolderWatchServiceTest {
 		WatchServiceTestHelpers.writeRandomData(out,  FILE_SIZE);
 		out.close();
 		
-		watchService.start();
+		watchService.start(basePath);
 		
 		// delete
 		assertTrue(delete.toFile().delete());
@@ -195,7 +195,7 @@ public class FolderWatchServiceTest {
 		FileWriter out = new FileWriter(move.toFile());
 		WatchServiceTestHelpers.writeRandomData(out,  FILE_SIZE);
 		out.close();
-		watchService.start();
+		watchService.start(basePath);
 		
 		// move the file into directory
 		Path dstFile = Paths.get(newDir.toString(), move.getFileName().toString());
@@ -216,7 +216,7 @@ public class FolderWatchServiceTest {
 		FileWriter out = new FileWriter(rename.toFile());
 		WatchServiceTestHelpers.writeRandomData(out,  FILE_SIZE);
 		out.close();
-		watchService.start();
+		watchService.start(basePath);
 		
 		// rename the file
 		Path newName = Paths.get(basePath.toString(), "rename_new.txt");
@@ -236,7 +236,7 @@ public class FolderWatchServiceTest {
 		FileWriter out = new FileWriter(original.toFile());
 		WatchServiceTestHelpers.writeRandomData(out,  FILE_SIZE);
 		out.close();
-		watchService.start();
+		watchService.start(basePath);
 		
 		// rename the file
 		Path copy = Paths.get(basePath.toString(), "copy_of_file.txt");
@@ -249,7 +249,7 @@ public class FolderWatchServiceTest {
 	public void testFolderAddEvent() throws Exception {
 		Path newFolder = Paths.get(basePath.toString(), "newfolder");
 		
-		watchService.start();
+		watchService.start(basePath);
 		assertTrue(newFolder.toFile().mkdir());
 		sleep();
 		Mockito.verify(fileEventListener, Mockito.times(1)).onLocalFileCreated(newFolder);
@@ -259,7 +259,7 @@ public class FolderWatchServiceTest {
 	public void testAddFileInNewFolderEvent() throws Exception {
 		Path newFolder = Paths.get(basePath.toString(), "newfolder");
 		Path newFile = Paths.get(newFolder.toString(), "file.txt");
-		watchService.start();
+		watchService.start(basePath);
 		
 		assertTrue(newFolder.toFile().mkdir());
 //		sleep(); //-> this sleep shows that create event is fired if we wait a bit (until folder is registered)
@@ -275,7 +275,7 @@ public class FolderWatchServiceTest {
 		// create folder and delete it
 		Path folder = Paths.get(basePath.toString(), "todelete");
 		Files.createDirectory(folder);
-		watchService.start();
+		watchService.start(basePath);
 		//Files.delete(folder);
 		sleep();
 		Mockito.verify(fileEventListener, Mockito.times(1)).onLocalFileDeleted(folder);
@@ -302,7 +302,7 @@ public class FolderWatchServiceTest {
 		Path folder = Paths.get(basePath.toString(), "todelete");
 		List<Path> files = createFolderWithFiles(folder, 200);
 				
-		watchService.start();
+		watchService.start(basePath);
 		FileUtils.deleteDirectory(folder.toFile());
 		sleep();
 		Mockito.verify(fileEventListener, Mockito.times(1)).onLocalFileDeleted(folder);
@@ -318,7 +318,7 @@ public class FolderWatchServiceTest {
 		Files.createDirectory(newLocation);
 		newLocation = Paths.get(newLocation.toString(), "tomove");
 		
-		watchService.start();
+		watchService.start(basePath);
 		Files.move(folder, newLocation);
 		sleep();
 		Mockito.verify(fileEventListener, Mockito.times(1)).onLocalFileDeleted(folder);
@@ -332,7 +332,7 @@ public class FolderWatchServiceTest {
 		
 		Path rename = Paths.get(basePath.toString(), "torename_rename");
 		
-		watchService.start();
+		watchService.start(basePath);
 		Files.move(folder, rename);
 		sleep();
 		Mockito.verify(fileEventListener, Mockito.times(1)).onLocalFileDeleted(folder);
@@ -346,7 +346,7 @@ public class FolderWatchServiceTest {
 		
 		Path copy = Paths.get(basePath.toString(), "copy");
 		
-		watchService.start();
+		watchService.start(basePath);
 		Files.copy(folder, copy);
 		sleep();
 		// old folder untouched
@@ -359,7 +359,7 @@ public class FolderWatchServiceTest {
 	
 	@Test 
 	public void testHighLoad() throws Exception {
-		watchService.start();
+		watchService.start(basePath);
 		List<Path> files = new ArrayList<Path>();
 		for(int i = 0; i < 10000; ++i) {
 			Path p = Paths.get(basePath.toString(), String.format("%s.txt", i));
@@ -373,7 +373,7 @@ public class FolderWatchServiceTest {
 	
 	@Test
 	public void testManyFoldersAndEmptyFiles() throws Exception {
-		watchService.start();
+		watchService.start(basePath);
         Path base = basePath;
         int numFolders = 100;
         int numFilesPerFolder = 1000;
@@ -395,7 +395,7 @@ public class FolderWatchServiceTest {
 	
 	@Test
 	public void testManyEmptyFiles() throws Exception {
-		watchService.start();
+		watchService.start(basePath);
         Path base = basePath;
         int numFolders = 10;
         int numFilesPerFolder = 10000;
@@ -416,7 +416,7 @@ public class FolderWatchServiceTest {
 	
 	@Test 
 	public void testManyFoldersAndSmallFiles() throws Exception {
-		watchService.start();
+		watchService.start(basePath);
         Path base = basePath;
         int numFolders = 100;
         int numFilesPerFolder = 1000;
@@ -438,7 +438,7 @@ public class FolderWatchServiceTest {
 	
 	@Test
 	public void testManySmallFiles() throws Exception {
-		watchService.start();
+		watchService.start(basePath);
         Path base = basePath;
         int numFolders = 10;
         int numFilesPerFolder = 10000;

@@ -254,7 +254,7 @@ public class LoginController implements Initializable {
 			ctx.getFolderWatchService().addFileEventListener(ctx.getFileEventManager());
 			ctx.getH2hManager().getNode().getFileManager().subscribeFileEvents(ctx.getFileEventManager());
 		
-			ctx.getFolderWatchService().start();
+			ctx.getFolderWatchService().start(userConfig.getRootPath());
 			
 		} catch (Exception e) {
 			// TODO Auto-generated catch block

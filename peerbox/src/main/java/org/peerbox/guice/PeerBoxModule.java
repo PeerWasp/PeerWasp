@@ -23,7 +23,6 @@ import org.peerbox.share.ShareFolderHandler;
 import org.peerbox.view.tray.AbstractSystemTray;
 import org.peerbox.view.tray.JSystemTray;
 import org.peerbox.watchservice.FileEventManager;
-import org.peerbox.watchservice.FolderWatchService;
 import org.peerbox.watchservice.IFileEventManager;
 import org.peerbox.watchservice.filetree.FileTree;
 
@@ -93,14 +92,8 @@ public class PeerBoxModule extends AbstractModule {
 	}
 	
 	@Provides
-	FolderWatchService providesFolderWatchService(UserConfig cfg) {
-		return new FolderWatchService(cfg.getRootPath());
-	}
-	
-	@Provides
 	FileTree providesFileTree(UserConfig cfg){
 		return new FileTree(cfg.getRootPath());
 	}
-	
 	
 }

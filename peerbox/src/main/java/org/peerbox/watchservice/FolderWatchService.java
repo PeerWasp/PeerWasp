@@ -31,133 +31,114 @@ import org.slf4j.LoggerFactory;
 public class FolderWatchService extends AbstractWatchService {
 
 	private static final Logger logger = LoggerFactory.getLogger(FolderWatchService.class);
+	
 	private static final long CLEANUP_TASK_DELAY = 5000;
 	
-	private Path folderToWatch;
 	private Thread fileEventProcessor;
 	private WatchService watcher;
-    private Map<WatchKey, Path> watchKeyToPath;
+    private final Map<WatchKey, Path> watchKeyToPath;
     
     private Timer timer;
     
-	public FolderWatchService(Path folderToWatch) {
+	public FolderWatchService() {
 		super();
-		this.folderToWatch = folderToWatch;
-        this.watchKeyToPath = new HashMap<WatchKey, Path>();
+		this.watchKeyToPath = new HashMap<WatchKey, Path>();
 	}
 	
-	@Override
-	public void start() throws Exception {
-		super.start();
+	protected void onStarted() throws IOException {
 		watcher = FileSystems.getDefault().newWatchService();
 
-		logger.info("Scanning {} ...", folderToWatch);
+		logger.info("Scanning folder: {} ...", getFolderToWatch());
 		watchKeyToPath.clear();
-		registerFoldersRecursive(folderToWatch);
+		registerFoldersRecursive(getFolderToWatch());
 		logger.info("Scanning done.");
-		
-		fileEventProcessor = new Thread(new FolderWatchEventProcessor(), "WatchServiceEventProcessorThread");
+
+		fileEventProcessor = new Thread(new FolderWatchEventProcessor());
+		fileEventProcessor.setName("WatchServiceFileEventProcessor");
 		fileEventProcessor.start();
+
+		logger.info("Watch Service started.");
 	}
 
-	@Override
-	public void stop() throws Exception {
-		super.stop();
+	protected void onStopped() throws Exception {
 		// event processor thread
-		if(fileEventProcessor != null) {
+		if (fileEventProcessor != null) {
 			fileEventProcessor.interrupt();
-			fileEventProcessor.join();
 			fileEventProcessor = null;
 		}
-		// java watch service
-		if(watcher != null) {
+
+		// Java watch service
+		if (watcher != null) {
 			watcher.close();
 			watcher = null;
 		}
+
 		// cleanup task / timer
-		if(timer != null) {
+		if (timer != null) {
 			timer.cancel();
 			timer = null;
 		}
+
 		// key map
 		watchKeyToPath.clear();
+
+		logger.info("Watch Service stopped.");
 	}
 
 	private synchronized void registerFolder(final Path folder) throws IOException {
-		// FIXME: containsValue has bad performance in case of many folders. 
-		// maybe bidirectional (e.g. from guava library) map would be a fix for that.
-		if(!watchKeyToPath.containsValue(folder)) {
+		// FIXME: containsValue has bad performance in case of many folders.
+		// maybe bidirectional (e.g. BiMap from Guava) map would be an option.
+		if (!watchKeyToPath.containsValue(folder)) {
 			logger.info("Register folder: {}", folder);
-		    WatchKey key = folder.register(watcher, ENTRY_CREATE, ENTRY_DELETE, ENTRY_MODIFY, OVERFLOW);
-		    watchKeyToPath.put(key, folder);
+			WatchKey key = folder.register(watcher, ENTRY_CREATE, ENTRY_DELETE, ENTRY_MODIFY, OVERFLOW);
+			watchKeyToPath.put(key, folder);
 		}
 	}
 
-	private synchronized void registerFoldersRecursive(final Path start) throws IOException {
-	    // register recursively all folders and subfolders
-	    Files.walkFileTree(start, new SimpleFileVisitor<Path>() {
-	        @Override
-	        public FileVisitResult preVisitDirectory(Path folder, BasicFileAttributes attrs)
-	        {
-	            try {
-					registerFolder(folder);
-				} catch (IOException e) {
-					logger.warn("Could not register folder: {} ({})", folder, e.getMessage());
-				}
-	            return FileVisitResult.CONTINUE;
-	        }
-	    });
+	private synchronized void registerFoldersRecursive(final Path folder) throws IOException {
+		// register recursively all folders and subfolders
+		Files.walkFileTree(folder, new RegisterFolderVisitor());
 	}
 	
 	private synchronized void unregisterFolder(WatchKey folderKey) {
 		folderKey.cancel();
-		Path p = watchKeyToPath.remove(folderKey);
-		logger.info("Unregister folder: {}", p);
+		Path folder = watchKeyToPath.remove(folderKey);
+		logger.info("Unregister folder: {}", folder);
 	}
 	
 	private synchronized void cleanupFolderRegistrations() {
 		// find watch keys of deleted folders
-		Set<Entry<WatchKey, Path>> entrySet = new HashSet<Entry<WatchKey,Path>>(watchKeyToPath.entrySet());
-		Set<WatchKey> keysToCancel = new HashSet<WatchKey>();
-		for(Entry<WatchKey, Path> e : entrySet) {
-			if(!Files.exists(e.getValue(), NOFOLLOW_LINKS)) {
-				keysToCancel.add(e.getKey());
+		Set<Entry<WatchKey, Path>> entrySet = new HashSet<>(watchKeyToPath.entrySet());
+		Set<WatchKey> keysToCancel = new HashSet<>();
+		for (Entry<WatchKey, Path> e : entrySet) {
+			WatchKey key = e.getKey();
+			Path folder = e.getValue();
+			if (!Files.exists(folder, NOFOLLOW_LINKS)) {
+				keysToCancel.add(key);
 			}
 		}
-		
+
 		// unregister folders (cancel watch key)
-		for(WatchKey k : keysToCancel) {
-			unregisterFolder(k);
+		for (WatchKey key : keysToCancel) {
+			unregisterFolder(key);
 		}
 	}
 	
 	private synchronized void scheduleCleanupTask() {
-		if(timer != null) {
+		// cancel previous task if existing
+		if (timer != null) {
 			timer.cancel();
 			timer = null;
 		}
-		
+
 		timer = new Timer(getClass().getName());
-		timer.schedule(new TimerTask() {
-			// TODO: improve design: make private inner class
-			@Override
-			public void run() {
-				try {
-					logger.info("Running cleanup for registered folders.");
-					registerFoldersRecursive(folderToWatch);
-					cleanupFolderRegistrations();
-				} catch (IOException e) {
-					logger.warn("Could not register folders ({})", e.getMessage());
-				}
-			}
-			
-		}, CLEANUP_TASK_DELAY);
+		timer.schedule(new CleanupFolderRegistrationsTask(), CLEANUP_TASK_DELAY);
 	}
 
 	@SuppressWarnings("unchecked")
-    private static <T> WatchEvent<T> castWatchEvent(WatchEvent<?> event) {
-        return (WatchEvent<T>)event;
-    }
+	private static <T> WatchEvent<T> castWatchEvent(WatchEvent<?> event) {
+		return (WatchEvent<T>) event;
+	}
 
 	private class FolderWatchEventProcessor implements Runnable {
 		@Override
@@ -168,12 +149,12 @@ public class FolderWatchService extends AbstractWatchService {
 		private void processEvents() {
 			for (;;) {
 
-				// wait for key to be signalled
+				// wait for key to be signaled
 				WatchKey key = null;
 				try {
 					key = watcher.take();
 				} catch (InterruptedException iex) {
-					logger.debug("Folder Watch Event Processor interrupted. Stop processing events.");
+					logger.trace("Folder Watch Event Processor interrupted (stop watching folder).");
 					return;
 				}
 
@@ -186,12 +167,13 @@ public class FolderWatchService extends AbstractWatchService {
 				for (WatchEvent<?> event : key.pollEvents()) {
 
 					// FIXME: how to handle this event?
+					// means Watcher lost some events due to too many events
 					if (event.kind() == OVERFLOW) {
-						logger.warn("OVERFLOW");
-						System.exit(1);
+						logger.warn("OVERFLOW of WatchService - some eventy may be lost.");
 						continue;
 					}
 
+					@SuppressWarnings("unchecked")
 					Kind<Path> kind = (Kind<Path>) event.kind();
 					
 					// Context for directory entry event is the file name of entry
@@ -207,9 +189,8 @@ public class FolderWatchService extends AbstractWatchService {
 								registerFoldersRecursive(child);
 							}
 						} catch (IOException ioex) {
-							// TODO: handle exception
-							// ignore to keep sample readable
-							logger.warn("Could not register new folder.", ioex);
+							// registration of new folder failed.
+							logger.warn("Could not register new folder: {}", child, ioex);
 						}
 					}
 
@@ -229,25 +210,31 @@ public class FolderWatchService extends AbstractWatchService {
 						break;
 					}
 				}
-				
-				// schedule a cleanup task that iterates over all directories and updates watch keys (adds or removes them)
+
+				// schedule a cleanup task that iterates over all directories and updates watch keys (adds or
+				// removes them)
 				scheduleCleanupTask();
+				
+				// watch service was stopped in the meantime
+				if(!isRunning.get()) {
+					return;
+				}
 			}
 		}
 
 		/**
 		 * Precondition: Event and child must not be null.
 		 * @param kind type of the event (create, modify, ...)
-		 * @param filePath Identifies the related file.
+		 * @param source Identifies the related file.
 		 */
-		private void handleEvent(Kind<Path> kind, Path filePath) {
+		private void handleEvent(Kind<Path> kind, Path source) {
 			try {
 				if (kind.equals(ENTRY_CREATE)) {
-					addNotifyEvent(new NotifyFileCreated(filePath));
+					addNotifyEvent(new NotifyFileCreated(source));
 				} else if (kind.equals(ENTRY_MODIFY)) {
-					addNotifyEvent(new NotifyFileModified(filePath));
+					addNotifyEvent(new NotifyFileModified(source));
 				} else if (kind.equals(ENTRY_DELETE)) {
-					addNotifyEvent(new NotifyFileDeleted(filePath));
+					addNotifyEvent(new NotifyFileDeleted(source));
 				} else if (kind.equals(OVERFLOW)) {
 					// TODO: error - overflow... should not happen here (continue if such an event occurs)
 					logger.warn("Overflow event from watch service. Too many events?");
@@ -255,8 +242,35 @@ public class FolderWatchService extends AbstractWatchService {
 					logger.warn("Unknown event received");
 				}
 			} catch (InterruptedException iex) {
+				// put into queue failed
 				logger.info("Handling event interrupted.", iex);
 			}
+		}
+	}
+	
+	
+	private class CleanupFolderRegistrationsTask extends TimerTask {
+		@Override
+		public void run() {
+			try {
+				logger.info("Running cleanup for registered folders.");
+				registerFoldersRecursive(getFolderToWatch());
+				cleanupFolderRegistrations();
+			} catch (IOException e) {
+				logger.warn("Could not register folders ({})", e.getMessage(), e);
+			}
+		}
+	}
+	
+	private class RegisterFolderVisitor extends SimpleFileVisitor<Path> {
+		@Override
+		public FileVisitResult preVisitDirectory(Path folder, BasicFileAttributes attrs) {
+			try {
+				registerFolder(folder);
+			} catch (IOException ioex) {
+				logger.warn("Could not register folder: {} ({})", folder, ioex.getMessage(), ioex);
+			}
+			return FileVisitResult.CONTINUE;
 		}
 	}
 }

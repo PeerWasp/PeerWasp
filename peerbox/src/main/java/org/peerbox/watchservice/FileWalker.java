@@ -14,7 +14,7 @@ import org.peerbox.watchservice.filetree.composite.FolderComposite;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class FileWalker extends AbstractWatchService {
+public class FileWalker {
 	
 	private static final Logger logger = LoggerFactory.getLogger(FileWalker.class);
 	
@@ -30,17 +30,6 @@ public class FileWalker extends AbstractWatchService {
 		this.eventManager = eventManager;
 	}
 	
-	@Override
-	public void start() throws Exception {
-		
-		// TODO Auto-generated method stub
-	}
-
-	@Override
-	public void stop() throws Exception {
-		// TODO Auto-generated method stub
-	}
-
 	public void indexNamesRecursively(){
 		try {
 			filesystemView = new HashMap<Path, Action>();
