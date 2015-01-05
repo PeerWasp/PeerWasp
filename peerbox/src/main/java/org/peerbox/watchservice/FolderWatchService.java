@@ -40,9 +40,9 @@ public class FolderWatchService extends AbstractWatchService {
     
     private Timer timer;
     
-	public FolderWatchService(Path rootFolderToWatch) throws IOException {
+	public FolderWatchService(Path folderToWatch) {
 		super();
-		this.folderToWatch = rootFolderToWatch;
+		this.folderToWatch = folderToWatch;
         this.watchKeyToPath = new HashMap<WatchKey, Path>();
 	}
 	
@@ -139,6 +139,7 @@ public class FolderWatchService extends AbstractWatchService {
 		
 		timer = new Timer(getClass().getName());
 		timer.schedule(new TimerTask() {
+			// TODO: improve design: make private inner class
 			@Override
 			public void run() {
 				try {

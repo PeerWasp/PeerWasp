@@ -25,6 +25,8 @@ import org.peerbox.watchservice.states.ExecutionHandle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.inject.Inject;
+
 /**
  * The FileActionExecutor service observes a set of file actions in a queue.
  * An action is executed as soon as it is considered to be "stable", i.e. no more events were 
@@ -54,6 +56,7 @@ public class ActionExecutor implements Runnable, IActionEventListener {
 
 	private Thread executorThread;
 	
+	@Inject
 	public ActionExecutor(FileEventManager eventManager, FileManager fileManager){
 		this.fileEventManager = eventManager;
 		this.fileManager = fileManager;

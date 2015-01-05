@@ -4,6 +4,7 @@ package org.peerbox.guice;
 import org.peerbox.FileManager;
 import org.peerbox.IPeerboxFileManager;
 import org.peerbox.UserConfig;
+import org.peerbox.app.ClientContext;
 import org.peerbox.app.ExitHandler;
 import org.peerbox.app.IExitHandler;
 import org.peerbox.app.manager.H2HManager;
@@ -15,12 +16,14 @@ import org.peerbox.delete.IFileDeleteHandler;
 import org.peerbox.events.MessageBus;
 import org.peerbox.filerecovery.FileRecoveryHandler;
 import org.peerbox.filerecovery.IFileRecoveryHandler;
+import org.peerbox.guice.provider.ClientContextProvider;
 import org.peerbox.interfaces.IFxmlLoaderProvider;
 import org.peerbox.share.IShareFolderHandler;
 import org.peerbox.share.ShareFolderHandler;
 import org.peerbox.view.tray.AbstractSystemTray;
 import org.peerbox.view.tray.JSystemTray;
 import org.peerbox.watchservice.FileEventManager;
+import org.peerbox.watchservice.FolderWatchService;
 import org.peerbox.watchservice.IFileEventManager;
 import org.peerbox.watchservice.filetree.FileTree;
 
@@ -52,6 +55,7 @@ public class PeerBoxModule extends AbstractModule {
 		bind(IFileEventManager.class).to(FileEventManager.class);
 		
 		bind(IExitHandler.class).to(ExitHandler.class);
+		bind(ClientContext.class).toProvider(ClientContextProvider.class);
 	}
 
 	private void bindSystemTray() {
@@ -86,6 +90,11 @@ public class PeerBoxModule extends AbstractModule {
 		bind(IH2HManager.class).to(H2HManager.class);
 		bind(IUserManager.class).to(UserManager.class);
 		bind(IPeerboxFileManager.class).to(FileManager.class);
+	}
+	
+	@Provides
+	FolderWatchService providesFolderWatchService(UserConfig cfg) {
+		return new FolderWatchService(cfg.getRootPath());
 	}
 	
 	@Provides
