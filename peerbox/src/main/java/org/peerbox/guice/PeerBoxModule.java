@@ -3,6 +3,7 @@ package org.peerbox.guice;
 
 import org.peerbox.FileManager;
 import org.peerbox.IPeerboxFileManager;
+import org.peerbox.UserConfig;
 import org.peerbox.app.ExitHandler;
 import org.peerbox.app.IExitHandler;
 import org.peerbox.app.manager.H2HManager;
@@ -21,8 +22,10 @@ import org.peerbox.view.tray.AbstractSystemTray;
 import org.peerbox.view.tray.JSystemTray;
 import org.peerbox.watchservice.FileEventManager;
 import org.peerbox.watchservice.IFileEventManager;
+import org.peerbox.watchservice.filetree.FileTree;
 
 import com.google.inject.AbstractModule;
+import com.google.inject.Provides;
 import com.google.inject.TypeLiteral;
 import com.google.inject.matcher.Matchers;
 import com.google.inject.name.Names;
@@ -84,5 +87,11 @@ public class PeerBoxModule extends AbstractModule {
 		bind(IUserManager.class).to(UserManager.class);
 		bind(IPeerboxFileManager.class).to(FileManager.class);
 	}
+	
+	@Provides
+	FileTree providesFileTree(UserConfig cfg){
+		return new FileTree(cfg.getRootPath());
+	}
+	
 	
 }

@@ -33,6 +33,7 @@ public class FileTree implements IFileTree{
     private Set<Path> synchronizedFiles = new ConcurrentHashSet<Path>();
     private boolean maintainContentHashes;
 	
+   // @Inject
     public FileTree(Path rootPath){
     	maintainContentHashes = true;
 		rootOfFileTree = new FolderComposite(rootPath, true, true);
