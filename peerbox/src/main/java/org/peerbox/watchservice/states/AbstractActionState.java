@@ -8,7 +8,6 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.lang3.NotImplementedException;
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.hive2hive.core.exceptions.NoSessionException;
 import org.hive2hive.processframework.exceptions.InvalidProcessStateException;
@@ -155,7 +154,7 @@ public abstract class AbstractActionState {
 	}
 
 	public AbstractActionState handleLocalRecover(File currentFile, int version){
-		throw new NotImplementedException("Recovery Event occured in invalid state!");
+		throw new NotImplException("Recovery Event occured in invalid state!");
 	}
 	
 	/*
