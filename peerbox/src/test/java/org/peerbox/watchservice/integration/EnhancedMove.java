@@ -22,6 +22,12 @@ public class EnhancedMove extends FileIntegrationTest{
 	@Test
 	public void manyNonEmptyFolderMoveTest() throws IOException{
 		manyNonEmptyFolderMoveTestFunc();
+		try {
+			Thread.sleep(30000);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 	
 	private void manyNonEmptyFolderMoveTestFunc() throws IOException{
