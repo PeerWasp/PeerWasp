@@ -9,6 +9,8 @@ import org.peerbox.app.manager.H2HManager;
 import org.peerbox.app.manager.IH2HManager;
 import org.peerbox.app.manager.IUserManager;
 import org.peerbox.app.manager.UserManager;
+import org.peerbox.delete.FileDeleteHandler;
+import org.peerbox.delete.IFileDeleteHandler;
 import org.peerbox.events.MessageBus;
 import org.peerbox.filerecovery.FileRecoveryHandler;
 import org.peerbox.filerecovery.IFileRecoveryHandler;
@@ -17,6 +19,8 @@ import org.peerbox.share.IShareFolderHandler;
 import org.peerbox.share.ShareFolderHandler;
 import org.peerbox.view.tray.AbstractSystemTray;
 import org.peerbox.view.tray.JSystemTray;
+import org.peerbox.watchservice.FileEventManager;
+import org.peerbox.watchservice.IFileEventManager;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.TypeLiteral;
@@ -41,6 +45,8 @@ public class PeerBoxModule extends AbstractModule {
 		bind(IFxmlLoaderProvider.class).to(GuiceFxmlLoader.class);
 		bind(IFileRecoveryHandler.class).to(FileRecoveryHandler.class);
 		bind(IShareFolderHandler.class).to(ShareFolderHandler.class);
+		bind(IFileDeleteHandler.class).to(FileDeleteHandler.class);
+		bind(IFileEventManager.class).to(FileEventManager.class);
 		
 		bind(IExitHandler.class).to(ExitHandler.class);
 	}

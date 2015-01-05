@@ -52,5 +52,10 @@ public class DummyFileEventManager implements IFileEventManager{
 		// TODO Auto-generated method stub
 		
 	}
+	@Override
+	public void onLocalFileHardDelete(Path toDelete) {
+		// TODO Auto-generated method stub
+		
+	}
 
 }

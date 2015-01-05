@@ -22,6 +22,8 @@ import org.peerbox.watchservice.filetree.composite.FileComponent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.inject.Inject;
+
 public class FileEventManager implements IFileEventManager, ILocalFileEventListener, org.hive2hive.core.events.framework.interfaces.IFileEventListener {
 	
 	private static final Logger logger = LoggerFactory.getLogger(FileEventManager.class);
@@ -32,6 +34,11 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 	public FileEventManager(final FileTree fileTree) {
 		fileComponentQueue = new PriorityBlockingQueue<FileComponent>(2000, new FileActionTimeComparator());
 		this.fileTree = fileTree;
+	}
+	
+	public FileEventManager(){
+		fileTree = null;
+		fileComponentQueue = null;
 	}
     
     /**

@@ -21,6 +21,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.SetMultimap;
+import com.google.inject.Inject;
 
 public class FileTree implements IFileTree{
 	

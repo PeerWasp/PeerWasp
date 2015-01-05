@@ -7,10 +7,13 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.junit.Ignore;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 import org.peerbox.utils.FileTestUtils;
 import org.peerbox.watchservice.ActionExecutor;
 
@@ -138,6 +141,10 @@ public class Move extends FileIntegrationTest{
 	
 	@Test
 	public void manyNonEmptyFolderMoveTest() throws IOException{
+		manyNonEmptyFolderMoveTestFunc();
+	}
+	
+	private void manyNonEmptyFolderMoveTestFunc() throws IOException{
 		int nrFolders = 10;
 		int nrFilesPerFolder = 10;
 		Path destination = addSingleFolder();
@@ -163,6 +170,7 @@ public class Move extends FileIntegrationTest{
 	@Test
 	public void manyNonEmptyFolderMoveTestRepeated() throws IOException{
 		for(int i = 0; i < 10; i++){
+			logger.debug("---------START---------");
 			manyNonEmptyFolderMoveTest();
 		}
 	}
@@ -222,4 +230,5 @@ public class Move extends FileIntegrationTest{
 			waitIfNotExist(movedFiles.get(i), WAIT_TIME_SHORT);
 		}	
 	}
+
 }
