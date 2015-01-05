@@ -17,9 +17,8 @@ import org.slf4j.LoggerFactory;
 
 
 /**
- * 
  * @author Claudio
- * Folder composite represents a file system directory.
+ * Represents a folder in the application internal FileTree.
  */
 public class FolderComposite extends AbstractFileComponent{
 

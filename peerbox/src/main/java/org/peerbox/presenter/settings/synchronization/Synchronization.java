@@ -71,7 +71,7 @@ public class Synchronization implements Initializable {
 	private Vector<FileComponent> toSync = new Vector<FileComponent>();
 	
 	@Inject
-	public Synchronization(DummyFileManager fileManager, DummyFileEventManager eventManager, DummyUserConfig userConfig) {
+	public Synchronization(FileManager fileManager, FileEventManager eventManager, UserConfig userConfig) {
 		this.userConfig = userConfig;
 		this.eventManager = eventManager;
 		this.fileManager = fileManager;
