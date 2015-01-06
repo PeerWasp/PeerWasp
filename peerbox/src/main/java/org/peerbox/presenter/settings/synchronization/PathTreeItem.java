@@ -28,7 +28,7 @@ public class PathTreeItem extends CheckBoxTreeItem<PathItem> {
 
     public PathTreeItem(FileNode file, Synchronization sync, boolean isSelected, boolean isRoot){
     	super(new PathItem(file.getFile().toPath()), null, isSelected);
-      	this.fileEventManager = sync.getFileEventManager(); //fileEventManager;
+      	this.fileEventManager = sync.getFileEventManager();
       	this.fileNode = file;
       	this.sync = sync;
       	this.isRoot = isRoot;
@@ -37,7 +37,26 @@ public class PathTreeItem extends CheckBoxTreeItem<PathItem> {
 //      		addEventHandler(PathTreeItem.checkBoxSelectionChangedEvent(), new RootSelectionEventHandler());
       	} else {
           	this.setSelected(isSelected);
-          	addEventHandler(PathTreeItem.checkBoxSelectionChangedEvent(), new DefaultSelectionEventHandler());
+          	addEventHandler(PathTreeItem.checkBoxSelectionChangedEvent(), new EventHandler<TreeModificationEvent<PathItem>>(){
+          		@Override
+        		public void handle(
+        				javafx.scene.control.CheckBoxTreeItem.TreeModificationEvent<PathItem> arg0) {
+        			PathTreeItem pathItem = (PathTreeItem) arg0.getSource();
+        			Path path = pathItem.getValue().getPath();
+        			System.out.println("Catched Event: " + path);
+        			PathTreeItem source = (PathTreeItem)arg0.getSource();
+        			if(!source.isIndeterminate() && !source.getIsRoot()){
+        				if(source.isSelected()){
+        					sync.getToSynchronize().add(source.getFileNode());
+        					sync.getToDesynchronize().remove(source.getFileNode());
+        				} else if(!source.isIndeterminate()){
+        					sync.getToSynchronize().remove(source.getFileNode());
+        					sync.getToDesynchronize().add(source.getFileNode());
+        				}
+        			}
+        			arg0.consume();
+        		}
+          	});
       	}
     }
     
@@ -48,8 +67,6 @@ public class PathTreeItem extends CheckBoxTreeItem<PathItem> {
     public boolean getIsRoot(){
     	return isRoot;
     }
-
-      
 
     public static PathTreeItem createNode(FileNode fileNode, Synchronization sync, boolean isSelected) {
         return new PathTreeItem(fileNode, sync, isSelected, false);
@@ -101,46 +118,4 @@ public class PathTreeItem extends CheckBoxTreeItem<PathItem> {
         }
         return FXCollections.emptyObservableList();
     }
-    
-    private class DefaultSelectionEventHandler implements EventHandler<TreeModificationEvent<PathItem>>{
-
-    	@Override
-		public void handle(
-				javafx.scene.control.CheckBoxTreeItem.TreeModificationEvent<PathItem> arg0) {
-			PathTreeItem pathItem = (PathTreeItem) arg0.getSource();
-			Path path = pathItem.getValue().getPath();
-			System.out.println("Catched Event: " + path);
-			PathTreeItem source = (PathTreeItem)arg0.getSource();
-			if(!source.isIndeterminate() && !source.getIsRoot()){
-				if(source.isSelected()){
-					sync.getToSynchronize().add(source.getFileNode());
-					sync.getToDesynchronize().remove(source.getFileNode());
-				} else if(!source.isIndeterminate()){
-					sync.getToSynchronize().remove(source.getFileNode());
-					sync.getToDesynchronize().add(source.getFileNode());
-				}
-			}
-			arg0.consume();
-		}
-    }
-    
-//    private class RootSelectionEventHandler implements EventHandler<TreeModificationEvent<PathItem>>{
-//
-//		@Override
-//		public void handle(
-//				javafx.scene.control.CheckBoxTreeItem.TreeModificationEvent<PathItem> arg0) {
-//			// TODO Auto-generated method stub
-//			PathTreeItem pathItem = (PathTreeItem) arg0.getSource();
-//			pathItem.setIndeterminate(true);
-//			pathItem.setSelected(false);
-//			
-//			Alert alert = new Alert(AlertType.WARNING);
-//			alert.setTitle("Attempt to desynchronize all files");
-//			alert.setHeaderText("You cannot desynchronize the root folder.");
-//			alert.setContentText("If this was your intention, please unselect all files and folders"
-//					+ "in your PeerBox root folder.");
-//			alert.showAndWait();
-//		}
-//    	
-//    }
 }
