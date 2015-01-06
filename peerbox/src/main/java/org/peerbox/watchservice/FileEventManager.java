@@ -139,8 +139,12 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 	}
 	
 	public void onFileSynchronized(Path path, boolean isFolder){
+
 		logger.debug("Synchronize file {}", path);
 		FileComponent file = fileTree.getOrCreateFileComponent(path, this);
+		if(file.getIsSynchronized() == true){
+			return;
+		}
 		fileTree.putFile(path, file);
 		file.propagateIsUploaded();
 //		FileComponent file = fileTree.addAndPutFile(path);

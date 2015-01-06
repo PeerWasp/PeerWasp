@@ -88,8 +88,8 @@ public class Synchronization implements Initializable {
 	}
 	
 	private void listFiles(FileNode fileNode){
-		boolean isSynched = synchronizedFiles.contains(fileNode.getFile().toPath());
-		logger.debug("File {} is selected: {}", fileNode.getFile().toPath(), isSynched);
+//		boolean isSynched = synchronizedFiles.contains(fileNode.getFile().toPath());
+//		logger.debug("File {} is selected: {}", fileNode.getFile().toPath(), isSynched);
 		PathTreeItem invisibleRoot = new PathTreeItem(fileNode, this, false, true);
 		fileTreeView.setCellFactory(CheckBoxTreeCell.<PathItem>forTreeView());    
 	    fileTreeView.setRoot(invisibleRoot);
@@ -97,6 +97,7 @@ public class Synchronization implements Initializable {
         fileTreeView.setShowRoot(false);
 		
         for(FileNode topLevelNode : fileNode.getChildren()){
+        	boolean isSynched = synchronizedFiles.contains(topLevelNode.getFile().toPath());
 			PathTreeItem rootItem = new PathTreeItem(topLevelNode, this, isSynched);
 			invisibleRoot.getChildren().add(rootItem);
 		}

@@ -179,7 +179,7 @@ public class FolderComposite extends AbstractFileComponent{
 
 		if(newRemainingPath.equals("")){
 			FileComponent removed = children.remove(nextLevelPath);
-			logger.debug("Removed {}", removed.getPath());
+//			logger.debug("Removed {}", removed.getPath());
 			if(updateContentHashes){
 				bubbleContentHashUpdate();
 			}

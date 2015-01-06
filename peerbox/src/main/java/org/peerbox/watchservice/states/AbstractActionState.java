@@ -129,6 +129,7 @@ public abstract class AbstractActionState {
 		IFileEventManager eventManager = action.getEventManager();
 		eventManager.getFileComponentQueue().remove(action.getFile());
 		eventManager.getFileTree().deleteFile(action.getFile().getPath());
+		action.getFile().setIsSynchronized(false);
 		logger.debug("Deleted {} from tree.", action.getFile().getPath());
 		if(action.getFile().isFile()){
 //			String oldHash = action.getFile().getContentHash();
