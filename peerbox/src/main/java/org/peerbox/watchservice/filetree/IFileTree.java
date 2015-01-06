@@ -17,7 +17,7 @@ public interface IFileTree {
 	public FileComponent getFile(Path fileToGet);
 	public FileComponent updateFile(Path fileToUpdate);
 	public FileComponent deleteFile(Path fileToDelete);
-	public Set<Path> getSynchronizedFiles();
+	public Set<Path> getSynchronizedPathsAsSet();
 	public Path getRootPath();
 	
 	public SetMultimap<String, FileComponent> getDeletedByContentHash();

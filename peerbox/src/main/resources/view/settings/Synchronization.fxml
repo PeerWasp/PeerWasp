@@ -48,8 +48,8 @@
 		</GridPane>
 		<HBox alignment="CENTER_LEFT" GridPane.rowIndex="2">
 			<children>
-				<Button defaultButton="true" onAction="#acceptSyncAction" text="_OK" />
-				<Button cancelButton="true" onAction="#cancelAction" text="_Cancel">
+				<Button fx:id="okButton" defaultButton="true" onAction="#acceptSyncAction" text="_OK" />
+				<Button fx:id="cancelButton" cancelButton="true" onAction="#cancelAction" text="_Cancel">
 					<HBox.margin>
 						<Insets left="10.0" />
 					</HBox.margin>

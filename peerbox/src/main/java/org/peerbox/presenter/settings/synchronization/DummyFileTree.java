@@ -44,11 +44,6 @@ public class DummyFileTree implements IFileTree{
 	}
 
 	@Override
-	public Set<Path> getSynchronizedFiles() {
-		// TODO Auto-generated method stub
-		return synchronizedFiles;
-	}
-	@Override
 	public Path getRootPath() {
 		// TODO Auto-generated method stub
 		return null;
@@ -72,6 +67,11 @@ public class DummyFileTree implements IFileTree{
 	public FileComponent getOrCreateFileComponent(Path path, IFileEventManager eventManager) {
 		// TODO Auto-generated method stub
 		return null;
+	}
+	@Override
+	public Set<Path> getSynchronizedPathsAsSet() {
+		// TODO Auto-generated method stub
+		return synchronizedFiles;
 	}
 
 }

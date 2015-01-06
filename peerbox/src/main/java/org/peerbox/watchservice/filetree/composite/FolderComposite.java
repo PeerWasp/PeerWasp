@@ -179,7 +179,7 @@ public class FolderComposite extends AbstractFileComponent{
 
 		if(newRemainingPath.equals("")){
 			FileComponent removed = children.remove(nextLevelPath);
-			//logger.debug("Removed {}", removed.getPath());
+			logger.debug("Removed {}", removed.getPath());
 			if(updateContentHashes){
 				bubbleContentHashUpdate();
 			}
@@ -427,11 +427,14 @@ public class FolderComposite extends AbstractFileComponent{
 	@Override
 	public void getSynchronizedChildrenPaths(Set<Path> synchronizedPaths) {
 		if(getIsSynchronized()){
+			logger.debug("Add {} to synchronized files.", getPath());
 			synchronizedPaths.add(getPath());	
 		}
 		for(Map.Entry<String, FileComponent> entry : children.entrySet()){
 			if(entry.getValue().getIsSynchronized()){
+				logger.debug("--Add {} to synchronized files.", entry.getValue().getPath());
 				synchronizedPaths.add(entry.getValue().getPath());	
+				entry.getValue().getSynchronizedChildrenPaths(synchronizedPaths);
 			}
 		}
 	}
