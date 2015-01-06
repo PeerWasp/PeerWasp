@@ -2,7 +2,7 @@ package org.peerbox.presenter.validation;
 
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.peerbox.app.Constants;
-import org.peerbox.app.manager.IUserManager;
+import org.peerbox.app.manager.user.IUserManager;
 
 public class ValidationUtils {
 	

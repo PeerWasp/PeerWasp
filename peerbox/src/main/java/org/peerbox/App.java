@@ -12,11 +12,9 @@ import javafx.event.EventHandler;
 import javafx.stage.Stage;
 
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
-import org.hive2hive.processframework.exceptions.InvalidProcessStateException;
-import org.hive2hive.processframework.exceptions.ProcessExecutionException;
 import org.peerbox.app.Constants;
 import org.peerbox.app.manager.IH2HManager;
-import org.peerbox.app.manager.IUserManager;
+import org.peerbox.app.manager.user.IUserManager;
 import org.peerbox.events.MessageBus;
 import org.peerbox.guice.ApiServerModule;
 import org.peerbox.guice.PeerBoxModule;
@@ -139,7 +137,7 @@ public class App extends Application
 		} catch (NoPeerConnectionException e) {
 			logger.debug("Loggin failed: {}", e);
 			return ResultStatus.error("Could not login user because connection to network failed.");
-		} catch (InvalidProcessStateException | IOException | ProcessExecutionException e) {
+		} catch (IOException e) {
 			logger.warn("Could not login user:", e); 
 		} 
 		

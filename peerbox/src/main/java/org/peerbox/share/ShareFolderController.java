@@ -32,7 +32,7 @@ import org.hive2hive.processframework.exceptions.ProcessExecutionException;
 import org.hive2hive.processframework.interfaces.IProcessComponentListener;
 import org.hive2hive.processframework.interfaces.IProcessEventArgs;
 import org.peerbox.FileManager;
-import org.peerbox.app.manager.IUserManager;
+import org.peerbox.app.manager.user.IUserManager;
 import org.peerbox.h2h.ProcessHandle;
 import org.peerbox.presenter.validation.TextFieldValidator;
 import org.peerbox.presenter.validation.ValidationUtils;

@@ -27,7 +27,7 @@ public class FileManager extends AbstractManager implements IPeerboxFileManager 
 
 	@Inject
 	public FileManager(final IH2HManager h2hManager) {
-		super(h2hManager);
+		super(h2hManager, null); // TODO(AA): give message bus instance
 	}
 	
 	@Override

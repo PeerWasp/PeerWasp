@@ -9,8 +9,8 @@ import org.hive2hive.core.file.IFileAgent;
 
 public final class FileAgent implements IFileAgent {
 	
-	private Path root;
-	private Path cache;
+	private final Path root;
+	private final Path cache;
 
 	public FileAgent(final Path root, final Path cache) {
 		this.root = root;
@@ -25,6 +25,9 @@ public final class FileAgent implements IFileAgent {
 	@Override
 	public void writeCache(String key, byte[] data) throws IOException {
 		if (cache == null) {
+			return;
+		}
+		if (key == null) {
 			return;
 		}
 		if (data == null) {
@@ -45,6 +48,9 @@ public final class FileAgent implements IFileAgent {
 		if (cache == null) {
 			return null;
 		}
+		if (key == null) {
+			return null;
+		}
 
 		Path cacheFile = cache.resolve(key);
 		if (!Files.exists(cacheFile)) {
@@ -55,8 +61,9 @@ public final class FileAgent implements IFileAgent {
 			return Files.readAllBytes(cacheFile);
 		} catch (IOException e) {
 			// could not read
-			return null;
 		}
+		
+		return null;
 	}
 
 	private void ensureCacheDirExists() throws IOException {

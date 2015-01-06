@@ -13,7 +13,7 @@ import javafx.stage.WindowEvent;
 
 import org.peerbox.ResultStatus;
 import org.peerbox.app.manager.IH2HManager;
-import org.peerbox.app.manager.IUserManager;
+import org.peerbox.app.manager.user.IUserManager;
 import org.peerbox.interfaces.IFxmlLoaderProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
