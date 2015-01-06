@@ -1,4 +1,4 @@
-package org.peerbox.app.manager;
+package org.peerbox.app.manager.node;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -12,22 +12,26 @@ import org.hive2hive.core.api.configs.NetworkConfiguration;
 import org.hive2hive.core.api.interfaces.IFileConfiguration;
 import org.hive2hive.core.api.interfaces.IH2HNode;
 import org.hive2hive.core.api.interfaces.INetworkConfiguration;
+import org.peerbox.events.MessageBus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
 @Singleton
-public final class H2HManager implements IH2HManager {
-
-	private static final Logger logger = LoggerFactory.getLogger(H2HManager.class);
-
+public final class NodeManager implements INodeManager {
+	
+	private static final Logger logger = LoggerFactory.getLogger(NodeManager.class);
+	
+	private final MessageBus messageBus;
+	
 	private IH2HNode node;
 	private INetworkConfiguration networkConfiguration;
 
-	@Override
-	public IH2HNode getNode() {
-		return node;
+	@Inject
+	public NodeManager(final MessageBus messageBus) {
+		this.messageBus = messageBus;
 	}
 
 	private String generateNodeID() {
@@ -64,7 +68,7 @@ public final class H2HManager implements IH2HManager {
 	}
 	
 	@Override
-	public boolean joinNetwork(String address) throws UnknownHostException {
+	public boolean joinNetwork(final String address) throws UnknownHostException {
 		if (address.isEmpty()) {
 			throw new IllegalArgumentException("Bootstrap address is empty.");
 		}
@@ -73,7 +77,12 @@ public final class H2HManager implements IH2HManager {
 		String nodeID = generateNodeID();
 		InetAddress bootstrapInetAddress = InetAddress.getByName(address);
 		networkConfiguration = NetworkConfiguration.create(nodeID, bootstrapInetAddress);
-		return node.connect(networkConfiguration);
+		boolean res = node.connect(networkConfiguration);
+		res = res && isConnected();
+		if(res) {
+			messageBus.publish(new NodeConnectMessage(address));
+		}
+		return res;
 	}
 	
 	@Override
@@ -89,15 +98,21 @@ public final class H2HManager implements IH2HManager {
 		if (node != null) {
 			boolean res = node.disconnect();
 			node = null;
+			messageBus.publish(new NodeDisconnectMessage());
 			return res;
 		}
-		
+
 		return true;
 	}
 	
 	@Override
 	public boolean isConnected() {
 		return node != null && node.isConnected();
+	}
+	
+	@Override
+	public IH2HNode getNode() {
+		return node;
 	}
 	
 	@Override

@@ -22,7 +22,7 @@ import org.hive2hive.processframework.exceptions.InvalidProcessStateException;
 import org.hive2hive.processframework.exceptions.ProcessExecutionException;
 import org.mockito.Mockito;
 import org.peerbox.FileManager;
-import org.peerbox.app.manager.IH2HManager;
+import org.peerbox.app.manager.node.INodeManager;
 import org.peerbox.app.manager.user.IUserManager;
 import org.peerbox.app.manager.user.UserManager;
 import org.peerbox.events.MessageBus;
@@ -114,7 +114,7 @@ public class ShareFolderStarter extends Application {
 	
 
 	private void initGui() {
-		IH2HManager manager = Mockito.mock(IH2HManager.class);
+		INodeManager manager = Mockito.mock(INodeManager.class);
 		Mockito.stub(manager.getNode()).toReturn(clientsA[0]);
 		FileManager fileManager = new FileManager(manager);
 		MessageBus messageBus = new MessageBus();

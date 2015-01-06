@@ -2,7 +2,7 @@ package org.peerbox.delete;
 
 import java.nio.file.Path;
 
-import org.peerbox.app.manager.IH2HManager;
+import org.peerbox.app.manager.node.INodeManager;
 import org.peerbox.watchservice.FileEventManager;
 import org.peerbox.watchservice.IFileEventManager;
 

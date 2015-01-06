@@ -1,4 +1,4 @@
-package org.peerbox.app.manager;
+package org.peerbox.app.manager.node;
 
 import java.net.UnknownHostException;
 import java.util.List;
@@ -7,7 +7,7 @@ import org.hive2hive.core.api.interfaces.IH2HNode;
 import org.hive2hive.core.api.interfaces.INetworkConfiguration;
 
 
-public interface IH2HManager {
+public interface INodeManager {
 	
 	IH2HNode getNode();
 	

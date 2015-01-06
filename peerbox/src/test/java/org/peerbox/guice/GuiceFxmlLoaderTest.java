@@ -15,7 +15,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.peerbox.UserConfig;
-import org.peerbox.app.manager.IH2HManager;
+import org.peerbox.app.manager.node.INodeManager;
 import org.peerbox.app.manager.user.IUserManager;
 import org.peerbox.app.manager.user.UserManager;
 import org.peerbox.helper.JavaFxNoOpApp;
@@ -62,7 +62,7 @@ public class GuiceFxmlLoaderTest {
 			}
 
 			@Provides
-			IUserManager providesUserManager(IH2HManager manager) {
+			IUserManager providesUserManager(INodeManager manager) {
 				// do not need the instances here
 				return new UserManager(null, null);
 			}

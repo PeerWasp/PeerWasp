@@ -12,7 +12,7 @@ import org.hive2hive.processframework.exceptions.ProcessExecutionException;
 import org.hive2hive.processframework.interfaces.IProcessComponent;
 import org.peerbox.ResultStatus;
 import org.peerbox.app.manager.AbstractManager;
-import org.peerbox.app.manager.IH2HManager;
+import org.peerbox.app.manager.node.INodeManager;
 import org.peerbox.events.MessageBus;
 import org.peerbox.h2h.FileAgent;
 import org.peerbox.utils.AppData;
@@ -28,8 +28,8 @@ public final class UserManager extends AbstractManager implements IUserManager {
 	private UserCredentials userCredentials;
 	
 	@Inject
-	public UserManager(final IH2HManager h2hManager, final MessageBus messageBus) {
-		super(h2hManager, messageBus);
+	public UserManager(final INodeManager nodeManager, final MessageBus messageBus) {
+		super(nodeManager, messageBus);
 	}
 	
 	@Override

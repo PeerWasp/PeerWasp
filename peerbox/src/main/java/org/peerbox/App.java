@@ -13,7 +13,7 @@ import javafx.stage.Stage;
 
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.peerbox.app.Constants;
-import org.peerbox.app.manager.IH2HManager;
+import org.peerbox.app.manager.node.INodeManager;
 import org.peerbox.app.manager.user.IUserManager;
 import org.peerbox.events.MessageBus;
 import org.peerbox.guice.ApiServerModule;
@@ -39,7 +39,7 @@ public class App extends Application
 
 	private Injector injector;
 	private MessageBus messageBus;
-	private IH2HManager h2hManager;
+	private INodeManager h2hManager;
 	private AbstractSystemTray systemTray;
 	private static Stage primaryStage;
 	private UserConfig userConfig;
@@ -206,7 +206,7 @@ public class App extends Application
 	}
 	
 	@Inject
-	private void setH2HManager(IH2HManager manager) {
+	private void setH2HManager(INodeManager manager) {
 		this.h2hManager = manager;
 	}
 	
