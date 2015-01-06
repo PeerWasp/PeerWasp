@@ -50,7 +50,7 @@ public class PathTreeItem extends CheckBoxTreeItem<PathItem> {
         			PathTreeItem source = (PathTreeItem)arg0.getSource();
         			if(!source.getIsRoot()){
         				logger.debug("{} is neither source nor indeterminated.", getValue().getPath());
-        				if(source.isSelected()){
+        				if(source.isSelected() || source.isIndeterminate()){
         					logger.debug("{} is selected.", getValue().getPath());
         					sync.getToSynchronize().add(source.getFileNode());
         					sync.getToDesynchronize().remove(source.getFileNode());
