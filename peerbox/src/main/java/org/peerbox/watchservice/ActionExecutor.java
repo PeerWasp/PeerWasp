@@ -108,6 +108,7 @@ public class ActionExecutor implements Runnable, IActionEventListener {
 				FileComponent next = null;
 				next = fileEventManager.getFileComponentQueue().take();
 				if(!isFileComponentReady(next)){
+					logger.debug("{} is not ready yet!", next.getPath());
 					fileEventManager.getFileComponentQueue().remove(next);
 					next.getAction().updateTimestamp();
 					fileEventManager.getFileComponentQueue().add(next);
@@ -162,6 +163,7 @@ public class ActionExecutor implements Runnable, IActionEventListener {
 
 
 	private boolean isFileComponentReady(FileComponent next) {
+		logger.debug("Check if ready!");
 		return next.isReady();
 	}
 

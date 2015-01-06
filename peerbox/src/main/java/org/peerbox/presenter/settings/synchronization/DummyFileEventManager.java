@@ -7,7 +7,6 @@ import java.util.concurrent.BlockingQueue;
 
 import org.eclipse.jetty.util.ConcurrentHashSet;
 import org.hive2hive.core.events.framework.interfaces.file.IFileAddEvent;
-import org.peerbox.selectivesync.ISynchronize;
 import org.peerbox.watchservice.IFileEventManager;
 import org.peerbox.watchservice.filetree.FileTree;
 import org.peerbox.watchservice.filetree.IFileTree;
