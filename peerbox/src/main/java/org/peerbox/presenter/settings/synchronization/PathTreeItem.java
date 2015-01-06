@@ -48,7 +48,7 @@ public class PathTreeItem extends CheckBoxTreeItem<PathItem> {
         			Path path = pathItem.getValue().getPath();
         			System.out.println("Catched Event: " + path);
         			PathTreeItem source = (PathTreeItem)arg0.getSource();
-        			if(!source.isIndeterminate() && !source.getIsRoot()){
+        			if(!source.getIsRoot()){
         				logger.debug("{} is neither source nor indeterminated.", getValue().getPath());
         				if(source.isSelected()){
         					logger.debug("{} is selected.", getValue().getPath());
