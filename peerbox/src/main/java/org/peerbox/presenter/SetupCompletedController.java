@@ -17,7 +17,7 @@ import org.hive2hive.core.exceptions.NoSessionException;
 import org.hive2hive.processframework.exceptions.InvalidProcessStateException;
 import org.hive2hive.processframework.exceptions.ProcessExecutionException;
 import org.peerbox.ResultStatus;
-import org.peerbox.app.manager.IUserManager;
+import org.peerbox.app.manager.user.IUserManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -59,7 +59,7 @@ public class SetupCompletedController implements Initializable {
 	private ResultStatus logoutUser() {
 		try {
 			return fUserManager.logoutUser();
-		} catch (InvalidProcessStateException | NoPeerConnectionException | NoSessionException | ProcessExecutionException e) {
+		} catch (NoPeerConnectionException | NoSessionException  e) {
 			e.printStackTrace();
 			return ResultStatus.error(e.getMessage());
 		}

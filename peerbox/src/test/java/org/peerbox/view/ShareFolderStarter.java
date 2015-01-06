@@ -23,8 +23,9 @@ import org.hive2hive.processframework.exceptions.ProcessExecutionException;
 import org.mockito.Mockito;
 import org.peerbox.FileManager;
 import org.peerbox.app.manager.IH2HManager;
-import org.peerbox.app.manager.IUserManager;
-import org.peerbox.app.manager.UserManager;
+import org.peerbox.app.manager.user.IUserManager;
+import org.peerbox.app.manager.user.UserManager;
+import org.peerbox.events.MessageBus;
 import org.peerbox.interfaces.IFxmlLoaderProvider;
 import org.peerbox.share.ShareFolderController;
 import org.peerbox.share.ShareFolderHandler;
@@ -116,7 +117,8 @@ public class ShareFolderStarter extends Application {
 		IH2HManager manager = Mockito.mock(IH2HManager.class);
 		Mockito.stub(manager.getNode()).toReturn(clientsA[0]);
 		FileManager fileManager = new FileManager(manager);
-		IUserManager userManager = new UserManager(manager);
+		MessageBus messageBus = new MessageBus();
+		IUserManager userManager = new UserManager(manager, messageBus);
 		
 		stage = new ShareFolderHandler();
 		ShareFolderController controller = new ShareFolderController(fileManager, userManager);

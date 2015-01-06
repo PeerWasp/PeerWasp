@@ -4,10 +4,8 @@ import javafx.application.Platform;
 
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.hive2hive.core.exceptions.NoSessionException;
-import org.hive2hive.processframework.exceptions.InvalidProcessStateException;
-import org.hive2hive.processframework.exceptions.ProcessExecutionException;
 import org.peerbox.app.manager.IH2HManager;
-import org.peerbox.app.manager.IUserManager;
+import org.peerbox.app.manager.user.IUserManager;
 import org.peerbox.server.IServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,6 +20,9 @@ public class ExitHandler implements IExitHandler {
 	private IServer server;
 	private IUserManager userManager;
 	private IH2HManager h2hManager;
+	
+	
+	// TODO(AA): shutdown message bus
 	
 	@Override
 	public void exit() {
@@ -54,9 +55,7 @@ public class ExitHandler implements IExitHandler {
 			logger.debug("Cannot logout - no peer connection. ", npc);
 		} catch(NoSessionException nse) {
 			logger.debug("Cannot logout - no session. ", nse);
-		} catch(InvalidProcessStateException | ProcessExecutionException  e) {
-			logger.debug("Cannot logout, process exception ", e);
-		} 
+		}
 	}
 	
 	private void disconnect() {

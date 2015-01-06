@@ -23,12 +23,10 @@ import javafx.scene.layout.GridPane;
 import javafx.stage.Window;
 
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
-import org.hive2hive.processframework.exceptions.InvalidProcessStateException;
-import org.hive2hive.processframework.exceptions.ProcessExecutionException;
 import org.peerbox.ResultStatus;
 import org.peerbox.UserConfig;
 import org.peerbox.app.ClientContext;
-import org.peerbox.app.manager.IUserManager;
+import org.peerbox.app.manager.user.IUserManager;
 import org.peerbox.guice.provider.ClientContextProvider;
 import org.peerbox.presenter.validation.EmptyTextFieldValidator;
 import org.peerbox.presenter.validation.RootPathValidator;
@@ -174,7 +172,7 @@ public class LoginController implements Initializable {
 			return userManager.loginUser(username, password, pin, path);
 		} catch (NoPeerConnectionException e) {
 			return ResultStatus.error("Could not login user because connection to network failed.");
-		} catch (InvalidProcessStateException | IOException | ProcessExecutionException e) {
+		} catch (IOException e) {
 			logger.warn("Could not login user: ", e);
 		}
 		return ResultStatus.error("Could not login user.");
