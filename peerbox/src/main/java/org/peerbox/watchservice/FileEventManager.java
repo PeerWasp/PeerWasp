@@ -132,7 +132,9 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 	public void onFileDesynchronized(Path path){
 		logger.debug("Desynchronize file {}", path);
 		FileComponent file = fileTree.getOrCreateFileComponent(path, this);
+		
 		file.setIsSynchronized(false);
+		fileTree.deleteFile(path);
 		PathUtils.deleteRecursively(path.toFile());
 	}
 	
@@ -140,6 +142,7 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 		logger.debug("Synchronize file {}", path);
 		FileComponent file = fileTree.getOrCreateFileComponent(path, this);
 		fileTree.putFile(path, file);
+		file.propagateIsUploaded();
 //		FileComponent file = fileTree.addAndPutFile(path);
 		file.setIsSynchronized(true);
 		onFileAdd(new FileAddEvent(path.toFile(), isFolder));
@@ -158,7 +161,7 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 		} else {
 			logger.debug("The file {} is in folder that is synchronized: ", path);
 			file.setIsSynchronized(true);
-			file.getAction().setFile(file);
+//			file.getAction().setFile(file);
 			file.getAction().setEventManager(this);
 			file.getAction().handleRemoteCreateEvent();
 		}

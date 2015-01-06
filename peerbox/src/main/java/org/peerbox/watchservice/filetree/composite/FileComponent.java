@@ -61,6 +61,7 @@ public interface FileComponent {
 	public boolean isReady();
 	
 	public void propagatePathChangeToChildren();
+	public void propagateIsUploaded();
 	
 	public void getSynchronizedChildrenPaths(Set<Path> synchronizedPaths);
 

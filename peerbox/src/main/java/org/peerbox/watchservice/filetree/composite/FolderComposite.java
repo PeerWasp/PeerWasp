@@ -438,4 +438,12 @@ public class FolderComposite extends AbstractFileComponent{
 			}
 		}
 	}
+
+	@Override
+	public void propagateIsUploaded() {
+		setActionIsUploaded(true);
+		if(!isRoot){
+			parent.propagateIsUploaded();
+		}
+	}
 }
