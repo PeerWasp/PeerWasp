@@ -67,22 +67,8 @@ public class Synchronization implements Initializable {
 	private IUserConfig userConfig;
 	private IFileEventManager eventManager;
 	private IPeerboxFileManager fileManager;
-	private TreeSet<FileNode> toSynchronize = new TreeSet<FileNode>(new Comparator<FileNode>(){
-		@Override
-		public int compare(FileNode o1, FileNode o2) {
-			String path1 = o1.getPath().toString();
-			String path2 = o2.getPath().toString();
-			return path1.compareTo(path2);
-		}
-	});
-	private TreeSet<FileNode> toDesynchronize = new TreeSet<FileNode>(new Comparator<FileNode>(){
-		@Override
-		public int compare(FileNode o1, FileNode o2) {
-			String path1 = o1.getPath().toString();
-			String path2 = o2.getPath().toString();
-			return path1.compareTo(path2);
-		}
-	});
+	private TreeSet<FileNode> toSynchronize = new TreeSet<FileNode>(new FileNodeComparator());
+	private TreeSet<FileNode> toDesynchronize = new TreeSet<FileNode>(new FileNodeComparator());
 	
 	public Set<FileNode> getToSynchronize(){
 		return toSynchronize;
@@ -96,11 +82,9 @@ public class Synchronization implements Initializable {
 	
 	@Inject
 	public Synchronization(FileManager fileManager, FileEventManager eventManager, UserConfig userConfig) {
-
 		this.userConfig = userConfig;
 		this.eventManager = eventManager;
 		this.fileManager = fileManager;
-
 	}
 	
 	public IFileEventManager getFileEventManager(){
@@ -114,10 +98,7 @@ public class Synchronization implements Initializable {
 		synchronizedFiles = eventManager.getFileTree().getSynchronizedPathsAsSet();
 		createTreeWithFilesFromNetwork();
 	}
-
-
-
-
+	
 	private void createTreeWithFilesFromNetwork() {
 		try {
 			FileNode filesFromNetwork = fileManager.listFiles();
@@ -131,18 +112,15 @@ public class Synchronization implements Initializable {
 	private void listFiles(FileNode fileNode){
 		boolean isSynched = synchronizedFiles.contains(fileNode.getFile().toPath());
 		logger.debug("File {} is selected: {}", fileNode.getFile().toPath(), isSynched);
-		
-		
-		PathTreeItem dummyRoot = new PathTreeItem(fileNode, this, false, true);
-//	    TreeView<String> tree = new TreeView<>(dummyRoot);
+		PathTreeItem invisibleRoot = new PathTreeItem(fileNode, this, false, true);
 		fileTreeView.setCellFactory(CheckBoxTreeCell.<PathItem>forTreeView());    
-	    fileTreeView.setRoot(dummyRoot);
+	    fileTreeView.setRoot(invisibleRoot);
         fileTreeView.setEditable(false);
         fileTreeView.setShowRoot(false);
 		
         for(FileNode topLevelNode : fileNode.getChildren()){
 			PathTreeItem rootItem = new PathTreeItem(topLevelNode, this, isSynched);
-			dummyRoot.getChildren().add(rootItem);
+			invisibleRoot.getChildren().add(rootItem);
 		}
 
         for(FileNode child : fileNode.getChildren()){
@@ -164,13 +142,6 @@ public class Synchronization implements Initializable {
 
 	public void acceptSyncAction(ActionEvent event) {
 		synchronizedFiles = eventManager.getFileTree().getSynchronizedPathsAsSet();
-		for(FileNode node : toSynchronize){
-//			if(!synchronizedFiles.contains(node.getFile().toPath()))
-				logger.debug("#SYNC {}", node.getFile().toPath());
-		}
-		for(FileNode node: toDesynchronize.descendingSet()){
-			logger.debug("#DESYNC {}", node.getFile().toPath());
-		}
 		
 		for(FileNode node : toSynchronize){
 			if(!synchronizedFiles.contains(node.getFile().toPath()))
@@ -187,7 +158,6 @@ public class Synchronization implements Initializable {
 			Window window = okButton.getScene().getWindow();
 			window.hide();
 		}
-		
 	}
 	
 	@FXML
@@ -199,73 +169,43 @@ public class Synchronization implements Initializable {
 		}
 	}
 	
-//	private final class FileListDownloadListener implements IProcessComponentListener{
-//		
-//		@Override
-//		public void onExecuting(IProcessEventArgs args) {
-//			logger.debug("Receiving file list - STARTED");
-//		}
+//	private void showDummyData(){
+//		FileNode root = new FileNode(null, userConfig.getRootPath().toFile(), userConfig.getRootPath().toString(), null, null);
+//        PathTreeItem rootItem = 
+//            new PathTreeItem(root, this, false);
+//        rootItem.setExpanded(true);                  
+//      
+//        fileTreeView.setEditable(false);
+//        
+//        fileTreeView.setCellFactory(CheckBoxTreeCell.<PathItem>forTreeView());    
 //
-//		@Override
-//		public void onRollbacking(IProcessEventArgs args) {
-//			logger.debug("Receiving file list - ROLLBACKING");
-//		}
+//        Path rootFolder = userConfig.getRootPath();
+//        
+//        try(Stream<Path> dirs = Files.list(rootFolder)){
+//        	Iterator<Path> iter = dirs.iterator();
+//        	while(iter.hasNext()){
+//        		Path folder = iter.next();
+//        		FileNode item = new FileNode(null, folder.toFile(), userConfig.getRootPath().toString(), null, null);
+//        		PathTreeItem checkBoxTreeItem = new PathTreeItem(item, this, false);
+//        		rootItem.getChildren().add(checkBoxTreeItem);
+//        	}
 //
-//		@Override
-//		public void onPaused(IProcessEventArgs args) {
-//			logger.debug("Receiving file list - PAUSED");
-//		}
-//
-//		@Override
-//		public void onExecutionSucceeded(IProcessEventArgs args) {
-//			logger.debug("Receiving file list - SUCCESSFUL");
-//		}
-//
-//		@Override
-//		public void onExecutionFailed(IProcessEventArgs args) {
-//			logger.debug("Receiving file list - FAILED");
-//		}
-//
-//		@Override
-//		public void onRollbackSucceeded(IProcessEventArgs args) {
-//			logger.debug("Receiving file list - ROLLBACK SUCCESSFUL");
-//		}
-//
-//		@Override
-//		public void onRollbackFailed(IProcessEventArgs args) {
-//			logger.debug("Receiving file list - ROLLBACK FAILED");
-//		}
-//		
+//        } catch (IOException ex){
+//        	ex.printStackTrace();
+//        }
+//        
+//                       
+//        fileTreeView.setRoot(rootItem);
+//        fileTreeView.setShowRoot(true);
 //	}
 	
-	private void showDummyData(){
-		FileNode root = new FileNode(null, userConfig.getRootPath().toFile(), userConfig.getRootPath().toString(), null, null);
-        PathTreeItem rootItem = 
-            new PathTreeItem(root, this, false);
-        rootItem.setExpanded(true);                  
-      
-        fileTreeView.setEditable(false);
-        
-        fileTreeView.setCellFactory(CheckBoxTreeCell.<PathItem>forTreeView());    
-        
+	private class FileNodeComparator implements Comparator<FileNode>{
 
-        Path rootFolder = userConfig.getRootPath();
-        
-        try(Stream<Path> dirs = Files.list(rootFolder)){
-        	Iterator<Path> iter = dirs.iterator();
-        	while(iter.hasNext()){
-        		Path folder = iter.next();
-        		FileNode item = new FileNode(null, folder.toFile(), userConfig.getRootPath().toString(), null, null);
-        		PathTreeItem checkBoxTreeItem = new PathTreeItem(item, this, false);
-        		rootItem.getChildren().add(checkBoxTreeItem);
-        	}
-
-        } catch (IOException ex){
-        	ex.printStackTrace();
-        }
-        
-                       
-        fileTreeView.setRoot(rootItem);
-        fileTreeView.setShowRoot(true);
+		@Override
+		public int compare(FileNode o1, FileNode o2) {
+			String path1 = o1.getPath().toString();
+			String path2 = o2.getPath().toString();
+			return path1.compareTo(path2);
+		}
 	}
 }

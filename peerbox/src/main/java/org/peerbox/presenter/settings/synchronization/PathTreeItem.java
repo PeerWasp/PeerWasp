@@ -36,9 +36,7 @@ public class PathTreeItem extends CheckBoxTreeItem<PathItem> {
       	this.sync = sync;
       	this.isRoot = isRoot;
 
-      	if(isRoot){
-//      		addEventHandler(PathTreeItem.checkBoxSelectionChangedEvent(), new RootSelectionEventHandler());
-      	} else {
+      	if(!isRoot){
           	this.setSelected(isSelected);
           	addEventHandler(PathTreeItem.checkBoxSelectionChangedEvent(), new EventHandler<TreeModificationEvent<PathItem>>(){
           		@Override
@@ -46,16 +44,12 @@ public class PathTreeItem extends CheckBoxTreeItem<PathItem> {
         				javafx.scene.control.CheckBoxTreeItem.TreeModificationEvent<PathItem> arg0) {
         			PathTreeItem pathItem = (PathTreeItem) arg0.getSource();
         			Path path = pathItem.getValue().getPath();
-        			System.out.println("Catched Event: " + path);
         			PathTreeItem source = (PathTreeItem)arg0.getSource();
         			if(!source.getIsRoot()){
-        				logger.debug("{} is neither source nor indeterminated.", getValue().getPath());
         				if(source.isSelected() || source.isIndeterminate()){
-        					logger.debug("{} is selected.", getValue().getPath());
         					sync.getToSynchronize().add(source.getFileNode());
         					sync.getToDesynchronize().remove(source.getFileNode());
         				} else if(!source.isIndeterminate()){
-        					logger.debug("{} is not indeterminated.", getValue().getPath());
         					sync.getToSynchronize().remove(source.getFileNode());
         					sync.getToDesynchronize().add(source.getFileNode());
         				}
@@ -108,15 +102,10 @@ public class PathTreeItem extends CheckBoxTreeItem<PathItem> {
         	List<FileNode> fileNodes = fileNode.getChildren();
         	
         	Set<Path> synchronizedFiles = fileEventManager.getFileTree().getSynchronizedPathsAsSet();
-        	for(Path syncPath: synchronizedFiles){
-        		System.out.println("SYNCED file: " +  syncPath);
-        	}
             for (FileNode node : fileNodes) {
             	if(synchronizedFiles.contains(node.getFile().toPath())){
-            		System.out.println("Contains " + node.getFile().toPath());
             		children.add(createNode(node, sync, true));
             	} else {
-            		System.out.println("Not contains " + node.getFile().toPath());
             		children.add(createNode(node, sync, false));
             	}
             }
