@@ -43,8 +43,9 @@
 			<children>
 				<VBox GridPane.columnIndex="1" />
      		<TreeView fx:id="fileTreeView" prefHeight="261.0" prefWidth="417.0" GridPane.columnSpan="3" />
-            <Button fx:id="selectAllButton" onAction="#selectAllAction" prefHeight="25.0" prefWidth="99.0" text="Select all" GridPane.rowIndex="1" />
+            <Button fx:id="selectAllButton" onAction="#selectAllAction" prefHeight="25.0" text="Select all" GridPane.rowIndex="1" />
             <Button fx:id="unselectAllButton" onAction="#unselectAllAction" text="Unselect all" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+            <Button fx:id="refreshButton" onAction="#refreshAction" prefHeight="25.0" text="Refresh" GridPane.columnIndex="2" GridPane.rowIndex="1" />
   
 			</children>
 		</GridPane>

@@ -43,6 +43,7 @@ public class Synchronization implements Initializable {
 	@FXML private Button cancelButton;
 	@FXML private Button selectAllButton;
 	@FXML private Button unselectAllButton;
+	@FXML private Button refreshButton;
 	
 	private IFileEventManager eventManager;
 	private IPeerboxFileManager fileManager;
@@ -106,18 +107,6 @@ public class Synchronization implements Initializable {
 			System.out.println("File " + child.getFile());
 		}
 	}
-	
-	private void listFilesRec(FileNode fileNode){
-		boolean isSynched = synchronizedFiles.contains(fileNode.getFile().toPath());
-        PathTreeItem rootItem = new PathTreeItem(fileNode, this, isSynched);
-        rootItem.setExpanded(true);     
-		for(FileNode child : fileNode.getChildren()){
-			System.out.println("File " + child.getFile());
-		}
-		for(FileNode child : fileNode.getChildren()){
-			listFiles(child);
-		}
-	}
 
 	public void acceptSyncAction(ActionEvent event) {
 		synchronizedFiles = eventManager.getFileTree().getSynchronizedPathsAsSet();
@@ -159,6 +148,12 @@ public class Synchronization implements Initializable {
 			Window window = cancelButton.getScene().getWindow();
 			window.hide();
 		}
+	}
+	
+	@FXML
+	public void refreshAction(ActionEvent event){
+		synchronizedFiles = eventManager.getFileTree().getSynchronizedPathsAsSet();
+		createTreeWithFilesFromNetwork();
 	}
 	
 //	private void showDummyData(){
