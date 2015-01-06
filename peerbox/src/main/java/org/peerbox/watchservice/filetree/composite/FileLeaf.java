@@ -192,5 +192,11 @@ public class FileLeaf extends AbstractFileComponent{
 	public void getSynchronizedChildrenPaths(Set<Path> synchronizedPaths) {
 		return;
 	}
+	
+	@Override
+	public void propagateIsUploaded() {
+		setActionIsUploaded(true);
+		parent.propagateIsUploaded();
+	}
 
 }

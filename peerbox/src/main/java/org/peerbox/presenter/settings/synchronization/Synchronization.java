@@ -6,11 +6,14 @@ import java.net.URL;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.ResourceBundle;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.Vector;
+import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.stream.Stream;
 
 import org.controlsfx.tools.Platform;
@@ -64,9 +67,22 @@ public class Synchronization implements Initializable {
 	private IUserConfig userConfig;
 	private IFileEventManager eventManager;
 	private IPeerboxFileManager fileManager;
-	
-	private Set<FileNode> toSynchronize = new HashSet<FileNode>();
-	private Set<FileNode> toDesynchronize = new HashSet<FileNode>();
+	private TreeSet<FileNode> toSynchronize = new TreeSet<FileNode>(new Comparator<FileNode>(){
+		@Override
+		public int compare(FileNode o1, FileNode o2) {
+			String path1 = o1.getPath().toString();
+			String path2 = o2.getPath().toString();
+			return path1.compareTo(path2);
+		}
+	});
+	private TreeSet<FileNode> toDesynchronize = new TreeSet<FileNode>(new Comparator<FileNode>(){
+		@Override
+		public int compare(FileNode o1, FileNode o2) {
+			String path1 = o1.getPath().toString();
+			String path2 = o2.getPath().toString();
+			return path1.compareTo(path2);
+		}
+	});
 	
 	public Set<FileNode> getToSynchronize(){
 		return toSynchronize;
@@ -147,17 +163,25 @@ public class Synchronization implements Initializable {
 	}
 
 	public void acceptSyncAction(ActionEvent event) {
+		synchronizedFiles = eventManager.getFileTree().getSynchronizedPathsAsSet();
+		for(FileNode node : toSynchronize){
+//			if(!synchronizedFiles.contains(node.getFile().toPath()))
+				logger.debug("#SYNC {}", node.getFile().toPath());
+		}
+		for(FileNode node: toDesynchronize.descendingSet()){
+			logger.debug("#DESYNC {}", node.getFile().toPath());
+		}
 		
 		for(FileNode node : toSynchronize){
 			if(!synchronizedFiles.contains(node.getFile().toPath()))
-				logger.debug("Synchronize file {}", node.getFile().toPath());
 				eventManager.onFileSynchronized(node.getFile().toPath(), node.isFolder());
 		}
-		for(FileNode node: toDesynchronize){
-			logger.debug("Desynchronize file {}", node.getFile().toPath());
+		for(FileNode node: toDesynchronize.descendingSet()){
 			eventManager.onFileDesynchronized(node.getFile().toPath());
 		}
 		
+		toSynchronize.clear();
+		toDesynchronize.clear();
 		if(event.getTarget() != null && event.getTarget() instanceof Button){
 			Button okButton = (Button)event.getTarget();
 			Window window = okButton.getScene().getWindow();

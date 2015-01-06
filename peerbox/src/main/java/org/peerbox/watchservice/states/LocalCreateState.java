@@ -145,4 +145,8 @@ public class LocalCreateState extends AbstractActionState {
 	public AbstractActionState changeStateOnLocalHardDelete(){
 		return new InitialState(action);
 	}
+	
+	public void performCleanup(){
+//		action.setIsUploaded(true);
+	}
 }

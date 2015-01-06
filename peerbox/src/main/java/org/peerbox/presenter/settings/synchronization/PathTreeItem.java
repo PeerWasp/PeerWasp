@@ -8,6 +8,8 @@ import java.util.Set;
 
 import org.hive2hive.core.processes.files.list.FileNode;
 import org.peerbox.watchservice.IFileEventManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -18,6 +20,7 @@ import javafx.scene.control.CheckBoxTreeItem;
 import javafx.scene.control.TreeItem;
 
 public class PathTreeItem extends CheckBoxTreeItem<PathItem> {
+	private static final Logger logger = LoggerFactory.getLogger(PathTreeItem.class);
     private boolean isLeaf = false;
     private boolean isRoot = false;
     private boolean isFirstTimeChildren = true;
@@ -46,10 +49,13 @@ public class PathTreeItem extends CheckBoxTreeItem<PathItem> {
         			System.out.println("Catched Event: " + path);
         			PathTreeItem source = (PathTreeItem)arg0.getSource();
         			if(!source.isIndeterminate() && !source.getIsRoot()){
+        				logger.debug("{} is neither source nor indeterminated.", getValue().getPath());
         				if(source.isSelected()){
+        					logger.debug("{} is selected.", getValue().getPath());
         					sync.getToSynchronize().add(source.getFileNode());
         					sync.getToDesynchronize().remove(source.getFileNode());
         				} else if(!source.isIndeterminate()){
+        					logger.debug("{} is not indeterminated.", getValue().getPath());
         					sync.getToSynchronize().remove(source.getFileNode());
         					sync.getToDesynchronize().add(source.getFileNode());
         				}
