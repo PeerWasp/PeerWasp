@@ -20,7 +20,7 @@ import javafx.scene.layout.VBox;
 
 import org.peerbox.ResultStatus;
 import org.peerbox.UserConfig;
-import org.peerbox.app.manager.IH2HManager;
+import org.peerbox.app.manager.node.INodeManager;
 import org.peerbox.presenter.validation.EmptyTextFieldValidator;
 import org.peerbox.presenter.validation.ValidationUtils.ValidationResult;
 import org.peerbox.view.ViewNames;
@@ -34,7 +34,7 @@ public class JoinNetworkController implements Initializable {
 	
 	private static final Logger logger = LoggerFactory.getLogger(JoinNetworkController.class);
 
-	private IH2HManager h2hManager;
+	private INodeManager h2hManager;
 	private NavigationService fNavigationService;
 	private UserConfig userConfig;
 
@@ -54,7 +54,7 @@ public class JoinNetworkController implements Initializable {
 	private EmptyTextFieldValidator bootstrapValidator;
 
 	@Inject
-	public JoinNetworkController(NavigationService navigationService, IH2HManager h2hManager) {
+	public JoinNetworkController(NavigationService navigationService, INodeManager h2hManager) {
 		this.fNavigationService = navigationService;
 		this.h2hManager = h2hManager;
 	}

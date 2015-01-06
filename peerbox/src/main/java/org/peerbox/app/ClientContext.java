@@ -1,7 +1,7 @@
 package org.peerbox.app;
 
 
-import org.peerbox.app.manager.H2HManager;
+import org.peerbox.app.manager.node.NodeManager;
 import org.peerbox.watchservice.ActionExecutor;
 import org.peerbox.watchservice.FileEventManager;
 import org.peerbox.watchservice.FolderWatchService;
@@ -14,7 +14,7 @@ public class ClientContext {
 	private ActionExecutor actionExecutor;
 	private FileEventManager fileEventManager;
 	private FolderWatchService folderWatchService;
-	private H2HManager h2hManager;
+	private NodeManager h2hManager;
 	
 	public ClientContext() {
 		
@@ -44,11 +44,11 @@ public class ClientContext {
 		this.folderWatchService = folderWatchService;
 	}
 
-	public H2HManager getH2hManager() {
+	public NodeManager getH2hManager() {
 		return h2hManager;
 	}
 
-	public void setH2hManager(H2HManager h2hManager) {
+	public void setH2hManager(NodeManager h2hManager) {
 		this.h2hManager = h2hManager;
 	}
 }

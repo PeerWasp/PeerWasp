@@ -4,7 +4,7 @@ import javafx.application.Platform;
 
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.hive2hive.core.exceptions.NoSessionException;
-import org.peerbox.app.manager.IH2HManager;
+import org.peerbox.app.manager.node.INodeManager;
 import org.peerbox.app.manager.user.IUserManager;
 import org.peerbox.server.IServer;
 import org.slf4j.Logger;
@@ -19,7 +19,7 @@ public class ExitHandler implements IExitHandler {
 	// TODO(AA): make these references available.
 	private IServer server;
 	private IUserManager userManager;
-	private IH2HManager h2hManager;
+	private INodeManager h2hManager;
 	
 	
 	// TODO(AA): shutdown message bus

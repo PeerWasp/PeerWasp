@@ -7,8 +7,8 @@ import org.peerbox.UserConfig;
 import org.peerbox.app.ClientContext;
 import org.peerbox.app.ExitHandler;
 import org.peerbox.app.IExitHandler;
-import org.peerbox.app.manager.H2HManager;
-import org.peerbox.app.manager.IH2HManager;
+import org.peerbox.app.manager.node.NodeManager;
+import org.peerbox.app.manager.node.INodeManager;
 import org.peerbox.app.manager.user.IUserManager;
 import org.peerbox.app.manager.user.UserManager;
 import org.peerbox.delete.FileDeleteHandler;
@@ -86,7 +86,7 @@ public class PeerBoxModule extends AbstractModule {
 	}
 
 	private void bindManagers() {
-		bind(IH2HManager.class).to(H2HManager.class);
+		bind(INodeManager.class).to(NodeManager.class);
 		bind(IUserManager.class).to(UserManager.class);
 		bind(IPeerboxFileManager.class).to(FileManager.class);
 	}

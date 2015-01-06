@@ -13,7 +13,7 @@ import org.hive2hive.processframework.interfaces.IProcessComponent;
 import org.hive2hive.processframework.interfaces.IProcessComponentListener;
 import org.hive2hive.processframework.interfaces.IProcessEventArgs;
 import org.peerbox.app.manager.AbstractManager;
-import org.peerbox.app.manager.IH2HManager;
+import org.peerbox.app.manager.node.INodeManager;
 import org.peerbox.h2h.ProcessHandle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,7 +26,7 @@ public class FileManager extends AbstractManager implements IPeerboxFileManager 
 	private static final Logger logger = LoggerFactory.getLogger(FileManager.class);
 
 	@Inject
-	public FileManager(final IH2HManager h2hManager) {
+	public FileManager(final INodeManager h2hManager) {
 		super(h2hManager, null); // TODO(AA): give message bus instance
 	}
 	

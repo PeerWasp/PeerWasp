@@ -14,20 +14,24 @@ import java.nio.file.Paths;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.peerbox.app.manager.H2HManager;
-import org.peerbox.app.manager.IH2HManager;
+import org.mockito.Mockito;
+import org.peerbox.app.manager.node.NodeManager;
+import org.peerbox.app.manager.node.INodeManager;
+import org.peerbox.events.MessageBus;
 import org.peerbox.presenter.validation.SelectRootPathUtils;
 import org.peerbox.presenter.validation.ValidationUtils.ValidationResult;
 
 public class H2HManagerTest {
 	
 	private String path;
-	private IH2HManager h2hManager;
+	private INodeManager h2hManager;
+	private MessageBus messageBus;
 	
 	@Before
 	public void initialize() {
-		path = System.getProperty("user.dir").replace("\\", "/") + "/";
-		h2hManager = new H2HManager();
+		path = System.getProperty("user.dir");
+		messageBus = Mockito.mock(MessageBus.class);
+		h2hManager = new NodeManager(messageBus);
 	}
 	
 	@Test(expected=UnknownHostException.class)
@@ -79,30 +83,5 @@ public class H2HManagerTest {
 		assertEquals(res, ValidationResult.OK);
 		
 		assertTrue(testDir.delete());
-	}
-	
-	@Test
-	public void testRootPathWithNewDirectory() throws IOException {
-		// TODO: refactoring required -- cannot have user interaction (dialog asking user whether to
-		// create directory or not) here. should be somewhere else...
-		ValidationResult res = SelectRootPathUtils.validateRootPath(Paths.get(path, "Test_NewDir"));
-		
-		assertEquals(res, ValidationResult.OK);
-		
-		File newDir = new File(path + "Test_NewDir");
-		assertTrue(newDir.exists());
-		assertTrue(newDir.isDirectory());
-		newDir.delete();
-	}
-	
-	@Test
-	public void testRootPathWithoutParentDir() throws IOException {
-		// TODO: same as above!
-		Path p = Paths.get(path, "doesnotexist/Test_Dir");
-		ValidationResult res = SelectRootPathUtils.validateRootPath(p);
-		assertEquals(res, ValidationResult.OK);
-		
-		Files.delete(p);
-		
 	}
 }
