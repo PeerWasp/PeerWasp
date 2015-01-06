@@ -13,6 +13,7 @@ import java.util.Set;
 import java.util.Vector;
 import java.util.stream.Stream;
 
+import org.controlsfx.tools.Platform;
 import org.hive2hive.core.api.interfaces.IFileManager;
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.hive2hive.core.exceptions.NoSessionException;
@@ -39,19 +40,26 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.inject.Inject;
+import com.google.inject.Stage;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.CheckBoxTreeCell;
+import javafx.stage.Window;
 
 public class Synchronization implements Initializable {
     
 	private static final Logger logger = LoggerFactory.getLogger(Synchronization.class);
+	private Set<Path> synchronizedFiles;
 	
 	@FXML
 	private TreeView<PathItem> fileTreeView;
+	@FXML
+	private Button okButton;
+	@FXML
+	private Button cancelButton;
 	
 	private IUserConfig userConfig;
 	private IFileEventManager eventManager;
@@ -72,10 +80,11 @@ public class Synchronization implements Initializable {
 	
 	@Inject
 	public Synchronization(FileManager fileManager, FileEventManager eventManager, UserConfig userConfig) {
+
 		this.userConfig = userConfig;
 		this.eventManager = eventManager;
 		this.fileManager = fileManager;
-		
+
 	}
 	
 	public IFileEventManager getFileEventManager(){
@@ -84,7 +93,9 @@ public class Synchronization implements Initializable {
 	
 	@Override
 	public void initialize(URL arg0, ResourceBundle arg1) {
-		//showDummyData();
+		//showDummyData();		
+		logger.debug("Initialize Synchronization!");
+		synchronizedFiles = eventManager.getFileTree().getSynchronizedPathsAsSet();
 		createTreeWithFilesFromNetwork();
 	}
 
@@ -102,25 +113,29 @@ public class Synchronization implements Initializable {
 	}
 	
 	private void listFiles(FileNode fileNode){
-		boolean isSynched = eventManager.getFileTree().getSynchronizedFiles().contains(fileNode.getFile().toPath());
-        PathTreeItem rootItem = new PathTreeItem(fileNode, this, isSynched);
-        rootItem.setExpanded(true);                         
-        fileTreeView.setEditable(false);
-        fileTreeView.setCellFactory(CheckBoxTreeCell.<PathItem>forTreeView());    
+		boolean isSynched = synchronizedFiles.contains(fileNode.getFile().toPath());
+		logger.debug("File {} is selected: {}", fileNode.getFile().toPath(), isSynched);
 		
-        fileTreeView.setRoot(rootItem);
-        fileTreeView.setShowRoot(true);
+		
+		PathTreeItem dummyRoot = new PathTreeItem(fileNode, this, false, true);
+//	    TreeView<String> tree = new TreeView<>(dummyRoot);
+		fileTreeView.setCellFactory(CheckBoxTreeCell.<PathItem>forTreeView());    
+	    fileTreeView.setRoot(dummyRoot);
+        fileTreeView.setEditable(false);
+        fileTreeView.setShowRoot(false);
+		
+        for(FileNode topLevelNode : fileNode.getChildren()){
+			PathTreeItem rootItem = new PathTreeItem(topLevelNode, this, isSynched);
+			dummyRoot.getChildren().add(rootItem);
+		}
+
         for(FileNode child : fileNode.getChildren()){
 			System.out.println("File " + child.getFile());
 		}
-//		for(FileNode child : fileNode.getChildren()){
-//			listFilesRec(child);
-//		}
-
 	}
 	
 	private void listFilesRec(FileNode fileNode){
-		boolean isSynched = eventManager.getFileTree().getSynchronizedFiles().contains(fileNode.getFile().toPath());
+		boolean isSynched = synchronizedFiles.contains(fileNode.getFile().toPath());
         PathTreeItem rootItem = new PathTreeItem(fileNode, this, isSynched);
         rootItem.setExpanded(true);     
 		for(FileNode child : fileNode.getChildren()){
@@ -134,17 +149,30 @@ public class Synchronization implements Initializable {
 	public void acceptSyncAction(ActionEvent event) {
 		
 		for(FileNode node : toSynchronize){
-			if(!eventManager.getFileTree().getSynchronizedFiles().contains(node.getFile().toPath()))
+			if(!synchronizedFiles.contains(node.getFile().toPath()))
+				logger.debug("Synchronize file {}", node.getFile().toPath());
 				eventManager.onFileSynchronized(node.getFile().toPath(), node.isFolder());
 		}
 		for(FileNode node: toDesynchronize){
+			logger.debug("Desynchronize file {}", node.getFile().toPath());
 			eventManager.onFileDesynchronized(node.getFile().toPath());
+		}
+		
+		if(event.getTarget() != null && event.getTarget() instanceof Button){
+			Button okButton = (Button)event.getTarget();
+			Window window = okButton.getScene().getWindow();
+			window.hide();
 		}
 		
 	}
 	
+	@FXML
 	public void cancelAction(ActionEvent event) {
-		//TODO write button handler
+		if(event.getTarget() != null && event.getTarget() instanceof Button){
+			Button cancelButton = (Button)event.getTarget();
+			Window window = cancelButton.getScene().getWindow();
+			window.hide();
+		}
 	}
 	
 //	private final class FileListDownloadListener implements IProcessComponentListener{

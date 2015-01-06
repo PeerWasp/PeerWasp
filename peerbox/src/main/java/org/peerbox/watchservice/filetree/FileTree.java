@@ -30,7 +30,6 @@ public class FileTree implements IFileTree{
 	private FolderComposite rootOfFileTree;
 	private Map<String, FolderComposite> deletedByContentNamesHash = new ConcurrentHashMap<String, FolderComposite>();
 	private SetMultimap<String, FileComponent> deletedByContentHash = HashMultimap.create();
-    private Set<Path> synchronizedFiles = new ConcurrentHashSet<Path>();
     private boolean maintainContentHashes;
 	
     @Inject
@@ -100,7 +99,7 @@ public class FileTree implements IFileTree{
 			component = new FolderComposite(path, getMaintainContentHashes());
 		}
 		
-		getSynchronizedFiles().add(path);
+//		getSynchronizedFiles().add(path);
 		return component;
 	}
 
@@ -125,9 +124,10 @@ public class FileTree implements IFileTree{
 		return deletedByContentHash;
 	}
 	
-    public Set<Path> getSynchronizedFiles(){
-    	return synchronizedFiles;
-    }
+//    public Set<Path> getSynchronizedFiles(){
+////    	return synchronizedFiles;
+//    	return null;
+//    }
     
 	/**
 	 * This function runs the FileWalker to discover the structure of the subtree
@@ -191,6 +191,7 @@ public class FileTree implements IFileTree{
 		return rootOfFileTree.getPath();
 	}
 	
+	@Override
 	public Set<Path> getSynchronizedPathsAsSet(){
 		Set<Path> synchronizedFiles = new ConcurrentHashSet<Path>();
 		rootOfFileTree.getSynchronizedChildrenPaths(synchronizedFiles);
