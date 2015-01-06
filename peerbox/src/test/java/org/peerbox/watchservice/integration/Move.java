@@ -149,6 +149,7 @@ public class Move extends FileIntegrationTest{
 		int nrFilesPerFolder = 10;
 		Path destination = addSingleFolder();
 		List<Path> paths = addManyFilesInManyFolders(10, 10);
+		List<Path> destinationPaths = new ArrayList<Path>();
 		int totalFiles = nrFolders + nrFolders * nrFilesPerFolder + 1;
 		
 		assertCleanedUpState(totalFiles);
@@ -158,22 +159,16 @@ public class Move extends FileIntegrationTest{
 				lastDestination = destination.resolve(path.getFileName());
 				if(path.toFile().exists()){
 					Files.move(path.toFile(), lastDestination.toFile());
+					destinationPaths.add(lastDestination);
 				}
 			}
 			
 		}
-		waitForExists(lastDestination, WAIT_TIME_SHORT);
+		waitForExists(destinationPaths, WAIT_TIME_SHORT);
 		assertCleanedUpState(totalFiles);
 		logger.debug("End manyNonEmptyFolderMoveTest");
 	}
 	
-	@Test
-	public void manyNonEmptyFolderMoveTestRepeated() throws IOException{
-		for(int i = 0; i < 10; i++){
-			logger.debug("---------START---------");
-			manyNonEmptyFolderMoveTest();
-		}
-	}
 	
 	@Test @Ignore
 	public void localMoveOnRemoteUpdateTest() throws IOException{

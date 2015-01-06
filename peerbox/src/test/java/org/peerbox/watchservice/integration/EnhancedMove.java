@@ -2,6 +2,7 @@ package org.peerbox.watchservice.integration;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -23,7 +24,7 @@ public class EnhancedMove extends FileIntegrationTest{
 	public void manyNonEmptyFolderMoveTest() throws IOException{
 		manyNonEmptyFolderMoveTestFunc();
 		try {
-			Thread.sleep(30000);
+			Thread.sleep(10000);
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -36,6 +37,7 @@ public class EnhancedMove extends FileIntegrationTest{
 		int nrFilesPerFolder = 10;
 		Path destination = addSingleFolder();
 		List<Path> paths = addManyFilesInManyFolders(10, 10);
+		List<Path> destinationPaths = new ArrayList<Path>();
 		int totalFiles = nrFolders + nrFolders * nrFilesPerFolder + 1;
 		
 		assertCleanedUpState(totalFiles);
@@ -43,13 +45,15 @@ public class EnhancedMove extends FileIntegrationTest{
 		for(Path path: paths){
 			if(path.toFile().isDirectory()){
 				lastDestination = destination.resolve(path.getFileName());
+//				destinationPaths.add(lastDestination);
 				if(path.toFile().exists()){
 					Files.move(path.toFile(), lastDestination.toFile());
+					destinationPaths.add(lastDestination);
 				}
 			}
 			
 		}
-		waitForExists(lastDestination, WAIT_TIME_SHORT);
+		waitForExists(destinationPaths, WAIT_TIME_SHORT);
 		assertCleanedUpState(totalFiles);
 		logger.debug("--------------------END------------");
 	}
