@@ -1,41 +1,23 @@
 package org.peerbox.presenter.settings.synchronization;
 
-import java.io.File;
-import java.io.IOException;
 import java.net.URL;
-import java.nio.file.FileSystems;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Comparator;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.Vector;
-import java.util.concurrent.ConcurrentSkipListSet;
-import java.util.stream.Stream;
 
-import org.controlsfx.tools.Platform;
-import org.hive2hive.core.api.interfaces.IFileManager;
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.hive2hive.core.exceptions.NoSessionException;
-import org.hive2hive.core.model.UserPermission;
 import org.hive2hive.core.processes.files.list.FileNode;
-import org.hive2hive.processframework.ProcessComponent;
 import org.hive2hive.processframework.exceptions.InvalidProcessStateException;
 import org.hive2hive.processframework.exceptions.ProcessExecutionException;
-import org.hive2hive.processframework.interfaces.IProcessComponent;
-import org.hive2hive.processframework.interfaces.IProcessComponentListener;
-import org.hive2hive.processframework.interfaces.IProcessEventArgs;
+
 import org.peerbox.FileManager;
 import org.peerbox.IPeerboxFileManager;
 import org.peerbox.IUserConfig;
 import org.peerbox.UserConfig;
-import org.peerbox.app.manager.H2HManager;
-import org.peerbox.presenter.settings.synchronization.DummyFileEventManager;
-import org.peerbox.presenter.settings.synchronization.DummyFileManager;
-import org.peerbox.presenter.settings.synchronization.DummyUserConfig;
 import org.peerbox.watchservice.FileEventManager;
 import org.peerbox.watchservice.IFileEventManager;
 import org.peerbox.watchservice.filetree.composite.FileComponent;
@@ -43,7 +25,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.inject.Inject;
-import com.google.inject.Stage;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -57,14 +38,12 @@ public class Synchronization implements Initializable {
 	private static final Logger logger = LoggerFactory.getLogger(Synchronization.class);
 	private Set<Path> synchronizedFiles;
 	
-	@FXML
-	private TreeView<PathItem> fileTreeView;
-	@FXML
-	private Button okButton;
-	@FXML
-	private Button cancelButton;
+	@FXML private TreeView<PathItem> fileTreeView;
+	@FXML private Button okButton;
+	@FXML private Button cancelButton;
+	@FXML private Button selectAllButton;
+	@FXML private Button unselectAllButton;
 	
-	private IUserConfig userConfig;
 	private IFileEventManager eventManager;
 	private IPeerboxFileManager fileManager;
 	private TreeSet<FileNode> toSynchronize = new TreeSet<FileNode>(new FileNodeComparator());
@@ -81,8 +60,7 @@ public class Synchronization implements Initializable {
 	private Vector<FileComponent> toSync = new Vector<FileComponent>();
 	
 	@Inject
-	public Synchronization(FileManager fileManager, FileEventManager eventManager, UserConfig userConfig) {
-		this.userConfig = userConfig;
+	public Synchronization(FileManager fileManager, FileEventManager eventManager) {
 		this.eventManager = eventManager;
 		this.fileManager = fileManager;
 	}
@@ -158,6 +136,19 @@ public class Synchronization implements Initializable {
 			Window window = okButton.getScene().getWindow();
 			window.hide();
 		}
+	}
+	
+	@FXML
+	public void selectAllAction(ActionEvent event) {
+		PathTreeItem root = (PathTreeItem)fileTreeView.getRoot();
+		root.setSelected(true);
+	}
+	
+	@FXML
+	public void unselectAllAction(ActionEvent event) {
+		PathTreeItem root = (PathTreeItem)fileTreeView.getRoot();
+		root.setSelected(false);
+		root.setIndeterminate(false);
 	}
 	
 	@FXML
