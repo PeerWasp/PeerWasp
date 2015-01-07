@@ -5,7 +5,7 @@ import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 import org.peerbox.guice.GuiceFxmlLoaderTest;
 import org.peerbox.h2h.FileAgentTest;
-import org.peerbox.model.H2HManagerTest;
+import org.peerbox.model.NodeManagerTest;
 import org.peerbox.model.UserManagerTest;
 import org.peerbox.notifications.FileEventAggregatorTest;
 import org.peerbox.presenter.CreateNetworkControllerTest;
@@ -15,7 +15,7 @@ import org.peerbox.utils.UtilsTestSuite;
 
 @RunWith(Suite.class)
 @SuiteClasses({ 
-	H2HManagerTest.class,
+	NodeManagerTest.class,
 	UserManagerTest.class,
 	
 	NavigationServiceTest.class,
