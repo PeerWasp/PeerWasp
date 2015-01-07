@@ -77,12 +77,12 @@ public final class NodeManager implements INodeManager {
 		String nodeID = generateNodeID();
 		InetAddress bootstrapInetAddress = InetAddress.getByName(address);
 		networkConfiguration = NetworkConfiguration.create(nodeID, bootstrapInetAddress);
-		boolean res = node.connect(networkConfiguration);
-		res = res && isConnected();
-		if(res) {
+		boolean success = node.connect(networkConfiguration);
+		success = success && isConnected();
+		if (success) {
 			messageBus.publish(new NodeConnectMessage(address));
 		}
-		return res;
+		return success;
 	}
 	
 	@Override
@@ -90,7 +90,12 @@ public final class NodeManager implements INodeManager {
 		createNode();
 		String nodeID = generateNodeID();
 		networkConfiguration = NetworkConfiguration.createInitial(nodeID);
-		return node.connect(networkConfiguration);
+		boolean success = node.connect(networkConfiguration);
+		success = success && isConnected();
+		if (success) {
+			messageBus.publish(new NodeConnectMessage("localhost"));
+		}
+		return success;
 	}
 	
 	@Override
