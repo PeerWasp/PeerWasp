@@ -1,6 +1,7 @@
 package org.peerbox;
 
 import java.io.File;
+import java.nio.file.Path;
 
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.hive2hive.core.exceptions.NoSessionException;
@@ -27,7 +28,9 @@ public class FileManager extends AbstractManager implements IPeerboxFileManager 
 
 	@Inject
 	public FileManager(final INodeManager h2hManager) {
-		super(h2hManager, null); // TODO(AA): give message bus instance
+		// TODO(AA): give message bus instance and implement events?
+		// maybe can implement the file events also elsewhere, e.g. action executor
+		super(h2hManager, null); 
 	}
 	
 	@Override
@@ -80,6 +83,7 @@ public class FileManager extends AbstractManager implements IPeerboxFileManager 
 	public ProcessHandle<Void> recover(final File file, final IVersionSelector versionSelector) throws NoSessionException, NoPeerConnectionException, IllegalArgumentException {
 		logger.debug("RECOVER - {}", file);
 		IProcessComponent<Void> component = getFileManager().createRecoverProcess(file, versionSelector);
+		component.attachListener(new FileOperationListener(file));
 		ProcessHandle<Void> handle = new ProcessHandle<Void>(component);
 		return handle;
 	}
@@ -93,20 +97,36 @@ public class FileManager extends AbstractManager implements IPeerboxFileManager 
 		return handle;
 	}
 	
+	// TODO: is this method even required? attach listener outside?
 	@Override
 	public FileNode listFiles(IProcessComponentListener listener) throws NoPeerConnectionException, NoSessionException, InvalidProcessStateException, ProcessExecutionException {
 		IProcessComponent<FileNode> component = getFileManager().createFileListProcess();
 		component.attachListener(listener);
+		// TODO: execute should be outside?
 		return component.execute();
 	}
 
 	@Override
 	public FileNode listFiles() throws NoPeerConnectionException, NoSessionException, InvalidProcessStateException, ProcessExecutionException {
 		IProcessComponent<FileNode> component = getFileManager().createFileListProcess();
+		// TODO: execute should be outside?
 		return component.execute();
 	}
-
-
+	
+	public boolean remoteExists(final Path path) {
+		// TODO(AA): check whether a file exists in the DHT
+		return false;
+	}
+	
+	public boolean isSmallFile(final Path path) {
+		// TODO(AA) check whether a file is a "small file" or not.
+		return true;
+	}
+	
+	public boolean isLargeFile(final Path path) {
+		return !isSmallFile(path);
+	}
+	
 	private final class FileOperationListener implements IProcessComponentListener {
 		private final File path;
 

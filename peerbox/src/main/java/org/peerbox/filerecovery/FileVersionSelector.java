@@ -82,6 +82,7 @@ public final class FileVersionSelector implements IVersionSelector {
 				doneSignal.await();
 			}
 		} catch (InterruptedException e) {
+			// happens if e.g. file recovery is cancelled after retrieving available versions
 			e.printStackTrace();
 		}
 		

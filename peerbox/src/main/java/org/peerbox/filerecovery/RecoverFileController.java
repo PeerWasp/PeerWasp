@@ -2,6 +2,7 @@ package org.peerbox.filerecovery;
 
 import java.net.URL;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -19,6 +20,7 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -35,13 +37,9 @@ import javafx.util.Callback;
 
 import org.apache.commons.io.FileUtils;
 import org.controlsfx.control.StatusBar;
-import org.hive2hive.core.exceptions.NoPeerConnectionException;
-import org.hive2hive.core.exceptions.NoSessionException;
 import org.hive2hive.core.model.IFileVersion;
 import org.hive2hive.processframework.exceptions.InvalidProcessStateException;
 import org.hive2hive.processframework.exceptions.ProcessRollbackException;
-import org.hive2hive.processframework.interfaces.IProcessComponentListener;
-import org.hive2hive.processframework.interfaces.IProcessEventArgs;
 import org.peerbox.FileManager;
 import org.peerbox.h2h.ProcessHandle;
 import org.slf4j.Logger;
@@ -67,6 +65,7 @@ public final class RecoverFileController  implements Initializable, IFileVersion
 	private Button btnRecover;
 	@FXML
 	private AnchorPane pane;
+	// JavaFX Control, but @FXML is not supported
 	private StatusBar statusBar;
 	
 	private final BooleanProperty busyProperty;
@@ -77,18 +76,18 @@ public final class RecoverFileController  implements Initializable, IFileVersion
 	
 	private final ObservableList<IFileVersion> fileVersions;
 	
-	private FileVersionSelector versionSelector;
+	private final FileVersionSelector versionSelector;
 
 	private FileManager fileManager;
-	private ProcessHandle<Void> process;
+	private RecoverFileTask recoverFileTask;
 	
 	public RecoverFileController() {
 		this.fileToRecoverProperty = new SimpleStringProperty();
 		this.statusProperty = new SimpleStringProperty();
 		this.busyProperty = new SimpleBooleanProperty(false);
-		
-		fileVersions = FXCollections.observableArrayList();
-		versionSelector = new FileVersionSelector(this);
+
+		this.fileVersions = FXCollections.observableArrayList();
+		this.versionSelector = new FileVersionSelector(this);
 	}
 	
 	@Override
@@ -98,10 +97,8 @@ public final class RecoverFileController  implements Initializable, IFileVersion
 		
 		lblNumberOfVersions.textProperty().bind(Bindings.size(fileVersions).asString());
 		btnRecover.disableProperty().bind(
-				tblFileVersions.getSelectionModel().selectedItemProperty().isNull().or(
-				busyProperty));
-	
-		
+				tblFileVersions.getSelectionModel().selectedItemProperty().isNull()
+				.or(busyProperty));
 	}
 
 	private void initializeStatusBar() {
@@ -169,69 +166,86 @@ public final class RecoverFileController  implements Initializable, IFileVersion
 		tblFileVersions.getSortOrder().add(tblColIndex);
 		tblFileVersions.sort();
 	}
-
-	private void loadVersions() {
 	
-		try {
-			setBusy(true);
-			setStatus("Retrieving available versions...");
-	
-			process = fileManager.recover(fileToRecover.toFile(), versionSelector);
-			process.getProcess().attachListener(new RecoveryProcessListener());
-	
-		} catch (NoSessionException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (NoPeerConnectionException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} 
+	public void loadVersions() {
+		if (fileToRecover == null || fileToRecover.toString().isEmpty()) {
+			throw new IllegalArgumentException("fileToRecover not set, cannot be null or empty");
+		}
+		recoverFileTask = new RecoverFileTask(fileToRecover);
+		new Thread(recoverFileTask).start();
 	}
 
 	@Override
-	public void onAvailableVersionsReceived(List<IFileVersion> availableVersions) {
-		Platform.runLater(() -> {
-			setBusy(false);
-			if (availableVersions.isEmpty()) {
-				setStatus("No versions available for this file.");
-			} else {
-				setStatus("Select version to recover");
-				fileVersions.addAll(availableVersions);
-				setStatus("");
-				sortTable();
+	public void onAvailableVersionsReceived(final List<IFileVersion> availableVersions) {
+		Runnable versions = new Runnable() {
+			@Override
+			public void run() {
+				setBusy(false);
+				if (availableVersions.isEmpty()) {
+					setStatus("No versions available for this file.");
+				} else {
+					setStatus("Select version to recover");
+					fileVersions.addAll(availableVersions);
+					setStatus("");
+					sortTable();
+				}
 			}
-		});
+		};
+		
+		if (Platform.isFxApplicationThread()) {
+			versions.run();
+		} else {
+			Platform.runLater(versions);
+		}
 	}
 
 	private void onFileRecoverySucceeded() {
-		Platform.runLater(() -> {
-			setBusy(false);
-			setStatus("");
-			
-			Alert a = new Alert(AlertType.INFORMATION);
-			a.setTitle("File Recovered");
-			a.setHeaderText("File recovery finished");
-			a.setContentText(String.format("The name of the recovered file is: %s", versionSelector.getRecoveredFileName()));
-			a.showAndWait();
-			getStage().close();
-		});
+		Runnable succeeded = new Runnable() {
+			@Override
+			public void run() {
+				setBusy(false);
+				setStatus("");
+				
+				Alert a = new Alert(AlertType.INFORMATION);
+				a.setTitle("File Recovered");
+				a.setHeaderText("File recovery finished");
+				a.setContentText(String.format("The name of the recovered file is: %s", versionSelector.getRecoveredFileName()));
+				a.showAndWait();
+				getStage().close();
+			}
+		};
+		
+		if (Platform.isFxApplicationThread()) {
+			succeeded.run();
+		} else {
+			Platform.runLater(succeeded);
+		}
 	}
 
-	private void onFileRecoveryFailed(String message) {
-		Platform.runLater(() -> {
-			setBusy(false);
-			setStatus("");
-			
-			if(!versionSelector.isCancelled()) {
-				// show error if user did not initiate cancel action
-				Alert a = new Alert(AlertType.ERROR);
-				a.setTitle("File Recovery Failed");
-				a.setHeaderText("File recovery did not succeed.");
-				a.setContentText(message);
-				a.showAndWait();
+	private void onFileRecoveryFailed(final String message) {
+		Runnable failed = new Runnable() {
+			@Override
+			public void run() {
+				setBusy(false);
+				setStatus("");
+				
+				if(!versionSelector.isCancelled()) {
+					// show error if user did not initiate cancel action
+					Alert a = new Alert(AlertType.ERROR);
+					a.setTitle("File Recovery Failed");
+					a.setHeaderText("File recovery did not succeed.");
+					a.setContentText(message);
+					a.showAndWait();
+				}
+				getStage().close();
 			}
-			getStage().close();
-		});
+		};
+		
+		if (Platform.isFxApplicationThread()) {
+			failed.run();
+		} else {
+			Platform.runLater(failed);
+		}
 	}
 
 	public void recoverAction(ActionEvent event) {
@@ -256,13 +270,13 @@ public final class RecoverFileController  implements Initializable, IFileVersion
 			if(versionSelector != null) {
 				versionSelector.cancel();
 			}
-			if(process != null) {
-				process.getProcess().rollback();
+			if(recoverFileTask != null) {
+				recoverFileTask.cancel();
 			}
-		} catch (InvalidProcessStateException | ProcessRollbackException e) {
-			logger.warn("Could not cancel process.", e);
 		} finally {
-			getStage().close();
+			Platform.runLater(() -> {
+				getStage().close();
+			});
 		}
 	}
 	
@@ -276,13 +290,13 @@ public final class RecoverFileController  implements Initializable, IFileVersion
 	}
 
 	public void setFileToRecover(String fileName) {
-		this.fileToRecoverProperty.set(fileName);
+		this.fileToRecover = Paths.get(fileName);
+		this.fileToRecoverProperty.setValue(fileName);
 	}
 
 	public void setFileToRecover(final Path fileToRecover) {
 		this.fileToRecover = fileToRecover;
 		this.fileToRecoverProperty.setValue(fileToRecover.toString());
-		loadVersions();
 	}
 
 	public StringProperty fileToRecoverProperty() {
@@ -317,48 +331,55 @@ public final class RecoverFileController  implements Initializable, IFileVersion
 		return (Stage)tblFileVersions.getScene().getWindow();
 	}
 	
-	
-	private class RecoveryProcessListener implements IProcessComponentListener {
-
-		@Override
-		public void onExecuting(IProcessEventArgs args) {
-			// TODO Auto-generated method stub
-			
+	private class RecoverFileTask extends Task<Void> {
+		private ProcessHandle<Void> process;
+		private final Path fileToRecover;
+		
+		public RecoverFileTask(final Path fileToRecover) {
+			this.fileToRecover = fileToRecover;
 		}
-
+		
 		@Override
-		public void onRollbacking(IProcessEventArgs args) {
-			// TODO Auto-generated method stub
-			
+		protected Void call() throws Exception {
+			try {
+
+				setBusy(true);
+				setStatus("Retrieving available versions...");
+
+				process = fileManager.recover(this.fileToRecover.toFile(), versionSelector);
+				process.execute();
+
+			} catch (Exception e) {
+				// FIXME: get reason of exception
+				logger.warn("Exception while recovering file: {}", e.getMessage(), e);
+				throw e;
+			}
+			return null;
 		}
-
+		
 		@Override
-		public void onPaused(IProcessEventArgs args) {
-			// TODO Auto-generated method stub
-			
-		}
-
-		@Override
-		public void onExecutionSucceeded(IProcessEventArgs args) {
+		protected void succeeded() {
+			super.succeeded();
+			updateMessage("Done!");
 			onFileRecoverySucceeded();
 		}
 
 		@Override
-		public void onExecutionFailed(IProcessEventArgs args) {
-			onFileRecoveryFailed("Recovery failed.");
+		protected void failed() {
+			super.failed();
+			updateMessage("Failed!");
+			onFileRecoveryFailed("File Recovery Failed.");
 		}
-
+        
 		@Override
-		public void onRollbackSucceeded(IProcessEventArgs args) {
-			// TODO Auto-generated method stub
-			
-		}
-
-		@Override
-		public void onRollbackFailed(IProcessEventArgs args) {
-			// TODO Auto-generated method stub
-			
+		protected void cancelled() {
+			super.cancelled();
+			updateMessage("Cancelled!");
+			try {
+				process.getProcess().rollback();
+			} catch (InvalidProcessStateException | ProcessRollbackException e) {
+				// ignore
+			}
 		}
 	}
-	
 }

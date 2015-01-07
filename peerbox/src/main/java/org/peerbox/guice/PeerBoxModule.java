@@ -3,6 +3,7 @@ package org.peerbox.guice;
 
 import org.peerbox.FileManager;
 import org.peerbox.IPeerboxFileManager;
+import org.peerbox.IUserConfig;
 import org.peerbox.UserConfig;
 import org.peerbox.app.ClientContext;
 import org.peerbox.app.ExitHandler;
@@ -53,6 +54,7 @@ public class PeerBoxModule extends AbstractModule {
 		bind(IFileDeleteHandler.class).to(FileDeleteHandler.class);
 		bind(IFileEventManager.class).to(FileEventManager.class);
 		
+		bind(IUserConfig.class).to(UserConfig.class);
 		bind(IExitHandler.class).to(ExitHandler.class);
 		bind(ClientContext.class).toProvider(ClientContextProvider.class);
 	}
