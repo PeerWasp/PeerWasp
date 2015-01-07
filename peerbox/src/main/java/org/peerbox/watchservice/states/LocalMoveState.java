@@ -58,7 +58,8 @@ public class LocalMoveState extends AbstractActionState {
 	@Override
 	public AbstractActionState changeStateOnRemoteUpdate() {
 		logger.debug("Remote Update Event: Local Move -> Conflict ({})", action.getFilePath());
-		return new ConflictState(action);
+		throw new NotImplException("Conflict handling during move not yet supported");
+//		return new ConflictState(action);
 	}
 
 	@Override
@@ -70,7 +71,8 @@ public class LocalMoveState extends AbstractActionState {
 	@Override
 	public AbstractActionState changeStateOnRemoteMove(Path oldFilePath) {
 		logger.debug("Remote Move Event: Local Move -> Conflict ({})", action.getFilePath());
-		return new ConflictState(action);
+		throw new NotImplException("Conflict handling during move not yet supported");
+//		return new ConflictState(action);
 	}
 
 	@Override
@@ -89,7 +91,8 @@ public class LocalMoveState extends AbstractActionState {
 
 	@Override
 	public AbstractActionState changeStateOnRemoteCreate() {
-		return new ConflictState(action);
+		throw new NotImplException("Conflict handling during move not yet supported");
+//		return new ConflictState(action);
 	}
 
 	@Override

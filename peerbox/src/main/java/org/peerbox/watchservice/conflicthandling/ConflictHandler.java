@@ -1,10 +1,11 @@
 package org.peerbox.watchservice.conflicthandling;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-
 import org.apache.commons.io.FilenameUtils;
 
 public class ConflictHandler {
@@ -35,6 +36,15 @@ public class ConflictHandler {
 		String currentDate;
 		
 		return currentDate = dateFormat.format(date);
+	}
+	
+	public static void resolveConflict(Path file){
+		Path renamedFile = ConflictHandler.rename(file);
+		try {
+			Files.copy(file, renamedFile);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 }

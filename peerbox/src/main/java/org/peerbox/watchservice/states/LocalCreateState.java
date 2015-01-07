@@ -55,19 +55,20 @@ public class LocalCreateState extends AbstractActionState {
 
 	@Override
 	public AbstractActionState changeStateOnRemoteUpdate() {
-		logger.debug("Remote Update Event: Local Create -> Conflict ({})", action.getFile()
-				.getPath());
-
-		Path fileInConflict = action.getFile().getPath();
-		Path renamedFile = ConflictHandler.rename(fileInConflict);
-		try {
-			Files.move(fileInConflict, renamedFile);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		fileInConflict = renamedFile;
-		logger.debug("Conflict handling complete.");
-		return new ConflictState(action);
+//		logger.debug("Remote Update Event: Local Create -> Conflict ({})", action.getFile()
+//				.getPath());
+//
+//		Path fileInConflict = action.getFile().getPath();
+//		Path renamedFile = ConflictHandler.rename(fileInConflict);
+//		try {
+//			Files.move(fileInConflict, renamedFile);
+//		} catch (IOException e) {
+//			e.printStackTrace();
+//		}
+//		fileInConflict = renamedFile;
+//		logger.debug("Conflict handling complete.");
+//		return new ConflictState(action);
+		return new RemoteUpdateState(action);
 	}
 
 	@Override
@@ -107,7 +108,7 @@ public class LocalCreateState extends AbstractActionState {
 
 	@Override
 	public AbstractActionState changeStateOnRemoteCreate() {
-		return new ConflictState(action);
+		return new RemoteCreateState(action);
 	}
 
 	@Override
@@ -122,6 +123,7 @@ public class LocalCreateState extends AbstractActionState {
 
 	@Override
 	public AbstractActionState handleRemoteCreate() {
+		ConflictHandler.resolveConflict(action.getFilePath());
 		return changeStateOnRemoteCreate();
 	}
 
@@ -132,6 +134,7 @@ public class LocalCreateState extends AbstractActionState {
 
 	@Override
 	public AbstractActionState handleRemoteUpdate() {
+		ConflictHandler.resolveConflict(action.getFilePath());
 		return changeStateOnRemoteUpdate();
 	}
 	

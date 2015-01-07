@@ -46,6 +46,7 @@ public class RemoteUpdateState extends AbstractActionState {
 	public AbstractActionState changeStateOnLocalDelete() {
 		logStateTransission(getStateType(), EventType.LOCAL_DELETE, StateType.REMOTE_UPDATE);
 		return this;
+		//return new InitialState(action);
 	}
 
 	@Override

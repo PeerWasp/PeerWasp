@@ -11,6 +11,7 @@ import org.peerbox.FileManager;
 import org.peerbox.exceptions.NotImplException;
 import org.peerbox.h2h.ProcessHandle;
 import org.peerbox.watchservice.Action;
+import org.peerbox.watchservice.conflicthandling.ConflictHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,7 +35,9 @@ public class RemoteCreateState extends AbstractActionState {
 	@Override
 	public AbstractActionState changeStateOnLocalUpdate() {
 		logger.debug("Local Update Event:  ({})", action.getFilePath());
-		return new ConflictState(action);
+		ConflictHandler.resolveConflict(action.getFilePath());
+		return new LocalUpdateState(action);
+//		return new ConflictState(action);
 	}
 
 	@Override
