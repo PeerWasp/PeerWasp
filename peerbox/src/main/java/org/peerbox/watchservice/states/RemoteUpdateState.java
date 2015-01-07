@@ -16,6 +16,7 @@ import org.peerbox.FileManager;
 import org.peerbox.exceptions.NotImplException;
 import org.peerbox.h2h.ProcessHandle;
 import org.peerbox.watchservice.Action;
+import org.peerbox.watchservice.conflicthandling.ConflictHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,9 +32,8 @@ public class RemoteUpdateState extends AbstractActionState {
 
 	@Override
 	public AbstractActionState changeStateOnLocalCreate() {
-		logger.debug("Local Create Event in RemoteUpdateState!  ({})", action.getFilePath());
 		logStateTransission(getStateType(), EventType.LOCAL_CREATE, StateType.REMOTE_UPDATE);
-		return new LocalUpdateState(action);//new EstablishedState(action);
+		return new LocalUpdateState(action);
 	}
 
 	@Override
@@ -46,19 +46,16 @@ public class RemoteUpdateState extends AbstractActionState {
 	public AbstractActionState changeStateOnLocalDelete() {
 		logStateTransission(getStateType(), EventType.LOCAL_DELETE, StateType.REMOTE_UPDATE);
 		return this;
-		//return new InitialState(action);
 	}
 
 	@Override
 	public AbstractActionState changeStateOnLocalMove(Path newPath) {
-		logger.debug("Cannot accept local move right now, since update is happening.");
 		logStateTransission(getStateType(), EventType.LOCAL_MOVE, getStateType());
 		return new LocalMoveState(action, newPath);
 	}
 
 	@Override
 	public AbstractActionState changeStateOnRemoteUpdate() {
-		logger.debug("Remote Update Event:  ({})", action.getFilePath());
 		logStateTransission(getStateType(), EventType.REMOTE_UPDATE, StateType.REMOTE_UPDATE);
 		return this;
 	}
@@ -82,12 +79,14 @@ public class RemoteUpdateState extends AbstractActionState {
 
 	@Override
 	public AbstractActionState handleLocalCreate() {
+		ConflictHandler.resolveConflict(action.getFilePath());
 		return changeStateOnLocalCreate();
 	}
 
 	@Override
 	public AbstractActionState handleLocalUpdate() {
 		action.getFile().bubbleContentHashUpdate();
+		ConflictHandler.resolveConflict(action.getFilePath());
 		return changeStateOnLocalUpdate();
 	}
 
