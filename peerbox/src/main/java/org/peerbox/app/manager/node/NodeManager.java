@@ -81,7 +81,7 @@ public final class NodeManager implements INodeManager {
 		boolean success = node.connect(networkConfiguration);
 		success = success && isConnected();
 		if (success) {
-			messageBus.publish(new NodeConnectMessage(address));
+			notifyConnect(address);
 		}
 		return success;
 	}
@@ -94,9 +94,15 @@ public final class NodeManager implements INodeManager {
 		boolean success = node.connect(networkConfiguration);
 		success = success && isConnected();
 		if (success) {
-			messageBus.publish(new NodeConnectMessage("localhost"));
+			notifyConnect("localhost");
 		}
 		return success;
+	}
+	
+	private void notifyConnect(final String address) {
+		if (messageBus != null) {
+			messageBus.publish(new NodeConnectMessage(address));
+		}
 	}
 	
 	@Override
@@ -104,11 +110,17 @@ public final class NodeManager implements INodeManager {
 		if (node != null) {
 			boolean res = node.disconnect();
 			node = null;
-			messageBus.publish(new NodeDisconnectMessage());
+			notifyDisconnect();
 			return res;
 		}
 
 		return true;
+	}
+	
+	private void notifyDisconnect() {
+		if (messageBus != null) {
+			messageBus.publish(new NodeDisconnectMessage());
+		}
 	}
 	
 	@Override

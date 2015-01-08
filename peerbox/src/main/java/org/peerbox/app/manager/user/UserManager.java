@@ -49,7 +49,7 @@ public final class UserManager extends AbstractManager implements IUserManager {
 			registerProc.execute();
 			if (isRegistered(credentials.getUserId())) {
 				res = ResultStatus.ok();
-				getMessageBus().publish(new RegisterMessage(username));
+				notifyRegister(username);
 			}
 
 		} catch (ProcessExecutionException | InvalidProcessStateException pex) {
@@ -57,6 +57,12 @@ public final class UserManager extends AbstractManager implements IUserManager {
 		}
 
 		return res;
+	}
+	
+	private void notifyRegister(final String username) {
+		if (getMessageBus() != null) {
+			getMessageBus().publish(new RegisterMessage(username));
+		}
 	}
 
 	@Override
@@ -81,7 +87,7 @@ public final class UserManager extends AbstractManager implements IUserManager {
 			loginProc.execute();
 			if (isLoggedIn()) {
 				res = ResultStatus.ok();
-				getMessageBus().publish(new LoginMessage(userCredentials.getUserId()));
+				notifyLogin();
 			}
 			
 		} catch (ProcessExecutionException | InvalidProcessStateException pex) {
@@ -89,6 +95,12 @@ public final class UserManager extends AbstractManager implements IUserManager {
 		}
 
 		return res;
+	}
+	
+	private void notifyLogin() {
+		if (getMessageBus() != null) {
+			getMessageBus().publish(new LoginMessage(userCredentials.getUserId()));
+		}
 	}
 
 	@Override
@@ -109,7 +121,7 @@ public final class UserManager extends AbstractManager implements IUserManager {
 			logoutProc.execute();
 			if (!isLoggedIn()) {
 				res = ResultStatus.ok();
-				getMessageBus().publish(new LogoutMessage(userCredentials.getUserId()));
+				notifyLogout();
 			}
 
 		} catch (ProcessExecutionException | InvalidProcessStateException pex) {
@@ -117,6 +129,12 @@ public final class UserManager extends AbstractManager implements IUserManager {
 		}
 
 		return res;
+	}
+	
+	private void notifyLogout() {
+		if (getMessageBus() != null) {
+			getMessageBus().publish(new LogoutMessage(userCredentials.getUserId()));
+		}
 	}
 	
 }
