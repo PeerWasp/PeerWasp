@@ -104,24 +104,24 @@ public class FileRecoveryStarter extends Application {
 		FileRecoveryHandler stage = new FileRecoveryHandler();
 		controller = new RecoverFileController();
 		controller.setFileManager(fileManager);
-		
-		stage.setFxmlLoaderProvider(new IFxmlLoaderProvider() {
-			
-			@Override
-			public FXMLLoader create(String fxmlFile) {
-				FXMLLoader loader = new FXMLLoader();
-				loader.setLocation(getClass().getResource(fxmlFile));
-				loader.setControllerFactory( new Callback<Class<?>, Object>() {
-					@Override
-					public Object call(Class<?> param) {
-						controller.setFileManager(fileManager);
-						return controller;
-					}
-				});
-				return loader;
-			}
-		});
-		
+//		
+//		stage.setFxmlLoaderProvider(new IFxmlLoaderProvider() {
+//			
+//			@Override
+//			public FXMLLoader create(String fxmlFile) {
+//				FXMLLoader loader = new FXMLLoader();
+//				loader.setLocation(getClass().getResource(fxmlFile));
+//				loader.setControllerFactory( new Callback<Class<?>, Object>() {
+//					@Override
+//					public Object call(Class<?> param) {
+//						controller.setFileManager(fileManager);
+//						return controller;
+//					}
+//				});
+//				return loader;
+//			}
+//		});
+//		
 		stage.recoverFile(Paths.get(root.toString(), fileName));
 		
 	}
