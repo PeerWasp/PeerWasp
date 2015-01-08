@@ -26,6 +26,7 @@ import org.hive2hive.processframework.exceptions.InvalidProcessStateException;
 import org.hive2hive.processframework.exceptions.ProcessExecutionException;
 import org.mockito.Mockito;
 import org.peerbox.FileManager;
+import org.peerbox.IUserConfig;
 import org.peerbox.app.manager.node.INodeManager;
 import org.peerbox.interfaces.IFxmlLoaderProvider;
 
@@ -99,7 +100,10 @@ public class FileRecoveryStarter extends Application {
 		
 		INodeManager manager = Mockito.mock(INodeManager.class);
 		Mockito.stub(manager.getNode()).toReturn(client);
-		fileManager = new FileManager(manager);
+		
+		IUserConfig userConfig = Mockito.mock(IUserConfig.class);
+		
+		fileManager = new FileManager(manager, userConfig);
 		
 		FileRecoveryHandler stage = new FileRecoveryHandler();
 		controller = new RecoverFileController();

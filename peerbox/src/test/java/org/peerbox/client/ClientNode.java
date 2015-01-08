@@ -11,6 +11,7 @@ import org.hive2hive.core.utils.TestExecutionUtil;
 import org.hive2hive.processframework.interfaces.IProcessComponent;
 import org.mockito.Mockito;
 import org.peerbox.FileManager;
+import org.peerbox.IUserConfig;
 import org.peerbox.app.manager.node.INodeManager;
 import org.peerbox.h2h.FileAgent;
 import org.peerbox.watchservice.ActionExecutor;
@@ -64,7 +65,9 @@ public class ClientNode {
 		INodeManager manager = Mockito.mock(INodeManager.class);
 		Mockito.stub(manager.getNode()).toReturn(node);
 		
-		fileManager = new FileManager(manager);
+		IUserConfig userConfig = Mockito.mock(IUserConfig.class);
+		
+		fileManager = new FileManager(manager, userConfig);
 		fileTree = new FileTree(rootPath, true);
 		fileEventManager = new FileEventManager(fileTree);
 		actionExecutor = new ActionExecutor(fileEventManager, fileManager);
