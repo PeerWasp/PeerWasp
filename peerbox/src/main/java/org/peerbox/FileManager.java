@@ -1,10 +1,16 @@
 package org.peerbox;
 
 import java.io.File;
+import java.math.BigInteger;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
+import org.hive2hive.core.api.interfaces.IFileConfiguration;
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.hive2hive.core.exceptions.NoSessionException;
+import org.hive2hive.core.file.FileUtil;
 import org.hive2hive.core.model.PermissionType;
 import org.hive2hive.core.processes.files.list.FileNode;
 import org.hive2hive.core.processes.files.recover.IVersionSelector;
@@ -27,10 +33,10 @@ public class FileManager extends AbstractManager implements IPeerboxFileManager 
 	private static final Logger logger = LoggerFactory.getLogger(FileManager.class);
 
 	@Inject
-	public FileManager(final INodeManager h2hManager) {
+	public FileManager(final INodeManager h2hManager, final IUserConfig userConfig) {
 		// TODO(AA): give message bus instance and implement events?
 		// maybe can implement the file events also elsewhere, e.g. action executor
-		super(h2hManager, null); 
+		super(h2hManager, userConfig, null); 
 	}
 	
 	@Override
@@ -97,15 +103,6 @@ public class FileManager extends AbstractManager implements IPeerboxFileManager 
 		return handle;
 	}
 	
-	// TODO: is this method even required? attach listener outside?
-	@Override
-	public FileNode listFiles(IProcessComponentListener listener) throws NoPeerConnectionException, NoSessionException, InvalidProcessStateException, ProcessExecutionException {
-		IProcessComponent<FileNode> component = getFileManager().createFileListProcess();
-		component.attachListener(listener);
-		// TODO: execute should be outside?
-		return component.execute();
-	}
-
 	@Override
 	public FileNode listFiles() throws NoPeerConnectionException, NoSessionException, InvalidProcessStateException, ProcessExecutionException {
 		IProcessComponent<FileNode> component = getFileManager().createFileListProcess();
@@ -113,16 +110,80 @@ public class FileManager extends AbstractManager implements IPeerboxFileManager 
 		return component.execute();
 	}
 	
-	public boolean remoteExists(final Path path) {
-		// TODO(AA): check whether a file exists in the DHT
-		return false;
+	@Override
+	public boolean existsRemote(final Path path) {
+		FileNode item = null;
+		FileNode list = null;
+		try {
+			list = listFiles();
+			item = getFileNodeByPath(list, path);
+		} catch (NoPeerConnectionException | NoSessionException | 
+				InvalidProcessStateException | ProcessExecutionException e) {
+			item = null;
+			logger.warn("Could not check existsRemote - Exception: {}", e.getMessage(), e);
+		}
+		
+		return item != null ? true : false;
 	}
 	
+	/**
+	 * Searches a FileNode given a path.
+	 * @param index the file index, e.g. the root node
+	 * @param path the path for which the node should be searched
+	 * @return the file node corresponding to the given path or null if none exists
+	 */
+	private FileNode getFileNodeByPath(final FileNode index, final Path path) {
+		Path current = path;
+		List<String> pathItems = new ArrayList<>();
+		while (current != null && !getRootPath().equals(current)) {
+			pathItems.add(current.getFileName().toString());
+			current = current.getParent();
+		}
+		Collections.reverse(pathItems);
+		
+		FileNode currentNode = index;
+		for (String pathItem : pathItems) {
+			FileNode child = getChildByName(currentNode.getChildren(), pathItem);
+			if (child == null) {
+				return null;
+			}
+			
+			currentNode = child;
+			if(child.isFile()) {
+				break; // cannot go further down the tree
+			}
+		}
+		// it may be the case that we did not consider all pathItems
+		if(currentNode.getFile().toPath().equals(path)) {
+			return currentNode;
+		} else {
+			return null;
+		}
+	}
+	
+	/**
+	 * Searches a child node in a list with a given name
+	 * @param children list of child nodes
+	 * @param name the name to search
+	 * @return the FileNode or null if none exists
+	 */
+	private FileNode getChildByName(final List<FileNode> children, final String name) {
+		for (FileNode child : children) {
+			if (child.getName().equalsIgnoreCase(name)) {
+				return child;
+			}
+		}
+		return null;
+	}
+
+	@Override
 	public boolean isSmallFile(final Path path) {
-		// TODO(AA) check whether a file is a "small file" or not.
-		return true;
+		IFileConfiguration fileConfig = getFileConfiguration();
+		return (BigInteger.valueOf(FileUtil.getFileSize(path.toFile()))
+				.compareTo(fileConfig.getMaxFileSize()) == 1);
 	}
 	
+	@Override
 	public boolean isLargeFile(final Path path) {
 		return !isSmallFile(path);
 	}

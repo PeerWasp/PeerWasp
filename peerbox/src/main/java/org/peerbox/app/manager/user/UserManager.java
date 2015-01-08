@@ -10,6 +10,7 @@ import org.hive2hive.core.security.UserCredentials;
 import org.hive2hive.processframework.exceptions.InvalidProcessStateException;
 import org.hive2hive.processframework.exceptions.ProcessExecutionException;
 import org.hive2hive.processframework.interfaces.IProcessComponent;
+import org.peerbox.IUserConfig;
 import org.peerbox.ResultStatus;
 import org.peerbox.app.manager.AbstractManager;
 import org.peerbox.app.manager.node.INodeManager;
@@ -28,8 +29,8 @@ public final class UserManager extends AbstractManager implements IUserManager {
 	private UserCredentials userCredentials;
 	
 	@Inject
-	public UserManager(final INodeManager nodeManager, final MessageBus messageBus) {
-		super(nodeManager, messageBus);
+	public UserManager(final INodeManager nodeManager, final IUserConfig userConfig, final MessageBus messageBus) {
+		super(nodeManager, userConfig, messageBus);
 	}
 	
 	@Override

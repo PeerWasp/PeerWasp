@@ -350,7 +350,7 @@ public final class RecoverFileController  implements Initializable, IFileVersion
 				process.execute();
 
 			} catch (Exception e) {
-				// FIXME: get reason of exception
+				// FIXME: maybe get specific reason of exception for user?
 				logger.warn("Exception while recovering file: {}", e.getMessage(), e);
 				throw e;
 			}

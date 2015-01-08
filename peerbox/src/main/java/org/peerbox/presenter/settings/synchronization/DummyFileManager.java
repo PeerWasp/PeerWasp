@@ -60,11 +60,6 @@ public class DummyFileManager implements IPeerboxFileManager {
 	}
 
 	@Override
-	public FileNode listFiles(IProcessComponentListener listener) {
-		return listFiles();
-	}
-
-	@Override
 	public FileNode listFiles() {
 		Set<Path> remoteFiles = SynchronizationTestUtils.generateRemoteFiles(userConfig);
 		Map<Path, FileNode> tmpMap = new HashMap<Path, FileNode>();
@@ -86,6 +81,24 @@ public class DummyFileManager implements IPeerboxFileManager {
 			tmpMap.put(path, current);
 		}
 		return root;
+	}
+
+	@Override
+	public boolean existsRemote(Path path) {
+		// TODO Auto-generated method stub
+		return true;
+	}
+
+	@Override
+	public boolean isSmallFile(Path path) {
+		// TODO Auto-generated method stub
+		return true;
+	}
+
+	@Override
+	public boolean isLargeFile(Path path) {
+		// TODO Auto-generated method stub
+		return false;
 	}
 
 }

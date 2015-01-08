@@ -28,6 +28,7 @@ public final class NodeManager implements INodeManager {
 	
 	private IH2HNode node;
 	private INetworkConfiguration networkConfiguration;
+	private IFileConfiguration fileConfiguration;
 
 	@Inject
 	public NodeManager(final MessageBus messageBus) {
@@ -39,8 +40,8 @@ public final class NodeManager implements INodeManager {
 	}
 
 	private void createNode() {
-		IFileConfiguration fileConfig = FileConfiguration.createDefault();
-		node = H2HNode.createNode(fileConfig);
+		fileConfiguration = FileConfiguration.createDefault();
+		node = H2HNode.createNode(fileConfiguration);
 	}
 	
 	@Override
@@ -123,5 +124,10 @@ public final class NodeManager implements INodeManager {
 	@Override
 	public INetworkConfiguration getNetworkConfiguration() {
 		return networkConfiguration;
+	}
+	
+	@Override
+	public IFileConfiguration getFileConfiguration() {
+		return fileConfiguration;
 	}
 }

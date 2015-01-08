@@ -104,6 +104,7 @@ public class FileRecoveryStarter extends Application {
 		FileRecoveryHandler stage = new FileRecoveryHandler();
 		controller = new RecoverFileController();
 		controller.setFileManager(fileManager);
+		// TODO(AA) fix compilation issue.
 //		
 //		stage.setFxmlLoaderProvider(new IFxmlLoaderProvider() {
 //			

@@ -1,21 +1,24 @@
 package org.peerbox.app.manager;
 
+import java.nio.file.Path;
+
+import org.hive2hive.core.api.interfaces.IFileConfiguration;
 import org.hive2hive.core.api.interfaces.IFileManager;
 import org.hive2hive.core.api.interfaces.IUserManager;
+import org.peerbox.IUserConfig;
 import org.peerbox.app.manager.node.INodeManager;
 import org.peerbox.events.MessageBus;
 
-import com.google.inject.Inject;
-
 public class AbstractManager {
 
+	private final IUserConfig userConfig;
 	private final INodeManager nodeManager;
 	
 	private final MessageBus messageBus;
 
-	@Inject
-	public AbstractManager(final INodeManager nodeManager, final MessageBus messageBus) {
+	public AbstractManager(final INodeManager nodeManager, final IUserConfig userConfig, final MessageBus messageBus) {
 		this.nodeManager = nodeManager;
+		this.userConfig = userConfig;
 		this.messageBus = messageBus;
 	}
 
@@ -29,6 +32,14 @@ public class AbstractManager {
 	
 	protected final MessageBus getMessageBus() {
 		return messageBus;
+	}
+	
+	protected final IFileConfiguration getFileConfiguration() { 
+		return nodeManager.getFileConfiguration();
+	}
+	
+	protected final Path getRootPath() {
+		return userConfig.getRootPath();
 	}
 
 }

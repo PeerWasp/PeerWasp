@@ -5,6 +5,7 @@ import java.nio.file.Path;
 
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.hive2hive.core.file.FileUtil;
+import org.peerbox.IPeerboxFileManager;
 import org.peerbox.IUserConfig;
 import org.peerbox.ResultStatus;
 import org.peerbox.app.manager.node.INodeManager;
@@ -18,6 +19,7 @@ public class FileRecoveryHandler implements IFileRecoveryHandler {
 	
 	private IUserConfig userConfig;
 	private INodeManager nodeManager; 
+	private IPeerboxFileManager fileManager;
 	private IUserManager userManager;
 	
 	private FileRecoveryUILoader uiLoader;
@@ -61,9 +63,14 @@ public class FileRecoveryHandler implements IFileRecoveryHandler {
 			return ResultStatus.error("Recovery works only for files and not for folders.");
 		}
 		
-		// TODO(AA): check that the file is in the index
-		// TODO(AA): check that it is a "small file" that has versions.
-
+		if(!fileManager.existsRemote(fileToRecover)) {
+			return ResultStatus.error("File does not exist in the network.");
+		}
+		
+		if(fileManager.isLargeFile(fileToRecover)) {
+			return ResultStatus.error("File is too large, multiple versions are not supported.");
+		}
+		
 		return ResultStatus.ok();
 	}
 	
@@ -86,4 +93,10 @@ public class FileRecoveryHandler implements IFileRecoveryHandler {
 	public void setUserManager(IUserManager userManager) {
 		this.userManager = userManager;
 	}
+	
+	@Inject
+	public void setFileManager(IPeerboxFileManager fileManager) {
+		this.fileManager = fileManager;
+	}
+	
 }
