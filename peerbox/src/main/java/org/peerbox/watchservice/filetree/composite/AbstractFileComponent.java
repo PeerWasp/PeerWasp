@@ -79,6 +79,17 @@ abstract class AbstractFileComponent implements FileComponent {
 	}
 
 	@Override
+	public boolean bubbleContentHashUpdate() {
+		boolean hasChanged = updateContentHash();
+		if (hasChanged && getParent() != null) {
+			getParent().bubbleContentHashUpdate();
+		}
+		return hasChanged;
+	}
+
+	protected abstract boolean updateContentHash();
+
+	@Override
 	public boolean isSynchronized() {
 		return isSynchronized;
 	}
@@ -139,15 +150,6 @@ abstract class AbstractFileComponent implements FileComponent {
 	}
 
 	@Override
-	public void propagatePathChangeToChildren() {
-		String msg = String.format("propagatePathChangeToChildren not implemented. "
-				+ "This is probably a file. "
-				+ "(this=%s)", getPath());
-
-		throw new NotImplException(msg);
-	}
-
-	@Override
 	public void getSynchronizedChildrenPaths(Set<Path> synchronizedPaths) {
 		String msg = String.format("getSynchronizedChildrenPaths not implemented. "
 				+ "This is probably a file. "
@@ -155,16 +157,5 @@ abstract class AbstractFileComponent implements FileComponent {
 
 		throw new NotImplException(msg);
 	}
-
-	@Override
-	public boolean bubbleContentHashUpdate() {
-		boolean hasChanged = updateContentHash();
-		if (hasChanged && getParent() != null) {
-			getParent().bubbleContentHashUpdate();
-		}
-		return hasChanged;
-	}
-
-	protected abstract boolean updateContentHash();
 
 }
