@@ -29,66 +29,66 @@ import com.google.inject.Inject;
 
 /**
  * The FileActionExecutor service observes a set of file actions in a queue.
- * An action is executed as soon as it is considered to be "stable", i.e. no more events were 
+ * An action is executed as soon as it is considered to be "stable", i.e. no more events were
  * captured within a certain period of time.
- * 
+ *
  * @author albrecht
  *
  */
 public class ActionExecutor implements Runnable, IActionEventListener {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(ActionExecutor.class);
-	
+
 	/**
-	 *  amount of time that an action has to be "stable" in order to be executed 
+	 *  amount of time that an action has to be "stable" in order to be executed
 	 */
 	public static final long ACTION_WAIT_TIME_MS = 2000;
 	public static final int NUMBER_OF_EXECUTE_SLOTS = 10;
 	public static final int MAX_EXECUTION_ATTEMPTS = 3;
-	
+
 	private IFileManager fileManager;
 	private FileEventManager fileEventManager;
 	private boolean waitForActionCompletion = true;
-	
-	private BlockingQueue<ExecutionHandle> asyncHandles; 
+
+	private BlockingQueue<ExecutionHandle> asyncHandles;
 	private Vector<IAction> runningJobs;
 	private Thread asyncHandlesThread;
 
 	private Thread executorThread;
-	
+
 	@Inject
 	public ActionExecutor(FileEventManager eventManager, IFileManager fileManager){
 		this.fileEventManager = eventManager;
 		this.fileManager = fileManager;
-		
+
 		asyncHandles = new LinkedBlockingQueue<ExecutionHandle>();
 		runningJobs = new Vector<IAction>();
 		asyncHandlesThread = new Thread(new AsyncActionHandler(), "AsyncActionHandlerThread");
-		
+
         executorThread = new Thread(this, "ActionExecutorThread");
 	}
-	
+
 	public void start() {
 		executorThread.start();
 	}
-	
+
 	public void stop() {
 		// TODO: change stop to something that is not deprecated and recommended.
 		executorThread.stop();
 	}
-	
+
 	public void setWaitForActionCompletion(boolean wait) {
 		this.waitForActionCompletion = wait;
 	}
-	
+
 	public BlockingQueue<ExecutionHandle> getFailedJobs() {
 		return asyncHandles;
 	}
-	
+
 	public Vector<IAction> getRunningJobs() {
 		return runningJobs;
 	}
-	
+
 
 	@Override
 	public void run() {
@@ -98,9 +98,9 @@ public class ActionExecutor implements Runnable, IActionEventListener {
 
 	/**
 	 * Processes the action in the action queue, one by one.
-	 * @throws IllegalFileLocation 
-	 * @throws NoPeerConnectionException 
-	 * @throws NoSessionException 
+	 * @throws IllegalFileLocation
+	 * @throws NoPeerConnectionException
+	 * @throws NoSessionException
 	 */
 	private synchronized void processActions() {
 		while (true) {
@@ -119,9 +119,9 @@ public class ActionExecutor implements Runnable, IActionEventListener {
 //					if (next.getAction().getCurrentState() instanceof LocalDeleteState) {
 						removeFromDeleted(next);
 //					}
-					
+
 					next.getAction().addEventListener(this);
-					
+
 					logger.debug("Start execution: {}", next.getPath());
 					ExecutionHandle ehandle = next.getAction().execute(fileManager);
 					if(waitForActionCompletion){
@@ -129,7 +129,7 @@ public class ActionExecutor implements Runnable, IActionEventListener {
 							logger.debug("Put into async handles!");
 //							asyncHandles.put(ehandle);
 							runningJobs.add(next.getAction());
-							
+
 						}
 					} else {
 						onActionExecuteSucceeded(next.getAction());
@@ -194,11 +194,11 @@ public class ActionExecutor implements Runnable, IActionEventListener {
 		Map<String, FolderComposite> deletedByContentNamesHash = fileEventManager.getFileTree().getDeletedByContentNamesHash();
 		if(next instanceof FolderComposite){
 			FolderComposite nextAsFolder = (FolderComposite)next;
-			deletedByContentNamesHash.remove(nextAsFolder.getContentNamesHash());
+			deletedByContentNamesHash.remove(nextAsFolder.getStructureHash());
 		}
 
 	}
-	
+
 	/**
 	 * Checks whether an action is ready to be executed
 	 * @param action Action to be executed
@@ -208,7 +208,7 @@ public class ActionExecutor implements Runnable, IActionEventListener {
 		long ageMs = getActionAge(action);
 		return ageMs >= ACTION_WAIT_TIME_MS;
 	}
-	
+
 	/**
 	 * Computes the age of an action
 	 * @param action
@@ -233,30 +233,30 @@ public class ActionExecutor implements Runnable, IActionEventListener {
 		} else {
 			logger.debug("Action {} with state {} and ID {} removed", action.getFilePath(), action.getCurrentState().getClass(), action.hashCode());
 		}
-		
+
 		boolean changedWhileExecuted = false;
-		
+
 		logger.trace("Wait for lock of action {} at {}", action.getFilePath(), System.currentTimeMillis());
 		action.getLock().lock();
 		logger.trace("Received lock of action {} at {}", action.getFilePath(), System.currentTimeMillis());
 		changedWhileExecuted = action.getChangedWhileExecuted();
-		
+
 		action.onSucceed();
 		action.setIsUploaded(true);
 		logger.trace("Release lock of action {} at {}", action.getFilePath(), System.currentTimeMillis());
-		
+
 		if(changedWhileExecuted){
 			logger.trace("File {} changed during the execution process"
-					+ " to state {}. It has been put back to the queue", 
+					+ " to state {}. It has been put back to the queue",
 					action.getFilePath(), action.getCurrentState().getClass());
 			action.updateTimestamp();
 			fileEventManager.getFileComponentQueue().add(action.getFile());
-			
+
 		}
 
 		//logger.debug("Action successful: {} {} {}", action.getFilePath(), action.hashCode(), action.getCurrentState().getClass().toString());
-		
-		action.getLock().unlock();		
+
+		action.getLock().unlock();
 	}
 
 
@@ -270,22 +270,22 @@ public class ActionExecutor implements Runnable, IActionEventListener {
 			logger.warn("Could not put failed item into queue.");
 		}
 	}
-	
-	
+
+
 	private void handleExecutionError(IAction action, ProcessExecutionException pex) {
 		Hive2HiveException h2hex = (Hive2HiveException) pex.getCause();
 		if(pex != null && pex.getCause() != null && h2hex.getError() != null) {
 			/*
 			 * TODO: unwrap exception and handle inner exception that caused ProcesssExecutionException
-			 * 
-			 * Previous error codes: 
+			 *
+			 * Previous error codes:
 			 * - PARENT_IN_USERFILE_NOT_FOUND --> [ ParentInUserProfileNotFoundException ]
 			 * - SAME_CONTENT --> [ NewVersionSameContentException ]
 			 * - ?? rest was not used I think
 			 */
-			
 
-			
+
+
 
 //			if(h2hex != null && h2hex.getError() != null){
 			ErrorCode error = h2hex.getError();
@@ -324,10 +324,10 @@ public class ActionExecutor implements Runnable, IActionEventListener {
 				logger.error("To many attempts, action of {} has not been executed again. Reason: default", action.getFilePath());
 				onActionExecuteSucceeded(action);
 			}
-		}	
+		}
 	}
 
-	
+
 	private class AsyncActionHandler implements Runnable {
 
 		@Override
@@ -338,35 +338,35 @@ public class ActionExecutor implements Runnable, IActionEventListener {
 		private void processFailedActions() {
 			while(true) {
 				try {
-					
+
 					ExecutionHandle next = asyncHandles.take();
-					
+
 					try {
 						// get should be ready because onFailed event already happened,
 						// but we do not want to block forever!
 						next.getProcessHandle().getFuture().get(5, TimeUnit.SECONDS);
 					} catch(ExecutionException eex) {
-						
+
 						ProcessExecutionException pex = null;
 						if(eex.getCause() instanceof ProcessExecutionException) {
 							pex = (ProcessExecutionException)eex.getCause();
-						} 
+						}
 						handleExecutionError(next.getAction(), pex);
-						
+
 					} catch(CancellationException | InterruptedException e) {
 						logger.warn("Exception while getting future result: {}", e.getMessage());
 					} catch(TimeoutException tex) {
 						logger.debug("Could not get result of failed item, timed out. {}", next.getAction().getFilePath());
-						// add it again 
+						// add it again
 						asyncHandles.put(next);
 					}
 					// if this point reached, no error occurred (get() did not throw exception)
-					
+
 				} catch(Exception e) {
 					logger.warn("Exception in processFailedActions: ", e);
 				}
 			}
 		}
-		
+
 	}
 }

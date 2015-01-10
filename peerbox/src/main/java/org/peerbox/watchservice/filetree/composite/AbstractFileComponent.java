@@ -7,7 +7,7 @@ import org.peerbox.exceptions.NotImplException;
 import org.peerbox.watchservice.Action;
 import org.peerbox.watchservice.IAction;
 
-public abstract class AbstractFileComponent implements FileComponent {
+abstract class AbstractFileComponent implements FileComponent {
 
 	private final IAction action;
 	private Path path;
@@ -17,7 +17,7 @@ public abstract class AbstractFileComponent implements FileComponent {
 
 	private FolderComposite parent;
 
-	public AbstractFileComponent(final Path path, final boolean updateContentHash) {
+	AbstractFileComponent(final Path path, final boolean updateContentHash) {
 		this.action = new Action();
 		this.path = path;
 		this.contentHash = "";
@@ -34,7 +34,7 @@ public abstract class AbstractFileComponent implements FileComponent {
 	public boolean getActionIsUploaded() {
 		return action.getIsUploaded();
 	}
-	
+
 	@Override
 	public void setActionIsUploaded(boolean isUploaded) {
 		action.setIsUploaded(isUploaded);
@@ -119,12 +119,12 @@ public abstract class AbstractFileComponent implements FileComponent {
 
 		throw new NotImplException(msg);
 	}
-	
+
 	@Override
 	public String getStructureHash() {
 		String msg = String.format("getStructureHash not implemented. "
 				+ "This is probably a file. "
-				+ "(this=%s)", getPath(), path);
+				+ "(this=%s)", getPath());
 
 		throw new NotImplException(msg);
 	}
@@ -133,16 +133,16 @@ public abstract class AbstractFileComponent implements FileComponent {
 	public void setStructureHash(String hash) {
 		String msg = String.format("setStructureHash not implemented. "
 				+ "This is probably a file. "
-				+ "(this=%s, hash=%s)", getPath(), path, hash);
+				+ "(this=%s, hash=%s)", getPath(), hash);
 
 		throw new NotImplException(msg);
 	}
-	
+
 	@Override
 	public void propagatePathChangeToChildren() {
 		String msg = String.format("propagatePathChangeToChildren not implemented. "
 				+ "This is probably a file. "
-				+ "(this=%s)", getPath(), path);
+				+ "(this=%s)", getPath());
 
 		throw new NotImplException(msg);
 	}
@@ -151,11 +151,11 @@ public abstract class AbstractFileComponent implements FileComponent {
 	public void getSynchronizedChildrenPaths(Set<Path> synchronizedPaths) {
 		String msg = String.format("getSynchronizedChildrenPaths not implemented. "
 				+ "This is probably a file. "
-						+ "(this=%s)", getPath(), path);
+						+ "(this=%s)", getPath());
 
 		throw new NotImplException(msg);
 	}
-	
+
 	@Override
 	public void bubbleContentHashUpdate() {
 		bubbleContentHashUpdate(null);

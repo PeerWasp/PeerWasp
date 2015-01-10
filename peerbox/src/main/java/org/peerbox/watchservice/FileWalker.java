@@ -15,37 +15,37 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class FileWalker {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(FileWalker.class);
-	
+
 	private Path rootDirectory;
 	private FileEventManager eventManager;
 	private Map<Path, Action> filesystemView = new HashMap<Path, Action>();
 	private FolderComposite fileTree;
 	private boolean computeContentHash = false;
-	
+
 	public FileWalker(Path rootDirectory, FileEventManager eventManager){
 		this.rootDirectory = rootDirectory;
 		this.fileTree = new FolderComposite(rootDirectory, true);
 		this.eventManager = eventManager;
 	}
-	
+
 	public void indexNamesRecursively(){
 		try {
 			filesystemView = new HashMap<Path, Action>();
 			Files.walkFileTree(rootDirectory, new FileIndexer(false));
-			
+
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
-	
+
 	public void alignActionMaps(){
 //		indexDirectoryRecursively();
-//		
+//
 //		Map<Path, Action> filePathToAction = eventManager.getFilePathToAction();
-//		
+//
 //		//Set<Path> filePathToActionKeys = filePathToAction.keySet();
 //		for(Entry<Path, Action> entry : filesystemView.entrySet()){
 //			Path key = entry.getKey();
@@ -64,15 +64,15 @@ public class FileWalker {
 //			}
 //		}
 	}
-	
+
 	public String getContentNamesHashOfWalkedFolder(){
-		return fileTree.getContentNamesHash();
+		return fileTree.getStructureHash();
 		/*
 		 * Create new Map<String, FileComponent> in which deleted components are saved with
 		 * their contentNamesHash as key. if found -> move event!
 		 */
 		//if(eventManager.getDeletedFileComponents().)$
-		
+
 	}
 
 	public FolderComposite indexContentRecursively() {
@@ -87,11 +87,11 @@ public class FileWalker {
 		computeContentHash = false;
 		return fileTree;
 	}
-	
+
 	private class FileIndexer extends SimpleFileVisitor<Path> {
-		
+
 		private boolean throwCreates = false;
-		
+
 		public FileIndexer(boolean throwCreates){
 			this.throwCreates = throwCreates;
 		}
@@ -110,7 +110,7 @@ public class FileWalker {
 					logger.trace("create event for {} ", path);
 					eventManager.onLocalFileCreated(path);
 				}
-			} 
+			}
 			return super.preVisitDirectory(path, attr);
 		}
 
@@ -130,7 +130,7 @@ public class FileWalker {
 				}
 				logger.debug("updated structure hash: of {} from {} to {}", fileTree.getPath(), oldstr, fileTree.getStructureHash());
 			}
-			
+
 			return FileVisitResult.CONTINUE;
 		}
 
