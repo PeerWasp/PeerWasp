@@ -13,19 +13,31 @@ public abstract class AbstractFileComponent implements FileComponent {
 	private Path path;
 	private String contentHash;
 	private boolean isSynchronized;
+	protected final boolean updateContentHash;
 
 	private FolderComposite parent;
 
-	public AbstractFileComponent(final Path path) {
+	public AbstractFileComponent(final Path path, final boolean updateContentHash) {
 		this.action = new Action();
 		this.path = path;
 		this.contentHash = "";
+		this.updateContentHash = updateContentHash;
 		this.isSynchronized = false;
 	}
 
 	@Override
 	public IAction getAction() {
 		return action;
+	}
+
+	@Override
+	public boolean getActionIsUploaded() {
+		return action.getIsUploaded();
+	}
+	
+	@Override
+	public void setActionIsUploaded(boolean isUploaded) {
+		action.setIsUploaded(isUploaded);
 	}
 
 	@Override
@@ -142,6 +154,11 @@ public abstract class AbstractFileComponent implements FileComponent {
 						+ "(this=%s)", getPath(), path);
 
 		throw new NotImplException(msg);
+	}
+	
+	@Override
+	public void bubbleContentHashUpdate() {
+		bubbleContentHashUpdate(null);
 	}
 
 }

@@ -10,36 +10,24 @@ public class FileLeaf extends AbstractFileComponent{
 	
 	private static final Logger logger = LoggerFactory.getLogger(FileLeaf.class);
 	
-	public FileLeaf(Path path) {
+	public FileLeaf(final Path path) {
 		this(path, true);
 	}
-	
-	public FileLeaf(Path path, boolean updateContentHash) {
-		super(path);
+
+	public FileLeaf(final Path path, boolean updateContentHash) {
+		super(path, updateContentHash);
 
 		if (updateContentHash) {
-			updateContentHash();
+			updateContentHash(null);
 		}
 	}
 	
-	@Override
-	public void bubbleContentHashUpdate() {
-		bubbleContentHashUpdate(null);
-	}
-	
-
 	@Override
 	public void bubbleContentHashUpdate(String contentHash) {
 		boolean hasChanged = updateContentHash(contentHash);
 		if(hasChanged){
 			getParent().bubbleContentHashUpdate();
 		}
-	}
-
-
-
-	public boolean updateContentHash() {
-		return updateContentHash(null);
 	}
 	
 	/**
@@ -64,16 +52,6 @@ public class FileLeaf extends AbstractFileComponent{
 		}
 	}
 
-	@Override
-	public boolean getActionIsUploaded() {
-		return this.getAction().getIsUploaded();
-	}
-
-	@Override
-	public void setActionIsUploaded(boolean isUploaded) {
-		this.getAction().setIsUploaded(isUploaded);
-	}
-	
 	@Override
 	public boolean isFile() {
 		return true;

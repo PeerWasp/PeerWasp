@@ -26,26 +26,25 @@ public class FolderComposite extends AbstractFileComponent{
 	private SortedMap<String, FileComponent> children = new ConcurrentSkipListMap<String, FileComponent>();
 
 	private String contentNamesHash;
-	private boolean updateContentHashes;
 	private boolean isRoot = false;
 	
-	public FolderComposite(Path path, boolean updateContentHashes, boolean isRoot){
-		super(path);
-		
-		this.updateContentHashes = updateContentHashes;
+	public FolderComposite(final Path path, boolean updateContentHash, boolean isRoot) {
+		super(path, updateContentHash);
+
 		this.contentNamesHash = "";
 		this.isRoot = isRoot;
-		
-		if(isRoot){
+
+		if (isRoot) {
 			getAction().setIsUploaded(true);
 			setIsSynchronized(true);
 		}
-		if(updateContentHashes){
-			updateContentHash();	
+
+		if (updateContentHash) {
+			updateContentHash(null);
 		}
 	}
 	
-	public FolderComposite(Path path, boolean updateContentHashes){
+	public FolderComposite(final Path path, boolean updateContentHashes){
 		this(path, updateContentHashes, false);
 	}
 	
@@ -95,7 +94,7 @@ public class FolderComposite extends AbstractFileComponent{
 				//logger.trace("newLevelComponent is null {}", remainingPath);
 				Path completePath = constructFullPath(nextLevelPath);
 				//logger.trace("after completePathConstrution{} {}", remainingPath, completePath);
-				nextLevelComponent = new FolderComposite(completePath, updateContentHashes);
+				nextLevelComponent = new FolderComposite(completePath, updateContentHash);
 				//logger.trace("after new FolderComposite( {} {}", remainingPath, completePath);
 				addComponentToChildren(nextLevelPath, nextLevelComponent);
 				//logger.trace("after addComponentToChildren2 {} {}", nextLevelPath, nextLevelComponent);
@@ -145,7 +144,7 @@ public class FolderComposite extends AbstractFileComponent{
 		if(newRemainingPath.equals("")){
 			FileComponent removed = children.remove(nextLevelPath);
 //			logger.debug("Removed {}", removed.getPath());
-			if(updateContentHashes){
+			if(updateContentHash){
 				bubbleContentHashUpdate();
 			}
 			bubbleContentNamesHashUpdate();
@@ -199,12 +198,6 @@ public class FolderComposite extends AbstractFileComponent{
 			}
 		}
 	}
-
-
-	public boolean updateContentHash() {
-//		logger.debug("enter updateContentHash() in FolderComposite()");
-		return updateContentHash(null);
-	}
 	
 	private boolean updateContentHash(String newHash) {
 //		logger.debug("enter updateContentHash(String) in FolderComposite()");
@@ -231,15 +224,9 @@ public class FolderComposite extends AbstractFileComponent{
 	}
 	
 	@Override
-	public void bubbleContentHashUpdate() {
-		bubbleContentHashUpdate(null);
-	
-	}
-	
-	@Override
 	public void bubbleContentHashUpdate(String contentHash) {
 		// TODO Auto-generated method stub
-		boolean hasChanged = updateContentHash();
+		boolean hasChanged = updateContentHash(null);
 		if(hasChanged && getParent() != null){
 			getParent().bubbleContentHashUpdate();
 		}
@@ -271,7 +258,7 @@ public class FolderComposite extends AbstractFileComponent{
 		component.setParent(this);
 		logger.trace("SET Parent for {} is {}", component.getPath(), getPath());
 //		logger.trace("after setParent {}", nextLevelPath);
-		if(updateContentHashes){
+		if(updateContentHash){
 //			logger.trace("START bubbleContentHashUpdate {}", nextLevelPath);
 			bubbleContentHashUpdate();		
 //			logger.trace("END bubbleContentHashUpdate {}", nextLevelPath);
@@ -289,14 +276,9 @@ public class FolderComposite extends AbstractFileComponent{
 	}
 
 	@Override
-	public boolean getActionIsUploaded() {
-		return this.getAction().getIsUploaded();
-	}
-	
-	@Override
 	public void setActionIsUploaded(boolean isUploaded) {
-		this.getAction().setIsUploaded(isUploaded);
-		for(FileComponent child : children.values()){
+		super.setActionIsUploaded(isUploaded);
+		for (FileComponent child : children.values()) {
 			child.getAction().setIsUploaded(isUploaded);
 		}
 	}
