@@ -19,22 +19,22 @@ import org.slf4j.LoggerFactory;
 import com.google.inject.Inject;
 
 public class JSystemTray extends AbstractSystemTray implements ITrayNotifications {
-	
+
 	private final static Logger logger = LoggerFactory.getLogger(JSystemTray.class);
-	
+
 	private String tooltip;
 	private java.awt.TrayIcon trayIcon;
 	private JTrayIcons iconProvider;
 	private JTrayMenu menu;
-	
+
 	@Inject
 	public JSystemTray(TrayActionHandler actionHandler) {
 		super(actionHandler);
 		this.iconProvider = new JTrayIcons();
 		this.menu = new JTrayMenu(trayActionHandler);
-		setTooltip(tooltip);
+		setTooltip("");
 	}
-	
+
 	private TrayIcon create(Image image) throws IOException {
 		TrayIcon trayIcon = new java.awt.TrayIcon(image);
 		trayIcon.setImageAutoSize(true);
@@ -59,7 +59,7 @@ public class JSystemTray extends AbstractSystemTray implements ITrayNotification
 			throw new TrayException(e);
 		}
 	}
-	
+
 	@Override
 	public void setTooltip(String tooltip) {
 		this.tooltip = tooltip;
@@ -78,7 +78,7 @@ public class JSystemTray extends AbstractSystemTray implements ITrayNotification
 			throw new TrayException(e);
 		}
 	}
-	
+
 	@Override
 	public void showSyncingIcon() throws TrayException {
 		try {
@@ -89,7 +89,7 @@ public class JSystemTray extends AbstractSystemTray implements ITrayNotification
 			throw new TrayException(e);
 		}
 	}
-	
+
 	@Override
 	public void showInformationMessage(String title, String message) {
 		System.out.println(title);
@@ -101,7 +101,7 @@ public class JSystemTray extends AbstractSystemTray implements ITrayNotification
 	/**
 	 * NOTIFICATIONS - implementation of the ITrayNotifications interface
 	 */
-	
+
 	@Override
 	@Handler
 	public void showInformation(InformationNotification in) {

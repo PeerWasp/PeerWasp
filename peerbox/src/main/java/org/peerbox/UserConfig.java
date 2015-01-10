@@ -26,10 +26,10 @@ import com.google.inject.Singleton;
 /**
  * Configuration of several application properties such as user names and path variables.
  * Changes are written to disk (config file) as soon as a value is set or updated.
- * 
- * @Singleton: At the moment, the user configuration is maintained as a singleton because of the 
+ *
+ * @Singleton: At the moment, the user configuration is maintained as a singleton because of the
  * fixed file names (and writing to the file needs to be synchronized)
- * 
+ *
  * @author albrecht
  *
  */
@@ -37,7 +37,7 @@ import com.google.inject.Singleton;
 public class UserConfig implements IUserConfig{
 
 	private static final Logger logger = LoggerFactory.getLogger(UserConfig.class);
-	
+
 	/**
 	 * The default configuration (note: resource, not a file)
 	 */
@@ -63,7 +63,7 @@ public class UserConfig implements IUserConfig{
 	 * Separator character for the serialization of lists of values
 	 */
 	private static final String LIST_SEPARATOR = ",";
-	
+
 	private Path propertyFile;
 	private Properties prop;
 
@@ -74,7 +74,7 @@ public class UserConfig implements IUserConfig{
 	public UserConfig() throws IOException {
 		this(USER_PROPERTIES_FILENAME);
 	}
-	
+
 	/**
 	 * Creates a new user configuration using the given file name.
 	 * @param filename the filename of the property file
@@ -102,9 +102,9 @@ public class UserConfig implements IUserConfig{
 		prop = loadUserProperties(defaultProp);
 		logger.debug("Loaded property file {}", propertyFile.toAbsolutePath());
 	}
-	
+
 	/**
-	 * Stores the current properties on disk 
+	 * Stores the current properties on disk
 	 * @throws IOException
 	 */
 	private synchronized void saveProperties() throws IOException {
@@ -114,7 +114,7 @@ public class UserConfig implements IUserConfig{
 	}
 
 	/**
-	 * Loads the default properties 
+	 * Loads the default properties
 	 * @return default properties instance
 	 * @throws IOException
 	 */
@@ -127,7 +127,7 @@ public class UserConfig implements IUserConfig{
 	}
 
 	/**
-	 * Loads the user properties. The default and user properties are merged 
+	 * Loads the user properties. The default and user properties are merged
 	 * @param defaultProp default properties for merging config
 	 * @return user properties instance
 	 * @throws IOException
@@ -143,7 +143,7 @@ public class UserConfig implements IUserConfig{
 	/**
 	 * @return root path
 	 */
-	public Path getRootPath() {
+	public synchronized Path getRootPath() {
 		String p = prop.getProperty(PROPERTY_ROOTPATH);
 		return hasRootPath() ? Paths.get(p) : null;
 	}
@@ -151,24 +151,24 @@ public class UserConfig implements IUserConfig{
 	/**
 	 * @return true if there is a root path set, false otherwise.
 	 */
-	public boolean hasRootPath() {
+	public synchronized boolean hasRootPath() {
 		return prop.getProperty(PROPERTY_ROOTPATH) != null && !prop.getProperty("rootpath").isEmpty();
 	}
 
 	/**
-	 * Sets the root path. 
+	 * Sets the root path.
 	 * @param path if null or empty, the root path is removed from the config.
 	 * @throws IOException
 	 */
 	public synchronized void setRootPath(final Path path) throws IOException {
 		if (path != null && !path.toString().isEmpty()) {
-			
+
 			prop.setProperty(PROPERTY_ROOTPATH, path.toString());
-			
+
 			if(OsUtils.isWindows()) {
 				WinRegistry.setRootPath(path);
 			}
-			
+
 		} else {
 			prop.remove(PROPERTY_ROOTPATH);
 		}
@@ -176,20 +176,20 @@ public class UserConfig implements IUserConfig{
 	}
 
 	/**
-	 * @return the username 
+	 * @return the username
 	 */
-	public String getUsername() {
+	public synchronized String getUsername() {
 		String n = prop.getProperty(PROPERTY_USERNAME);
 		return n != null ? n.trim() : n;
 	}
-	
+
 	/**
 	 * @return true if there is a username set, false otherwise.
 	 */
-	public boolean hasUsername() {
+	public synchronized boolean hasUsername() {
 		return getUsername() != null && !getUsername().isEmpty();
 	}
-	
+
 	/**
 	 * Sets the username. Username is trimmed.
 	 * @param username if null or empty, the username is removed from the config.
@@ -203,21 +203,21 @@ public class UserConfig implements IUserConfig{
 		}
 		saveProperties();
 	}
-	
+
 	/**
 	 * @return the password
 	 */
-	public String getPassword() {
+	public synchronized String getPassword() {
 		return prop.getProperty(PROPERTY_PASSWORD);
 	}
-	
+
 	/**
 	 * @return true if there is a password set, false otherwise.
 	 */
-	public boolean hasPassword() {
+	public synchronized boolean hasPassword() {
 		return getPassword() != null && !getPassword().isEmpty();
 	}
-	
+
 	/**
 	 * Sets the password.
 	 * @param password if null or empty, the password is removed from the config.
@@ -231,21 +231,21 @@ public class UserConfig implements IUserConfig{
 		}
 		saveProperties();
 	}
-	
+
 	/**
 	 * @return the pin
 	 */
-	public String getPin() {
+	public synchronized String getPin() {
 		return prop.getProperty(PROPERTY_PIN);
 	}
-	
+
 	/**
 	 * @return true if there is a pin set, false otherwise.
 	 */
-	public boolean hasPin() {
+	public synchronized boolean hasPin() {
 		return getPin() != null && !getPin().isEmpty();
 	}
-	
+
 	/**
 	 * Sets the pin.
 	 * @param pin if null or empty, the password is removed from the config.
@@ -259,14 +259,14 @@ public class UserConfig implements IUserConfig{
 		}
 		saveProperties();
 	}
-	
+
 	/**
 	 * @return true if auto login is set, false otherwise.
 	 */
-	public boolean isAutoLoginEnabled() {
+	public synchronized boolean isAutoLoginEnabled() {
 		return Boolean.valueOf(prop.getProperty(PROPERTY_AUTO_LOGIN));
 	}
-	
+
 	/**
 	 * Sets the auto login property.
 	 * @param enabled
@@ -276,22 +276,22 @@ public class UserConfig implements IUserConfig{
 		prop.setProperty(PROPERTY_AUTO_LOGIN, Boolean.toString(enabled));
 		saveProperties();
 	}
-	
+
 	/**
 	 * @return true if last bootstrapping node is available. False otherwise.
 	 */
-	public boolean hasLastBootstrappingNode() {
+	public synchronized boolean hasLastBootstrappingNode() {
 		return getLastBootstrappingNode() != null && !getLastBootstrappingNode().isEmpty();
 	}
-	
+
 	/**
-	 * @return the last bootstrapping node 
+	 * @return the last bootstrapping node
 	 */
-	public String getLastBootstrappingNode() {
+	public synchronized String getLastBootstrappingNode() {
 		String n = prop.getProperty(PROPERTY_LAST_BOOTSTRAPPING_NODE);
 		return n != null ? n.trim() : n;
 	}
-	
+
 	/**
 	 * Sets the last bootstrapping node
 	 * @param nodeAddress address (domain, IP) of the node.
@@ -305,11 +305,11 @@ public class UserConfig implements IUserConfig{
 		}
 		saveProperties();
 	}
-	
+
 	/**
-	 * @return a list of addresses of bootstrapping nodes 
+	 * @return a list of addresses of bootstrapping nodes
 	 */
-	public List<String> getBootstrappingNodes() {
+	public synchronized List<String> getBootstrappingNodes() {
 		List<String> nodes = new ArrayList<String>();
 		if (hasBootstrappingNodes()) {
 			String nodesCsv = prop.getProperty(PROPERTY_BOOTSTRAPPING_NODES);
@@ -321,15 +321,15 @@ public class UserConfig implements IUserConfig{
 		}
 		return nodes;
 	}
-	
+
 	/**
 	 * @return true if there is at least one address stored, false otherwise.
 	 */
-	public boolean hasBootstrappingNodes() {
+	public synchronized boolean hasBootstrappingNodes() {
 		String s = prop.getProperty(PROPERTY_BOOTSTRAPPING_NODES);
 		return s != null && !s.trim().isEmpty();
 	}
-	
+
 	/**
 	 * Sets a list of bootstrapping node addresses. Overrides old addresses.
 	 * Addresses are trimmed.
@@ -342,7 +342,7 @@ public class UserConfig implements IUserConfig{
 			saveProperties();
 			return;
 		}
-		
+
 		nodes.remove(null);
 		Collections.sort(nodes);
 		StringBuilder nodeList = new StringBuilder();
@@ -361,9 +361,9 @@ public class UserConfig implements IUserConfig{
 		prop.setProperty(PROPERTY_BOOTSTRAPPING_NODES, nodeList.toString());
 		saveProperties();
 	}
-	
+
 	/**
-	 * Adds an address of a bootstrapping node to the current list 
+	 * Adds an address of a bootstrapping node to the current list
 	 * @param node address of a node
 	 * @throws IOException
 	 */
@@ -374,7 +374,7 @@ public class UserConfig implements IUserConfig{
 			setBootstrappingNodes(nodes);
 		}
 	}
-	
+
 	/**
 	 * Removes an address of a bootstrapping node from the current list.
 	 * @param node address of a node
@@ -387,38 +387,38 @@ public class UserConfig implements IUserConfig{
 			setBootstrappingNodes(nodes);
 		}
 	}
-	
-	
+
+
 	/**
-	 * @return the port of the rest api server 
+	 * @return the port of the rest api server
 	 */
-	public int getApiServerPort() {
+	public synchronized int getApiServerPort() {
 		String p = prop.getProperty(PROPERTY_API_SERVER_PORT);
 		return p != null ? Integer.valueOf(p.trim()) : -1;
 	}
-	
+
 	/**
 	 * @return true if there is a server port is set, false otherwise.
 	 */
-	public boolean hasApiServerPort() {
+	public synchronized boolean hasApiServerPort() {
 		int port = getApiServerPort();
 		return isValidPort(port);
 	}
-	
+
 	/**
-	 * Sets the api server port. 
+	 * Sets the api server port.
 	 * @param port if not in valid range, the port is removed from the config.
 	 * @throws IOException
 	 */
 	public synchronized void setApiServerPort(final int port) throws IOException {
 		if(isValidPort(port)) {
-			
+
 			prop.setProperty(PROPERTY_API_SERVER_PORT, String.valueOf(port));
-			
+
 			if(OsUtils.isWindows()) {
 				WinRegistry.setApiServerPort(port);
 			}
-			
+
 		} else {
 			prop.remove(PROPERTY_API_SERVER_PORT);
 		}

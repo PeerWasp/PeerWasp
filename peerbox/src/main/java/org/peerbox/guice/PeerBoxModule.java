@@ -1,6 +1,8 @@
 package org.peerbox.guice;
 
 
+import javafx.stage.Stage;
+
 import org.peerbox.IUserConfig;
 import org.peerbox.UserConfig;
 import org.peerbox.app.ClientContext;
@@ -39,21 +41,26 @@ import com.google.inject.spi.TypeListener;
 public class PeerBoxModule extends AbstractModule {
 
 	private final MessageBus messageBus = new MessageBus();
-	
+	private final Stage primaryStage;
+
+	public PeerBoxModule(Stage primaryStage) {
+		this.primaryStage = primaryStage;
+	}
+
 	@Override
 	protected void configure() {
 		bindMessageBus();
 		bindSystemTray();
 		bindPrimaryStage();
-		
+
 		bindManagers();
-		
+
 		bind(IFxmlLoaderProvider.class).to(GuiceFxmlLoader.class);
 		bind(IFileRecoveryHandler.class).to(FileRecoveryHandler.class);
 		bind(IShareFolderHandler.class).to(ShareFolderHandler.class);
 		bind(IFileDeleteHandler.class).to(FileDeleteHandler.class);
 		bind(IFileEventManager.class).to(FileEventManager.class);
-		
+
 		bind(IUserConfig.class).to(UserConfig.class);
 		bind(IExitHandler.class).to(ExitHandler.class);
 		bind(ClientContext.class).toProvider(ClientContextProvider.class);
@@ -67,7 +74,7 @@ public class PeerBoxModule extends AbstractModule {
 		bind(MessageBus.class).toInstance(messageBus);
 		messageBusRegisterRule();
 	}
-	
+
 	private void messageBusRegisterRule() {
 		bindListener(Matchers.any(), new TypeListener() {
 			@Override
@@ -84,7 +91,7 @@ public class PeerBoxModule extends AbstractModule {
 	private void bindPrimaryStage() {
 		bind(javafx.stage.Stage.class)
 			.annotatedWith(Names.named("PrimaryStage"))
-			.toInstance(org.peerbox.App.getPrimaryStage());
+			.toInstance(primaryStage);
 	}
 
 	private void bindManagers() {
@@ -92,10 +99,10 @@ public class PeerBoxModule extends AbstractModule {
 		bind(IUserManager.class).to(UserManager.class);
 		bind(IFileManager.class).to(FileManager.class);
 	}
-	
+
 	@Provides
 	FileTree providesFileTree(UserConfig cfg){
 		return new FileTree(cfg.getRootPath());
 	}
-	
+
 }

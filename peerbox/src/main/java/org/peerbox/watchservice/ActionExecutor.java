@@ -273,6 +273,7 @@ public class ActionExecutor implements Runnable, IActionEventListener {
 
 
 	private void handleExecutionError(IAction action, ProcessExecutionException pex) {
+		//FIXME fix this few lines at the beginning. the null checks are too late, does not make sense!
 		Hive2HiveException h2hex = (Hive2HiveException) pex.getCause();
 		if(pex != null && pex.getCause() != null && h2hex.getError() != null) {
 			/*

@@ -1,5 +1,7 @@
 package org.peerbox.helper;
 
+import java.util.concurrent.atomic.AtomicBoolean;
+
 import javafx.application.Application;
 import javafx.stage.Stage;
 
@@ -10,19 +12,19 @@ import javafx.stage.Stage;
  *
  */
 public class JavaFxNoOpApp extends Application {
-	
-	private static boolean initialized = false;
-	
+
+	private final static AtomicBoolean initialized = new AtomicBoolean(false);
+
 	public JavaFxNoOpApp() {
-		initialized = true;
+		initialized.set(true);
 	}
-	
+
 	@Override
 	public void start(Stage primaryStage) throws Exception {
 		// NO OP - just here to initialize toolkit
 	}
-	
+
 	public static boolean isInitialized() {
-		return initialized;
+		return initialized.get();
 	}
 }

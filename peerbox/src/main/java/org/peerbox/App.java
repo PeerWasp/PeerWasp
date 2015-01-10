@@ -41,26 +41,26 @@ public class App extends Application
 	private MessageBus messageBus;
 	private INodeManager nodeManager;
 	private AbstractSystemTray systemTray;
-	private static Stage primaryStage;
+	private Stage primaryStage;
 	private UserConfig userConfig;
 	private IServer server;
-	
+
 
 	public static void main(String[] args) {
 		logger.info("{} started.", Constants.APP_NAME);
 		launch(args);
 	}
-    
+
     @Override
     public void start(Stage stage) {
-    	primaryStage = stage;    	
-    	
+    	primaryStage = stage;
+
     	initializeGuice();
 
 		initializeServer();
 
 		initializeSysTray();
-		
+
 		// TODO: if join/login fails -> action required? e.g. launch in foreground? do nothing but indicate with icon?
 		if (isAutoLoginFeasible()) {
 			logger.info("Auto login feasible, try to join and login.");
@@ -69,12 +69,12 @@ public class App extends Application
 			logger.info("Loading startup stage (no auto login)");
 			launchInForeground();
 		}
-		
+
 		messageBus.post(new InformationNotification("PeerBox started", "Hello...")).now();;
     }
 
 	private void initializeGuice() {
-		injector = Guice.createInjector(new PeerBoxModule(), new ApiServerModule());
+		injector = Guice.createInjector(new PeerBoxModule(primaryStage), new ApiServerModule());
 		injector.injectMembers(this);
 	}
 
@@ -97,7 +97,7 @@ public class App extends Application
 			systemTray.showDefaultIcon();
 		} catch (TrayException e) {
 			logger.error("Could not initialize systray");
-		} 
+		}
 	}
 
 	private boolean isAutoLoginFeasible() {
@@ -105,9 +105,9 @@ public class App extends Application
 				/* credentials stored */
 				userConfig.hasUsername() &&
 				userConfig.hasPassword() &&
-				userConfig.hasPin() && 
+				userConfig.hasPin() &&
 				userConfig.hasRootPath() &&
-				SelectRootPathUtils.isValidRootPath(userConfig.getRootPath()) &&		
+				SelectRootPathUtils.isValidRootPath(userConfig.getRootPath()) &&
 				/* bootstrap nodes */
 				userConfig.hasBootstrappingNodes() &&
 				/* auto login desired */
@@ -123,36 +123,36 @@ public class App extends Application
 		Task<ResultStatus> task = createJoinLoginTask();
 		new Thread(task).start();
 	}
-	
-	private ResultStatus joinAndLogin(List<String> nodes, 
+
+	private ResultStatus joinAndLogin(List<String> nodes,
 			String username, String password, String pin, Path path) {
 		try {
-			
+
 			if (!nodeManager.joinNetwork(nodes)) {
 				return ResultStatus.error("Could not join network.");
 			}
 			IUserManager userManager = injector.getInstance(IUserManager.class);
 			return userManager.loginUser(username, password, pin, path);
-			
+
 		} catch (NoPeerConnectionException e) {
 			logger.debug("Loggin failed: {}", e);
 			return ResultStatus.error("Could not login user because connection to network failed.");
 		} catch (IOException e) {
-			logger.warn("Could not login user:", e); 
-		} 
-		
+			logger.warn("Could not login user:", e);
+		}
+
 		return ResultStatus.error("Could not login user.");
 	}
-	
+
 	private Task<ResultStatus> createJoinLoginTask() {
-		
+
 		final List<String> nodes = userConfig.getBootstrappingNodes();
 		// credentials
 		final String username = userConfig.getUsername();
 		final String password = userConfig.getPassword();
 		final String pin = userConfig.getPin();
 		final Path path = userConfig.getRootPath();
-		
+
 		Task<ResultStatus> task = new Task<ResultStatus>() {
 			@Override
 			public ResultStatus call() {
@@ -190,26 +190,22 @@ public class App extends Application
 
 		return task;
 	}
-	
-	public static Stage getPrimaryStage() {
-		return primaryStage;
-	}
-	
+
 	@Inject
 	private void setUserConfig(UserConfig userConfig) {
 		this.userConfig = userConfig;
 	}
-	
-	@Inject 
+
+	@Inject
 	private void setSystemTray(AbstractSystemTray systemTray) {
 		this.systemTray = systemTray;
 	}
-	
+
 	@Inject
 	private void setNodeManager(INodeManager manager) {
 		this.nodeManager = manager;
 	}
-	
+
 	@Inject
 	private void setMessageBus(MessageBus messageBus) {
 		this.messageBus = messageBus;
