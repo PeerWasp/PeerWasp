@@ -23,7 +23,7 @@ public class FolderComposite extends AbstractFileComponent{
 
 	private static final Logger logger = LoggerFactory.getLogger(FolderComposite.class);
 
-	private SortedMap<String, FileComponent> children = new ConcurrentSkipListMap<String, FileComponent>();
+	private final SortedMap<String, FileComponent> children;
 
 	private String structureHash;
 	private boolean isRoot = false;
@@ -31,6 +31,7 @@ public class FolderComposite extends AbstractFileComponent{
 	public FolderComposite(final Path path, boolean updateContentHash, boolean isRoot) {
 		super(path, updateContentHash);
 
+		this.children = new ConcurrentSkipListMap<String, FileComponent>();
 		this.structureHash = "";
 		this.isRoot = isRoot;
 
@@ -329,8 +330,8 @@ public class FolderComposite extends AbstractFileComponent{
 	@Override
 	public void setIsSynchronized(boolean isSynchronized) {
 		super.setIsSynchronized(isSynchronized);
-		for (FileComponent comp : children.values()) {
-			comp.setIsSynchronized(isSynchronized);
+		for (FileComponent child : children.values()) {
+			child.setIsSynchronized(isSynchronized);
 		}
 	}
 
