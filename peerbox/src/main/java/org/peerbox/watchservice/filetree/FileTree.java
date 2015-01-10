@@ -5,8 +5,6 @@ import java.nio.file.Path;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 
 import org.eclipse.jetty.util.ConcurrentHashSet;
 import org.hive2hive.core.events.framework.interfaces.file.IFileEvent;

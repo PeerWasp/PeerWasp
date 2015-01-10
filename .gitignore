@@ -1,3 +1,7 @@
+# OS X
+.DS_Store
+
+# Shell extension
 WindowsShellExtensions/ContextMenu.opensdf
 WindowsShellExtensions/ContextMenu.sdf
 WindowsShellExtensions/packages/
@@ -5,4 +9,6 @@ WindowsShellExtensions/ContextMenu/Debug/
 WindowsShellExtensions/ContextMenu/Release/
 WindowsShellExtensions/Release/
 WindowsShellExtensions/x64
+
+# build directory (packaging and installer)
 build/Windows/

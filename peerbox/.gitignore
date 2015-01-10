@@ -1,4 +1,8 @@
 /target
-/peerbox.properties
-/config.properties
+/bin
+/log
+.classpath
+.project
+.settings/
 /Test.txt
+/peerbox.properties
