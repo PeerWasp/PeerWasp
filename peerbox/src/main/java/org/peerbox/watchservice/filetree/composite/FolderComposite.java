@@ -41,7 +41,7 @@ public class FolderComposite extends AbstractFileComponent{
 		}
 
 		if (updateContentHash) {
-			updateContentHash(null);
+			updateContentHash();
 		}
 	}
 
@@ -242,38 +242,24 @@ public class FolderComposite extends AbstractFileComponent{
 		}
 	}
 
-	private boolean updateContentHash(String newHash) {
+	@Override
+	protected boolean updateContentHash() {
 		// logger.debug("enter updateContentHash(String) in FolderComposite()");
-		if (newHash == null) {
-			// logger.debug("enter newHash == null");
-			String tmp = "";
-			for (FileComponent value : children.values()) {
-				// logger.debug("value: {}", value.getPath());
-				tmp = tmp.concat(value.getContentHash());
-			}
-			// logger.trace("read children");
-			byte[] rawHash = HashUtil.hash(tmp.getBytes());
-			// logger.trace("got bytes");
-			newHash = Base64.getEncoder().encodeToString(rawHash);
-			// logger.trace("got newHash");
+		String hashOfChildren = "";
+		for (FileComponent child : children.values()) {
+			// logger.debug("value: {}", value.getPath());
+			hashOfChildren = hashOfChildren.concat(child.getContentHash());
 		}
+
+		byte[] rawHash = HashUtil.hash(hashOfChildren.getBytes());
+		String newHash = PathUtils.createStringFromByteArray(rawHash);
+
 		if (!getContentHash().equals(newHash)) {
 			setContentHash(newHash);
-			// logger.trace("successful new hash");
 			return true;
+		} else {
+			return false;
 		}
-		// logger.trace("successful no new hash");
-		return false;
-	}
-
-	@Override
-	public void bubbleContentHashUpdate(String contentHash) {
-		// TODO Auto-generated method stub
-		boolean hasChanged = updateContentHash(null);
-		if (hasChanged && getParent() != null) {
-			getParent().bubbleContentHashUpdate();
-		}
-
 	}
 
 	/**

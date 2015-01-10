@@ -31,9 +31,7 @@ public interface FileComponent {
 
 	String getContentHash();
 
-	void bubbleContentHashUpdate();
-
-	void bubbleContentHashUpdate(String contentHash);
+	boolean bubbleContentHashUpdate();
 
 	String getStructureHash();
 

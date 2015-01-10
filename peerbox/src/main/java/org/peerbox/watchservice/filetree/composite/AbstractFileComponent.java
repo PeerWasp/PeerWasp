@@ -157,8 +157,14 @@ abstract class AbstractFileComponent implements FileComponent {
 	}
 
 	@Override
-	public void bubbleContentHashUpdate() {
-		bubbleContentHashUpdate(null);
+	public boolean bubbleContentHashUpdate() {
+		boolean hasChanged = updateContentHash();
+		if (hasChanged && getParent() != null) {
+			getParent().bubbleContentHashUpdate();
+		}
+		return hasChanged;
 	}
+
+	protected abstract boolean updateContentHash();
 
 }

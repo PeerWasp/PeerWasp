@@ -14,37 +14,18 @@ public class FileLeaf extends AbstractFileComponent {
 		super(path, updateContentHash);
 
 		if (updateContentHash) {
-			updateContentHash(null);
-		}
-	}
-
-	/**
-	 * Computes and updates this FileLeafs contentHash property.
-	 *
-	 * @return true if the contentHash hash changed, false otherwise.
-	 * @param newHash provided content hash. If this is null, the content hash is
-	 *            calculated on the fly. If this is not null, it is assumed to be the correct
-	 *            hash of the file's content at the time of the call.
-	 */
-	private boolean updateContentHash(String newHash) {
-		if (newHash == null) {
-			newHash = PathUtils.computeFileContentHash(getPath());
-		}
-		if (!getContentHash().equals(newHash)) {
-			setContentHash(newHash);
-
-			return true;
-		} else {
-			// logger.debug("No content hash update: {}", contentHash);
-			return false;
+			updateContentHash();
 		}
 	}
 
 	@Override
-	public void bubbleContentHashUpdate(String contentHash) {
-		boolean hasChanged = updateContentHash(contentHash);
-		if (hasChanged) {
-			getParent().bubbleContentHashUpdate();
+	protected boolean updateContentHash() {
+		String newHash = PathUtils.computeFileContentHash(getPath());
+		if (!getContentHash().equals(newHash)) {
+			setContentHash(newHash);
+			return true;
+		} else {
+			return false;
 		}
 	}
 
