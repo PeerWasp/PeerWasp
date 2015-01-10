@@ -1,8 +1,6 @@
 package org.peerbox.watchservice.filetree.composite;
 
-import java.io.File;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Map;
 import java.util.Set;
 import java.util.SortedMap;
@@ -202,10 +200,9 @@ public class FolderComposite extends AbstractFileComponent{
 		}
 	}
 
-	private Path constructFullPath(String lastPathFragment) {
-		String completePath = getPath().toString() + File.separator + lastPathFragment;
-		System.out.println("CompletePath: " + completePath);
-		return Paths.get(completePath);
+	private Path constructFullPath(String name) {
+		Path completePath = getPath().resolve(name);
+		return completePath;
 	}
 
 	/**
@@ -220,8 +217,7 @@ public class FolderComposite extends AbstractFileComponent{
 		for (String childName : children.keySet()) {
 			nameHashInput = nameHashInput.concat(childName);
 		}
-		structureHash = PathUtils
-				.createStringFromByteArray(HashUtil.hash(nameHashInput.getBytes()));
+		structureHash = PathUtils.createStringFromByteArray(HashUtil.hash(nameHashInput.getBytes()));
 		if (!structureHash.equals(oldNamesHash)) {
 			return true;
 		} else {
