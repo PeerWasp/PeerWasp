@@ -39,7 +39,7 @@ public class App extends Application
 
 	private Injector injector;
 	private MessageBus messageBus;
-	private INodeManager h2hManager;
+	private INodeManager nodeManager;
 	private AbstractSystemTray systemTray;
 	private static Stage primaryStage;
 	private UserConfig userConfig;
@@ -128,7 +128,7 @@ public class App extends Application
 			String username, String password, String pin, Path path) {
 		try {
 			
-			if (!h2hManager.joinNetwork(nodes)) {
+			if (!nodeManager.joinNetwork(nodes)) {
 				return ResultStatus.error("Could not join network.");
 			}
 			IUserManager userManager = injector.getInstance(IUserManager.class);
@@ -206,8 +206,8 @@ public class App extends Application
 	}
 	
 	@Inject
-	private void setH2HManager(INodeManager manager) {
-		this.h2hManager = manager;
+	private void setNodeManager(INodeManager manager) {
+		this.nodeManager = manager;
 	}
 	
 	@Inject

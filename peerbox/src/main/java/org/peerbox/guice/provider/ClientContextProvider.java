@@ -18,7 +18,7 @@ public class ClientContextProvider implements Provider<ClientContext> {
 	@Inject
 	private FolderWatchService folderWatchService;
 	@Inject
-	private INodeManager h2hManager;
+	private INodeManager nodeManager;
 	
 	@Override
 	public ClientContext get() {
@@ -26,7 +26,7 @@ public class ClientContextProvider implements Provider<ClientContext> {
 		ctx.setActionExecutor(actionExecutor);
 		ctx.setFileEventManager(fileEventManager);
 		ctx.setFolderWatchService(folderWatchService);
-		ctx.setH2hManager(h2hManager);
+		ctx.setNodeManager(nodeManager);
 		return ctx;
 	}
 }

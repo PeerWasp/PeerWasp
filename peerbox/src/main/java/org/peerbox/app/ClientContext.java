@@ -14,7 +14,7 @@ public class ClientContext {
 	private ActionExecutor actionExecutor;
 	private FileEventManager fileEventManager;
 	private FolderWatchService folderWatchService;
-	private INodeManager h2hManager;
+	private INodeManager nodeManager;
 	
 	public ClientContext() {
 		
@@ -44,11 +44,11 @@ public class ClientContext {
 		this.folderWatchService = folderWatchService;
 	}
 
-	public INodeManager getH2hManager() {
-		return h2hManager;
+	public INodeManager getNodeManager() {
+		return nodeManager;
 	}
 
-	public void setH2hManager(INodeManager h2hManager) {
-		this.h2hManager = h2hManager;
+	public void setNodeManager(INodeManager nodeManager) {
+		this.nodeManager = nodeManager;
 	}
 }

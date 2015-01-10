@@ -34,16 +34,16 @@ public class FileManager extends AbstractManager implements IFileManager {
 	private static final Logger logger = LoggerFactory.getLogger(FileManager.class);
 
 	@Inject
-	public FileManager(final INodeManager h2hManager, final IUserConfig userConfig) {
+	public FileManager(final INodeManager nodeManager, final IUserConfig userConfig) {
 		// TODO(AA): give message bus instance and implement events?
 		// maybe can implement the file events also elsewhere, e.g. action executor
-		super(h2hManager, userConfig, null); 
+		super(nodeManager, userConfig, null); 
 	}
 	
 	@Override
 	public ProcessHandle<Void> add(final File file) throws NoSessionException, NoPeerConnectionException {
 		logger.debug("ADD - {}", file);
-		IProcessComponent<Void> component = getFileManager().createAddProcess(file);
+		IProcessComponent<Void> component = getH2HFileManager().createAddProcess(file);
 		component.attachListener(new FileOperationListener(file));
 		ProcessHandle<Void> handle = new ProcessHandle<Void>(component);
 		return handle;
@@ -52,7 +52,7 @@ public class FileManager extends AbstractManager implements IFileManager {
 	@Override
 	public ProcessHandle<Void> update(final File file) throws NoSessionException, NoPeerConnectionException {
 		logger.debug("UPDATE - {}", file);
-		IProcessComponent<Void> component = getFileManager().createUpdateProcess(file);
+		IProcessComponent<Void> component = getH2HFileManager().createUpdateProcess(file);
 		component.attachListener(new FileOperationListener(file));
 		ProcessHandle<Void> handle = new ProcessHandle<Void>(component);
 		return handle;
@@ -61,7 +61,7 @@ public class FileManager extends AbstractManager implements IFileManager {
 	@Override
 	public ProcessHandle<Void> delete(final File file) throws NoSessionException, NoPeerConnectionException {
 		logger.debug("DELETE - {}", file);
-		IProcessComponent<Void> component = getFileManager().createDeleteProcess(file);
+		IProcessComponent<Void> component = getH2HFileManager().createDeleteProcess(file);
 		component.attachListener(new FileOperationListener(file));
 		ProcessHandle<Void> handle = new ProcessHandle<Void>(component);
 		return handle;
@@ -70,7 +70,7 @@ public class FileManager extends AbstractManager implements IFileManager {
 	@Override
 	public ProcessHandle<Void> move(final File source, final File destination) throws NoSessionException, NoPeerConnectionException {
 		logger.debug("MOVE - from: {}, to: {}", source, destination);
-		IProcessComponent<Void> component = getFileManager().createMoveProcess(source, destination);
+		IProcessComponent<Void> component = getH2HFileManager().createMoveProcess(source, destination);
 		component.attachListener(new FileOperationListener(source));
 		component.attachListener(new FileOperationListener(destination));
 		ProcessHandle<Void> handle = new ProcessHandle<Void>(component);
@@ -80,7 +80,7 @@ public class FileManager extends AbstractManager implements IFileManager {
 	@Override
 	public ProcessHandle<Void> download(final File file) throws NoSessionException, NoPeerConnectionException {
 		logger.debug("DOWNLOAD - {}", file);
-		IProcessComponent<Void> component = getFileManager().createDownloadProcess(file);
+		IProcessComponent<Void> component = getH2HFileManager().createDownloadProcess(file);
 		component.attachListener(new FileOperationListener(file));
 		ProcessHandle<Void> handle = new ProcessHandle<Void>(component);
 		return handle;
@@ -89,7 +89,7 @@ public class FileManager extends AbstractManager implements IFileManager {
 	@Override
 	public ProcessHandle<Void> recover(final File file, final IVersionSelector versionSelector) throws NoSessionException, NoPeerConnectionException, IllegalArgumentException {
 		logger.debug("RECOVER - {}", file);
-		IProcessComponent<Void> component = getFileManager().createRecoverProcess(file, versionSelector);
+		IProcessComponent<Void> component = getH2HFileManager().createRecoverProcess(file, versionSelector);
 		component.attachListener(new FileOperationListener(file));
 		ProcessHandle<Void> handle = new ProcessHandle<Void>(component);
 		return handle;
@@ -98,7 +98,7 @@ public class FileManager extends AbstractManager implements IFileManager {
 	@Override
 	public ProcessHandle<Void> share(final File folder, final String userId, final PermissionType permission) throws IllegalArgumentException, NoSessionException, NoPeerConnectionException, InvalidProcessStateException, ProcessExecutionException {
 		logger.debug("SHARE - User: '{}', Permission: '{}', Folder: '{}'", userId, permission.name(), folder);
-		IProcessComponent<Void> component = getFileManager().createShareProcess(folder, userId, permission);
+		IProcessComponent<Void> component = getH2HFileManager().createShareProcess(folder, userId, permission);
 		component.attachListener(new FileOperationListener(folder));
 		ProcessHandle<Void> handle = new ProcessHandle<Void>(component);
 		return handle;
@@ -106,7 +106,7 @@ public class FileManager extends AbstractManager implements IFileManager {
 	
 	@Override
 	public FileNode listFiles() throws NoPeerConnectionException, NoSessionException, InvalidProcessStateException, ProcessExecutionException {
-		IProcessComponent<FileNode> component = getFileManager().createFileListProcess();
+		IProcessComponent<FileNode> component = getH2HFileManager().createFileListProcess();
 		// TODO: execute should be outside?
 		return component.execute();
 	}

@@ -45,7 +45,7 @@ public final class UserManager extends AbstractManager implements IUserManager {
 
 		try {
 
-			IProcessComponent<Void> registerProc = getUserManager().createRegisterProcess(credentials);
+			IProcessComponent<Void> registerProc = getH2HUserManager().createRegisterProcess(credentials);
 			registerProc.execute();
 			if (isRegistered(credentials.getUserId())) {
 				res = ResultStatus.ok();
@@ -67,7 +67,7 @@ public final class UserManager extends AbstractManager implements IUserManager {
 
 	@Override
 	public boolean isRegistered(final String userName) throws NoPeerConnectionException {
-		return getUserManager().isRegistered(userName);
+		return getH2HUserManager().isRegistered(userName);
 	}
 
 	@Override
@@ -83,7 +83,7 @@ public final class UserManager extends AbstractManager implements IUserManager {
 		
 		try {
 			
-			IProcessComponent<Void> loginProc = getUserManager().createLoginProcess(userCredentials, fileAgent);
+			IProcessComponent<Void> loginProc = getH2HUserManager().createLoginProcess(userCredentials, fileAgent);
 			loginProc.execute();
 			if (isLoggedIn()) {
 				res = ResultStatus.ok();
@@ -105,7 +105,7 @@ public final class UserManager extends AbstractManager implements IUserManager {
 
 	@Override
 	public boolean isLoggedIn() throws NoPeerConnectionException {
-		return getUserManager().isLoggedIn();
+		return getH2HUserManager().isLoggedIn();
 	}
 
 	@Override
@@ -117,7 +117,7 @@ public final class UserManager extends AbstractManager implements IUserManager {
 
 		try {
 			
-			IProcessComponent<Void> logoutProc = getUserManager().createLogoutProcess();
+			IProcessComponent<Void> logoutProc = getH2HUserManager().createLogoutProcess();
 			logoutProc.execute();
 			if (!isLoggedIn()) {
 				res = ResultStatus.ok();

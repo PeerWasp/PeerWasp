@@ -22,11 +22,11 @@ public class AbstractManager {
 		this.messageBus = messageBus;
 	}
 
-	protected final IFileManager getFileManager() {
+	protected final IFileManager getH2HFileManager() {
 		return nodeManager.getNode().getFileManager();
 	}
 
-	protected final IUserManager getUserManager() {
+	protected final IUserManager getH2HUserManager() {
 		return nodeManager.getNode().getUserManager();
 	}
 	

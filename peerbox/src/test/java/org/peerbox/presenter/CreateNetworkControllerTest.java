@@ -9,18 +9,18 @@ import org.peerbox.presenter.CreateNetworkController;
 
 public class CreateNetworkControllerTest {
 	
-	private INodeManager h2hmanager;
+	private INodeManager nodeManager;
 	
 	@Before
 	public void initialize() {
-		h2hmanager = new NodeManager(null);
+		nodeManager = new NodeManager(null);
 	}
 	
 	@Test
 	public void createNetworkTest(){
 		// TODO: mock navigation service.
-		CreateNetworkController controller = new CreateNetworkController(null, h2hmanager);
-		assert(h2hmanager.getNode() != null);
+		CreateNetworkController controller = new CreateNetworkController(null, nodeManager);
+		assert(nodeManager.getNode() != null);
 		// TODO: why should the node be != null after constructor?
 	}
 }
