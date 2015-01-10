@@ -1,6 +1,8 @@
 package org.peerbox.watchservice.filetree;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -83,8 +85,8 @@ public class FolderCompositeTest {
 	public void fileTreeOperationsTest(){
 
 		FolderComposite fileTree = new FolderComposite(Paths.get(parentPath), true);
-		FileLeaf fileOnRoot = new FileLeaf(Paths.get(fileOnRootStr));
-		FileLeaf fileInNewDir = new FileLeaf(Paths.get(fileInNewDirStr));
+		FileLeaf fileOnRoot = new FileLeaf(Paths.get(fileOnRootStr), true);
+		FileLeaf fileInNewDir = new FileLeaf(Paths.get(fileInNewDirStr), true);
 		fileInNewDir.getAction().setFile(fileInNewDir);
 		fileOnRoot.getAction().setFile(fileOnRoot);
 		fileTree.putComponent(fileOnRootStr, fileOnRoot);
@@ -117,7 +119,7 @@ public class FolderCompositeTest {
 
 	private void bubbleContentHashUpdateTest(FolderComposite fileTree){
 		//put a new file in a lower directory
-		FileLeaf fileInDirInDirOnRoot = new FileLeaf(Paths.get(fileInDirInDirOnRootStr));
+		FileLeaf fileInDirInDirOnRoot = new FileLeaf(Paths.get(fileInDirInDirOnRootStr), true);
 		fileInDirInDirOnRoot.getAction().setFile(fileInDirInDirOnRoot);
 		fileTree.putComponent(fileInDirInDirOnRootStr, fileInDirInDirOnRoot);
 		FileComponent component = fileTree.getComponent(fileInDirInDirOnRootStr);
