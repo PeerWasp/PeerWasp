@@ -7,7 +7,7 @@ import java.util.concurrent.locks.Lock;
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.hive2hive.core.exceptions.NoSessionException;
 import org.hive2hive.processframework.exceptions.InvalidProcessStateException;
-import org.peerbox.FileManager;
+import org.peerbox.app.manager.file.FileManager;
 import org.peerbox.watchservice.filetree.composite.FileComponent;
 import org.peerbox.watchservice.states.AbstractActionState;
 import org.peerbox.watchservice.states.ExecutionHandle;

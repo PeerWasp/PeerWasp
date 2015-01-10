@@ -22,7 +22,7 @@ import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.peerbox.FileManager;
+import org.peerbox.app.manager.file.FileManager;
 import org.peerbox.watchservice.filetree.FileTree;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

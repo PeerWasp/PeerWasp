@@ -17,7 +17,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.peerbox.FileManager;
+import org.peerbox.app.manager.file.FileManager;
 import org.peerbox.watchservice.filetree.FileTree;
 
 @Deprecated

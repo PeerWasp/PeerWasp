@@ -18,7 +18,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.peerbox.FileManager;
+import org.peerbox.app.manager.file.FileManager;
 import org.peerbox.watchservice.filetree.FileTree;
 import org.peerbox.watchservice.filetree.composite.FileComponent;
 

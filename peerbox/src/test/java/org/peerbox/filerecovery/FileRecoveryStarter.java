@@ -25,8 +25,8 @@ import org.hive2hive.core.utils.helper.TestFileAgent;
 import org.hive2hive.processframework.exceptions.InvalidProcessStateException;
 import org.hive2hive.processframework.exceptions.ProcessExecutionException;
 import org.mockito.Mockito;
-import org.peerbox.FileManager;
 import org.peerbox.IUserConfig;
+import org.peerbox.app.manager.file.FileManager;
 import org.peerbox.app.manager.node.INodeManager;
 import org.peerbox.interfaces.IFxmlLoaderProvider;
 

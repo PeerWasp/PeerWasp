@@ -11,12 +11,12 @@ import org.hive2hive.core.processes.files.list.FileNode;
 import org.hive2hive.core.processes.files.recover.IVersionSelector;
 import org.hive2hive.processframework.interfaces.IProcessComponent;
 import org.hive2hive.processframework.interfaces.IProcessComponentListener;
-import org.peerbox.IPeerboxFileManager;
+import org.peerbox.app.manager.file.IFileManager;
 import org.peerbox.h2h.ProcessHandle;
 
 import com.google.inject.Inject;
 
-public class DummyFileManager implements IPeerboxFileManager {
+public class DummyFileManager implements IFileManager {
 	private DummyUserConfig userConfig = new DummyUserConfig();
 	
 	@Inject

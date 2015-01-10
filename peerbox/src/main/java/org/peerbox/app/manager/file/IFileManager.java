@@ -1,4 +1,4 @@
-package org.peerbox;
+package org.peerbox.app.manager.file;
 
 import java.io.File;
 import java.nio.file.Path;
@@ -12,7 +12,7 @@ import org.hive2hive.processframework.exceptions.InvalidProcessStateException;
 import org.hive2hive.processframework.exceptions.ProcessExecutionException;
 import org.peerbox.h2h.ProcessHandle;
 
-public interface IPeerboxFileManager {
+public interface IFileManager {
 
 	ProcessHandle<Void> add(final File file) throws NoSessionException, NoPeerConnectionException;
 

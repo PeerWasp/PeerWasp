@@ -1,4 +1,4 @@
-package org.peerbox;
+package org.peerbox.app.manager.file;
 
 import java.io.File;
 import java.math.BigInteger;
@@ -19,6 +19,7 @@ import org.hive2hive.processframework.exceptions.ProcessExecutionException;
 import org.hive2hive.processframework.interfaces.IProcessComponent;
 import org.hive2hive.processframework.interfaces.IProcessComponentListener;
 import org.hive2hive.processframework.interfaces.IProcessEventArgs;
+import org.peerbox.IUserConfig;
 import org.peerbox.app.manager.AbstractManager;
 import org.peerbox.app.manager.node.INodeManager;
 import org.peerbox.h2h.ProcessHandle;
@@ -28,7 +29,7 @@ import org.slf4j.LoggerFactory;
 import com.google.inject.Inject;
 
 
-public class FileManager extends AbstractManager implements IPeerboxFileManager {
+public class FileManager extends AbstractManager implements IFileManager {
 
 	private static final Logger logger = LoggerFactory.getLogger(FileManager.class);
 

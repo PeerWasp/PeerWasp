@@ -13,11 +13,10 @@ import org.hive2hive.core.exceptions.NoSessionException;
 import org.hive2hive.core.processes.files.list.FileNode;
 import org.hive2hive.processframework.exceptions.InvalidProcessStateException;
 import org.hive2hive.processframework.exceptions.ProcessExecutionException;
-
-import org.peerbox.FileManager;
-import org.peerbox.IPeerboxFileManager;
 import org.peerbox.IUserConfig;
 import org.peerbox.UserConfig;
+import org.peerbox.app.manager.file.FileManager;
+import org.peerbox.app.manager.file.IFileManager;
 import org.peerbox.watchservice.FileEventManager;
 import org.peerbox.watchservice.IFileEventManager;
 import org.peerbox.watchservice.filetree.composite.FileComponent;
@@ -46,7 +45,7 @@ public class Synchronization implements Initializable {
 	@FXML private Button refreshButton;
 	
 	private IFileEventManager eventManager;
-	private IPeerboxFileManager fileManager;
+	private IFileManager fileManager;
 	private TreeSet<FileNode> toSynchronize = new TreeSet<FileNode>(new FileNodeComparator());
 	private TreeSet<FileNode> toDesynchronize = new TreeSet<FileNode>(new FileNodeComparator());
 	

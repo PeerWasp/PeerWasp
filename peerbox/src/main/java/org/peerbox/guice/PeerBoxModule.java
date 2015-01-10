@@ -1,13 +1,13 @@
 package org.peerbox.guice;
 
 
-import org.peerbox.FileManager;
-import org.peerbox.IPeerboxFileManager;
 import org.peerbox.IUserConfig;
 import org.peerbox.UserConfig;
 import org.peerbox.app.ClientContext;
 import org.peerbox.app.ExitHandler;
 import org.peerbox.app.IExitHandler;
+import org.peerbox.app.manager.file.FileManager;
+import org.peerbox.app.manager.file.IFileManager;
 import org.peerbox.app.manager.node.NodeManager;
 import org.peerbox.app.manager.node.INodeManager;
 import org.peerbox.app.manager.user.IUserManager;
@@ -90,7 +90,7 @@ public class PeerBoxModule extends AbstractModule {
 	private void bindManagers() {
 		bind(INodeManager.class).to(NodeManager.class);
 		bind(IUserManager.class).to(UserManager.class);
-		bind(IPeerboxFileManager.class).to(FileManager.class);
+		bind(IFileManager.class).to(FileManager.class);
 	}
 	
 	@Provides

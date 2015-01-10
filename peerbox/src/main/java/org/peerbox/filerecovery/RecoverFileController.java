@@ -40,7 +40,7 @@ import org.controlsfx.control.StatusBar;
 import org.hive2hive.core.model.IFileVersion;
 import org.hive2hive.processframework.exceptions.InvalidProcessStateException;
 import org.hive2hive.processframework.exceptions.ProcessRollbackException;
-import org.peerbox.FileManager;
+import org.peerbox.app.manager.file.FileManager;
 import org.peerbox.h2h.ProcessHandle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

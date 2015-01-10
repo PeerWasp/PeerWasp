@@ -6,7 +6,7 @@ import java.util.Map;
 
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.hive2hive.core.exceptions.NoSessionException;
-import org.peerbox.FileManager;
+import org.peerbox.app.manager.file.FileManager;
 import org.peerbox.exceptions.NotImplException;
 import org.peerbox.watchservice.Action;
 import org.peerbox.watchservice.IFileEventManager;
