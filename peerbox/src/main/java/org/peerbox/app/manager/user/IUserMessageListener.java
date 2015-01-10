@@ -1,8 +1,8 @@
 package org.peerbox.app.manager.user;
 
-import org.peerbox.events.IMessageListener;
-
 import net.engio.mbassy.listener.Handler;
+
+import org.peerbox.events.IMessageListener;
 
 public interface IUserMessageListener extends IMessageListener {
 	

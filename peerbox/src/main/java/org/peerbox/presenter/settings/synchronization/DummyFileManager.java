@@ -9,8 +9,6 @@ import java.util.Set;
 import org.hive2hive.core.model.PermissionType;
 import org.hive2hive.core.processes.files.list.FileNode;
 import org.hive2hive.core.processes.files.recover.IVersionSelector;
-import org.hive2hive.processframework.interfaces.IProcessComponent;
-import org.hive2hive.processframework.interfaces.IProcessComponentListener;
 import org.peerbox.app.manager.file.IFileManager;
 import org.peerbox.h2h.ProcessHandle;
 

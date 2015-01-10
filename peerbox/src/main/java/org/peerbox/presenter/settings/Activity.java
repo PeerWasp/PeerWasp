@@ -1,16 +1,13 @@
 package org.peerbox.presenter.settings;
 
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.PrintStream;
 import java.net.URL;
 import java.util.ResourceBundle;
 
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.TextArea;
 
-import javafx.application.Platform;
 import org.peerbox.UserConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

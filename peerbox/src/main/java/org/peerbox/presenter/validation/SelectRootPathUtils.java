@@ -7,13 +7,13 @@ import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
 
-import org.peerbox.presenter.validation.ValidationUtils.ValidationResult;
-
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ButtonType;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Window;
+
+import org.peerbox.presenter.validation.ValidationUtils.ValidationResult;
 
 public class SelectRootPathUtils {
 

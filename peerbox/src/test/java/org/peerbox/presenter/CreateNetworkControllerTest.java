@@ -3,9 +3,8 @@ package org.peerbox.presenter;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.peerbox.app.manager.node.NodeManager;
 import org.peerbox.app.manager.node.INodeManager;
-import org.peerbox.presenter.CreateNetworkController;
+import org.peerbox.app.manager.node.NodeManager;
 
 public class CreateNetworkControllerTest {
 	

@@ -1,12 +1,8 @@
 package org.peerbox.presenter;
 
-import javafx.application.Platform;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
-import javafx.stage.Stage;
 
 import org.peerbox.interfaces.INavigatable;
 

@@ -7,9 +7,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.peerbox.filerecovery.IFileRecoveryHandler;
+import org.peerbox.server.servlets.messages.FileRecoveryMessage;
 import org.peerbox.server.servlets.messages.ServerReturnCode;
 import org.peerbox.server.servlets.messages.ServerReturnMessage;
-import org.peerbox.server.servlets.messages.FileRecoveryMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

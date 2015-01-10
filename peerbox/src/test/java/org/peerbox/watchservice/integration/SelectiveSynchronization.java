@@ -2,8 +2,6 @@ package org.peerbox.watchservice.integration;
 
 import static org.junit.Assert.assertTrue;
 
-
-
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -13,7 +11,6 @@ import org.hive2hive.core.utils.H2HWaiter;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.peerbox.watchservice.FileEventManager;
-import org.peerbox.watchservice.filetree.FileTree;
 import org.peerbox.watchservice.filetree.IFileTree;
 import org.peerbox.watchservice.filetree.composite.FileComponent;
 

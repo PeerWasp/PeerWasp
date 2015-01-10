@@ -2,10 +2,10 @@ package org.peerbox.guice;
 
 import java.io.IOException;
 
-import org.peerbox.interfaces.IFxmlLoaderProvider;
-
 import javafx.fxml.FXMLLoader;
 import javafx.util.Callback;
+
+import org.peerbox.interfaces.IFxmlLoaderProvider;
 
 import com.google.inject.Inject;
 import com.google.inject.Injector;

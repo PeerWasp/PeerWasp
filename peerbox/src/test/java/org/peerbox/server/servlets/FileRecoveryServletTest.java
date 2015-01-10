@@ -15,8 +15,8 @@ import javax.servlet.http.HttpServletResponse;
 import org.junit.Test;
 import org.peerbox.server.ServerFactory;
 import org.peerbox.server.servlets.messages.DeleteMessage;
-import org.peerbox.server.servlets.messages.ServerReturnCode;
 import org.peerbox.server.servlets.messages.FileRecoveryMessage;
+import org.peerbox.server.servlets.messages.ServerReturnCode;
 
 import com.jayway.restassured.http.ContentType;
 

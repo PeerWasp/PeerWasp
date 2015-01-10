@@ -2,8 +2,6 @@ package org.peerbox.delete;
 
 import java.nio.file.Path;
 
-import org.peerbox.app.manager.node.INodeManager;
-import org.peerbox.watchservice.FileEventManager;
 import org.peerbox.watchservice.IFileEventManager;
 
 import com.google.inject.Inject;

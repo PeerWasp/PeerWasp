@@ -1,21 +1,15 @@
 package org.peerbox.presenter.settings.synchronization;
 
 import java.nio.file.Path;
-import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 
-import org.eclipse.jetty.util.ConcurrentHashSet;
 import org.hive2hive.core.events.framework.interfaces.file.IFileAddEvent;
 import org.peerbox.watchservice.IFileEventManager;
-import org.peerbox.watchservice.filetree.FileTree;
 import org.peerbox.watchservice.filetree.IFileTree;
 import org.peerbox.watchservice.filetree.composite.FileComponent;
-import org.peerbox.watchservice.filetree.composite.FolderComposite;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.SetMultimap;
 import com.google.inject.Inject;
 
 public class DummyFileEventManager implements IFileEventManager{
