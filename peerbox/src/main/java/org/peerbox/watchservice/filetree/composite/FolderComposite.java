@@ -10,7 +10,6 @@ import java.util.SortedMap;
 import java.util.concurrent.ConcurrentSkipListMap;
 
 import org.hive2hive.core.security.HashUtil;
-import org.peerbox.watchservice.Action;
 import org.peerbox.watchservice.PathUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,37 +21,28 @@ import org.slf4j.LoggerFactory;
  */
 public class FolderComposite extends AbstractFileComponent{
 
-	private SortedMap<String, FileComponent> children = new ConcurrentSkipListMap<String, FileComponent>();
-	private Action action;
-	private Path path;
-	private Path folderName;
-	private String contentHash;
-	private String contentNamesHash;
-	private FolderComposite parent;
-	private boolean updateContentHashes;
-	private boolean isRoot = false;
-	private boolean isSynchronized = false;
-	
 	private static final Logger logger = LoggerFactory.getLogger(FolderComposite.class);
 	
+	private SortedMap<String, FileComponent> children = new ConcurrentSkipListMap<String, FileComponent>();
+
+	private String contentNamesHash;
+	private boolean updateContentHashes;
+	private boolean isRoot = false;
 	
 	public FolderComposite(Path path, boolean updateContentHashes, boolean isRoot){
-		this.path = path;
-		this.folderName = path.getFileName();
-		this.action = new Action();
-		this.contentHash = "";
+		super(path);
+		
 		this.updateContentHashes = updateContentHashes;
 		this.contentNamesHash = "";
 		this.isRoot = isRoot;
 		
 		if(isRoot){
-			action.setIsUploaded(true);
+			getAction().setIsUploaded(true);
 			setIsSynchronized(true);
 		}
 		if(updateContentHashes){
 			updateContentHash();	
 		}
-	
 	}
 	
 	public FolderComposite(Path path, boolean updateContentHashes){
@@ -63,37 +53,12 @@ public class FolderComposite extends AbstractFileComponent{
 		return children;
 	}
 	
-	@Override
-	public FolderComposite getParent() {
-		return this.parent;
-	}
-	
-	@Override
-	public void setParent(FolderComposite parent) {
-		this.parent = parent;
-	}
-
-	@Override
-	public Path getPath() {
-		return this.path;
-	}
-
-	@Override
-	public Action getAction() {
-		return this.action;
-	}
-	
 	private Path constructFullPath(String lastPathFragment){
-		String completePath = path.toString() + File.separator + lastPathFragment;
+		String completePath = getPath().toString() + File.separator + lastPathFragment;
 		System.out.println("CompletePath: " + completePath);
 		return Paths.get(completePath);
 	}
 
-	@Override
-	public String getContentHash() {
-		return contentHash;
-	}
-	
 	/**
 	 * Appends a new component to the FolderComposite. Inexistent folders are added on the
 	 * fly. Existing items are replaced. Triggers updates of content and name hashes.
@@ -102,8 +67,8 @@ public class FolderComposite extends AbstractFileComponent{
 	public synchronized void putComponent(String remainingPath, FileComponent component) {
 //		component.getAction().setPath(Paths.get(remainingPath));
 		//if the path it absolute, cut off the absolute path to the root directory!
-		if(remainingPath.startsWith(path.toString())){
-			remainingPath = remainingPath.substring(path.toString().length() + 1);
+		if(remainingPath.startsWith(getPath().toString())){
+			remainingPath = remainingPath.substring(getPath().toString().length() + 1);
 		}
 		//logger.trace("after remainingpath calculation {}", remainingPath);
 		String nextLevelPath = PathUtils.getNextPathFragment(remainingPath);
@@ -168,8 +133,8 @@ public class FolderComposite extends AbstractFileComponent{
 	 */
 	@Override
 	public FileComponent deleteComponent(String remainingPath) {
-		if(remainingPath.startsWith(path.toString())){
-			remainingPath = remainingPath.substring(path.toString().length() + 1);
+		if(remainingPath.startsWith(getPath().toString())){
+			remainingPath = remainingPath.substring(getPath().toString().length() + 1);
 		}
 		
 		String nextLevelPath = PathUtils.getNextPathFragment(remainingPath);
@@ -202,13 +167,13 @@ public class FolderComposite extends AbstractFileComponent{
 	@Override
 	public synchronized FileComponent getComponent(String remainingPath){
 		//if the path it absolute, cut off the absolute path to the root directory!
-		logger.debug("Root: {} FilePath: {}", path, remainingPath);
-		if(remainingPath.toString().equals(path.toString())){
+		logger.debug("Root: {} FilePath: {}", getPath(), remainingPath);
+		if(remainingPath.toString().equals(getPath().toString())){
 			logger.debug("Return root");
 			return this;
 		}
-		if(remainingPath.startsWith(path.toString())){
-			remainingPath = remainingPath.substring(path.toString().length() + 1);
+		if(remainingPath.startsWith(getPath().toString())){
+			remainingPath = remainingPath.substring(getPath().toString().length() + 1);
 		}
 		
 		
@@ -256,8 +221,8 @@ public class FolderComposite extends AbstractFileComponent{
 			newHash = Base64.getEncoder().encodeToString(rawHash);
 //			logger.trace("got newHash");
 		}
-		if(!contentHash.equals(newHash)){
-			contentHash = newHash;
+		if(!getContentHash().equals(newHash)){
+			setContentHash(newHash);
 //			logger.trace("successful new hash");
 			return true;
 		}
@@ -275,8 +240,8 @@ public class FolderComposite extends AbstractFileComponent{
 	public void bubbleContentHashUpdate(String contentHash) {
 		// TODO Auto-generated method stub
 		boolean hasChanged = updateContentHash();
-		if(hasChanged && parent != null){
-			parent.bubbleContentHashUpdate();
+		if(hasChanged && getParent() != null){
+			getParent().bubbleContentHashUpdate();
 		}
 
 	}
@@ -286,9 +251,9 @@ public class FolderComposite extends AbstractFileComponent{
 		boolean hasChanged = computeContentNamesHash();
 //		logger.debug("Structure hash of {} after: {}", path, contentNamesHash);
 //		logger.debug("successful computeContentNamesHash hasChanged {}", hasChanged);
-		if(hasChanged && parent != null){
+		if(hasChanged && getParent() != null){
 //			logger.debug("start partent.bubbleContentNamesHashUpdate");
-			parent.bubbleContentNamesHashUpdate();
+			getParent().bubbleContentNamesHashUpdate();
 //			logger.debug("finish partent.bubbleContentNamesHashUpdate");
 		}
 	}
@@ -312,7 +277,7 @@ public class FolderComposite extends AbstractFileComponent{
 //			logger.trace("END bubbleContentHashUpdate {}", nextLevelPath);
 		}
 //		logger.trace("after bubbleContentHashUpdate {}", nextLevelPath);
-		component.setParentPath(path);
+		component.setParentPath(getPath());
 //		logger.trace("after setPath {}", nextLevelPath);
 		if(component instanceof FolderComposite){
 			FolderComposite componentAsFolder = (FolderComposite)component;
@@ -340,12 +305,6 @@ public class FolderComposite extends AbstractFileComponent{
 		return contentNamesHash;
 	}
 
-	
-	public void setPathFragment(Path pathFragment){
-		this.folderName = pathFragment;
-	}
-	
-
 	/**
 	 * If a subtree is appended, the children of the subtree need to update their paths.
 	 * This function starts a recursive update. Furthermore, the filePath of the action
@@ -365,15 +324,6 @@ public class FolderComposite extends AbstractFileComponent{
 	}
 	
 	@Override
-	public void setParentPath(Path parentPath){	
-		if(parentPath != null){
-			this.path = Paths.get(new File(parentPath.toString(), folderName.toString()).getPath());
-			//logger.debug("Set path to {}", path);
-//			action.setPath(this.path);
-		}
-	}
-
-	@Override
 	public boolean isFile() {
 		return false;
 	}
@@ -383,20 +333,14 @@ public class FolderComposite extends AbstractFileComponent{
 		if(isRoot){
 			return true;
 		} else {
-			logger.trace("Parent for {} is {}", path, parent);
-			if(parent.getActionIsUploaded()){
+			logger.trace("Parent for {} is {}", getPath(), getParent());
+			if(getParent().getActionIsUploaded()){
 				return true;
 			}
 			return false;
 		}
 		
 		
-	}
-
-	@Override
-	public void setPath(Path path) {
-//		this.path = path;
-		folderName = path.getFileName();
 	}
 
 	@Override
@@ -411,14 +355,8 @@ public class FolderComposite extends AbstractFileComponent{
 	}
 
 	@Override
-	public boolean getIsSynchronized() {
-		// TODO Auto-generated method stub
-		return isSynchronized;
-	}
-
-	@Override
 	public void setIsSynchronized(boolean isSynchronized) {
-		this.isSynchronized = isSynchronized;
+		super.setIsSynchronized(isSynchronized);
 		for(FileComponent comp : children.values()){
 			comp.setIsSynchronized(isSynchronized);
 		}
@@ -443,7 +381,7 @@ public class FolderComposite extends AbstractFileComponent{
 	public void propagateIsUploaded() {
 		setActionIsUploaded(true);
 		if(!isRoot){
-			parent.propagateIsUploaded();
+			getParent().propagateIsUploaded();
 		}
 	}
 }

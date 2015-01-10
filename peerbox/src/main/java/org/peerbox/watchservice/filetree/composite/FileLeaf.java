@@ -1,72 +1,27 @@
 package org.peerbox.watchservice.filetree.composite;
 
-import java.io.File;
 import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Set;
 
-import org.peerbox.watchservice.Action;
-import org.peerbox.watchservice.IAction;
 import org.peerbox.watchservice.PathUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class FileLeaf extends AbstractFileComponent{
-	private IAction action;
-	private Path path;
-	private Path fileName;
-	private String contentHash;
-	private FolderComposite parent;
-	private boolean isSynchronized = false;
 	
 	private static final Logger logger = LoggerFactory.getLogger(FileLeaf.class);
 	
-	public FileLeaf(Path path){
-		this.path = path;
-		this.fileName = path.getFileName();
-		this.action = new Action();
-		this.contentHash = "";
-		updateContentHash();
+	public FileLeaf(Path path) {
+		this(path, true);
 	}
 	
-	public FileLeaf(Path path, boolean maintainContentHashes){
-		this.path = path;
-		this.fileName = path.getFileName();
-		this.action = new Action();
-		this.contentHash = "";
-		if(maintainContentHashes){
+	public FileLeaf(Path path, boolean updateContentHash) {
+		super(path);
+
+		if (updateContentHash) {
 			updateContentHash();
 		}
-
-	}
-
-	@Override
-	public IAction getAction() {
-		return this.action;
-	}
-
-	@Override
-	public void putComponent(String path, FileComponent component) {
-		System.err.println("put on file not defined.");
-	}
-
-	@Override
-	public FileComponent deleteComponent(String path) {
-		System.err.println("delete on file not defined");
-		return null;
-	}
-
-	@Override
-	public FileComponent getComponent(String path) {
-		logger.error("get on file not defined {} {}", this.path, path);
-		return null;
 	}
 	
-	@Override
-	public String getContentHash() {
-		return contentHash;
-	}
-
 	@Override
 	public void bubbleContentHashUpdate() {
 		bubbleContentHashUpdate(null);
@@ -81,16 +36,7 @@ public class FileLeaf extends AbstractFileComponent{
 		}
 	}
 
-	@Override
-	public void setParent(FolderComposite parent) {
-		this.parent = parent;
-	}
 
-	@Override
-	public Path getPath() {
-		return this.path;
-	}
-	
 
 	public boolean updateContentHash() {
 		return updateContentHash(null);
@@ -108,19 +54,14 @@ public class FileLeaf extends AbstractFileComponent{
 		if(newHash == null){
 			newHash = PathUtils.computeFileContentHash(getPath());
 		} 
-		if(!contentHash.equals(newHash)){
-			contentHash = newHash;
+		if(!getContentHash().equals(newHash)){
+			setContentHash(newHash);
 			
 			return true;
 		} else {
 //			logger.debug("No content hash update: {}", contentHash);
 			return false;
 		}
-	}
-
-	@Override
-	public FolderComposite getParent() {
-		return this.parent;
 	}
 
 	@Override
@@ -134,69 +75,22 @@ public class FileLeaf extends AbstractFileComponent{
 	}
 	
 	@Override
-	public void setParentPath(Path parentPath){	
-		if(parentPath != null){
-			this.path = Paths.get(new File(parentPath.toString(), fileName.toString()).getPath());
-//			logger.debug("Set path to {}", path);
-		}
-		
-	}
-	
-	@Override
-	public void setPath(Path path){
-		this.path = path;
-		this.fileName = path.getFileName();
-	}
-
-	@Override
 	public boolean isFile() {
 		return true;
 	}
 
 	@Override
 	public boolean isReady() {
-		if(parent.getActionIsUploaded()){
+		if(getParent().getActionIsUploaded()){
 			return true;
 		}
 		return false;
 	}
 
 	@Override
-	public String getStructureHash() {
-		// TODO Auto-generated method stub
-		return "";
-	}
-
-	@Override
-	public void setStructureHash(String hash) {
-		logger.debug("setStructureHash(String) is not defined on FileLeaf.");
-	}
-
-	@Override
-	public void propagatePathChangeToChildren() {
-		return;
-	}
-
-	@Override
-	public boolean getIsSynchronized() {
-		// TODO Auto-generated method stub
-		return isSynchronized;
-	}
-	
-	@Override
-	public void setIsSynchronized(boolean isSynchronized) {
-		this.isSynchronized = isSynchronized;
-	}
-
-	@Override
-	public void getSynchronizedChildrenPaths(Set<Path> synchronizedPaths) {
-		return;
-	}
-	
-	@Override
 	public void propagateIsUploaded() {
 		setActionIsUploaded(true);
-		parent.propagateIsUploaded();
+		getParent().propagateIsUploaded();
 	}
 
 }
