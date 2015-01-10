@@ -31,13 +31,6 @@
 			<scope>compile</scope>
 		</dependency>
 		
-		<!--<dependency>
-			<groupId>org.hive2hive</groupId>
-			<artifactId>org.hive2hive.core</artifactId>
-			<version>1.1.1-SNAPSHOT</version>
-			<scope>compile</scope>
-		</dependency>-->
-		
 		<!-- Guice Dependency Injection: https://github.com/google/guice -->
 		<dependency>
 			<groupId>com.google.inject</groupId>
@@ -141,13 +134,6 @@
 			<type>test-jar</type>
 			<scope>test</scope>
 		</dependency>
-		<!--<dependency>
-			<groupId>org.hive2hive</groupId>
-			<artifactId>org.hive2hive.core</artifactId>
-			<version>1.1.1-SNAPSHOT</version>
-			<type>test-jar</type>
-			<scope>test</scope>
-		</dependency>-->
 
 		<!-- Mockito https://code.google.com/p/mockito/ -->
 		<dependency>
