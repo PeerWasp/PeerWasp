@@ -85,7 +85,7 @@ public class Action implements IAction{
 		timestamp = System.currentTimeMillis();
 	}
 	
-	public boolean getIsUploaded(){
+	public boolean isUploaded(){
 		return isUploaded;
 	}
 	

@@ -106,7 +106,7 @@ public class InitialState extends AbstractActionState {
 		if(moveSource == null){
 //			eventManager.getFileTree().putComponent(action.getFilePath().toString(), action.getFile());
 //			eventManager.getFileTree().putFile(action.getFilePath(), action.getFile());
-			if(action.getIsUploaded()){
+			if(action.isUploaded()){
 				logger.debug("This file is already uploaded, hence it is not uploaded again.");
 				updateTimeAndQueue();
 				return changeStateOnLocalUpdate();
@@ -117,7 +117,7 @@ public class InitialState extends AbstractActionState {
 		} else {
 //			eventManager.getFileTree().deleteFile(moveSource.getPath());
 			eventManager.getFileComponentQueue().remove(action.getFile());
-			if(moveSource.getActionIsUploaded()){
+			if(moveSource.isActionUploaded()){
 				logger.trace("Handle move of {}, from {}.", action.getFilePath(), moveSource.getPath());
 				eventManager.getFileTree().deleteFile(action.getFilePath());
 				moveSource.getAction().handleLocalMoveEvent(action.getFilePath());

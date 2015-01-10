@@ -37,13 +37,13 @@ public interface FileComponent {
 
 	void setStructureHash(String hash);
 
-	boolean getIsSynchronized();
+	boolean isSynchronized();
 
 	void setIsSynchronized(boolean isSynchronized);
 
-	boolean getActionIsUploaded();
+	boolean isActionUploaded();
 
-	void setActionIsUploaded(boolean isUploaded);
+	void setIsActionUploaded(boolean isUploaded);
 
 	void propagateIsUploaded();
 

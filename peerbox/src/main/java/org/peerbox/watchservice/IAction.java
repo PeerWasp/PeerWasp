@@ -35,7 +35,7 @@ public interface IAction {
 	public void handleRecoverEvent(File currentFile, int versionToRecover);
 //	public void setPath(Path path);
 	public void setIsUploaded(boolean isUploaded);
-	public boolean getIsUploaded();
+	public boolean isUploaded();
 	public FileComponent getFile();
 	public void setFile(FileComponent file);
 	public int getExecutionAttempts();

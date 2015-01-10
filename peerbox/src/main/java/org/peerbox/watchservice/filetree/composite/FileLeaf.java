@@ -31,7 +31,7 @@ public class FileLeaf extends AbstractFileComponent {
 
 	@Override
 	public void propagateIsUploaded() {
-		setActionIsUploaded(true);
+		setIsActionUploaded(true);
 		getParent().propagateIsUploaded();
 	}
 
@@ -42,10 +42,8 @@ public class FileLeaf extends AbstractFileComponent {
 
 	@Override
 	public boolean isReady() {
-		if (getParent().getActionIsUploaded()) {
-			return true;
-		}
-		return false;
+		boolean parentUploaded = getParent().isActionUploaded();
+		return parentUploaded;
 	}
 
 }

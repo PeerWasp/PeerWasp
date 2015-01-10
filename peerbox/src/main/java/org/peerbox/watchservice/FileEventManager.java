@@ -143,7 +143,7 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 
 		logger.debug("Synchronize file {}", path);
 		FileComponent file = fileTree.getOrCreateFileComponent(path, this);
-		if(file.getIsSynchronized() == true){
+		if(file.isSynchronized() == true){
 			return;
 		}
 		fileTree.putFile(path, file);
@@ -182,8 +182,8 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 			logger.debug("Didnt find {}", path);
 			return checkForSynchronizedAncestor(path.getParent());
 		} else {
-			logger.debug("Return : {}", file.getIsSynchronized());
-			return file.getIsSynchronized();
+			logger.debug("Return : {}", file.isSynchronized());
+			return file.isSynchronized();
 		}
 	}
 

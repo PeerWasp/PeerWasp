@@ -31,12 +31,12 @@ abstract class AbstractFileComponent implements FileComponent {
 	}
 
 	@Override
-	public boolean getActionIsUploaded() {
-		return action.getIsUploaded();
+	public boolean isActionUploaded() {
+		return action.isUploaded();
 	}
 
 	@Override
-	public void setActionIsUploaded(boolean isUploaded) {
+	public void setIsActionUploaded(boolean isUploaded) {
 		action.setIsUploaded(isUploaded);
 	}
 
@@ -79,7 +79,7 @@ abstract class AbstractFileComponent implements FileComponent {
 	}
 
 	@Override
-	public boolean getIsSynchronized() {
+	public boolean isSynchronized() {
 		return isSynchronized;
 	}
 

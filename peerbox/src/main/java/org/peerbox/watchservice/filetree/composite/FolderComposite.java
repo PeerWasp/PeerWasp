@@ -3,7 +3,6 @@ package org.peerbox.watchservice.filetree.composite;
 import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Base64;
 import java.util.Map;
 import java.util.Set;
 import java.util.SortedMap;
@@ -282,12 +281,12 @@ public class FolderComposite extends AbstractFileComponent{
 
 	@Override
 	public void getSynchronizedChildrenPaths(Set<Path> synchronizedPaths) {
-		if (getIsSynchronized()) {
+		if (isSynchronized()) {
 			logger.debug("Add {} to synchronized files.", getPath());
 			synchronizedPaths.add(getPath());
 		}
 		for (Map.Entry<String, FileComponent> entry : children.entrySet()) {
-			if (entry.getValue().getIsSynchronized()) {
+			if (entry.getValue().isSynchronized()) {
 				logger.debug("--Add {} to synchronized files.", entry.getValue().getPath());
 				synchronizedPaths.add(entry.getValue().getPath());
 				entry.getValue().getSynchronizedChildrenPaths(synchronizedPaths);
@@ -297,7 +296,7 @@ public class FolderComposite extends AbstractFileComponent{
 
 	@Override
 	public void propagateIsUploaded() {
-		setActionIsUploaded(true);
+		setIsActionUploaded(true);
 		if (!isRoot) {
 			getParent().propagateIsUploaded();
 		}
@@ -322,8 +321,8 @@ public class FolderComposite extends AbstractFileComponent{
 	}
 
 	@Override
-	public void setActionIsUploaded(boolean isUploaded) {
-		super.setActionIsUploaded(isUploaded);
+	public void setIsActionUploaded(boolean isUploaded) {
+		super.setIsActionUploaded(isUploaded);
 		for (FileComponent child : children.values()) {
 			child.getAction().setIsUploaded(isUploaded);
 		}
@@ -340,10 +339,8 @@ public class FolderComposite extends AbstractFileComponent{
 			return true;
 		} else {
 			logger.trace("Parent for {} is {}", getPath(), getParent());
-			if (getParent().getActionIsUploaded()) {
-				return true;
-			}
-			return false;
+			boolean parentIsUploaded = getParent().isActionUploaded();
+			return parentIsUploaded;
 		}
 	}
 
