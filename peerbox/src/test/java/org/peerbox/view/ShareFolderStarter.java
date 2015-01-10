@@ -23,6 +23,7 @@ import org.hive2hive.processframework.exceptions.ProcessExecutionException;
 import org.mockito.Mockito;
 import org.peerbox.IUserConfig;
 import org.peerbox.app.manager.file.FileManager;
+import org.peerbox.app.manager.file.IFileManager;
 import org.peerbox.app.manager.node.INodeManager;
 import org.peerbox.app.manager.user.IUserManager;
 import org.peerbox.app.manager.user.UserManager;
@@ -118,7 +119,7 @@ public class ShareFolderStarter extends Application {
 		INodeManager manager = Mockito.mock(INodeManager.class);
 		Mockito.stub(manager.getNode()).toReturn(clientsA[0]);
 		IUserConfig userConfig = Mockito.mock(IUserConfig.class);
-		FileManager fileManager = new FileManager(manager, userConfig);
+		IFileManager fileManager = new FileManager(manager, userConfig);
 		MessageBus messageBus = new MessageBus();
 		IUserManager userManager = new UserManager(manager, userConfig, messageBus);
 		

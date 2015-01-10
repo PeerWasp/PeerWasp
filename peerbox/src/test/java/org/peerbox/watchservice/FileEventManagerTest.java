@@ -17,7 +17,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.Mockito;
-import org.peerbox.app.manager.file.FileManager;
+import org.peerbox.app.manager.file.IFileManager;
 import org.peerbox.utils.FileTestUtils;
 import org.peerbox.watchservice.filetree.FileTree;
 import org.peerbox.watchservice.filetree.composite.FileComponent;
@@ -45,7 +45,7 @@ public class FileEventManagerTest {
 	private static FileTree fileTree;
 	private static FileEventManager manager;
 	private static ActionExecutor actionExecutor;
-	private static FileManager fileManager;
+	private static IFileManager fileManager;
 	
 	private static String parentPath = System.getProperty("user.home") + File.separator + "PeerBox_FileEventManagerTest" + File.separator; 
 	private static File testDirectory;
@@ -61,7 +61,7 @@ public class FileEventManagerTest {
 	public static void staticSetup(){
 		fileTree = new FileTree(Paths.get(parentPath), true);
 		manager = new FileEventManager(fileTree);
-		fileManager = Mockito.mock(FileManager.class);
+		fileManager = Mockito.mock(IFileManager.class);
 		actionExecutor = new ActionExecutor(manager, fileManager);
 		actionExecutor.setWaitForActionCompletion(false);
 		actionExecutor.start();

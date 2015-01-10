@@ -17,7 +17,7 @@ import org.hive2hive.core.exceptions.Hive2HiveException;
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.hive2hive.core.exceptions.NoSessionException;
 import org.hive2hive.processframework.exceptions.ProcessExecutionException;
-import org.peerbox.app.manager.file.FileManager;
+import org.peerbox.app.manager.file.IFileManager;
 import org.peerbox.h2h.ProcessHandle;
 import org.peerbox.watchservice.filetree.composite.FileComponent;
 import org.peerbox.watchservice.filetree.composite.FolderComposite;
@@ -46,7 +46,7 @@ public class ActionExecutor implements Runnable, IActionEventListener {
 	public static final int NUMBER_OF_EXECUTE_SLOTS = 10;
 	public static final int MAX_EXECUTION_ATTEMPTS = 3;
 	
-	private FileManager fileManager;
+	private IFileManager fileManager;
 	private FileEventManager fileEventManager;
 	private boolean waitForActionCompletion = true;
 	
@@ -57,7 +57,7 @@ public class ActionExecutor implements Runnable, IActionEventListener {
 	private Thread executorThread;
 	
 	@Inject
-	public ActionExecutor(FileEventManager eventManager, FileManager fileManager){
+	public ActionExecutor(FileEventManager eventManager, IFileManager fileManager){
 		this.fileEventManager = eventManager;
 		this.fileManager = fileManager;
 		

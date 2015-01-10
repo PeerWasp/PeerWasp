@@ -6,7 +6,7 @@ import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.hive2hive.core.exceptions.NoSessionException;
 import org.hive2hive.processframework.exceptions.InvalidProcessStateException;
 import org.hive2hive.processframework.exceptions.ProcessExecutionException;
-import org.peerbox.app.manager.file.FileManager;
+import org.peerbox.app.manager.file.IFileManager;
 import org.peerbox.exceptions.NotImplException;
 import org.peerbox.watchservice.Action;
 import org.slf4j.Logger;
@@ -76,7 +76,7 @@ public class LocalMoveState extends AbstractActionState {
 	}
 
 	@Override
-	public ExecutionHandle execute(FileManager fileManager) throws NoSessionException, NoPeerConnectionException, ProcessExecutionException, InvalidProcessStateException {
+	public ExecutionHandle execute(IFileManager fileManager) throws NoSessionException, NoPeerConnectionException, ProcessExecutionException, InvalidProcessStateException {
 	
 		handle = fileManager.move(source.toFile(), action.getFilePath().toFile());
 		if(handle != null){

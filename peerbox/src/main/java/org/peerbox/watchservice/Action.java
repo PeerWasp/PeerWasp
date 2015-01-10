@@ -13,7 +13,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.hive2hive.core.exceptions.NoSessionException;
 import org.hive2hive.processframework.exceptions.InvalidProcessStateException;
-import org.peerbox.app.manager.file.FileManager;
+import org.peerbox.app.manager.file.IFileManager;
 import org.peerbox.watchservice.filetree.composite.FileComponent;
 import org.peerbox.watchservice.filetree.composite.FolderComposite;
 import org.peerbox.watchservice.states.AbstractActionState;
@@ -345,7 +345,7 @@ public class Action implements IAction{
 	 * @throws IllegalFileLocation
 	 * @throws InvalidProcessStateException 
 	 */
-	public ExecutionHandle execute(FileManager fileManager) throws NoSessionException,
+	public ExecutionHandle execute(IFileManager fileManager) throws NoSessionException,
 			NoPeerConnectionException, InvalidProcessStateException {
 		// this may be async, i.e. do not wait on completion of the process
 		// maybe return the IProcessComponent object such that the

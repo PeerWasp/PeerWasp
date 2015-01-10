@@ -9,7 +9,7 @@ import org.hive2hive.core.exceptions.NoSessionException;
 import org.hive2hive.processframework.exceptions.InvalidProcessStateException;
 import org.hive2hive.processframework.exceptions.ProcessExecutionException;
 import org.hive2hive.processframework.interfaces.IProcessComponent;
-import org.peerbox.app.manager.file.FileManager;
+import org.peerbox.app.manager.file.IFileManager;
 import org.peerbox.exceptions.NotImplException;
 import org.peerbox.h2h.ProcessHandle;
 import org.peerbox.watchservice.Action;
@@ -37,7 +37,7 @@ public class RecoverState extends AbstractActionState{
 	}
 
 	@Override
-	public ExecutionHandle execute(FileManager fileManager) throws NoSessionException,
+	public ExecutionHandle execute(IFileManager fileManager) throws NoSessionException,
 			NoPeerConnectionException, InvalidProcessStateException, ProcessExecutionException {
 			
 		Path path = action.getFilePath();

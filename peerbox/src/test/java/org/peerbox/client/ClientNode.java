@@ -12,6 +12,7 @@ import org.hive2hive.processframework.interfaces.IProcessComponent;
 import org.mockito.Mockito;
 import org.peerbox.IUserConfig;
 import org.peerbox.app.manager.file.FileManager;
+import org.peerbox.app.manager.file.IFileManager;
 import org.peerbox.app.manager.node.INodeManager;
 import org.peerbox.h2h.FileAgent;
 import org.peerbox.watchservice.ActionExecutor;
@@ -30,7 +31,7 @@ public class ClientNode {
 	
 	private FileTree fileTree;
 	private FileEventManager fileEventManager;
-	private FileManager fileManager;
+	private IFileManager fileManager;
 	private ActionExecutor actionExecutor;
 	private FolderWatchService watchService;
 

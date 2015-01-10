@@ -27,8 +27,8 @@ import org.hive2hive.processframework.exceptions.ProcessExecutionException;
 import org.mockito.Mockito;
 import org.peerbox.IUserConfig;
 import org.peerbox.app.manager.file.FileManager;
+import org.peerbox.app.manager.file.IFileManager;
 import org.peerbox.app.manager.node.INodeManager;
-import org.peerbox.interfaces.IFxmlLoaderProvider;
 
 public class FileRecoveryStarter extends Application {
 	
@@ -46,7 +46,7 @@ public class FileRecoveryStarter extends Application {
 	private static List<String> content;
 	private static final String fileName = "test-file.txt";
 	
-	private FileManager fileManager;
+	private IFileManager fileManager;
 	
 	private RecoverFileController controller;
 	

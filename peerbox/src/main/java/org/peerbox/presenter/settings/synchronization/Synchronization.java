@@ -13,9 +13,6 @@ import org.hive2hive.core.exceptions.NoSessionException;
 import org.hive2hive.core.processes.files.list.FileNode;
 import org.hive2hive.processframework.exceptions.InvalidProcessStateException;
 import org.hive2hive.processframework.exceptions.ProcessExecutionException;
-import org.peerbox.IUserConfig;
-import org.peerbox.UserConfig;
-import org.peerbox.app.manager.file.FileManager;
 import org.peerbox.app.manager.file.IFileManager;
 import org.peerbox.watchservice.FileEventManager;
 import org.peerbox.watchservice.IFileEventManager;
@@ -60,7 +57,7 @@ public class Synchronization implements Initializable {
 	private Vector<FileComponent> toSync = new Vector<FileComponent>();
 	
 	@Inject
-	public Synchronization(FileManager fileManager, FileEventManager eventManager) {
+	public Synchronization(IFileManager fileManager, FileEventManager eventManager) {
 		this.eventManager = eventManager;
 		this.fileManager = fileManager;
 	}

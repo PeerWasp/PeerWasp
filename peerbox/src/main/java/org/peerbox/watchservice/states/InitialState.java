@@ -6,7 +6,7 @@ import java.util.Map;
 
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.hive2hive.core.exceptions.NoSessionException;
-import org.peerbox.app.manager.file.FileManager;
+import org.peerbox.app.manager.file.IFileManager;
 import org.peerbox.exceptions.NotImplException;
 import org.peerbox.watchservice.Action;
 import org.peerbox.watchservice.IFileEventManager;
@@ -171,7 +171,7 @@ public class InitialState extends AbstractActionState {
 	
 
 	@Override
-	public ExecutionHandle execute(FileManager fileManager) throws NoSessionException,
+	public ExecutionHandle execute(IFileManager fileManager) throws NoSessionException,
 			NoPeerConnectionException {
 		logger.warn("Execute is not defined in the initial state  ({})", action.getFilePath());
 		notifyActionExecuteSucceeded();
