@@ -46,44 +46,34 @@ public class FolderComposite extends AbstractFileComponent{
 		this(path, updateContentHashes, false);
 	}
 
-	/**
-	 * Get the FileComponent at the specified location. Triggers updates of content and name hashes.
-	 *
-	 * @return If it does exist, the requested FileComponent is returned, null otherwise.
-	 */
 	@Override
 	public synchronized FileComponent getComponent(String remainingPath) {
-		// if the path it absolute, cut off the absolute path to the root directory!
-		logger.debug("Root: {} FilePath: {}", getPath(), remainingPath);
-		if (remainingPath.toString().equals(getPath().toString())) {
-			logger.debug("Return root");
+		final String pathStr = getPath().toString();
+		if (remainingPath.equals(pathStr)) {
 			return this;
 		}
-		if (remainingPath.startsWith(getPath().toString())) {
-			remainingPath = remainingPath.substring(getPath().toString().length() + 1);
-		}
+		remainingPath = stripOffPrefix(remainingPath, pathStr);
 
 		String nextLevelPath = PathUtils.getNextPathFragment(remainingPath);
 		String newRemainingPath = PathUtils.getRemainingPathFragment(remainingPath);
 
-		FileComponent nextLevelComponent = children.get(nextLevelPath);
-		// for(Map.Entry<String, FileComponent> child : children.entrySet()){
-		// logger.debug("{} has child {}", getPath(), child.getKey());
-		// }
-
-		if (newRemainingPath.equals("")) {
-			// if(nextLevelComponent != null && updateContentHashes){
-			// nextLevelComponent.bubbleContentHashUpdate();
-			// }
-			// bubbleContentNamesHashUpdate();
-			return children.get(nextLevelPath);
+		FileComponent nextLevel = children.get(nextLevelPath);
+		if (newRemainingPath.equals("") || nextLevel == null) {
+			return nextLevel;
 		} else {
-			if (nextLevelComponent == null) {
-				return null;
+			if (nextLevel.isFolder()) {
+				return nextLevel.getComponent(newRemainingPath);
 			} else {
-				return nextLevelComponent.getComponent(newRemainingPath);
+				return null;
 			}
 		}
+	}
+
+	private String stripOffPrefix(String str, final String prefix) {
+		if (str.startsWith(prefix)) {
+			str = str.substring(prefix.length() + 1);
+		}
+		return str;
 	}
 
 	/**
@@ -92,76 +82,43 @@ public class FolderComposite extends AbstractFileComponent{
 	 */
 	@Override
 	public synchronized void putComponent(String remainingPath, FileComponent component) {
-		// component.getAction().setPath(Paths.get(remainingPath));
-		// if the path it absolute, cut off the absolute path to the root directory!
-		if (remainingPath.startsWith(getPath().toString())) {
-			remainingPath = remainingPath.substring(getPath().toString().length() + 1);
-		}
-		// logger.trace("after remainingpath calculation {}", remainingPath);
+		final String pathStr = getPath().toString();
+		remainingPath = stripOffPrefix(remainingPath, pathStr);
+
 		String nextLevelPath = PathUtils.getNextPathFragment(remainingPath);
 		String newRemainingPath = PathUtils.getRemainingPathFragment(remainingPath);
 
-		FileComponent nextLevelComponent;
-		if (newRemainingPath == null) {
-			// logger.debug("newRemainingPath == null");
-		}
 		// if we are at the last recursion, perform the add, else recursively continue
 		if (newRemainingPath.equals("")) {
-			// logger.trace("newRemainingPath is empty {}", remainingPath);
-			if (nextLevelPath == null) {
-				// logger.trace("nextLevelPath is NULL {}", remainingPath);
-			}
-			// logger.trace("nextLevelPath is {}", nextLevelPath);
 			addComponentToChildren(nextLevelPath, component);
-			// logger.trace("after addComponentToChildren {}", nextLevelPath);
 		} else {
-			// logger.trace("newRemainingPath is not empty {}", remainingPath);
-			nextLevelComponent = children.get(nextLevelPath);
-			// logger.trace("after children.get {}", remainingPath);
-			if (nextLevelComponent == null) {
-				// logger.trace("newLevelComponent is null {}", remainingPath);
-				Path completePath = constructFullPath(nextLevelPath);
-				// logger.trace("after completePathConstrution{} {}", remainingPath, completePath);
-				nextLevelComponent = new FolderComposite(completePath, updateContentHash);
-				// logger.trace("after new FolderComposite( {} {}", remainingPath, completePath);
-				addComponentToChildren(nextLevelPath, nextLevelComponent);
-				// logger.trace("after addComponentToChildren2 {} {}", nextLevelPath, nextLevelComponent);
+			FileComponent nextLevel = children.get(nextLevelPath);
+			if (nextLevel == null) {
+				Path childPath = constructFullPath(nextLevelPath);
+				nextLevel = new FolderComposite(childPath, updateContentHash);
+				addComponentToChildren(nextLevelPath, nextLevel);
 			}
-
-			nextLevelComponent.putComponent(newRemainingPath, component);
-			// logger.trace("success nextLevelComponent.putComponen", remainingPath);
+			nextLevel.putComponent(newRemainingPath, component);
 		}
-		// logger.trace("success putComponent", nextLevelPath);
 	}
 
 	/*
 	 * Because of the new children, the content hash of the directory may change and is propagated
 	 */
-	private void addComponentToChildren(String nextLevelPath, FileComponent component) {
+	private void addComponentToChildren(final String nextLevelPath, final FileComponent component) {
 		children.remove(nextLevelPath);
 		children.put(nextLevelPath, component);
-		// logger.trace("after remove/put {}", nextLevelPath);
-		// if(component == null){
-		// logger.trace("COMPONENT IS NULL");
-		// }
 		component.setParent(this);
-		logger.trace("SET Parent for {} is {}", component.getPath(), getPath());
-		// logger.trace("after setParent {}", nextLevelPath);
 		if (updateContentHash) {
-			// logger.trace("START bubbleContentHashUpdate {}", nextLevelPath);
 			bubbleContentHashUpdate();
-			// logger.trace("END bubbleContentHashUpdate {}", nextLevelPath);
 		}
-		// logger.trace("after bubbleContentHashUpdate {}", nextLevelPath);
 		component.setParentPath(getPath());
-		// logger.trace("after setPath {}", nextLevelPath);
+
 		if (component.isFolder()) {
 			FolderComposite componentAsFolder = (FolderComposite) component;
 			componentAsFolder.propagatePathChangeToChildren();
 		}
-		// logger.trace("BEFORE bubbleContentNamesHashUpdate {}", nextLevelPath);
 		bubbleContentNamesHashUpdate();
-		// logger.trace("successful bubbleContentNamesHashUpdate {}", nextLevelPath);
 	}
 
 	/**
@@ -172,35 +129,29 @@ public class FolderComposite extends AbstractFileComponent{
 	 */
 	@Override
 	public FileComponent deleteComponent(String remainingPath) {
-		if (remainingPath.startsWith(getPath().toString())) {
-			remainingPath = remainingPath.substring(getPath().toString().length() + 1);
-		}
+		final String pathStr = getPath().toString();
+		remainingPath = stripOffPrefix(remainingPath, pathStr);
 
 		String nextLevelPath = PathUtils.getNextPathFragment(remainingPath);
 		String newRemainingPath = PathUtils.getRemainingPathFragment(remainingPath);
 
-		FileComponent nextLevelComponent = children.get(nextLevelPath);
-
+		FileComponent removed = null;
 		if (newRemainingPath.equals("")) {
-			FileComponent removed = children.remove(nextLevelPath);
-			// logger.debug("Removed {}", removed.getPath());
+			removed = children.remove(nextLevelPath);
 			if (updateContentHash) {
 				bubbleContentHashUpdate();
 			}
 			bubbleContentNamesHashUpdate();
-			return removed;
 		} else {
-			if (nextLevelComponent == null) {
-				return null;
-			} else {
-				FileComponent deletedComponent = nextLevelComponent
-						.deleteComponent(newRemainingPath);
-				return deletedComponent;
+			FileComponent nextLevel = children.get(nextLevelPath);
+			if (nextLevel != null) {
+				removed = nextLevel.deleteComponent(newRemainingPath);
 			}
 		}
+		return removed;
 	}
 
-	private Path constructFullPath(String name) {
+	private Path constructFullPath(final String name) {
 		Path completePath = getPath().resolve(name);
 		return completePath;
 	}
@@ -217,32 +168,24 @@ public class FolderComposite extends AbstractFileComponent{
 		for (String childName : children.keySet()) {
 			nameHashInput = nameHashInput.concat(childName);
 		}
-		structureHash = PathUtils.createStringFromByteArray(HashUtil.hash(nameHashInput.getBytes()));
-		if (!structureHash.equals(oldNamesHash)) {
-			return true;
-		} else {
-			return false;
-		}
+
+		byte[] rawHash = HashUtil.hash(nameHashInput.getBytes());
+		structureHash = PathUtils.createStringFromByteArray(rawHash);
+		boolean hasChanged = !structureHash.equals(oldNamesHash);
+		return hasChanged;
 	}
 
 	private void bubbleContentNamesHashUpdate() {
-		// logger.debug("Structure hash of {} before: {}", path, contentNamesHash);
 		boolean hasChanged = computeContentNamesHash();
-		// logger.debug("Structure hash of {} after: {}", path, contentNamesHash);
-		// logger.debug("successful computeContentNamesHash hasChanged {}", hasChanged);
 		if (hasChanged && getParent() != null) {
-			// logger.debug("start partent.bubbleContentNamesHashUpdate");
 			getParent().bubbleContentNamesHashUpdate();
-			// logger.debug("finish partent.bubbleContentNamesHashUpdate");
 		}
 	}
 
 	@Override
 	protected boolean updateContentHash() {
-		// logger.debug("enter updateContentHash(String) in FolderComposite()");
 		String hashOfChildren = "";
 		for (FileComponent child : children.values()) {
-			// logger.debug("value: {}", value.getPath());
 			hashOfChildren = hashOfChildren.concat(child.getContentHash());
 		}
 
@@ -264,8 +207,7 @@ public class FolderComposite extends AbstractFileComponent{
 	 *
 	 * @param parentPath
 	 */
-	public void propagatePathChangeToChildren() {
-		// System.out.println("getPath(): " + getPath());
+	private void propagatePathChangeToChildren() {
 		for (FileComponent child : children.values()) {
 			child.setParentPath(getPath());
 			if (child.isFolder()) {
@@ -334,7 +276,6 @@ public class FolderComposite extends AbstractFileComponent{
 		if (isRoot) {
 			return true;
 		} else {
-			logger.trace("Parent for {} is {}", getPath(), getParent());
 			boolean parentIsUploaded = getParent().isActionUploaded();
 			return parentIsUploaded;
 		}

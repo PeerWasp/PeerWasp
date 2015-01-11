@@ -55,7 +55,6 @@ abstract class AbstractFileComponent implements FileComponent {
 		if (parentPath != null) {
 			Path newPath = parentPath.resolve(getPath().getFileName());
 			setPath(newPath);
-			// logger.debug("Set path to {}", newPath);
 		}
 	}
 
