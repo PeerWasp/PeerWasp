@@ -4,7 +4,7 @@ abstract class AbstractUserMessage implements IUserMessage {
 
 	private final String username;
 
-	public AbstractUserMessage(final String username) {
+	AbstractUserMessage(final String username) {
 		this.username = username;
 	}
 

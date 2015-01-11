@@ -1,5 +1,9 @@
 package org.peerbox.app.manager.node;
 
-public class NodeDisconnectMessage implements INodeMessage {
+public final class NodeDisconnectMessage implements INodeMessage {
+
+	NodeDisconnectMessage() {
+
+	}
 
 }

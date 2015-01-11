@@ -25,10 +25,10 @@ public interface IFileManager {
 	ProcessHandle<Void> download(final File file) throws NoSessionException, NoPeerConnectionException;
 
 	ProcessHandle<Void> recover(final File file, final IVersionSelector versionSelector) throws NoSessionException, NoPeerConnectionException;
-	
+
 	ProcessHandle<Void> share(final File folder, final String userId, final PermissionType permission) throws NoSessionException, NoPeerConnectionException, IllegalArgumentException, InvalidProcessStateException, ProcessExecutionException;
-	
-	FileNode listFiles() throws NoSessionException, NoPeerConnectionException, InvalidProcessStateException, ProcessExecutionException;
+
+	ProcessHandle<FileNode> listFiles() throws NoSessionException, NoPeerConnectionException;
 
 	boolean existsRemote(final Path path);
 
