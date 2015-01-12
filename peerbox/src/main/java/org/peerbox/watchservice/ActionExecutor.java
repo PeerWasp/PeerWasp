@@ -242,7 +242,7 @@ public class ActionExecutor implements Runnable, IActionEventListener {
 		changedWhileExecuted = action.getChangedWhileExecuted();
 
 		action.onSucceed();
-		action.setIsUploaded(true);
+		action.getFile().setIsUploaded(true);
 		logger.trace("Release lock of action {} at {}", action.getFilePath(), System.currentTimeMillis());
 
 		if(changedWhileExecuted){

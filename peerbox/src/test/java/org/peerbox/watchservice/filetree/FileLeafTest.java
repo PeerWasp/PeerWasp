@@ -147,30 +147,16 @@ public class FileLeafTest {
 
 	@Test
 	public void testGetAndsetIsActionUploaded() {
-		boolean isUploaded = leaf.isActionUploaded(); // initial expetced false
-		assertFalse(leaf.isActionUploaded());
-		assertEquals(leaf.isActionUploaded(), leaf.getAction().isUploaded());
+		boolean isUploaded = leaf.isUploaded(); // initial expetced false
+		assertFalse(leaf.isUploaded());
 
 		isUploaded = !isUploaded; // toggle and test
-		leaf.setIsActionUploaded(isUploaded);
-		assertTrue(leaf.isActionUploaded());
-		assertEquals(leaf.isActionUploaded(), leaf.getAction().isUploaded());
+		leaf.setIsUploaded(isUploaded);
+		assertTrue(leaf.isUploaded());
 
 		isUploaded = !isUploaded; // toggle and test
-		leaf.setIsActionUploaded(isUploaded);
-		assertFalse(leaf.isActionUploaded());
-		assertEquals(leaf.isActionUploaded(), leaf.getAction().isUploaded());
-
-		// use action to set it
-		isUploaded = !isUploaded; // toggle and test
-		leaf.getAction().setIsUploaded(isUploaded);
-		assertEquals(isUploaded, leaf.isActionUploaded());
-		assertEquals(leaf.isActionUploaded(), leaf.getAction().isUploaded());
-
-		isUploaded = !isUploaded; // toggle and test
-		leaf.getAction().setIsUploaded(isUploaded);
-		assertEquals(isUploaded, leaf.isActionUploaded());
-		assertEquals(leaf.isActionUploaded(), leaf.getAction().isUploaded());
+		leaf.setIsUploaded(isUploaded);
+		assertFalse(leaf.isUploaded());
 	}
 
 	@Test
@@ -254,11 +240,11 @@ public class FileLeafTest {
 		assertFalse(leaf.isReady());
 
 		// parent uploaded -> leaf is ready now
-		parentA.setIsActionUploaded(true);
+		parentA.setIsUploaded(true);
 		assertTrue(leaf.isReady());
 
 		// parent uploaded -> leaf is ready now
-		parentA.setIsActionUploaded(false);
+		parentA.setIsUploaded(false);
 		assertFalse(leaf.isReady());
 	}
 

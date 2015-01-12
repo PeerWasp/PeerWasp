@@ -20,7 +20,7 @@ public interface IAction {
 	public void addEventListener(IActionEventListener listener);
 	public Path getFilePath();
 	public void setEventManager(IFileEventManager fileEventManager);
-	
+
 	public ExecutionHandle execute(IFileManager fileManager) throws NoSessionException,
 	NoPeerConnectionException, InvalidProcessStateException;
 	public void handleLocalCreateEvent();
@@ -33,19 +33,16 @@ public interface IAction {
 	public void handleRemoteUpdateEvent();
 	public void handleRemoteMoveEvent(Path srcPath);
 	public void handleRecoverEvent(File currentFile, int versionToRecover);
-//	public void setPath(Path path);
-	public void setIsUploaded(boolean isUploaded);
-	public boolean isUploaded();
 	public FileComponent getFile();
 	public void setFile(FileComponent file);
 	public int getExecutionAttempts();
 	public void onSucceed();
 	public void onFailed();
-	
+
 	public AbstractActionState getNextState();
 	public boolean isExecuting();
 
 	public boolean getChangedWhileExecuted();
-	
+
 	public Lock getLock();
 }

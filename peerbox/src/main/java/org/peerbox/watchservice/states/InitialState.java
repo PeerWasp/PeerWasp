@@ -18,7 +18,7 @@ import org.slf4j.LoggerFactory;
 /**
  * the Initial state is given when a file is considered as new, synced or unknown.
  * The transition to another state is always valid and will be therefore accepted.
- * 
+ *
  * @author winzenried
  *
  */
@@ -48,14 +48,14 @@ public class InitialState extends AbstractActionState {
 		logStateTransission(getStateType(), EventType.LOCAL_MOVE, StateType.LOCAL_MOVE);
 		return new LocalMoveState(action, source);
 	}
-	
+
 	@Override
 	public AbstractActionState changeStateOnLocalRecover(File currentFile, int versionToRecover) {
 		//logStateTransission(getStateType(), EventType.LOCAL_RECOVER, StateType.LOCAL_RECOVER);
 //		throw new NotImplException("InitialState.localRecover");
 		return new RecoverState(action, currentFile, versionToRecover);
 	}
-	
+
 	@Override
 	public AbstractActionState changeStateOnRemoteCreate() {
 		logStateTransission(getStateType(), EventType.REMOTE_CREATE, StateType.REMOTE_CREATE);
@@ -71,7 +71,7 @@ public class InitialState extends AbstractActionState {
 	@Override
 	public AbstractActionState changeStateOnRemoteMove(Path oldFilePath) {
 		logger.debug("Remote Move Event: Initial -> Remote Move ({}) {}", action.getFilePath(), action.hashCode());
-		
+
 		Path path = action.getFilePath();
 		logger.debug("Execute REMOTE MOVE: {}", path);
 		throw new NotImplException("InitialState.onremoteMove");
@@ -79,7 +79,7 @@ public class InitialState extends AbstractActionState {
 
 	@Override
 	public AbstractActionState handleLocalCreate() {
-		
+
 		IFileEventManager eventManager = action.getEventManager();
 		if(action.getFilePath().toFile().isDirectory()){
 			//find deleted by structure hash
@@ -106,7 +106,7 @@ public class InitialState extends AbstractActionState {
 		if(moveSource == null){
 //			eventManager.getFileTree().putComponent(action.getFilePath().toString(), action.getFile());
 //			eventManager.getFileTree().putFile(action.getFilePath(), action.getFile());
-			if(action.isUploaded()){
+			if(action.getFile().isUploaded()){
 				logger.debug("This file is already uploaded, hence it is not uploaded again.");
 				updateTimeAndQueue();
 				return changeStateOnLocalUpdate();
@@ -117,7 +117,7 @@ public class InitialState extends AbstractActionState {
 		} else {
 //			eventManager.getFileTree().deleteFile(moveSource.getPath());
 			eventManager.getFileComponentQueue().remove(action.getFile());
-			if(moveSource.isActionUploaded()){
+			if(moveSource.isUploaded()){
 				logger.trace("Handle move of {}, from {}.", action.getFilePath(), moveSource.getPath());
 				eventManager.getFileTree().deleteFile(action.getFilePath());
 				moveSource.getAction().handleLocalMoveEvent(action.getFilePath());
@@ -128,7 +128,7 @@ public class InitialState extends AbstractActionState {
 				return changeStateOnLocalCreate();
 			}
 		}
-		
+
 	}
 
 	@Override
@@ -168,7 +168,7 @@ public class InitialState extends AbstractActionState {
 		// TODO Auto-generated method stub
 		throw new NotImplException("InitialState.handleRemoteMove");
 	}
-	
+
 
 	@Override
 	public ExecutionHandle execute(IFileManager fileManager) throws NoSessionException,
@@ -184,7 +184,7 @@ public class InitialState extends AbstractActionState {
 		updateTimeAndQueue();
 		return new RecoverState(action, currentFile, version);
 	}
-	
+
 	public AbstractActionState getDefaultState(){
 		return this;
 	}

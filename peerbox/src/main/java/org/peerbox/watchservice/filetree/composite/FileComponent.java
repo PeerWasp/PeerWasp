@@ -41,11 +41,9 @@ public interface FileComponent {
 
 	void setIsSynchronized(boolean isSynchronized);
 
-	boolean isActionUploaded();
+	boolean isUploaded();
 
-	void setIsActionUploaded(boolean isUploaded);
-
-	void propagateIsUploaded();
+	void setIsUploaded(boolean isUploaded);
 
 	boolean isReady();
 

@@ -26,10 +26,10 @@ import org.slf4j.LoggerFactory;
 
 
 /**
- * The Action class provides a systematic and lose-coupled way to change the 
+ * The Action class provides a systematic and lose-coupled way to change the
  * state of an object as part of the chosen state pattern design.
- * 
- * 
+ *
+ *
  * @author albrecht, anliker, winzenried
  *
  */
@@ -37,19 +37,18 @@ import org.slf4j.LoggerFactory;
 public class Action implements IAction{
 	private final static Logger logger = LoggerFactory.getLogger(Action.class);
 	private long timestamp = Long.MAX_VALUE;
-	
+
 	private AbstractActionState currentState;
 	private AbstractActionState nextState;
 	private Set<IActionEventListener> eventListeners;
 	private int executionAttempts = 0;
 	private IFileEventManager eventManager;
 	private FileComponent file;
-	
-	private boolean isUploaded = false;
+
 	private boolean isExecuting = false;
 	private boolean	changedWhileExecuted = false;
 	private final Lock lock = new ReentrantLock();
-	
+
 	/**
 	 * Initialize with timestamp and set currentState to initial state
 	 */
@@ -60,19 +59,19 @@ public class Action implements IAction{
 		this.eventManager = fileEventManager;
 		updateTimestamp();
 	}
-	
+
 	public Action(){
 		this(null);
 	}
-	
+
 	public void setEventManager(IFileEventManager fileEventManager){
 		this.eventManager = fileEventManager;
 	}
-	
+
 	public IFileEventManager getEventManager(){
 		return eventManager;
 	}
-	
+
 	public FileComponent getFile() {
 		return file;
 	}
@@ -80,26 +79,18 @@ public class Action implements IAction{
 	public void setFile(FileComponent file) {
 		this.file = file;
 	}
-	
+
 	public void updateTimestamp() {
 		timestamp = System.currentTimeMillis();
 	}
-	
-	public boolean isUploaded(){
-		return isUploaded;
-	}
-	
-	public void setIsUploaded(boolean isUploaded){
-		this.isUploaded = isUploaded;
-	}
-	
+
 	/**
 	 * changes the state of the currentState to Create state if current state allows it.
 	 */
 	public void handleLocalCreateEvent(){
 		logger.trace("handleLocalCreateEvent - File: {}", getFilePath());
 		if(isExecuting){
-			
+
 			acquireLockOnThis();
 			logger.trace("Event occured for {} while executing.", getFilePath());
 			nextState = nextState.changeStateOnLocalCreate();
@@ -114,7 +105,7 @@ public class Action implements IAction{
 			releaseLockOnThis();
 		}
 	}
-	
+
 	private void releaseLockOnThis() {
 		logger.trace("File {}: Release lock on this at {}", getFilePath(), System.currentTimeMillis());
 		lock.unlock();
@@ -133,7 +124,7 @@ public class Action implements IAction{
 		logger.trace("handleLocalUpdateEvent - File: {}", getFilePath());
 		acquireLockOnThis();
 		if(isExecuting){
-			
+
 
 			logger.trace("Event occured for {} while executing.", getFilePath());
 			nextState = nextState.changeStateOnLocalUpdate();
@@ -143,7 +134,7 @@ public class Action implements IAction{
 		} else {
 			updateTimestamp();
 			if(currentState instanceof LocalMoveState){
-				
+
 				nextState = nextState.changeStateOnLocalUpdate();
 			} else {
 				currentState = currentState.handleLocalUpdate();
@@ -172,7 +163,7 @@ public class Action implements IAction{
 		}
 		releaseLockOnThis();
 	}
-	
+
 	public void handleLocalHardDeleteEvent(){
 		if(getFile().isFolder()){
 			logger.trace("File {}: is a folder", getFile().getPath());
@@ -197,7 +188,7 @@ public class Action implements IAction{
 			nextState = currentState.getDefaultState();
 		}
 		releaseLockOnThis();
-		
+
 		if(!Files.exists(getFilePath())){
 			return;
 		}
@@ -208,7 +199,7 @@ public class Action implements IAction{
 			e.printStackTrace();
 		}
 	}
-	
+
 	public void handleLocalMoveEvent(Path oldFilePath) {
 		logger.debug("handleLocalMoveEvent - File: {}", getFilePath());
 		acquireLockOnThis();
@@ -229,7 +220,7 @@ public class Action implements IAction{
 		}
 		releaseLockOnThis();
 	}
-	
+
 	public void handleRemoteUpdateEvent() {
 		logger.trace("handleRemoteUpdateEvent - File: {}", getFilePath());
 		acquireLockOnThis();
@@ -247,15 +238,15 @@ public class Action implements IAction{
 		}
 		releaseLockOnThis();
 	}
-	
-	public void handleRemoteDeleteEvent() {	
+
+	public void handleRemoteDeleteEvent() {
 		logger.trace("handleRemoteDeleteEvent - File: {}", getFilePath());
-		
+
 		if(getFile().isFolder()){
 			logger.trace("File {}: is a folder", getFile().getPath());
 			FolderComposite folder = (FolderComposite)getFile();
 			Map<String, FileComponent> children = folder.getChildren();
-			
+
 //			Vector<FileComponent> children = new Vector<FileComponent>(folder.getChildren().values());
 			for(Map.Entry<String, FileComponent> childEntry : children.entrySet()){
 				FileComponent child = childEntry.getValue();
@@ -263,7 +254,7 @@ public class Action implements IAction{
 				child.getAction().handleRemoteDeleteEvent();
 			}
 		}
-		
+
 		acquireLockOnThis();
 		if(isExecuting){
 
@@ -278,14 +269,14 @@ public class Action implements IAction{
 		}
 		releaseLockOnThis();
 	}
-	
+
 	public void handleRemoteCreateEvent() {
 		logger.trace("handleRemoteCreateEvent - File: {}", getFilePath());
 		acquireLockOnThis();
 		if(isExecuting){
 
 			logger.trace("Event occured for {} while executing.", getFilePath());
-			
+
 			nextState = nextState.changeStateOnRemoteCreate();
 			checkIfChanged();
 
@@ -296,7 +287,7 @@ public class Action implements IAction{
 		}
 		releaseLockOnThis();
 	}
-	
+
 	private void checkIfChanged() {
 		if(!(nextState instanceof EstablishedState)){
 			logger.trace("File {}: Next state is of type {}, keep track of change", getFilePath(), nextState.getClass());
@@ -322,7 +313,7 @@ public class Action implements IAction{
 			updateTimestamp();
 			currentState = currentState.handleRemoteMove(path);
 			nextState = currentState.getDefaultState();
-			
+
 			if(!Files.exists(oldPath)){
 				return;
 			}
@@ -331,19 +322,19 @@ public class Action implements IAction{
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
-		}		
+		}
 		releaseLockOnThis();
 	}
 
 
 	/**
-	 * Each state is able to execute an action as soon the state is considered as stable. 
+	 * Each state is able to execute an action as soon the state is considered as stable.
 	 * The action itself depends on the current state (e.g. add file, delete file, etc.)
-	 * @return 
+	 * @return
 	 * @throws NoSessionException
 	 * @throws NoPeerConnectionException
 	 * @throws IllegalFileLocation
-	 * @throws InvalidProcessStateException 
+	 * @throws InvalidProcessStateException
 	 */
 	public ExecutionHandle execute(IFileManager fileManager) throws NoSessionException,
 			NoPeerConnectionException, InvalidProcessStateException {
@@ -364,30 +355,30 @@ public class Action implements IAction{
 				logger.error("{} : {} ", curr.getFileName(), curr.getLineNumber());
 			}
 		}
-		
+
 		return ehandle;
 	}
-	
+
 	public Path getFilePath(){
 		return file.getPath();
 	}
-	
+
 	public long getTimestamp() {
 		return timestamp;
 	}
-	
+
 	/**
 	 * @return current state object
 	 */
-	public AbstractActionState getCurrentState() { 
+	public AbstractActionState getCurrentState() {
 		logger.trace("Current state of {} is {}", getFilePath(), currentState.getClass());
 		return currentState;
 	}
-	
+
 	public synchronized void addEventListener(IActionEventListener listener) {
 		eventListeners.add(listener);
 	}
-	
+
 	public Set<IActionEventListener> getEventListener() {
 		return eventListeners;
 	}
@@ -420,7 +411,7 @@ public class Action implements IAction{
 	public boolean isExecuting() {
 		return isExecuting;
 	}
-	
+
 	private void setIsExecuting(boolean isExecuting){
 		this.isExecuting = isExecuting;
 	}

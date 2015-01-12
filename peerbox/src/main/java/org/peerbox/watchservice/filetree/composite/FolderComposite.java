@@ -16,7 +16,7 @@ import org.slf4j.LoggerFactory;
  * @author Claudio
  * Represents a folder in the application internal FileTree.
  */
-public class FolderComposite extends AbstractFileComponent{
+public class FolderComposite extends AbstractFileComponent {
 
 	private static final Logger logger = LoggerFactory.getLogger(FolderComposite.class);
 
@@ -33,7 +33,7 @@ public class FolderComposite extends AbstractFileComponent{
 		this.isRoot = isRoot;
 
 		if (isRoot) {
-			getAction().setIsUploaded(true);
+			setIsUploaded(true);
 			setIsSynchronized(true);
 		}
 
@@ -42,8 +42,8 @@ public class FolderComposite extends AbstractFileComponent{
 		}
 	}
 
-	public FolderComposite(final Path path, boolean updateContentHashes) {
-		this(path, updateContentHashes, false);
+	public FolderComposite(final Path path, boolean updateContentHash) {
+		this(path, updateContentHash, false);
 	}
 
 	@Override
@@ -233,14 +233,6 @@ public class FolderComposite extends AbstractFileComponent{
 	}
 
 	@Override
-	public void propagateIsUploaded() {
-		setIsActionUploaded(true);
-		if (!isRoot) {
-			getParent().propagateIsUploaded();
-		}
-	}
-
-	@Override
 	public String getStructureHash() {
 		return structureHash;
 	}
@@ -259,14 +251,6 @@ public class FolderComposite extends AbstractFileComponent{
 	}
 
 	@Override
-	public void setIsActionUploaded(boolean isUploaded) {
-		super.setIsActionUploaded(isUploaded);
-		for (FileComponent child : children.values()) {
-			child.getAction().setIsUploaded(isUploaded);
-		}
-	}
-
-	@Override
 	public boolean isFile() {
 		return false;
 	}
@@ -276,7 +260,7 @@ public class FolderComposite extends AbstractFileComponent{
 		if (isRoot) {
 			return true;
 		} else {
-			boolean parentIsUploaded = getParent().isActionUploaded();
+			boolean parentIsUploaded = getParent().isUploaded();
 			return parentIsUploaded;
 		}
 	}

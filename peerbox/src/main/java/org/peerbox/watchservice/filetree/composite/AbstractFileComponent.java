@@ -13,45 +13,47 @@ abstract class AbstractFileComponent implements FileComponent {
 	private Path path;
 	private String contentHash;
 	private boolean isSynchronized;
+	private boolean isUploaded;
 	protected final boolean updateContentHash;
 
 	private FolderComposite parent;
 
-	AbstractFileComponent(final Path path, final boolean updateContentHash) {
+	protected AbstractFileComponent(final Path path, final boolean updateContentHash) {
 		this.action = new Action();
 		this.path = path;
 		this.contentHash = "";
 		this.updateContentHash = updateContentHash;
+		this.isUploaded = false;
 		this.isSynchronized = false;
 	}
 
 	@Override
-	public IAction getAction() {
+	public final IAction getAction() {
 		return action;
 	}
 
 	@Override
-	public boolean isActionUploaded() {
-		return action.isUploaded();
+	public final boolean isUploaded() {
+		return isUploaded;
 	}
 
 	@Override
-	public void setIsActionUploaded(boolean isUploaded) {
-		action.setIsUploaded(isUploaded);
+	public final void setIsUploaded(boolean isUploaded) {
+		this.isUploaded = isUploaded;
 	}
 
 	@Override
-	public Path getPath() {
+	public final Path getPath() {
 		return this.path;
 	}
 
 	@Override
-	public void setPath(Path path) {
+	public final void setPath(Path path) {
 		this.path = path;
 	}
 
 	@Override
-	public void setParentPath(Path parentPath) {
+	public final void setParentPath(final Path parentPath) {
 		if (parentPath != null) {
 			Path newPath = parentPath.resolve(getPath().getFileName());
 			setPath(newPath);
@@ -59,26 +61,26 @@ abstract class AbstractFileComponent implements FileComponent {
 	}
 
 	@Override
-	public FolderComposite getParent() {
+	public final FolderComposite getParent() {
 		return parent;
 	}
 
 	@Override
-	public void setParent(FolderComposite parent) {
+	public final void setParent(final FolderComposite parent) {
 		this.parent = parent;
 	}
 
 	@Override
-	public String getContentHash() {
+	public final String getContentHash() {
 		return contentHash;
 	}
 
-	protected void setContentHash(String contentHash) {
+	protected final void setContentHash(String contentHash) {
 		this.contentHash = contentHash;
 	}
 
 	@Override
-	public boolean bubbleContentHashUpdate() {
+	public final boolean bubbleContentHashUpdate() {
 		boolean hasChanged = updateContentHash();
 		if (hasChanged && getParent() != null) {
 			getParent().bubbleContentHashUpdate();
@@ -89,7 +91,7 @@ abstract class AbstractFileComponent implements FileComponent {
 	protected abstract boolean updateContentHash();
 
 	@Override
-	public boolean isSynchronized() {
+	public final boolean isSynchronized() {
 		return isSynchronized;
 	}
 
@@ -99,7 +101,7 @@ abstract class AbstractFileComponent implements FileComponent {
 	}
 
 	@Override
-	public boolean isFolder() {
+	public final boolean isFolder() {
 		return !isFile();
 	}
 

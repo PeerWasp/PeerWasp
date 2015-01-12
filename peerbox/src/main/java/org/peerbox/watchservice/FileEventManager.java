@@ -19,6 +19,7 @@ import org.peerbox.h2h.IFileRecoveryRequestEvent;
 import org.peerbox.watchservice.filetree.FileTree;
 import org.peerbox.watchservice.filetree.IFileTree;
 import org.peerbox.watchservice.filetree.composite.FileComponent;
+import org.peerbox.watchservice.filetree.composite.FileCompositeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -149,8 +150,7 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 			return;
 		}
 		fileTree.putFile(path, file);
-		file.propagateIsUploaded();
-//		FileComponent file = fileTree.addAndPutFile(path);
+		FileCompositeUtils.setIsUploadedWithAncestors(file, true);
 		file.setIsSynchronized(true);
 		onFileAdd(new FileAddEvent(path.toFile(), isFolder));
 	}

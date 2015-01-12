@@ -91,7 +91,7 @@ public class FolderCompositeTest {
 		// root after creating object
 		FolderComposite r = rootFolder = new FolderComposite(rootPath, true, true);
 		assertNotNull(r.getAction());
-		assertTrue(r.isActionUploaded());
+		assertTrue(r.isUploaded());
 		assertEquals(rootPath, r.getPath());
 		assertNull(r.getParent());
 		assertEquals(r.getContentHash(), EMPTY_FOLDER_HASH);
@@ -107,7 +107,7 @@ public class FolderCompositeTest {
 		// root after creating object
 		FolderComposite r = rootFolder = new FolderComposite(rootPath, true, false);
 		assertNotNull(r.getAction());
-		assertFalse(r.isActionUploaded()); // now false
+		assertFalse(r.isUploaded()); // now false
 		assertEquals(rootPath, r.getPath());
 		assertNull(r.getParent());
 		assertEquals(r.getContentHash(), EMPTY_FOLDER_HASH);
@@ -328,37 +328,37 @@ public class FolderCompositeTest {
 		FileComponent fC = createFile(file);
 		rootFolder.putComponent(file.toString(), fC);
 
-		assertTrue(rootFolder.isActionUploaded());
-		assertFalse(fA.isActionUploaded());
-		assertFalse(fB.isActionUploaded());
-		assertFalse(fC.isActionUploaded());
+		assertTrue(rootFolder.isUploaded());
+		assertFalse(fA.isUploaded());
+		assertFalse(fB.isUploaded());
+		assertFalse(fC.isUploaded());
 
 		// switch true/false fB
-		fB.setIsActionUploaded(true);
-		assertTrue(rootFolder.isActionUploaded());
-		assertFalse(fA.isActionUploaded());
-		assertTrue(fB.isActionUploaded());
-		assertTrue(fC.isActionUploaded());
+		fB.setIsUploaded(true);
+		assertTrue(rootFolder.isUploaded());
+		assertFalse(fA.isUploaded());
+		assertTrue(fB.isUploaded());
+		assertTrue(fC.isUploaded());
 
-		fB.setIsActionUploaded(false);
-		assertTrue(rootFolder.isActionUploaded());
-		assertFalse(fA.isActionUploaded());
-		assertFalse(fB.isActionUploaded());
-		assertFalse(fC.isActionUploaded());
+		fB.setIsUploaded(false);
+		assertTrue(rootFolder.isUploaded());
+		assertFalse(fA.isUploaded());
+		assertFalse(fB.isUploaded());
+		assertFalse(fC.isUploaded());
 
 		// switch true/false fA
-		fA.setIsActionUploaded(true);
-		assertTrue(rootFolder.isActionUploaded());
-		assertTrue(fA.isActionUploaded());
-		assertTrue(fB.isActionUploaded());
+		fA.setIsUploaded(true);
+		assertTrue(rootFolder.isUploaded());
+		assertTrue(fA.isUploaded());
+		assertTrue(fB.isUploaded());
 		// TODO: should this be false or true?
-		assertFalse(fC.isActionUploaded());
+		assertFalse(fC.isUploaded());
 
-		fA.setIsActionUploaded(false);
-		assertTrue(rootFolder.isActionUploaded());
-		assertFalse(fA.isActionUploaded());
-		assertFalse(fB.isActionUploaded());
-		assertFalse(fC.isActionUploaded());
+		fA.setIsUploaded(false);
+		assertTrue(rootFolder.isUploaded());
+		assertFalse(fA.isUploaded());
+		assertFalse(fB.isUploaded());
+		assertFalse(fC.isUploaded());
 	}
 
 	@Test
@@ -424,11 +424,11 @@ public class FolderCompositeTest {
 		assertFalse(fB.isReady());
 
 		// switch true/false
-		fA.setIsActionUploaded(true);
+		fA.setIsUploaded(true);
 		assertTrue(fA.isReady());
 		assertTrue(fB.isReady());
 
-		fA.setIsActionUploaded(false);
+		fA.setIsUploaded(false);
 		assertTrue(fA.isReady());
 		assertFalse(fB.isReady());
 	}
