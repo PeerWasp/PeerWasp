@@ -106,6 +106,7 @@ public abstract class AbstractWatchService {
 		@Override
 		public void run() {
 			processEventQueue();
+			logger.info("Notifier thread exiting.");
 		}
 
 		private void processEventQueue() {
@@ -114,7 +115,6 @@ public abstract class AbstractWatchService {
 					
 					INotifyFileEvent event = eventQueue.take();
 					event.notifyEventListeners();
-					
 				} catch (InterruptedException iex) {
 					if (isRunning.get()) {
 						// stop not called - unexpected!
@@ -124,6 +124,8 @@ public abstract class AbstractWatchService {
 						logger.trace("Stop processing event queue (stop sending notifications to event listeners).");
 					}
 					return;
+				} catch (Exception ex) {
+					logger.warn("Exception catched: {}", ex.getMessage(), ex);
 				}
 			}
 		}

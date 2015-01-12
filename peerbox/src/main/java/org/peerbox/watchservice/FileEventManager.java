@@ -126,7 +126,9 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 	public void onLocalFileDeleted(Path path) {
 		logger.debug("onLocalFileDelete: {}", path);
 		FileComponent file = fileTree.getOrCreateFileComponent(path, this);
-		logger.debug("OnLocalFileDelete structure hash of {} is  {}", path, file.getStructureHash());
+		if (file.isFolder()) {
+			logger.debug("OnLocalFileDelete structure hash of {} is  {}", path, file.getStructureHash());
+		}
 		file.getAction().handleLocalDeleteEvent();
 	}
 

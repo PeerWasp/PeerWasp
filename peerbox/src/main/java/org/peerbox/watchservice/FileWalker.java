@@ -20,8 +20,10 @@ public class FileWalker {
 
 	private Path rootDirectory;
 	private FileEventManager eventManager;
+	// TODO(CA) is this map used?
 	private Map<Path, Action> filesystemView = new HashMap<Path, Action>();
 	private FolderComposite fileTree;
+	// TODO(CA) is this used?
 	private boolean computeContentHash = false;
 
 	public FileWalker(Path rootDirectory, FileEventManager eventManager){
