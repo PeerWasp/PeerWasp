@@ -74,7 +74,7 @@ public class FolderComposite extends AbstractFileComponent {
 
 	private Path stripOffPrefix(Path path, final Path prefix) {
 		if (path.startsWith(prefix)) {
-			path = path.relativize(prefix);
+			path = prefix.relativize(path);
 		}
 		return path;
 	}
