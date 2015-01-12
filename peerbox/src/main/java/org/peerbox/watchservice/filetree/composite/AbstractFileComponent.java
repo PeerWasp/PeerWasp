@@ -53,14 +53,6 @@ abstract class AbstractFileComponent implements FileComponent {
 	}
 
 	@Override
-	public final void setParentPath(final Path parentPath) {
-		if (parentPath != null) {
-			Path newPath = parentPath.resolve(getPath().getFileName());
-			setPath(newPath);
-		}
-	}
-
-	@Override
 	public final FolderComposite getParent() {
 		return parent;
 	}

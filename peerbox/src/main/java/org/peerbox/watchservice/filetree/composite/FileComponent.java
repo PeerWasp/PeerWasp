@@ -19,8 +19,6 @@ public interface FileComponent {
 
 	void setPath(Path path);
 
-	void setParentPath(Path parent);
-
 	FolderComposite getParent();
 
 	void setParent(FolderComposite parent);

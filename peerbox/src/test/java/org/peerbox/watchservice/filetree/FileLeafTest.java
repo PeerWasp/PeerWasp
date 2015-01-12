@@ -206,22 +206,6 @@ public class FileLeafTest {
 	}
 
 	@Test
-	public void testSetParentPath() {
-		assertEquals(leaf.getPath(), file);
-		assertEquals(leaf.getPath().getFileName().toString(), fileName);
-		assertTrue(leaf.getPath().toString().endsWith(fileName));
-		assertTrue(leaf.getPath().toString().startsWith(folderA.toString()));
-
-		leaf.setParentPath(folderB);
-
-		Path fileB = folderB.resolve(fileName);
-		assertEquals(leaf.getPath(), fileB);
-		assertEquals(leaf.getPath().getFileName().toString(), fileName);
-		assertTrue(leaf.getPath().toString().endsWith(fileName));
-		assertTrue(leaf.getPath().toString().startsWith(folderB.toString()));
-	}
-
-	@Test
 	public void testGetAndSetParent() {
 		assertEquals(leaf.getParent(), parentA);
 

@@ -112,13 +112,20 @@ public class FolderComposite extends AbstractFileComponent {
 		if (updateContentHash) {
 			bubbleContentHashUpdate();
 		}
-		component.setParentPath(getPath());
+		updateParentPathInChild(component);
 
 		if (component.isFolder()) {
 			FolderComposite componentAsFolder = (FolderComposite) component;
 			componentAsFolder.propagatePathChangeToChildren();
 		}
 		bubbleContentNamesHashUpdate();
+	}
+
+	private Path updateParentPathInChild(final FileComponent child) {
+		Path childName = child.getPath().getFileName();
+		Path newChildPath = getPath().resolve(childName);
+		child.setPath(newChildPath);
+		return newChildPath;
 	}
 
 	/**
@@ -209,7 +216,7 @@ public class FolderComposite extends AbstractFileComponent {
 	 */
 	private void propagatePathChangeToChildren() {
 		for (FileComponent child : children.values()) {
-			child.setParentPath(getPath());
+			updateParentPathInChild(child);
 			if (child.isFolder()) {
 				FolderComposite childAsFolder = (FolderComposite) child;
 				childAsFolder.propagatePathChangeToChildren();
