@@ -7,11 +7,11 @@ import org.peerbox.watchservice.IAction;
 
 public interface FileComponent {
 
-	FileComponent getComponent(String path);
+	FileComponent getComponent(Path path);
 
-	void putComponent(String path, FileComponent component);
+	void putComponent(Path path, FileComponent component);
 
-	FileComponent deleteComponent(String path);
+	FileComponent deleteComponent(Path path);
 
 	IAction getAction();
 

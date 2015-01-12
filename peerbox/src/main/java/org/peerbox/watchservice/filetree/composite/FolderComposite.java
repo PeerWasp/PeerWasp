@@ -20,7 +20,7 @@ public class FolderComposite extends AbstractFileComponent {
 
 	private static final Logger logger = LoggerFactory.getLogger(FolderComposite.class);
 
-	private final SortedMap<String, FileComponent> children;
+	private final SortedMap<Path, FileComponent> children;
 
 	private String structureHash;
 	private boolean isRoot = false;
@@ -28,7 +28,7 @@ public class FolderComposite extends AbstractFileComponent {
 	public FolderComposite(final Path path, boolean updateContentHash, boolean isRoot) {
 		super(path, updateContentHash);
 
-		this.children = new ConcurrentSkipListMap<String, FileComponent>();
+		this.children = new ConcurrentSkipListMap<Path, FileComponent>();
 		this.structureHash = "";
 		this.isRoot = isRoot;
 
@@ -47,33 +47,36 @@ public class FolderComposite extends AbstractFileComponent {
 	}
 
 	@Override
-	public synchronized FileComponent getComponent(String remainingPath) {
-		final String pathStr = getPath().toString();
-		if (remainingPath.equals(pathStr)) {
+	public synchronized FileComponent getComponent(Path remainingPath) {
+		if (remainingPath.equals(getPath())) {
 			return this;
 		}
-		remainingPath = stripOffPrefix(remainingPath, pathStr);
+		remainingPath = stripOffPrefix(remainingPath, getPath());
 
-		String nextLevelPath = PathUtils.getNextPathFragment(remainingPath);
-		String newRemainingPath = PathUtils.getRemainingPathFragment(remainingPath);
-
+		Path nextLevelPath = remainingPath.getName(0);
 		FileComponent nextLevel = children.get(nextLevelPath);
-		if (newRemainingPath.equals("") || nextLevel == null) {
+
+		if (nextLevel == null) {
+			// next level child not found
+			return null;
+		} else if (remainingPath.getNameCount() == 1) {
+			// nextLevel is the last level of path: return it
 			return nextLevel;
+		} else if (nextLevel.isFolder()) {
+			// go to next level if it is a folder
+			Path newRemainingPath = remainingPath.subpath(1, remainingPath.getNameCount());
+			return nextLevel.getComponent(newRemainingPath);
 		} else {
-			if (nextLevel.isFolder()) {
-				return nextLevel.getComponent(newRemainingPath);
-			} else {
-				return null;
-			}
+			// not possible to recurse further.
+			return null;
 		}
 	}
 
-	private String stripOffPrefix(String str, final String prefix) {
-		if (str.startsWith(prefix)) {
-			str = str.substring(prefix.length() + 1);
+	private Path stripOffPrefix(Path path, final Path prefix) {
+		if (path.startsWith(prefix)) {
+			path = path.relativize(prefix);
 		}
-		return str;
+		return path;
 	}
 
 	/**
@@ -81,23 +84,23 @@ public class FolderComposite extends AbstractFileComponent {
 	 * fly. Existing items are replaced. Triggers updates of content and name hashes.
 	 */
 	@Override
-	public synchronized void putComponent(String remainingPath, FileComponent component) {
-		final String pathStr = getPath().toString();
-		remainingPath = stripOffPrefix(remainingPath, pathStr);
+	public synchronized void putComponent(Path remainingPath, FileComponent component) {
+		remainingPath = stripOffPrefix(remainingPath, getPath());
 
-		String nextLevelPath = PathUtils.getNextPathFragment(remainingPath);
-		String newRemainingPath = PathUtils.getRemainingPathFragment(remainingPath);
+		Path nextLevelPath = remainingPath.getName(0);
 
 		// if we are at the last recursion, perform the add, else recursively continue
-		if (newRemainingPath.equals("")) {
+		if (remainingPath.getNameCount() == 1) {
 			addComponentToChildren(nextLevelPath, component);
 		} else {
 			FileComponent nextLevel = children.get(nextLevelPath);
 			if (nextLevel == null) {
+				// next level does not exist yet, create it
 				Path childPath = constructFullPath(nextLevelPath);
 				nextLevel = new FolderComposite(childPath, updateContentHash);
 				addComponentToChildren(nextLevelPath, nextLevel);
 			}
+			Path newRemainingPath = remainingPath.subpath(1, remainingPath.getNameCount());
 			nextLevel.putComponent(newRemainingPath, component);
 		}
 	}
@@ -105,7 +108,7 @@ public class FolderComposite extends AbstractFileComponent {
 	/*
 	 * Because of the new children, the content hash of the directory may change and is propagated
 	 */
-	private void addComponentToChildren(final String nextLevelPath, final FileComponent component) {
+	private void addComponentToChildren(final Path nextLevelPath, final FileComponent component) {
 		children.remove(nextLevelPath);
 		children.put(nextLevelPath, component);
 		component.setParent(this);
@@ -135,15 +138,13 @@ public class FolderComposite extends AbstractFileComponent {
 	 * @return The deleted component. If it does not exist, null is returned
 	 */
 	@Override
-	public FileComponent deleteComponent(String remainingPath) {
-		final String pathStr = getPath().toString();
-		remainingPath = stripOffPrefix(remainingPath, pathStr);
+	public FileComponent deleteComponent(Path remainingPath) {
+		remainingPath = stripOffPrefix(remainingPath, getPath());
 
-		String nextLevelPath = PathUtils.getNextPathFragment(remainingPath);
-		String newRemainingPath = PathUtils.getRemainingPathFragment(remainingPath);
+		Path nextLevelPath = remainingPath.getName(0);
 
 		FileComponent removed = null;
-		if (newRemainingPath.equals("")) {
+		if (remainingPath.getNameCount() == 1) {
 			removed = children.remove(nextLevelPath);
 			if (updateContentHash) {
 				bubbleContentHashUpdate();
@@ -151,14 +152,15 @@ public class FolderComposite extends AbstractFileComponent {
 			bubbleContentNamesHashUpdate();
 		} else {
 			FileComponent nextLevel = children.get(nextLevelPath);
-			if (nextLevel != null) {
+			if (nextLevel != null && nextLevel.isFolder()) {
+				Path newRemainingPath = remainingPath.subpath(1, remainingPath.getNameCount());
 				removed = nextLevel.deleteComponent(newRemainingPath);
 			}
 		}
 		return removed;
 	}
 
-	private Path constructFullPath(final String name) {
+	private Path constructFullPath(final Path name) {
 		Path completePath = getPath().resolve(name);
 		return completePath;
 	}
@@ -172,8 +174,8 @@ public class FolderComposite extends AbstractFileComponent {
 	private boolean computeContentNamesHash() {
 		String nameHashInput = "";
 		String oldNamesHash = structureHash;
-		for (String childName : children.keySet()) {
-			nameHashInput = nameHashInput.concat(childName);
+		for (Path childName : children.keySet()) {
+			nameHashInput = nameHashInput.concat(childName.toString());
 		}
 
 		byte[] rawHash = HashUtil.hash(nameHashInput.getBytes());
@@ -230,7 +232,7 @@ public class FolderComposite extends AbstractFileComponent {
 			logger.debug("Add {} to synchronized files.", getPath());
 			synchronizedPaths.add(getPath());
 		}
-		for (Map.Entry<String, FileComponent> entry : children.entrySet()) {
+		for (Map.Entry<Path, FileComponent> entry : children.entrySet()) {
 			if (entry.getValue().isSynchronized()) {
 				logger.debug("--Add {} to synchronized files.", entry.getValue().getPath());
 				synchronizedPaths.add(entry.getValue().getPath());
@@ -272,7 +274,7 @@ public class FolderComposite extends AbstractFileComponent {
 		}
 	}
 
-	public SortedMap<String, FileComponent> getChildren() {
+	public SortedMap<Path, FileComponent> getChildren() {
 		return children;
 	}
 }

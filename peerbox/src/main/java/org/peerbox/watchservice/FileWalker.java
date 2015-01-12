@@ -126,9 +126,9 @@ public class FileWalker {
 			} else {
 				String oldstr = fileTree.getStructureHash();
 				if(path.toFile().isDirectory()){
-					fileTree.putComponent(path.toString(), new FolderComposite(path, false));
+					fileTree.putComponent(path, new FolderComposite(path, false));
 				} else {
-					fileTree.putComponent(path.toString(), new FileLeaf(path, false));
+					fileTree.putComponent(path, new FileLeaf(path, false));
 				}
 				logger.debug("updated structure hash: of {} from {} to {}", fileTree.getPath(), oldstr, fileTree.getStructureHash());
 			}
