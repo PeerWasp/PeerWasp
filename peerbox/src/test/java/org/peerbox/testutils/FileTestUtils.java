@@ -1,4 +1,4 @@
-package org.peerbox.utils;
+package org.peerbox.testutils;
 
 import java.io.IOException;
 import java.nio.file.Files;

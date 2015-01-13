@@ -23,7 +23,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.peerbox.client.ClientNode;
 import org.peerbox.client.NetworkStarter;
-import org.peerbox.utils.FileTestUtils;
+import org.peerbox.testutils.FileTestUtils;
 import org.peerbox.watchservice.FileEventManager;
 import org.peerbox.watchservice.filetree.composite.FileComponent;
 import org.peerbox.watchservice.states.ExecutionHandle;

@@ -10,6 +10,12 @@ public class NetUtils {
 		// no instantiation, only static content
 	}
 
+	/**
+	 * Checks whether a given port is in the valid port range [1, 65535].
+	 *
+	 * @param port to check
+	 * @return true if port is in the valid port range, false otherwise.
+	 */
 	public static boolean isValidPort(int port) {
 		return port >= MIN_PORT && port <= MAX_PORT;
 	}

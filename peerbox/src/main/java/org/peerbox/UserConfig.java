@@ -16,6 +16,7 @@ import java.util.Properties;
 import java.util.Set;
 
 import org.apache.commons.io.FileUtils;
+import org.peerbox.utils.NetUtils;
 import org.peerbox.utils.OsUtils;
 import org.peerbox.utils.WinRegistry;
 import org.slf4j.Logger;
@@ -402,7 +403,7 @@ public class UserConfig implements IUserConfig{
 	 */
 	public synchronized boolean hasApiServerPort() {
 		int port = getApiServerPort();
-		return isValidPort(port);
+		return NetUtils.isValidPort(port);
 	}
 
 	/**
@@ -411,7 +412,7 @@ public class UserConfig implements IUserConfig{
 	 * @throws IOException
 	 */
 	public synchronized void setApiServerPort(final int port) throws IOException {
-		if(isValidPort(port)) {
+		if(NetUtils.isValidPort(port)) {
 
 			prop.setProperty(PROPERTY_API_SERVER_PORT, String.valueOf(port));
 
@@ -425,7 +426,4 @@ public class UserConfig implements IUserConfig{
 		saveProperties();
 	}
 
-	private boolean isValidPort(int port) {
-		return port >= 1 && port <= 65535;
-	}
 }

@@ -7,7 +7,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Utility class for the Windows Registry.
- * 
+ *
  * @author albrecht
  *
  */
@@ -17,17 +17,16 @@ public class WinRegistry {
 
 	/**
 	 * Set the api_server_port in the registry
-	 * 
+	 *
 	 * @param port
 	 * @return true if successful
 	 */
 	public static boolean setApiServerPort(int port) {
-		if (port < 0 || port > 65535) {
-			throw new IllegalArgumentException("Port out of range (port is: " + 65535 + ")");
+		if (!NetUtils.isValidPort(port)) {
+			throw new IllegalArgumentException("Port out of range (port is: " + port + ")");
 		}
 		if (!OsUtils.isWindows()) {
-			throw new RuntimeException(
-					"Cannot set ApiServerPort in registry (not running on Windows).");
+			throw new RuntimeException("Cannot set ApiServerPort in registry (not running on Windows).");
 		}
 
 		ProcessBuilder builder = new ProcessBuilder();
@@ -50,7 +49,7 @@ public class WinRegistry {
 
 	/**
 	 * Set the rootpath in the registry
-	 * 
+	 *
 	 * @param rootpath
 	 * @return true if successful
 	 */

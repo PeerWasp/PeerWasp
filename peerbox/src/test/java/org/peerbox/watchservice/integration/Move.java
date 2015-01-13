@@ -11,7 +11,7 @@ import java.util.List;
 
 import org.junit.Ignore;
 import org.junit.Test;
-import org.peerbox.utils.FileTestUtils;
+import org.peerbox.testutils.FileTestUtils;
 import org.peerbox.watchservice.ActionExecutor;
 
 import com.google.common.io.Files;

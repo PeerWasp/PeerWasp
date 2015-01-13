@@ -9,7 +9,7 @@ import java.util.ListIterator;
 
 import org.junit.Ignore;
 import org.junit.Test;
-import org.peerbox.utils.FileTestUtils;
+import org.peerbox.testutils.FileTestUtils;
 
 /**
  * @author Claudio Anliker
