@@ -31,20 +31,14 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 
 	private static final Logger logger = LoggerFactory.getLogger(FileEventManager.class);
 
-    private final BlockingQueue<FileComponent> fileComponentQueue;
-    private final FileTree fileTree;
+	private final BlockingQueue<FileComponent> fileComponentQueue;
+	private final FileTree fileTree;
 
     @Inject
 	public FileEventManager(final FileTree fileTree) {
 		fileComponentQueue = new PriorityBlockingQueue<FileComponent>(2000, new FileActionTimeComparator());
 		this.fileTree = fileTree;
 	}
-
-//	@Inject
-//	public FileEventManager(){
-//		fileTree = null;
-//		fileComponentQueue = null;
-//	}
 
     /**
 	 * Handles incoming create events the following way:
@@ -207,10 +201,6 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 
 		FileComponent file = fileTree.getOrCreateFileComponent(path, this);
 
-//		if(!checkForSynchronizedAncestor(path)){
-//			return;
-//		}
-
 		file.getAction().handleRemoteUpdateEvent();
 	}
 
@@ -244,7 +234,7 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 		return fileComponentQueue;
 	}
 
-	public synchronized IFileTree getFileTree(){
+	public synchronized IFileTree getFileTree() {
 		return fileTree;
 	}
 
