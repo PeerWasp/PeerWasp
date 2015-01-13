@@ -22,20 +22,20 @@ import com.google.common.collect.SetMultimap;
 import com.google.inject.Inject;
 
 public class FileTree implements IFileTree{
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(FileTree.class);
-	
+
 	private FolderComposite rootOfFileTree;
 	private Map<String, FolderComposite> deletedByContentNamesHash = new ConcurrentHashMap<String, FolderComposite>();
 	private SetMultimap<String, FileComponent> deletedByContentHash = HashMultimap.create();
     private boolean maintainContentHashes;
-	
+
     @Inject
     public FileTree(Path rootPath){
     	maintainContentHashes = true;
 		rootOfFileTree = new FolderComposite(rootPath, true, true);
 	}
-    
+
     /**
      * @param rootPath is the root folder of the tree
      * @param maintainContentHashes set to true if content hashes have to be maintained. Content hash changes are
@@ -45,23 +45,21 @@ public class FileTree implements IFileTree{
     	this.maintainContentHashes = maintainContentHashes;
 		rootOfFileTree = new FolderComposite(rootPath, maintainContentHashes, true);
 	}
-    
+
     public boolean getMaintainContentHashes(){
     	return maintainContentHashes;
     }
-	
+
 	@Override
 	public void putFile(Path dstPath, FileComponent fileToPut) {
-		// TODO Auto-generated method stub
-		rootOfFileTree.putComponent(dstPath.toString(), fileToPut);
+		rootOfFileTree.putComponent(dstPath, fileToPut);
 	}
 
 	@Override
 	public FileComponent getFile(Path fileToGet) {
-		// TODO Auto-generated method stub
-		return rootOfFileTree.getComponent(fileToGet.toString());
+		return rootOfFileTree.getComponent(fileToGet);
 	}
-	
+
 	public FileComponent getOrCreateFileComponent(Path path, IFileEvent event, IFileEventManager eventManager) {
 //		FileComponent file = fileTree.getComponent(path.toString());
 		FileComponent file = getFile(path);
@@ -82,11 +80,11 @@ public class FileTree implements IFileTree{
 		logger.debug("File {} has state {}", file.getPath(), file.getAction().getCurrentState().getClass());
 		return file;
 	}
-	
+
 	public FileComponent getOrCreateFileComponent(Path path, IFileEventManager eventManager){
 		return getOrCreateFileComponent(path, null, eventManager);
 	}
-	
+
 	private FileComponent createFileComponent(Path path, boolean isFile) {
 		FileComponent component = null;
 		if (isFile) {
@@ -96,15 +94,14 @@ public class FileTree implements IFileTree{
 			logger.trace("FolderComponent {} created.", path);
 			component = new FolderComposite(path, getMaintainContentHashes());
 		}
-		
+
 //		getSynchronizedFiles().add(path);
 		return component;
 	}
 
 	@Override
 	public FileComponent deleteFile(Path fileToDelete) {
-		// TODO Auto-generated method stub
-		return rootOfFileTree.deleteComponent(fileToDelete.toString());
+		return rootOfFileTree.deleteComponent(fileToDelete);
 	}
 
 	@Override
@@ -112,21 +109,21 @@ public class FileTree implements IFileTree{
 		// TODO Auto-generated method stub
 		return null;
 	}
-	
-	
+
+
 	public Map<String, FolderComposite> getDeletedByContentNamesHash() {
 		return deletedByContentNamesHash;
 	}
-	
+
 	public SetMultimap<String, FileComponent> getDeletedByContentHash(){
 		return deletedByContentHash;
 	}
-	
+
 //    public Set<Path> getSynchronizedFiles(){
 ////    	return synchronizedFiles;
 //    	return null;
 //    }
-    
+
 	/**
 	 * This function runs the FileWalker to discover the structure of the subtree
 	 * at the given location. This means, content hashes are neither computed nor
@@ -141,11 +138,11 @@ public class FileTree implements IFileTree{
 		walker.indexNamesRecursively();
 		return walker.getContentNamesHashOfWalkedFolder();
 	}
-	
+
 	/**
 	 * This function runs the FileWalker to discover the complete content of a subtree
 	 * at the given location. The content hash of each file is computed, the content hash
-	 * of a folder consists of a hash over contained files' content hashes. If these hashes 
+	 * of a folder consists of a hash over contained files' content hashes. If these hashes
 	 * change, the change is propagated to the parent folder
 	 * @param filePath represents the root of the subtree
 	 * @return the complete subtree as a FolderComposite
@@ -155,7 +152,7 @@ public class FileTree implements IFileTree{
 		logger.debug("start complete subtree discovery at : {}", filePath);
 		return walker.indexContentRecursively();
 	}
-	
+
 	/**
 	 * Searches the SetMultiMap<String, FileComponent> deletedByContentHash for
 	 * a deleted FileComponent with the same content hash. If several exist, the temporally
@@ -169,7 +166,7 @@ public class FileTree implements IFileTree{
 		logger.trace("Contenthash to search for: {}", contentHash);
 		Set<FileComponent> deletedComponents = getDeletedByContentHash().get(contentHash);
 
-		
+
 		for(FileComponent comp : deletedComponents){
 			logger.trace("Compoonent {} with hash {}", comp.getPath(), comp.getContentHash());
 		}
@@ -188,7 +185,7 @@ public class FileTree implements IFileTree{
 	public Path getRootPath(){
 		return rootOfFileTree.getPath();
 	}
-	
+
 	@Override
 	public Set<Path> getSynchronizedPathsAsSet(){
 		Set<Path> synchronizedFiles = new ConcurrentHashSet<Path>();

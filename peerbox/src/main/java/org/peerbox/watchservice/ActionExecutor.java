@@ -163,7 +163,7 @@ public class ActionExecutor implements Runnable, IActionEventListener {
 
 
 	private boolean isFileComponentReady(FileComponent next) {
-		logger.debug("Check if ready!");
+//		logger.debug("Check if ready!");
 		return next.isReady();
 	}
 

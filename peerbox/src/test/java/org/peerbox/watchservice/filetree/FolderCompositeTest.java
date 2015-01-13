@@ -121,7 +121,7 @@ public class FolderCompositeTest {
 	public void testPutFileInRoot() throws IOException {
 		Path file = rootPath.resolve("file.txt");
 		FileComponent f = createFile(file);
-		rootFolder.putComponent(file.toString(), f);
+		rootFolder.putComponent(file, f);
 
 		// check file
 		assertEquals(f.getParent(), rootFolder);
@@ -129,8 +129,8 @@ public class FolderCompositeTest {
 
 		// check children
 		assertTrue(rootFolder.getChildren().size() == 1);
-		assertTrue(rootFolder.getChildren().containsKey(file.getFileName().toString()));
-		assertEquals(rootFolder.getChildren().get(file.getFileName().toString()), f);
+		assertTrue(rootFolder.getChildren().containsKey(file.getFileName()));
+		assertEquals(rootFolder.getChildren().get(file.getFileName()), f);
 
 		// check content hash
 		String contentHash = computeHashOfString(f.getContentHash());
@@ -145,7 +145,7 @@ public class FolderCompositeTest {
 	public void testPutFolderInRoot() throws IOException {
 		Path folder = rootPath.resolve("folder");
 		FileComponent f = createFolder(folder);
-		rootFolder.putComponent(folder.toString(), f);
+		rootFolder.putComponent(folder, f);
 
 		// check folder
 		assertEquals(f.getParent(), rootFolder);
@@ -153,8 +153,8 @@ public class FolderCompositeTest {
 
 		// check children
 		assertTrue(rootFolder.getChildren().size() == 1);
-		assertTrue(rootFolder.getChildren().containsKey(folder.getFileName().toString()));
-		assertEquals(rootFolder.getChildren().get(folder.getFileName().toString()), f);
+		assertTrue(rootFolder.getChildren().containsKey(folder.getFileName()));
+		assertEquals(rootFolder.getChildren().get(folder.getFileName()), f);
 
 		// check content hash
 		String contentHash = computeHashOfString(f.getContentHash());
@@ -170,10 +170,10 @@ public class FolderCompositeTest {
 		Path fileSub = Paths.get("1", "2", "3", "file.txt");
 		Path file = rootPath.resolve(fileSub);
 		FileComponent f = createFile(file);
-		rootFolder.putComponent(file.toString(), f);
+		rootFolder.putComponent(file, f);
 
 		// check file
-		FileComponent parent = rootFolder.getComponent(fileSub.getParent().toString());
+		FileComponent parent = rootFolder.getComponent(fileSub.getParent());
 		assertEquals(parent, f.getParent());
 		assertEquals(f.getPath(), file);
 
@@ -184,7 +184,7 @@ public class FolderCompositeTest {
 		for (int i = 1; i < fileSub.getNameCount(); ++i) {
 			Path sub = rootPath.resolve(fileSub.subpath(0, i));
 			// check parent
-			current = rootFolder.getComponent(sub.toString());
+			current = rootFolder.getComponent(sub);
 			assertNotNull(current);
 			assertEquals(previous, current.getParent());
 			assertEquals(sub, current.getPath());
@@ -193,8 +193,8 @@ public class FolderCompositeTest {
 			assertTrue(previous.isFolder());
 			FolderComposite folder = (FolderComposite) previous;
 			assertTrue(folder.getChildren().size() == 1);
-			assertTrue(folder.getChildren().containsKey(sub.getFileName().toString()));
-			assertEquals(folder.getChildren().get(sub.getFileName().toString()), current);
+			assertTrue(folder.getChildren().containsKey(sub.getFileName()));
+			assertEquals(folder.getChildren().get(sub.getFileName()), current);
 
 			// check content hash -- parent includes hash of child
 			String contentHash = computeHashOfString(current.getContentHash());
@@ -215,7 +215,7 @@ public class FolderCompositeTest {
 
 	@Test
 	public void testGetRoot() throws IOException {
-		FileComponent f = rootFolder.getComponent(rootPath.toString());
+		FileComponent f = rootFolder.getComponent(rootPath);
 		assertEquals(f, rootFolder);
 	}
 
@@ -223,9 +223,9 @@ public class FolderCompositeTest {
 	public void testGetFileInRoot() throws IOException {
 		Path file = rootPath.resolve("aj489tg.txt");
 		FileComponent f = createFile(file);
-		rootFolder.putComponent(file.toString(), f);
+		rootFolder.putComponent(file, f);
 
-		FileComponent get = rootFolder.getComponent(file.toString());
+		FileComponent get = rootFolder.getComponent(file);
 		assertEquals(get, f);
 	}
 
@@ -233,9 +233,9 @@ public class FolderCompositeTest {
 	public void testGetFolderInRoot() throws IOException {
 		Path folder = rootPath.resolve("o7fhgU");
 		FileComponent f = createFolder(folder);
-		rootFolder.putComponent(folder.toString(), f);
+		rootFolder.putComponent(folder, f);
 
-		FileComponent get = rootFolder.getComponent(folder.toString());
+		FileComponent get = rootFolder.getComponent(folder);
 		assertEquals(get, f);
 	}
 
@@ -245,12 +245,12 @@ public class FolderCompositeTest {
 		Path folderB = folderA.resolve("gzgzt");
 		FileComponent fA = createFolder(folderA);
 		FileComponent fB = createFolder(folderA);
-		rootFolder.putComponent(folderA.toString(), fA);
-		rootFolder.putComponent(folderB.toString(), fB);
+		rootFolder.putComponent(folderA, fA);
+		rootFolder.putComponent(folderB, fB);
 
-		FileComponent get = rootFolder.getComponent(folderA.toString());
+		FileComponent get = rootFolder.getComponent(folderA);
 		assertEquals(get, fA);
-		get = rootFolder.getComponent(folderB.toString());
+		get = rootFolder.getComponent(folderB);
 		assertEquals(get, fB);
 	}
 
@@ -260,12 +260,12 @@ public class FolderCompositeTest {
 		Path file = folder.resolve("hello.txt");
 		FileComponent cFolder = createFolder(folder);
 		FileComponent cFile = createFile(file);
-		rootFolder.putComponent(folder.toString(), cFolder);
-		rootFolder.putComponent(file.toString(), cFile);
+		rootFolder.putComponent(folder, cFolder);
+		rootFolder.putComponent(file, cFile);
 
-		FileComponent get = rootFolder.getComponent(folder.toString());
+		FileComponent get = rootFolder.getComponent(folder);
 		assertEquals(get, cFolder);
-		get = rootFolder.getComponent(file.toString());
+		get = rootFolder.getComponent(file);
 		assertEquals(get, cFile);
 	}
 
@@ -273,9 +273,9 @@ public class FolderCompositeTest {
 	public void testGetNotExising() throws IOException {
 		Path existsP = rootPath.resolve("a");
 		FileComponent existsC = createFolder(existsP);
-		rootFolder.putComponent(existsP.toString(), existsC);
+		rootFolder.putComponent(existsP, existsC);
 		Path notExitsP = existsP.resolve("b");
-		FileComponent notExistsC = rootFolder.getComponent(notExitsP.toString());
+		FileComponent notExistsC = rootFolder.getComponent(notExitsP);
 		assertNull(notExistsC);
 	}
 
@@ -283,9 +283,9 @@ public class FolderCompositeTest {
 	public void testGetNotExising_File() throws IOException {
 		Path existsP = rootPath.resolve("a");
 		FileComponent existsC = createFile(existsP);
-		rootFolder.putComponent(existsP.toString(), existsC);
+		rootFolder.putComponent(existsP, existsC);
 		Path notExitsP = existsP.resolve("b");
-		FileComponent notExistsC = rootFolder.getComponent(notExitsP.toString());
+		FileComponent notExistsC = rootFolder.getComponent(notExitsP);
 		assertNull(notExistsC);
 	}
 
@@ -318,15 +318,15 @@ public class FolderCompositeTest {
 	public void testIsActionUploaded() throws IOException {
 		Path folderA = rootPath.resolve("fA");
 		FileComponent fA = createFolder(folderA);
-		rootFolder.putComponent(folderA.toString(), fA);
+		rootFolder.putComponent(folderA, fA);
 
 		Path folderB = folderA.resolve("fB");
 		FileComponent fB = createFolder(folderB);
-		rootFolder.putComponent(folderB.toString(), fB);
+		rootFolder.putComponent(folderB, fB);
 
 		Path file = folderB.resolve("test.txt");
 		FileComponent fC = createFile(file);
-		rootFolder.putComponent(file.toString(), fC);
+		rootFolder.putComponent(file, fC);
 
 		assertTrue(rootFolder.isUploaded());
 		assertFalse(fA.isUploaded());
@@ -338,7 +338,7 @@ public class FolderCompositeTest {
 		assertTrue(rootFolder.isUploaded());
 		assertFalse(fA.isUploaded());
 		assertTrue(fB.isUploaded());
-		assertTrue(fC.isUploaded());
+		assertFalse(fC.isUploaded());
 
 		fB.setIsUploaded(false);
 		assertTrue(rootFolder.isUploaded());
@@ -350,8 +350,7 @@ public class FolderCompositeTest {
 		fA.setIsUploaded(true);
 		assertTrue(rootFolder.isUploaded());
 		assertTrue(fA.isUploaded());
-		assertTrue(fB.isUploaded());
-		// TODO: should this be false or true?
+		assertFalse(fB.isUploaded());
 		assertFalse(fC.isUploaded());
 
 		fA.setIsUploaded(false);
@@ -365,15 +364,15 @@ public class FolderCompositeTest {
 	public void testIsSynchronized() throws IOException {
 		Path folderA = rootPath.resolve("fA");
 		FileComponent fA = createFolder(folderA);
-		rootFolder.putComponent(folderA.toString(), fA);
+		rootFolder.putComponent(folderA, fA);
 
 		Path folderB = folderA.resolve("fB");
 		FileComponent fB = createFolder(folderB);
-		rootFolder.putComponent(folderB.toString(), fB);
+		rootFolder.putComponent(folderB, fB);
 
 		Path file = folderB.resolve("test.txt");
 		FileComponent fC = createFile(file);
-		rootFolder.putComponent(file.toString(), fC);
+		rootFolder.putComponent(file, fC);
 
 		assertTrue(rootFolder.isSynchronized());
 		assertFalse(fA.isSynchronized());
@@ -413,11 +412,11 @@ public class FolderCompositeTest {
 
 		Path folderA = rootPath.resolve("fA");
 		FileComponent fA = createFolder(folderA);
-		rootFolder.putComponent(folderA.toString(), fA);
+		rootFolder.putComponent(folderA, fA);
 
 		Path folderB = folderA.resolve("fB");
 		FileComponent fB = createFolder(folderB);
-		rootFolder.putComponent(folderB.toString(), fB);
+		rootFolder.putComponent(folderB, fB);
 
 		// initial setting
 		assertTrue(fA.isReady());

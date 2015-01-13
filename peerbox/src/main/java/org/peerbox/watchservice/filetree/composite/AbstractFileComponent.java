@@ -98,7 +98,7 @@ abstract class AbstractFileComponent implements FileComponent {
 	}
 
 	@Override
-	public void putComponent(String path, FileComponent component) {
+	public void putComponent(Path path, FileComponent component) {
 		String msg = String.format("putComponent not implemented. "
 				+ "This is probably a file. "
 				+ "(this=%s, parameter=%s)", getPath(), path);
@@ -107,7 +107,7 @@ abstract class AbstractFileComponent implements FileComponent {
 	}
 
 	@Override
-	public FileComponent deleteComponent(String path) {
+	public FileComponent deleteComponent(Path path) {
 		String msg = String.format("deleteComponent not implemented. "
 				+ "This is probably a file. "
 				+ "(this=%s, parameter=%s)", getPath(), path);
@@ -116,7 +116,7 @@ abstract class AbstractFileComponent implements FileComponent {
 	}
 
 	@Override
-	public FileComponent getComponent(String path) {
+	public FileComponent getComponent(Path path) {
 		String msg = String.format("getComponent not implemented. "
 				+ "This is probably a file. "
 				+ "(this=%s, parameter=%s)", getPath(), path);

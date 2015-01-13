@@ -83,9 +83,9 @@ public class FileLeafTest {
 		parentA = new FolderComposite(folderA, true, false); // not root
 		parentB = new FolderComposite(folderB, true, false); // not root
 
-		rootBase.putComponent(parentA.getPath().toString(), parentA);
-		rootBase.putComponent(parentB.getPath().toString(), parentB);
-		rootBase.putComponent(leaf.getPath().toString(), leaf);
+		rootBase.putComponent(parentA.getPath(), parentA);
+		rootBase.putComponent(parentB.getPath(), parentB);
+		rootBase.putComponent(leaf.getPath(), leaf);
 
 		assertNull(rootBase.getParent());
 		assertEquals(parentA.getParent(), rootBase);
@@ -244,7 +244,7 @@ public class FileLeafTest {
 
 	@Test(expected=NotImplException.class)
 	public void testGetComponent() {
-		assertNull(leaf.getComponent("aComponent"));
+		assertNull(leaf.getComponent(Paths.get("aComponent")));
 	}
 
 	@Test(expected=NotImplException.class)
@@ -254,7 +254,7 @@ public class FileLeafTest {
 
 	@Test(expected=NotImplException.class)
 	public void testDeleteComponent() {
-		assertNull(leaf.deleteComponent("aComponent"));
+		assertNull(leaf.deleteComponent(Paths.get("aComponent")));
 	}
 
 }

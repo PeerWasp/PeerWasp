@@ -4,13 +4,15 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import org.apache.commons.io.FileUtils;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -20,53 +22,27 @@ import org.peerbox.watchservice.filetree.composite.FolderComposite;
 
 public class FileComponentTest {
 
-	private static String parentPath = System.getProperty("user.home") + File.separator + "PeerBox_FolderCompositeTest" + File.separator;
-	private static File testDirectory;
+	private static Path parentPath = Paths.get(FileUtils.getTempDirectoryPath(), "PeerBox_FolderCompositeTest");
 
-	private static String fileOnRootStr = parentPath + "file.txt";
-	private static String dirOnRootStr = parentPath + "dir";
-	private static String dirInDirOnRootStr = parentPath + "dir" + File.separator + "dir2";
-	private static String fileInNewDirStr = parentPath  + "dir" + File.separator + "file.txt";
-	private static String fileInDirInDirOnRootStr = dirInDirOnRootStr + File.separator + "file.txt";
-
-	private static File fileOnRoot;
-	private static File dirInDirOnRoot;
-	private static File fileInNewDir;
-	private static File fileInDirInDirOnRoot;
-	private static File dirOnRoot;
+	private static Path fileOnRootPath = parentPath.resolve("file.txt");
+	private static Path dirOnRootPath = parentPath.resolve("dir");
+	private static Path dirInDirOnRootPath = parentPath.resolve("dir").resolve("dir2");
+	private static Path fileInNewDirPath = parentPath.resolve("dir").resolve("file.txt");
+	private static Path fileInDirInDirOnRootPath = dirInDirOnRootPath.resolve("file.txt");
 
 	@BeforeClass
-	public static void setup(){
-		testDirectory = new File(parentPath);
-		testDirectory.mkdir();
-		try {
+	public static void setup() throws IOException{
+		Files.createDirectory(parentPath);
 
-			fileOnRoot = new File(fileOnRootStr);
-			dirInDirOnRoot = new File(dirInDirOnRootStr);
-			dirOnRoot = new File(dirOnRootStr);
-			fileInNewDir = new File(fileInNewDirStr);
-			fileInDirInDirOnRoot = new File(fileInDirInDirOnRootStr);
-
-			fileOnRoot.createNewFile();
-			dirInDirOnRoot.mkdirs();
-			dirOnRoot.mkdirs();
-			fileInNewDir.createNewFile();
-
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		Files.createFile(fileOnRootPath);
+		Files.createDirectories(dirInDirOnRootPath);
+		Files.createDirectories(dirOnRootPath);
+		Files.createFile(fileInNewDirPath);
 	}
 
 	@AfterClass
-	public static void rollBack(){
-		fileInDirInDirOnRoot.delete();
-		dirInDirOnRoot.delete();
-		fileOnRoot.delete();
-		fileInNewDir.delete();
-		dirOnRoot.delete();
-
-		testDirectory.delete();
-
+	public static void rollBack() throws IOException{
+		FileUtils.deleteDirectory(parentPath.toFile());
 	}
 
 	/**
@@ -81,34 +57,34 @@ public class FileComponentTest {
 	@Test
 	public void fileTreeOperationsTest(){
 
-		FolderComposite fileTree = new FolderComposite(Paths.get(parentPath), true);
-		FileLeaf fileOnRoot = new FileLeaf(Paths.get(fileOnRootStr), true);
-		FileLeaf fileInNewDir = new FileLeaf(Paths.get(fileInNewDirStr), true);
+		FolderComposite fileTree = new FolderComposite(parentPath, true);
+		FileLeaf fileOnRoot = new FileLeaf(fileOnRootPath, true);
+		FileLeaf fileInNewDir = new FileLeaf(fileInNewDirPath, true);
 		fileInNewDir.getAction().setFile(fileInNewDir);
 		fileOnRoot.getAction().setFile(fileOnRoot);
-		fileTree.putComponent(fileOnRootStr, fileOnRoot);
-		fileTree.putComponent(fileInNewDirStr, fileInNewDir);
+		fileTree.putComponent(fileOnRootPath, fileOnRoot);
+		fileTree.putComponent(fileInNewDirPath, fileInNewDir);
 
-		FileComponent component = fileTree.getComponent(fileOnRootStr);
+		FileComponent component = fileTree.getComponent(fileOnRootPath);
 		assertTrue(component instanceof FileLeaf);
-		assertTrue(component.getAction().getFilePath().toString().equals(fileOnRootStr));
+		assertTrue(component.getAction().getFilePath().equals(fileOnRootPath));
 
 		//check if it is possible to add a file into a new directory
-		component = fileTree.getComponent(fileInNewDirStr);
+		component = fileTree.getComponent(fileInNewDirPath);
 		assertTrue(component instanceof FileLeaf);
-		assertTrue(component.getPath().toString().equals(fileInNewDirStr));
+		assertTrue(component.getPath().equals(fileInNewDirPath));
 
-		component = fileTree.getComponent(dirOnRootStr);
+		component = fileTree.getComponent(dirOnRootPath);
 		assertTrue(component instanceof FolderComposite);
-		assertTrue(component.getPath().toString().equals(dirOnRootStr));
+		assertTrue(component.getPath().equals(dirOnRootPath));
 
-		component = fileTree.getComponent(dirInDirOnRootStr);
+		component = fileTree.getComponent(dirInDirOnRootPath);
 		assertNull(component);
 
-		fileTree.putComponent(dirInDirOnRootStr, new FolderComposite(Paths.get(dirInDirOnRootStr), true));
-		component = fileTree.getComponent(dirInDirOnRootStr);
+		fileTree.putComponent(dirInDirOnRootPath, new FolderComposite(dirInDirOnRootPath, true));
+		component = fileTree.getComponent(dirInDirOnRootPath);
 		assertTrue(component instanceof FolderComposite);
-		assertTrue(component.getPath().toString().equals(dirInDirOnRootStr));
+		assertTrue(component.getPath().equals(dirInDirOnRootPath));
 
 		bubbleContentHashUpdateTest(fileTree);
 		deleteComponentTest(fileTree);
@@ -116,19 +92,19 @@ public class FileComponentTest {
 
 	private void bubbleContentHashUpdateTest(FolderComposite fileTree){
 		//put a new file in a lower directory
-		FileLeaf fileInDirInDirOnRoot = new FileLeaf(Paths.get(fileInDirInDirOnRootStr), true);
+		FileLeaf fileInDirInDirOnRoot = new FileLeaf(fileInDirInDirOnRootPath, true);
 		fileInDirInDirOnRoot.getAction().setFile(fileInDirInDirOnRoot);
-		fileTree.putComponent(fileInDirInDirOnRootStr, fileInDirInDirOnRoot);
-		FileComponent component = fileTree.getComponent(fileInDirInDirOnRootStr);
+		fileTree.putComponent(fileInDirInDirOnRootPath, fileInDirInDirOnRoot);
+		FileComponent component = fileTree.getComponent(fileInDirInDirOnRootPath);
 		assertTrue(component instanceof FileLeaf);
-		assertTrue(component.getPath().toString().equals(fileInDirInDirOnRootStr));
+		assertTrue(component.getPath().equals(fileInDirInDirOnRootPath));
 
 		//get old hash of root and file, then modify the file
 		String oldHashRoot = fileTree.getContentHash();
 		String oldHashFile = component.getContentHash();
 
 		try {
-			PrintWriter writer = new PrintWriter(fileInDirInDirOnRootStr, "UTF-8");
+			PrintWriter writer = new PrintWriter(fileInDirInDirOnRootPath.toFile(), "UTF-8");
 			writer.println("HelloWorld");
 			writer.close();
 		} catch (FileNotFoundException | UnsupportedEncodingException e) {
@@ -146,31 +122,31 @@ public class FileComponentTest {
 
 	private void deleteComponentTest(FolderComposite fileTree){
 		//ensure the file exists
-		FileComponent component = fileTree.deleteComponent(fileOnRootStr);
+		FileComponent component = fileTree.deleteComponent(fileOnRootPath);
 		assertTrue(component instanceof FileLeaf);
 		//ensure it cannot be received anymore
-		component = fileTree.getComponent(fileOnRootStr);
+		component = fileTree.getComponent(fileOnRootPath);
 		assertNull(component);
 		//ensure new delete returns null
-		component = fileTree.deleteComponent(fileOnRootStr);
+		component = fileTree.deleteComponent(fileOnRootPath);
 		assertNull(component);
 
 		//ensure file in sub directory still exists
-		component = fileTree.getComponent(fileInNewDirStr);
+		component = fileTree.getComponent(fileInNewDirPath);
 		assertTrue(component instanceof FileLeaf);
 
 		String oldContentNamesHashRoot = fileTree.getStructureHash();
 		//delete subdirectory, ensure contained files and directories are deleted as well
-		component = fileTree.deleteComponent(dirOnRootStr);
+		component = fileTree.deleteComponent(dirOnRootPath);
 		assertFalse(fileTree.getStructureHash().equals(oldContentNamesHashRoot));
 		oldContentNamesHashRoot = fileTree.getStructureHash();
 		assertTrue(component instanceof FolderComposite);
 
 
-		component = fileTree.deleteComponent(dirInDirOnRootStr);
+		component = fileTree.deleteComponent(dirInDirOnRootPath);
 		assertNull(component);
 		assertTrue(fileTree.getStructureHash().equals(oldContentNamesHashRoot));
-		component = fileTree.deleteComponent(fileInNewDirStr);
+		component = fileTree.deleteComponent(fileInNewDirPath);
 		assertNull(component);
 		assertTrue(fileTree.getStructureHash().equals(oldContentNamesHashRoot));
 	}

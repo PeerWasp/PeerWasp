@@ -168,8 +168,8 @@ public class Action implements IAction{
 		if(getFile().isFolder()){
 			logger.trace("File {}: is a folder", getFile().getPath());
 			FolderComposite folder = (FolderComposite)getFile();
-			Map<String, FileComponent> children = folder.getChildren();
-			for(Map.Entry<String, FileComponent> childEntry : children.entrySet()){
+			Map<Path, FileComponent> children = folder.getChildren();
+			for(Map.Entry<Path, FileComponent> childEntry : children.entrySet()){
 				FileComponent child = childEntry.getValue();
 				logger.trace("Child {}: handleLocalHardDelete", getFile().getPath());
 				child.getAction().handleLocalHardDeleteEvent();
@@ -245,10 +245,10 @@ public class Action implements IAction{
 		if(getFile().isFolder()){
 			logger.trace("File {}: is a folder", getFile().getPath());
 			FolderComposite folder = (FolderComposite)getFile();
-			Map<String, FileComponent> children = folder.getChildren();
+			Map<Path, FileComponent> children = folder.getChildren();
 
 //			Vector<FileComponent> children = new Vector<FileComponent>(folder.getChildren().values());
-			for(Map.Entry<String, FileComponent> childEntry : children.entrySet()){
+			for(Map.Entry<Path, FileComponent> childEntry : children.entrySet()){
 				FileComponent child = childEntry.getValue();
 				logger.trace("Child {}: handleLocalHardDelete", getFile().getPath());
 				child.getAction().handleRemoteDeleteEvent();
