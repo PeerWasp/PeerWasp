@@ -314,8 +314,19 @@ public class LoginController implements Initializable {
 	}
 
 	private void hideWindow() {
-		Stage stage = (Stage) grdForm.getScene().getWindow();
-		stage.close();
+		Runnable close = new Runnable() {
+			@Override
+			public void run() {
+				Stage stage = (Stage) grdForm.getScene().getWindow();
+				stage.close();
+			}
+		};
+
+		if (Platform.isFxApplicationThread()) {
+			close.run();
+		} else {
+			Platform.runLater(close);
+		}
 	}
 
 	private String getUsername() {
