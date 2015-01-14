@@ -180,8 +180,9 @@ public class FileManager extends AbstractManager implements IFileManager {
 	@Override
 	public boolean isSmallFile(final Path path) {
 		IFileConfiguration fileConfig = getFileConfiguration();
-		return (BigInteger.valueOf(FileUtil.getFileSize(path.toFile()))
-				.compareTo(fileConfig.getMaxFileSize()) == 1);
+		BigInteger max = fileConfig.getMaxFileSize();
+		BigInteger size = BigInteger.valueOf(FileUtil.getFileSize(path.toFile()));
+		return size.compareTo(max) == -1;
 	}
 
 	@Override
