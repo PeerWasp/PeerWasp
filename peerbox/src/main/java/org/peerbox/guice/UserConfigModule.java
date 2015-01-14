@@ -37,6 +37,7 @@ public class UserConfigModule extends AbstractModule {
 	@Provides
 	@Singleton
 	private UserConfig provideUserConfig() {
+
 		return new UserConfig(userConfigFile);
 	}
 
