@@ -57,7 +57,7 @@ public class LocalHardDeleteState extends AbstractActionState{
 	
 	public AbstractActionState handleLocalDelete(){
 		logger.trace("File {}: entered handleLocalDelete", action.getFile().getPath());
-//		action.getEventManager().getFileTree().deleteFile(action.getFile().getPath());
+		action.getEventManager().getFileTree().deleteFile(action.getFile().getPath());
 		IFileEventManager eventManager = action.getEventManager();
 		eventManager.getFileComponentQueue().remove(action.getFile());
 		FileComponent comp = eventManager.getFileTree().deleteFile(action.getFile().getPath());

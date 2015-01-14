@@ -64,7 +64,7 @@ public class InitialState extends AbstractActionState {
 			logger.trace("LocalCreate: structure hash of {} is {}", action.getFile().getPath(), structureHash);
 			FolderComposite moveSource = deletedFolders.get(structureHash);
 			if(moveSource != null){
-//				eventManager.getFileTree().deleteFile(moveSource.getPath());
+				eventManager.getFileTree().deleteFile(moveSource.getPath());
 				logger.trace("Folder move detected from {} to {}", moveSource.getPath(), action.getFile().getPath());
 				moveSource.getAction().handleLocalMoveEvent(action.getFile().getPath());
 				eventManager.getFileComponentQueue().remove(action.getFile());
@@ -91,11 +91,11 @@ public class InitialState extends AbstractActionState {
 			updateTimeAndQueue();
 			return changeStateOnLocalCreate();
 		} else {
-//			eventManager.getFileTree().deleteFile(moveSource.getPath());
+			eventManager.getFileTree().deleteFile(moveSource.getPath());
 			eventManager.getFileComponentQueue().remove(action.getFile());
 			if(moveSource.isUploaded()){
 				logger.trace("Handle move of {}, from {}.", action.getFile().getPath(), moveSource.getPath());
-				eventManager.getFileTree().deleteFile(action.getFile().getPath());
+//				eventManager.getFileTree().deleteFile(action.getFile().getPath());
 				moveSource.getAction().handleLocalMoveEvent(action.getFile().getPath());
 				return changeStateOnLocalMove(action.getFile().getPath());
 			} else {

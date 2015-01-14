@@ -132,7 +132,7 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 		FileComponent file = fileTree.getOrCreateFileComponent(path, this);
 
 		file.setIsSynchronized(false);
-		fileTree.deleteFile(path);
+//		fileTree.deleteFile(path);
 		PathUtils.deleteRecursively(path.toFile());
 	}
 
@@ -144,7 +144,7 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 			return;
 		}
 		fileTree.putFile(path, file);
-		FileCompositeUtils.setIsUploadedWithAncestors(file, true);
+		//FileCompositeUtils.setIsUploadedWithAncestors(file, true);
 		file.setIsSynchronized(true);
 		onFileAdd(new FileAddEvent(path.toFile(), isFolder));
 	}
