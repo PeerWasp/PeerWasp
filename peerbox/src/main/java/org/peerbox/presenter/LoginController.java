@@ -317,6 +317,9 @@ public class LoginController implements Initializable {
 		Runnable close = new Runnable() {
 			@Override
 			public void run() {
+				// not not quit application when stage closes
+				Platform.setImplicitExit(false);
+				// hide stage
 				Stage stage = (Stage) grdForm.getScene().getWindow();
 				stage.close();
 			}
