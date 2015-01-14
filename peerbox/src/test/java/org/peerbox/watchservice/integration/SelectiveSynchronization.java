@@ -2,8 +2,6 @@ package org.peerbox.watchservice.integration;
 
 import static org.junit.Assert.assertTrue;
 
-
-
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -13,7 +11,6 @@ import org.hive2hive.core.utils.H2HWaiter;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.peerbox.watchservice.FileEventManager;
-import org.peerbox.watchservice.filetree.FileTree;
 import org.peerbox.watchservice.filetree.IFileTree;
 import org.peerbox.watchservice.filetree.composite.FileComponent;
 
@@ -26,7 +23,7 @@ public class SelectiveSynchronization extends FileIntegrationTest{
 		assertQueuesAreEmpty();
 		FileEventManager eventManager = getNetwork().getClients().get(0).getFileEventManager();
 		FileComponent file = eventManager.getFileTree().getFile(path);
-		assertTrue(file.getIsSynchronized());
+		assertTrue(file.isSynchronized());
 		
 		deleteSingleFile(path);
 		assertSyncClientPaths();
@@ -86,7 +83,7 @@ public class SelectiveSynchronization extends FileIntegrationTest{
 		
 		FileEventManager eventManager = getNetwork().getClients().get(0).getFileEventManager();
 		FileComponent file = eventManager.getFileTree().getFile(path);
-		assertTrue(file.getIsSynchronized());
+		assertTrue(file.isSynchronized());
 	}
 	
 	@Test
@@ -143,11 +140,11 @@ public class SelectiveSynchronization extends FileIntegrationTest{
 	protected boolean pathIsSynchronized(Path path, boolean sync){
 		IFileTree fileTree = getNetwork().getClients().get(0).getFileEventManager().getFileTree();
 		if(sync){
-			if(fileTree.getFile(path) != null && !fileTree.getFile(path).getIsSynchronized()){
+			if(fileTree.getFile(path) != null && !fileTree.getFile(path).isSynchronized()){
 				return false;
 			}
 		} else {
-			if(fileTree.getFile(path) != null && fileTree.getFile(path).getIsSynchronized()){
+			if(fileTree.getFile(path) != null && fileTree.getFile(path).isSynchronized()){
 				return false;
 			}
 		}
@@ -160,11 +157,11 @@ public class SelectiveSynchronization extends FileIntegrationTest{
 		IFileTree fileTree = getNetwork().getClients().get(0).getFileEventManager().getFileTree();
 		for(Path path : paths){
 			if(sync){
-				if(fileTree.getFile(path) != null && !fileTree.getFile(path).getIsSynchronized()){
+				if(fileTree.getFile(path) != null && !fileTree.getFile(path).isSynchronized()){
 					return false;
 				}
 			} else {
-				if(fileTree.getFile(path) != null && fileTree.getFile(path).getIsSynchronized()){
+				if(fileTree.getFile(path) != null && fileTree.getFile(path).isSynchronized()){
 					return false;
 				}
 			}

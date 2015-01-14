@@ -32,9 +32,6 @@ public class NodeManagerTest {
 	private INodeManager initialNodeManager;
 	
 	
-//	boolean joinNetwork(List<String> bootstrappingNodes);
-//	boolean joinNetwork(String address) throws UnknownHostException;
-	
 	@Before
 	public void initialize() {
 		messageBus = Mockito.mock(MessageBus.class);
@@ -257,6 +254,42 @@ public class NodeManagerTest {
 		nodeManager.joinNetwork(bootstrapAddress);
 		String address = nodeManager.getNetworkConfiguration().getBootstrapAddress().toString();
 		assertEquals(address, InetAddress.getByName(bootstrapAddress).toString());
+	}
+	
+	@Test 
+	public void testGetNetworkConfiguration_Initial() {
+		assertNull(nodeManager.getNetworkConfiguration());
+		boolean ret = nodeManager.createNetwork();
+		assertTrue(ret);
+		assertNotNull(nodeManager.getNetworkConfiguration());
+	}
+	
+	@Test 
+	public void testGetNetworkConfiguration_Join() throws UnknownHostException {
+		initialNodeManager = createInitialNode();
+		
+		assertNull(nodeManager.getNetworkConfiguration());
+		boolean ret = nodeManager.joinNetwork("127.0.0.1");
+		assertTrue(ret);
+		assertNotNull(nodeManager.getNetworkConfiguration());
+	}
+	
+	@Test
+	public void testGetFileConfiguration_Initial() {
+		assertNull(nodeManager.getFileConfiguration());
+		boolean ret = nodeManager.createNetwork();
+		assertTrue(ret);
+		assertNotNull(nodeManager.getFileConfiguration());
+	}
+	
+	@Test
+	public void testGetFileConfiguration_Join() throws UnknownHostException {
+		initialNodeManager = createInitialNode();
+		
+		assertNull(nodeManager.getFileConfiguration());
+		boolean ret = nodeManager.joinNetwork("127.0.0.1");
+		assertTrue(ret);
+		assertNotNull(nodeManager.getFileConfiguration());
 	}
 	
 	private INodeManager createInitialNode() {

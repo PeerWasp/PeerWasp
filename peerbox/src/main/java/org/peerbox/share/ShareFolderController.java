@@ -31,7 +31,7 @@ import org.hive2hive.processframework.exceptions.InvalidProcessStateException;
 import org.hive2hive.processframework.exceptions.ProcessExecutionException;
 import org.hive2hive.processframework.interfaces.IProcessComponentListener;
 import org.hive2hive.processframework.interfaces.IProcessEventArgs;
-import org.peerbox.FileManager;
+import org.peerbox.app.manager.file.IFileManager;
 import org.peerbox.app.manager.user.IUserManager;
 import org.peerbox.h2h.ProcessHandle;
 import org.peerbox.presenter.validation.TextFieldValidator;
@@ -66,11 +66,11 @@ public final class ShareFolderController implements Initializable {
 	private final BooleanProperty busyProperty;
 	private final StringProperty statusProperty;
 	
-	private FileManager fileManager;
+	private IFileManager fileManager;
 	private IUserManager userManager;
 	
 	@Inject
-	public ShareFolderController(FileManager fileManager, IUserManager userManager) {
+	public ShareFolderController(IFileManager fileManager, IUserManager userManager) {
 		this.statusProperty = new SimpleStringProperty();
 		this.busyProperty = new SimpleBooleanProperty(false);
 		this.fileManager = fileManager;

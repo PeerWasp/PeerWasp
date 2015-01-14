@@ -250,7 +250,7 @@ public class LoginController implements Initializable {
 				
 			// register for local/remote events
 			ctx.getFolderWatchService().addFileEventListener(ctx.getFileEventManager());
-			ctx.getH2hManager().getNode().getFileManager().subscribeFileEvents(ctx.getFileEventManager());
+			ctx.getNodeManager().getNode().getFileManager().subscribeFileEvents(ctx.getFileEventManager());
 		
 			ctx.getFolderWatchService().start(userConfig.getRootPath());
 			

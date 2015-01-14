@@ -7,9 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javafx.application.Application;
-import javafx.fxml.FXMLLoader;
 import javafx.stage.Stage;
-import javafx.util.Callback;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -25,12 +23,14 @@ import org.hive2hive.core.utils.helper.TestFileAgent;
 import org.hive2hive.processframework.exceptions.InvalidProcessStateException;
 import org.hive2hive.processframework.exceptions.ProcessExecutionException;
 import org.mockito.Mockito;
-import org.peerbox.FileManager;
+import org.peerbox.IUserConfig;
+import org.peerbox.app.manager.file.FileManager;
+import org.peerbox.app.manager.file.IFileManager;
 import org.peerbox.app.manager.node.INodeManager;
-import org.peerbox.interfaces.IFxmlLoaderProvider;
+import org.peerbox.events.MessageBus;
 
 public class FileRecoveryStarter extends Application {
-	
+
 	private static final int networkSize = 6;
 	private static List<IH2HNode> network;
 
@@ -38,37 +38,37 @@ public class FileRecoveryStarter extends Application {
 	private UserCredentials userCredentials;
 	private File root;
 	private File file;
-	
+
 	private static final int FILE_SIZE = 512*1024;
 	private static final int NUM_VERSIONS = 5;
-	
+
 	private static List<String> content;
 	private static final String fileName = "test-file.txt";
-	
-	private FileManager fileManager;
-	
+
+	private IFileManager fileManager;
+
 	private RecoverFileController controller;
-	
+
 	public static void main(String[] args) {
 		launch(args);
 	}
 
 	@Override
 	public void start(Stage primaryStage) throws Exception {
-		
+
 		initNetwork();
-		
+
 		uploadFileVersions();
-		
+
 		initGui();
-		
+
 	}
 
 	private void initNetwork() throws NoPeerConnectionException, InvalidProcessStateException, ProcessExecutionException {
 		network = NetworkTestUtil.createH2HNetwork(networkSize);
 		userCredentials = H2HJUnitTest.generateRandomCredentials();
 		client = network.get(RandomUtils.nextInt(0, network.size()));;
-	
+
 		// register a user
 		root = FileTestUtil.getTempDirectory();
 		client.getUserManager().createRegisterProcess(userCredentials).execute();
@@ -77,15 +77,15 @@ public class FileRecoveryStarter extends Application {
 
 	private void uploadFileVersions() throws IOException, NoSessionException, NoPeerConnectionException, InvalidProcessStateException, ProcessExecutionException, IllegalArgumentException, InterruptedException {
 		content = new ArrayList<String>();
-		
+
 		// add an intial file to the network
 		file = new File(root, fileName);
 		String fileContent = RandomStringUtils.randomAscii(FILE_SIZE);
 		content.add(fileContent);
 		FileUtils.write(file, fileContent);
 		client.getFileManager().createAddProcess(file).execute();
-	
-		// update and upload 
+
+		// update and upload
 		for(int i = 0; i < NUM_VERSIONS; ++i) {
 			Thread.sleep(2000); // sleep such that each file has different timestamp
 			fileContent = RandomStringUtils.randomAscii(FILE_SIZE);
@@ -96,36 +96,41 @@ public class FileRecoveryStarter extends Application {
 	}
 
 	private void initGui() {
-		
+
 		INodeManager manager = Mockito.mock(INodeManager.class);
 		Mockito.stub(manager.getNode()).toReturn(client);
-		fileManager = new FileManager(manager);
-		
+
+		IUserConfig userConfig = Mockito.mock(IUserConfig.class);
+		MessageBus messageBus = Mockito.mock(MessageBus.class);
+
+		fileManager = new FileManager(manager, userConfig, messageBus);
+
 		FileRecoveryHandler stage = new FileRecoveryHandler();
 		controller = new RecoverFileController();
 		controller.setFileManager(fileManager);
-		
-		stage.setFxmlLoaderProvider(new IFxmlLoaderProvider() {
-			
-			@Override
-			public FXMLLoader create(String fxmlFile) {
-				FXMLLoader loader = new FXMLLoader();
-				loader.setLocation(getClass().getResource(fxmlFile));
-				loader.setControllerFactory( new Callback<Class<?>, Object>() {
-					@Override
-					public Object call(Class<?> param) {
-						controller.setFileManager(fileManager);
-						return controller;
-					}
-				});
-				return loader;
-			}
-		});
-		
+		// TODO(AA) fix compilation issue.
+//
+//		stage.setFxmlLoaderProvider(new IFxmlLoaderProvider() {
+//
+//			@Override
+//			public FXMLLoader create(String fxmlFile) {
+//				FXMLLoader loader = new FXMLLoader();
+//				loader.setLocation(getClass().getResource(fxmlFile));
+//				loader.setControllerFactory( new Callback<Class<?>, Object>() {
+//					@Override
+//					public Object call(Class<?> param) {
+//						controller.setFileManager(fileManager);
+//						return controller;
+//					}
+//				});
+//				return loader;
+//			}
+//		});
+//
 		stage.recoverFile(Paths.get(root.toString(), fileName));
-		
+
 	}
 
-	
+
 
 }

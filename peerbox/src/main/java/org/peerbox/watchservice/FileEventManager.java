@@ -19,6 +19,7 @@ import org.peerbox.h2h.IFileRecoveryRequestEvent;
 import org.peerbox.watchservice.filetree.FileTree;
 import org.peerbox.watchservice.filetree.IFileTree;
 import org.peerbox.watchservice.filetree.composite.FileComponent;
+import org.peerbox.watchservice.filetree.composite.FileCompositeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,35 +28,29 @@ import com.google.inject.Singleton;
 
 @Singleton
 public class FileEventManager implements IFileEventManager, ILocalFileEventListener, org.hive2hive.core.events.framework.interfaces.IFileEventListener {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(FileEventManager.class);
-	
-    private final BlockingQueue<FileComponent> fileComponentQueue; 
-    private final FileTree fileTree;
-    
+
+	private final BlockingQueue<FileComponent> fileComponentQueue;
+	private final FileTree fileTree;
+
     @Inject
 	public FileEventManager(final FileTree fileTree) {
 		fileComponentQueue = new PriorityBlockingQueue<FileComponent>(2000, new FileActionTimeComparator());
 		this.fileTree = fileTree;
 	}
-	
-//	@Inject
-//	public FileEventManager(){
-//		fileTree = null;
-//		fileComponentQueue = null;
-//	}
-    
+
     /**
 	 * Handles incoming create events the following way:
 	 * If the created component is a folder, check if it corresponds to a
 	 * previous delete, and trigger an optimized move based on the folder's
 	 * structure. Otherwise, make a complete content discovery.
-	 * 
+	 *
 	 * Furthermore, check if a move based on folder/file content is possible to trigger
-	 * a conventional move operation (this is expected in particular when ordinary files 
-	 * are moved and the optimized move operation is not possible), otherwise just handle 
+	 * a conventional move operation (this is expected in particular when ordinary files
+	 * are moved and the optimized move operation is not possible), otherwise just handle
 	 * the event as a conventional create
-	 * 
+	 *
 	 * Assumptions:
 	 * - The file exists
 	 */
@@ -66,10 +61,10 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 		file.setIsSynchronized(true);
 		if(path.toFile().isDirectory()){
 			String structureHash = fileTree.discoverSubtreeStructure(path, this);
-			file.setStructureHash(structureHash);	
+			file.setStructureHash(structureHash);
 		}
 		file.getAction().handleLocalCreateEvent();
-		
+
 		if(path.toFile().isDirectory()){
 			fileTree.discoverSubtreeCompletely(path, this);
 		}
@@ -78,32 +73,33 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 	@Override
 	public void onLocalFileModified(Path path) {
 		logger.debug("onLocalFileModified: {}", path);
-		
+
 		FileComponent file = fileTree.getOrCreateFileComponent(path, this);
 		if(file.isFolder()){
 			logger.debug("File {} is a folder. Update rejected.", path);
 			return;
 		}
-		String newHash = PathUtils.computeFileContentHash(path);
-		if(file.getContentHash().equals(newHash)){
+
+
+		boolean hasChanged = file.bubbleContentHashUpdate();
+		if (!hasChanged) {
 			logger.debug("Content hash did not change for file {}. Update rejected.", path);
 			return;
 		}
-		file.bubbleContentHashUpdate(newHash);
 		file.getAction().handleLocalUpdateEvent();
 	}
-	
+
 	public void onFileRecoveryRequest(IFileRecoveryRequestEvent fileEvent){
 		logger.trace("onFileRecoveryRequest: {}", fileEvent.getFile().getAbsolutePath());
 		File currentFile = fileEvent.getFile();
-		if(currentFile == null || currentFile.isDirectory()){
-			logger.error("Try to recover non-existing file or directory: {}", currentFile.getPath());
+		if(currentFile == null || (currentFile != null && currentFile.isDirectory())){
+//			logger.error("Try to recover non-existing file or directory: {}", currentFile.getPath());
 			return;
 		}
-		
+
 //		FileComponent file = fileTree.getComponent(currentFile.getPath());
 		int version = fileEvent.getVersionToRecover();
-		
+
 		String recoveredFileName = PathUtils.getRecoveredFilePath(fileEvent.getFile().getName(), version).toString();
 		Path pathOfRecoveredFile = Paths.get(currentFile.getParent()).resolve(Paths.get(recoveredFileName));
 		FileComponent file = fileTree.getOrCreateFileComponent(pathOfRecoveredFile, this);
@@ -116,47 +112,48 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 	/**
 	 * Handles incoming delete events. The deleted component is added to
 	 * a SetMultiMap<String, FileComponent>, the content hash is used as the key. Using
-	 * this map, future create events can be mapped to previous deletes and indicate 
+	 * this map, future create events can be mapped to previous deletes and indicate
 	 * a move operation. If the deleted component is a folder, the
-	 * folder is additionally added to the deletedByContentNamesHash map with a hash 
+	 * folder is additionally added to the deletedByContentNamesHash map with a hash
 	 * over the names of contained files as a key to allow optimized folder moves.
 	 */
 	@Override
 	public void onLocalFileDeleted(Path path) {
 		logger.debug("onLocalFileDelete: {}", path);
 		FileComponent file = fileTree.getOrCreateFileComponent(path, this);
-		logger.debug("OnLocalFileDelete structure hash of {} is  {}", path, file.getStructureHash());
+		if (file.isFolder()) {
+			logger.debug("OnLocalFileDelete structure hash of {} is  {}", path, file.getStructureHash());
+		}
 		file.getAction().handleLocalDeleteEvent();
 	}
-	
+
 	public void onFileDesynchronized(Path path){
 		logger.debug("Desynchronize file {}", path);
 		FileComponent file = fileTree.getOrCreateFileComponent(path, this);
-		
+
 		file.setIsSynchronized(false);
 		fileTree.deleteFile(path);
 		PathUtils.deleteRecursively(path.toFile());
 	}
-	
+
 	public void onFileSynchronized(Path path, boolean isFolder){
 
 		logger.debug("Synchronize file {}", path);
 		FileComponent file = fileTree.getOrCreateFileComponent(path, this);
-		if(file.getIsSynchronized() == true){
+		if(file.isSynchronized() == true){
 			return;
 		}
 		fileTree.putFile(path, file);
-		file.propagateIsUploaded();
-//		FileComponent file = fileTree.addAndPutFile(path);
+		FileCompositeUtils.setIsUploadedWithAncestors(file, true);
 		file.setIsSynchronized(true);
 		onFileAdd(new FileAddEvent(path.toFile(), isFolder));
 	}
-	
+
 	@Override
 	@Handler
 	public void onFileAdd(IFileAddEvent fileEvent){
 		logger.debug("onFileAdd: {}", fileEvent.getFile().getPath());
-		
+
 		Path path = fileEvent.getFile().toPath();
 		FileComponent file = fileTree.getOrCreateFileComponent(path, fileEvent, this);
 		if(!checkForSynchronizedAncestor(path)){
@@ -173,7 +170,7 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 		file.getAction().setEventManager(this);
 		file.getAction().handleRemoteCreateEvent();
 	}
-	
+
 	private boolean checkForSynchronizedAncestor(Path path){
 		logger.debug("Path {}", path);
 		FileComponent file = fileTree.getFile(path);
@@ -181,8 +178,8 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 			logger.debug("Didnt find {}", path);
 			return checkForSynchronizedAncestor(path.getParent());
 		} else {
-			logger.debug("Return : {}", file.getIsSynchronized());
-			return file.getIsSynchronized();
+			logger.debug("Return : {}", file.isSynchronized());
+			return file.isSynchronized();
 		}
 	}
 
@@ -190,7 +187,7 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 	@Handler
 	public void onFileDelete(IFileDeleteEvent fileEvent) {
 		logger.debug("onFileDelete: {}", fileEvent.getFile().getPath());
-		
+
 		Path path = fileEvent.getFile().toPath();
 		FileComponent file = fileTree.getOrCreateFileComponent(path, fileEvent, this);
 		file.getAction().handleRemoteDeleteEvent();
@@ -203,14 +200,10 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 		logger.debug("onFileUpdate: {}", path);
 
 		FileComponent file = fileTree.getOrCreateFileComponent(path, this);
-		
-//		if(!checkForSynchronizedAncestor(path)){
-//			return;
-//		}
-		
+
 		file.getAction().handleRemoteUpdateEvent();
 	}
-	
+
 	@Override
 	@Handler
 	public void onFileMove(IFileMoveEvent fileEvent) {
@@ -219,19 +212,19 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 		Path srcPath = fileEvent.getSrcFile().toPath();
 		Path dstPath = fileEvent.getDstFile().toPath();
 		logger.debug("Handle move from {} to {}", srcPath, dstPath);
-		
+
 		FileComponent source = fileTree.getOrCreateFileComponent(srcPath, this);
 
 		source.getAction().handleRemoteMoveEvent(dstPath);
 	}
-	
+
 	public void onLocalFileHardDelete(Path toDelete){
 		logger.trace("onLocalFileHardDelete: {} Manager ID {}", toDelete, this.hashCode());
 
 		FileComponent file = fileTree.getOrCreateFileComponent(toDelete, this);
 		file.getAction().handleLocalHardDeleteEvent();
 	}
-	
+
 	@Override
 	public void onFileShare(IFileShareEvent fileEvent) {
 		// TODO: download, notify user?
@@ -240,8 +233,8 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 	public BlockingQueue<FileComponent> getFileComponentQueue() {
 		return fileComponentQueue;
 	}
-	
-	public synchronized IFileTree getFileTree(){
+
+	public synchronized IFileTree getFileTree() {
 		return fileTree;
 	}
 

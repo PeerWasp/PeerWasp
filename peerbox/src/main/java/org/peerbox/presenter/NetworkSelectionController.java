@@ -2,10 +2,13 @@ package org.peerbox.presenter;
 
 import java.net.URL;
 import java.util.ResourceBundle;
-import org.peerbox.view.ViewNames;
-import com.google.inject.Inject;
+
 import javafx.event.ActionEvent;
 import javafx.fxml.Initializable;
+
+import org.peerbox.view.ViewNames;
+
+import com.google.inject.Inject;
 
 
 public class NetworkSelectionController implements Initializable {

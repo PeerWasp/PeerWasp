@@ -27,7 +27,7 @@ public class CreateNetworkController implements Initializable {
 
 	private static final Logger logger = LoggerFactory.getLogger(CreateNetworkController.class);
 			
-	private INodeManager h2hManager;
+	private INodeManager nodeManager;
 	private NavigationService fNavigationService;
 	
 	@FXML
@@ -38,9 +38,9 @@ public class CreateNetworkController implements Initializable {
 	private ErrorLabel lblError;
 	
 	@Inject
-	public CreateNetworkController(NavigationService navigationService, INodeManager h2hManager) {
+	public CreateNetworkController(NavigationService navigationService, INodeManager nodeManager) {
 		this.fNavigationService = navigationService;
-		this.h2hManager = h2hManager;
+		this.nodeManager = nodeManager;
 	}
 	
 	public void initialize(URL arg0, ResourceBundle arg1) {
@@ -55,11 +55,11 @@ public class CreateNetworkController implements Initializable {
 	public void navigateBackAction(ActionEvent event) {
 		boolean goBack = true;
 		clearError();
-		if (h2hManager.isConnected()) {
+		if (nodeManager.isConnected()) {
 			goBack = showConfirmDeleteNetworkDialog();
 		}
 		if (goBack) {
-			h2hManager.leaveNetwork();
+			nodeManager.leaveNetwork();
 			btnCreate.setText("Create");
 			logger.debug("Navigate back.");
 			fNavigationService.navigateBack();
@@ -84,8 +84,8 @@ public class CreateNetworkController implements Initializable {
 	
 	public void createNetworkAction(ActionEvent event) {
 		clearError();
-		if (!h2hManager.isConnected()) {
-			if (h2hManager.createNetwork()) {
+		if (!nodeManager.isConnected()) {
+			if (nodeManager.createNetwork()) {
 				btnCreate.setText("Continue");
 				logger.debug("Network created (Host address: {})", txtIPAddress.getText());
 			} else {

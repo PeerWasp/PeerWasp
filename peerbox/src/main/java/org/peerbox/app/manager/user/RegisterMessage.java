@@ -1,8 +1,8 @@
 package org.peerbox.app.manager.user;
 
-public class RegisterMessage extends AbstractUserMessage {
+public final class RegisterMessage extends AbstractUserMessage {
 
-	public RegisterMessage(final String username) {
+	RegisterMessage(final String username) {
 		super(username);
 	}
 

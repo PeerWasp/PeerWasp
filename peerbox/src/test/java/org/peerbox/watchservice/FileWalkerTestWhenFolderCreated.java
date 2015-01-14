@@ -16,9 +16,8 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.peerbox.FileManager;
+import org.peerbox.app.manager.file.IFileManager;
 import org.peerbox.watchservice.filetree.FileTree;
 import org.peerbox.watchservice.filetree.composite.FileComponent;
 
@@ -26,7 +25,7 @@ import org.peerbox.watchservice.filetree.composite.FileComponent;
 
 public class FileWalkerTestWhenFolderCreated {
 	
-	private static FileManager fileManager;
+	private static IFileManager fileManager;
 	
 	private static ActionExecutor actionExecutor;
 	
@@ -64,7 +63,7 @@ public class FileWalkerTestWhenFolderCreated {
 		testDirectory.mkdir();
 		fileTree = new FileTree(Paths.get(parentPath), false);
 		manager = new FileEventManager(fileTree);
-		fileManager = Mockito.mock(FileManager.class);
+		fileManager = Mockito.mock(IFileManager.class);
 		actionExecutor = new ActionExecutor(manager, fileManager);
 		actionExecutor.setWaitForActionCompletion(false);
 		actionExecutor.start();

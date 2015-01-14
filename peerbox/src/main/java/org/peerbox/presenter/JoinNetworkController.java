@@ -34,7 +34,7 @@ public class JoinNetworkController implements Initializable {
 	
 	private static final Logger logger = LoggerFactory.getLogger(JoinNetworkController.class);
 
-	private INodeManager h2hManager;
+	private INodeManager nodeManager;
 	private NavigationService fNavigationService;
 	private UserConfig userConfig;
 
@@ -54,9 +54,9 @@ public class JoinNetworkController implements Initializable {
 	private EmptyTextFieldValidator bootstrapValidator;
 
 	@Inject
-	public JoinNetworkController(NavigationService navigationService, INodeManager h2hManager) {
+	public JoinNetworkController(NavigationService navigationService, INodeManager nodeManager) {
 		this.fNavigationService = navigationService;
-		this.h2hManager = h2hManager;
+		this.nodeManager = nodeManager;
 	}
 
 	public void initialize(URL arg0, ResourceBundle arg1) {
@@ -147,7 +147,7 @@ public class JoinNetworkController implements Initializable {
 		logger.info("Join network '{}'", address);
 
 		try {
-			boolean res = h2hManager.joinNetwork(address);
+			boolean res = nodeManager.joinNetwork(address);
 			if (res) {
 				return ResultStatus.ok();
 			} else {

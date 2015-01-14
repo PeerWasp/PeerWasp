@@ -21,13 +21,14 @@ import com.google.inject.Singleton;
 
 @Singleton
 public final class NodeManager implements INodeManager {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(NodeManager.class);
-	
+
 	private final MessageBus messageBus;
-	
+
 	private IH2HNode node;
 	private INetworkConfiguration networkConfiguration;
+	private IFileConfiguration fileConfiguration;
 
 	@Inject
 	public NodeManager(final MessageBus messageBus) {
@@ -38,13 +39,13 @@ public final class NodeManager implements INodeManager {
 		return UUID.randomUUID().toString();
 	}
 
-	private void createNode() {
-		IFileConfiguration fileConfig = FileConfiguration.createDefault();
-		node = H2HNode.createNode(fileConfig);
+	private synchronized void createNode() {
+		fileConfiguration = FileConfiguration.createDefault();
+		node = H2HNode.createNode(fileConfiguration);
 	}
-	
+
 	@Override
-	public boolean joinNetwork(List<String> bootstrappingNodes) {
+	public synchronized boolean joinNetwork(List<String> bootstrappingNodes) {
 		boolean connected = false;
 		Iterator<String> nodeIt = bootstrappingNodes.iterator();
 		while (nodeIt.hasNext() && !connected) {
@@ -66,13 +67,13 @@ public final class NodeManager implements INodeManager {
 		}
 		return connected;
 	}
-	
+
 	@Override
-	public boolean joinNetwork(final String address) throws UnknownHostException {
+	public synchronized boolean joinNetwork(final String address) throws UnknownHostException {
 		if (address.isEmpty()) {
 			throw new IllegalArgumentException("Bootstrap address is empty.");
 		}
-		
+
 		createNode();
 		String nodeID = generateNodeID();
 		InetAddress bootstrapInetAddress = InetAddress.getByName(address);
@@ -80,48 +81,65 @@ public final class NodeManager implements INodeManager {
 		boolean success = node.connect(networkConfiguration);
 		success = success && isConnected();
 		if (success) {
-			messageBus.publish(new NodeConnectMessage(address));
+			notifyConnect(address);
 		}
 		return success;
 	}
-	
+
 	@Override
-	public boolean createNetwork() {
+	public synchronized boolean createNetwork() {
 		createNode();
 		String nodeID = generateNodeID();
 		networkConfiguration = NetworkConfiguration.createInitial(nodeID);
 		boolean success = node.connect(networkConfiguration);
 		success = success && isConnected();
 		if (success) {
-			messageBus.publish(new NodeConnectMessage("localhost"));
+			notifyConnect("localhost");
 		}
 		return success;
 	}
-	
+
+	private void notifyConnect(final String address) {
+		if (messageBus != null) {
+			messageBus.publish(new NodeConnectMessage(address));
+		}
+	}
+
 	@Override
-	public boolean leaveNetwork() {
+	public synchronized boolean leaveNetwork() {
 		if (node != null) {
 			boolean res = node.disconnect();
 			node = null;
-			messageBus.publish(new NodeDisconnectMessage());
+			notifyDisconnect();
 			return res;
 		}
 
 		return true;
 	}
-	
+
+	private void notifyDisconnect() {
+		if (messageBus != null) {
+			messageBus.publish(new NodeDisconnectMessage());
+		}
+	}
+
 	@Override
 	public boolean isConnected() {
 		return node != null && node.isConnected();
 	}
-	
+
 	@Override
 	public IH2HNode getNode() {
 		return node;
 	}
-	
+
 	@Override
 	public INetworkConfiguration getNetworkConfiguration() {
 		return networkConfiguration;
+	}
+
+	@Override
+	public IFileConfiguration getFileConfiguration() {
+		return fileConfiguration;
 	}
 }

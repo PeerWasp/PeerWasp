@@ -6,63 +6,45 @@ import java.util.Set;
 import org.peerbox.watchservice.IAction;
 
 public interface FileComponent {
-	
-	
-	public boolean isFolder();
-	public boolean isFile();
-	
-	public String getContentHash();
-	public String getStructureHash();
-	public void setStructureHash(String hash);
 
-	public IAction getAction();
-	
-	public void setParent(FolderComposite parent);
-	public FolderComposite getParent();
-	
-	public boolean getIsSynchronized();
-	public void setIsSynchronized(boolean isSynchronized);
-	
-	/**
-	 * This function should propagate a content hash update to the parent FolderComposite
-	 * in which this FileComponent is contained.
-	 */
-	
-	public void bubbleContentHashUpdate();
+	FileComponent getComponent(Path path);
 
-	public void bubbleContentHashUpdate(String contentHash);
-	
-//	public default void bubbleContentHashUpdate(){
-//		bubbleContentHashUpdate(null);
-//	}
-//	
-//	public default void bubbleContentHashUpdate(String contentHash){
-//		boolean hasChanged = updateContentHash(contentHash);
-//		if(hasChanged){
-//			getParent().bubbleContentHashUpdate();
-//		}
-//	}
-	
-	public void putComponent(String path, FileComponent component);
-	
-	public FileComponent deleteComponent(String path);
-	
-	public FileComponent getComponent(String path);
-	
-	//public boolean updateContentHash(String contentHash);
-	//public boolean updateContentHash();
-	public Path getPath();
-	public void setParentPath(Path parent);
-	public void setPath(Path path);
+	void putComponent(Path path, FileComponent component);
 
-	public boolean getActionIsUploaded();
-	public void setActionIsUploaded(boolean isUploaded);
-	
-	public boolean isReady();
-	
-	public void propagatePathChangeToChildren();
-	public void propagateIsUploaded();
-	
-	public void getSynchronizedChildrenPaths(Set<Path> synchronizedPaths);
+	FileComponent deleteComponent(Path path);
+
+	IAction getAction();
+
+	Path getPath();
+
+	void setPath(Path path);
+
+	FolderComposite getParent();
+
+	void setParent(FolderComposite parent);
+
+	boolean isFile();
+
+	boolean isFolder();
+
+	String getContentHash();
+
+	boolean bubbleContentHashUpdate();
+
+	String getStructureHash();
+
+	void setStructureHash(String hash);
+
+	boolean isSynchronized();
+
+	void setIsSynchronized(boolean isSynchronized);
+
+	boolean isUploaded();
+
+	void setIsUploaded(boolean isUploaded);
+
+	boolean isReady();
+
+	void getSynchronizedChildrenPaths(Set<Path> synchronizedPaths);
 
 }

@@ -6,18 +6,16 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Set;
 
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.event.EventHandler;
+import javafx.scene.control.CheckBoxTreeItem;
+import javafx.scene.control.TreeItem;
+
 import org.hive2hive.core.processes.files.list.FileNode;
 import org.peerbox.watchservice.IFileEventManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
-import javafx.event.EventHandler;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Alert.AlertType;
-import javafx.scene.control.CheckBoxTreeItem;
-import javafx.scene.control.TreeItem;
 
 public class PathTreeItem extends CheckBoxTreeItem<PathItem> {
 	private static final Logger logger = LoggerFactory.getLogger(PathTreeItem.class);

@@ -5,9 +5,10 @@ import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 
 @RunWith(Suite.class)
-@SuiteClasses({ 
+@SuiteClasses({
 	WinRegistryTest.class,
-	OsUtilsTest.class
+	OsUtilsTest.class,
+	NetUtilsTest.class
 })
 public class UtilsTestSuite {
 

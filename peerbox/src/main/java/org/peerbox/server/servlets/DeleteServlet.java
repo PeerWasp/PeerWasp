@@ -7,7 +7,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.peerbox.delete.FileDeleteHandler;
 import org.peerbox.delete.IFileDeleteHandler;
 import org.peerbox.server.servlets.messages.DeleteMessage;
 import org.peerbox.server.servlets.messages.ServerReturnCode;

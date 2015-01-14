@@ -1,7 +1,6 @@
 package org.peerbox.h2h;
 
 import java.io.File;
-import java.nio.file.Path;
 
 import org.hive2hive.core.events.framework.abstracts.FileEvent;
 

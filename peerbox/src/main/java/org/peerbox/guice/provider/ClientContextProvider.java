@@ -1,7 +1,7 @@
 package org.peerbox.guice.provider;
 
 import org.peerbox.app.ClientContext;
-import org.peerbox.app.manager.node.NodeManager;
+import org.peerbox.app.manager.node.INodeManager;
 import org.peerbox.watchservice.ActionExecutor;
 import org.peerbox.watchservice.FileEventManager;
 import org.peerbox.watchservice.FolderWatchService;
@@ -18,7 +18,7 @@ public class ClientContextProvider implements Provider<ClientContext> {
 	@Inject
 	private FolderWatchService folderWatchService;
 	@Inject
-	private NodeManager h2hManager;
+	private INodeManager nodeManager;
 	
 	@Override
 	public ClientContext get() {
@@ -26,7 +26,7 @@ public class ClientContextProvider implements Provider<ClientContext> {
 		ctx.setActionExecutor(actionExecutor);
 		ctx.setFileEventManager(fileEventManager);
 		ctx.setFolderWatchService(folderWatchService);
-		ctx.setH2hManager(h2hManager);
+		ctx.setNodeManager(nodeManager);
 		return ctx;
 	}
 }

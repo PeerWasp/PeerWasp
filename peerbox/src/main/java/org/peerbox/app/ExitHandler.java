@@ -10,8 +10,6 @@ import org.peerbox.server.IServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.inject.Inject;
-
 public class ExitHandler implements IExitHandler {
 	
 	private static final Logger logger = LoggerFactory.getLogger(ExitHandler.class);
@@ -19,7 +17,7 @@ public class ExitHandler implements IExitHandler {
 	// TODO(AA): make these references available.
 	private IServer server;
 	private IUserManager userManager;
-	private INodeManager h2hManager;
+	private INodeManager nodeManager;
 	
 	
 	// TODO(AA): shutdown message bus
@@ -59,8 +57,8 @@ public class ExitHandler implements IExitHandler {
 	}
 	
 	private void disconnect() {
-		if(h2hManager != null && h2hManager.isConnected()) {
-			boolean success = h2hManager.leaveNetwork();
+		if(nodeManager != null && nodeManager.isConnected()) {
+			boolean success = nodeManager.leaveNetwork();
 			if(!success) {
 				logger.debug("Could not disconnect from network properly.");
 			}

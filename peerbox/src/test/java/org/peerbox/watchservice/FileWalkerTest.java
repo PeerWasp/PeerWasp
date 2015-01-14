@@ -17,7 +17,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.peerbox.FileManager;
+import org.peerbox.app.manager.file.IFileManager;
 import org.peerbox.watchservice.filetree.FileTree;
 
 @Deprecated
@@ -32,7 +32,7 @@ public class FileWalkerTest {
 	private static FileTree fileTree;
 	
 	@Mock
-	private FileManager fileManager;
+	private IFileManager fileManager;
 	
 	@BeforeClass
 	public static void staticSetup(){

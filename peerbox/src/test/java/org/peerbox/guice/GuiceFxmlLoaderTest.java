@@ -64,7 +64,7 @@ public class GuiceFxmlLoaderTest {
 			@Provides
 			IUserManager providesUserManager(INodeManager manager) {
 				// do not need the instances here
-				return new UserManager(null, null);
+				return new UserManager(null, null, null);
 			}
 		});
 

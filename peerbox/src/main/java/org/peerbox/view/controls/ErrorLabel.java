@@ -1,14 +1,12 @@
 package org.peerbox.view.controls;
 
-import org.peerbox.view.IconHelper;
-
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.fxml.FXML;
-import javafx.scene.Node;
 import javafx.scene.control.Label;
-import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+
+import org.peerbox.view.IconHelper;
 
 public class ErrorLabel extends Label {
 

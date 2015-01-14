@@ -3,10 +3,10 @@ package org.peerbox.presenter.validation;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import org.peerbox.presenter.validation.ValidationUtils.ValidationResult;
-
 import javafx.beans.property.StringProperty;
 import javafx.scene.control.TextField;
+
+import org.peerbox.presenter.validation.ValidationUtils.ValidationResult;
 
 public class RootPathValidator extends TextFieldValidator {
 

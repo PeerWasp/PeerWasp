@@ -10,6 +10,7 @@ import org.hive2hive.core.security.UserCredentials;
 import org.hive2hive.processframework.exceptions.InvalidProcessStateException;
 import org.hive2hive.processframework.exceptions.ProcessExecutionException;
 import org.hive2hive.processframework.interfaces.IProcessComponent;
+import org.peerbox.IUserConfig;
 import org.peerbox.ResultStatus;
 import org.peerbox.app.manager.AbstractManager;
 import org.peerbox.app.manager.node.INodeManager;
@@ -28,8 +29,8 @@ public final class UserManager extends AbstractManager implements IUserManager {
 	private UserCredentials userCredentials;
 	
 	@Inject
-	public UserManager(final INodeManager nodeManager, final MessageBus messageBus) {
-		super(nodeManager, messageBus);
+	public UserManager(final INodeManager nodeManager, final IUserConfig userConfig, final MessageBus messageBus) {
+		super(nodeManager, userConfig, messageBus);
 	}
 	
 	@Override
@@ -44,11 +45,11 @@ public final class UserManager extends AbstractManager implements IUserManager {
 
 		try {
 
-			IProcessComponent<Void> registerProc = getUserManager().createRegisterProcess(credentials);
+			IProcessComponent<Void> registerProc = getH2HUserManager().createRegisterProcess(credentials);
 			registerProc.execute();
 			if (isRegistered(credentials.getUserId())) {
 				res = ResultStatus.ok();
-				getMessageBus().publish(new RegisterMessage(username));
+				notifyRegister(username);
 			}
 
 		} catch (ProcessExecutionException | InvalidProcessStateException pex) {
@@ -57,10 +58,16 @@ public final class UserManager extends AbstractManager implements IUserManager {
 
 		return res;
 	}
+	
+	private void notifyRegister(final String username) {
+		if (getMessageBus() != null) {
+			getMessageBus().publish(new RegisterMessage(username));
+		}
+	}
 
 	@Override
 	public boolean isRegistered(final String userName) throws NoPeerConnectionException {
-		return getUserManager().isRegistered(userName);
+		return getH2HUserManager().isRegistered(userName);
 	}
 
 	@Override
@@ -76,11 +83,11 @@ public final class UserManager extends AbstractManager implements IUserManager {
 		
 		try {
 			
-			IProcessComponent<Void> loginProc = getUserManager().createLoginProcess(userCredentials, fileAgent);
+			IProcessComponent<Void> loginProc = getH2HUserManager().createLoginProcess(userCredentials, fileAgent);
 			loginProc.execute();
 			if (isLoggedIn()) {
 				res = ResultStatus.ok();
-				getMessageBus().publish(new LoginMessage(userCredentials.getUserId()));
+				notifyLogin();
 			}
 			
 		} catch (ProcessExecutionException | InvalidProcessStateException pex) {
@@ -89,10 +96,16 @@ public final class UserManager extends AbstractManager implements IUserManager {
 
 		return res;
 	}
+	
+	private void notifyLogin() {
+		if (getMessageBus() != null) {
+			getMessageBus().publish(new LoginMessage(userCredentials.getUserId()));
+		}
+	}
 
 	@Override
 	public boolean isLoggedIn() throws NoPeerConnectionException {
-		return getUserManager().isLoggedIn();
+		return getH2HUserManager().isLoggedIn();
 	}
 
 	@Override
@@ -104,11 +117,11 @@ public final class UserManager extends AbstractManager implements IUserManager {
 
 		try {
 			
-			IProcessComponent<Void> logoutProc = getUserManager().createLogoutProcess();
+			IProcessComponent<Void> logoutProc = getH2HUserManager().createLogoutProcess();
 			logoutProc.execute();
 			if (!isLoggedIn()) {
 				res = ResultStatus.ok();
-				getMessageBus().publish(new LogoutMessage(userCredentials.getUserId()));
+				notifyLogout();
 			}
 
 		} catch (ProcessExecutionException | InvalidProcessStateException pex) {
@@ -116,6 +129,12 @@ public final class UserManager extends AbstractManager implements IUserManager {
 		}
 
 		return res;
+	}
+	
+	private void notifyLogout() {
+		if (getMessageBus() != null) {
+			getMessageBus().publish(new LogoutMessage(userCredentials.getUserId()));
+		}
 	}
 	
 }

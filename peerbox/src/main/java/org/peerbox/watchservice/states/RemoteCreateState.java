@@ -1,15 +1,13 @@
 package org.peerbox.watchservice.states;
 
-import java.io.File;
 import java.nio.file.Path;
 
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.hive2hive.core.exceptions.NoSessionException;
 import org.hive2hive.processframework.exceptions.InvalidProcessStateException;
 import org.hive2hive.processframework.exceptions.ProcessExecutionException;
-import org.peerbox.FileManager;
+import org.peerbox.app.manager.file.IFileManager;
 import org.peerbox.exceptions.NotImplException;
-import org.peerbox.h2h.ProcessHandle;
 import org.peerbox.watchservice.Action;
 import org.peerbox.watchservice.conflicthandling.ConflictHandler;
 import org.slf4j.Logger;
@@ -114,7 +112,7 @@ public class RemoteCreateState extends AbstractActionState {
 	}
 
 	@Override
-	public ExecutionHandle execute(FileManager fileManager) throws InvalidProcessStateException,
+	public ExecutionHandle execute(IFileManager fileManager) throws InvalidProcessStateException,
 			ProcessExecutionException, NoSessionException, NoPeerConnectionException {
 		Path path = action.getFilePath();
 		logger.debug("Execute REMOTE ADD, download the file: {}", path);

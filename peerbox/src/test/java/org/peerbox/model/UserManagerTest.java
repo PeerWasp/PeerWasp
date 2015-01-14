@@ -24,6 +24,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
+import org.peerbox.IUserConfig;
 import org.peerbox.ResultStatus;
 import org.peerbox.app.manager.node.INodeManager;
 import org.peerbox.app.manager.user.IUserManager;
@@ -219,17 +220,18 @@ public class UserManagerTest {
 	
 	private class ClientContext {
 		private IH2HNode node;
-		private INodeManager h2hManager;
+		private INodeManager nodeManager;
 		private IUserManager userManager;
 		private MessageBus messageBus;
 
 		public ClientContext(IH2HNode node) {
 			this.node = node;
 
-			h2hManager = Mockito.mock(INodeManager.class);
-			Mockito.stub(h2hManager.getNode()).toReturn(this.node);
+			nodeManager = Mockito.mock(INodeManager.class);
+			Mockito.stub(nodeManager.getNode()).toReturn(this.node);
 			messageBus = Mockito.mock(MessageBus.class);
-			userManager = new UserManager(h2hManager, messageBus);
+			IUserConfig userConfig = Mockito.mock(IUserConfig.class);
+			userManager = new UserManager(nodeManager, userConfig, messageBus);
 		}
 
 		public IUserManager getUserManager() {

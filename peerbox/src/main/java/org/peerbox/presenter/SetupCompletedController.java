@@ -14,8 +14,6 @@ import javafx.stage.Stage;
 
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.hive2hive.core.exceptions.NoSessionException;
-import org.hive2hive.processframework.exceptions.InvalidProcessStateException;
-import org.hive2hive.processframework.exceptions.ProcessExecutionException;
 import org.peerbox.ResultStatus;
 import org.peerbox.app.manager.user.IUserManager;
 import org.slf4j.Logger;
@@ -26,31 +24,31 @@ import com.google.inject.Inject;
 public class SetupCompletedController implements Initializable {
 
 	private static final Logger logger = LoggerFactory.getLogger(SetupCompletedController.class);
-	
-	@FXML 
+
+	@FXML
 	private Pane pane;
-	
+
 	private NavigationService fNavigationService;
 	private IUserManager fUserManager;
-	
+
 	@Inject
 	public SetupCompletedController(NavigationService navigationService, IUserManager userManager) {
 		this.fNavigationService = navigationService;
 		this.fUserManager = userManager;
 	}
-	
+
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
-		
+
 	}
-	
+
 	public void closeWindowAction(ActionEvent event) {
 		// Sample event for closing window -> application should still be running in the tray
 		// TODO: can only do this if tray is supported
 		Stage stage = (Stage) pane.getScene().getWindow();
 		stage.close();
 	}
-	
+
 	public void logoutAction(ActionEvent event) {
 		Task<ResultStatus> task = createLogoutTask();
 		new Thread(task).start();
@@ -64,11 +62,11 @@ public class SetupCompletedController implements Initializable {
 			return ResultStatus.error(e.getMessage());
 		}
 	}
-	
+
 	private void onLogoutFailed() {
 		logger.warn("Logout failed.");
 	}
-	
+
 	private void onLogoutSucceeded() {
 		logger.info("Logout succeeded.");
 	}

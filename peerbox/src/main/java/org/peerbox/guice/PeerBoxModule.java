@@ -1,15 +1,17 @@
 package org.peerbox.guice;
 
 
-import org.peerbox.FileManager;
-import org.peerbox.IPeerboxFileManager;
+import javafx.stage.Stage;
+
 import org.peerbox.IUserConfig;
 import org.peerbox.UserConfig;
 import org.peerbox.app.ClientContext;
 import org.peerbox.app.ExitHandler;
 import org.peerbox.app.IExitHandler;
-import org.peerbox.app.manager.node.NodeManager;
+import org.peerbox.app.manager.file.FileManager;
+import org.peerbox.app.manager.file.IFileManager;
 import org.peerbox.app.manager.node.INodeManager;
+import org.peerbox.app.manager.node.NodeManager;
 import org.peerbox.app.manager.user.IUserManager;
 import org.peerbox.app.manager.user.UserManager;
 import org.peerbox.delete.FileDeleteHandler;
@@ -39,21 +41,26 @@ import com.google.inject.spi.TypeListener;
 public class PeerBoxModule extends AbstractModule {
 
 	private final MessageBus messageBus = new MessageBus();
-	
+	private final Stage primaryStage;
+
+	public PeerBoxModule(Stage primaryStage) {
+		this.primaryStage = primaryStage;
+	}
+
 	@Override
 	protected void configure() {
 		bindMessageBus();
 		bindSystemTray();
 		bindPrimaryStage();
-		
+
 		bindManagers();
-		
+
 		bind(IFxmlLoaderProvider.class).to(GuiceFxmlLoader.class);
 		bind(IFileRecoveryHandler.class).to(FileRecoveryHandler.class);
 		bind(IShareFolderHandler.class).to(ShareFolderHandler.class);
 		bind(IFileDeleteHandler.class).to(FileDeleteHandler.class);
 		bind(IFileEventManager.class).to(FileEventManager.class);
-		
+
 		bind(IUserConfig.class).to(UserConfig.class);
 		bind(IExitHandler.class).to(ExitHandler.class);
 		bind(ClientContext.class).toProvider(ClientContextProvider.class);
@@ -67,7 +74,7 @@ public class PeerBoxModule extends AbstractModule {
 		bind(MessageBus.class).toInstance(messageBus);
 		messageBusRegisterRule();
 	}
-	
+
 	private void messageBusRegisterRule() {
 		bindListener(Matchers.any(), new TypeListener() {
 			@Override
@@ -84,18 +91,18 @@ public class PeerBoxModule extends AbstractModule {
 	private void bindPrimaryStage() {
 		bind(javafx.stage.Stage.class)
 			.annotatedWith(Names.named("PrimaryStage"))
-			.toInstance(org.peerbox.App.getPrimaryStage());
+			.toInstance(primaryStage);
 	}
 
 	private void bindManagers() {
 		bind(INodeManager.class).to(NodeManager.class);
 		bind(IUserManager.class).to(UserManager.class);
-		bind(IPeerboxFileManager.class).to(FileManager.class);
+		bind(IFileManager.class).to(FileManager.class);
 	}
-	
+
 	@Provides
 	FileTree providesFileTree(UserConfig cfg){
 		return new FileTree(cfg.getRootPath());
 	}
-	
+
 }

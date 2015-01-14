@@ -7,7 +7,7 @@ import java.nio.file.Path;
 import org.junit.Test;
 import org.peerbox.client.ClientNode;
 import org.peerbox.h2h.FileRecoveryEvent;
-import org.peerbox.utils.FileTestUtils;
+import org.peerbox.testutils.FileTestUtils;
 import org.peerbox.watchservice.PathUtils;
 
 public class Recover extends FileIntegrationTest {

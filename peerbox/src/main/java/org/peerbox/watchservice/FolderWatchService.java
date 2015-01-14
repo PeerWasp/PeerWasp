@@ -20,7 +20,6 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -31,20 +30,20 @@ import org.slf4j.LoggerFactory;
 public class FolderWatchService extends AbstractWatchService {
 
 	private static final Logger logger = LoggerFactory.getLogger(FolderWatchService.class);
-	
+
 	private static final long CLEANUP_TASK_DELAY = 5000;
-	
+
 	private Thread fileEventProcessor;
 	private WatchService watcher;
     private final Map<WatchKey, Path> watchKeyToPath;
-    
+
     private Timer timer;
-    
+
 	public FolderWatchService() {
 		super();
 		this.watchKeyToPath = new HashMap<WatchKey, Path>();
 	}
-	
+
 	protected void onStarted() throws IOException {
 		watcher = FileSystems.getDefault().newWatchService();
 
@@ -99,21 +98,20 @@ public class FolderWatchService extends AbstractWatchService {
 		// register recursively all folders and subfolders
 		Files.walkFileTree(folder, new RegisterFolderVisitor());
 	}
-	
+
 	private synchronized void unregisterFolder(WatchKey folderKey) {
 		folderKey.cancel();
 		Path folder = watchKeyToPath.remove(folderKey);
 		logger.info("Unregister folder: {}", folder);
 	}
-	
+
 	private synchronized void cleanupFolderRegistrations() {
 		// find watch keys of deleted folders
-		Set<Entry<WatchKey, Path>> entrySet = new HashSet<>(watchKeyToPath.entrySet());
+		Set<WatchKey> keySet = new HashSet<>(watchKeyToPath.keySet());
 		Set<WatchKey> keysToCancel = new HashSet<>();
-		for (Entry<WatchKey, Path> e : entrySet) {
-			WatchKey key = e.getKey();
-			Path folder = e.getValue();
-			if (!Files.exists(folder, NOFOLLOW_LINKS)) {
+		for (WatchKey key : keySet) {
+			Path folder = watchKeyToPath.get(key);
+			if (folder != null && !Files.exists(folder, NOFOLLOW_LINKS)) {
 				keysToCancel.add(key);
 			}
 		}
@@ -123,7 +121,7 @@ public class FolderWatchService extends AbstractWatchService {
 			unregisterFolder(key);
 		}
 	}
-	
+
 	private synchronized void scheduleCleanupTask() {
 		// cancel previous task if existing
 		if (timer != null) {
@@ -175,12 +173,12 @@ public class FolderWatchService extends AbstractWatchService {
 
 					@SuppressWarnings("unchecked")
 					Kind<Path> kind = (Kind<Path>) event.kind();
-					
+
 					// Context for directory entry event is the file name of entry
 					WatchEvent<Path> ev = castWatchEvent(event);
 					Path name = ev.context();
 					Path child = dir.resolve(name);
-					
+
 					// if directory is created, and watching recursively, then
 					// register it and its sub-directories
 					if (kind == ENTRY_CREATE) {
@@ -197,7 +195,7 @@ public class FolderWatchService extends AbstractWatchService {
 					// print out event
 //					logger.debug("{}: {}", event.kind().name(), child);
 					handleEvent(kind, child);
-					
+
 				}
 
 				// reset key and remove from set if directory no longer accessible
@@ -214,7 +212,7 @@ public class FolderWatchService extends AbstractWatchService {
 				// schedule a cleanup task that iterates over all directories and updates watch keys (adds or
 				// removes them)
 				scheduleCleanupTask();
-				
+
 				// watch service was stopped in the meantime
 				if(!isRunning.get()) {
 					return;
@@ -247,8 +245,8 @@ public class FolderWatchService extends AbstractWatchService {
 			}
 		}
 	}
-	
-	
+
+
 	private class CleanupFolderRegistrationsTask extends TimerTask {
 		@Override
 		public void run() {
@@ -261,7 +259,7 @@ public class FolderWatchService extends AbstractWatchService {
 			}
 		}
 	}
-	
+
 	private class RegisterFolderVisitor extends SimpleFileVisitor<Path> {
 		@Override
 		public FileVisitResult preVisitDirectory(Path folder, BasicFileAttributes attrs) {

@@ -1,19 +1,13 @@
 package org.peerbox.watchservice.states;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.hive2hive.core.exceptions.NoSessionException;
 import org.hive2hive.processframework.exceptions.InvalidProcessStateException;
 import org.hive2hive.processframework.exceptions.ProcessExecutionException;
-import org.peerbox.FileManager;
-import org.peerbox.exceptions.NotImplException;
-import org.peerbox.h2h.ProcessHandle;
+import org.peerbox.app.manager.file.IFileManager;
 import org.peerbox.watchservice.Action;
-import org.peerbox.watchservice.IFileEventManager;
 import org.peerbox.watchservice.conflicthandling.ConflictHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -91,7 +85,7 @@ public class LocalCreateState extends AbstractActionState {
 	 * @throws NoSessionException
 	 */
 	@Override
-	public ExecutionHandle execute(FileManager fileManager) throws InvalidProcessStateException,
+	public ExecutionHandle execute(IFileManager fileManager) throws InvalidProcessStateException,
 			ProcessExecutionException, NoSessionException, NoPeerConnectionException {
 		Path path = action.getFile().getPath();
 		logger.debug("Execute LOCAL CREATE: {}", path);
