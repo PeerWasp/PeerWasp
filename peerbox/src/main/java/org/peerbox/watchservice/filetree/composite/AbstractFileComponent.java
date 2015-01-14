@@ -148,7 +148,7 @@ abstract class AbstractFileComponent implements FileComponent {
 				+ "This is probably a file. "
 						+ "(this=%s)", getPath());
 
-		throw new NotImplException(msg);
+//		throw new NotImplException(msg);
 	}
 
 }
