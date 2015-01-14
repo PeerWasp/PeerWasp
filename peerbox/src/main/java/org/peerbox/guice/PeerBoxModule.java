@@ -4,7 +4,6 @@ package org.peerbox.guice;
 import javafx.stage.Stage;
 
 import org.peerbox.IUserConfig;
-import org.peerbox.UserConfig;
 import org.peerbox.app.ClientContext;
 import org.peerbox.app.ExitHandler;
 import org.peerbox.app.IExitHandler;
@@ -55,19 +54,11 @@ public class PeerBoxModule extends AbstractModule {
 
 		bindManagers();
 
-		bind(IFxmlLoaderProvider.class).to(GuiceFxmlLoader.class);
-		bind(IFileRecoveryHandler.class).to(FileRecoveryHandler.class);
-		bind(IShareFolderHandler.class).to(ShareFolderHandler.class);
-		bind(IFileDeleteHandler.class).to(FileDeleteHandler.class);
-		bind(IFileEventManager.class).to(FileEventManager.class);
+		bindContextMenuHandlers();
 
-		bind(IUserConfig.class).to(UserConfig.class);
+		bind(IFxmlLoaderProvider.class).to(GuiceFxmlLoader.class);
 		bind(IExitHandler.class).to(ExitHandler.class);
 		bind(ClientContext.class).toProvider(ClientContextProvider.class);
-	}
-
-	private void bindSystemTray() {
-		bind(AbstractSystemTray.class).to(JSystemTray.class);
 	}
 
 	private void bindMessageBus() {
@@ -98,10 +89,22 @@ public class PeerBoxModule extends AbstractModule {
 		bind(INodeManager.class).to(NodeManager.class);
 		bind(IUserManager.class).to(UserManager.class);
 		bind(IFileManager.class).to(FileManager.class);
+
+		bind(IFileEventManager.class).to(FileEventManager.class);
+	}
+
+	private void bindContextMenuHandlers() {
+		bind(IFileRecoveryHandler.class).to(FileRecoveryHandler.class);
+		bind(IShareFolderHandler.class).to(ShareFolderHandler.class);
+		bind(IFileDeleteHandler.class).to(FileDeleteHandler.class);
+	}
+
+	private void bindSystemTray() {
+		bind(AbstractSystemTray.class).to(JSystemTray.class);
 	}
 
 	@Provides
-	FileTree providesFileTree(UserConfig cfg){
+	FileTree providesFileTree(IUserConfig cfg){
 		return new FileTree(cfg.getRootPath());
 	}
 

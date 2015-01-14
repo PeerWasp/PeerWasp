@@ -51,19 +51,19 @@ public class LoginController implements Initializable {
 
 	@FXML
 	private TextField txtUsername;
-	@FXML 
+	@FXML
 	private Label lblUsernameError;
 	@FXML
 	private PasswordField txtPassword;
-	@FXML 
+	@FXML
 	private Label lblPasswordError;
 	@FXML
 	private PasswordField txtPin;
-	@FXML 
+	@FXML
 	private Label lblPinError;
 	@FXML
 	private TextField txtRootPath;
-	@FXML 
+	@FXML
 	private Label lblPathError;
 	@FXML
 	private CheckBox chbAutoLogin;
@@ -77,12 +77,12 @@ public class LoginController implements Initializable {
 	private ErrorLabel lblError;
 	@FXML
 	private ProgressIndicator piProgress;
-	
+
 	private EmptyTextFieldValidator usernameValidator;
 	private EmptyTextFieldValidator passwordValidator;
 	private EmptyTextFieldValidator pinValidator;
 	private RootPathValidator pathValidator;
-	
+
 	@Inject
 	public LoginController(NavigationService navigationService, IUserManager userManager) {
 		this.fNavigationService = navigationService;
@@ -123,7 +123,7 @@ public class LoginController implements Initializable {
 		pinValidator.setErrorProperty(lblPinError.textProperty());
 		pathValidator = new RootPathValidator(txtRootPath, lblPathError.textProperty());
 	}
-	
+
 	private void uninstallValidationDecorations() {
 		usernameValidator.reset();
 		passwordValidator.reset();
@@ -147,12 +147,12 @@ public class LoginController implements Initializable {
 			new Thread(task).start();
 		}
 	}
-	
+
 	private ValidationResult validateAll() {
 		return (usernameValidator.validate() == ValidationResult.OK
 				& passwordValidator.validate() == ValidationResult.OK
 				& pinValidator.validate() == ValidationResult.OK
-				& pathValidator.validate() == ValidationResult.OK 
+				& pathValidator.validate() == ValidationResult.OK
 				) ? ValidationResult.OK : ValidationResult.ERROR;
 	}
 
@@ -172,10 +172,7 @@ public class LoginController implements Initializable {
 			return userManager.loginUser(username, password, pin, path);
 		} catch (NoPeerConnectionException e) {
 			return ResultStatus.error("Could not login user because connection to network failed.");
-		} catch (IOException e) {
-			logger.warn("Could not login user: ", e);
 		}
-		return ResultStatus.error("Could not login user.");
 	}
 
 	private Task<ResultStatus> createLoginTask() {
@@ -237,23 +234,23 @@ public class LoginController implements Initializable {
 		saveLoginConfig();
 
 		initializeServices();
-		
+
 	    resetForm();
 		fNavigationService.navigate(ViewNames.SETUP_COMPLETED_VIEW);
 	}
 
 	private void initializeServices() {
 		try {
-			
+
 			ClientContext ctx = clientContext.get();
 			ctx.getActionExecutor().start();
-				
+
 			// register for local/remote events
 			ctx.getFolderWatchService().addFileEventListener(ctx.getFileEventManager());
 			ctx.getNodeManager().getNode().getFileManager().subscribeFileEvents(ctx.getFileEventManager());
-		
+
 			ctx.getFolderWatchService().start(userConfig.getRootPath());
-			
+
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -331,5 +328,5 @@ public class LoginController implements Initializable {
 	public void setUserConfig(UserConfig userConfig) {
 		this.userConfig = userConfig;
 	}
-	
+
 }

@@ -15,7 +15,6 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 
-import org.apache.commons.io.FileUtils;
 import org.peerbox.utils.NetUtils;
 import org.peerbox.utils.OsUtils;
 import org.peerbox.utils.WinRegistry;
@@ -43,11 +42,6 @@ public class UserConfig implements IUserConfig{
 	 * The default configuration (note: resource, not a file)
 	 */
 	private static final String DEFAULT_PROPERTIES_FILENAME = "/properties/default";
-	/**
-	 * The user configuration file (note: file)
-	 * TODO: save somewhere safe (e.g. where settings are stored, maybe hidden)
-	 */
-	private static final String USER_PROPERTIES_FILENAME = Paths.get(FileUtils.getUserDirectoryPath(), ".PeerBox", "peerbox.properties").toString();
 
 	/**
 	 * The property names
@@ -60,43 +54,42 @@ public class UserConfig implements IUserConfig{
 	private static final String PROPERTY_PIN = "pin";
 	private static final String PROPERTY_ROOTPATH = "rootpath";
 	private static final String PROPERTY_API_SERVER_PORT = "api_server_port";
+
 	/**
 	 * Separator character for the serialization of lists of values
 	 */
 	private static final String LIST_SEPARATOR = ",";
 
-	private Path propertyFile;
+	private final Path propertyFile;
 	private Properties prop;
 
 	/**
-	 * Creates a new user configuration using the default configuration
-	 * @throws IOException if access to property file fails
-	 */
-	public UserConfig() throws IOException {
-		this(USER_PROPERTIES_FILENAME);
-	}
-
-	/**
 	 * Creates a new user configuration using the given file name.
+	 *
 	 * @param filename the filename of the property file
-	 * @throws IOException if access to property file fails
 	 */
-	private UserConfig(final String filename) throws IOException {
-		this.propertyFile = Paths.get(filename);
-		loadProperties();
+	public UserConfig(final Path file) {
+		this.propertyFile = file;
 	}
 
 	/**
 	 * Loads the default and user properties from disk
-	 * @throws IOException
+	 *
+	 * @throws IOException if loading of file fails
 	 */
-	private void loadProperties() throws IOException {
+	public synchronized void load() throws IOException {
+		if (propertyFile == null) {
+			throw new IllegalStateException(
+					"No filename for the user config file given (propertyFile = null)");
+		}
+
 		// first read defaults
 		Properties defaultProp = loadDefaultProperties();
+
 		// create parent dirs and empty file if not exists yet
 		if (!Files.exists(propertyFile)) {
 			if (!Files.exists(propertyFile.getParent())) {
-				Files.createDirectory(propertyFile.getParent());
+				Files.createDirectories(propertyFile.getParent());
 			}
 			Files.createFile(propertyFile);
 		}
@@ -106,6 +99,7 @@ public class UserConfig implements IUserConfig{
 
 	/**
 	 * Stores the current properties on disk
+	 *
 	 * @throws IOException
 	 */
 	private synchronized void saveProperties() throws IOException {
@@ -116,6 +110,7 @@ public class UserConfig implements IUserConfig{
 
 	/**
 	 * Loads the default properties
+	 *
 	 * @return default properties instance
 	 * @throws IOException
 	 */
@@ -129,6 +124,7 @@ public class UserConfig implements IUserConfig{
 
 	/**
 	 * Loads the user properties. The default and user properties are merged
+	 *
 	 * @param defaultProp default properties for merging config
 	 * @return user properties instance
 	 * @throws IOException
@@ -158,6 +154,7 @@ public class UserConfig implements IUserConfig{
 
 	/**
 	 * Sets the root path.
+	 *
 	 * @param path if null or empty, the root path is removed from the config.
 	 * @throws IOException
 	 */
@@ -193,6 +190,7 @@ public class UserConfig implements IUserConfig{
 
 	/**
 	 * Sets the username. Username is trimmed.
+	 *
 	 * @param username if null or empty, the username is removed from the config.
 	 * @throws IOException
 	 */
@@ -221,6 +219,7 @@ public class UserConfig implements IUserConfig{
 
 	/**
 	 * Sets the password.
+	 *
 	 * @param password if null or empty, the password is removed from the config.
 	 * @throws IOException
 	 */
@@ -249,6 +248,7 @@ public class UserConfig implements IUserConfig{
 
 	/**
 	 * Sets the pin.
+	 *
 	 * @param pin if null or empty, the password is removed from the config.
 	 * @throws IOException
 	 */
@@ -270,6 +270,7 @@ public class UserConfig implements IUserConfig{
 
 	/**
 	 * Sets the auto login property.
+	 *
 	 * @param enabled
 	 * @throws IOException
 	 */
@@ -295,6 +296,7 @@ public class UserConfig implements IUserConfig{
 
 	/**
 	 * Sets the last bootstrapping node
+	 *
 	 * @param nodeAddress address (domain, IP) of the node.
 	 * @throws IOException
 	 */
@@ -334,6 +336,7 @@ public class UserConfig implements IUserConfig{
 	/**
 	 * Sets a list of bootstrapping node addresses. Overrides old addresses.
 	 * Addresses are trimmed.
+	 *
 	 * @param nodes list of addresses.
 	 * @throws IOException
 	 */
@@ -365,6 +368,7 @@ public class UserConfig implements IUserConfig{
 
 	/**
 	 * Adds an address of a bootstrapping node to the current list
+	 *
 	 * @param node address of a node
 	 * @throws IOException
 	 */
@@ -378,6 +382,7 @@ public class UserConfig implements IUserConfig{
 
 	/**
 	 * Removes an address of a bootstrapping node from the current list.
+	 *
 	 * @param node address of a node
 	 * @throws IOException
 	 */
@@ -408,6 +413,7 @@ public class UserConfig implements IUserConfig{
 
 	/**
 	 * Sets the api server port.
+	 *
 	 * @param port if not in valid range, the port is removed from the config.
 	 * @throws IOException
 	 */
@@ -424,6 +430,13 @@ public class UserConfig implements IUserConfig{
 			prop.remove(PROPERTY_API_SERVER_PORT);
 		}
 		saveProperties();
+	}
+
+	/**
+	 * @return the path to the config file
+	 */
+	public Path getConfigFileName() {
+		return propertyFile;
 	}
 
 }

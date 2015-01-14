@@ -1,6 +1,5 @@
 package org.peerbox.app.manager.user;
 
-import java.io.IOException;
 import java.nio.file.Path;
 
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
@@ -27,16 +26,16 @@ public final class UserManager extends AbstractManager implements IUserManager {
 	private static final Logger logger = LoggerFactory.getLogger(UserManager.class);
 
 	private UserCredentials userCredentials;
-	
+
 	@Inject
 	public UserManager(final INodeManager nodeManager, final IUserConfig userConfig, final MessageBus messageBus) {
 		super(nodeManager, userConfig, messageBus);
 	}
-	
+
 	@Override
 	public ResultStatus registerUser(final String username, final String password, final String pin)
 			throws NoPeerConnectionException {
-		
+
 		logger.debug("REGISTER - Username: {}", username);
 
 		ResultStatus res = ResultStatus.error("Could not register user.");
@@ -58,7 +57,7 @@ public final class UserManager extends AbstractManager implements IUserManager {
 
 		return res;
 	}
-	
+
 	private void notifyRegister(final String username) {
 		if (getMessageBus() != null) {
 			getMessageBus().publish(new RegisterMessage(username));
@@ -71,32 +70,32 @@ public final class UserManager extends AbstractManager implements IUserManager {
 	}
 
 	@Override
-	public ResultStatus loginUser(final String username, final String password, final String pin, 
-			final Path rootPath) throws NoPeerConnectionException, IOException {
-		
+	public ResultStatus loginUser(final String username, final String password, final String pin,
+			final Path rootPath) throws NoPeerConnectionException {
+
 		logger.debug("LOGIN - Username: {}", username);
 
 		ResultStatus res = ResultStatus.error("Could not login user.");
 
 		userCredentials = new UserCredentials(username, password, pin);
 		IFileAgent fileAgent = new FileAgent(rootPath, AppData.getCacheFolder());
-		
+
 		try {
-			
+
 			IProcessComponent<Void> loginProc = getH2HUserManager().createLoginProcess(userCredentials, fileAgent);
 			loginProc.execute();
 			if (isLoggedIn()) {
 				res = ResultStatus.ok();
 				notifyLogin();
 			}
-			
+
 		} catch (ProcessExecutionException | InvalidProcessStateException pex) {
 			logger.warn("Login process failed (user={}).", username, pex);
 		}
 
 		return res;
 	}
-	
+
 	private void notifyLogin() {
 		if (getMessageBus() != null) {
 			getMessageBus().publish(new LoginMessage(userCredentials.getUserId()));
@@ -110,13 +109,13 @@ public final class UserManager extends AbstractManager implements IUserManager {
 
 	@Override
 	public ResultStatus logoutUser() throws NoPeerConnectionException, NoSessionException {
-		
+
 		logger.debug("LOGOUT");
 
 		ResultStatus res = ResultStatus.error("Could not logout user.");
 
 		try {
-			
+
 			IProcessComponent<Void> logoutProc = getH2HUserManager().createLogoutProcess();
 			logoutProc.execute();
 			if (!isLoggedIn()) {
@@ -130,11 +129,11 @@ public final class UserManager extends AbstractManager implements IUserManager {
 
 		return res;
 	}
-	
+
 	private void notifyLogout() {
 		if (getMessageBus() != null) {
 			getMessageBus().publish(new LogoutMessage(userCredentials.getUserId()));
 		}
 	}
-	
+
 }
