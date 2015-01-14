@@ -40,37 +40,6 @@ public class LocalUpdateState extends AbstractActionState {
 	}
 
 	@Override
-	public AbstractActionState changeStateOnLocalDelete() {
-		logger.debug("Local Delete Event: Local Update -> Local Delete ({})", action.getFile().getPath());
-		return new InitialState(action);
-	}
-
-	@Override
-	public AbstractActionState changeStateOnLocalUpdate() {
-		logger.debug("Local Update Event: Stay in Local Update ({})", action.getFile().getPath());
-		return this;
-	}
-	
-	@Override
-	public AbstractActionState changeStateOnRemoteUpdate() {
-//		logger.debug("Remote Update Event: Local Update -> Conflict ({})", action.getFilePath());
-//
-//		Path fileInConflict = action.getFilePath();
-//		Path renamedFile = ConflictHandler.rename(fileInConflict);
-//		try {
-//			Files.move(fileInConflict, renamedFile);
-//		} catch (IOException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
-//		fileInConflict = renamedFile;
-//		logger.debug("Conflict handling complete.");
-//
-//		return new ConflictState(action);
-		return new RemoteUpdateState(action);
-	}
-
-	@Override
 	public AbstractActionState changeStateOnRemoteDelete() {
 		logger.debug("Remote Delete Event: Local Update -> Conflict ({})", action.getFile().getPath());
 		return new LocalCreateState(action);

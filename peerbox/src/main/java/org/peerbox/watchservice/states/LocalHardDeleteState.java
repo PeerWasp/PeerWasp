@@ -40,21 +40,6 @@ public class LocalHardDeleteState extends AbstractActionState{
 	}
 
 	@Override
-	public AbstractActionState changeStateOnLocalUpdate() {
-		return new LocalUpdateState(action); //e.g. hard delete -> Ctrl + Z;
-	}
-
-	@Override
-	public AbstractActionState changeStateOnRemoteDelete() {
-		return new InitialState(action); //File has already been deleted, finish.
-	}
-
-	@Override
-	public AbstractActionState changeStateOnRemoteCreate() {
-		return new RemoteCreateState(action); // The network wins
-	}
-
-	@Override
 	public AbstractActionState changeStateOnRemoteUpdate() {
 		return new RemoteCreateState(action); // The network wins
 	}

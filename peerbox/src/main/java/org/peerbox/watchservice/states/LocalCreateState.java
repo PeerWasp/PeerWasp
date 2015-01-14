@@ -30,39 +30,9 @@ public class LocalCreateState extends AbstractActionState {
 	}
 
 	@Override
-	public AbstractActionState changeStateOnLocalCreate() {
-		logger.debug("Local Create Event: Stay in Local Create ({})", action.getFile().getPath());
-		return this;
-	}
-
-	@Override
 	public AbstractActionState changeStateOnLocalUpdate() {
 		logger.debug("Local Update Event: Stay in Local Create ({})", action.getFile().getPath());
 		return this;
-	}
-
-	@Override
-	public AbstractActionState changeStateOnLocalMove(Path oldPath) {
-		logger.debug("Local Move Event: not defined ({})", action.getFile().getPath());
-		throw new IllegalStateException("Local Move Event: not defined");
-	}
-
-	@Override
-	public AbstractActionState changeStateOnRemoteUpdate() {
-//		logger.debug("Remote Update Event: Local Create -> Conflict ({})", action.getFile()
-//				.getPath());
-//
-//		Path fileInConflict = action.getFile().getPath();
-//		Path renamedFile = ConflictHandler.rename(fileInConflict);
-//		try {
-//			Files.move(fileInConflict, renamedFile);
-//		} catch (IOException e) {
-//			e.printStackTrace();
-//		}
-//		fileInConflict = renamedFile;
-//		logger.debug("Conflict handling complete.");
-//		return new ConflictState(action);
-		return new RemoteUpdateState(action);
 	}
 
 	@Override
@@ -98,11 +68,6 @@ public class LocalCreateState extends AbstractActionState {
 		}
 		
 		return new ExecutionHandle(action, handle);
-	}
-
-	@Override
-	public AbstractActionState changeStateOnRemoteCreate() {
-		return new RemoteCreateState(action);
 	}
 
 	@Override

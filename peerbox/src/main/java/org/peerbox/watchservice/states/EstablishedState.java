@@ -29,26 +29,15 @@ public class EstablishedState extends AbstractActionState{
 	}
 
 	@Override
-	public AbstractActionState changeStateOnRemoteDelete() {
-		logStateTransission(getStateType(), EventType.LOCAL_CREATE, StateType.INITIAL);
-		return new InitialState(action);
-	}
-
-	@Override
 	public AbstractActionState changeStateOnRemoteCreate() {
 		logStateTransission(getStateType(), EventType.REMOTE_CREATE, StateType.REMOTE_UPDATE);
 		return new RemoteUpdateState(action);
 	}
 
 	@Override
-	public AbstractActionState changeStateOnRemoteUpdate() {
-		return new RemoteUpdateState(action);
-	}
-
-	@Override
 	public AbstractActionState changeStateOnRemoteMove(Path oldFilePath) {
 		logStateTransission(getStateType(), EventType.REMOTE_MOVE, StateType.ESTABLISHED);
-		return this; //new RemoteMoveState(action, oldFilePath);
+		return this;
 	}
 
 	@Override

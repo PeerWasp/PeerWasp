@@ -30,11 +30,6 @@ public class InitialState extends AbstractActionState {
 		super(action, StateType.INITIAL);
 	}
 
-	@Override
-	public AbstractActionState changeStateOnLocalCreate() {
-		logStateTransission(getStateType(), EventType.LOCAL_CREATE, StateType.LOCAL_CREATE);
-		return new LocalCreateState(action);
-	}
 
 //	@Override
 //	public AbstractActionState changeStateOnLocalDelete() {
@@ -47,25 +42,6 @@ public class InitialState extends AbstractActionState {
 	public AbstractActionState changeStateOnLocalMove(Path source) {
 		logStateTransission(getStateType(), EventType.LOCAL_MOVE, StateType.LOCAL_MOVE);
 		return new LocalMoveState(action, source);
-	}
-
-	@Override
-	public AbstractActionState changeStateOnLocalRecover(File currentFile, int versionToRecover) {
-		//logStateTransission(getStateType(), EventType.LOCAL_RECOVER, StateType.LOCAL_RECOVER);
-//		throw new NotImplException("InitialState.localRecover");
-		return new RecoverState(action, currentFile, versionToRecover);
-	}
-
-	@Override
-	public AbstractActionState changeStateOnRemoteCreate() {
-		logStateTransission(getStateType(), EventType.REMOTE_CREATE, StateType.REMOTE_CREATE);
-		return new RemoteCreateState(action);
-	}
-
-	@Override
-	public AbstractActionState changeStateOnRemoteDelete() {
-		logStateTransission(getStateType(), EventType.REMOTE_DELETE, StateType.INITIAL);
-		return this; //new RemoteDeleteState(action);
 	}
 
 	@Override
@@ -163,12 +139,6 @@ public class InitialState extends AbstractActionState {
 		// TODO Auto-generated method stub
 		throw new NotImplException("InitialState.handleRemoteDelete");
 	}
-	@Override
-	public AbstractActionState handleRemoteMove(Path path) {
-		// TODO Auto-generated method stub
-		throw new NotImplException("InitialState.handleRemoteMove");
-	}
-
 
 	@Override
 	public ExecutionHandle execute(IFileManager fileManager) throws NoSessionException,

@@ -133,7 +133,7 @@ public class AddDelete extends FileIntegrationTest {
 	 * and memory consumption.
 	 * @throws IOException
 	 */
-	@Test
+	@Test @Ignore
 	public void manyFilesStressTest() throws IOException {
 		manyFilesTest(1000, WAIT_TIME_STRESSTEST);
 

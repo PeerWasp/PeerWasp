@@ -28,12 +28,6 @@ public class RemoteUpdateState extends AbstractActionState {
 	}
 
 	@Override
-	public AbstractActionState changeStateOnLocalUpdate() {
-		logStateTransission(getStateType(), EventType.LOCAL_UPDATE, StateType.REMOTE_UPDATE);
-		return new LocalUpdateState(action);
-	}
-
-	@Override
 	public AbstractActionState changeStateOnLocalDelete() {
 		logStateTransission(getStateType(), EventType.LOCAL_DELETE, StateType.REMOTE_UPDATE);
 		return this;
@@ -46,23 +40,11 @@ public class RemoteUpdateState extends AbstractActionState {
 	}
 
 	@Override
-	public AbstractActionState changeStateOnRemoteUpdate() {
-		logStateTransission(getStateType(), EventType.REMOTE_UPDATE, StateType.REMOTE_UPDATE);
-		return this;
-	}
-
-	@Override
 	public AbstractActionState changeStateOnRemoteDelete() {
 		logger.debug("Remote Delete Event:  ({})", action.getFile().getPath());
 		throw new NotImplException("RemoteUpdate.remoteDelete");
 	}
 
-	@Override
-	public AbstractActionState changeStateOnRemoteMove(Path oldFilePath) {
-		logger.debug("Remote Move Event:  ({})", action.getFile().getPath());
-		throw new NotImplException("RemoteUpdate.remoteMove");
-	}
-	
 	@Override
 	public AbstractActionState changeStateOnRemoteCreate() {
 		return this;

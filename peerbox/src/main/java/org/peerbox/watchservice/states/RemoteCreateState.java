@@ -31,45 +31,11 @@ public class RemoteCreateState extends AbstractActionState {
 	}
 
 	@Override
-	public AbstractActionState changeStateOnLocalUpdate() {
-		logger.debug("Local Update Event:  ({})", action.getFile().getPath());
-		ConflictHandler.resolveConflict(action.getFile().getPath());
-		return new LocalUpdateState(action);
-//		return new ConflictState(action);
-	}
-
-	@Override
-	public AbstractActionState changeStateOnLocalDelete() {
-		return new InitialState(action);
-	}
-
-	@Override
-	public AbstractActionState changeStateOnLocalMove(Path oldPath) {
-		throw new IllegalStateException("Local move in RemoteCreateState");
-	}
-
-	@Override
 	public AbstractActionState changeStateOnRemoteUpdate() {
 		logger.debug("Remote Update Event:  ({})", action.getFile().getPath());
 		return this;
 	}
-
-	@Override
-	public AbstractActionState changeStateOnRemoteDelete() {
-		logger.debug("Remote Delete Event:  ({})", action.getFile().getPath());
-		return new InitialState(action);
-	}
-
-	@Override
-	public AbstractActionState changeStateOnRemoteMove(Path oldFilePath) {
-		throw new IllegalStateException("Remote Move eent in RemoteCreateState");
-	}
-
-	@Override
-	public AbstractActionState changeStateOnRemoteCreate() {
-		return this;
-	}
-
+	
 	@Override
 	public AbstractActionState handleLocalCreate() {
 		action.getFile().bubbleContentHashUpdate();//updateContentHash();
@@ -83,6 +49,7 @@ public class RemoteCreateState extends AbstractActionState {
 
 	@Override
 	public AbstractActionState handleLocalUpdate() {
+		ConflictHandler.resolveConflict(action.getFile().getPath());
 		return changeStateOnLocalUpdate();
 	}
 

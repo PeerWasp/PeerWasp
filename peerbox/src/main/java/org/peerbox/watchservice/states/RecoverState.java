@@ -61,7 +61,6 @@ public class RecoverState extends AbstractActionState{
 	public AbstractActionState changeStateOnRemoteCreate() {
 		// TODO Auto-generated method stub
 		throw new NotImplException("Conflict handling during recover not yet supported");
-//		return new ConflictState(action);
 	}
 
 	@Override

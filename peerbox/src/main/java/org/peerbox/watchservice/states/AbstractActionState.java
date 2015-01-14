@@ -71,6 +71,7 @@ public abstract class AbstractActionState {
 	 * LOCAL state changers
 	 */
 	public AbstractActionState changeStateOnLocalCreate(){
+		logStateTransission(getStateType(), EventType.LOCAL_CREATE, StateType.LOCAL_CREATE);
 		return new LocalCreateState(action);
 	}
 
