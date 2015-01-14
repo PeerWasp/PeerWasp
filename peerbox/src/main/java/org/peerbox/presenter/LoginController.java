@@ -20,6 +20,7 @@ import javafx.scene.control.PasswordField;
 import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
+import javafx.stage.Stage;
 import javafx.stage.Window;
 
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
@@ -236,7 +237,7 @@ public class LoginController implements Initializable {
 		initializeServices();
 
 	    resetForm();
-		fNavigationService.navigate(ViewNames.SETUP_COMPLETED_VIEW);
+		hideWindow();
 	}
 
 	private void initializeServices() {
@@ -310,6 +311,11 @@ public class LoginController implements Initializable {
 	public void navigateBackAction(ActionEvent event) {
 		logger.debug("Navigate back.");
 		fNavigationService.navigateBack();
+	}
+
+	private void hideWindow() {
+		Stage stage = (Stage) grdForm.getScene().getWindow();
+		stage.close();
 	}
 
 	private String getUsername() {

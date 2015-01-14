@@ -8,7 +8,6 @@ public class ViewNames {
 	public static final String REGISTER_VIEW = "/view/RegisterView.fxml";
 	public static final String LOGIN_VIEW = "/view/LoginView.fxml";
 	public static final String SELECT_ROOT_PATH_VIEW = "/view/SelectRootPathView.fxml";
-	public static final String SETUP_COMPLETED_VIEW = "/view/SetupCompletedView.fxml";
-	
+
 	public static final String SETTINGS_MAIN = "/view/settings/Main.fxml";
 }
