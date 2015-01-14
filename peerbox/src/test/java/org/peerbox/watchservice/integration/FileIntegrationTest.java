@@ -105,7 +105,12 @@ public abstract class FileIntegrationTest {
 	}
 
 	protected Path addSingleFile() throws IOException {
-		Path file = FileTestUtils.createRandomFile(masterRootPath, NUMBER_OF_CHARS);
+		return addSingleFile(NUMBER_OF_CHARS);
+	}
+	
+
+	protected Path addSingleFile(int size) throws IOException {
+		Path file = FileTestUtils.createRandomFile(masterRootPath, size);
 		waitForExists(file, WAIT_TIME_SHORT);
 		return file;
 	}

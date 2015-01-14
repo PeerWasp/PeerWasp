@@ -103,6 +103,20 @@ public class AddDelete extends FileIntegrationTest {
 	
 	/**
 	 * This test verifies the correct add and delete operations
+	 * of a single large file.
+	 * @throws IOException
+	 */
+	@Test
+	public void singleLargeFileTest() throws IOException {
+		Path file = addSingleFile(1024);
+		assertCleanedUpState(1);
+		
+		deleteSingleFile(file);
+		assertCleanedUpState(0);
+	}
+	
+	/**
+	 * This test verifies the correct add and delete operations
 	 * of many files.
 	 * @throws IOException
 	 */
@@ -119,9 +133,9 @@ public class AddDelete extends FileIntegrationTest {
 	 * and memory consumption.
 	 * @throws IOException
 	 */
-	@Test @Ignore
+	@Test
 	public void manyFilesStressTest() throws IOException {
-		manyFilesTest(10000, WAIT_TIME_STRESSTEST);
+		manyFilesTest(1000, WAIT_TIME_STRESSTEST);
 
 	}
 

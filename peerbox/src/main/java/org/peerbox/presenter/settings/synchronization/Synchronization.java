@@ -72,7 +72,6 @@ public class Synchronization implements Initializable {
 	
 	@Override
 	public void initialize(URL arg0, ResourceBundle arg1) {
-		//showDummyData();		
 		logger.debug("Initialize Synchronization!");
 		synchronizedFiles = eventManager.getFileTree().getSynchronizedPathsAsSet();
 		createTreeWithFilesFromNetwork();
@@ -89,8 +88,6 @@ public class Synchronization implements Initializable {
 	}
 	
 	private void listFiles(FileNode fileNode){
-//		boolean isSynched = synchronizedFiles.contains(fileNode.getFile().toPath());
-//		logger.debug("File {} is selected: {}", fileNode.getFile().toPath(), isSynched);
 		PathTreeItem invisibleRoot = new PathTreeItem(fileNode, this, false, true);
 		fileTreeView.setCellFactory(CheckBoxTreeCell.<PathItem>forTreeView());    
 	    fileTreeView.setRoot(invisibleRoot);
@@ -101,10 +98,6 @@ public class Synchronization implements Initializable {
         	boolean isSynched = synchronizedFiles.contains(topLevelNode.getFile().toPath());
 			PathTreeItem rootItem = new PathTreeItem(topLevelNode, this, isSynched);
 			invisibleRoot.getChildren().add(rootItem);
-		}
-
-        for(FileNode child : fileNode.getChildren()){
-			System.out.println("File " + child.getFile());
 		}
 	}
 
@@ -156,6 +149,16 @@ public class Synchronization implements Initializable {
 		createTreeWithFilesFromNetwork();
 	}
 	
+	private class FileNodeComparator implements Comparator<FileNode>{
+		
+		@Override
+		public int compare(FileNode o1, FileNode o2) {
+			String path1 = o1.getPath().toString();
+			String path2 = o2.getPath().toString();
+			return path1.compareTo(path2);
+		}
+	}
+	
 //	private void showDummyData(){
 //		FileNode root = new FileNode(null, userConfig.getRootPath().toFile(), userConfig.getRootPath().toString(), null, null);
 //        PathTreeItem rootItem = 
@@ -186,13 +189,5 @@ public class Synchronization implements Initializable {
 //        fileTreeView.setShowRoot(true);
 //	}
 	
-	private class FileNodeComparator implements Comparator<FileNode>{
 
-		@Override
-		public int compare(FileNode o1, FileNode o2) {
-			String path1 = o1.getPath().toString();
-			String path2 = o2.getPath().toString();
-			return path1.compareTo(path2);
-		}
-	}
 }
