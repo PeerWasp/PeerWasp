@@ -40,6 +40,8 @@ public class App extends Application
 {
 	private static final Logger logger = LoggerFactory.getLogger(App.class);
 
+	private static final String PARAM_APP_DIR = "appdir";
+
 	private Injector injector;
 	private MessageBus messageBus;
 	private INodeManager nodeManager;
@@ -58,7 +60,7 @@ public class App extends Application
     public void start(Stage stage) {
     	primaryStage = stage;
 
-    	initializeAppFolders();
+    	initializeAppFolder();
 
     	initializeGuice();
 
@@ -80,7 +82,13 @@ public class App extends Application
 		messageBus.post(new InformationNotification("PeerBox started", "Hello...")).now();;
     }
 
-	private void initializeAppFolders() {
+	private void initializeAppFolder() {
+		// check arguments passed via command line
+		if (getParameters().getNamed().containsKey(PARAM_APP_DIR)) {
+			Path appDir = Paths.get(getParameters().getNamed().get(PARAM_APP_DIR));
+			AppData.setDataFolder(appDir);
+		}
+
 		try {
 			AppData.createFolders();
 			AppData.checkAccess();
@@ -99,14 +107,9 @@ public class App extends Application
 	}
 
 	private void initializeGuice() {
-		Path configFile = null;
-		if (getParameters().getNamed().containsKey("config")) {
-			configFile = Paths.get(getParameters().getNamed().get("config"));
-		}
-
 		injector = Guice.createInjector(
 				new PeerBoxModule(primaryStage),
-				new UserConfigModule(configFile),
+				new UserConfigModule(),
 				new ApiServerModule());
 		injector.injectMembers(this);
 	}

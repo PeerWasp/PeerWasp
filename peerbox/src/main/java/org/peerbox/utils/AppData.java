@@ -14,31 +14,36 @@ public final class AppData {
 		// prevent instances
 	}
 
-	private static final Path APP_DATA_FOLDER;
+	private static Path DATA_FOLDER_PATH;
 
-	private static final Path APP_CACHE_FOLDER;
+	private static final Path CACHE_FOLDER_NAME;
 
-	private static final Path APP_CONFIG_FOLDER;
+	private static final Path CONFIG_FOLDER_NAME;
 
 	static {
-		APP_DATA_FOLDER = Paths.get(FileUtils.getUserDirectoryPath(),
+		// default location
+		DATA_FOLDER_PATH = Paths.get(FileUtils.getUserDirectoryPath(),
 				String.format(".%s", Constants.APP_NAME));
 
-		APP_CACHE_FOLDER = APP_DATA_FOLDER.resolve("cache");
+		CACHE_FOLDER_NAME = Paths.get("cache");
 
-		APP_CONFIG_FOLDER = APP_DATA_FOLDER.resolve("config");
+		CONFIG_FOLDER_NAME = Paths.get("config");
+	}
+
+	public static void setDataFolder(final Path folder) {
+		DATA_FOLDER_PATH = folder;
 	}
 
 	public static Path getDataFolder() {
-		return APP_DATA_FOLDER;
+		return DATA_FOLDER_PATH;
 	}
 
 	public static Path getConfigFolder() {
-		return APP_CONFIG_FOLDER;
+		return getDataFolder().resolve(CONFIG_FOLDER_NAME);
 	}
 
 	public static Path getCacheFolder() {
-		return APP_CACHE_FOLDER;
+		return getDataFolder().resolve(CACHE_FOLDER_NAME);
 	}
 
 	public static void createFolders() throws IOException {
