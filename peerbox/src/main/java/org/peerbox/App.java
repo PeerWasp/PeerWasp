@@ -3,6 +3,7 @@ package org.peerbox;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 
 import javafx.application.Application;
@@ -18,10 +19,12 @@ import org.peerbox.app.manager.user.IUserManager;
 import org.peerbox.events.MessageBus;
 import org.peerbox.guice.ApiServerModule;
 import org.peerbox.guice.PeerBoxModule;
+import org.peerbox.guice.UserConfigModule;
 import org.peerbox.notifications.InformationNotification;
 import org.peerbox.presenter.tray.TrayException;
 import org.peerbox.presenter.validation.SelectRootPathUtils;
 import org.peerbox.server.IServer;
+import org.peerbox.utils.AppData;
 import org.peerbox.view.tray.AbstractSystemTray;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,9 +58,13 @@ public class App extends Application
     public void start(Stage stage) {
     	primaryStage = stage;
 
+    	initializeAppFolders();
+
     	initializeGuice();
 
-		initializeServer();
+    	loadConfig();
+
+		startServer();
 
 		initializeSysTray();
 
@@ -73,12 +80,38 @@ public class App extends Application
 		messageBus.post(new InformationNotification("PeerBox started", "Hello...")).now();;
     }
 
+	private void initializeAppFolders() {
+		try {
+			AppData.createFolders();
+			AppData.checkAccess();
+		} catch (IOException ioex) {
+			logger.warn("Could not create application folders: {}.", ioex.getMessage(), ioex);
+		}
+	}
+
+	private void loadConfig() {
+		try {
+			userConfig.load();
+		} catch (IOException ioex) {
+			// TODO: we should probably show a message and exit.
+			logger.warn("Could not load user properties: {}", userConfig.getConfigFileName(), ioex);
+		}
+	}
+
 	private void initializeGuice() {
-		injector = Guice.createInjector(new PeerBoxModule(primaryStage), new ApiServerModule());
+		Path configFile = null;
+		if (getParameters().getNamed().containsKey("config")) {
+			configFile = Paths.get(getParameters().getNamed().get("config"));
+		}
+
+		injector = Guice.createInjector(
+				new PeerBoxModule(primaryStage),
+				new UserConfigModule(configFile),
+				new ApiServerModule());
 		injector.injectMembers(this);
 	}
 
-	private void initializeServer() {
+	private void startServer() {
 		try {
 			boolean success = server.start();
 			if(success) {
@@ -137,11 +170,7 @@ public class App extends Application
 		} catch (NoPeerConnectionException e) {
 			logger.debug("Loggin failed: {}", e);
 			return ResultStatus.error("Could not login user because connection to network failed.");
-		} catch (IOException e) {
-			logger.warn("Could not login user:", e);
 		}
-
-		return ResultStatus.error("Could not login user.");
 	}
 
 	private Task<ResultStatus> createJoinLoginTask() {

@@ -7,39 +7,62 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
 public class UserConfigTest {
-	
+
+	private Path configFile;
 	private UserConfig userConfig;
-	
+
 	@Before
 	public void setUp() throws IOException {
-		userConfig = new UserConfig();
+		configFile = Paths.get(FileUtils.getTempDirectoryPath(), "testconfig.conf");
+		userConfig = new UserConfig(configFile);
+		userConfig.load();
 	}
-	
+
 	@After
 	public void tearDown() {
 		userConfig = null;
+	}
+
+	@Test(expected=IllegalStateException.class)
+	public void testLoad() throws IOException {
+		UserConfig cfg = new UserConfig(null);
+		cfg.load();
+	}
+
+	@Test
+	public void testGetConfigFileName() {
+		assertEquals(userConfig.getConfigFileName(), configFile);
+
+		UserConfig cfg = new UserConfig(null);
+		assertNull(cfg.getConfigFileName());
+
+		Path newPath = Paths.get(FileUtils.getTempDirectoryPath(), "test-config-file.txt");
+		cfg = new UserConfig(newPath);
+		assertEquals(cfg.getConfigFileName(), newPath);
 	}
 
 	@Test
 	public void testHasRootPath() throws IOException {
 		userConfig.setRootPath(Paths.get(""));
 		assertFalse(userConfig.hasRootPath());
-		
+
 		userConfig.setRootPath(Paths.get(" "));
 		assertTrue(userConfig.hasRootPath());
-		
+
 		userConfig.setRootPath(Paths.get("/this/is/a/path"));
 		assertTrue(userConfig.hasRootPath());
-		
+
 		userConfig.setRootPath(null);
 		assertFalse(userConfig.hasRootPath());
 	}
@@ -48,33 +71,33 @@ public class UserConfigTest {
 	public void testSetRootPath() throws IOException {
 		userConfig.setRootPath(Paths.get(""));
 		assertNull(userConfig.getRootPath());
-		userConfigAssertPersistence(userConfig, new UserConfig());
-		
+		userConfigAssertPersistence(userConfig, configFile);
+
 		userConfig.setRootPath(Paths.get("/this/is/a/Path"));
 		assertEquals(userConfig.getRootPath().toString(), "/this/is/a/Path");
 		assertNotEquals(userConfig.getRootPath(), "/this/is/a/Path".toLowerCase());
-		userConfigAssertPersistence(userConfig, new UserConfig());
-		
+		userConfigAssertPersistence(userConfig, configFile);
+
 		userConfig.setRootPath(Paths.get("/this/is/a/Path/John Doe "));
 		assertEquals(userConfig.getRootPath().toString(), "/this/is/a/Path/John Doe ");
-		userConfigAssertPersistence(userConfig, new UserConfig());
-		
+		userConfigAssertPersistence(userConfig, configFile);
+
 		userConfig.setRootPath(null);
 		assertNull(userConfig.getRootPath());
-		userConfigAssertPersistence(userConfig, new UserConfig());
+		userConfigAssertPersistence(userConfig, configFile);
 	}
 
 	@Test
 	public void testHasUsername() throws IOException {
 		userConfig.setUsername("");
 		assertFalse(userConfig.hasUsername());
-		
+
 		userConfig.setUsername(" ");
 		assertFalse(userConfig.hasUsername());
-		
+
 		userConfig.setUsername("testuser");
 		assertTrue(userConfig.hasUsername());
-		
+
 		userConfig.setUsername(null);
 		assertFalse(userConfig.hasUsername());
 	}
@@ -83,36 +106,36 @@ public class UserConfigTest {
 	public void testSetUsername() throws IOException {
 		userConfig.setUsername("");
 		assertNull(userConfig.getUsername());
-		userConfigAssertPersistence(userConfig, new UserConfig());
-		
-		// TODO: Design decision: username may be not case sensitive but rather 
+		userConfigAssertPersistence(userConfig, configFile);
+
+		// TODO: Design decision: username may be not case sensitive but rather
 		// (holds for registration, login, ... not necessarily config)
-		
+
 		userConfig.setUsername("TestUser123");
 		assertEquals(userConfig.getUsername(), "TestUser123");
-		userConfigAssertPersistence(userConfig, new UserConfig());
-		
+		userConfigAssertPersistence(userConfig, configFile);
+
 		userConfig.setUsername("  JohnDoe  ");
 		assertNotEquals(userConfig.getUsername(), "  JohnDoe  ");
 		assertEquals(userConfig.getUsername(), "JohnDoe");
-		userConfigAssertPersistence(userConfig, new UserConfig());
-		
+		userConfigAssertPersistence(userConfig, configFile);
+
 		userConfig.setUsername(null);
 		assertNull(userConfig.getUsername());
-		userConfigAssertPersistence(userConfig, new UserConfig());
+		userConfigAssertPersistence(userConfig, configFile);
 	}
 
 	@Test
 	public void testHasPassword() throws IOException {
 		userConfig.setPassword("");
 		assertFalse(userConfig.hasPassword());
-		
+
 		userConfig.setPassword(" ");
 		assertTrue(userConfig.hasPassword());
-		
+
 		userConfig.setPassword("mySecretPassword");
 		assertTrue(userConfig.hasPassword());
-		
+
 		userConfig.setPassword(null);
 		assertFalse(userConfig.hasPassword());
 	}
@@ -121,34 +144,34 @@ public class UserConfigTest {
 	public void testSetPassword() throws IOException {
 		userConfig.setPassword("");
 		assertNull(userConfig.getPassword());
-		userConfigAssertPersistence(userConfig, new UserConfig());
-		
+		userConfigAssertPersistence(userConfig, configFile);
+
 		userConfig.setPassword("mySecret#Password123");
 		assertEquals(userConfig.getPassword(), "mySecret#Password123");
 		assertNotEquals(userConfig.getPassword(), "mySecret#Password123".toLowerCase());
-		userConfigAssertPersistence(userConfig, new UserConfig());
-		
+		userConfigAssertPersistence(userConfig, configFile);
+
 		userConfig.setPassword(" my secret passwort ");
 		assertEquals(userConfig.getPassword(), " my secret passwort ");
 		assertNotEquals(userConfig.getPassword(), " my secret passwort ".trim());
-		userConfigAssertPersistence(userConfig, new UserConfig());
-		
+		userConfigAssertPersistence(userConfig, configFile);
+
 		userConfig.setPassword(null);
 		assertNull(userConfig.getPassword());
-		userConfigAssertPersistence(userConfig, new UserConfig());
+		userConfigAssertPersistence(userConfig, configFile);
 	}
 
 	@Test
 	public void testHasPin() throws IOException {
 		userConfig.setPin("");
 		assertFalse(userConfig.hasPin());
-		
+
 		userConfig.setPin(" ");
 		assertTrue(userConfig.hasPin());
-		
+
 		userConfig.setPin("myOwnPin");
 		assertTrue(userConfig.hasPin());
-		
+
 		userConfig.setPin(null);
 		assertFalse(userConfig.hasPin());
 	}
@@ -157,89 +180,95 @@ public class UserConfigTest {
 	public void testSetPin() throws IOException {
 		userConfig.setPin("");
 		assertNull(userConfig.getPin());
-		userConfigAssertPersistence(userConfig, new UserConfig());
-		
+		userConfigAssertPersistence(userConfig, configFile);
+
 		userConfig.setPin("ThisIs-MyPin");
 		assertEquals(userConfig.getPin(), "ThisIs-MyPin");
 		assertNotEquals(userConfig.getPin(), "ThisIs-MyPin".toLowerCase());
-		userConfigAssertPersistence(userConfig, new UserConfig());
-		
+		userConfigAssertPersistence(userConfig, configFile);
+
 		userConfig.setPin("   another pin 123 ");
 		assertEquals(userConfig.getPin(), "   another pin 123 ");
 		assertNotEquals(userConfig.getPin(), "   another pin 123 ".trim());
-		userConfigAssertPersistence(userConfig, new UserConfig());
-		
+		userConfigAssertPersistence(userConfig, configFile);
+
 		userConfig.setPin(null);
 		assertNull(userConfig.getPin());
-		userConfigAssertPersistence(userConfig, new UserConfig());
+		userConfigAssertPersistence(userConfig, configFile);
 	}
 
 	@Test
 	public void testSetAutoLogin() throws IOException {
 		userConfig.setAutoLogin(true);
 		assertTrue(userConfig.isAutoLoginEnabled());
-		userConfigAssertPersistence(userConfig, new UserConfig());
-		
+		userConfigAssertPersistence(userConfig, configFile);
+
 		userConfig.setAutoLogin(false);
 		assertFalse(userConfig.isAutoLoginEnabled());
-		userConfigAssertPersistence(userConfig, new UserConfig());
+		userConfigAssertPersistence(userConfig, configFile);
 	}
-	
-	@Test 
-	public void hasApiServerPort() throws IOException {
+
+	@Test
+	public void testHasApiServerPort() throws IOException {
 		userConfig.setApiServerPort(0);
 		assertFalse(userConfig.hasApiServerPort());
-		
+
 		userConfig.setApiServerPort(-1);
 		assertFalse(userConfig.hasApiServerPort());
-		
+
 		userConfig.setApiServerPort(65536);
 		assertFalse(userConfig.hasApiServerPort());
-		
+
 		userConfig.setApiServerPort(1);
 		assertTrue(userConfig.hasApiServerPort());
-		
+
 		userConfig.setApiServerPort(47325);
 		assertTrue(userConfig.hasApiServerPort());
-		
+
 		userConfig.setApiServerPort(65535);
 		assertTrue(userConfig.hasApiServerPort());
 	}
-	
+
 	@Test
-	public void setApiServerPort() throws IOException {
+	public void testSetApiServerPort() throws IOException {
 		// invalid ports
 		userConfig.setApiServerPort(0);
 		assertEquals(userConfig.getApiServerPort(), -1);
-		
+		userConfigAssertPersistence(userConfig, configFile);
+
 		userConfig.setApiServerPort(-1);
 		assertEquals(userConfig.getApiServerPort(), -1);
-		
+		userConfigAssertPersistence(userConfig, configFile);
+
 		userConfig.setApiServerPort(65536);
 		assertEquals(userConfig.getApiServerPort(), -1);
-		
+		userConfigAssertPersistence(userConfig, configFile);
+
 		// valid ports
 		userConfig.setApiServerPort(1);
 		assertEquals(userConfig.getApiServerPort(), 1);
-		
+		userConfigAssertPersistence(userConfig, configFile);
+
 		userConfig.setApiServerPort(37824);
 		assertEquals(userConfig.getApiServerPort(), 37824);
-		
+		userConfigAssertPersistence(userConfig, configFile);
+
 		userConfig.setApiServerPort(65535);
 		assertEquals(userConfig.getApiServerPort(), 65535);
+		userConfigAssertPersistence(userConfig, configFile);
 	}
-	
+
 	@Test
 	public void testHasLastBootstrappingNode() throws IOException {
 		userConfig.setLastBootstrappingNode("");
 		assertFalse(userConfig.hasLastBootstrappingNode());
-		
+
 		userConfig.setLastBootstrappingNode(" ");
 		assertFalse(userConfig.hasLastBootstrappingNode());
-		
+
 		userConfig.setLastBootstrappingNode("localhost");
 		assertTrue(userConfig.hasLastBootstrappingNode());
-		
+
 		userConfig.setLastBootstrappingNode(null);
 		assertFalse(userConfig.hasLastBootstrappingNode());
 	}
@@ -248,20 +277,20 @@ public class UserConfigTest {
 	public void testSetLastBootstrappingNode() throws IOException {
 		userConfig.setLastBootstrappingNode("");
 		assertNull(userConfig.getLastBootstrappingNode());
-		userConfigAssertPersistence(userConfig, new UserConfig());
-		
+		userConfigAssertPersistence(userConfig, configFile);
+
 		userConfig.setLastBootstrappingNode("localhost");
 		assertEquals(userConfig.getLastBootstrappingNode(), "localhost");
-		userConfigAssertPersistence(userConfig, new UserConfig());
-		
+		userConfigAssertPersistence(userConfig, configFile);
+
 		userConfig.setLastBootstrappingNode("  127.0.0.1  ");
 		assertNotEquals(userConfig.getLastBootstrappingNode(), "  127.0.0.1  ");
 		assertEquals(userConfig.getLastBootstrappingNode(), "127.0.0.1");
-		userConfigAssertPersistence(userConfig, new UserConfig());
-		
+		userConfigAssertPersistence(userConfig, configFile);
+
 		userConfig.setLastBootstrappingNode(null);
 		assertNull(userConfig.getLastBootstrappingNode());
-		userConfigAssertPersistence(userConfig, new UserConfig());
+		userConfigAssertPersistence(userConfig, configFile);
 	}
 
 	@SuppressWarnings("serial")
@@ -269,7 +298,7 @@ public class UserConfigTest {
 	public void testHasBootstrappingNodes() throws IOException {
 		userConfig.setBootstrappingNodes(new ArrayList<String>());
 		assertFalse(userConfig.hasBootstrappingNodes());
-		
+
 		List<String> list_1 = new ArrayList<String>() {
 			{
 				add(" ");
@@ -277,7 +306,7 @@ public class UserConfigTest {
 		};
 		userConfig.setBootstrappingNodes(list_1);
 		assertFalse(userConfig.hasBootstrappingNodes());
-		
+
 		List<String> list_2 = new ArrayList<String>() {
 			{
 				add(" ");
@@ -286,7 +315,7 @@ public class UserConfigTest {
 		};
 		userConfig.setBootstrappingNodes(list_2);
 		assertTrue(userConfig.hasBootstrappingNodes());
-		
+
 		userConfig.setBootstrappingNodes(null);
 		assertFalse(userConfig.hasBootstrappingNodes());
 	}
@@ -295,9 +324,11 @@ public class UserConfigTest {
 	public void testSetBootstrappingNodes_empty() throws IOException {
 		List<String> list_in = new ArrayList<String>();
 		userConfig.setBootstrappingNodes(list_in);
+		userConfigAssertPersistence(userConfig, configFile);
+
 		List<String> list_out = userConfig.getBootstrappingNodes();
 		assertTrue(list_out.isEmpty());
-		userConfigAssertPersistence(userConfig, new UserConfig());
+		userConfigAssertPersistence(userConfig, configFile);
 	}
 
 	@SuppressWarnings("serial")
@@ -311,9 +342,9 @@ public class UserConfigTest {
 		userConfig.setBootstrappingNodes(list_in);
 		List<String> list_out = userConfig.getBootstrappingNodes();
 		assertTrue(list_out.isEmpty());
-		userConfigAssertPersistence(userConfig, new UserConfig());
+		userConfigAssertPersistence(userConfig, configFile);
 	}
-	
+
 	@SuppressWarnings("serial")
 	@Test
 	public void testSetBootstrappingNodes_nodes() throws IOException {
@@ -332,7 +363,7 @@ public class UserConfigTest {
 		assertTrue(list_out.contains("localhost"));
 		assertTrue(list_out.contains(" 192.168.1.101  ".trim()));
 		assertFalse(list_out.contains(" 192.168.1.101  "));
-		userConfigAssertPersistence(userConfig, new UserConfig());
+		userConfigAssertPersistence(userConfig, configFile);
 	}
 
 	@Test
@@ -340,7 +371,7 @@ public class UserConfigTest {
 		userConfig.setBootstrappingNodes(null);
 		List<String> list_out = userConfig.getBootstrappingNodes();
 		assertTrue(list_out.isEmpty());
-		userConfigAssertPersistence(userConfig, new UserConfig());
+		userConfigAssertPersistence(userConfig, configFile);
 	}
 
 	@SuppressWarnings("serial")
@@ -358,13 +389,13 @@ public class UserConfigTest {
 		userConfig.addBootstrapNode("");
 		userConfig.addBootstrapNode(" ");
 		userConfig.addBootstrapNode(null);
-		
+
 		List<String> list_out = userConfig.getBootstrappingNodes();
 		assertTrue(list_out.contains("localhost"));
 		assertTrue(list_out.contains(" 192.168.1.101  ".trim()));
 		assertTrue(list_out.contains(" my-fancy-bootstrap-host-name.com ".trim()));
 		assertTrue(list_out.size() == 3);
-		userConfigAssertPersistence(userConfig, new UserConfig());
+		userConfigAssertPersistence(userConfig, configFile);
 	}
 
 	@SuppressWarnings("serial")
@@ -383,40 +414,54 @@ public class UserConfigTest {
 		userConfig.removeBootstrapNode("");
 		userConfig.removeBootstrapNode(" ");
 		userConfig.removeBootstrapNode(null);
-		
+
 		List<String> list_out = userConfig.getBootstrappingNodes();
 		assertTrue(list_out.contains("localhost"));
 		assertFalse(list_out.contains(" 192.168.1.101  ".trim()));
 		assertTrue(list_out.contains(" my-fancy-bootstrap-host-name.com ".trim()));
 		assertTrue(list_out.size() == 2);
-		userConfigAssertPersistence(userConfig, new UserConfig());
+		userConfigAssertPersistence(userConfig, configFile);
 	}
-	
-	
+
+
 	/**
-	 * Allows to check that changes made to a config are persistent, i.e. saved on disk in 
+	 * Allows to check that changes made to a config are persistent, i.e. saved on disk in
 	 * a property file.
-	 * Asserts that two user config instances are equals by comparing them with each 
+	 * Asserts that two user config instances are equals by comparing them with each
 	 * other regarding their state (properties).
-	 * 
+	 *
 	 * Usage: given an instance a, create a new instance b that reads the config again and compare.
-	 * 
+	 *
 	 * @param a an instance
 	 * @param b another instance
+	 * @throws IOException if loading fails
 	 */
-	private void userConfigAssertPersistence(UserConfig a, UserConfig b) {
+	private void userConfigAssertPersistence(UserConfig a, Path file) throws IOException {
+		UserConfig b = new UserConfig(file);
+		b.load();
+
 		assertEquals(a.getUsername(), b.getUsername());
 		assertTrue(a.hasUsername() == b.hasUsername());
-		
+
 		assertEquals(a.getPassword(), b.getPassword());
 		assertTrue(a.hasPassword() == b.hasPassword());
-		
+
 		assertEquals(a.getPin(), b.getPin());
 		assertTrue(a.hasPin() == b.hasPin());
-		
+
 		assertEquals(a.getRootPath(), b.getRootPath());
 		assertTrue(a.hasRootPath() == b.hasRootPath());
-		
+
+		assertEquals(a.getApiServerPort(), b.getApiServerPort());
+		assertTrue(a.hasApiServerPort() == b.hasApiServerPort());
+
+		assertEquals(a.isAutoLoginEnabled(), b.isAutoLoginEnabled());
+
+		assertEquals(a.getLastBootstrappingNode(), b.getLastBootstrappingNode());
+		assertTrue(a.hasLastBootstrappingNode() == b.hasLastBootstrappingNode());
+
+		assertEquals(a.getConfigFileName(), b.getConfigFileName());
+
 		assertTrue(a.hasBootstrappingNodes() == b.hasBootstrappingNodes());
 		List<String> nodesA = a.getBootstrappingNodes();
 		List<String> nodesB = b.getBootstrappingNodes();
