@@ -129,28 +129,6 @@ public class SelectiveSynchronization extends FileIntegrationTest{
 			waiter.tickASecond();
 		} while(!allPathsAreSynchronized(paths, sync));
 	}
-	
-	protected void waitForSynchronized(Path path, int seconds, boolean sync) {
-		H2HWaiter waiter = new H2HWaiter(seconds);
-		do {
-			waiter.tickASecond();
-		} while(!pathIsSynchronized(path, sync));
-	}
-	
-	protected boolean pathIsSynchronized(Path path, boolean sync){
-		IFileTree fileTree = getNetwork().getClients().get(0).getFileEventManager().getFileTree();
-		if(sync){
-			if(fileTree.getFile(path) != null && !fileTree.getFile(path).isSynchronized()){
-				return false;
-			}
-		} else {
-			if(fileTree.getFile(path) != null && fileTree.getFile(path).isSynchronized()){
-				return false;
-			}
-		}
-		return true;
-	}
-	
 
 	private boolean allPathsAreSynchronized(List<Path> paths, boolean sync) {
 		// TODO Auto-generated method stub

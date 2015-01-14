@@ -13,6 +13,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.peerbox.testutils.FileTestUtils;
 import org.peerbox.watchservice.ActionExecutor;
+import org.peerbox.watchservice.FileEventManager;
 
 import com.google.common.io.Files;
 
@@ -109,6 +110,25 @@ public class Move extends FileIntegrationTest{
 		assertCleanedUpState(3);
 		moveFileOrFolder(folderToMove, dstFolder);
 		assertCleanedUpState(3);
+	}
+	
+	@Test
+	public void singleFolderWithDesyncedFileMoveTest() throws IOException{
+		Path folderToMove = addSingleFolder();
+		Path dstFolderParent = addSingleFolder();
+		Path dstFolder = dstFolderParent.resolve(folderToMove.getFileName());
+		
+		addSingleFile(folderToMove);
+		Path fileToDesync = addSingleFile(folderToMove);
+		assertCleanedUpState(4);
+		FileEventManager eventManager = getNetwork().getClients().get(0).getFileEventManager();
+		eventManager.onFileDesynchronized(fileToDesync);
+		
+		waitForSynchronized(fileToDesync, WAIT_TIME_SHORT, false);
+		waitForNotExistsLocally(fileToDesync, WAIT_TIME_VERY_SHORT);
+		
+		moveFileOrFolder(folderToMove, dstFolder);
+		assertCleanedUpState(-1);
 	}
 	
 	@Test

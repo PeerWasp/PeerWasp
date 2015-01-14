@@ -25,6 +25,7 @@ import org.peerbox.client.ClientNode;
 import org.peerbox.client.NetworkStarter;
 import org.peerbox.testutils.FileTestUtils;
 import org.peerbox.watchservice.FileEventManager;
+import org.peerbox.watchservice.filetree.IFileTree;
 import org.peerbox.watchservice.filetree.composite.FileComponent;
 import org.peerbox.watchservice.states.ExecutionHandle;
 import org.slf4j.Logger;
@@ -410,6 +411,9 @@ public abstract class FileIntegrationTest {
 		Files.walkFileTree(masterRootPath, clientIndex);
 		int contained = clientIndex.getHashes().size();
 		logger.info("Root contains/expected: {}/{}", contained, nrFiles + 1);
+		if(nrFiles == -1){
+			return;
+		}
 		assertTrue(contained == nrFiles + 1);
 	}
 	
@@ -557,6 +561,28 @@ public abstract class FileIntegrationTest {
 		assertQueuesAreEmpty();
 		assertRootContains(existingFiles);
 	}
+	
+	protected void waitForSynchronized(Path path, int seconds, boolean sync) {
+		H2HWaiter waiter = new H2HWaiter(seconds);
+		do {
+			waiter.tickASecond();
+		} while(!pathIsSynchronized(path, sync));
+	}
+	
+	protected boolean pathIsSynchronized(Path path, boolean sync){
+		IFileTree fileTree = getNetwork().getClients().get(0).getFileEventManager().getFileTree();
+		if(sync){
+			if(fileTree.getFile(path) != null && !fileTree.getFile(path).isSynchronized()){
+				return false;
+			}
+		} else {
+			if(fileTree.getFile(path) != null && fileTree.getFile(path).isSynchronized()){
+				return false;
+			}
+		}
+		return true;
+	}
+	
 
 	
 }
