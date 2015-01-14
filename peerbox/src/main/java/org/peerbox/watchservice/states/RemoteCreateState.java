@@ -24,7 +24,7 @@ public class RemoteCreateState extends AbstractActionState {
 	@Override
 	public AbstractActionState changeStateOnLocalCreate() {
 		logger.debug("Local Create Event in RemoteCreateState!  ({}) {}", 
-				action.getFilePath(), action.hashCode());
+				action.getFile().getPath(), action.hashCode());
 
 		action.getFile().bubbleContentHashUpdate();//updateContentHash();
 		return new EstablishedState(action);
@@ -32,8 +32,8 @@ public class RemoteCreateState extends AbstractActionState {
 
 	@Override
 	public AbstractActionState changeStateOnLocalUpdate() {
-		logger.debug("Local Update Event:  ({})", action.getFilePath());
-		ConflictHandler.resolveConflict(action.getFilePath());
+		logger.debug("Local Update Event:  ({})", action.getFile().getPath());
+		ConflictHandler.resolveConflict(action.getFile().getPath());
 		return new LocalUpdateState(action);
 //		return new ConflictState(action);
 	}
@@ -50,13 +50,13 @@ public class RemoteCreateState extends AbstractActionState {
 
 	@Override
 	public AbstractActionState changeStateOnRemoteUpdate() {
-		logger.debug("Remote Update Event:  ({})", action.getFilePath());
+		logger.debug("Remote Update Event:  ({})", action.getFile().getPath());
 		return this;
 	}
 
 	@Override
 	public AbstractActionState changeStateOnRemoteDelete() {
-		logger.debug("Remote Delete Event:  ({})", action.getFilePath());
+		logger.debug("Remote Delete Event:  ({})", action.getFile().getPath());
 		return new InitialState(action);
 	}
 
@@ -114,7 +114,7 @@ public class RemoteCreateState extends AbstractActionState {
 	@Override
 	public ExecutionHandle execute(IFileManager fileManager) throws InvalidProcessStateException,
 			ProcessExecutionException, NoSessionException, NoPeerConnectionException {
-		Path path = action.getFilePath();
+		Path path = action.getFile().getPath();
 		logger.debug("Execute REMOTE ADD, download the file: {}", path);
 		handle = fileManager.download(path.toFile());
 		if (handle != null && handle.getProcess() != null) {

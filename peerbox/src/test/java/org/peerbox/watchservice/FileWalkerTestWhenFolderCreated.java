@@ -176,28 +176,28 @@ public class FileWalkerTestWhenFolderCreated {
 			System.out.println(manager.getFileTree().getFile(dir1New.toPath()));
 			System.out.println(Paths.get(dir2Str + "dir1"));
 			assertTrue(manager.getFileTree().getFile(dir1New.toPath()).getPath().equals(dir1New.toPath()));
-			assertTrue(manager.getFileTree().getFile(dir1New.toPath()).getAction().getFilePath().equals(dir1New.toPath()));
+			assertTrue(manager.getFileTree().getFile(dir1New.toPath()).getAction().getFile().getPath().equals(dir1New.toPath()));
 			System.out.println(file1Str);
 			System.out.println(manager.getFileTree().getFile(file1New.toPath()).getPath().toString());
 			System.out.println(file1New.toPath());
 			assertTrue(manager.getFileTree().getFile(file1New.toPath()).getPath().equals(file1New.toPath()));
 			
-			assertTrue(manager.getFileTree().getFile(file1New.toPath()).getAction().getFilePath().equals(file1New.toPath()));
+			assertTrue(manager.getFileTree().getFile(file1New.toPath()).getAction().getFile().getPath().equals(file1New.toPath()));
 			
 			assertTrue(manager.getFileTree().getFile(file2New.toPath()).getPath().equals(file2New.toPath()));
-			assertTrue(manager.getFileTree().getFile(file2New.toPath()).getAction().getFilePath().equals(file2New.toPath()));
+			assertTrue(manager.getFileTree().getFile(file2New.toPath()).getAction().getFile().getPath().equals(file2New.toPath()));
 			
 
 			System.out.println("Before folder move");
 			for(FileComponent comp : manager.getFileTree().getDeletedByContentHash().values()){
-				System.out.println(comp.getPath() + " : " + comp.getAction().getFilePath() + " : " + comp.getAction().getCurrentState().getClass().toString());
+				System.out.println(comp.getPath() + " : " + comp.getAction().getFile().getPath() + " : " + comp.getAction().getCurrentState().getClass().toString());
 			}
 			
 			Thread.sleep(ActionExecutor.ACTION_WAIT_TIME_MS * 2);
 
 			System.out.println("After folder move");
 			for(FileComponent comp : manager.getFileTree().getDeletedByContentHash().values()){
-				System.out.println(comp.getPath() + " : " + comp.getAction().getFilePath() + " : " + comp.getAction().getCurrentState().getClass().toString());
+				System.out.println(comp.getPath() + " : " + comp.getAction().getFile().getPath() + " : " + comp.getAction().getCurrentState().getClass().toString());
 			}
 			
 			assertTrue(manager.getFileTree().getDeletedByContentHash().size() == 0);
@@ -208,7 +208,7 @@ public class FileWalkerTestWhenFolderCreated {
 			
 			System.out.println("Last");
 			for(FileComponent comp : manager.getFileTree().getDeletedByContentHash().values()){
-				System.out.println(comp.getPath() + " : " + comp.getAction().getFilePath() + " : " + comp.getAction().getCurrentState().getClass().toString());
+				System.out.println(comp.getPath() + " : " + comp.getAction().getFile().getPath() + " : " + comp.getAction().getCurrentState().getClass().toString());
 			}
 			
 			assertTrue(manager.getFileTree().getDeletedByContentHash().size() == 0);

@@ -35,19 +35,19 @@ public class LocalUpdateState extends AbstractActionState {
 
 	@Override
 	public AbstractActionState changeStateOnLocalCreate() {
-		logger.debug("Local Create Event: Stay in Local Update ({})", action.getFilePath());
+		logger.debug("Local Create Event: Stay in Local Update ({})", action.getFile().getPath());
 		return this;
 	}
 
 	@Override
 	public AbstractActionState changeStateOnLocalDelete() {
-		logger.debug("Local Delete Event: Local Update -> Local Delete ({})", action.getFilePath());
+		logger.debug("Local Delete Event: Local Update -> Local Delete ({})", action.getFile().getPath());
 		return new InitialState(action);
 	}
 
 	@Override
 	public AbstractActionState changeStateOnLocalUpdate() {
-		logger.debug("Local Update Event: Stay in Local Update ({})", action.getFilePath());
+		logger.debug("Local Update Event: Stay in Local Update ({})", action.getFile().getPath());
 		return this;
 	}
 	
@@ -72,7 +72,7 @@ public class LocalUpdateState extends AbstractActionState {
 
 	@Override
 	public AbstractActionState changeStateOnRemoteDelete() {
-		logger.debug("Remote Delete Event: Local Update -> Conflict ({})", action.getFilePath());
+		logger.debug("Remote Delete Event: Local Update -> Conflict ({})", action.getFile().getPath());
 		return new LocalCreateState(action);
 	}
 
@@ -84,7 +84,7 @@ public class LocalUpdateState extends AbstractActionState {
 
 	@Override
 	public ExecutionHandle execute(IFileManager fileManager) throws NoSessionException, NoPeerConnectionException, InvalidProcessStateException, ProcessExecutionException {
-		Path path = action.getFilePath();
+		Path path = action.getFile().getPath();
 		logger.debug("Execute LOCAL UPDATE: {}", path);
 		handle = fileManager.update(path.toFile());
 		if (handle != null && handle.getProcess() != null) {
@@ -117,7 +117,7 @@ public class LocalUpdateState extends AbstractActionState {
 
 	@Override
 	public AbstractActionState handleRemoteCreate() {
-		ConflictHandler.resolveConflict(action.getFilePath());
+		ConflictHandler.resolveConflict(action.getFile().getPath());
 		return changeStateOnRemoteCreate();
 	}
 
@@ -128,7 +128,7 @@ public class LocalUpdateState extends AbstractActionState {
 
 	@Override
 	public AbstractActionState handleRemoteUpdate() {
-		ConflictHandler.resolveConflict(action.getFilePath());
+		ConflictHandler.resolveConflict(action.getFile().getPath());
 		return changeStateOnRemoteUpdate();
 	}
 
@@ -136,9 +136,9 @@ public class LocalUpdateState extends AbstractActionState {
 	@Override
 	public AbstractActionState handleRemoteMove(Path path) {
 		//Remove the file from the queue, move it in the tree, put it to the queue, move it on disk.
-		Path srcPath = action.getFilePath();
+		Path srcPath = action.getFile().getPath();
 		action.getEventManager().getFileComponentQueue().remove(action.getFile());
-		FileComponent src = action.getEventManager().getFileTree().deleteFile(action.getFilePath());
+		FileComponent src = action.getEventManager().getFileTree().deleteFile(action.getFile().getPath());
 		action.getEventManager().getFileTree().putFile(path, src);
 		updateTimeAndQueue();
 		if(Files.exists(srcPath)){

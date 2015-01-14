@@ -432,7 +432,7 @@ public abstract class FileIntegrationTest {
 			}
 			if(execs.size() != 0){
 				for(int i = 0; i < execs.size(); i++){
-					logger.debug("Pending executions: {}. {}:{}", i, execs.get(i).getAction().getFilePath(), execs.get(i).getAction().getCurrentState());
+					logger.debug("Pending executions: {}. {}:{}", i, execs.get(i).getAction().getFile().getPath(), execs.get(i).getAction().getCurrentState());
 				}
 			}
 			assertTrue(client.getFileEventManager().getFileComponentQueue().size() == 0);

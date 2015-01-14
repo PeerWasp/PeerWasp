@@ -43,34 +43,34 @@ public class LocalMoveState extends AbstractActionState {
 	// TODO Needs to be verified (Patrick, 21.10.14)
 	@Override
 	public AbstractActionState changeStateOnLocalUpdate() {
-		logger.debug("Local Update Event: Local Move -> Local Update ({})", action.getFilePath());
+		logger.debug("Local Update Event: Local Move -> Local Update ({})", action.getFile().getPath());
 
 		return new LocalUpdateState(action);
 	}
 
 	@Override
 	public AbstractActionState changeStateOnLocalMove(Path destination) {
-		logger.debug("Local Move Event: not defined ({})", action.getFilePath());
+		logger.debug("Local Move Event: not defined ({})", action.getFile().getPath());
 //		throw new IllegalStateException("Local Move Event: not defined");
 		return new InitialState(action);
 	}
 
 	@Override
 	public AbstractActionState changeStateOnRemoteUpdate() {
-		logger.debug("Remote Update Event: Local Move -> Conflict ({})", action.getFilePath());
+		logger.debug("Remote Update Event: Local Move -> Conflict ({})", action.getFile().getPath());
 		throw new NotImplException("Conflict handling during move not yet supported");
 //		return new ConflictState(action);
 	}
 
 	@Override
 	public AbstractActionState changeStateOnRemoteDelete() {
-		logger.debug("Remote Delete Event: Local Move -> Local Create ({})", action.getFilePath());
+		logger.debug("Remote Delete Event: Local Move -> Local Create ({})", action.getFile().getPath());
 		return new LocalCreateState(action);
 	}
 
 	@Override
 	public AbstractActionState changeStateOnRemoteMove(Path oldFilePath) {
-		logger.debug("Remote Move Event: Local Move -> Conflict ({})", action.getFilePath());
+		logger.debug("Remote Move Event: Local Move -> Conflict ({})", action.getFile().getPath());
 		throw new NotImplException("Conflict handling during move not yet supported");
 //		return new ConflictState(action);
 	}
@@ -78,13 +78,13 @@ public class LocalMoveState extends AbstractActionState {
 	@Override
 	public ExecutionHandle execute(IFileManager fileManager) throws NoSessionException, NoPeerConnectionException, ProcessExecutionException, InvalidProcessStateException {
 	
-		handle = fileManager.move(source.toFile(), action.getFilePath().toFile());
+		handle = fileManager.move(source.toFile(), action.getFile().getPath().toFile());
 		if(handle != null){
 			handle.getProcess().attachListener(new FileManagerProcessListener());
 			handle.executeAsync();
 		}
 			
-		logger.debug("Task \"Move File\" executed from: " + source.toString()  + " to " + action.getFilePath().toFile().toPath() );
+		logger.debug("Task \"Move File\" executed from: " + source.toString()  + " to " + action.getFile().getPath().toFile().toPath() );
 //		notifyActionExecuteSucceeded();
 		return new ExecutionHandle(action, handle);
 	}

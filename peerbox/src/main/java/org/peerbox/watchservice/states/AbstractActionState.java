@@ -59,7 +59,7 @@ public abstract class AbstractActionState {
 	}
 	
 	protected void logStateTransission(StateType stateBefore, EventType event, StateType stateAfter){
-		logger.debug("File {}: {} + {}  --> {}", action.getFilePath(), 
+		logger.debug("File {}: {} + {}  --> {}", action.getFile().getPath(), 
 				stateBefore.getString(), event.getString(), stateAfter.getString());
 	}
 	
@@ -120,7 +120,7 @@ public abstract class AbstractActionState {
 	public abstract AbstractActionState handleLocalCreate();
 	
 	public AbstractActionState handleLocalHardDelete(){
-		logger.trace("File {}: entered handleLocalHardDelete", action.getFilePath());
+		logger.trace("File {}: entered handleLocalHardDelete", action.getFile().getPath());
 		updateTimeAndQueue();
 		return changeStateOnLocalHardDelete();
 	}
@@ -169,11 +169,11 @@ public abstract class AbstractActionState {
 	public AbstractActionState handleRemoteDelete() {
 		logger.debug("EstablishedState.handleRemoteDelete");
 		IFileEventManager eventManager = action.getEventManager();
-		eventManager.getFileTree().deleteFile(action.getFilePath());
+		eventManager.getFileTree().deleteFile(action.getFile().getPath());
 		eventManager.getFileComponentQueue().remove(action.getFile());
 
 		try {
-			java.nio.file.Files.delete(action.getFilePath());
+			java.nio.file.Files.delete(action.getFile().getPath());
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

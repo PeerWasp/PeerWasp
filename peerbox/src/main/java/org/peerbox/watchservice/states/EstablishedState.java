@@ -55,7 +55,7 @@ public class EstablishedState extends AbstractActionState{
 	public ExecutionHandle execute(IFileManager fileManager) throws NoSessionException,
 			NoPeerConnectionException, InvalidProcessStateException {
 		// TODO Auto-generated method stub
-		logger.error("Execute in the ESTABLISHED state is only called due to wrong behaviour! {}", action.getFilePath());
+		logger.error("Execute in the ESTABLISHED state is only called due to wrong behaviour! {}", action.getFile().getPath());
 		notifyActionExecuteSucceeded();
 		return null;
 	}
@@ -82,10 +82,10 @@ public class EstablishedState extends AbstractActionState{
 	@Override
 	public AbstractActionState handleRemoteMove(Path dstPath) {
 		action.getEventManager().getFileComponentQueue().remove(action.getFile());
-		Path oldPath = action.getFilePath();
-		logger.debug("Modify the tree accordingly. Src: {} Dst: {}", action.getFilePath(), dstPath);
+		Path oldPath = action.getFile().getPath();
+		logger.debug("Modify the tree accordingly. Src: {} Dst: {}", action.getFile().getPath(), dstPath);
 
-		FileComponent deleted = action.getEventManager().getFileTree().deleteFile(action.getFilePath());
+		FileComponent deleted = action.getEventManager().getFileTree().deleteFile(action.getFile().getPath());
 		action.getEventManager().getFileTree().putFile(dstPath, action.getFile());
 		
 		Path path = dstPath;

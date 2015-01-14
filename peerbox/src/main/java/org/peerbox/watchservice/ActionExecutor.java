@@ -138,7 +138,7 @@ public class ActionExecutor implements Runnable, IActionEventListener {
 					if(!isExecuteSlotFree()){
 						logger.debug("All slots used!");
 						for(int i = 0; i < runningJobs.size(); i++){
-							logger.trace("{}: {} {}", i, runningJobs.get(i).getFilePath(), runningJobs.get(i).getCurrentState().getClass());
+							logger.trace("{}: {} {}", i, runningJobs.get(i).getFile().getPath(), runningJobs.get(i).getCurrentState().getClass());
 						}
 					}
 					fileEventManager.getFileComponentQueue().put(next);
@@ -221,7 +221,7 @@ public class ActionExecutor implements Runnable, IActionEventListener {
 
 	@Override
 	public void onActionExecuteSucceeded(IAction action) {
-		logger.debug("Action successful: {} {}.", action.getFilePath(), action.getCurrentState().getClass().toString());
+		logger.debug("Action successful: {} {}.", action.getFile().getPath(), action.getCurrentState().getClass().toString());
 //		for(int i = 0; i < executingActions.size(); i++){
 //			IAction a = executingActions.get(i);
 //			logger.trace("{}     Action {} with ID {} and State {}", i, a.getFilePath(), a.getFilePath().hashCode(), a.getCurrentState().getClass());
@@ -229,26 +229,26 @@ public class ActionExecutor implements Runnable, IActionEventListener {
 		boolean hasChanged = runningJobs.remove(action);
 		if(!hasChanged){
 			logger.error("The action was successful, but the running jobs did not"
-					+ "change on its remove: {}", action.getFilePath());
+					+ "change on its remove: {}", action.getFile().getPath());
 		} else {
-			logger.debug("Action {} with state {} and ID {} removed", action.getFilePath(), action.getCurrentState().getClass(), action.hashCode());
+			logger.debug("Action {} with state {} and ID {} removed", action.getFile().getPath(), action.getCurrentState().getClass(), action.hashCode());
 		}
 
 		boolean changedWhileExecuted = false;
 
-		logger.trace("Wait for lock of action {} at {}", action.getFilePath(), System.currentTimeMillis());
+		logger.trace("Wait for lock of action {} at {}", action.getFile().getPath(), System.currentTimeMillis());
 		action.getLock().lock();
-		logger.trace("Received lock of action {} at {}", action.getFilePath(), System.currentTimeMillis());
+		logger.trace("Received lock of action {} at {}", action.getFile().getPath(), System.currentTimeMillis());
 		changedWhileExecuted = action.getChangedWhileExecuted();
 
 		action.onSucceed();
 		action.getFile().setIsUploaded(true);
-		logger.trace("Release lock of action {} at {}", action.getFilePath(), System.currentTimeMillis());
+		logger.trace("Release lock of action {} at {}", action.getFile().getPath(), System.currentTimeMillis());
 
 		if(changedWhileExecuted){
 			logger.trace("File {} changed during the execution process"
 					+ " to state {}. It has been put back to the queue",
-					action.getFilePath(), action.getCurrentState().getClass());
+					action.getFile().getPath(), action.getCurrentState().getClass());
 			action.updateTimestamp();
 			fileEventManager.getFileComponentQueue().add(action.getFile());
 
@@ -262,7 +262,7 @@ public class ActionExecutor implements Runnable, IActionEventListener {
 
 	@Override
 	public void onActionExecuteFailed(IAction action, ProcessHandle<Void> handle) {
-		logger.debug("Action failed: {} {}.", action.getFilePath(), action.getCurrentState().getClass().toString());
+		logger.debug("Action failed: {} {}.", action.getFile().getPath(), action.getCurrentState().getClass().toString());
 		try {
 			boolean hasChanged = runningJobs.remove(action);
 			asyncHandles.put(new ExecutionHandle(action, handle));
@@ -291,38 +291,38 @@ public class ActionExecutor implements Runnable, IActionEventListener {
 //			if(h2hex != null && h2hex.getError() != null){
 			ErrorCode error = h2hex.getError();
 			if(error == AbortModificationCode.SAME_CONTENT){
-				logger.debug("H2H update of file {} failed, content hash did not change. {}", action.getFilePath(), fileEventManager.getFileTree().getRootPath().toString());
+				logger.debug("H2H update of file {} failed, content hash did not change. {}", action.getFile().getPath(), fileEventManager.getFileTree().getRootPath().toString());
 //				FileComponent notModified = fileEventManager.getFileTree().getComponent(action.getFilePath().toString());
-				FileComponent notModified = fileEventManager.getFileTree().getFile(action.getFilePath());
+				FileComponent notModified = fileEventManager.getFileTree().getFile(action.getFile().getPath());
 				if(notModified == null){
-					logger.trace("FileComponent with path {} is null", action.getFilePath().toString());
+					logger.trace("FileComponent with path {} is null", action.getFile().getPath().toString());
 				}
 				action.onSucceed();
 			} else if(error == AbortModificationCode.FOLDER_UPDATE){
-				logger.debug("Attempt to update folder {} failed as folder cannot be updated.", action.getFilePath());
+				logger.debug("Attempt to update folder {} failed as folder cannot be updated.", action.getFile().getPath());
 			} else if(error == AbortModificationCode.ROOT_DELETE_ATTEMPT){
-				logger.debug("Attempt to delete the root folder {} failed. Delete is not defined on this folder.", action.getFilePath());
+				logger.debug("Attempt to delete the root folder {} failed. Delete is not defined on this folder.", action.getFile().getPath());
 			} else if(error == AbortModificationCode.NO_WRITE_PERM){
-				logger.debug("Attempt to delete or write to {} failed. No write-permissions hold by user.", action.getFilePath());
+				logger.debug("Attempt to delete or write to {} failed. No write-permissions hold by user.", action.getFile().getPath());
 			} else {
-				logger.trace("Re-initiate execution of {} {}.", action.getFilePath(), action.getCurrentState().getClass().toString());
+				logger.trace("Re-initiate execution of {} {}.", action.getFile().getPath(), action.getCurrentState().getClass().toString());
 				if(action.getExecutionAttempts() <= MAX_EXECUTION_ATTEMPTS){
 					action.updateTimestamp();
 					fileEventManager.getFileComponentQueue().add(action.getFile());
 				} else {
-					logger.error("To many attempts, action of {} has not been executed again. Reason: default", action.getFilePath());
+					logger.error("To many attempts, action of {} has not been executed again. Reason: default", action.getFile().getPath());
 					onActionExecuteSucceeded(action);
 				}
 			}
 //			}
 		} else {
 			// temporary default
-			logger.trace("Default: Re-initiate execution of {} {}.", action.getFilePath(), action.getCurrentState().getClass().toString());
+			logger.trace("Default: Re-initiate execution of {} {}.", action.getFile().getPath(), action.getCurrentState().getClass().toString());
 			if(action.getExecutionAttempts() <= MAX_EXECUTION_ATTEMPTS){
 				action.updateTimestamp();
 				fileEventManager.getFileComponentQueue().add(action.getFile());
 			} else {
-				logger.error("To many attempts, action of {} has not been executed again. Reason: default", action.getFilePath());
+				logger.error("To many attempts, action of {} has not been executed again. Reason: default", action.getFile().getPath());
 				onActionExecuteSucceeded(action);
 			}
 		}
@@ -357,7 +357,7 @@ public class ActionExecutor implements Runnable, IActionEventListener {
 					} catch(CancellationException | InterruptedException e) {
 						logger.warn("Exception while getting future result: {}", e.getMessage());
 					} catch(TimeoutException tex) {
-						logger.debug("Could not get result of failed item, timed out. {}", next.getAction().getFilePath());
+						logger.debug("Could not get result of failed item, timed out. {}", next.getAction().getFile().getPath());
 						// add it again
 						asyncHandles.put(next);
 					}

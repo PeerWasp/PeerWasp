@@ -67,7 +67,7 @@ public class FileComponentTest {
 
 		FileComponent component = fileTree.getComponent(fileOnRootPath);
 		assertTrue(component instanceof FileLeaf);
-		assertTrue(component.getAction().getFilePath().equals(fileOnRootPath));
+		assertTrue(component.getAction().getFile().getPath().equals(fileOnRootPath));
 
 		//check if it is possible to add a file into a new directory
 		component = fileTree.getComponent(fileInNewDirPath);

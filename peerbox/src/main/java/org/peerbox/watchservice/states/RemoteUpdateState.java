@@ -53,13 +53,13 @@ public class RemoteUpdateState extends AbstractActionState {
 
 	@Override
 	public AbstractActionState changeStateOnRemoteDelete() {
-		logger.debug("Remote Delete Event:  ({})", action.getFilePath());
+		logger.debug("Remote Delete Event:  ({})", action.getFile().getPath());
 		throw new NotImplException("RemoteUpdate.remoteDelete");
 	}
 
 	@Override
 	public AbstractActionState changeStateOnRemoteMove(Path oldFilePath) {
-		logger.debug("Remote Move Event:  ({})", action.getFilePath());
+		logger.debug("Remote Move Event:  ({})", action.getFile().getPath());
 		throw new NotImplException("RemoteUpdate.remoteMove");
 	}
 	
@@ -70,14 +70,14 @@ public class RemoteUpdateState extends AbstractActionState {
 
 	@Override
 	public AbstractActionState handleLocalCreate() {
-		ConflictHandler.resolveConflict(action.getFilePath());
+		ConflictHandler.resolveConflict(action.getFile().getPath());
 		return changeStateOnLocalCreate();
 	}
 
 	@Override
 	public AbstractActionState handleLocalUpdate() {
 		action.getFile().bubbleContentHashUpdate();
-		ConflictHandler.resolveConflict(action.getFilePath());
+		ConflictHandler.resolveConflict(action.getFile().getPath());
 		return changeStateOnLocalUpdate();
 	}
 
@@ -110,7 +110,7 @@ public class RemoteUpdateState extends AbstractActionState {
 
 	@Override
 	public ExecutionHandle execute(IFileManager fileManager) throws NoSessionException, NoPeerConnectionException, InvalidProcessStateException, ProcessExecutionException {
-		Path path = action.getFilePath();
+		Path path = action.getFile().getPath();
 		logger.debug("Execute REMOTE UPDATE, download the file: {}", path);
 
 		handle = fileManager.download(path.toFile());

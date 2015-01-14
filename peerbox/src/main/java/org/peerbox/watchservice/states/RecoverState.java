@@ -37,7 +37,7 @@ public class RecoverState extends AbstractActionState{
 	public ExecutionHandle execute(IFileManager fileManager) throws NoSessionException,
 			NoPeerConnectionException, InvalidProcessStateException, ProcessExecutionException {
 			
-		Path path = action.getFilePath();
+		Path path = action.getFile().getPath();
 		logger.debug("Execute RECOVER: {}", path);
 		try {
 			handle = fileManager.recover(currentFile, new PeerboxVersionSelector(versionToRecover));

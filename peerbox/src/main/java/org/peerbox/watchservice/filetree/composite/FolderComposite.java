@@ -195,7 +195,9 @@ public class FolderComposite extends AbstractFileComponent {
 	protected boolean updateContentHash() {
 		String hashOfChildren = "";
 		for (FileComponent child : children.values()) {
-			hashOfChildren = hashOfChildren.concat(child.getContentHash());
+			if(child.isSynchronized()){
+				hashOfChildren = hashOfChildren.concat(child.getContentHash());
+			}
 		}
 
 		byte[] rawHash = HashUtil.hash(hashOfChildren.getBytes());

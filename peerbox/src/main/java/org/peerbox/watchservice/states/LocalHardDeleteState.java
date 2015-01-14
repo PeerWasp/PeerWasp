@@ -24,7 +24,7 @@ public class LocalHardDeleteState extends AbstractActionState{
 
 	public AbstractActionState getDefaultState() {
 		logger.debug("Return to default state 'InitialState' as component was removed completely {}",
-				action.getFilePath());
+				action.getFile().getPath());
 		return new InitialState(action);
 	}
 	
@@ -71,7 +71,7 @@ public class LocalHardDeleteState extends AbstractActionState{
 	}
 	
 	public AbstractActionState handleLocalDelete(){
-		logger.trace("File {}: entered handleLocalDelete", action.getFilePath());
+		logger.trace("File {}: entered handleLocalDelete", action.getFile().getPath());
 //		action.getEventManager().getFileTree().deleteFile(action.getFile().getPath());
 		IFileEventManager eventManager = action.getEventManager();
 		eventManager.getFileComponentQueue().remove(action.getFile());
@@ -124,7 +124,7 @@ public class LocalHardDeleteState extends AbstractActionState{
 
 	@Override
 	public ExecutionHandle execute(IFileManager fileManager) throws InvalidProcessStateException, ProcessExecutionException, NoSessionException, NoPeerConnectionException {
-		Path path = action.getFilePath();
+		Path path = action.getFile().getPath();
 		logger.debug("Execute LOCAL DELETE: {}", path);
 		handle = fileManager.delete(path.toFile());
 		if (handle != null && handle.getProcess() != null) {
