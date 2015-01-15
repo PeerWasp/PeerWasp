@@ -31,7 +31,7 @@ import org.slf4j.LoggerFactory;
 import com.google.inject.Inject;
 
 public class JoinNetworkController implements Initializable {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(JoinNetworkController.class);
 
 	private INodeManager nodeManager;
@@ -50,7 +50,7 @@ public class JoinNetworkController implements Initializable {
 	private Label lblBootstrapAddressError;
 	@FXML
 	private ProgressIndicator piProgress;
-	
+
 	private EmptyTextFieldValidator bootstrapValidator;
 
 	@Inject
@@ -70,7 +70,7 @@ public class JoinNetworkController implements Initializable {
 	private void loadBootstrapNodes() {
 		bootstrapNodes.getItems().clear();
 		bootstrapNodes.getItems().addAll(userConfig.getBootstrappingNodes());
-		
+
 		if(userConfig.hasLastBootstrappingNode()) {
 			txtBootstrapAddress.setText(userConfig.getLastBootstrappingNode());
 		}
@@ -124,25 +124,30 @@ public class JoinNetworkController implements Initializable {
 	}
 
 	public void navigateBackAction(ActionEvent event) {
+		if (nodeManager.isConnected()) {
+			nodeManager.leaveNetwork();
+			logger.info("Disconnect from network.");
+		}
+
 		logger.debug("Navigate back.");
 		fNavigationService.navigateBack();
 	}
-	
+
 	public void onBootstrapNodeSelected(ActionEvent event) {
 		String selectedNode = bootstrapNodes.getSelectionModel().getSelectedItem();
 		txtBootstrapAddress.setText(selectedNode);
 	}
-	
+
 	public void joinNetworkAction(ActionEvent event) {
 		clearError();
 		boolean inputValid = !validateAll().isError();
-		
+
 		if(inputValid) {
 			Task<ResultStatus> task = createJoinTask();
 			new Thread(task).start();
 		}
 	}
-	
+
 	protected ResultStatus joinNetwork(final String address) {
 		logger.info("Join network '{}'", address);
 
@@ -162,7 +167,7 @@ public class JoinNetworkController implements Initializable {
 		logger.info("Join task succeeded: network {} joined.", getBootstrapNode());
 		saveJoinConfig();
 		resetForm();
-		
+
 		if (!userConfig.hasRootPath()) {
 			fNavigationService.navigate(ViewNames.SELECT_ROOT_PATH_VIEW);
 		} else {
@@ -184,7 +189,7 @@ public class JoinNetworkController implements Initializable {
 		Task<ResultStatus> task = new Task<ResultStatus>() {
 			// bootstrap node
 			final String address = getBootstrapNode();
-			
+
 			@Override
 			public ResultStatus call() {
 				return joinNetwork(address);
@@ -222,7 +227,7 @@ public class JoinNetworkController implements Initializable {
 	}
 
 	private ValidationResult validateAll() {
-		return (bootstrapValidator.validate() == ValidationResult.OK) 
+		return (bootstrapValidator.validate() == ValidationResult.OK)
 				? ValidationResult.OK : ValidationResult.ERROR;
 	}
 
@@ -232,7 +237,7 @@ public class JoinNetworkController implements Initializable {
 		} else {
 			Platform.runLater(() -> {
 				setError(error); // run again on application thread
-			}); 
+			});
 		}
 	}
 

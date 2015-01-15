@@ -237,6 +237,7 @@ public class LoginController implements Initializable {
 		initializeServices();
 
 	    resetForm();
+	    fNavigationService.clearPages();
 		hideWindow();
 	}
 
