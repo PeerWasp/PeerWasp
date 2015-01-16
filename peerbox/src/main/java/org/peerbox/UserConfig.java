@@ -94,7 +94,7 @@ public class UserConfig implements IUserConfig{
 			Files.createFile(propertyFile);
 		}
 		prop = loadUserProperties(defaultProp);
-		logger.debug("Loaded property file {}", propertyFile.toAbsolutePath());
+		logger.info("Loaded property file: {}", propertyFile.toAbsolutePath());
 	}
 
 	/**

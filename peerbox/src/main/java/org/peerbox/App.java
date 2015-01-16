@@ -29,6 +29,11 @@ import org.peerbox.view.tray.AbstractSystemTray;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ch.qos.logback.classic.LoggerContext;
+import ch.qos.logback.classic.joran.JoranConfigurator;
+import ch.qos.logback.core.joran.spi.JoranException;
+import ch.qos.logback.core.util.StatusPrinter;
+
 import com.google.inject.Guice;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
@@ -40,6 +45,9 @@ public class App extends Application
 {
 	private static final Logger logger = LoggerFactory.getLogger(App.class);
 
+	/* location of the logging configuration to load at runtime */
+	private static final String LOG_CONFIGURATION = "logback.xml";
+	/* commandline argument -- directory for storing application data. */
 	private static final String PARAM_APP_DIR = "appdir";
 
 	private Injector injector;
@@ -52,15 +60,19 @@ public class App extends Application
 
 
 	public static void main(String[] args) {
-		logger.info("{} started.", Constants.APP_NAME);
 		launch(args);
 	}
 
-    @Override
+	@Override
     public void start(Stage stage) {
     	primaryStage = stage;
 
     	initializeAppFolder();
+
+    	initializeLogging();
+
+    	logger.info("{} starting.", Constants.APP_NAME);
+		logger.info("AppData Folder: {}", AppData.getDataFolder());
 
     	initializeGuice();
 
@@ -89,12 +101,36 @@ public class App extends Application
 			AppData.setDataFolder(appDir);
 		}
 
+		boolean success = false;
 		try {
+			// create folders and check write access
 			AppData.createFolders();
 			AppData.checkAccess();
+			success = true;
 		} catch (IOException ioex) {
-			logger.warn("Could not create application folders: {}.", ioex.getMessage(), ioex);
+			logger.warn("Could not initialize application folders: {}.", ioex.getMessage(), ioex);
 		}
+
+		if (!success) {
+			fatalExit(1);
+		}
+	}
+
+	private void initializeLogging() {
+		LoggerContext context = (LoggerContext) LoggerFactory.getILoggerFactory();
+		try {
+			JoranConfigurator jc = new JoranConfigurator();
+			jc.setContext(context);
+			context.reset(); // override default configuration
+			// inject the location of the appdata log folder as "LOG_FOLDER"
+			// property of the LoggerContext
+			context.putProperty("LOG_FOLDER", AppData.getLogFolder().toString());
+			jc.doConfigure(LOG_CONFIGURATION);
+		} catch (JoranException je) {
+			// status printer will handle printing of error
+		}
+		StatusPrinter.printInCaseOfErrorsOrWarnings(context);
+		logger.debug("Initialized logging (LOG_FOLDER={})", context.getProperty("LOG_FOLDER"));
 	}
 
 	private void loadConfig() {
@@ -221,6 +257,11 @@ public class App extends Application
 		});
 
 		return task;
+	}
+
+	private void fatalExit(int exitCode) {
+		logger.warn("Exiting... (ExitCode: {})", exitCode);
+		System.exit(exitCode);
 	}
 
 	@Inject

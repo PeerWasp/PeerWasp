@@ -20,6 +20,8 @@ public final class AppData {
 
 	private static final Path CONFIG_FOLDER_NAME;
 
+	private static final Path LOG_FOLDER_NAME;
+
 	static {
 		// default location
 		DATA_FOLDER_PATH = Paths.get(FileUtils.getUserDirectoryPath(),
@@ -28,6 +30,8 @@ public final class AppData {
 		CACHE_FOLDER_NAME = Paths.get("cache");
 
 		CONFIG_FOLDER_NAME = Paths.get("config");
+
+		LOG_FOLDER_NAME = Paths.get("log");
 	}
 
 	public static void setDataFolder(final Path folder) {
@@ -46,6 +50,10 @@ public final class AppData {
 		return getDataFolder().resolve(CACHE_FOLDER_NAME);
 	}
 
+	public static Path getLogFolder() {
+		return getDataFolder().resolve(LOG_FOLDER_NAME);
+	}
+
 	public static void createFolders() throws IOException {
 		createDirectoriesIfNotExists(getDataFolder());
 		Files.setAttribute(getDataFolder(), "dos:hidden", true);
@@ -53,6 +61,8 @@ public final class AppData {
 		createDirectoriesIfNotExists(getConfigFolder());
 
 		createDirectoriesIfNotExists(getCacheFolder());
+
+		createDirectoriesIfNotExists(getLogFolder());
 	}
 
 	private static void createDirectoriesIfNotExists(final Path path) throws IOException {
@@ -65,6 +75,7 @@ public final class AppData {
 		ensureFolderWriteAccess(getDataFolder());
 		ensureFolderWriteAccess(getConfigFolder());
 		ensureFolderWriteAccess(getCacheFolder());
+		ensureFolderWriteAccess(getLogFolder());
 	}
 
 	private static void ensureFolderWriteAccess(final Path path) throws IOException {
