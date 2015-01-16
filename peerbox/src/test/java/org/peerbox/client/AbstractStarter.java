@@ -15,24 +15,24 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public abstract class AbstractStarter {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(AbstractStarter.class);
-	
+
 	protected static final Path BASE_PATH = Paths.get(FileUtils.getUserDirectory().getAbsolutePath(), "PeerBox_Test");
-	
+
 	protected UserCredentials credentials;
-	
+
 	public AbstractStarter() throws IOException {
 		createBasePath();
 	}
-	
+
 	protected void createBasePath() throws IOException {
 		if (!Files.exists(BASE_PATH)) {
 			Files.createDirectory(BASE_PATH);
 		}
 		logger.info("BasePath: {}", BASE_PATH);
 	}
-	
+
 	protected void registerUser(IH2HNode registerNode, UserCredentials credentials) throws NoPeerConnectionException {
 		IProcessComponent<Void> registerProcess = registerNode.getUserManager().createRegisterProcess(credentials);
 		TestExecutionUtil.executeProcessTillSucceded(registerProcess);
