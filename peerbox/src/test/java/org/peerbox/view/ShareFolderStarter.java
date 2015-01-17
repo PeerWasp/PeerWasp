@@ -34,7 +34,7 @@ import org.peerbox.share.ShareFolderHandler;
 
 public class ShareFolderStarter extends Application {
 
-	private static final int networkSize = 6;
+	private static final int NETWORK_SIZE = 15;
 	private static List<IH2HNode> network;
 
 
@@ -90,7 +90,7 @@ public class ShareFolderStarter extends Application {
 	}
 
 	private void initNetwork() throws IOException, NoPeerConnectionException, InterruptedException, InvalidProcessStateException, ProcessExecutionException {
-		network = NetworkTestUtil.createH2HNetwork(networkSize);
+		network = NetworkTestUtil.createH2HNetwork(NETWORK_SIZE);
 
 		UserCredentials credentialsA = new UserCredentials("UserA", "PasswordA", "PinA");
 		UserCredentials credentialsB = new UserCredentials("UserB", "PasswordB", "PinB");
