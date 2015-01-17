@@ -14,6 +14,7 @@ import javafx.stage.Stage;
 
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.peerbox.app.Constants;
+import org.peerbox.app.activity.collectors.ActivityConfiguration;
 import org.peerbox.app.manager.node.INodeManager;
 import org.peerbox.app.manager.user.IUserManager;
 import org.peerbox.events.MessageBus;
@@ -47,6 +48,7 @@ public class App extends Application
 
 	/* location of the logging configuration to load at runtime */
 	private static final String LOG_CONFIGURATION = "logback.xml";
+
 	/* commandline argument -- directory for storing application data. */
 	private static final String PARAM_APP_DIR = "appdir";
 
@@ -58,6 +60,7 @@ public class App extends Application
 	private UserConfig userConfig;
 	private IServer server;
 
+	private ActivityConfiguration activityConfiguration;
 
 	public static void main(String[] args) {
 		launch(args);
@@ -287,6 +290,11 @@ public class App extends Application
 	@Inject
 	private void setServer(IServer server) {
 		this.server = server;
+	}
+
+	@Inject
+	private void setActivityConfiguration(ActivityConfiguration activityConfiguration) {
+		this.activityConfiguration = activityConfiguration;
 	}
 }
 

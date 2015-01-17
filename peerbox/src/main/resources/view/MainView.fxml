@@ -12,9 +12,9 @@
 
 <!-- onMouseDragged="#onMouseDragged" onMousePressed="#onMousePressed" -->
 
-<VBox minHeight="-Infinity" minWidth="-Infinity" prefHeight="550.0" prefWidth="500.0" styleClass="background" stylesheets="css/pb_dark_theme.css" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.peerbox.presenter.MainController">
+<VBox minHeight="-Infinity" minWidth="-Infinity" prefHeight="550.0" prefWidth="500.0" styleClass="background" stylesheets="css/theme.css" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.peerbox.presenter.MainController">
   <children>
-  <!-- 
+  <!--
       <HBox alignment="CENTER_RIGHT" prefHeight="20.0">
          <children>
             <Button layoutX="230.0" layoutY="-1.0" mnemonicParsing="false" onAction="#minApp" styleClass="button-minimize" stylesheets="css/pb_dark_theme.css">

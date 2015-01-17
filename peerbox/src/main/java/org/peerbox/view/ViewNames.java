@@ -10,4 +10,6 @@ public class ViewNames {
 	public static final String SELECT_ROOT_PATH_VIEW = "/view/SelectRootPathView.fxml";
 
 	public static final String SETTINGS_MAIN = "/view/settings/Main.fxml";
+
+	public static final String ACTIVITY_VIEW = "/view/activity/Main.fxml";
 }

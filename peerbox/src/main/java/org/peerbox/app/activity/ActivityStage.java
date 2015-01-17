@@ -1,4 +1,4 @@
-package org.peerbox;
+package org.peerbox.app.activity;
 
 import java.io.IOException;
 
@@ -17,12 +17,18 @@ import org.slf4j.LoggerFactory;
 
 import com.google.inject.Inject;
 
-public class SettingsStage {
+/**
+ * Responsible for loading and configuring the activity window (GUI part).
+ *
+ * @author albrecht
+ *
+ */
+public class ActivityStage {
 
-	private static final Logger logger = LoggerFactory.getLogger(SettingsStage.class);
+	private static final Logger logger = LoggerFactory.getLogger(ActivityStage.class);
 
 	/* window properties */
-	private static final String WINDOW_TITLE = "Settings";
+	private static final String WINDOW_TITLE = "Activity";
 	private static final double WINDOW_WIDTH = 600.0;
 	private static final double WINDOW_HEIGHT = 450.0;
 
@@ -37,7 +43,7 @@ public class SettingsStage {
 	private void load() {
 		try {
 
-			FXMLLoader loader = fxmlLoaderProvider.create(ViewNames.SETTINGS_MAIN);
+			FXMLLoader loader = fxmlLoaderProvider.create(ViewNames.ACTIVITY_VIEW);
 			Parent root = loader.load();
 			Scene scene = new Scene(root, WINDOW_WIDTH, WINDOW_HEIGHT);
 			stage = new Stage();
@@ -46,10 +52,14 @@ public class SettingsStage {
 			stage.addEventHandler(WindowEvent.WINDOW_CLOSE_REQUEST, new WindowCloseRequestEventHandler());
 
 		} catch (IOException e) {
-			logger.error("Could not load settings stage: {}", e.getMessage(), e);
+			logger.error("Could not load activity stage: {}", e.getMessage(), e);
 		}
 	}
 
+	/**
+	 * Create and show Activity Window. If there is already an instance showing, this will not
+	 * create an additional instance but rather show the existing instance.
+	 */
 	public void show() {
 		final Runnable show = new Runnable() {
 			@Override
@@ -79,7 +89,7 @@ public class SettingsStage {
 	private class WindowCloseRequestEventHandler implements EventHandler<WindowEvent> {
 		@Override
 		public void handle(WindowEvent event) {
-			logger.debug("SettingsStage closed.");
+			logger.debug("ActivityStage closed.");
 			stage = null;
 		}
 	}

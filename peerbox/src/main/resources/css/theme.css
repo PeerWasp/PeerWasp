@@ -1,5 +1,5 @@
- /* 
- 
+ /*
+
  .background {
     -fx-background-image: url('../images/peerbox-background.jpg');
 }
@@ -41,10 +41,10 @@
 .table-view .column-header, .table-view .filler {
     -fx-size: 35;
     -fx-border-width: 0 0 1 0;
-    -fx-border-color: 
+    -fx-border-color:
         transparent
         transparent
-        derive(-fx-base, 80%) 
+        derive(-fx-base, 80%)
         transparent;
     -fx-border-insets: 0 10 1 0;
 }
@@ -111,15 +111,15 @@
 
 
 /* progress indicator styling */
-/* 
+/*
 .progress-indicator {
 -fx-progress-color: white;
 }
  */
- 
+
 
 /*
-.button { 
+.button {
     -fx-border-color: #3769DD;
     -fx-border-width: 2;
     -fx-background-radius: 0;
@@ -173,10 +173,23 @@
     -fx-effect: innershadow(three-pass-box, red, 7, 0.4, 0, 0);
 }
 
-/* 
+/*
 .validation-warning {
     -fx-effect: innershadow(three-pass-box, yellow, 7, 0.4, 0, 0);
 }
 */
+
+
+.form-title {
+	-fx-font-size: 22;
+}
+
+.activity-item-title {
+	-fx-font-weight: bold;
+}
+
+.activity-item-warning {
+	-fx-background-color: rgba(255, 0, 0, 0.2);
+}
 
 

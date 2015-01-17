@@ -28,6 +28,7 @@ public class JTrayMenu {
 		root.addSeparator();
 		root.add(createSettingsMenu());
 		root.addSeparator();
+		root.add(createActivityMenu());
 		root.add(createQuitMenu());
 
 		return root;
@@ -61,13 +62,29 @@ public class JTrayMenu {
 	}
 
 	private ActionListener createSettingsListener() {
-		ActionListener closeListener = new ActionListener() {
+		ActionListener settingsListener = new ActionListener() {
 			@Override
 			public void actionPerformed(java.awt.event.ActionEvent e) {
 				actionHandler.showSettings();
 			}
 		};
-		return closeListener;
+		return settingsListener;
+	}
+
+	private MenuItem createActivityMenu() {
+		MenuItem activityItem = new MenuItem("Activity");
+		activityItem.addActionListener(createActivityListener());
+		return activityItem;
+	}
+
+	private ActionListener createActivityListener() {
+		ActionListener activityListener = new ActionListener() {
+			@Override
+			public void actionPerformed(java.awt.event.ActionEvent e) {
+				actionHandler.showActivity();
+			}
+		};
+		return activityListener;
 	}
 
 	private MenuItem createQuitMenu() {
