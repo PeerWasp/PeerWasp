@@ -16,6 +16,7 @@ public final class ActivityConfiguration  {
 	private GeneralMessageCollector generalMessageCollector;
 	private NodeManagerCollector nodeManagerCollector;
 	private UserManagerCollector userManagerCollector;
+	private FileManagerCollector fileManagerCollector;
 
 	protected ActivityConfiguration() {
 
@@ -47,5 +48,15 @@ public final class ActivityConfiguration  {
 	public void setUserManagerCollector(UserManagerCollector userManagerCollector) {
 		this.userManagerCollector = userManagerCollector;
 	}
+
+	public FileManagerCollector getFileManagerCollector() {
+		return fileManagerCollector;
+	}
+
+	@Inject
+	public void setFileManagerCollector(FileManagerCollector fileManagerCollector) {
+		this.fileManagerCollector = fileManagerCollector;
+	}
+
 
 }

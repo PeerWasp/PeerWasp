@@ -10,6 +10,7 @@ class AbstractFileMessage implements IFileMessage {
 		this.path = path;
 	}
 
+	@Override
 	public Path getPath() {
 		return path;
 	}
