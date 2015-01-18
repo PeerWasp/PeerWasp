@@ -17,7 +17,9 @@ import org.peerbox.app.Constants;
 import org.peerbox.app.activity.collectors.ActivityConfiguration;
 import org.peerbox.app.manager.node.INodeManager;
 import org.peerbox.app.manager.user.IUserManager;
+import org.peerbox.events.InformationMessage;
 import org.peerbox.events.MessageBus;
+import org.peerbox.events.WarningMessage;
 import org.peerbox.guice.ApiServerModule;
 import org.peerbox.guice.PeerBoxModule;
 import org.peerbox.guice.UserConfigModule;
@@ -94,7 +96,8 @@ public class App extends Application
 			launchInForeground();
 		}
 
-		messageBus.post(new InformationNotification("PeerBox started", "Hello...")).now();;
+		messageBus.publish(new InformationMessage("PeerBox started", "Hello..."));
+		messageBus.publish(new WarningMessage("PeerBox started", "Hello..."));
     }
 
 	private void initializeAppFolder() {

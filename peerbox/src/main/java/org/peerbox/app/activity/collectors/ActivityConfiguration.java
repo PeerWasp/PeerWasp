@@ -13,8 +13,22 @@ import com.google.inject.Inject;
  */
 public final class ActivityConfiguration  {
 
+	private GeneralMessageCollector generalMessageCollector;
 	private NodeManagerCollector nodeManagerCollector;
 	private UserManagerCollector userManagerCollector;
+
+	protected ActivityConfiguration() {
+
+	}
+
+	public GeneralMessageCollector getGeneralMessageCollector() {
+		return generalMessageCollector;
+	}
+
+	@Inject
+	public void setGeneralMessageCollector(GeneralMessageCollector generalMessageCollector) {
+		this.generalMessageCollector = generalMessageCollector;
+	}
 
 	public NodeManagerCollector getNodeManagerCollector() {
 		return nodeManagerCollector;

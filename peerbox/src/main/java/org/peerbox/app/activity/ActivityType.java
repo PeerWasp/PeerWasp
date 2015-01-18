@@ -7,7 +7,7 @@ package org.peerbox.app.activity;
  * @author albrecht
  *
  */
-enum ActivityType {
+public enum ActivityType {
 	INFORMATION,
 	WARNING
 }
