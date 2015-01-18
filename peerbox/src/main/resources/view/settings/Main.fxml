@@ -27,11 +27,6 @@
 						<fx:include fx:id="network" source="Network.fxml" />
 					</content>
 				</Tab>
-				<Tab styleClass="settings-activity" text="Activity">
-					<content>
-						<fx:include fx:id="activity" source="Activity.fxml" />
-					</content>
-				</Tab>
 				<Tab styleClass="settings-sync" text="Synchronization">
 					<content>
 						<fx:include fx:id="synchronization" source="Synchronization.fxml" />
