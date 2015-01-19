@@ -1,4 +1,4 @@
-package org.peerbox;
+package org.peerbox.app.config;
 
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -8,12 +8,7 @@ import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
 import java.util.Properties;
-import java.util.Set;
 
 import org.peerbox.utils.NetUtils;
 import org.peerbox.utils.OsUtils;
@@ -41,13 +36,11 @@ public class UserConfig implements IUserConfig{
 	/**
 	 * The default configuration (note: resource, not a file)
 	 */
-	private static final String DEFAULT_PROPERTIES_FILENAME = "/properties/default";
+	private static final String DEFAULT_PROPERTIES_FILENAME = "/config/default_user";
 
 	/**
 	 * The property names
 	 */
-	private static final String PROPERTY_BOOTSTRAPPING_NODES = "bootstrappingnodes";
-	private static final String PROPERTY_LAST_BOOTSTRAPPING_NODE = "lastbootstrappingnode";
 	private static final String PROPERTY_AUTO_LOGIN = "autologin";
 	private static final String PROPERTY_USERNAME = "username";
 	private static final String PROPERTY_PASSWORD = "password";
@@ -278,122 +271,6 @@ public class UserConfig implements IUserConfig{
 		prop.setProperty(PROPERTY_AUTO_LOGIN, Boolean.toString(enabled));
 		saveProperties();
 	}
-
-	/**
-	 * @return true if last bootstrapping node is available. False otherwise.
-	 */
-	public synchronized boolean hasLastBootstrappingNode() {
-		return getLastBootstrappingNode() != null && !getLastBootstrappingNode().isEmpty();
-	}
-
-	/**
-	 * @return the last bootstrapping node
-	 */
-	public synchronized String getLastBootstrappingNode() {
-		String n = prop.getProperty(PROPERTY_LAST_BOOTSTRAPPING_NODE);
-		return n != null ? n.trim() : n;
-	}
-
-	/**
-	 * Sets the last bootstrapping node
-	 *
-	 * @param nodeAddress address (domain, IP) of the node.
-	 * @throws IOException
-	 */
-	public synchronized void setLastBootstrappingNode(final String nodeAddress) throws IOException {
-		if(nodeAddress != null && !nodeAddress.trim().isEmpty()) {
-			prop.setProperty(PROPERTY_LAST_BOOTSTRAPPING_NODE, nodeAddress.trim());
-		} else {
-			prop.remove(PROPERTY_LAST_BOOTSTRAPPING_NODE);
-		}
-		saveProperties();
-	}
-
-	/**
-	 * @return a list of addresses of bootstrapping nodes
-	 */
-	public synchronized List<String> getBootstrappingNodes() {
-		List<String> nodes = new ArrayList<String>();
-		if (hasBootstrappingNodes()) {
-			String nodesCsv = prop.getProperty(PROPERTY_BOOTSTRAPPING_NODES);
-			String nodesArray[] = nodesCsv.split(LIST_SEPARATOR);
-			for (String n : nodesArray) {
-				if (!n.trim().isEmpty())
-					nodes.add(n);
-			}
-		}
-		return nodes;
-	}
-
-	/**
-	 * @return true if there is at least one address stored, false otherwise.
-	 */
-	public synchronized boolean hasBootstrappingNodes() {
-		String s = prop.getProperty(PROPERTY_BOOTSTRAPPING_NODES);
-		return s != null && !s.trim().isEmpty();
-	}
-
-	/**
-	 * Sets a list of bootstrapping node addresses. Overrides old addresses.
-	 * Addresses are trimmed.
-	 *
-	 * @param nodes list of addresses.
-	 * @throws IOException
-	 */
-	public synchronized void setBootstrappingNodes(final List<String> nodes) throws IOException {
-		if(nodes == null || nodes.isEmpty()) {
-			prop.remove(PROPERTY_BOOTSTRAPPING_NODES);
-			saveProperties();
-			return;
-		}
-
-		nodes.remove(null);
-		Collections.sort(nodes);
-		StringBuilder nodeList = new StringBuilder();
-		Set<String> uniqueNodes = new HashSet<String>();
-		for (String node : nodes) {
-			String n = node != null ? node.trim() : null;
-			if (n != null && !n.isEmpty() && !uniqueNodes.contains(n)) {
-				nodeList.append(n).append(LIST_SEPARATOR);
-				uniqueNodes.add(n);
-			}
-		}
-		// delete trailing separator
-		if (!nodes.isEmpty() && nodeList.length() > 0) {
-			nodeList.deleteCharAt(nodeList.length() - 1);
-		}
-		prop.setProperty(PROPERTY_BOOTSTRAPPING_NODES, nodeList.toString());
-		saveProperties();
-	}
-
-	/**
-	 * Adds an address of a bootstrapping node to the current list
-	 *
-	 * @param node address of a node
-	 * @throws IOException
-	 */
-	public synchronized void addBootstrapNode(final String node) throws IOException {
-		if(node != null && !node.isEmpty()) {
-			List<String> nodes = getBootstrappingNodes();
-			nodes.add(node);
-			setBootstrappingNodes(nodes);
-		}
-	}
-
-	/**
-	 * Removes an address of a bootstrapping node from the current list.
-	 *
-	 * @param node address of a node
-	 * @throws IOException
-	 */
-	public synchronized void removeBootstrapNode(final String node) throws IOException {
-		if(node != null && !node.isEmpty()) {
-			List<String> nodes = getBootstrappingNodes();
-			nodes.remove(node);
-			setBootstrappingNodes(nodes);
-		}
-	}
-
 
 	/**
 	 * @return the port of the rest api server

@@ -1,4 +1,4 @@
-package org.peerbox;
+package org.peerbox.app.config;
 
 import java.nio.file.Path;
 

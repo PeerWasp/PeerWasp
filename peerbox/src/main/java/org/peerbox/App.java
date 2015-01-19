@@ -15,6 +15,7 @@ import javafx.stage.Stage;
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.peerbox.app.Constants;
 import org.peerbox.app.activity.collectors.ActivityConfiguration;
+import org.peerbox.app.config.UserConfig;
 import org.peerbox.app.manager.node.INodeManager;
 import org.peerbox.app.manager.user.IUserManager;
 import org.peerbox.events.InformationMessage;
@@ -23,7 +24,6 @@ import org.peerbox.events.WarningMessage;
 import org.peerbox.guice.ApiServerModule;
 import org.peerbox.guice.PeerBoxModule;
 import org.peerbox.guice.UserConfigModule;
-import org.peerbox.notifications.InformationNotification;
 import org.peerbox.presenter.tray.TrayException;
 import org.peerbox.presenter.validation.SelectRootPathUtils;
 import org.peerbox.server.IServer;
@@ -90,7 +90,7 @@ public class App extends Application
 		// TODO: if join/login fails -> action required? e.g. launch in foreground? do nothing but indicate with icon?
 		if (isAutoLoginFeasible()) {
 			logger.info("Auto login feasible, try to join and login.");
-			launchInBackground();
+//			launchInBackground();
 		} else {
 			logger.info("Loading startup stage (no auto login)");
 			launchInForeground();
@@ -179,17 +179,17 @@ public class App extends Application
 	}
 
 	private boolean isAutoLoginFeasible() {
-		return
-				/* credentials stored */
-				userConfig.hasUsername() &&
-				userConfig.hasPassword() &&
-				userConfig.hasPin() &&
-				userConfig.hasRootPath() &&
-				SelectRootPathUtils.isValidRootPath(userConfig.getRootPath()) &&
-				/* bootstrap nodes */
-				userConfig.hasBootstrappingNodes() &&
-				/* auto login desired */
-				userConfig.isAutoLoginEnabled();
+		return false;
+//				/* credentials stored */
+//				userConfig.hasUsername() &&
+//				userConfig.hasPassword() &&
+//				userConfig.hasPin() &&
+//				userConfig.hasRootPath() &&
+//				SelectRootPathUtils.isValidRootPath(userConfig.getRootPath()) &&
+//				/* bootstrap nodes */
+////				userConfig.hasBootstrappingNodes() &&
+//				/* auto login desired */
+//				userConfig.isAutoLoginEnabled();
 	}
 
 	private void launchInForeground() {
@@ -197,73 +197,73 @@ public class App extends Application
 		startup.show();
 	}
 
-	private void launchInBackground() {
-		Task<ResultStatus> task = createJoinLoginTask();
-		new Thread(task).start();
-	}
-
-	private ResultStatus joinAndLogin(List<String> nodes,
-			String username, String password, String pin, Path path) {
-		try {
-
-			if (!nodeManager.joinNetwork(nodes)) {
-				return ResultStatus.error("Could not join network.");
-			}
-			IUserManager userManager = injector.getInstance(IUserManager.class);
-			return userManager.loginUser(username, password, pin, path);
-
-		} catch (NoPeerConnectionException e) {
-			logger.debug("Loggin failed: {}", e);
-			return ResultStatus.error("Could not login user because connection to network failed.");
-		}
-	}
-
-	private Task<ResultStatus> createJoinLoginTask() {
-
-		final List<String> nodes = userConfig.getBootstrappingNodes();
-		// credentials
-		final String username = userConfig.getUsername();
-		final String password = userConfig.getPassword();
-		final String pin = userConfig.getPin();
-		final Path path = userConfig.getRootPath();
-
-		Task<ResultStatus> task = new Task<ResultStatus>() {
-			@Override
-			public ResultStatus call() {
-				return joinAndLogin(nodes, username, password, pin, path);
-			}
-		};
-
-		task.setOnScheduled(new EventHandler<WorkerStateEvent>() {
-			@Override
-			public void handle(WorkerStateEvent event) {
-				logger.info("Try to join and login using user configuration.");
-				logger.info("{} bootstrapping nodes: ", nodes.size(), nodes);
-				logger.info("Username: {}, Path: {}", username, path);
-			}
-		});
-
-		task.setOnFailed(new EventHandler<WorkerStateEvent>() {
-			@Override
-			public void handle(WorkerStateEvent event) {
-				logger.warn("Auto login failed.");
-			}
-		});
-
-		task.setOnSucceeded(new EventHandler<WorkerStateEvent>() {
-			@Override
-			public void handle(WorkerStateEvent event) {
-				ResultStatus result = task.getValue();
-				if(result.isOk()) {
-					logger.info("Auto login succeeded.");
-				} else {
-					logger.warn("Auto login failed: {}", result.getErrorMessage());
-				}
-			}
-		});
-
-		return task;
-	}
+//	private void launchInBackground() {
+//		Task<ResultStatus> task = createJoinLoginTask();
+//		new Thread(task).start();
+//	}
+//
+//	private ResultStatus joinAndLogin(List<String> nodes,
+//			String username, String password, String pin, Path path) {
+//		try {
+//
+//			if (!nodeManager.joinNetwork(nodes)) {
+//				return ResultStatus.error("Could not join network.");
+//			}
+//			IUserManager userManager = injector.getInstance(IUserManager.class);
+//			return userManager.loginUser(username, password, pin, path);
+//
+//		} catch (NoPeerConnectionException e) {
+//			logger.debug("Loggin failed: {}", e);
+//			return ResultStatus.error("Could not login user because connection to network failed.");
+//		}
+//	}
+//
+//	private Task<ResultStatus> createJoinLoginTask() {
+//
+//		final List<String> nodes = null; //userConfig.getBootstrappingNodes();
+//		// credentials
+//		final String username = userConfig.getUsername();
+//		final String password = userConfig.getPassword();
+//		final String pin = userConfig.getPin();
+//		final Path path = userConfig.getRootPath();
+//
+//		Task<ResultStatus> task = new Task<ResultStatus>() {
+//			@Override
+//			public ResultStatus call() {
+//				return joinAndLogin(nodes, username, password, pin, path);
+//			}
+//		};
+//
+//		task.setOnScheduled(new EventHandler<WorkerStateEvent>() {
+//			@Override
+//			public void handle(WorkerStateEvent event) {
+//				logger.info("Try to join and login using user configuration.");
+//				logger.info("{} bootstrapping nodes: ", nodes.size(), nodes);
+//				logger.info("Username: {}, Path: {}", username, path);
+//			}
+//		});
+//
+//		task.setOnFailed(new EventHandler<WorkerStateEvent>() {
+//			@Override
+//			public void handle(WorkerStateEvent event) {
+//				logger.warn("Auto login failed.");
+//			}
+//		});
+//
+//		task.setOnSucceeded(new EventHandler<WorkerStateEvent>() {
+//			@Override
+//			public void handle(WorkerStateEvent event) {
+//				ResultStatus result = task.getValue();
+//				if(result.isOk()) {
+//					logger.info("Auto login succeeded.");
+//				} else {
+//					logger.warn("Auto login failed: {}", result.getErrorMessage());
+//				}
+//			}
+//		});
+//
+//		return task;
+//	}
 
 	private void fatalExit(int exitCode) {
 		logger.warn("Exiting... (ExitCode: {})", exitCode);

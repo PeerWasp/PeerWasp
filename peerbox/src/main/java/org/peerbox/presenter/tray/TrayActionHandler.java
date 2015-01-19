@@ -9,9 +9,9 @@ import javax.swing.SwingUtilities;
 
 import org.apache.commons.io.FileUtils;
 import org.peerbox.SettingsStage;
-import org.peerbox.UserConfig;
 import org.peerbox.app.IExitHandler;
 import org.peerbox.app.activity.ActivityStage;
+import org.peerbox.app.config.UserConfig;
 
 import com.google.inject.Inject;
 

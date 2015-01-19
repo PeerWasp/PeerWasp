@@ -27,7 +27,7 @@
 						<Insets />
 					</VBox.margin>
 				</Label>
-				<Label text="The following list is used to join the network when the application starts. " wrapText="true" />
+				<Label text="The following list is used to join the network when the application starts. (Note: the preconfigured default nodes cannot be removed)" wrapText="true" />
 			</children>
 		</VBox>
 		<GridPane hgap="10.0" vgap="10.0" GridPane.rowIndex="1">
@@ -68,8 +68,8 @@
 		</GridPane>
 		<HBox alignment="CENTER_LEFT" GridPane.rowIndex="2">
 			<children>
-				<Button defaultButton="true" onAction="#saveAction" text="_OK" />
-				<Button cancelButton="true" onAction="#resetAction" text="_Cancel">
+				<Button defaultButton="true" onAction="#saveAction" text="_Save" />
+				<Button cancelButton="true" onAction="#resetAction" text="_Reset">
 					<HBox.margin>
 						<Insets left="10.0" />
 					</HBox.margin>

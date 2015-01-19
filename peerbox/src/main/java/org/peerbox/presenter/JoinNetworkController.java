@@ -19,7 +19,8 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
 
 import org.peerbox.ResultStatus;
-import org.peerbox.UserConfig;
+import org.peerbox.app.config.BootstrappingNodes;
+import org.peerbox.app.config.BootstrappingNodesFactory;
 import org.peerbox.app.manager.node.INodeManager;
 import org.peerbox.presenter.validation.EmptyTextFieldValidator;
 import org.peerbox.presenter.validation.ValidationUtils.ValidationResult;
@@ -36,14 +37,16 @@ public class JoinNetworkController implements Initializable {
 
 	private INodeManager nodeManager;
 	private NavigationService fNavigationService;
-	private UserConfig userConfig;
+
+	private BootstrappingNodes bootstrappingNodes;
+	private BootstrappingNodesFactory bootstrappingNodesFactory;
 
 	@FXML
 	private VBox vboxForm;
 	@FXML
 	private TextField txtBootstrapAddress;
 	@FXML
-	private ComboBox<String> bootstrapNodes;
+	private ComboBox<String> cbBootstrapNodes;
 	@FXML
 	private ErrorLabel lblError;
 	@FXML
@@ -68,11 +71,16 @@ public class JoinNetworkController implements Initializable {
 	}
 
 	private void loadBootstrapNodes() {
-		bootstrapNodes.getItems().clear();
-		bootstrapNodes.getItems().addAll(userConfig.getBootstrappingNodes());
+		cbBootstrapNodes.getItems().clear();
 
-		if(userConfig.hasLastBootstrappingNode()) {
-			txtBootstrapAddress.setText(userConfig.getLastBootstrappingNode());
+		try {
+			bootstrappingNodes = bootstrappingNodesFactory.create();
+			bootstrappingNodesFactory.load();
+			cbBootstrapNodes.getItems().addAll(bootstrappingNodes.getBootstrappingNodes());
+			txtBootstrapAddress.setText(bootstrappingNodes.getLastNode());
+		} catch (IOException ioex) {
+			logger.warn("Could not load bootstrapping nodes from configuration.", ioex);
+			setError("Could not load settings.");
 		}
 	}
 
@@ -83,8 +91,9 @@ public class JoinNetworkController implements Initializable {
 
 	private void saveJoinConfig() {
 		try {
-			userConfig.addBootstrapNode(getBootstrapNode());
-			userConfig.setLastBootstrappingNode(getBootstrapNode());
+			bootstrappingNodes.getBootstrappingNodes().add(getBootstrapNode());
+			bootstrappingNodes.setLastNode(getBootstrapNode());
+			bootstrappingNodesFactory.save();
 		} catch (IOException ioex) {
 			logger.warn("Could not save settings: {}", ioex.getMessage());
 			setError("Could not save settings.");
@@ -134,7 +143,7 @@ public class JoinNetworkController implements Initializable {
 	}
 
 	public void onBootstrapNodeSelected(ActionEvent event) {
-		String selectedNode = bootstrapNodes.getSelectionModel().getSelectedItem();
+		String selectedNode = cbBootstrapNodes.getSelectionModel().getSelectedItem();
 		txtBootstrapAddress.setText(selectedNode);
 	}
 
@@ -168,11 +177,11 @@ public class JoinNetworkController implements Initializable {
 		saveJoinConfig();
 		resetForm();
 
-		if (!userConfig.hasRootPath()) {
-			fNavigationService.navigate(ViewNames.SELECT_ROOT_PATH_VIEW);
-		} else {
+//		if (!userConfig.hasRootPath()) {
+//			fNavigationService.navigate(ViewNames.SELECT_ROOT_PATH_VIEW);
+//		} else {
 			fNavigationService.navigate(ViewNames.LOGIN_VIEW);
-		}
+//		}
 	}
 
 	protected void onJoinFailed(ResultStatus result) {
@@ -250,7 +259,7 @@ public class JoinNetworkController implements Initializable {
 	}
 
 	@Inject
-	public void setUserConfig(UserConfig userConfig) {
-		this.userConfig = userConfig;
+	public void setBootstrappingNodesFactory(BootstrappingNodesFactory bootstrappingNodesFactory) {
+		this.bootstrappingNodesFactory = bootstrappingNodesFactory;
 	}
 }

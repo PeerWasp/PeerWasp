@@ -4,7 +4,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import org.apache.commons.io.FileUtils;
-import org.peerbox.IUserConfig;
+import org.peerbox.app.config.IUserConfig;
 
 import com.google.inject.Inject;
 

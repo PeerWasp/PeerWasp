@@ -30,7 +30,7 @@
               </rowConstraints>
                <children>
                     <TextField fx:id="txtBootstrapAddress" GridPane.hgrow="SOMETIMES" />
-                  	<ComboBox fx:id="bootstrapNodes" maxWidth="1.7976931348623157E308" onAction="#onBootstrapNodeSelected" promptText="Select node" GridPane.columnIndex="1" GridPane.hgrow="SOMETIMES" />
+                  	<ComboBox fx:id="cbBootstrapNodes" maxWidth="1.7976931348623157E308" onAction="#onBootstrapNodeSelected" promptText="Select node" GridPane.columnIndex="1" GridPane.hgrow="SOMETIMES" />
                </children>
             </GridPane>
 				<HBox spacing="10.0">

@@ -19,7 +19,7 @@ import org.hive2hive.processframework.exceptions.ProcessExecutionException;
 import org.hive2hive.processframework.interfaces.IProcessComponent;
 import org.hive2hive.processframework.interfaces.IProcessComponentListener;
 import org.hive2hive.processframework.interfaces.IProcessEventArgs;
-import org.peerbox.IUserConfig;
+import org.peerbox.app.config.IUserConfig;
 import org.peerbox.app.manager.AbstractManager;
 import org.peerbox.app.manager.node.INodeManager;
 import org.peerbox.events.MessageBus;

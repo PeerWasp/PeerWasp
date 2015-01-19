@@ -5,8 +5,8 @@ import java.nio.file.Path;
 
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.hive2hive.core.file.FileUtil;
-import org.peerbox.IUserConfig;
 import org.peerbox.ResultStatus;
+import org.peerbox.app.config.IUserConfig;
 import org.peerbox.app.manager.file.IFileManager;
 import org.peerbox.app.manager.node.INodeManager;
 import org.peerbox.app.manager.user.IUserManager;

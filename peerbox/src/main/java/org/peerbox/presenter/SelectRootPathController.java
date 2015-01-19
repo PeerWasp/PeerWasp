@@ -15,7 +15,7 @@ import javafx.scene.control.TextField;
 import javafx.stage.Window;
 
 import org.apache.commons.io.FileUtils;
-import org.peerbox.UserConfig;
+import org.peerbox.app.config.UserConfig;
 import org.peerbox.presenter.validation.RootPathValidator;
 import org.peerbox.presenter.validation.SelectRootPathUtils;
 import org.peerbox.presenter.validation.ValidationUtils.ValidationResult;

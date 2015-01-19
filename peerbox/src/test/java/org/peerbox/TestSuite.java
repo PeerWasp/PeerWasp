@@ -3,6 +3,8 @@ package org.peerbox;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
+import org.peerbox.app.config.ConfigTestSuite;
+import org.peerbox.app.config.UserConfigTest;
 import org.peerbox.guice.GuiceFxmlLoaderTest;
 import org.peerbox.h2h.FileAgentTest;
 import org.peerbox.model.NodeManagerTest;
@@ -14,17 +16,21 @@ import org.peerbox.server.ServerTestSuite;
 import org.peerbox.utils.UtilsTestSuite;
 
 @RunWith(Suite.class)
-@SuiteClasses({ 
+@SuiteClasses({
 	NodeManagerTest.class,
 	UserManagerTest.class,
-	
+
+
+
 	NavigationServiceTest.class,
 	GuiceFxmlLoaderTest.class,
 	FileAgentTest.class,
 	UserConfigTest.class,
 	CreateNetworkControllerTest.class,
 	FileEventAggregatorTest.class,
-	
+
+	ConfigTestSuite.class,
+
 	ServerTestSuite.class,
 	UtilsTestSuite.class
 })

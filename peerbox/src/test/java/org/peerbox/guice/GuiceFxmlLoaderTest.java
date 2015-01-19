@@ -14,7 +14,7 @@ import javafx.scene.Parent;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.Mockito;
-import org.peerbox.UserConfig;
+import org.peerbox.app.config.UserConfig;
 import org.peerbox.app.manager.node.INodeManager;
 import org.peerbox.app.manager.user.IUserManager;
 import org.peerbox.app.manager.user.UserManager;

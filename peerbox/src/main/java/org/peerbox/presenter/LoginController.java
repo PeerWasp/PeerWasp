@@ -25,8 +25,8 @@ import javafx.stage.Window;
 
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.peerbox.ResultStatus;
-import org.peerbox.UserConfig;
 import org.peerbox.app.ClientContext;
+import org.peerbox.app.config.UserConfig;
 import org.peerbox.app.manager.user.IUserManager;
 import org.peerbox.guice.provider.ClientContextProvider;
 import org.peerbox.presenter.validation.EmptyTextFieldValidator;

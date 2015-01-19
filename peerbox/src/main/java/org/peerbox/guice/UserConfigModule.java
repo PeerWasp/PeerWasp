@@ -2,8 +2,8 @@ package org.peerbox.guice;
 
 import java.nio.file.Path;
 
-import org.peerbox.IUserConfig;
-import org.peerbox.UserConfig;
+import org.peerbox.app.config.IUserConfig;
+import org.peerbox.app.config.UserConfig;
 import org.peerbox.utils.AppData;
 
 import com.google.inject.AbstractModule;

@@ -3,10 +3,11 @@ package org.peerbox.guice;
 
 import javafx.stage.Stage;
 
-import org.peerbox.IUserConfig;
 import org.peerbox.app.ClientContext;
 import org.peerbox.app.ExitHandler;
 import org.peerbox.app.IExitHandler;
+import org.peerbox.app.config.BootstrappingNodesFactory;
+import org.peerbox.app.config.IUserConfig;
 import org.peerbox.app.manager.file.FileManager;
 import org.peerbox.app.manager.file.IFileManager;
 import org.peerbox.app.manager.node.INodeManager;
@@ -22,6 +23,7 @@ import org.peerbox.guice.provider.ClientContextProvider;
 import org.peerbox.interfaces.IFxmlLoaderProvider;
 import org.peerbox.share.IShareFolderHandler;
 import org.peerbox.share.ShareFolderHandler;
+import org.peerbox.utils.AppData;
 import org.peerbox.view.tray.AbstractSystemTray;
 import org.peerbox.view.tray.JSystemTray;
 import org.peerbox.watchservice.FileEventManager;
@@ -106,6 +108,17 @@ public class PeerBoxModule extends AbstractModule {
 	@Provides
 	FileTree providesFileTree(IUserConfig cfg){
 		return new FileTree(cfg.getRootPath());
+	}
+
+	@Provides
+	private BootstrappingNodesFactory providesBootstrappingNodesFactory() {
+		BootstrappingNodesFactory f = new BootstrappingNodesFactory();
+
+		f.setLastNodeFile(AppData.getConfigFolder().resolve("lastnode"));
+		f.setNodesFile(AppData.getConfigFolder().resolve("bootstrappingnodes"));
+		f.setNodesDefaultUrl(getClass().getResource("/config/default_bootstrappingnodes"));
+
+		return f;
 	}
 
 }
