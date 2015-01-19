@@ -10,7 +10,7 @@ import org.hive2hive.core.processes.files.list.FileNode;
 import org.hive2hive.core.processes.files.recover.IVersionSelector;
 import org.hive2hive.processframework.exceptions.InvalidProcessStateException;
 import org.hive2hive.processframework.exceptions.ProcessExecutionException;
-import org.peerbox.h2h.ProcessHandle;
+import org.peerbox.app.manager.ProcessHandle;
 
 public interface IFileManager {
 

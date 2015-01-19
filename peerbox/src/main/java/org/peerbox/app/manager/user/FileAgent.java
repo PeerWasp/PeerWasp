@@ -1,4 +1,4 @@
-package org.peerbox.h2h;
+package org.peerbox.app.manager.user;
 
 import java.io.File;
 import java.io.IOException;
@@ -7,8 +7,8 @@ import java.nio.file.Path;
 
 import org.hive2hive.core.file.IFileAgent;
 
-public final class FileAgent implements IFileAgent {
-	
+final class FileAgent implements IFileAgent {
+
 	private final Path root;
 	private final Path cache;
 
@@ -62,7 +62,7 @@ public final class FileAgent implements IFileAgent {
 		} catch (IOException e) {
 			// could not read
 		}
-		
+
 		return null;
 	}
 

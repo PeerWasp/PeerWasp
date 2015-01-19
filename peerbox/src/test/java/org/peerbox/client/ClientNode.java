@@ -6,6 +6,7 @@ import java.nio.file.Path;
 import org.hive2hive.core.api.interfaces.IH2HNode;
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.hive2hive.core.exceptions.NoSessionException;
+import org.hive2hive.core.file.IFileAgent;
 import org.hive2hive.core.security.UserCredentials;
 import org.hive2hive.core.utils.TestExecutionUtil;
 import org.hive2hive.processframework.interfaces.IProcessComponent;
@@ -15,7 +16,6 @@ import org.peerbox.app.manager.file.FileManager;
 import org.peerbox.app.manager.file.IFileManager;
 import org.peerbox.app.manager.node.INodeManager;
 import org.peerbox.events.MessageBus;
-import org.peerbox.h2h.FileAgent;
 import org.peerbox.watchservice.ActionExecutor;
 import org.peerbox.watchservice.FileEventManager;
 import org.peerbox.watchservice.FolderWatchService;
@@ -58,6 +58,10 @@ public class ClientNode {
 		return actionExecutor;
 	}
 
+	public IFileManager getFileManager() {
+		return fileManager;
+	}
+
 	private void initialization() throws Exception {
 		// create path
 		if (!Files.exists(rootPath)) {
@@ -94,7 +98,8 @@ public class ClientNode {
 	}
 
 	private void loginUser() throws NoPeerConnectionException {
-		FileAgent fileAgent = new FileAgent(rootPath, null);
+		IFileAgent fileAgent = Mockito.mock(IFileAgent.class);
+		Mockito.stub(fileAgent.getRoot()).toReturn(rootPath.toFile());
 		IProcessComponent<Void> loginProcess = node.getUserManager().createLoginProcess(credentials, fileAgent);
 		TestExecutionUtil.executeProcessTillSucceded(loginProcess);
 	}

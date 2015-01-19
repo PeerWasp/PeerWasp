@@ -14,7 +14,6 @@ import org.peerbox.app.config.IUserConfig;
 import org.peerbox.app.manager.AbstractManager;
 import org.peerbox.app.manager.node.INodeManager;
 import org.peerbox.events.MessageBus;
-import org.peerbox.h2h.FileAgent;
 import org.peerbox.utils.AppData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -1,4 +1,4 @@
-package org.peerbox.h2h;
+package org.peerbox.app.manager;
 
 import org.hive2hive.processframework.interfaces.IProcessComponentListener;
 import org.hive2hive.processframework.interfaces.IProcessEventArgs;

@@ -14,9 +14,9 @@ import org.hive2hive.processframework.exceptions.InvalidProcessStateException;
 import org.hive2hive.processframework.exceptions.ProcessExecutionException;
 import org.hive2hive.processframework.interfaces.IProcessComponentListener;
 import org.hive2hive.processframework.interfaces.IProcessEventArgs;
+import org.peerbox.app.manager.ProcessHandle;
 import org.peerbox.app.manager.file.IFileManager;
 import org.peerbox.exceptions.NotImplException;
-import org.peerbox.h2h.ProcessHandle;
 import org.peerbox.watchservice.Action;
 import org.peerbox.watchservice.IActionEventListener;
 import org.peerbox.watchservice.IFileEventManager;
@@ -29,7 +29,7 @@ import com.google.common.collect.SetMultimap;
 
 /**
  * Interface for different states of implemented state pattern
- * 
+ *
  * @author winzenried
  *
  */
@@ -43,26 +43,26 @@ public abstract class AbstractActionState {
 		this.action = action;
 		this.type = type;
 	}
-	
+
 	public StateType getStateType(){
 		return type;
 	}
-	
+
 	public AbstractActionState getDefaultState(){
 		return new EstablishedState(action);
 	}
-	
+
 	public void updateTimeAndQueue(){
 		action.getEventManager().getFileComponentQueue().remove(action.getFile());
 		action.updateTimestamp();
 		action.getEventManager().getFileComponentQueue().add(action.getFile());
 	}
-	
+
 	protected void logStateTransission(StateType stateBefore, EventType event, StateType stateAfter){
-		logger.debug("File {}: {} + {}  --> {}", action.getFile().getPath(), 
+		logger.debug("File {}: {} + {}  --> {}", action.getFile().getPath(),
 				stateBefore.getString(), event.getString(), stateAfter.getString());
 	}
-	
+
 	public void performCleanup(){
 		//nothing to do by default!
 	}
@@ -86,11 +86,7 @@ public abstract class AbstractActionState {
 	public AbstractActionState changeStateOnLocalMove(Path oldPath){
 		throw new NotImplException(action.getCurrentState().getStateType().getString() + ".changeStateOnLocalMove");
 	}
-	
-	public AbstractActionState changeStateOnLocalRecover(File currentFile, int version){
-		return new RecoverState(action, currentFile, version);
-	}
-	
+
 	public AbstractActionState changeStateOnLocalHardDelete(){
 		return new LocalHardDeleteState(action);
 	}
@@ -101,7 +97,7 @@ public abstract class AbstractActionState {
 	public AbstractActionState changeStateOnRemoteDelete(){
 		return new InitialState(action);
 	}
-	
+
 	public AbstractActionState changeStateOnRemoteCreate(){
 		return new RemoteCreateState(action);
 	}
@@ -113,19 +109,19 @@ public abstract class AbstractActionState {
 	public AbstractActionState changeStateOnRemoteMove(Path oldFilePath){
 		throw new NotImplException(action.getCurrentState().getStateType().getString() + ".changeStateOnRemoteMove");
 	}
-	
+
 	/*
 	 * LOCAL event handler
 	 */
-	
+
 	public abstract AbstractActionState handleLocalCreate();
-	
+
 	public AbstractActionState handleLocalHardDelete(){
 		logger.trace("File {}: entered handleLocalHardDelete", action.getFile().getPath());
 		updateTimeAndQueue();
 		return changeStateOnLocalHardDelete();
 	}
-	
+
 	public AbstractActionState handleLocalDelete(){
 		IFileEventManager eventManager = action.getEventManager();
 		eventManager.getFileComponentQueue().remove(action.getFile());
@@ -144,13 +140,13 @@ public abstract class AbstractActionState {
 		}
 		return this.changeStateOnLocalDelete();
 	}
-	
+
 	public AbstractActionState handleLocalUpdate() {
 		updateTimeAndQueue();
 		return changeStateOnLocalUpdate();
 	}
 
-	
+
 	public AbstractActionState handleLocalMove(Path oldFilePath){
 		return changeStateOnLocalMove(oldFilePath);
 	}
@@ -158,15 +154,15 @@ public abstract class AbstractActionState {
 	public AbstractActionState handleLocalRecover(File currentFile, int version){
 		throw new NotImplException("Recovery Event occured in invalid state!");
 	}
-	
+
 	/*
 	 * REMOTE event handler
 	 */
-	
+
 	public AbstractActionState handleRemoteCreate(){
 		return changeStateOnRemoteCreate();
 	}
-	
+
 	public AbstractActionState handleRemoteDelete() {
 		logger.debug("EstablishedState.handleRemoteDelete");
 		IFileEventManager eventManager = action.getEventManager();
@@ -180,26 +176,26 @@ public abstract class AbstractActionState {
 		}
 		return changeStateOnRemoteDelete();
 	}
-	
+
 	public AbstractActionState handleRemoteUpdate() {
 		updateTimeAndQueue();
 		return changeStateOnRemoteUpdate();
 	}
-	
+
 	public AbstractActionState handleRemoteMove(Path path){
 		return changeStateOnRemoteMove(path);
 	}
-	
+
 	/*
 	 * Execution and notification related functions
 	 */
 
 	public abstract ExecutionHandle execute(IFileManager fileManager) throws NoSessionException,
 			NoPeerConnectionException, InvalidProcessStateException, ProcessExecutionException;
-	
-	
+
+
 	protected void notifyActionExecuteSucceeded() {
-		Set<IActionEventListener> listener = 
+		Set<IActionEventListener> listener =
 				new HashSet<IActionEventListener>(action.getEventListener());
 		Iterator<IActionEventListener> it = listener.iterator();
 		while(it.hasNext()) {
@@ -208,23 +204,23 @@ public abstract class AbstractActionState {
 	}
 
 	protected void notifyActionExecuteFailed() {
-		Set<IActionEventListener> listener = 
+		Set<IActionEventListener> listener =
 				new HashSet<IActionEventListener>(action.getEventListener());
 		Iterator<IActionEventListener> it = listener.iterator();
 		while(it.hasNext()) {
 			it.next().onActionExecuteFailed(action, handle);
 		}
 	}
-	
+
 	protected class FileManagerProcessListener implements IProcessComponentListener {
-		
+
 		public FileManagerProcessListener() {
-			
+
 		}
 
 		@Override
 		public void onExecuting(IProcessEventArgs args) {
-			
+
 		}
 
 		@Override
@@ -234,7 +230,7 @@ public abstract class AbstractActionState {
 
 		@Override
 		public void onPaused(IProcessEventArgs args) {
-			
+
 		}
 
 		@Override
@@ -251,12 +247,12 @@ public abstract class AbstractActionState {
 
 		@Override
 		public void onRollbackSucceeded(IProcessEventArgs args) {
-			
+
 		}
 
 		@Override
 		public void onRollbackFailed(IProcessEventArgs args) {
-			
+
 		}
 	}
 }

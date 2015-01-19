@@ -1,6 +1,5 @@
 package org.peerbox.watchservice;
 
-import java.io.File;
 import java.nio.file.Path;
 import java.util.concurrent.locks.Lock;
 
@@ -22,7 +21,7 @@ public interface IAction {
 
 	public ExecutionHandle execute(IFileManager fileManager) throws NoSessionException,
 	NoPeerConnectionException, InvalidProcessStateException;
-	
+
 	public void handleLocalCreateEvent();
 	public void handleLocalMoveEvent(Path filePath);
 	public void handleLocalUpdateEvent();
@@ -32,11 +31,10 @@ public interface IAction {
 	public void handleRemoteDeleteEvent();
 	public void handleRemoteUpdateEvent();
 	public void handleRemoteMoveEvent(Path srcPath);
-	public void handleRecoverEvent(File currentFile, int versionToRecover);
-	
+
 	public FileComponent getFile();
 	public void setFile(FileComponent file);
-	
+
 	public int getExecutionAttempts();
 	public void onSucceed();
 	public void onFailed();

@@ -1,8 +1,6 @@
 package org.peerbox.watchservice;
 
-import java.io.File;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Comparator;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.PriorityBlockingQueue;
@@ -15,11 +13,9 @@ import org.hive2hive.core.events.framework.interfaces.file.IFileMoveEvent;
 import org.hive2hive.core.events.framework.interfaces.file.IFileShareEvent;
 import org.hive2hive.core.events.framework.interfaces.file.IFileUpdateEvent;
 import org.hive2hive.core.events.implementations.FileAddEvent;
-import org.peerbox.h2h.IFileRecoveryRequestEvent;
 import org.peerbox.watchservice.filetree.FileTree;
 import org.peerbox.watchservice.filetree.IFileTree;
 import org.peerbox.watchservice.filetree.composite.FileComponent;
-import org.peerbox.watchservice.filetree.composite.FileCompositeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -88,25 +84,6 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 		}
 		file.getAction().handleLocalUpdateEvent();
 	}
-
-	public void onFileRecoveryRequest(IFileRecoveryRequestEvent fileEvent){
-		logger.trace("onFileRecoveryRequest: {}", fileEvent.getFile().getAbsolutePath());
-		File currentFile = fileEvent.getFile();
-		if(currentFile == null || (currentFile != null && currentFile.isDirectory())){
-//			logger.error("Try to recover non-existing file or directory: {}", currentFile.getPath());
-			return;
-		}
-
-//		FileComponent file = fileTree.getComponent(currentFile.getPath());
-		int version = fileEvent.getVersionToRecover();
-
-		String recoveredFileName = PathUtils.getRecoveredFilePath(fileEvent.getFile().getName(), version).toString();
-		Path pathOfRecoveredFile = Paths.get(currentFile.getParent()).resolve(Paths.get(recoveredFileName));
-		FileComponent file = fileTree.getOrCreateFileComponent(pathOfRecoveredFile, this);
-		fileTree.putFile(pathOfRecoveredFile, file);
-		file.getAction().handleRecoverEvent(currentFile, fileEvent.getVersionToRecover());
-	}
-
 
 	//TODO: remove children from actionQueue as well!
 	/**

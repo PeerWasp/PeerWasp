@@ -1,6 +1,5 @@
 package org.peerbox.watchservice;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -429,19 +428,4 @@ public class Action implements IAction{
 		return lock;
 	}
 
-	@Override
-	public void handleRecoverEvent(File currentFile, int versionToRecover) {
-		logger.trace("handleRecoverEvent - File: {}", getFile().getPath());
-		acquireLockOnThis();
-		if(isExecuting){
-			logger.trace("Event occured for {} while executing.", getFile().getPath());
-			nextState = nextState.changeStateOnLocalRecover(currentFile, versionToRecover);
-			checkIfChanged();
-		} else {
-			updateTimestamp();
-			currentState = currentState.handleLocalRecover(currentFile, versionToRecover);
-			nextState = currentState.getDefaultState();
-		}
-		releaseLockOnThis();
-	}
 }

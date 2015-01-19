@@ -1,4 +1,4 @@
-package org.peerbox.h2h;
+package org.peerbox.app.manager.user;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -17,6 +17,7 @@ import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.peerbox.app.manager.user.FileAgent;
 
 public class FileAgentTest {
 	

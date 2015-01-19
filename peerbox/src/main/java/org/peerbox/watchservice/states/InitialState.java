@@ -1,6 +1,5 @@
 package org.peerbox.watchservice.states;
 
-import java.io.File;
 import java.nio.file.Path;
 import java.util.Map;
 
@@ -146,13 +145,6 @@ public class InitialState extends AbstractActionState {
 		logger.warn("Execute is not defined in the initial state  ({})", action.getFile().getPath());
 		notifyActionExecuteSucceeded();
 		return null;
-	}
-
-	@Override
-	public AbstractActionState handleLocalRecover(File currentFile, int version) {
-		// TODO Auto-generated method stub
-		updateTimeAndQueue();
-		return new RecoverState(action, currentFile, version);
 	}
 
 	public AbstractActionState getDefaultState(){

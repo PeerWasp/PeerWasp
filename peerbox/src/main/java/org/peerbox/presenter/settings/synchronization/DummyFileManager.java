@@ -18,8 +18,8 @@ import org.hive2hive.processframework.exceptions.ProcessExecutionException;
 import org.hive2hive.processframework.exceptions.ProcessRollbackException;
 import org.hive2hive.processframework.interfaces.IProcessComponent;
 import org.hive2hive.processframework.interfaces.IProcessComponentListener;
+import org.peerbox.app.manager.ProcessHandle;
 import org.peerbox.app.manager.file.IFileManager;
-import org.peerbox.h2h.ProcessHandle;
 
 import com.google.inject.Inject;
 
