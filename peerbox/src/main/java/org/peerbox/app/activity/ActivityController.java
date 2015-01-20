@@ -98,6 +98,9 @@ public class ActivityController implements Initializable {
 		logger.debug("Clear activity items.");
 	}
 
+	protected ListView<ActivityItem> getActivityLogListView() {
+		return lstActivityLog;
+	}
 	/**
 	 * Opens the folder in the file browser where the log files are stored.
 	 *

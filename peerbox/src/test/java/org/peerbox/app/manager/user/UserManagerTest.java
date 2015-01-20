@@ -1,4 +1,4 @@
-package org.peerbox.model;
+package org.peerbox.app.manager.user;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
