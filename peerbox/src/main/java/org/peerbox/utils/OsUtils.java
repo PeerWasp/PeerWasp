@@ -2,11 +2,15 @@ package org.peerbox.utils;
 
 /**
  * Utility class for operating system related functions
- * 
+ *
  * @author albrecht
  *
  */
 public final class OsUtils {
+
+	private OsUtils() {
+		// prevent instances
+	}
 
 	/**
 	 * @return the name of the OS

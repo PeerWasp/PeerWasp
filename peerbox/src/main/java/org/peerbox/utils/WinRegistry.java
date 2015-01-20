@@ -11,9 +11,13 @@ import org.slf4j.LoggerFactory;
  * @author albrecht
  *
  */
-public class WinRegistry {
+public final class WinRegistry {
 
 	private static final Logger logger = LoggerFactory.getLogger(WinRegistry.class);
+
+	private WinRegistry() {
+		// prevent instances
+	}
 
 	/**
 	 * Set the api_server_port in the registry

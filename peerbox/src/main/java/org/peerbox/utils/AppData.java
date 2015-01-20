@@ -8,6 +8,12 @@ import java.nio.file.Paths;
 import org.apache.commons.io.FileUtils;
 import org.peerbox.app.Constants;
 
+/**
+ * Application data utility class.
+ *
+ * @author albrecht
+ *
+ */
 public final class AppData {
 
 	private AppData() {

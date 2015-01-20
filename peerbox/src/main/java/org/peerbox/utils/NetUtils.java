@@ -1,6 +1,13 @@
 package org.peerbox.utils;
 
-public class NetUtils {
+
+/**
+ * Network utility class
+ *
+ * @author albrecht
+ *
+ */
+public final class NetUtils {
 
 	// valid port range
 	public static final int MIN_PORT = 1;

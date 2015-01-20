@@ -8,14 +8,24 @@ import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ExecuteProcessUtils {
-	
+/**
+ * Process utility class
+ *
+ * @author albrecht
+ *
+ */
+public final class ExecuteProcessUtils {
+
 	private static final Logger logger = LoggerFactory.getLogger(ExecuteProcessUtils.class);
-	
+
+	private ExecuteProcessUtils() {
+		// prevent instances
+	}
+
 	/**
 	 * Execute a process built with a ProcessBuilder.
 	 * Waits some time such that the process can finish!
-	 * 
+	 *
 	 * @param builder process command to execute
 	 * @param output process output, pass null to not read output
 	 * @return
@@ -26,7 +36,7 @@ public class ExecuteProcessUtils {
 			Process p = builder.start();
 
 			// output processing
-			if(output!=null) {
+			if (output != null) {
 				readOutput(p, output);
 				logger.debug(output.toString());
 			}
@@ -46,9 +56,9 @@ public class ExecuteProcessUtils {
 
 	/**
 	 * buffers std out and std err of a process and returns the string.
-	 * 
+	 *
 	 * @param p process to observe
-	 * @param output 
+	 * @param output
 	 * @return string of output and error
 	 * @throws IOException
 	 */

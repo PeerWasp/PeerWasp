@@ -8,7 +8,9 @@ import org.junit.runners.Suite.SuiteClasses;
 @SuiteClasses({
 	WinRegistryTest.class,
 	OsUtilsTest.class,
-	NetUtilsTest.class
+	NetUtilsTest.class,
+	ExecuteProcessUtilsTest.class,
+	AppDataTest.class
 })
 public class UtilsTestSuite {
 

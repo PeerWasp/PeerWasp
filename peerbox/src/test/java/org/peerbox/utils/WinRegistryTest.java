@@ -14,20 +14,20 @@ import org.junit.Test;
 /**
  * Tests the registry setters by first setting a value and then querying the registry
  * using the output of the REG application.
- * 
+ *
  * @author albrecht
  *
  */
 public class WinRegistryTest {
 
 	private static final int NUMBER_ITERATIONS = 100;
-	
+
 	@Before
 	public void beforeTest() {
 		// windows registry can only be tested on windows -- duh!
 		failIfNotWindows();
 	}
-	
+
 	private void failIfNotWindows() {
 		if(!OsUtils.isWindows()) {
 			fail("Not on windows - cannot test windows registry functionality.");
