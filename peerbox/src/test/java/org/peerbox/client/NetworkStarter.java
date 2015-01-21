@@ -66,9 +66,10 @@ public class NetworkStarter extends AbstractStarter {
 		while (clientIndex < NUM_CLIENTS) {
 			int nodeIndex = RandomUtils.nextInt(0, network.size());
 			if (!usedNodes.contains(nodeIndex)) {
+				usedNodes.add(nodeIndex);
 				Path path = BASE_PATH.resolve(String.format("client-%s", clientIndex));
 				clients.add(new ClientNode(network.get(nodeIndex), credentials, path));
-				logger.info("Created client {}/{} with node {}", clientIndex, NUM_CLIENTS, nodeIndex);
+				logger.info("Created client {}/{} with node {}", clientIndex+1, NUM_CLIENTS, nodeIndex);
 				++clientIndex;
 			}
 		}
