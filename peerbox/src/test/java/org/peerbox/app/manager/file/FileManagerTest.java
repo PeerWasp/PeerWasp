@@ -1,4 +1,4 @@
-package org.peerbox.app.activity.collectors;
+package org.peerbox.app.manager.file;
 
 import static org.junit.Assert.*;
 
@@ -7,9 +7,8 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.peerbox.BaseJUnitTest;
 
-public class FileManagerCollectorTest extends BaseJUnitTest {
+public class FileManagerTest {
 
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
@@ -28,37 +27,62 @@ public class FileManagerCollectorTest extends BaseJUnitTest {
 	}
 
 	@Test
-	public void testFileManagerCollector() {
+	public void testFileManager() {
 		fail("Not yet implemented");
 	}
 
 	@Test
-	public void testOnFileUploaded() {
+	public void testAdd() {
 		fail("Not yet implemented");
 	}
 
 	@Test
-	public void testOnFileDownloaded() {
+	public void testUpdate() {
 		fail("Not yet implemented");
 	}
 
 	@Test
-	public void testOnFileDeleted() {
+	public void testDelete() {
 		fail("Not yet implemented");
 	}
 
 	@Test
-	public void testOnFileConfilct() {
+	public void testMove() {
 		fail("Not yet implemented");
 	}
 
 	@Test
-	public void testAbstractActivityCollector() {
+	public void testDownload() {
 		fail("Not yet implemented");
 	}
 
 	@Test
-	public void testGetActivityLogger() {
+	public void testRecover() {
+		fail("Not yet implemented");
+	}
+
+	@Test
+	public void testShare() {
+		fail("Not yet implemented");
+	}
+
+	@Test
+	public void testListFiles() {
+		fail("Not yet implemented");
+	}
+
+	@Test
+	public void testExistsRemote() {
+		fail("Not yet implemented");
+	}
+
+	@Test
+	public void testIsSmallFile() {
+		fail("Not yet implemented");
+	}
+
+	@Test
+	public void testIsLargeFile() {
 		fail("Not yet implemented");
 	}
 

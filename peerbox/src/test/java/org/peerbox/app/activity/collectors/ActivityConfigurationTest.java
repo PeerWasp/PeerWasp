@@ -7,8 +7,9 @@ import static org.junit.Assert.assertNull;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.peerbox.BaseJUnitTest;
 
-public class ActivityConfigurationTest {
+public class ActivityConfigurationTest extends BaseJUnitTest {
 
 	private ActivityConfiguration activity;
 

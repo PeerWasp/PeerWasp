@@ -8,13 +8,14 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
+import org.peerbox.BaseJUnitTest;
 import org.peerbox.app.activity.ActivityItem;
 import org.peerbox.app.activity.ActivityLogger;
 import org.peerbox.app.activity.ActivityType;
 import org.peerbox.events.InformationMessage;
 import org.peerbox.events.WarningMessage;
 
-public class GeneralMessageCollectorTest {
+public class GeneralMessageCollectorTest extends BaseJUnitTest {
 
 	private GeneralMessageCollector collector;
 	private ActivityLogger activityLogger;

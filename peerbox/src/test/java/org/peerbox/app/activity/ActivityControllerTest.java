@@ -16,10 +16,11 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.Mockito;
+import org.peerbox.BaseJUnitTest;
 import org.peerbox.helper.JavaFXThreadingRule;
 import org.peerbox.view.ViewNames;
 
-public class ActivityControllerTest {
+public class ActivityControllerTest extends BaseJUnitTest {
 
 	@Rule
 	public JavaFXThreadingRule jfxRule = new JavaFXThreadingRule();

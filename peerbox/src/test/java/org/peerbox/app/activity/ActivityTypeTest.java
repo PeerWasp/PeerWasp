@@ -3,8 +3,9 @@ package org.peerbox.app.activity;
 import static org.junit.Assert.*;
 
 import org.junit.Test;
+import org.peerbox.BaseJUnitTest;
 
-public class ActivityTypeTest {
+public class ActivityTypeTest extends BaseJUnitTest {
 
 	/**
 	 * This test just checks the number of elements.
