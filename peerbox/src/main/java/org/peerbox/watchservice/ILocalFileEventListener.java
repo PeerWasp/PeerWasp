@@ -3,9 +3,11 @@ package org.peerbox.watchservice;
 import java.nio.file.Path;
 
 public interface ILocalFileEventListener {
-	
-	public void onLocalFileCreated(Path path);
-	public void onLocalFileDeleted(Path path);
-	public void onLocalFileModified(Path path);	
-	
+
+	void onLocalFileCreated(Path path);
+
+	void onLocalFileDeleted(Path path);
+
+	void onLocalFileModified(Path path);
+
 }

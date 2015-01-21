@@ -8,8 +8,9 @@ import static org.junit.Assert.assertTrue;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.peerbox.BaseJUnitTest;
 
-public class ActivityItemTest {
+public class ActivityItemTest extends BaseJUnitTest {
 
 	private ActivityItem item;
 	private ActivityItem returnItem;

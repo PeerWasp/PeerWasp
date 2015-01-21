@@ -8,13 +8,14 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
+import org.peerbox.BaseJUnitTest;
 import org.peerbox.app.activity.ActivityItem;
 import org.peerbox.app.activity.ActivityLogger;
 import org.peerbox.app.activity.ActivityType;
 import org.peerbox.app.manager.node.NodeConnectMessage;
 import org.peerbox.app.manager.node.NodeDisconnectMessage;
 
-public class NodeManagerCollectorTest {
+public class NodeManagerCollectorTest extends BaseJUnitTest {
 
 	private NodeManagerCollector collector;
 	private ActivityLogger activityLogger;

@@ -12,9 +12,10 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.peerbox.BaseJUnitTest;
 import org.peerbox.helper.JavaFXThreadingRule;
 
-public class ActivityItemCellTest {
+public class ActivityItemCellTest extends BaseJUnitTest {
 
 	@Rule
 	public JavaFXThreadingRule jfxRule = new JavaFXThreadingRule();

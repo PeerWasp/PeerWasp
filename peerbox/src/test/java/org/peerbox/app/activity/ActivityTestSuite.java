@@ -7,11 +7,11 @@ import org.peerbox.app.activity.collectors.CollectorsTestSuite;
 
 @RunWith(Suite.class)
 @SuiteClasses({
-	ActivityControllerTest.class,
-	ActivityItemCellTest.class,
-	ActivityItemTest.class,
 	ActivityLoggerTest.class,
+	ActivityControllerTest.class,
+	ActivityItemTest.class,
 	ActivityTypeTest.class,
+	ActivityItemCellTest.class,
 
 	CollectorsTestSuite.class
 })
