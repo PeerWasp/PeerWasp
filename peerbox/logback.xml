@@ -1,11 +1,40 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
 
-	<!--
-	Include configuration outside of the package such that we can configure logging without
-    creating a new package
-	http://logback.qos.ch/manual/configuration.html#fileInclusion
-    -->
-	<include file="logback-configuration.xml" />
+	<!-- location for log files -->
+	<!-- NOTE: we set LOG_FOLDER dynamically at runtime.
+		<property name="LOG_FOLDER" value="log" />
+	-->
+
+	<!-- timestamp -->
+  	<timestamp key="bySecond" datePattern="yyyy-MM-dd_HH-mm-ss"/>
+
+	<!-- Appenders -->
+	<appender name="FILE" class="ch.qos.logback.core.FileAppender">
+		<file>${LOG_FOLDER}/app-${bySecond}.log</file>
+
+		<encoder>
+			<pattern>%d{HH:mm:ss} %-12.-12([%thread])[%-5level] [%file:%line] - %msg%n</pattern>
+		</encoder>
+	</appender>
+
+	<appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+		<encoder>
+			<pattern>%d{HH:mm:ss} %-12.-12([%thread])[%-5level] %logger{0} - %msg%n</pattern>
+		</encoder>
+	</appender>
+
+	<!-- LEVELS: TRACE, DEBUG, INFO, WARN, ERROR, ALL or OFF -->
+
+	<!-- Loggers -->
+	<logger name="net.tomp2p" level="WARN" />
+	<logger name="io.netty" level="WARN" />
+	<logger name="org.hive2hive.core" level="ALL" />
+	<logger name="org.eclipse.jetty" level="WARN" />
+
+	<root level="ALL">
+		<appender-ref ref="FILE" />
+		<appender-ref ref="STDOUT" />
+	</root>
 
 </configuration>
