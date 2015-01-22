@@ -48,9 +48,9 @@ import org.slf4j.LoggerFactory;
 import com.google.inject.Inject;
 
 public final class RecoverFileController  implements Initializable, IFileVersionSelectorListener {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(RecoverFileController.class);
-	
+
 	@FXML
 	private TableView<IFileVersion> tblFileVersions;
 	@FXML
@@ -67,20 +67,20 @@ public final class RecoverFileController  implements Initializable, IFileVersion
 	private AnchorPane pane;
 	// JavaFX Control, but @FXML is not supported
 	private StatusBar statusBar;
-	
+
 	private final BooleanProperty busyProperty;
 	private final StringProperty fileToRecoverProperty;
 	private final StringProperty statusProperty;
-	
+
 	private Path fileToRecover;
-	
+
 	private final ObservableList<IFileVersion> fileVersions;
-	
+
 	private final FileVersionSelector versionSelector;
 
 	private IFileManager fileManager;
 	private RecoverFileTask recoverFileTask;
-	
+
 	public RecoverFileController() {
 		this.fileToRecoverProperty = new SimpleStringProperty();
 		this.statusProperty = new SimpleStringProperty();
@@ -89,12 +89,12 @@ public final class RecoverFileController  implements Initializable, IFileVersion
 		this.fileVersions = FXCollections.observableArrayList();
 		this.versionSelector = new FileVersionSelector(this);
 	}
-	
+
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
 		initializeTable();
 		initializeStatusBar();
-		
+
 		lblNumberOfVersions.textProperty().bind(Bindings.size(fileVersions).asString());
 		btnRecover.disableProperty().bind(
 				tblFileVersions.getSelectionModel().selectedItemProperty().isNull()
@@ -118,7 +118,7 @@ public final class RecoverFileController  implements Initializable, IFileVersion
 				}
 			}
 		});
-		
+
 		statusBar.textProperty().bind(statusProperty);
 	}
 
@@ -137,11 +137,11 @@ public final class RecoverFileController  implements Initializable, IFileVersion
 					}
 				}
 		);
-		
+
 		tblColDate.setCellValueFactory(
 				new Callback<CellDataFeatures<IFileVersion, String>, ObservableValue<String>>() {
 					public ObservableValue<String> call(CellDataFeatures<IFileVersion, String> p) {
-						
+
 						Date date = new Date(p.getValue().getDate());
 						DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 						String dateFormatted = formatter.format(date);
@@ -149,7 +149,7 @@ public final class RecoverFileController  implements Initializable, IFileVersion
 					}
 				}
 		);
-		
+
 		tblColSize.setCellValueFactory(
 				new Callback<CellDataFeatures<IFileVersion, String>, ObservableValue<String>>() {
 					public ObservableValue<String> call(CellDataFeatures<IFileVersion, String> p) {
@@ -166,7 +166,7 @@ public final class RecoverFileController  implements Initializable, IFileVersion
 		tblFileVersions.getSortOrder().add(tblColIndex);
 		tblFileVersions.sort();
 	}
-	
+
 	public void loadVersions() {
 		if (fileToRecover == null || fileToRecover.toString().isEmpty()) {
 			throw new IllegalArgumentException("fileToRecover not set, cannot be null or empty");
@@ -191,7 +191,7 @@ public final class RecoverFileController  implements Initializable, IFileVersion
 				}
 			}
 		};
-		
+
 		if (Platform.isFxApplicationThread()) {
 			versions.run();
 		} else {
@@ -205,7 +205,7 @@ public final class RecoverFileController  implements Initializable, IFileVersion
 			public void run() {
 				setBusy(false);
 				setStatus("");
-				
+
 				Alert a = new Alert(AlertType.INFORMATION);
 				a.setTitle("File Recovered");
 				a.setHeaderText("File recovery finished");
@@ -214,7 +214,7 @@ public final class RecoverFileController  implements Initializable, IFileVersion
 				getStage().close();
 			}
 		};
-		
+
 		if (Platform.isFxApplicationThread()) {
 			succeeded.run();
 		} else {
@@ -228,7 +228,7 @@ public final class RecoverFileController  implements Initializable, IFileVersion
 			public void run() {
 				setBusy(false);
 				setStatus("");
-				
+
 				if(!versionSelector.isCancelled()) {
 					// show error if user did not initiate cancel action
 					Alert a = new Alert(AlertType.ERROR);
@@ -240,7 +240,7 @@ public final class RecoverFileController  implements Initializable, IFileVersion
 				getStage().close();
 			}
 		};
-		
+
 		if (Platform.isFxApplicationThread()) {
 			failed.run();
 		} else {
@@ -254,7 +254,7 @@ public final class RecoverFileController  implements Initializable, IFileVersion
 			// only allow 1 recovery
 			btnRecover.disableProperty().unbind();
 			btnRecover.setDisable(true);
-			
+
 			setBusy(true);
 			setStatus("Downloading file...");
 			versionSelector.selectVersion(selectedVersion);
@@ -264,7 +264,7 @@ public final class RecoverFileController  implements Initializable, IFileVersion
 	public void cancelAction(ActionEvent event) {
 		cancel();
 	}
-	
+
 	public void cancel() {
 		try {
 			if(versionSelector != null) {
@@ -279,9 +279,10 @@ public final class RecoverFileController  implements Initializable, IFileVersion
 			});
 		}
 	}
-	
+
 	@Inject
 	public void setFileManager(IFileManager fileManager) {
+		// TODO: maybe inject in constructor?
 		this.fileManager = fileManager;
 	}
 
@@ -302,7 +303,7 @@ public final class RecoverFileController  implements Initializable, IFileVersion
 	public StringProperty fileToRecoverProperty() {
 		return fileToRecoverProperty;
 	}
-	
+
 	public String getStatus() {
 		return statusProperty.get();
 	}
@@ -314,7 +315,7 @@ public final class RecoverFileController  implements Initializable, IFileVersion
 	public StringProperty statusProperty() {
 		return statusProperty;
 	}
-	
+
 	public Boolean getBusy() {
 		return busyProperty.get();
 	}
@@ -326,19 +327,19 @@ public final class RecoverFileController  implements Initializable, IFileVersion
 	public BooleanProperty busyProperty() {
 		return busyProperty;
 	}
-	
+
 	private Stage getStage() {
 		return (Stage)tblFileVersions.getScene().getWindow();
 	}
-	
+
 	private class RecoverFileTask extends Task<Void> {
 		private ProcessHandle<Void> process;
 		private final Path fileToRecover;
-		
+
 		public RecoverFileTask(final Path fileToRecover) {
 			this.fileToRecover = fileToRecover;
 		}
-		
+
 		@Override
 		protected Void call() throws Exception {
 			try {
@@ -356,7 +357,7 @@ public final class RecoverFileController  implements Initializable, IFileVersion
 			}
 			return null;
 		}
-		
+
 		@Override
 		protected void succeeded() {
 			super.succeeded();
@@ -370,7 +371,7 @@ public final class RecoverFileController  implements Initializable, IFileVersion
 			updateMessage("Failed!");
 			onFileRecoveryFailed("File Recovery Failed.");
 		}
-        
+
 		@Override
 		protected void cancelled() {
 			super.cancelled();
