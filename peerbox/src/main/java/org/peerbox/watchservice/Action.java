@@ -50,38 +50,18 @@ public class Action implements IAction {
 
 	private final Lock lock = new ReentrantLock();
 
-	public Action(){
+	public Action() {
 		this(null);
 	}
 
 	/**
 	 * Initialize with timestamp and set currentState to initial state
 	 */
-	public Action(IFileEventManager fileEventManager){
+	public Action(IFileEventManager fileEventManager) {
 		currentState = new InitialState(this);
 		nextState = new EstablishedState(this);
 		this.eventManager = fileEventManager;
 		updateTimestamp();
-	}
-
-	public IFileEventManager getEventManager(){
-		return eventManager;
-	}
-
-	public void setEventManager(IFileEventManager fileEventManager){
-		this.eventManager = fileEventManager;
-	}
-
-	public FileComponent getFile() {
-		return file;
-	}
-
-	public void setFile(FileComponent file) {
-		this.file = file;
-	}
-
-	public void updateTimestamp() {
-		timestamp = System.currentTimeMillis();
 	}
 
 	/**
@@ -104,17 +84,6 @@ public class Action implements IAction {
 			nextState = currentState.getDefaultState();
 			releaseLockOnThis();
 		}
-	}
-
-	private void releaseLockOnThis() {
-		logger.trace("File {}: Release lock on this at {}", getFile().getPath(), System.currentTimeMillis());
-		lock.unlock();
-	}
-
-	private void acquireLockOnThis() {
-			logger.trace("File {}: Wait for own lock at {}", getFile().getPath(), System.currentTimeMillis());
-			lock.lock();
-			logger.trace("File {}: Received own lock at {}", getFile().getPath(), System.currentTimeMillis());
 	}
 
 	/**
@@ -221,6 +190,24 @@ public class Action implements IAction {
 		releaseLockOnThis();
 	}
 
+	public void handleRemoteCreateEvent() {
+		logger.trace("handleRemoteCreateEvent - File: {}", getFile().getPath());
+		acquireLockOnThis();
+		if(isExecuting()){
+
+			logger.trace("Event occured for {} while executing.", getFile().getPath());
+
+			nextState = nextState.changeStateOnRemoteCreate();
+			checkIfChanged();
+
+		} else {
+			updateTimestamp();
+			currentState = currentState.handleRemoteCreate();
+			nextState = currentState.getDefaultState();
+		}
+		releaseLockOnThis();
+	}
+
 	public void handleRemoteUpdateEvent() {
 		logger.trace("handleRemoteUpdateEvent - File: {}", getFile().getPath());
 		acquireLockOnThis();
@@ -270,63 +257,46 @@ public class Action implements IAction {
 		releaseLockOnThis();
 	}
 
-	public void handleRemoteCreateEvent() {
-		logger.trace("handleRemoteCreateEvent - File: {}", getFile().getPath());
-		acquireLockOnThis();
-		if(isExecuting()){
+	public void handleRemoteMoveEvent(Path path) {
+			logger.trace("handleRemoteMoveEvent - File: {}", getFile().getPath());
+			Path srcPath = getFile().getPath();
+			acquireLockOnThis();
+			if(isExecuting()){
 
-			logger.trace("Event occured for {} while executing.", getFile().getPath());
+				logger.trace("Event occured for {} while executing.", getFile().getPath());
+	//			changedWhileExecuted = true;
+				nextState = nextState.changeStateOnRemoteMove(path);
+				checkIfChanged();
 
-			nextState = nextState.changeStateOnRemoteCreate();
-			checkIfChanged();
+			} else {
+				logger.trace("Currentstate: {} {}", getFile().getPath(), getCurrentState().getClass());
+				updateTimestamp();
+				currentState = currentState.handleRemoteMove(path);
+				nextState = currentState.getDefaultState();
 
-		} else {
-			updateTimestamp();
-			currentState = currentState.handleRemoteCreate();
-			nextState = currentState.getDefaultState();
+				if(!Files.exists(srcPath)){
+					return;
+				}
+				try {
+					Files.move(srcPath, path);
+				} catch (IOException e) {
+					logger.warn("Could not move file: from src={} to dst={} ({})",
+							srcPath, path, e.getMessage(), e);
+				}
+			}
+			releaseLockOnThis();
 		}
-		releaseLockOnThis();
-	}
 
 	private void checkIfChanged() {
-		if(!(nextState instanceof EstablishedState)){
-			logger.trace("File {}: Next state is of type {}, keep track of change", getFile().getPath(), nextState.getClass());
+		if (!(nextState instanceof EstablishedState)) {
+			logger.trace("File {}: Next state is of type {}, keep track of change",
+					getFile().getPath(), nextState.getClass());
 			changedWhileExecuted = true;
 		} else {
-			logger.trace("File {}: Next state is of type {}, no change detected", getFile().getPath(), nextState.getClass());
+			logger.trace("File {}: Next state is of type {}, no change detected",
+					getFile().getPath(), nextState.getClass());
 		}
 	}
-
-	public void handleRemoteMoveEvent(Path path) {
-		logger.trace("handleRemoteMoveEvent - File: {}", getFile().getPath());
-		Path srcPath = getFile().getPath();
-		acquireLockOnThis();
-		if(isExecuting()){
-
-			logger.trace("Event occured for {} while executing.", getFile().getPath());
-//			changedWhileExecuted = true;
-			nextState = nextState.changeStateOnRemoteMove(path);
-			checkIfChanged();
-
-		} else {
-			logger.trace("Currentstate: {} {}", getFile().getPath(), getCurrentState().getClass());
-			updateTimestamp();
-			currentState = currentState.handleRemoteMove(path);
-			nextState = currentState.getDefaultState();
-
-			if(!Files.exists(srcPath)){
-				return;
-			}
-			try {
-				Files.move(srcPath, path);
-			} catch (IOException e) {
-				logger.warn("Could not move file: from src={} to dst={} ({})",
-						srcPath, path, e.getMessage(), e);
-			}
-		}
-		releaseLockOnThis();
-	}
-
 
 	/**
 	 * Each state is able to execute an action as soon the state is considered as stable.
@@ -350,26 +320,11 @@ public class Action implements IAction {
 
 	}
 
-	public long getTimestamp() {
-		return timestamp;
-	}
-
-	/**
-	 * @return current state object
-	 */
-	public AbstractActionState getCurrentState() {
-//		logger.trace("Current state of {} is {}", getFile().getPath(), currentState.getClass());
-		return currentState;
-	}
-
-	public int getExecutionAttempts() {
-		return executionAttempts;
-	}
-
 	@Override
 	public void onSucceed() {
 		setIsExecuting(false);
-		logger.trace("onSucceed: File {}. Switch state from {} to {}", getFile().getPath(), currentState.getClass(), nextState.getClass());
+		logger.trace("onSucceed: File {}. Switch state from {} to {}",
+				getFile().getPath(), currentState.getClass(), nextState.getClass());
 		currentState.performCleanup();
 		currentState = nextState;
 		nextState = nextState.getDefaultState();
@@ -377,8 +332,45 @@ public class Action implements IAction {
 	}
 
 	@Override
+	public void onFailed() {
+		setIsExecuting(false);
+	}
+
+	private void acquireLockOnThis() {
+		logger.trace("File {}: Wait for own lock at {}",
+				getFile().getPath(), System.currentTimeMillis());
+		lock.lock();
+		logger.trace("File {}: Received own lock at {}",
+				getFile().getPath(), System.currentTimeMillis());
+	}
+
+	private void releaseLockOnThis() {
+		logger.trace("File {}: Release lock on this at {}",
+				getFile().getPath(), System.currentTimeMillis());
+		lock.unlock();
+	}
+
+	/**
+	 * @return current state object
+	 */
+	public AbstractActionState getCurrentState() {
+		// logger.trace("Current state of {} is {}",
+		// getFile().getPath(), currentState.getClass());
+		return currentState;
+	}
+
+	@Override
 	public AbstractActionState getNextState() {
 		return nextState;
+	}
+
+	@Override
+	public boolean getChangedWhileExecuted() {
+		return changedWhileExecuted;
+	}
+
+	public int getExecutionAttempts() {
+		return executionAttempts;
 	}
 
 	@Override
@@ -390,14 +382,28 @@ public class Action implements IAction {
 		this.isExecuting = isExecuting;
 	}
 
-	@Override
-	public boolean getChangedWhileExecuted() {
-		return changedWhileExecuted;
+	public long getTimestamp() {
+		return timestamp;
 	}
 
-	@Override
-	public void onFailed() {
-		setIsExecuting(false);
+	public void updateTimestamp() {
+		timestamp = System.currentTimeMillis();
+	}
+
+	public IFileEventManager getEventManager() {
+		return eventManager;
+	}
+
+	public void setEventManager(IFileEventManager fileEventManager) {
+		this.eventManager = fileEventManager;
+	}
+
+	public FileComponent getFile() {
+		return file;
+	}
+
+	public void setFile(FileComponent file) {
+		this.file = file;
 	}
 
 }
