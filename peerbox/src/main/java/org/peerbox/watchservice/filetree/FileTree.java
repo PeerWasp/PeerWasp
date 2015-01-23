@@ -77,7 +77,7 @@ public class FileTree implements IFileTree{
 			file.getAction().setFile(file);
 			file.getAction().setEventManager(eventManager);
 		}
-		logger.debug("File {} has state {}", file.getPath(), file.getAction().getCurrentState().getClass());
+		logger.debug("File {} has state {}", file.getPath(), file.getAction().getCurrentStateName());
 		return file;
 	}
 

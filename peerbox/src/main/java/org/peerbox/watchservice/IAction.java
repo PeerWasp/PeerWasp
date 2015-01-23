@@ -20,7 +20,9 @@ public interface IAction {
 	void updateTimestamp();
 
 	AbstractActionState getCurrentState();
+	String getCurrentStateName();
 	AbstractActionState getNextState();
+	String getNextStateName();
 
 	IFileEventManager getEventManager();
 	void setEventManager(IFileEventManager fileEventManager);

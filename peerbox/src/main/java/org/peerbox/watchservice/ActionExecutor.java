@@ -189,7 +189,7 @@ public class ActionExecutor implements Runnable {
 			ExecutionHandle next = it.next();
 			IAction tmpAction = next.getAction();
 			logger.trace("[{}] {} - {}", index,
-					tmpAction.getCurrentState().getClass().getSimpleName(),
+					tmpAction.getCurrentStateName(),
 					tmpAction.getFile().getPath());
 			++index;
 		}
@@ -217,7 +217,7 @@ public class ActionExecutor implements Runnable {
 //	@Override
 	public void onActionExecuteSucceeded(final IAction action) {
 		logger.debug("Action succeeded: {} {}.",
-				action.getFile().getPath(), action.getCurrentState().getClass().getSimpleName());
+				action.getFile().getPath(), action.getCurrentStateName());
 
 //		logger.trace("Wait for lock of action {} at {}", action.getFile().getPath(), System.currentTimeMillis());
 //		action.getLock().lock();
@@ -233,7 +233,7 @@ public class ActionExecutor implements Runnable {
 			logger.trace("File: {} changed during the execution process to state {}. "
 					+ "Put back into the queue",
 					action.getFile().getPath(),
-					action.getCurrentState().getClass().getSimpleName());
+					action.getCurrentStateName());
 			action.updateTimestamp();
 			fileEventManager.getFileComponentQueue().add(action.getFile());
 
@@ -277,7 +277,7 @@ public class ActionExecutor implements Runnable {
 			} else if(error == AbortModificationCode.NO_WRITE_PERM){
 				logger.debug("Attempt to delete or write to {} failed. No write-permissions hold by user.", action.getFile().getPath());
 			} else {
-				logger.trace("Re-initiate execution of {} {}.", action.getFile().getPath(), action.getCurrentState().getClass().toString());
+				logger.trace("Re-initiate execution of {} {}.", action.getFile().getPath(), action.getCurrentStateName());
 				if(action.getExecutionAttempts() <= MAX_EXECUTION_ATTEMPTS){
 					action.updateTimestamp();
 					fileEventManager.getFileComponentQueue().add(action.getFile());
@@ -289,7 +289,7 @@ public class ActionExecutor implements Runnable {
 //			}
 		} else {
 			// temporary default
-			logger.trace("Default: Re-initiate execution of {} {}.", action.getFile().getPath(), action.getCurrentState().getClass().toString());
+			logger.trace("Default: Re-initiate execution of {} {}.", action.getFile().getPath(), action.getCurrentStateName());
 			if(action.getExecutionAttempts() <= MAX_EXECUTION_ATTEMPTS){
 				action.updateTimestamp();
 				fileEventManager.getFileComponentQueue().add(action.getFile());

@@ -361,12 +361,12 @@ public class Action implements IAction {
 
 	private void checkIfChanged() {
 		if (!(nextState instanceof EstablishedState)) {
-			logger.trace("File {}: Next state is of type {}, keep track of change",
-					getFile().getPath(), nextState.getClass().getSimpleName());
+			logger.trace("File {}: Next state is {}, keep track of change",
+					getFile().getPath(), getNextStateName());
 			changedWhileExecuted = true;
 		} else {
-			logger.trace("File {}: Next state is of type {}, no change detected",
-					getFile().getPath(), nextState.getClass().getSimpleName());
+			logger.trace("File {}: Next state is {}, no change detected",
+					getFile().getPath(), getNextStateName());
 		}
 	}
 
@@ -407,7 +407,7 @@ public class Action implements IAction {
 	@Override
 	public void onSucceeded() {
 		logger.trace("onSucceeded: File {} - Switch state from {} to {}",
-				getFile().getPath(), currentState.getClass().getSimpleName(), nextState.getClass().getSimpleName());
+				getFile().getPath(), getCurrentStateName(), getNextStateName());
 		try {
 			acquireLock();
 
@@ -456,8 +456,18 @@ public class Action implements IAction {
 	}
 
 	@Override
+	public String getCurrentStateName() {
+		return currentState != null ? currentState.getClass().getSimpleName() : "null";
+	}
+
+	@Override
 	public AbstractActionState getNextState() {
 		return nextState;
+	}
+
+	@Override
+	public String getNextStateName() {
+		return nextState != null ? nextState.getClass().getSimpleName() : "null";
 	}
 
 	@Override
