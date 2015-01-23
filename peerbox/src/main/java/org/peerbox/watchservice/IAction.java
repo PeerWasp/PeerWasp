@@ -6,6 +6,7 @@ import java.util.concurrent.locks.Lock;
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.hive2hive.core.exceptions.NoSessionException;
 import org.hive2hive.processframework.exceptions.InvalidProcessStateException;
+import org.hive2hive.processframework.exceptions.ProcessExecutionException;
 import org.peerbox.app.manager.file.IFileManager;
 import org.peerbox.watchservice.filetree.composite.FileComponent;
 import org.peerbox.watchservice.states.AbstractActionState;
@@ -20,7 +21,7 @@ public interface IAction {
 	public void setEventManager(IFileEventManager fileEventManager);
 
 	public ExecutionHandle execute(IFileManager fileManager) throws NoSessionException,
-	NoPeerConnectionException, InvalidProcessStateException;
+	NoPeerConnectionException, InvalidProcessStateException, ProcessExecutionException;
 
 	public void handleLocalCreateEvent();
 	public void handleLocalMoveEvent(Path filePath);

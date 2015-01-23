@@ -20,8 +20,8 @@ import org.slf4j.LoggerFactory;
  * the modify state handles all events which would like
  * to alter the state from Modify to another state (or keep the current state) and decides
  * whether an transition into another state is allowed.
- * 
- * 
+ *
+ *
  * @author winzenried
  *
  */
@@ -110,11 +110,13 @@ public class LocalUpdateState extends AbstractActionState {
 		FileComponent src = action.getEventManager().getFileTree().deleteFile(action.getFile().getPath());
 		action.getEventManager().getFileTree().putFile(path, src);
 		updateTimeAndQueue();
-		if(Files.exists(srcPath)){
+
+		if (Files.exists(srcPath)) {
 			try {
 				Files.move(srcPath, path);
 			} catch (IOException e) {
-				e.printStackTrace();
+				logger.warn("Could not move file: from src={} to dst={} ({})",
+						srcPath, path, e.getMessage(), e);
 			}
 		}
 		return changeStateOnRemoteMove(path);

@@ -172,7 +172,8 @@ public abstract class AbstractActionState {
 		try {
 			java.nio.file.Files.delete(action.getFile().getPath());
 		} catch (IOException e) {
-			e.printStackTrace();
+			logger.warn("Could not delete file {} ({}).",
+					action.getFile().getPath(), e.getMessage(), e);
 		}
 		return changeStateOnRemoteDelete();
 	}

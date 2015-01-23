@@ -38,7 +38,6 @@ public class FileWalker {
 			Files.walkFileTree(rootDirectory, new FileIndexer(false));
 
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -83,7 +82,6 @@ public class FileWalker {
 			filesystemView = new HashMap<Path, Action>();
 			Files.walkFileTree(rootDirectory, new FileIndexer(true));
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		computeContentHash = false;

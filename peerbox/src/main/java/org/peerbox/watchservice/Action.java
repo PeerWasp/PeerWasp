@@ -12,6 +12,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.hive2hive.core.exceptions.NoSessionException;
 import org.hive2hive.processframework.exceptions.InvalidProcessStateException;
+import org.hive2hive.processframework.exceptions.ProcessExecutionException;
 import org.peerbox.app.manager.file.IFileManager;
 import org.peerbox.watchservice.filetree.composite.FileComponent;
 import org.peerbox.watchservice.filetree.composite.FolderComposite;
@@ -195,7 +196,7 @@ public class Action implements IAction{
 			Files.delete(getFile().getPath());
 			logger.trace("DELETED FROM DISK: {}", getFile().getPath());
 		} catch (IOException e) {
-			e.printStackTrace();
+			logger.warn("Could not delete file: {} ({})", getFile().getPath(), e.getMessage(), e);
 		}
 	}
 
@@ -298,7 +299,7 @@ public class Action implements IAction{
 
 	public void handleRemoteMoveEvent(Path path) {
 		logger.trace("handleRemoteMoveEvent - File: {}", getFile().getPath());
-		Path oldPath = getFile().getPath();
+		Path srcPath = getFile().getPath();
 		acquireLockOnThis();
 		if(isExecuting){
 
@@ -313,13 +314,14 @@ public class Action implements IAction{
 			currentState = currentState.handleRemoteMove(path);
 			nextState = currentState.getDefaultState();
 
-			if(!Files.exists(oldPath)){
+			if(!Files.exists(srcPath)){
 				return;
 			}
 			try {
-				com.google.common.io.Files.move(oldPath.toFile(), path.toFile());
+				Files.move(srcPath, path);
 			} catch (IOException e) {
-				e.printStackTrace();
+				logger.warn("Could not move file: from src={} to dst={} ({})",
+						srcPath, path, e.getMessage(), e);
 			}
 		}
 		releaseLockOnThis();
@@ -334,28 +336,18 @@ public class Action implements IAction{
 	 * @throws NoPeerConnectionException
 	 * @throws IllegalFileLocation
 	 * @throws InvalidProcessStateException
+	 * @throws ProcessExecutionException
 	 */
-	public ExecutionHandle execute(IFileManager fileManager) throws NoSessionException,
-			NoPeerConnectionException, InvalidProcessStateException {
-		// this may be async, i.e. do not wait on completion of the process
-		// maybe return the IProcessComponent object such that the
-		// executor can be aware of the status (completion of task etc)
-		ExecutionHandle ehandle = null;
-		try{
-			setIsExecuting(true);
-			executionAttempts++;
-			ehandle = currentState.execute(fileManager);
-		} catch (Throwable t){
-			// FIXME: Why catch throwable? Why here? Would this block an execution slot?
-			logger.error("onLocalFileModified: Catched a throwable of type {} with message {}", t.getClass().toString(),  t.getMessage());
-			for(int i = 0; i < t.getStackTrace().length; i++){
-				StackTraceElement curr = t.getStackTrace()[i];
-				logger.error("{} : {} ", curr.getClassName(), curr.getMethodName());
-				logger.error("{} : {} ", curr.getFileName(), curr.getLineNumber());
-			}
-		}
+	public ExecutionHandle execute(IFileManager fileManager)
+			throws NoSessionException, NoPeerConnectionException,
+			InvalidProcessStateException, ProcessExecutionException {
 
+		ExecutionHandle ehandle = null;
+		setIsExecuting(true);
+		executionAttempts++;
+		ehandle = currentState.execute(fileManager);
 		return ehandle;
+
 	}
 
 	public long getTimestamp() {
