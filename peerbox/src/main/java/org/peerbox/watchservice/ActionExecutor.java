@@ -213,31 +213,34 @@ public class ActionExecutor implements Runnable {
 
 	}
 
+	// TODO: reset execution attempts
 //	@Override
 	public void onActionExecuteSucceeded(final IAction action) {
-		logger.debug("Action successful: {} {}.", action.getFile().getPath(), action.getCurrentState().getClass().getSimpleName());
+		logger.debug("Action succeeded: {} {}.",
+				action.getFile().getPath(), action.getCurrentState().getClass().getSimpleName());
 
-		logger.trace("Wait for lock of action {} at {}", action.getFile().getPath(), System.currentTimeMillis());
-		action.getLock().lock();
-		logger.trace("Received lock of action {} at {}", action.getFile().getPath(), System.currentTimeMillis());
+//		logger.trace("Wait for lock of action {} at {}", action.getFile().getPath(), System.currentTimeMillis());
+//		action.getLock().lock();
+//		logger.trace("Received lock of action {} at {}", action.getFile().getPath(), System.currentTimeMillis());
 
 		boolean changedWhileExecuted = false;
 		changedWhileExecuted = action.getChangedWhileExecuted();
 
-		action.onSucceed();
+		action.onSucceeded();
 		action.getFile().setIsUploaded(true);
 
-		if(changedWhileExecuted){
-			logger.trace("File {} changed during the execution process"
-					+ " to state {}. It has been put back to the queue",
-					action.getFile().getPath(), action.getCurrentState().getClass());
+		if (changedWhileExecuted) {
+			logger.trace("File: {} changed during the execution process to state {}. "
+					+ "Put back into the queue",
+					action.getFile().getPath(),
+					action.getCurrentState().getClass().getSimpleName());
 			action.updateTimestamp();
 			fileEventManager.getFileComponentQueue().add(action.getFile());
 
 		}
 
-		logger.trace("Release lock of action {} at {}", action.getFile().getPath(), System.currentTimeMillis());
-		action.getLock().unlock();
+//		logger.trace("Release lock of action {} at {}", action.getFile().getPath(), System.currentTimeMillis());
+//		action.getLock().unlock();
 	}
 
 
@@ -266,7 +269,7 @@ public class ActionExecutor implements Runnable {
 				if(notModified == null){
 					logger.trace("FileComponent with path {} is null", action.getFile().getPath().toString());
 				}
-				action.onSucceed();
+				action.onSucceeded();
 			} else if(error == AbortModificationCode.FOLDER_UPDATE){
 				logger.debug("Attempt to update folder {} failed as folder cannot be updated.", action.getFile().getPath());
 			} else if(error == AbortModificationCode.ROOT_DELETE_ATTEMPT){

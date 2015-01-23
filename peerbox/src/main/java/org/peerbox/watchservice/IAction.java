@@ -22,6 +22,7 @@ public interface IAction {
 	AbstractActionState getCurrentState();
 	AbstractActionState getNextState();
 
+	IFileEventManager getEventManager();
 	void setEventManager(IFileEventManager fileEventManager);
 
 	ExecutionHandle execute(IFileManager fileManager) throws NoSessionException,
@@ -41,7 +42,7 @@ public interface IAction {
 	void handleRemoteDeleteEvent();
 	void handleRemoteMoveEvent(Path srcPath);
 
-	void onSucceed();
+	void onSucceeded();
 	void onFailed();
 
 }
