@@ -32,19 +32,27 @@ import org.slf4j.LoggerFactory;
  *
  */
 
-public class Action implements IAction{
+public class Action implements IAction {
+
 	private final static Logger logger = LoggerFactory.getLogger(Action.class);
+
+	private FileComponent file;
 	private long timestamp = Long.MAX_VALUE;
 
 	private AbstractActionState currentState;
 	private AbstractActionState nextState;
-	private int executionAttempts = 0;
-	private IFileEventManager eventManager;
-	private FileComponent file;
 
 	private boolean isExecuting = false;
-	private boolean	changedWhileExecuted = false;
+	private boolean changedWhileExecuted = false;
+	private int executionAttempts = 0;
+
+	private IFileEventManager eventManager;
+
 	private final Lock lock = new ReentrantLock();
+
+	public Action(){
+		this(null);
+	}
 
 	/**
 	 * Initialize with timestamp and set currentState to initial state
@@ -56,16 +64,12 @@ public class Action implements IAction{
 		updateTimestamp();
 	}
 
-	public Action(){
-		this(null);
+	public IFileEventManager getEventManager(){
+		return eventManager;
 	}
 
 	public void setEventManager(IFileEventManager fileEventManager){
 		this.eventManager = fileEventManager;
-	}
-
-	public IFileEventManager getEventManager(){
-		return eventManager;
 	}
 
 	public FileComponent getFile() {
@@ -85,7 +89,7 @@ public class Action implements IAction{
 	 */
 	public void handleLocalCreateEvent(){
 		logger.trace("handleLocalCreateEvent - File: {}", getFile().getPath());
-		if(isExecuting){
+		if(isExecuting()){
 
 			acquireLockOnThis();
 			logger.trace("Event occured for {} while executing.", getFile().getPath());
@@ -119,7 +123,7 @@ public class Action implements IAction{
 	public void handleLocalUpdateEvent(){
 		logger.trace("handleLocalUpdateEvent - File: {}", getFile().getPath());
 		acquireLockOnThis();
-		if(isExecuting){
+		if(isExecuting()){
 
 
 			logger.trace("Event occured for {} while executing.", getFile().getPath());
@@ -146,7 +150,7 @@ public class Action implements IAction{
 	public void handleLocalDeleteEvent(){
 		acquireLockOnThis();
 		logger.trace("handleLocalDeleteEvent - File: {}", getFile().getPath());
-		if(isExecuting){
+		if(isExecuting()){
 			logger.trace("Event occured for {} while executing.", getFile().getPath());
 			nextState = nextState.changeStateOnLocalDelete();
 			checkIfChanged();
@@ -173,7 +177,7 @@ public class Action implements IAction{
 		}
 		acquireLockOnThis();
 		logger.trace("handleLocalHardDeleteEvent - File: {}", getFile().getPath());
-		if(isExecuting){
+		if(isExecuting()){
 			logger.trace("Event occured for {} while executing.", getFile().getPath());
 			nextState = nextState.changeStateOnLocalHardDelete();
 			checkIfChanged();
@@ -199,7 +203,7 @@ public class Action implements IAction{
 	public void handleLocalMoveEvent(Path oldFilePath) {
 		logger.debug("handleLocalMoveEvent - File: {}", getFile().getPath());
 		acquireLockOnThis();
-		if(isExecuting){
+		if(isExecuting()){
 			logger.trace("Event occured for {} while executing.", getFile().getPath());
 			nextState = nextState.changeStateOnLocalMove(oldFilePath);
 			checkIfChanged();
@@ -220,7 +224,7 @@ public class Action implements IAction{
 	public void handleRemoteUpdateEvent() {
 		logger.trace("handleRemoteUpdateEvent - File: {}", getFile().getPath());
 		acquireLockOnThis();
-		if(isExecuting){
+		if(isExecuting()){
 
 			logger.trace("Event occured for {} while executing.", getFile().getPath());
 //			changedWhileExecuted = true;
@@ -252,7 +256,7 @@ public class Action implements IAction{
 		}
 
 		acquireLockOnThis();
-		if(isExecuting){
+		if(isExecuting()){
 
 			logger.trace("Event occured for {} while executing.", getFile().getPath());
 			nextState = nextState.changeStateOnRemoteDelete();
@@ -269,7 +273,7 @@ public class Action implements IAction{
 	public void handleRemoteCreateEvent() {
 		logger.trace("handleRemoteCreateEvent - File: {}", getFile().getPath());
 		acquireLockOnThis();
-		if(isExecuting){
+		if(isExecuting()){
 
 			logger.trace("Event occured for {} while executing.", getFile().getPath());
 
@@ -297,7 +301,7 @@ public class Action implements IAction{
 		logger.trace("handleRemoteMoveEvent - File: {}", getFile().getPath());
 		Path srcPath = getFile().getPath();
 		acquireLockOnThis();
-		if(isExecuting){
+		if(isExecuting()){
 
 			logger.trace("Event occured for {} while executing.", getFile().getPath());
 //			changedWhileExecuted = true;
@@ -382,7 +386,7 @@ public class Action implements IAction{
 		return isExecuting;
 	}
 
-	private void setIsExecuting(boolean isExecuting){
+	private void setIsExecuting(boolean isExecuting) {
 		this.isExecuting = isExecuting;
 	}
 
@@ -394,12 +398,6 @@ public class Action implements IAction{
 	@Override
 	public void onFailed() {
 		setIsExecuting(false);
-		isExecuting = false;
-	}
-
-	@Override
-	public Lock getLock() {
-		return lock;
 	}
 
 }

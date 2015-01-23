@@ -1,7 +1,6 @@
 package org.peerbox.watchservice;
 
 import java.nio.file.Path;
-import java.util.concurrent.locks.Lock;
 
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.hive2hive.core.exceptions.NoSessionException;
@@ -14,35 +13,35 @@ import org.peerbox.watchservice.states.ExecutionHandle;
 
 public interface IAction {
 
-	public void updateTimestamp();
-	public AbstractActionState getCurrentState();
-	public long getTimestamp();
-	public void setEventManager(IFileEventManager fileEventManager);
+	FileComponent getFile();
+	void setFile(FileComponent file);
 
-	public ExecutionHandle execute(IFileManager fileManager) throws NoSessionException,
+	long getTimestamp();
+	void updateTimestamp();
+
+	AbstractActionState getCurrentState();
+	AbstractActionState getNextState();
+
+	void setEventManager(IFileEventManager fileEventManager);
+
+	ExecutionHandle execute(IFileManager fileManager) throws NoSessionException,
 	NoPeerConnectionException, InvalidProcessStateException, ProcessExecutionException;
+	boolean isExecuting();
+	int getExecutionAttempts();
+	boolean getChangedWhileExecuted();
 
-	public void handleLocalCreateEvent();
-	public void handleLocalMoveEvent(Path filePath);
-	public void handleLocalUpdateEvent();
-	public void handleLocalDeleteEvent();
-	public void handleLocalHardDeleteEvent();
-	public void handleRemoteCreateEvent();
-	public void handleRemoteDeleteEvent();
-	public void handleRemoteUpdateEvent();
-	public void handleRemoteMoveEvent(Path srcPath);
+	void handleLocalCreateEvent();
+	void handleLocalUpdateEvent();
+	void handleLocalDeleteEvent();
+	void handleLocalHardDeleteEvent();
+	void handleLocalMoveEvent(Path filePath);
 
-	public FileComponent getFile();
-	public void setFile(FileComponent file);
+	void handleRemoteCreateEvent();
+	void handleRemoteUpdateEvent();
+	void handleRemoteDeleteEvent();
+	void handleRemoteMoveEvent(Path srcPath);
 
-	public int getExecutionAttempts();
-	public void onSucceed();
-	public void onFailed();
+	void onSucceed();
+	void onFailed();
 
-	public AbstractActionState getNextState();
-	public boolean isExecuting();
-
-	public boolean getChangedWhileExecuted();
-
-	public Lock getLock();
 }
