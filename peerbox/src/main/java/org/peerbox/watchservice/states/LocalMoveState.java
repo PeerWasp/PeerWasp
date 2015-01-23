@@ -16,7 +16,7 @@ import org.slf4j.LoggerFactory;
  * if a move or renaming (which actually is a move at the same path location) occurs,
  * this move state will be assigned. The transition to another state except the delete state
  * will not be accepted.
- * 
+ *
  * @author winzenried
  *
  */
@@ -77,13 +77,12 @@ public class LocalMoveState extends AbstractActionState {
 
 	@Override
 	public ExecutionHandle execute(IFileManager fileManager) throws NoSessionException, NoPeerConnectionException, ProcessExecutionException, InvalidProcessStateException {
-	
+
 		handle = fileManager.move(source.toFile(), action.getFile().getPath().toFile());
 		if(handle != null){
-			handle.getProcess().attachListener(new FileManagerProcessListener());
 			handle.executeAsync();
 		}
-			
+
 		logger.debug("Task \"Move File\" executed from: " + source.toString()  + " to " + action.getFile().getPath().toFile().toPath() );
 //		notifyActionExecuteSucceeded();
 		return new ExecutionHandle(action, handle);

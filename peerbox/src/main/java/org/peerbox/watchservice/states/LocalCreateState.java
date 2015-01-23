@@ -16,8 +16,8 @@ import org.slf4j.LoggerFactory;
  * the create state handles all events which would like
  * to alter the state from "create" to another state (or keep the current state) and decides
  * whether an transition into another state is allowed.
- * 
- * 
+ *
+ *
  * @author winzenried
  *
  */
@@ -45,10 +45,10 @@ public class LocalCreateState extends AbstractActionState {
 	/**
 	 * If the create state is considered as stable, the execute method will be invoked which eventually
 	 * uploads the file with the corresponding Hive2Hive method
-	 * 
+	 *
 	 * @param file The file which should be uploaded
-	 * @return 
-	 * @return 
+	 * @return
+	 * @return
 	 * @throws ProcessExecutionException
 	 * @throws InvalidProcessStateException
 	 * @throws NoPeerConnectionException
@@ -61,12 +61,11 @@ public class LocalCreateState extends AbstractActionState {
 		logger.debug("Execute LOCAL CREATE: {}", path);
 		handle = fileManager.add(path.toFile());
 		if (handle != null && handle.getProcess() != null) {
-			handle.getProcess().attachListener(new FileManagerProcessListener());
 			handle.executeAsync();
 		} else {
 			System.err.println("process or handle is null");
 		}
-		
+
 		return new ExecutionHandle(action, handle);
 	}
 
@@ -96,18 +95,18 @@ public class LocalCreateState extends AbstractActionState {
 		ConflictHandler.resolveConflict(action.getFile().getPath());
 		return changeStateOnRemoteUpdate();
 	}
-	
+
 	@Override
 	public AbstractActionState handleLocalHardDelete(){
 		action.getEventManager().getFileTree().deleteFile(action.getFile().getPath());
 		action.getEventManager().getFileComponentQueue().remove(action.getFile());
 		return changeStateOnLocalHardDelete();
 	}
-	
+
 	public AbstractActionState changeStateOnLocalHardDelete(){
 		return new InitialState(action);
 	}
-	
+
 	public void performCleanup(){
 //		action.setIsUploaded(true);
 	}

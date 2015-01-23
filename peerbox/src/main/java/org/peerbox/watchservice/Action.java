@@ -3,9 +3,7 @@ package org.peerbox.watchservice;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -40,7 +38,6 @@ public class Action implements IAction{
 
 	private AbstractActionState currentState;
 	private AbstractActionState nextState;
-	private Set<IActionEventListener> eventListeners;
 	private int executionAttempts = 0;
 	private IFileEventManager eventManager;
 	private FileComponent file;
@@ -55,7 +52,6 @@ public class Action implements IAction{
 	public Action(IFileEventManager fileEventManager){
 		currentState = new InitialState(this);
 		nextState = new EstablishedState(this);
-		eventListeners = new HashSet<IActionEventListener>();
 		this.eventManager = fileEventManager;
 		updateTimestamp();
 	}
@@ -362,21 +358,9 @@ public class Action implements IAction{
 		return currentState;
 	}
 
-	public synchronized void addEventListener(IActionEventListener listener) {
-		eventListeners.add(listener);
-	}
-
-	public Set<IActionEventListener> getEventListener() {
-		return eventListeners;
-	}
-
 	public int getExecutionAttempts() {
 		return executionAttempts;
 	}
-
-//	public void putFile(String string, FileComponent file) {
-//		eventManager.getFileTree().putComponent(string, file);
-//	}
 
 	@Override
 	public void onSucceed() {
@@ -390,7 +374,6 @@ public class Action implements IAction{
 
 	@Override
 	public AbstractActionState getNextState() {
-		// TODO Auto-generated method stub
 		return nextState;
 	}
 
@@ -405,7 +388,6 @@ public class Action implements IAction{
 
 	@Override
 	public boolean getChangedWhileExecuted() {
-		// TODO Auto-generated method stub
 		return changedWhileExecuted;
 	}
 

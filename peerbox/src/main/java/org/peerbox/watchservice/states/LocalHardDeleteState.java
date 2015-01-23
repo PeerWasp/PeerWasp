@@ -15,9 +15,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class LocalHardDeleteState extends AbstractActionState{
-	
+
 	private final static Logger logger = LoggerFactory.getLogger(LocalHardDeleteState.class);
-	
+
 	public LocalHardDeleteState(Action action) {
 		super(action, StateType.LOCAL_HARD_DELETE);
 	}
@@ -27,7 +27,7 @@ public class LocalHardDeleteState extends AbstractActionState{
 				action.getFile().getPath());
 		return new InitialState(action);
 	}
-	
+
 	@Override
 	public AbstractActionState changeStateOnLocalCreate() {
 		return new LocalUpdateState(action); //e.g. hard delete -> Ctrl + Z;
@@ -54,7 +54,7 @@ public class LocalHardDeleteState extends AbstractActionState{
 		updateTimeAndQueue();
 		return changeStateOnLocalCreate();
 	}
-	
+
 	public AbstractActionState handleLocalDelete(){
 		logger.trace("File {}: entered handleLocalDelete", action.getFile().getPath());
 		action.getEventManager().getFileTree().deleteFile(action.getFile().getPath());
@@ -102,8 +102,8 @@ public class LocalHardDeleteState extends AbstractActionState{
 		FileComponent moveDest = action.getEventManager().getFileTree().getOrCreateFileComponent(path, action.getEventManager());
 		action.getEventManager().getFileTree().putFile(path, moveDest);
 		moveDest.getAction().handleRemoteCreateEvent();
-		
-		
+
+
 		return changeStateOnRemoteMove(path);
 	}
 
@@ -113,12 +113,11 @@ public class LocalHardDeleteState extends AbstractActionState{
 		logger.debug("Execute LOCAL DELETE: {}", path);
 		handle = fileManager.delete(path.toFile());
 		if (handle != null && handle.getProcess() != null) {
-			handle.getProcess().attachListener(new FileManagerProcessListener());
 			handle.executeAsync();
 		} else {
 			System.err.println("handle or process is null.");
 		}
-		
+
 		return new ExecutionHandle(action, handle);
 	}
 }

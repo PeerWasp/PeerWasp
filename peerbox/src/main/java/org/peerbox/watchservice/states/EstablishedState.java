@@ -14,7 +14,7 @@ import org.slf4j.LoggerFactory;
 public class EstablishedState extends AbstractActionState{
 
 	private static final Logger logger = LoggerFactory.getLogger(EstablishedState.class);
-	
+
 	public EstablishedState(Action action) {
 		super(action, StateType.ESTABLISHED);
 
@@ -43,16 +43,13 @@ public class EstablishedState extends AbstractActionState{
 	@Override
 	public ExecutionHandle execute(IFileManager fileManager) throws NoSessionException,
 			NoPeerConnectionException, InvalidProcessStateException {
-		// TODO Auto-generated method stub
 		logger.error("Execute in the ESTABLISHED state is only called due to wrong behaviour! {}", action.getFile().getPath());
-		notifyActionExecuteSucceeded();
 		return null;
 	}
 
 	@Override
 	public AbstractActionState handleLocalCreate() {
-		// TODO Auto-generated method stub
-		action.getFile().bubbleContentHashUpdate();//updateContentHash();
+		action.getFile().bubbleContentHashUpdate();
 		return changeStateOnLocalCreate();
 	}
 
@@ -76,12 +73,12 @@ public class EstablishedState extends AbstractActionState{
 
 		FileComponent deleted = action.getEventManager().getFileTree().deleteFile(action.getFile().getPath());
 		action.getEventManager().getFileTree().putFile(dstPath, action.getFile());
-		
+
 		Path path = dstPath;
 		logger.debug("Execute REMOTE MOVE: {}", path);
-		
+
 		AbstractActionState returnState = changeStateOnRemoteMove(oldPath);
-		return returnState;	
+		return returnState;
 	}
 
 }

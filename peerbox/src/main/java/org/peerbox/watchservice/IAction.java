@@ -17,7 +17,6 @@ public interface IAction {
 	public void updateTimestamp();
 	public AbstractActionState getCurrentState();
 	public long getTimestamp();
-	public void addEventListener(IActionEventListener listener);
 	public void setEventManager(IFileEventManager fileEventManager);
 
 	public ExecutionHandle execute(IFileManager fileManager) throws NoSessionException,

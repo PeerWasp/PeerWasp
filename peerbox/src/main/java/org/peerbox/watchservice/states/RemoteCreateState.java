@@ -23,7 +23,7 @@ public class RemoteCreateState extends AbstractActionState {
 
 	@Override
 	public AbstractActionState changeStateOnLocalCreate() {
-		logger.debug("Local Create Event in RemoteCreateState!  ({}) {}", 
+		logger.debug("Local Create Event in RemoteCreateState!  ({}) {}",
 				action.getFile().getPath(), action.hashCode());
 
 		action.getFile().bubbleContentHashUpdate();//updateContentHash();
@@ -35,7 +35,7 @@ public class RemoteCreateState extends AbstractActionState {
 		logger.debug("Remote Update Event:  ({})", action.getFile().getPath());
 		return this;
 	}
-	
+
 	@Override
 	public AbstractActionState handleLocalCreate() {
 		action.getFile().bubbleContentHashUpdate();//updateContentHash();
@@ -85,7 +85,6 @@ public class RemoteCreateState extends AbstractActionState {
 		logger.debug("Execute REMOTE ADD, download the file: {}", path);
 		handle = fileManager.download(path.toFile());
 		if (handle != null && handle.getProcess() != null) {
-			handle.getProcess().attachListener(new FileManagerProcessListener());
 			handle.executeAsync();
 		} else {
 			System.err.println("process or handle is null");

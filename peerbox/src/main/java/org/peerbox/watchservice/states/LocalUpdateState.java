@@ -57,7 +57,6 @@ public class LocalUpdateState extends AbstractActionState {
 		logger.debug("Execute LOCAL UPDATE: {}", path);
 		handle = fileManager.update(path.toFile());
 		if (handle != null && handle.getProcess() != null) {
-			handle.getProcess().attachListener(new FileManagerProcessListener());
 			handle.executeAsync();
 		} else {
 			System.err.println("Process or handle is null.");

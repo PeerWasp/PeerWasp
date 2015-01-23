@@ -65,7 +65,7 @@ public class RemoteUpdateState extends AbstractActionState {
 
 	@Override
 	public AbstractActionState handleLocalMove(Path oldPath) {
-		
+
 		action.getNextState().changeStateOnRemoteUpdate();
 		return changeStateOnLocalMove(oldPath);
 	}
@@ -97,7 +97,6 @@ public class RemoteUpdateState extends AbstractActionState {
 
 		handle = fileManager.download(path.toFile());
 		if (handle != null && handle.getProcess() != null) {
-			handle.getProcess().attachListener(new FileManagerProcessListener());
 			handle.executeAsync();
 		} else {
 			System.err.println("process or handle is null");

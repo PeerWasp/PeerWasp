@@ -3,22 +3,16 @@ package org.peerbox.watchservice.states;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Map;
-import java.util.Set;
 
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.hive2hive.core.exceptions.NoSessionException;
 import org.hive2hive.processframework.exceptions.InvalidProcessStateException;
 import org.hive2hive.processframework.exceptions.ProcessExecutionException;
-import org.hive2hive.processframework.interfaces.IProcessComponentListener;
-import org.hive2hive.processframework.interfaces.IProcessEventArgs;
 import org.peerbox.app.manager.ProcessHandle;
 import org.peerbox.app.manager.file.IFileManager;
 import org.peerbox.exceptions.NotImplException;
 import org.peerbox.watchservice.Action;
-import org.peerbox.watchservice.IActionEventListener;
 import org.peerbox.watchservice.IFileEventManager;
 import org.peerbox.watchservice.filetree.composite.FileComponent;
 import org.peerbox.watchservice.filetree.composite.FolderComposite;
@@ -194,66 +188,4 @@ public abstract class AbstractActionState {
 	public abstract ExecutionHandle execute(IFileManager fileManager) throws NoSessionException,
 			NoPeerConnectionException, InvalidProcessStateException, ProcessExecutionException;
 
-
-	protected void notifyActionExecuteSucceeded() {
-		Set<IActionEventListener> listener =
-				new HashSet<IActionEventListener>(action.getEventListener());
-		Iterator<IActionEventListener> it = listener.iterator();
-		while(it.hasNext()) {
-			it.next().onActionExecuteSucceeded(action);
-		}
-	}
-
-	protected void notifyActionExecuteFailed() {
-		Set<IActionEventListener> listener =
-				new HashSet<IActionEventListener>(action.getEventListener());
-		Iterator<IActionEventListener> it = listener.iterator();
-		while(it.hasNext()) {
-			it.next().onActionExecuteFailed(action, handle);
-		}
-	}
-
-	protected class FileManagerProcessListener implements IProcessComponentListener {
-
-		public FileManagerProcessListener() {
-
-		}
-
-		@Override
-		public void onExecuting(IProcessEventArgs args) {
-
-		}
-
-		@Override
-		public void onRollbacking(IProcessEventArgs args) {
-			System.out.println("Rollback started!");
-		}
-
-		@Override
-		public void onPaused(IProcessEventArgs args) {
-
-		}
-
-		@Override
-		public void onExecutionSucceeded(IProcessEventArgs args) {
-			notifyActionExecuteSucceeded();
-		}
-
-		@Override
-		public void onExecutionFailed(IProcessEventArgs args) {
-			System.out.println("Execution failed!");
-			notifyActionExecuteFailed();
-		}
-
-
-		@Override
-		public void onRollbackSucceeded(IProcessEventArgs args) {
-
-		}
-
-		@Override
-		public void onRollbackFailed(IProcessEventArgs args) {
-
-		}
-	}
 }

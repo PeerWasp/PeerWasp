@@ -143,7 +143,6 @@ public class InitialState extends AbstractActionState {
 	public ExecutionHandle execute(IFileManager fileManager) throws NoSessionException,
 			NoPeerConnectionException {
 		logger.warn("Execute is not defined in the initial state  ({})", action.getFile().getPath());
-		notifyActionExecuteSucceeded();
 		return null;
 	}
 
