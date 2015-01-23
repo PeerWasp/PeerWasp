@@ -358,7 +358,7 @@ public class Action implements IAction{
 	 * @return current state object
 	 */
 	public AbstractActionState getCurrentState() {
-		logger.trace("Current state of {} is {}", getFile().getPath(), currentState.getClass());
+//		logger.trace("Current state of {} is {}", getFile().getPath(), currentState.getClass());
 		return currentState;
 	}
 
