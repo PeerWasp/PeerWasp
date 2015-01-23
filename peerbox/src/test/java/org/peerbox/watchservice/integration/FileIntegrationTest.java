@@ -21,6 +21,7 @@ import org.apache.commons.io.FileUtils;
 import org.hive2hive.core.utils.H2HWaiter;
 import org.junit.After;
 import org.junit.Before;
+import org.peerbox.BaseJUnitTest;
 import org.peerbox.client.ClientNode;
 import org.peerbox.client.NetworkStarter;
 import org.peerbox.testutils.FileTestUtils;
@@ -33,7 +34,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.hash.Hashing;
 
-public abstract class FileIntegrationTest {
+public abstract class FileIntegrationTest extends BaseJUnitTest {
 
 	protected static final Logger logger = LoggerFactory.getLogger(FileIntegrationTest.class);
 
