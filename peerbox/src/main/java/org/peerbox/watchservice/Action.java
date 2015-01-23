@@ -329,7 +329,7 @@ public class Action implements IAction {
 
 		try {
 			acquireLock();
-
+			Path srcPath = getFile().getPath();
 			if (isExecuting()) {
 
 				nextState = nextState.changeStateOnRemoteMove(path);
@@ -340,8 +340,7 @@ public class Action implements IAction {
 				updateTimestamp();
 				currentState = currentState.handleRemoteMove(path);
 				nextState = currentState.getDefaultState();
-
-				Path srcPath = getFile().getPath();
+				
 				try {
 					if (!Files.exists(srcPath)) {
 						return;
