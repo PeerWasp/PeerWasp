@@ -1,5 +1,6 @@
 package org.peerbox.watchservice;
 
+import java.nio.file.Path;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
@@ -213,21 +214,13 @@ public class ActionExecutor implements Runnable {
 
 	}
 
-	// TODO: reset execution attempts
-//	@Override
 	public void onActionExecuteSucceeded(final IAction action) {
 		logger.debug("Action succeeded: {} {}.",
 				action.getFile().getPath(), action.getCurrentStateName());
 
-//		logger.trace("Wait for lock of action {} at {}", action.getFile().getPath(), System.currentTimeMillis());
-//		action.getLock().lock();
-//		logger.trace("Received lock of action {} at {}", action.getFile().getPath(), System.currentTimeMillis());
-
-		boolean changedWhileExecuted = false;
-		changedWhileExecuted = action.getChangedWhileExecuted();
-
-		action.onSucceeded();
+		boolean changedWhileExecuted = action.getChangedWhileExecuted();
 		action.getFile().setIsUploaded(true);
+		action.onSucceeded();
 
 		if (changedWhileExecuted) {
 			logger.trace("File: {} changed during the execution process to state {}. "
@@ -236,68 +229,77 @@ public class ActionExecutor implements Runnable {
 					action.getCurrentStateName());
 			action.updateTimestamp();
 			fileEventManager.getFileComponentQueue().add(action.getFile());
-
 		}
 
-//		logger.trace("Release lock of action {} at {}", action.getFile().getPath(), System.currentTimeMillis());
-//		action.getLock().unlock();
 	}
 
 
 	private void handleExecutionError(IAction action, ProcessExecutionException pex) {
-		//FIXME fix this few lines at the beginning. the null checks are too late, does not make sense!
-		Hive2HiveException h2hex = (Hive2HiveException) pex.getCause();
-		if(pex != null && pex.getCause() != null && h2hex.getError() != null) {
-			/*
-			 * TODO: unwrap exception and handle inner exception that caused ProcesssExecutionException
-			 *
-			 * Previous error codes:
-			 * - PARENT_IN_USERFILE_NOT_FOUND --> [ ParentInUserProfileNotFoundException ]
-			 * - SAME_CONTENT --> [ NewVersionSameContentException ]
-			 * - ?? rest was not used I think
-			 */
 
+		action.onFailed();
 
-
-
-//			if(h2hex != null && h2hex.getError() != null){
-			ErrorCode error = h2hex.getError();
-			if(error == AbortModificationCode.SAME_CONTENT){
-				logger.debug("H2H update of file {} failed, content hash did not change. {}", action.getFile().getPath(), fileEventManager.getFileTree().getRootPath().toString());
-//				FileComponent notModified = fileEventManager.getFileTree().getComponent(action.getFilePath().toString());
-				FileComponent notModified = fileEventManager.getFileTree().getFile(action.getFile().getPath());
-				if(notModified == null){
-					logger.trace("FileComponent with path {} is null", action.getFile().getPath().toString());
+		boolean errorHandled = false;
+		if (pex != null && pex.getCause() != null) {
+			if (pex.getCause() instanceof Hive2HiveException) {
+				Hive2HiveException h2hex = (Hive2HiveException) pex.getCause();
+				if (h2hex.getError() != null) {
+					ErrorCode error = h2hex.getError();
+					errorHandled = handleErrorByCode(action, error);
 				}
-				action.onSucceeded();
-			} else if(error == AbortModificationCode.FOLDER_UPDATE){
-				logger.debug("Attempt to update folder {} failed as folder cannot be updated.", action.getFile().getPath());
-			} else if(error == AbortModificationCode.ROOT_DELETE_ATTEMPT){
-				logger.debug("Attempt to delete the root folder {} failed. Delete is not defined on this folder.", action.getFile().getPath());
-			} else if(error == AbortModificationCode.NO_WRITE_PERM){
-				logger.debug("Attempt to delete or write to {} failed. No write-permissions hold by user.", action.getFile().getPath());
-			} else {
-				logger.trace("Re-initiate execution of {} {}.", action.getFile().getPath(), action.getCurrentStateName());
-				if(action.getExecutionAttempts() <= MAX_EXECUTION_ATTEMPTS){
-					action.updateTimestamp();
-					fileEventManager.getFileComponentQueue().add(action.getFile());
-				} else {
-					logger.error("To many attempts, action of {} has not been executed again. Reason: default", action.getFile().getPath());
-					onActionExecuteSucceeded(action);
-				}
-			}
-//			}
-		} else {
-			// temporary default
-			logger.trace("Default: Re-initiate execution of {} {}.", action.getFile().getPath(), action.getCurrentStateName());
-			if(action.getExecutionAttempts() <= MAX_EXECUTION_ATTEMPTS){
-				action.updateTimestamp();
-				fileEventManager.getFileComponentQueue().add(action.getFile());
-			} else {
-				logger.error("To many attempts, action of {} has not been executed again. Reason: default", action.getFile().getPath());
-				onActionExecuteSucceeded(action);
 			}
 		}
+
+		if (!errorHandled) {
+			handleErrorDefault(action);
+		}
+	}
+
+
+	private void handleErrorDefault(IAction action) {
+		final Path path = action.getFile().getPath();
+		logger.trace("Default Error Handling: Re-initiate execution - {} - {} - attempt({}).",
+				path, action.getCurrentStateName(), action.getExecutionAttempts());
+
+		if (action.getExecutionAttempts() <= MAX_EXECUTION_ATTEMPTS) {
+			action.updateTimestamp();
+			fileEventManager.getFileComponentQueue().add(action.getFile());
+		} else {
+			logger.error("To many attempts, action of {} has not been executed again.", path);
+			onActionExecuteSucceeded(action);
+		}
+	}
+
+	private boolean handleErrorByCode(IAction action, ErrorCode error) {
+		final Path path = action.getFile().getPath();
+
+		if (error == AbortModificationCode.SAME_CONTENT) {
+
+			logger.debug("Update of file {} failed, content hash did not change", path);
+			FileComponent notModified = fileEventManager.getFileTree().getFile(path);
+			if (notModified == null) {
+				logger.trace("FileComponent not found (null): {}", path);
+			}
+			action.onSucceeded();
+			return true;
+
+		} else if (error == AbortModificationCode.FOLDER_UPDATE) {
+
+			logger.debug("Attempt to update folder {} failed as folder cannot be updated.", path);
+			return true;
+
+		} else if (error == AbortModificationCode.ROOT_DELETE_ATTEMPT) {
+
+			logger.debug("Attempt to delete the root folder {} failed (operation not allowed)", path);
+			return true;
+
+		} else if (error == AbortModificationCode.NO_WRITE_PERM) {
+
+			logger.debug("Attempt to delete or write to {} failed. No write-permissions.", path);
+			return true;
+
+		}
+
+		return false; // error not handled
 	}
 
 
