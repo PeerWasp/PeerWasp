@@ -236,6 +236,8 @@ public class ActionExecutor implements Runnable {
 
 	private void handleExecutionError(IAction action, ProcessExecutionException pex) {
 
+		logger.error("Action failed: {}", action.getFile().getPath(), pex);
+
 		action.onFailed();
 
 		boolean errorHandled = false;
