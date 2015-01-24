@@ -2,8 +2,10 @@
 <configuration>
 	
 	<!-- location for log files -->
+    <!-- NOTE: we set LOG_FOLDER dynamically at runtime.
 	<property name="LOG_FOLDER" value="${user.home}/.PeerBox/log" />
-	   
+	--> 
+    
     <!-- log to file with size limitation -->
     <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>${LOG_FOLDER}/app.log</file>
