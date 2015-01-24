@@ -38,14 +38,14 @@ public class Action implements IAction {
 
 	private FileComponent file;
 	private volatile long timestamp = Long.MAX_VALUE;
-
+	
 	private volatile AbstractActionState currentState;
 	private volatile AbstractActionState nextState;
 
 	private volatile boolean isExecuting = false;
 	private volatile boolean changedWhileExecuted = false;
 	private volatile int executionAttempts = 0;
-
+	
 	private IFileEventManager eventManager;
 
 	private final Lock lock = new ReentrantLock();
@@ -494,12 +494,7 @@ public class Action implements IAction {
 
 	@Override
 	public void updateTimestamp() {
-		try {
-			acquireLock();
-			timestamp = System.currentTimeMillis();
-		} finally {
-			releaseLock();
-		}
+		timestamp = System.currentTimeMillis();
 	}
 
 	@Override
