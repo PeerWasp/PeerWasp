@@ -132,6 +132,10 @@ public class ActionExecutor implements Runnable {
 
 			} catch (InterruptedException iex) {
 				logger.error("Exception occurred: {}", iex.getMessage(), iex);
+			} catch (NoSessionException nse) {
+				logger.warn("No session - cannot execute pending actions.", nse);
+			} catch(NoPeerConnectionException npc) {
+				logger.warn("No peer connection - cannot execute pending actions.", npc);
 			} catch (Exception e) {
 				logger.error("Exception occurred: {}", e.getMessage(), e);
 				// action FAILED!! --> exception occurred during execute()

@@ -42,12 +42,11 @@ public abstract class FileIntegrationTest extends BaseJUnitTest {
 	protected static Path masterRootPath;
 	protected static Path clientRootPath;
 
-//	protected static final int NUMBER_OF_CHARS = 1000*100; // approx. 100kb
 	protected static final int NUMBER_OF_CHARS = 10;
 	protected static final int WAIT_TIME_VERY_SHORT = 5;
-	protected static final int WAIT_TIME_SHORT = 30;
-	protected static final int WAIT_TIME_LONG = 120;
-	protected static final int WAIT_TIME_STRESSTEST = 300;
+	protected static final int WAIT_TIME_SHORT = 60;
+	protected static final int WAIT_TIME_LONG = 240;
+	protected static final int WAIT_TIME_STRESSTEST = 600;
 
 
 //	@BeforeClass
@@ -194,9 +193,7 @@ public abstract class FileIntegrationTest extends BaseJUnitTest {
 
 
 	private void deleteFileOnClient(Path filePath, int i) {
-		// TODO Auto-generated method stub
 
-		System.out.println(network.getClients().size());
 		assertTrue(network.getClients().size() == 2);
 		FileEventManager manager = network.getClientNode(0).getFileEventManager();
 
@@ -419,12 +416,7 @@ public abstract class FileIntegrationTest extends BaseJUnitTest {
 	}
 
 	protected void assertQueuesAreEmpty(){
-		try {
-			Thread.sleep(10000);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		sleepMillis(10000);
 
 		List<ClientNode> clients = network.getClients();
 		for(ClientNode client : clients){
@@ -506,7 +498,6 @@ public abstract class FileIntegrationTest extends BaseJUnitTest {
 		try {
 			Thread.sleep(millisToSleep);
 		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -583,7 +574,5 @@ public abstract class FileIntegrationTest extends BaseJUnitTest {
 		}
 		return true;
 	}
-
-
 
 }

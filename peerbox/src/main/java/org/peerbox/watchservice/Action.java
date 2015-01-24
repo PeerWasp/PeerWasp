@@ -154,7 +154,6 @@ public class Action implements IAction {
 
 	@Override
 	public void handleLocalHardDeleteEvent(){
-
 		logger.trace("handleLocalHardDeleteEvent - File: {}, isExecuting({})",
 				getFile().getPath(), isExecuting());
 
@@ -204,8 +203,7 @@ public class Action implements IAction {
 	@Override
 	public void handleLocalMoveEvent(Path oldFilePath) {
 		logger.debug("handleLocalMoveEvent - File: {}, isExecuting({})",
-				getFile().getPath(),
-				isExecuting());
+				getFile().getPath(), isExecuting());
 		try {
 			acquireLock();
 
@@ -329,6 +327,7 @@ public class Action implements IAction {
 
 		try {
 			acquireLock();
+
 			Path srcPath = getFile().getPath();
 			if (isExecuting()) {
 
@@ -340,7 +339,7 @@ public class Action implements IAction {
 				updateTimestamp();
 				currentState = currentState.handleRemoteMove(path);
 				nextState = currentState.getDefaultState();
-				
+
 				try {
 					if (!Files.exists(srcPath)) {
 						return;
@@ -484,7 +483,7 @@ public class Action implements IAction {
 		return isExecuting;
 	}
 
-	private void setIsExecuting(boolean isExecuting) {
+	private void setIsExecuting(final boolean isExecuting) {
 		this.isExecuting = isExecuting;
 	}
 
@@ -495,7 +494,12 @@ public class Action implements IAction {
 
 	@Override
 	public void updateTimestamp() {
-		timestamp = System.currentTimeMillis();
+		try {
+			acquireLock();
+			timestamp = System.currentTimeMillis();
+		} finally {
+			releaseLock();
+		}
 	}
 
 	@Override
@@ -504,7 +508,7 @@ public class Action implements IAction {
 	}
 
 	@Override
-	public void setEventManager(IFileEventManager fileEventManager) {
+	public void setEventManager(final IFileEventManager fileEventManager) {
 		this.eventManager = fileEventManager;
 	}
 
@@ -514,7 +518,7 @@ public class Action implements IAction {
 	}
 
 	@Override
-	public void setFile(FileComponent file) {
+	public void setFile(final FileComponent file) {
 		this.file = file;
 	}
 
