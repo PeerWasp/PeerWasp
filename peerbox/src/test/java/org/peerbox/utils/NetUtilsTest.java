@@ -3,8 +3,9 @@ package org.peerbox.utils;
 import static org.junit.Assert.*;
 
 import org.junit.Test;
+import org.peerbox.BaseJUnitTest;
 
-public class NetUtilsTest {
+public class NetUtilsTest extends BaseJUnitTest {
 
 	@Test
 	public void testIsValidPort() {

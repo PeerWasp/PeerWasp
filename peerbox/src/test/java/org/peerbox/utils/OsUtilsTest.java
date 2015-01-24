@@ -4,8 +4,9 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
+import org.peerbox.BaseJUnitTest;
 
-public class OsUtilsTest {
+public class OsUtilsTest extends BaseJUnitTest {
 
 	@Test
 	public void testWindows() {

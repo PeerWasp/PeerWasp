@@ -10,8 +10,9 @@ import java.nio.file.Paths;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.Test;
+import org.peerbox.BaseJUnitTest;
 
-public class ExecuteProcessUtilsTest {
+public class ExecuteProcessUtilsTest extends BaseJUnitTest {
 
 	/**
 	 * Create random folder with random file in it.
@@ -35,8 +36,11 @@ public class ExecuteProcessUtilsTest {
 
 		// execute dir of folder
 		ProcessBuilder builder = new ProcessBuilder();
-		builder.command("dir", tempFolder.toString());
-
+		if (OsUtils.isWindows()) {
+			builder.command("cmd", "/c", "dir", tempFolder.toString());
+		} else {
+			builder.command("dir", tempFolder.toString());
+		}
 		StringBuilder output = new StringBuilder();
 		ExecuteProcessUtils.executeCommand(builder, output);
 

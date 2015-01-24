@@ -10,6 +10,7 @@ import org.apache.commons.lang3.RandomUtils;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.peerbox.BaseJUnitTest;
 
 /**
  * Tests the registry setters by first setting a value and then querying the registry
@@ -18,7 +19,7 @@ import org.junit.Test;
  * @author albrecht
  *
  */
-public class WinRegistryTest {
+public class WinRegistryTest extends BaseJUnitTest {
 
 	private static final int NUMBER_ITERATIONS = 100;
 
