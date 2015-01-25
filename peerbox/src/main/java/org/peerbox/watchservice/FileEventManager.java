@@ -140,11 +140,11 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 			logger.debug("The file {} is in folder that is synchronized: ", path);
 			file.setIsSynchronized(true);
 //			file.getAction().setFile(file);
-			file.getAction().setEventManager(this);
+			file.getAction().setFileEventManager(this);
 			file.getAction().handleRemoteCreateEvent();
 		}
 		file.getAction().setFile(file);
-		file.getAction().setEventManager(this);
+		file.getAction().setFileEventManager(this);
 		file.getAction().handleRemoteCreateEvent();
 	}
 

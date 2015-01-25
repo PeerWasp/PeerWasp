@@ -24,8 +24,8 @@ public interface IAction {
 	AbstractActionState getNextState();
 	String getNextStateName();
 
-	IFileEventManager getEventManager();
-	void setEventManager(IFileEventManager fileEventManager);
+	IFileEventManager getFileEventManager();
+	void setFileEventManager(IFileEventManager fileEventManager);
 
 	ExecutionHandle execute(IFileManager fileManager) throws NoSessionException,
 	NoPeerConnectionException, InvalidProcessStateException, ProcessExecutionException;

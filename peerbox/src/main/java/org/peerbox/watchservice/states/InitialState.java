@@ -55,7 +55,7 @@ public class InitialState extends AbstractActionState {
 	@Override
 	public AbstractActionState handleLocalCreate() {
 
-		IFileEventManager eventManager = action.getEventManager();
+		IFileEventManager eventManager = action.getFileEventManager();
 		if(action.getFile().getPath().toFile().isDirectory()){
 			//find deleted by structure hash
 			Map<String, FolderComposite> deletedFolders = eventManager.getFileTree().getDeletedByContentNamesHash();
@@ -108,34 +108,30 @@ public class InitialState extends AbstractActionState {
 
 	@Override
 	public AbstractActionState handleLocalDelete() {
-		//throw new NotImplException("InitialState.handleLocalDelete");
 		logger.debug("Local Delete is ignored i InitialState for {}", action.getFile().getPath());
 		return this;
 	}
 
 	@Override
 	public AbstractActionState handleLocalMove(Path newPath) {
-		System.out.println("newPath: " + newPath);
 		Path oldPath = action.getFile().getPath();
 		action.getFile().setPath(newPath);
-		action.getEventManager().getFileTree().putFile(newPath, action.getFile());
+		action.getFileEventManager().getFileTree().putFile(newPath, action.getFile());
 		updateTimeAndQueue();
 		return changeStateOnLocalMove(oldPath);
-//		throw new NotImplException("InitialState.handleLocalMove");
 	}
 
 	@Override
 	public AbstractActionState handleRemoteCreate() {
-		logger.trace("{}", action.getEventManager().getFileTree().getClass().getSimpleName());
+		logger.trace("{}", action.getFileEventManager().getFileTree().getClass().getSimpleName());
 //		action.getEventManager().getFileTree().putComponent(action.getFilePath().toString(), action.getFile());
-		action.getEventManager().getFileTree().putFile(action.getFile().getPath(), action.getFile());
+		action.getFileEventManager().getFileTree().putFile(action.getFile().getPath(), action.getFile());
 		updateTimeAndQueue();
 		return changeStateOnRemoteCreate();
 	}
 
 	@Override
 	public AbstractActionState handleRemoteDelete() {
-		// TODO Auto-generated method stub
 		throw new NotImplException("InitialState.handleRemoteDelete");
 	}
 

@@ -57,8 +57,8 @@ public class LocalHardDeleteState extends AbstractActionState{
 
 	public AbstractActionState handleLocalDelete(){
 		logger.trace("File {}: entered handleLocalDelete", action.getFile().getPath());
-		action.getEventManager().getFileTree().deleteFile(action.getFile().getPath());
-		IFileEventManager eventManager = action.getEventManager();
+		action.getFileEventManager().getFileTree().deleteFile(action.getFile().getPath());
+		IFileEventManager eventManager = action.getFileEventManager();
 		eventManager.getFileComponentQueue().remove(action.getFile());
 		FileComponent comp = eventManager.getFileTree().deleteFile(action.getFile().getPath());
 		updateTimeAndQueue();
@@ -84,7 +84,7 @@ public class LocalHardDeleteState extends AbstractActionState{
 
 	@Override
 	public AbstractActionState handleRemoteDelete() {
-		action.getEventManager().getFileComponentQueue().remove(action.getFile());
+		action.getFileEventManager().getFileComponentQueue().remove(action.getFile());
 		return changeStateOnRemoteDelete();
 	}
 
@@ -99,8 +99,8 @@ public class LocalHardDeleteState extends AbstractActionState{
 		logger.info("The file which was locally deleted has been moved remotely. RemoteCreate at destination"
 				+ "of move operation initiated to download the file: {}", path);
 		updateTimeAndQueue();
-		FileComponent moveDest = action.getEventManager().getFileTree().getOrCreateFileComponent(path, action.getEventManager());
-		action.getEventManager().getFileTree().putFile(path, moveDest);
+		FileComponent moveDest = action.getFileEventManager().getFileTree().getOrCreateFileComponent(path, action.getFileEventManager());
+		action.getFileEventManager().getFileTree().putFile(path, moveDest);
 		moveDest.getAction().handleRemoteCreateEvent();
 
 

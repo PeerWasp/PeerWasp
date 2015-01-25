@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -37,16 +38,16 @@ public class Action implements IAction {
 	private final static Logger logger = LoggerFactory.getLogger(Action.class);
 
 	private FileComponent file;
-	private volatile long timestamp = Long.MAX_VALUE;
-	
+	private final AtomicLong timestamp;
+
 	private volatile AbstractActionState currentState;
 	private volatile AbstractActionState nextState;
 
 	private volatile boolean isExecuting = false;
 	private volatile boolean changedWhileExecuted = false;
 	private volatile int executionAttempts = 0;
-	
-	private IFileEventManager eventManager;
+
+	private IFileEventManager fileEventManager;
 
 	private final Lock lock = new ReentrantLock();
 
@@ -57,10 +58,11 @@ public class Action implements IAction {
 	/**
 	 * Initialize with timestamp and set currentState to initial state
 	 */
-	public Action(IFileEventManager fileEventManager) {
+	public Action(final IFileEventManager fileEventManager) {
 		this.currentState = new InitialState(this);
 		this.nextState = new EstablishedState(this);
-		this.eventManager = fileEventManager;
+		timestamp = new AtomicLong(Long.MAX_VALUE);
+		this.fileEventManager = fileEventManager;
 		updateTimestamp();
 	}
 
@@ -219,7 +221,7 @@ public class Action implements IAction {
 				if (oldFilePath.equals(getFile().getPath())) {
 					logger.trace("File {}: Move to same location due to update!",
 							getFile().getPath());
-					eventManager.getFileTree().getDeletedByContentHash()
+					fileEventManager.getFileTree().getDeletedByContentHash()
 							.get(getFile().getContentHash()).remove(oldFilePath);
 					return;
 				}
@@ -489,22 +491,22 @@ public class Action implements IAction {
 
 	@Override
 	public long getTimestamp() {
-		return timestamp;
+		return timestamp.get();
 	}
 
 	@Override
 	public void updateTimestamp() {
-		timestamp = System.currentTimeMillis();
+		timestamp.set(System.currentTimeMillis());
 	}
 
 	@Override
-	public IFileEventManager getEventManager() {
-		return eventManager;
+	public IFileEventManager getFileEventManager() {
+		return fileEventManager;
 	}
 
 	@Override
-	public void setEventManager(final IFileEventManager fileEventManager) {
-		this.eventManager = fileEventManager;
+	public void setFileEventManager(final IFileEventManager fileEventManager) {
+		this.fileEventManager = fileEventManager;
 	}
 
 	@Override

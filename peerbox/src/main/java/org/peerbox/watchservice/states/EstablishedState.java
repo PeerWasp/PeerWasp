@@ -55,7 +55,7 @@ public class EstablishedState extends AbstractActionState{
 
 	@Override
 	public AbstractActionState handleLocalMove(Path newPath) {
-		action.getEventManager().getFileTree().putFile(newPath, action.getFile());
+		action.getFileEventManager().getFileTree().putFile(newPath, action.getFile());
 		return changeStateOnLocalMove(newPath);
 	}
 
@@ -67,12 +67,12 @@ public class EstablishedState extends AbstractActionState{
 
 	@Override
 	public AbstractActionState handleRemoteMove(Path dstPath) {
-		action.getEventManager().getFileComponentQueue().remove(action.getFile());
+		action.getFileEventManager().getFileComponentQueue().remove(action.getFile());
 		Path oldPath = action.getFile().getPath();
 		logger.debug("Modify the tree accordingly. Src: {} Dst: {}", action.getFile().getPath(), dstPath);
 
-		FileComponent deleted = action.getEventManager().getFileTree().deleteFile(action.getFile().getPath());
-		action.getEventManager().getFileTree().putFile(dstPath, action.getFile());
+		FileComponent deleted = action.getFileEventManager().getFileTree().deleteFile(action.getFile().getPath());
+		action.getFileEventManager().getFileTree().putFile(dstPath, action.getFile());
 
 		Path path = dstPath;
 		logger.debug("Execute REMOTE MOVE: {}", path);

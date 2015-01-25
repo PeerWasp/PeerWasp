@@ -76,8 +76,7 @@ public class LocalUpdateState extends AbstractActionState {
 
 	@Override
 	public AbstractActionState handleLocalUpdate() {
-		// TODO Auto-generated method stub
-		IFileEventManager eventManager = action.getEventManager();
+		IFileEventManager eventManager = action.getFileEventManager();
 		updateTimeAndQueue();
 		return changeStateOnLocalUpdate();
 	}
@@ -105,9 +104,9 @@ public class LocalUpdateState extends AbstractActionState {
 	public AbstractActionState handleRemoteMove(Path path) {
 		//Remove the file from the queue, move it in the tree, put it to the queue, move it on disk.
 		Path srcPath = action.getFile().getPath();
-		action.getEventManager().getFileComponentQueue().remove(action.getFile());
-		FileComponent src = action.getEventManager().getFileTree().deleteFile(action.getFile().getPath());
-		action.getEventManager().getFileTree().putFile(path, src);
+		action.getFileEventManager().getFileComponentQueue().remove(action.getFile());
+		FileComponent src = action.getFileEventManager().getFileTree().deleteFile(action.getFile().getPath());
+		action.getFileEventManager().getFileTree().putFile(path, src);
 		updateTimeAndQueue();
 
 		if (Files.exists(srcPath)) {

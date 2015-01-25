@@ -75,7 +75,7 @@ public class FileTree implements IFileTree{
 			}
 
 			file.getAction().setFile(file);
-			file.getAction().setEventManager(eventManager);
+			file.getAction().setFileEventManager(eventManager);
 		}
 		logger.debug("File {} has state {}", file.getPath(), file.getAction().getCurrentStateName());
 		return file;
@@ -106,7 +106,6 @@ public class FileTree implements IFileTree{
 
 	@Override
 	public FileComponent updateFile(Path fileToUpdate) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 

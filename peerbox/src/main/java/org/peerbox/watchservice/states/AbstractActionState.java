@@ -47,9 +47,9 @@ public abstract class AbstractActionState {
 	}
 
 	public void updateTimeAndQueue(){
-		action.getEventManager().getFileComponentQueue().remove(action.getFile());
+		action.getFileEventManager().getFileComponentQueue().remove(action.getFile());
 		action.updateTimestamp();
-		action.getEventManager().getFileComponentQueue().add(action.getFile());
+		action.getFileEventManager().getFileComponentQueue().add(action.getFile());
 	}
 
 	protected void logStateTransission(StateType stateBefore, EventType event, StateType stateAfter){
@@ -117,7 +117,7 @@ public abstract class AbstractActionState {
 	}
 
 	public AbstractActionState handleLocalDelete(){
-		IFileEventManager eventManager = action.getEventManager();
+		IFileEventManager eventManager = action.getFileEventManager();
 		eventManager.getFileComponentQueue().remove(action.getFile());
 		eventManager.getFileTree().deleteFile(action.getFile().getPath());
 		action.getFile().setIsSynchronized(false);
@@ -125,7 +125,7 @@ public abstract class AbstractActionState {
 		if(action.getFile().isFile()){
 //			String oldHash = action.getFile().getContentHash();
 //			logger.debug("File: {}Previous content hash: {} new content hash: ", action.getFilePath(), oldHash, action.getFile().getContentHash());
-			SetMultimap<String, FileComponent> deletedFiles = action.getEventManager().getFileTree().getDeletedByContentHash();
+			SetMultimap<String, FileComponent> deletedFiles = action.getFileEventManager().getFileTree().getDeletedByContentHash();
 			deletedFiles.put(action.getFile().getContentHash(), action.getFile());
 //			logger.debug("Put deleted file {} with hash {} to SetMultimap<String, FileComponent>", action.getFilePath(), action.getFile().getContentHash());
 		} else {
@@ -159,7 +159,7 @@ public abstract class AbstractActionState {
 
 	public AbstractActionState handleRemoteDelete() {
 		logger.debug("EstablishedState.handleRemoteDelete");
-		IFileEventManager eventManager = action.getEventManager();
+		IFileEventManager eventManager = action.getFileEventManager();
 		eventManager.getFileTree().deleteFile(action.getFile().getPath());
 		eventManager.getFileComponentQueue().remove(action.getFile());
 
