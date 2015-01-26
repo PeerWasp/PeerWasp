@@ -53,9 +53,9 @@ public class LocalUpdateState extends AbstractActionState {
 
 	@Override
 	public ExecutionHandle execute(IFileManager fileManager) throws NoSessionException, NoPeerConnectionException, InvalidProcessStateException, ProcessExecutionException {
-		Path path = action.getFile().getPath();
+		final Path path = action.getFile().getPath();
 		logger.debug("Execute LOCAL UPDATE: {}", path);
-		handle = fileManager.update(path.toFile());
+		handle = fileManager.update(path);
 		if (handle != null && handle.getProcess() != null) {
 			handle.executeAsync();
 		} else {

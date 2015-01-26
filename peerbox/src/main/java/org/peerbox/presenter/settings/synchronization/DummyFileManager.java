@@ -32,37 +32,37 @@ public class DummyFileManager implements IFileManager {
 	}
 
 	@Override
-	public ProcessHandle<Void> add(File file) {
+	public ProcessHandle<Void> add(Path file) {
 		return null;
 	}
 
 	@Override
-	public ProcessHandle<Void> update(File file) {
+	public ProcessHandle<Void> update(Path file) {
 		return null;
 	}
 
 	@Override
-	public ProcessHandle<Void> delete(File file) {
+	public ProcessHandle<Void> delete(Path file) {
 		return null;
 	}
 
 	@Override
-	public ProcessHandle<Void> move(File source, File destination) {
+	public ProcessHandle<Void> move(Path source, Path destination) {
 		return null;
 	}
 
 	@Override
-	public ProcessHandle<Void> download(File file) {
+	public ProcessHandle<Void> download(Path file) {
 		return null;
 	}
 
 	@Override
-	public ProcessHandle<Void> recover(File file, IVersionSelector versionSelector) {
+	public ProcessHandle<Void> recover(Path file, IVersionSelector versionSelector) {
 		return null;
 	}
 
 	@Override
-	public ProcessHandle<Void> share(File folder, String userId, PermissionType permission) {
+	public ProcessHandle<Void> share(Path folder, String userId, PermissionType permission) {
 		return null;
 	}
 

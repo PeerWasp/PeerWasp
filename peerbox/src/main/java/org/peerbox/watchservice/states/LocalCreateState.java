@@ -57,9 +57,9 @@ public class LocalCreateState extends AbstractActionState {
 	@Override
 	public ExecutionHandle execute(IFileManager fileManager) throws InvalidProcessStateException,
 			ProcessExecutionException, NoSessionException, NoPeerConnectionException {
-		Path path = action.getFile().getPath();
+		final Path path = action.getFile().getPath();
 		logger.debug("Execute LOCAL CREATE: {}", path);
-		handle = fileManager.add(path.toFile());
+		handle = fileManager.add(path);
 		if (handle != null && handle.getProcess() != null) {
 			handle.executeAsync();
 		} else {

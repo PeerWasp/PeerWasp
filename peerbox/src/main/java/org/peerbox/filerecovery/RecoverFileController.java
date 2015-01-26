@@ -347,7 +347,7 @@ public final class RecoverFileController  implements Initializable, IFileVersion
 				setBusy(true);
 				setStatus("Retrieving available versions...");
 
-				process = fileManager.recover(this.fileToRecover.toFile(), versionSelector);
+				process = fileManager.recover(fileToRecover, versionSelector);
 				process.execute();
 
 			} catch (Exception e) {

@@ -29,7 +29,7 @@ public class Recover extends FileIntegrationTest {
 		System.out.println("Content: " + new String(fileContent_v0));
 		System.out.println("Content: " + new String(fileContent_v1));
 		ClientNode clientZero = getNetwork().getClientNode(0);
-		clientZero.getFileManager().recover(srcFile.toFile(), new IVersionSelector() {
+		clientZero.getFileManager().recover(srcFile, new IVersionSelector() {
 			@Override
 			public IFileVersion selectVersion(List<IFileVersion> availableVersions) {
 				return availableVersions.get(0);

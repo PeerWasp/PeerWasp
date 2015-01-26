@@ -118,17 +118,18 @@ public class FileWalker {
 		public FileVisitResult visitFile(Path path, BasicFileAttributes attr) throws IOException {
 			filesystemView.put(path, new Action(eventManager));
 //			fileTree.putComponent(path, ne)
-			logger.debug("Found file {}", path);
-			if(throwCreates){
+			logger.trace("Found file {}", path);
+			if (throwCreates) {
 				eventManager.onLocalFileCreated(path);
 			} else {
 				String oldstr = fileTree.getStructureHash();
-				if(path.toFile().isDirectory()){
+				if (Files.isDirectory(path)) {
 					fileTree.putComponent(path, new FolderComposite(path, false));
 				} else {
 					fileTree.putComponent(path, new FileLeaf(path, false));
 				}
-				logger.debug("updated structure hash: of {} from {} to {}", fileTree.getPath(), oldstr, fileTree.getStructureHash());
+				logger.debug("updated structure hash: of {} from {} to {}",
+						fileTree.getPath(), oldstr, fileTree.getStructureHash());
 			}
 
 			return FileVisitResult.CONTINUE;

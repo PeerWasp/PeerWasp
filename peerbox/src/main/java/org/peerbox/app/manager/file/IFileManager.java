@@ -1,6 +1,5 @@
 package org.peerbox.app.manager.file;
 
-import java.io.File;
 import java.nio.file.Path;
 
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
@@ -14,19 +13,19 @@ import org.peerbox.app.manager.ProcessHandle;
 
 public interface IFileManager {
 
-	ProcessHandle<Void> add(final File file) throws NoSessionException, NoPeerConnectionException;
+	ProcessHandle<Void> add(final Path file) throws NoSessionException, NoPeerConnectionException;
 
-	ProcessHandle<Void> update(final File file) throws NoSessionException, NoPeerConnectionException;
+	ProcessHandle<Void> update(final Path file) throws NoSessionException, NoPeerConnectionException;
 
-	ProcessHandle<Void> delete(final File file) throws NoSessionException, NoPeerConnectionException;
+	ProcessHandle<Void> delete(final Path file) throws NoSessionException, NoPeerConnectionException;
 
-	ProcessHandle<Void> move(final File source, final File destination) throws NoSessionException, NoPeerConnectionException;
+	ProcessHandle<Void> move(final Path source, final Path destination) throws NoSessionException, NoPeerConnectionException;
 
-	ProcessHandle<Void> download(final File file) throws NoSessionException, NoPeerConnectionException;
+	ProcessHandle<Void> download(final Path file) throws NoSessionException, NoPeerConnectionException;
 
-	ProcessHandle<Void> recover(final File file, final IVersionSelector versionSelector) throws NoSessionException, NoPeerConnectionException;
+	ProcessHandle<Void> recover(final Path file, final IVersionSelector versionSelector) throws NoSessionException, NoPeerConnectionException;
 
-	ProcessHandle<Void> share(final File folder, final String userId, final PermissionType permission) throws NoSessionException, NoPeerConnectionException, IllegalArgumentException, InvalidProcessStateException, ProcessExecutionException;
+	ProcessHandle<Void> share(final Path folder, final String userId, final PermissionType permission) throws NoSessionException, NoPeerConnectionException, IllegalArgumentException, InvalidProcessStateException, ProcessExecutionException;
 
 	ProcessHandle<FileNode> listFiles() throws NoSessionException, NoPeerConnectionException;
 

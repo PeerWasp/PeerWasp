@@ -42,7 +42,7 @@ import com.google.inject.Inject;
 
 
 public final class ShareFolderController implements Initializable {
-	
+
 	@FXML
 	private AnchorPane pane;
 	@FXML
@@ -57,41 +57,41 @@ public final class ShareFolderController implements Initializable {
 	private RadioButton rbtnReadWrite;
 	@FXML
 	private StatusBar statusBar;
-	
+
 	private UsernameRegisteredValidator usernameValidator;
-	
+
 	private Path folderToShare;
 	private final StringProperty folderToShareProperty;
-	
+
 	private final BooleanProperty busyProperty;
 	private final StringProperty statusProperty;
-	
+
 	private IFileManager fileManager;
 	private IUserManager userManager;
-	
+
 	@Inject
 	public ShareFolderController(IFileManager fileManager, IUserManager userManager) {
 		this.statusProperty = new SimpleStringProperty();
 		this.busyProperty = new SimpleBooleanProperty(false);
 		this.fileManager = fileManager;
 		this.userManager = userManager;
-		
+
 		this.folderToShareProperty = new SimpleStringProperty();
 	}
-	
+
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
 		initializeValidations();
 		initializeStatusBar();
-		
+
 		grdForm.disableProperty().bind(busyProperty);
 		txtFolderPath.textProperty().bind(folderToShareProperty);
 	}
-	
+
 	private void initializeValidations() {
 		usernameValidator = new UsernameRegisteredValidator(txtUsername, lblUsernameError.textProperty(), userManager);
 	}
-	
+
 	private void initializeStatusBar() {
 		statusBar = new StatusBar();
 		pane.getChildren().add(statusBar);
@@ -109,7 +109,7 @@ public final class ShareFolderController implements Initializable {
 				}
 			}
 		});
-		
+
 		statusBar.textProperty().bind(statusProperty);
 	}
 
@@ -118,22 +118,22 @@ public final class ShareFolderController implements Initializable {
 		txtUsername.clear();
 		rbtnReadWrite.setSelected(false);
 	}
-	
+
 	private void uninstallValidationDecorations() {
 		usernameValidator.reset();
-	}	
+	}
 
 	public void shareAction(ActionEvent event) {
-		
+
 		if(validateAll()) {
 			try {
 				final String user = txtUsername.getText().trim();
 				final PermissionType permission = getPermissionType();
-				
+
 				setStatus("Sharing folder...");
 				setBusy(true);
-				
-				ProcessHandle<Void> handle = fileManager.share(folderToShare.toFile(), user, permission);
+
+				ProcessHandle<Void> handle = fileManager.share(folderToShare, user, permission);
 				handle.getProcess().attachListener(new ShareProcessListener());
 			} catch (IllegalArgumentException | NoSessionException
 					| NoPeerConnectionException | InvalidProcessStateException e) {
@@ -145,7 +145,7 @@ public final class ShareFolderController implements Initializable {
 			}
 		}
 	}
-	
+
 	private boolean validateAll() {
 		return usernameValidator.validate(true) == ValidationResult.OK;
 	}
@@ -154,24 +154,24 @@ public final class ShareFolderController implements Initializable {
 		resetForm();
 		getStage().close();
 	}
-	
+
 	public void setFolderToShare(final Path path) {
 		folderToShare = path;
 		folderToShareProperty.set(path.toString());
 	}
-	
+
 	private PermissionType getPermissionType() {
 		if(rbtnReadWrite.isSelected()) {
 			return PermissionType.WRITE;
 		}
 		return PermissionType.READ;
 	}
-	
+
 	public void onFolderShareSucceeded() {
 		Platform.runLater(() -> {
 			setStatus("");
 			setBusy(false);
-			
+
 			Alert a = new Alert(AlertType.INFORMATION);
 			a.setTitle("Folder Sharing");
 			a.setHeaderText("Folder sharing finished");
@@ -185,7 +185,7 @@ public final class ShareFolderController implements Initializable {
 		Platform.runLater(() -> {
 			setStatus("");
 			setBusy(false);
-			
+
 			Alert a = new Alert(AlertType.ERROR);
 			a.setTitle("Folder Sharing");
 			a.setHeaderText("Folder sharing failed.");
@@ -193,11 +193,11 @@ public final class ShareFolderController implements Initializable {
 			a.showAndWait();
 		});
 	}
-	
+
 	private Stage getStage() {
 		return (Stage)pane.getScene().getWindow();
 	}
-	
+
 	public String getStatus() {
 		return statusProperty.get();
 	}
@@ -209,7 +209,7 @@ public final class ShareFolderController implements Initializable {
 	public StringProperty statusProperty() {
 		return statusProperty;
 	}
-	
+
 	public Boolean getBusy() {
 		return busyProperty.get();
 	}
@@ -221,25 +221,25 @@ public final class ShareFolderController implements Initializable {
 	public BooleanProperty busyProperty() {
 		return busyProperty;
 	}
-	
+
 	private class ShareProcessListener implements IProcessComponentListener {
 
 		@Override
 		public void onExecuting(IProcessEventArgs args) {
 			// TODO Auto-generated method stub
-			
+
 		}
 
 		@Override
 		public void onRollbacking(IProcessEventArgs args) {
 			// TODO Auto-generated method stub
-			
+
 		}
 
 		@Override
 		public void onPaused(IProcessEventArgs args) {
 			// TODO Auto-generated method stub
-			
+
 		}
 
 		@Override
@@ -255,16 +255,16 @@ public final class ShareFolderController implements Initializable {
 		@Override
 		public void onRollbackSucceeded(IProcessEventArgs args) {
 			// TODO Auto-generated method stub
-			
+
 		}
 
 		@Override
 		public void onRollbackFailed(IProcessEventArgs args) {
 			// TODO Auto-generated method stub
-			
+
 		}
 	}
-	
+
 	public final class UsernameRegisteredValidator extends TextFieldValidator {
 
 		private IUserManager userManager;
@@ -273,19 +273,19 @@ public final class ShareFolderController implements Initializable {
 			super(txtUsername, errorProperty, true);
 			this.userManager = userManager;
 		}
-		
+
 		@Override
 		public ValidationResult validate(final String username) {
 			return validate(username, false);
 		}
-		
+
 		public ValidationResult validate(boolean checkIfRegistered) {
 			return validate(validateTxtField.getText(), checkIfRegistered);
 		}
 
 		public ValidationResult validate(final String username, boolean checkIfRegistered) {
 			try {
-				
+
 				if(username == null) {
 					return ValidationResult.ERROR;
 				}
@@ -300,7 +300,7 @@ public final class ShareFolderController implements Initializable {
 					clearErrorMessage();
 					undecorateError();
 				}
-				
+
 				return res;
 
 			} catch (NoPeerConnectionException e) {

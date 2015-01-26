@@ -1,6 +1,5 @@
 package org.peerbox.watchservice.states;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Map;
@@ -143,10 +142,6 @@ public abstract class AbstractActionState {
 
 	public AbstractActionState handleLocalMove(Path oldFilePath){
 		return changeStateOnLocalMove(oldFilePath);
-	}
-
-	public AbstractActionState handleLocalRecover(File currentFile, int version){
-		throw new NotImplException("Recovery Event occured in invalid state!");
 	}
 
 	/*

@@ -81,9 +81,9 @@ public class RemoteCreateState extends AbstractActionState {
 	@Override
 	public ExecutionHandle execute(IFileManager fileManager) throws InvalidProcessStateException,
 			ProcessExecutionException, NoSessionException, NoPeerConnectionException {
-		Path path = action.getFile().getPath();
+		final Path path = action.getFile().getPath();
 		logger.debug("Execute REMOTE ADD, download the file: {}", path);
-		handle = fileManager.download(path.toFile());
+		handle = fileManager.download(path);
 		if (handle != null && handle.getProcess() != null) {
 			handle.executeAsync();
 		} else {

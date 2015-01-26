@@ -92,10 +92,10 @@ public class RemoteUpdateState extends AbstractActionState {
 
 	@Override
 	public ExecutionHandle execute(IFileManager fileManager) throws NoSessionException, NoPeerConnectionException, InvalidProcessStateException, ProcessExecutionException {
-		Path path = action.getFile().getPath();
+		final Path path = action.getFile().getPath();
 		logger.debug("Execute REMOTE UPDATE, download the file: {}", path);
 
-		handle = fileManager.download(path.toFile());
+		handle = fileManager.download(path);
 		if (handle != null && handle.getProcess() != null) {
 			handle.executeAsync();
 		} else {
