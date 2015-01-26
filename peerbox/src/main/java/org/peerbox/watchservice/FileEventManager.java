@@ -1,5 +1,6 @@
 package org.peerbox.watchservice;
 
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Comparator;
 import java.util.concurrent.BlockingQueue;
@@ -7,6 +8,8 @@ import java.util.concurrent.PriorityBlockingQueue;
 
 import net.engio.mbassy.listener.Handler;
 
+import org.apache.commons.io.FileUtils;
+import org.hive2hive.core.events.framework.interfaces.IFileEventListener;
 import org.hive2hive.core.events.framework.interfaces.file.IFileAddEvent;
 import org.hive2hive.core.events.framework.interfaces.file.IFileDeleteEvent;
 import org.hive2hive.core.events.framework.interfaces.file.IFileMoveEvent;
@@ -23,7 +26,7 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
 @Singleton
-public class FileEventManager implements IFileEventManager, ILocalFileEventListener, org.hive2hive.core.events.framework.interfaces.IFileEventListener {
+public class FileEventManager implements IFileEventManager, ILocalFileEventListener, IFileEventListener {
 
 	private static final Logger logger = LoggerFactory.getLogger(FileEventManager.class);
 
@@ -51,37 +54,41 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 	 * - The file exists
 	 */
 	@Override
-	public void onLocalFileCreated(Path path) {
-		logger.debug("onLocalFileCreated: {} Manager ID {}", path, hashCode());
-		FileComponent file = fileTree.getOrCreateFileComponent(path, this);
+	public void onLocalFileCreated(final Path path) {
+		logger.debug("onLocalFileCreated: {} - Manager ID {}", path, hashCode());
+
+		final boolean isFolder = Files.isDirectory(path);
+		final FileComponent file = fileTree.getOrCreateFileComponent(path, this);
 		file.setIsSynchronized(true);
-		if(path.toFile().isDirectory()){
+
+		if (isFolder) {
 			String structureHash = fileTree.discoverSubtreeStructure(path, this);
 			file.setStructureHash(structureHash);
 		}
+
 		file.getAction().handleLocalCreateEvent();
 
-		if(path.toFile().isDirectory()){
+		if (isFolder) {
 			fileTree.discoverSubtreeCompletely(path, this);
 		}
 	}
 
 	@Override
-	public void onLocalFileModified(Path path) {
+	public void onLocalFileModified(final Path path) {
 		logger.debug("onLocalFileModified: {}", path);
 
-		FileComponent file = fileTree.getOrCreateFileComponent(path, this);
-		if(file.isFolder()){
+		final FileComponent file = fileTree.getOrCreateFileComponent(path, this);
+		if (file.isFolder()) {
 			logger.debug("File {} is a folder. Update rejected.", path);
 			return;
 		}
-
 
 		boolean hasChanged = file.bubbleContentHashUpdate();
 		if (!hasChanged) {
 			logger.debug("Content hash did not change for file {}. Update rejected.", path);
 			return;
 		}
+
 		file.getAction().handleLocalUpdateEvent();
 	}
 
@@ -95,116 +102,119 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 	 * over the names of contained files as a key to allow optimized folder moves.
 	 */
 	@Override
-	public void onLocalFileDeleted(Path path) {
+	public void onLocalFileDeleted(final Path path) {
 		logger.debug("onLocalFileDelete: {}", path);
-		FileComponent file = fileTree.getOrCreateFileComponent(path, this);
+
+		final FileComponent file = fileTree.getOrCreateFileComponent(path, this);
 		if (file.isFolder()) {
-			logger.debug("OnLocalFileDelete structure hash of {} is  {}", path, file.getStructureHash());
+			logger.debug("onLocalFileDelete: structure hash of {} is '{}'",
+					path, file.getStructureHash());
 		}
+
 		file.getAction().handleLocalDeleteEvent();
 	}
 
-	public void onFileDesynchronized(Path path){
-		logger.debug("Desynchronize file {}", path);
-		FileComponent file = fileTree.getOrCreateFileComponent(path, this);
+	@Override
+	public void onLocalFileHardDelete(final Path path) {
+		logger.debug("onLocalFileHardDelete: {} - Manager ID {}", path, hashCode());
 
-		file.setIsSynchronized(false);
-//		fileTree.deleteFile(path);
-		PathUtils.deleteRecursively(path.toFile());
+		final FileComponent file = fileTree.getOrCreateFileComponent(path, this);
+		file.getAction().handleLocalHardDeleteEvent();
 	}
 
-	public void onFileSynchronized(Path path, boolean isFolder){
+	@Override
+	public void onFileDesynchronized(final Path path) {
+		logger.debug("onFileDesynchronized: {}", path);
 
-		logger.debug("Synchronize file {}", path);
-		FileComponent file = fileTree.getOrCreateFileComponent(path, this);
-		if(file.isSynchronized() == true){
+		final FileComponent file = fileTree.getOrCreateFileComponent(path, this);
+		file.setIsSynchronized(false);
+		// fileTree.deleteFile(path);
+		FileUtils.deleteQuietly(path.toFile());
+	}
+
+	@Override
+	public void onFileSynchronized(final Path path, boolean isFolder) {
+		logger.debug("onFileSynchronized: {}", path);
+
+		// TODO: need to specify whether it is a folder or not?
+		// is this even required if we do onFileAdd later?
+		final FileComponent file = fileTree.getOrCreateFileComponent(path, this);
+		if (file.isSynchronized()) {
 			return;
 		}
 		fileTree.putFile(path, file);
-		//FileCompositeUtils.setIsUploadedWithAncestors(file, true);
+		// FileCompositeUtils.setIsUploadedWithAncestors(file, true);
 		file.setIsSynchronized(true);
 		onFileAdd(new FileAddEvent(path.toFile(), isFolder));
 	}
 
 	@Override
 	@Handler
-	public void onFileAdd(IFileAddEvent fileEvent){
-		logger.debug("onFileAdd: {}", fileEvent.getFile().getPath());
+	public void onFileAdd(final IFileAddEvent fileEvent){
+		final Path path = fileEvent.getFile().toPath();
+		logger.debug("onFileAdd: {}", path);
 
-		Path path = fileEvent.getFile().toPath();
-		FileComponent file = fileTree.getOrCreateFileComponent(path, fileEvent, this);
-		if(!checkForSynchronizedAncestor(path)){
-			logger.debug("The file {} is in folder that is not synchronized. Event ignored.", path);
+		final FileComponent file = fileTree.getOrCreateFileComponent(path, fileEvent, this);
+		if (!hasSynchronizedAncestor(path)) {
+			logger.debug("File {} is in folder that is not synchronized. Event ignored.", path);
+			// TODO: set isSynchronized = false?
 			return;
 		} else {
-			logger.debug("The file {} is in folder that is synchronized: ", path);
+			logger.debug("File {} is in folder that is synchronized.", path);
 			file.setIsSynchronized(true);
-//			file.getAction().setFile(file);
-			file.getAction().setFileEventManager(this);
-			file.getAction().handleRemoteCreateEvent();
 		}
+
 		file.getAction().setFile(file);
 		file.getAction().setFileEventManager(this);
 		file.getAction().handleRemoteCreateEvent();
 	}
 
-	private boolean checkForSynchronizedAncestor(Path path){
-		logger.debug("Path {}", path);
+	private boolean hasSynchronizedAncestor(final Path path) {
+		// TODO: maybe stop when rootPath is reached...!
 		FileComponent file = fileTree.getFile(path);
-		if(file == null){
-			logger.debug("Didnt find {}", path);
-			return checkForSynchronizedAncestor(path.getParent());
+		if (file == null) {
+			logger.trace("checkForSynchronizedAncestor: Did not find {}", path);
+			return hasSynchronizedAncestor(path.getParent());
 		} else {
-			logger.debug("Return : {}", file.isSynchronized());
+			logger.trace("checkForSynchronizedAncestor: isSynchronized({})", file.isSynchronized());
 			return file.isSynchronized();
 		}
 	}
 
 	@Override
 	@Handler
-	public void onFileDelete(IFileDeleteEvent fileEvent) {
-		logger.debug("onFileDelete: {}", fileEvent.getFile().getPath());
+	public void onFileDelete(final IFileDeleteEvent fileEvent) {
+		final Path path = fileEvent.getFile().toPath();
+		logger.debug("onFileDelete: {}", path);
 
-		Path path = fileEvent.getFile().toPath();
-		FileComponent file = fileTree.getOrCreateFileComponent(path, fileEvent, this);
+		final FileComponent file = fileTree.getOrCreateFileComponent(path, fileEvent, this);
 		file.getAction().handleRemoteDeleteEvent();
 	}
 
 	@Override
 	@Handler
-	public void onFileUpdate(IFileUpdateEvent fileEvent) {
-		Path path = fileEvent.getFile().toPath();
+	public void onFileUpdate(final IFileUpdateEvent fileEvent) {
+		final Path path = fileEvent.getFile().toPath();
 		logger.debug("onFileUpdate: {}", path);
 
-		FileComponent file = fileTree.getOrCreateFileComponent(path, this);
-
+		final FileComponent file = fileTree.getOrCreateFileComponent(path, this);
 		file.getAction().handleRemoteUpdateEvent();
 	}
 
 	@Override
 	@Handler
-	public void onFileMove(IFileMoveEvent fileEvent) {
-		logger.debug("onFileMove: {}", fileEvent.getFile().getPath());
+	public void onFileMove(final IFileMoveEvent fileEvent) {
+		final Path srcPath = fileEvent.getSrcFile().toPath();
+		final Path dstPath = fileEvent.getDstFile().toPath();
+		logger.debug("onFileMove: {} -> {}", srcPath, dstPath);
 
-		Path srcPath = fileEvent.getSrcFile().toPath();
-		Path dstPath = fileEvent.getDstFile().toPath();
-		logger.debug("Handle move from {} to {}", srcPath, dstPath);
-
-		FileComponent source = fileTree.getOrCreateFileComponent(srcPath, this);
-
+		final FileComponent source = fileTree.getOrCreateFileComponent(srcPath, this);
 		source.getAction().handleRemoteMoveEvent(dstPath);
-	}
-
-	public void onLocalFileHardDelete(Path toDelete){
-		logger.trace("onLocalFileHardDelete: {} Manager ID {}", toDelete, this.hashCode());
-
-		FileComponent file = fileTree.getOrCreateFileComponent(toDelete, this);
-		file.getAction().handleLocalHardDeleteEvent();
 	}
 
 	@Override
 	public void onFileShare(IFileShareEvent fileEvent) {
-		// TODO: download, notify user?
+		// TODO: share not implemented
 	}
 
 	public BlockingQueue<FileComponent> getFileComponentQueue() {
