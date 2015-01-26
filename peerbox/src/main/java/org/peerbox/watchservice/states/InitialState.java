@@ -1,5 +1,6 @@
 package org.peerbox.watchservice.states;
 
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Map;
 
@@ -9,6 +10,7 @@ import org.peerbox.app.manager.file.IFileManager;
 import org.peerbox.exceptions.NotImplException;
 import org.peerbox.watchservice.Action;
 import org.peerbox.watchservice.IFileEventManager;
+import org.peerbox.watchservice.filetree.IFileTree;
 import org.peerbox.watchservice.filetree.composite.FileComponent;
 import org.peerbox.watchservice.filetree.composite.FolderComposite;
 import org.slf4j.Logger;
@@ -45,7 +47,8 @@ public class InitialState extends AbstractActionState {
 
 	@Override
 	public AbstractActionState changeStateOnRemoteMove(Path oldFilePath) {
-		logger.debug("Remote Move Event: Initial -> Remote Move ({}) {}", action.getFile().getPath(), action.hashCode());
+		logger.debug("Remote Move Event: Initial -> Remote Move ({}) {}",
+				action.getFile().getPath(), action.hashCode());
 
 		Path path = action.getFile().getPath();
 		logger.debug("Execute REMOTE MOVE: {}", path);
@@ -55,50 +58,54 @@ public class InitialState extends AbstractActionState {
 	@Override
 	public AbstractActionState handleLocalCreate() {
 
-		IFileEventManager eventManager = action.getFileEventManager();
-		if(action.getFile().getPath().toFile().isDirectory()){
-			//find deleted by structure hash
-			Map<String, FolderComposite> deletedFolders = eventManager.getFileTree().getDeletedByContentNamesHash();
-			String structureHash = action.getFile().getStructureHash();
-			logger.trace("LocalCreate: structure hash of {} is {}", action.getFile().getPath(), structureHash);
+		final IFileEventManager eventManager = action.getFileEventManager();
+		final IFileTree fileTree = eventManager.getFileTree();
+		final FileComponent file = action.getFile();
+		final Path filePath = file.getPath();
+
+		if (Files.isDirectory(filePath)) {
+			// find deleted by structure hash
+			Map<String, FolderComposite> deletedFolders = fileTree.getDeletedByContentNamesHash();
+			String structureHash = file.getStructureHash();
+			logger.trace("LocalCreate: structure hash of {} is {}", filePath, structureHash);
 			FolderComposite moveSource = deletedFolders.get(structureHash);
-			if(moveSource != null){
-				eventManager.getFileTree().deleteFile(moveSource.getPath());
-				logger.trace("Folder move detected from {} to {}", moveSource.getPath(), action.getFile().getPath());
-				moveSource.getAction().handleLocalMoveEvent(action.getFile().getPath());
-				eventManager.getFileComponentQueue().remove(action.getFile());
-				//TODO: cleanup filecomponentqueue: remove children of folder if in localcreate state!
-				return changeStateOnLocalMove(action.getFile().getPath());
+			if (moveSource != null) {
+				fileTree.deleteFile(moveSource.getPath());
+				logger.trace("Folder move detected from {} to {}", moveSource.getPath(), filePath);
+				moveSource.getAction().handleLocalMoveEvent(filePath);
+				eventManager.getFileComponentQueue().remove(file);
+				// TODO: cleanup filecomponentqueue: remove children of folder if in localcreate state!
+				return changeStateOnLocalMove(filePath);
 			}
 		}
-		logger.trace("Before: File {} content {}", action.getFile().getPath(), action.getFile().getContentHash());
-		eventManager.getFileTree().putFile(action.getFile().getPath(), action.getFile());
-		action.getFile().bubbleContentHashUpdate();//updateContentHash();
-		logger.trace("After: File {} content {}", action.getFile().getPath(), action.getFile().getContentHash());
 
-		FileComponent moveSource = eventManager.getFileTree().findDeletedByContent(action.getFile());
-		logger.debug("File {} has hash {}", action.getFile().getPath(), action.getFile().getContentHash());
-		if(moveSource == null){
-//			eventManager.getFileTree().putComponent(action.getFilePath().toString(), action.getFile());
-//			eventManager.getFileTree().putFile(action.getFilePath(), action.getFile());
-			if(action.getFile().isUploaded()){
+		String oldContentHash = file.getContentHash();
+		fileTree.putFile(filePath, file);
+		file.bubbleContentHashUpdate();
+		logger.debug("File {}: content hash update: '{}' -> '{}'", filePath, oldContentHash, file.getContentHash());
+
+		FileComponent moveSource = fileTree.findDeletedByContent(file);
+		if (moveSource == null) {
+			// eventManager.getFileTree().putComponent(action.getFilePath().toString(), action.getFile());
+			// eventManager.getFileTree().putFile(action.getFilePath(), action.getFile());
+			if (file.isUploaded()) {
 				logger.debug("This file is already uploaded, hence it is not uploaded again.");
 				updateTimeAndQueue();
 				return changeStateOnLocalUpdate();
 			}
-			logger.trace("Handle regular create of {}, as no possible move source has been found.", action.getFile().getPath());
+			logger.trace("Handle regular create of {}, no move source has been found.", filePath);
 			updateTimeAndQueue();
 			return changeStateOnLocalCreate();
 		} else {
-			eventManager.getFileTree().deleteFile(moveSource.getPath());
-			eventManager.getFileComponentQueue().remove(action.getFile());
-			if(moveSource.isUploaded()){
-				logger.trace("Handle move of {}, from {}.", action.getFile().getPath(), moveSource.getPath());
-//				eventManager.getFileTree().deleteFile(action.getFile().getPath());
-				moveSource.getAction().handleLocalMoveEvent(action.getFile().getPath());
-				return changeStateOnLocalMove(action.getFile().getPath());
+			fileTree.deleteFile(moveSource.getPath());
+			eventManager.getFileComponentQueue().remove(file);
+			if (moveSource.isUploaded()) {
+				logger.trace("Handle move of {}, from {}.", filePath, moveSource.getPath());
+				// eventManager.getFileTree().deleteFile(action.getFile().getPath());
+				moveSource.getAction().handleLocalMoveEvent(filePath);
+				return changeStateOnLocalMove(filePath);
 			} else {
-				eventManager.getFileTree().putFile(action.getFile().getPath(), action.getFile());
+				fileTree.putFile(filePath, file);
 				updateTimeAndQueue();
 				return changeStateOnLocalCreate();
 			}
@@ -108,7 +115,7 @@ public class InitialState extends AbstractActionState {
 
 	@Override
 	public AbstractActionState handleLocalDelete() {
-		logger.debug("Local Delete is ignored i InitialState for {}", action.getFile().getPath());
+		logger.debug("Local Delete is ignored in InitialState for {}", action.getFile().getPath());
 		return this;
 	}
 
@@ -123,7 +130,7 @@ public class InitialState extends AbstractActionState {
 
 	@Override
 	public AbstractActionState handleRemoteCreate() {
-		logger.trace("{}", action.getFileEventManager().getFileTree().getClass().getSimpleName());
+//		logger.trace("{}", action.getFileEventManager().getFileTree().getClass().getSimpleName());
 //		action.getEventManager().getFileTree().putComponent(action.getFilePath().toString(), action.getFile());
 		action.getFileEventManager().getFileTree().putFile(action.getFile().getPath(), action.getFile());
 		updateTimeAndQueue();
@@ -142,7 +149,7 @@ public class InitialState extends AbstractActionState {
 		return null;
 	}
 
-	public AbstractActionState getDefaultState(){
+	public AbstractActionState getDefaultState() {
 		return this;
 	}
 }
