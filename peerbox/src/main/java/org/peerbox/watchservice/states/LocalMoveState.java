@@ -8,7 +8,7 @@ import org.hive2hive.processframework.exceptions.InvalidProcessStateException;
 import org.hive2hive.processframework.exceptions.ProcessExecutionException;
 import org.peerbox.app.manager.file.IFileManager;
 import org.peerbox.exceptions.NotImplException;
-import org.peerbox.watchservice.Action;
+import org.peerbox.watchservice.IAction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,7 +26,7 @@ public class LocalMoveState extends AbstractActionState {
 
 	private Path source;
 
-	public LocalMoveState(Action action, Path source) {
+	public LocalMoveState(IAction action, Path source) {
 		super(action, StateType.LOCAL_MOVE);
 		this.source = source;
 	}

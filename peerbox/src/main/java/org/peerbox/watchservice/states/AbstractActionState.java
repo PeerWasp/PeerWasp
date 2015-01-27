@@ -11,7 +11,7 @@ import org.hive2hive.processframework.exceptions.ProcessExecutionException;
 import org.peerbox.app.manager.ProcessHandle;
 import org.peerbox.app.manager.file.IFileManager;
 import org.peerbox.exceptions.NotImplException;
-import org.peerbox.watchservice.Action;
+import org.peerbox.watchservice.IAction;
 import org.peerbox.watchservice.IFileEventManager;
 import org.peerbox.watchservice.filetree.composite.FileComponent;
 import org.peerbox.watchservice.filetree.composite.FolderComposite;
@@ -28,11 +28,11 @@ import com.google.common.collect.SetMultimap;
  */
 public abstract class AbstractActionState {
 	private final static Logger logger = LoggerFactory.getLogger(AbstractActionState.class);
-	protected Action action;
+	protected IAction action;
 	protected StateType type = StateType.ABSTRACT;
 	protected ProcessHandle<Void> handle;
 
-	public AbstractActionState(Action action, StateType type) {
+	public AbstractActionState(IAction action, StateType type) {
 		this.action = action;
 		this.type = type;
 	}

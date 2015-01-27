@@ -8,7 +8,7 @@ import org.hive2hive.processframework.exceptions.InvalidProcessStateException;
 import org.hive2hive.processframework.exceptions.ProcessExecutionException;
 import org.peerbox.app.manager.file.IFileManager;
 import org.peerbox.exceptions.NotImplException;
-import org.peerbox.watchservice.Action;
+import org.peerbox.watchservice.IAction;
 import org.peerbox.watchservice.IFileEventManager;
 import org.peerbox.watchservice.filetree.composite.FileComponent;
 import org.slf4j.Logger;
@@ -18,7 +18,7 @@ public class LocalHardDeleteState extends AbstractActionState{
 
 	private final static Logger logger = LoggerFactory.getLogger(LocalHardDeleteState.class);
 
-	public LocalHardDeleteState(Action action) {
+	public LocalHardDeleteState(IAction action) {
 		super(action, StateType.LOCAL_HARD_DELETE);
 	}
 

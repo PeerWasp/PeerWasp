@@ -21,7 +21,7 @@ public class FileWalker {
 	private Path rootDirectory;
 	private FileEventManager eventManager;
 	// TODO(CA) is this map used?
-	private Map<Path, Action> filesystemView = new HashMap<Path, Action>();
+	private Map<Path, IAction> filesystemView = new HashMap<Path, IAction>();
 	private FolderComposite fileTree;
 	// TODO(CA) is this used?
 	private boolean computeContentHash = false;
@@ -34,7 +34,7 @@ public class FileWalker {
 
 	public void indexNamesRecursively(){
 		try {
-			filesystemView = new HashMap<Path, Action>();
+			filesystemView = new HashMap<Path, IAction>();
 			Files.walkFileTree(rootDirectory, new FileIndexer(false));
 
 		} catch (IOException e) {
@@ -79,7 +79,7 @@ public class FileWalker {
 	public FolderComposite indexContentRecursively() {
 		computeContentHash = true;
 		try {
-			filesystemView = new HashMap<Path, Action>();
+			filesystemView = new HashMap<Path, IAction>();
 			Files.walkFileTree(rootDirectory, new FileIndexer(true));
 		} catch (IOException e) {
 			e.printStackTrace();

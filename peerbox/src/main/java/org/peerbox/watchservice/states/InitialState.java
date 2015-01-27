@@ -8,7 +8,7 @@ import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.hive2hive.core.exceptions.NoSessionException;
 import org.peerbox.app.manager.file.IFileManager;
 import org.peerbox.exceptions.NotImplException;
-import org.peerbox.watchservice.Action;
+import org.peerbox.watchservice.IAction;
 import org.peerbox.watchservice.IFileEventManager;
 import org.peerbox.watchservice.filetree.IFileTree;
 import org.peerbox.watchservice.filetree.composite.FileComponent;
@@ -27,7 +27,7 @@ public class InitialState extends AbstractActionState {
 
 	private final static Logger logger = LoggerFactory.getLogger(InitialState.class);
 
-	public InitialState(Action action) {
+	public InitialState(IAction action) {
 		super(action, StateType.INITIAL);
 	}
 

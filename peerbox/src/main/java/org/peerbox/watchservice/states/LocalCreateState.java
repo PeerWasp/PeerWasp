@@ -7,7 +7,7 @@ import org.hive2hive.core.exceptions.NoSessionException;
 import org.hive2hive.processframework.exceptions.InvalidProcessStateException;
 import org.hive2hive.processframework.exceptions.ProcessExecutionException;
 import org.peerbox.app.manager.file.IFileManager;
-import org.peerbox.watchservice.Action;
+import org.peerbox.watchservice.IAction;
 import org.peerbox.watchservice.conflicthandling.ConflictHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,7 +25,7 @@ public class LocalCreateState extends AbstractActionState {
 
 	private final static Logger logger = LoggerFactory.getLogger(LocalCreateState.class);
 
-	public LocalCreateState(Action action) {
+	public LocalCreateState(IAction action) {
 		super(action, StateType.LOCAL_CREATE);
 	}
 
