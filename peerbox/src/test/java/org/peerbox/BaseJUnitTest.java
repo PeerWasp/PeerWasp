@@ -39,14 +39,14 @@ public class BaseJUnitTest {
 	public TestRule methodWatchman = new TestWatcher() {
 		@Override
 		protected void starting(Description desc) {
-			logger.info("--------------------------- STARTING ---------------------------");
+			logger.info("--------------------------- STARTING TEST ---------------------------");
 			logger.info("Test method: {}", desc.getDisplayName());
 		}
 
 		@Override
 		protected void finished(Description desc) {
 			logger.info("Test method: {}", desc.getDisplayName());
-			logger.info("--------------------------- FINISHED ---------------------------");
+			logger.info("--------------------------- FINISHED TEST ---------------------------");
 		}
 
 		@Override
