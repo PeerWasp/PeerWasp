@@ -83,7 +83,7 @@ public class FolderCompositeTest {
 
 	private String computeHashOfString(String content) {
 		byte[] rawHash = HashUtil.hash(content.getBytes());
-		return PathUtils.createStringFromByteArray(rawHash);
+		return PathUtils.base64Encode(rawHash);
 	}
 
 	@Test

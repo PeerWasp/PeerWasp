@@ -169,7 +169,7 @@ public class FileLeafTest {
 			String s = RandomStringUtils.randomAlphanumeric(1000);
 			Files.write(file, s.getBytes());
 			hash = PathUtils.computeFileContentHash(file);
-			boolean changed = leaf.bubbleContentHashUpdate();
+			boolean changed = leaf.updateContentHash();
 			assertTrue(changed);
 			assertEquals(hash, leaf.getContentHash());
 		}
@@ -178,10 +178,10 @@ public class FileLeafTest {
 		String s = RandomStringUtils.randomAlphanumeric(1000);
 		Files.write(file, s.getBytes());
 		hash = PathUtils.computeFileContentHash(file);
-		assertTrue(leaf.bubbleContentHashUpdate());
+		assertTrue(leaf.updateContentHash());
 		for(int i = 0; i < 10; ++i) {
 			Files.write(file, s.getBytes());
-			boolean changed = leaf.bubbleContentHashUpdate();
+			boolean changed = leaf.updateContentHash();
 			assertFalse(changed);
 			assertEquals(hash, leaf.getContentHash());
 		}
@@ -199,7 +199,7 @@ public class FileLeafTest {
 
 		String s = RandomStringUtils.randomAlphanumeric(1000);
 		Files.write(file, s.getBytes());
-		leaf.bubbleContentHashUpdate();
+		leaf.updateContentHash();
 
 		assertNotEquals(rootHash, rootBase.getContentHash());
 		assertNotEquals(parentHash, parentA.getContentHash());

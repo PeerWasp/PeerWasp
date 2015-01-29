@@ -7,6 +7,10 @@ import org.peerbox.watchservice.IAction;
 
 public interface FileComponent {
 
+	long getId();
+
+	void setId(long id);
+
 	FileComponent getComponent(Path path);
 
 	void putComponent(Path path, FileComponent component);
@@ -29,7 +33,9 @@ public interface FileComponent {
 
 	String getContentHash();
 
-	boolean bubbleContentHashUpdate();
+	void setContentHash(String contentHash);
+
+	boolean updateContentHash();
 
 	String getStructureHash();
 

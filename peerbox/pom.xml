@@ -118,6 +118,28 @@
 			<scope>compile</scope>
 		</dependency>
 
+		<!-- H2 Database Engine: http://www.h2database.com/ -->
+		<dependency>
+			<groupId>com.h2database</groupId>
+			<artifactId>h2</artifactId>
+			<version>1.4.185</version>
+		</dependency>
+
+		<!-- sql2o query library: http://www.sql2o.org/ -->
+		<dependency>
+			<groupId>org.sql2o</groupId>
+			<artifactId>sql2o</artifactId>
+			<version>1.5.4</version>
+		</dependency>
+
+		<!-- HikariCP JDBC Connection Pool: https://brettwooldridge.github.io/HikariCP/ -->
+		<dependency>
+			<groupId>com.zaxxer</groupId>
+			<artifactId>HikariCP</artifactId>
+			<version>2.3.1</version>
+			<scope>compile</scope>
+		</dependency>
+
 		<!-- Apache Commons IO: https://commons.apache.org/proper/commons-io/ -->
 		<dependency>
 			<groupId>commons-io</groupId>

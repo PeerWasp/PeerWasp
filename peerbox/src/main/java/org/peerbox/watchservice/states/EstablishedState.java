@@ -24,7 +24,7 @@ public class EstablishedState extends AbstractActionState{
 	public AbstractActionState changeStateOnLocalCreate() {
 		logStateTransition(getStateType(), EventType.LOCAL_CREATE, StateType.ESTABLISHED);
 
-		action.getFile().bubbleContentHashUpdate();
+		action.getFile().updateContentHash();
 		return this;
 	}
 
@@ -49,7 +49,7 @@ public class EstablishedState extends AbstractActionState{
 
 	@Override
 	public AbstractActionState handleLocalCreate() {
-		action.getFile().bubbleContentHashUpdate();
+		action.getFile().updateContentHash();
 		return changeStateOnLocalCreate();
 	}
 

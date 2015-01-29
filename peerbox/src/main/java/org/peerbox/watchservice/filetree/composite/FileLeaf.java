@@ -14,12 +14,12 @@ public class FileLeaf extends AbstractFileComponent {
 		super(path, updateContentHash);
 
 		if (updateContentHash) {
-			updateContentHash();
+			computeContentHash();
 		}
 	}
 
 	@Override
-	protected boolean updateContentHash() {
+	protected boolean computeContentHash() {
 		String newHash = PathUtils.computeFileContentHash(getPath());
 		if (!getContentHash().equals(newHash)) {
 			setContentHash(newHash);

@@ -138,14 +138,14 @@ public abstract class AbstractActionState {
 			if(moveTarget != null){
 				logger.trace("We observed a swapped move (deletion of source file "
 						+ "was reported after creation of target file: {} -> {}", action.getFile().getPath(), moveTarget.getPath());
-				
+
 				FileComponent file = eventManager.getFileTree().deleteFile(action.getFile().getPath());
 				eventManager.getFileComponentQueue().remove(moveTarget);
 //				moveTarget.getAction().handleLocalMoveEvent(moveTarget.getPath());
 				return handleLocalMove(moveTarget.getPath());
 			}
 		}
-		
+
 		if(action.getFile().isFile()){
 //			String oldHash = action.getFile().getContentHash();
 //			logger.debug("File: {}Previous content hash: {} new content hash: ", action.getFilePath(), oldHash, action.getFile().getContentHash());
@@ -157,8 +157,8 @@ public abstract class AbstractActionState {
 			logger.trace("Delete folder: put folder {} with structure hash {} to deleted folders.", action.getFile().getPath(), action.getFile().getStructureHash());
 			deletedFolders.put(action.getFile().getStructureHash(), (FolderComposite)action.getFile());
 		}
-		
-		action.getFile().getParent().bubbleContentHashUpdate();
+
+		action.getFile().getParent().updateContentHash();
 		action.getFile().getParent().bubbleContentNamesHashUpdate();
 		return this.changeStateOnLocalDelete();
 	}

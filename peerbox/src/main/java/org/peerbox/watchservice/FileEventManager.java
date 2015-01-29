@@ -90,7 +90,7 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 			return;
 		}
 
-		boolean hasChanged = file.bubbleContentHashUpdate();
+		boolean hasChanged = file.updateContentHash();
 		if (!hasChanged) {
 			logger.debug("Content hash did not change for file {}. Update rejected.", path);
 			return;

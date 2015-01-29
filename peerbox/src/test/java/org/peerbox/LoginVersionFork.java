@@ -1,5 +1,6 @@
 package org.peerbox;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -16,9 +17,13 @@ import org.hive2hive.core.utils.helper.TestFileAgent;
 import org.hive2hive.processframework.exceptions.InvalidProcessStateException;
 import org.hive2hive.processframework.exceptions.ProcessExecutionException;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 public class LoginVersionFork extends BaseJUnitTest {
+
+	private static final Logger LOG = LoggerFactory.getLogger(LoginVersionFork.class);
 
 	private UserCredentials credentials = new UserCredentials("username", "password!", "pin123");
 
@@ -41,7 +46,7 @@ public class LoginVersionFork extends BaseJUnitTest {
 
 		} catch (InvalidProcessStateException | ProcessExecutionException
 				| NoPeerConnectionException e) {
-			e.printStackTrace();
+			LOG.warn("Exception: {}", e.getMessage(), e);
 			fail("Exception: " + e.getMessage());
 		}
 
@@ -63,6 +68,7 @@ public class LoginVersionFork extends BaseJUnitTest {
 		} catch (InvalidProcessStateException | ProcessExecutionException
 				| NoPeerConnectionException e) {
 			e.printStackTrace();
+			LOG.warn("Exception: {}", e.getMessage(), e);
 			fail("Exception: " + e.getMessage());
 		}
 
