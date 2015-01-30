@@ -3,7 +3,6 @@ package org.peerbox.watchservice.states;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Map;
 
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.hive2hive.core.exceptions.NoSessionException;
@@ -54,7 +53,7 @@ public abstract class AbstractActionState {
 
 	protected void logStateTransition(StateType stateBefore, EventType event, StateType stateAfter){
 		logger.debug("File {}: {} + {}  --> {}", action.getFile().getPath(),
-				stateBefore.getString(), event.getString(), stateAfter.getString());
+				stateBefore.getName(), event.getString(), stateAfter.getName());
 	}
 
 	public void performCleanup(){
@@ -103,7 +102,7 @@ public abstract class AbstractActionState {
 	}
 
 	public AbstractActionState changeStateOnRemoteMove(Path oldFilePath){
-		throw new NotImplException(action.getCurrentState().getStateType().getString() + ".changeStateOnRemoteMove");
+		throw new NotImplException(action.getCurrentState().getStateType().getName() + ".changeStateOnRemoteMove");
 	}
 
 	/*

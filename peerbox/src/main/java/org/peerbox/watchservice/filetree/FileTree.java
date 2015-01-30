@@ -12,6 +12,7 @@ import org.peerbox.watchservice.FileEventManager;
 import org.peerbox.watchservice.FileWalker;
 import org.peerbox.watchservice.IFileEventManager;
 import org.peerbox.watchservice.filetree.composite.FileComponent;
+import org.peerbox.watchservice.filetree.composite.FileDao;
 import org.peerbox.watchservice.filetree.composite.FileLeaf;
 import org.peerbox.watchservice.filetree.composite.FolderComposite;
 import org.slf4j.Logger;
@@ -32,20 +33,22 @@ public class FileTree implements IFileTree{
 	private SetMultimap<String, FileComponent> createdByContentHash = HashMultimap.create();
     private boolean maintainContentHashes;
 
-    @Inject
-    public FileTree(Path rootPath){
-    	maintainContentHashes = true;
-		rootOfFileTree = new FolderComposite(rootPath, true, true);
+    private final FileDao dao;
+
+	@Inject
+	public FileTree(Path rootPath) {
+		this(rootPath, true);
 	}
 
-    /**
-     * @param rootPath is the root folder of the tree
-     * @param maintainContentHashes set to true if content hashes have to be maintained. Content hash changes are
-     * then propagated upwards to the parent directory.
-     */
-    public FileTree(Path rootPath, boolean maintainContentHashes){
-    	this.maintainContentHashes = maintainContentHashes;
+	/**
+	 * @param rootPath is the root folder of the tree
+	 * @param maintainContentHashes set to true if content hashes have to be maintained.
+	 *            Content hash changes are then propagated upwards to the parent directory.
+	 */
+	public FileTree(Path rootPath, boolean maintainContentHashes) {
+		this.maintainContentHashes = maintainContentHashes;
 		rootOfFileTree = new FolderComposite(rootPath, maintainContentHashes, true);
+		dao = new FileDao();
 	}
 
     public boolean getMaintainContentHashes(){

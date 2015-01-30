@@ -1,4 +1,4 @@
-package org.peerbox;
+package org.peerbox.misc;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -17,6 +17,7 @@ import org.hive2hive.core.utils.helper.TestFileAgent;
 import org.hive2hive.processframework.exceptions.InvalidProcessStateException;
 import org.hive2hive.processframework.exceptions.ProcessExecutionException;
 import org.junit.Test;
+import org.peerbox.BaseJUnitTest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
