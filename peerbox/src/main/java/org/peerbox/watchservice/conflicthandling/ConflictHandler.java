@@ -40,9 +40,18 @@ public class ConflictHandler {
 	}
 	
 	public static void resolveConflict(Path file){
+		resolveConflict(file, false);
+	}
+	
+	public static void resolveConflict(Path file, boolean moveFile){
 		Path renamedFile = ConflictHandler.rename(file);
 		try {
-			Files.copy(file, renamedFile);
+			if(moveFile){
+				Files.move(file, renamedFile);
+			} else {
+				Files.copy(file, renamedFile);			
+			}
+
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

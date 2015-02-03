@@ -9,7 +9,9 @@ import org.junit.runners.Suite.SuiteClasses;
 	AddDelete.class,
 	Update.class,
 	Rename.class,
-	Move.class
+	Move.class,
+	Recover.class,
+	SelectiveSynchronization.class
 })
 
 public class FileIntegrationTestSuite {

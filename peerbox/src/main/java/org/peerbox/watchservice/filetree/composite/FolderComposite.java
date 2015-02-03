@@ -196,6 +196,7 @@ public class FolderComposite extends AbstractFileComponent {
 		String hashOfChildren = "";
 		for (FileComponent child : children.values()) {
 			if(child.isSynchronized()){
+				logger.trace("Extend content hash with {}", child.getPath());
 				hashOfChildren = hashOfChildren.concat(child.getContentHash());
 			}
 		}

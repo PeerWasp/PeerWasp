@@ -10,7 +10,9 @@ import java.util.List;
 import org.hive2hive.core.utils.H2HWaiter;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.peerbox.testutils.FileTestUtils;
 import org.peerbox.watchservice.FileEventManager;
+import org.peerbox.watchservice.conflicthandling.ConflictHandler;
 import org.peerbox.watchservice.filetree.IFileTree;
 import org.peerbox.watchservice.filetree.composite.FileComponent;
 
@@ -42,6 +44,29 @@ public class SelectiveSynchronization extends FileIntegrationTest{
 		toSync.add(path);
 		waitForSynchronized(toSync, WAIT_TIME_SHORT, false);
 		waitForNotExistsLocally(path, WAIT_TIME_VERY_SHORT);
+	}
+	
+	@Test
+	public void createUnsyncedFileTest() throws IOException{
+		Path path = addSingleFile();
+		assertSyncClientPaths();
+		assertQueuesAreEmpty();
+		
+		FileEventManager eventManager = getNetwork().getClients().get(0).getFileEventManager();
+		eventManager.onFileDesynchronized(path);
+		List<Path> toSync = new ArrayList<Path>();
+		toSync.add(path);
+		waitForSynchronized(toSync, WAIT_TIME_SHORT, false);
+		waitForNotExistsLocally(path, WAIT_TIME_VERY_SHORT);
+		
+		FileTestUtils.recreateRandomFile(path);
+		toSync = new ArrayList<Path>();
+
+		Path renamedFile = ConflictHandler.rename(path);
+		toSync.add(renamedFile);
+		waitForExists(toSync, WAIT_TIME_SHORT);
+		eventManager.onFileSynchronized(path, false);
+		assertCleanedUpState(2);
 	}
 	
 	@Test

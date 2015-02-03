@@ -16,6 +16,7 @@ import org.hive2hive.core.events.framework.interfaces.file.IFileMoveEvent;
 import org.hive2hive.core.events.framework.interfaces.file.IFileShareEvent;
 import org.hive2hive.core.events.framework.interfaces.file.IFileUpdateEvent;
 import org.hive2hive.core.events.implementations.FileAddEvent;
+import org.peerbox.watchservice.conflicthandling.ConflictHandler;
 import org.peerbox.watchservice.filetree.FileTree;
 import org.peerbox.watchservice.filetree.IFileTree;
 import org.peerbox.watchservice.filetree.composite.FileComponent;
@@ -59,6 +60,11 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 
 		final boolean isFolder = Files.isDirectory(path);
 		final FileComponent file = fileTree.getOrCreateFileComponent(path, this);
+		if(file.isUploaded() && !file.isSynchronized()){
+			logger.trace("The file {} has already been uploaded and was recreated. Resolve conflict.");
+			ConflictHandler.resolveConflict(path, true);
+			return;
+		}
 		file.setIsSynchronized(true);
 
 		if (isFolder) {
@@ -138,7 +144,7 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 
 		// TODO: need to specify whether it is a folder or not?
 		// is this even required if we do onFileAdd later?
-		final FileComponent file = fileTree.getOrCreateFileComponent(path, this);
+		final FileComponent file = fileTree.getOrCreateFileComponent(path, !isFolder, this);
 		if (file.isSynchronized()) {
 			return;
 		}
@@ -154,7 +160,7 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 		final Path path = fileEvent.getFile().toPath();
 		logger.debug("onFileAdd: {}", path);
 
-		final FileComponent file = fileTree.getOrCreateFileComponent(path, fileEvent, this);
+		final FileComponent file = fileTree.getOrCreateFileComponent(path, fileEvent.isFile(), this);
 		if (!hasSynchronizedAncestor(path)) {
 			logger.debug("File {} is in folder that is not synchronized. Event ignored.", path);
 			// TODO: set isSynchronized = false?
@@ -187,7 +193,7 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 		final Path path = fileEvent.getFile().toPath();
 		logger.debug("onFileDelete: {}", path);
 
-		final FileComponent file = fileTree.getOrCreateFileComponent(path, fileEvent, this);
+		final FileComponent file = fileTree.getOrCreateFileComponent(path, fileEvent.isFile(), this);
 		file.getAction().handleRemoteDeleteEvent();
 	}
 

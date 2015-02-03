@@ -30,7 +30,7 @@
 			<version>${h2h.version}</version>
 			<scope>compile</scope>
 		</dependency>
-
+		
 		<!-- Guice Dependency Injection: https://github.com/google/guice -->
 		<dependency>
 			<groupId>com.google.inject</groupId>

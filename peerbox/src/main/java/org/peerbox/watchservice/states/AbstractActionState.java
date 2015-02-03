@@ -118,7 +118,7 @@ public abstract class AbstractActionState {
 	public AbstractActionState handleLocalDelete(){
 		IFileEventManager eventManager = action.getFileEventManager();
 		eventManager.getFileComponentQueue().remove(action.getFile());
-		eventManager.getFileTree().deleteFile(action.getFile().getPath());
+//		eventManager.getFileTree().deleteFile(action.getFile().getPath());
 		action.getFile().setIsSynchronized(false);
 		logger.debug("Deleted {} from tree.", action.getFile().getPath());
 		if(action.getFile().isFile()){
@@ -131,6 +131,8 @@ public abstract class AbstractActionState {
 			Map<String, FolderComposite> deletedFolders = eventManager.getFileTree().getDeletedByContentNamesHash();
 			deletedFolders.put(action.getFile().getStructureHash(), (FolderComposite)action.getFile());
 		}
+		
+		action.getFile().getParent().bubbleContentHashUpdate();
 		return this.changeStateOnLocalDelete();
 	}
 

@@ -60,18 +60,18 @@ public class FileTree implements IFileTree{
 		return rootOfFileTree.getComponent(fileToGet);
 	}
 
-	public FileComponent getOrCreateFileComponent(Path path, IFileEvent event, IFileEventManager eventManager) {
+	public FileComponent getOrCreateFileComponent(Path path, Boolean isFile, IFileEventManager eventManager) {
 //		FileComponent file = fileTree.getComponent(path.toString());
 		FileComponent file = getFile(path);
 		if(file == null){
 			logger.trace("FileComponent {} is new and now created.", path);
-			if(event == null){
+			if(isFile == null){
 				logger.trace("FileComponent {} has no fileevent.", path);
 				//TODO check for directory wrong if it does not exist yet!
 				file = createFileComponent(path, Files.isRegularFile(path));
 			} else {
-				logger.trace("FileComponent {} has a fileevent isfile= {}", path, event.isFile());
-				file = createFileComponent(path, event.isFile());
+				logger.trace("FileComponent {} has a fileevent isfile= {}", path, isFile);
+				file = createFileComponent(path, isFile);
 			}
 
 			file.getAction().setFile(file);

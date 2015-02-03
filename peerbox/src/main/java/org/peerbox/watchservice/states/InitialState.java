@@ -97,6 +97,10 @@ public class InitialState extends AbstractActionState {
 			updateTimeAndQueue();
 			return changeStateOnLocalCreate();
 		} else {
+			if(moveSource.isSynchronized() == false){
+				updateTimeAndQueue();
+				return changeStateOnLocalCreate();
+			}
 			fileTree.deleteFile(moveSource.getPath());
 			eventManager.getFileComponentQueue().remove(file);
 			if (moveSource.isUploaded()) {

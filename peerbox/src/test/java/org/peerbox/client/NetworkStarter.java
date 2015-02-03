@@ -20,7 +20,7 @@ public class NetworkStarter extends AbstractStarter {
 	private static final Logger logger = LoggerFactory.getLogger(NetworkStarter.class);
 
 	// number of nodes in the network
-	private static final int NETWORK_SIZE = 3;
+	private static final int NETWORK_SIZE = 2;
 
 	// number of clients to login (with same user / credentials)
 	private static final int NUM_CLIENTS = 2;
