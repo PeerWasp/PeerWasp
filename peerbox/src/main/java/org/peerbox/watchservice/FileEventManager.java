@@ -2,9 +2,6 @@ package org.peerbox.watchservice;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Comparator;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.PriorityBlockingQueue;
 
 import net.engio.mbassy.listener.Handler;
 
@@ -32,12 +29,12 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 
 	private static final Logger logger = LoggerFactory.getLogger(FileEventManager.class);
 
-	private final BlockingQueue<FileComponent> fileComponentQueue;
+	private final ActionQueue fileComponentQueue;
 	private final FileTree fileTree;
 
     @Inject
 	public FileEventManager(final FileTree fileTree) {
-		fileComponentQueue = new PriorityBlockingQueue<FileComponent>(2000, new FileActionTimeComparator());
+    	this.fileComponentQueue = new ActionQueue();
 		this.fileTree = fileTree;
 	}
 
@@ -224,19 +221,14 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 		// TODO: share not implemented
 	}
 
-	public BlockingQueue<FileComponent> getFileComponentQueue() {
+	@Override
+	public ActionQueue getFileComponentQueue() {
 		return fileComponentQueue;
 	}
 
+	@Override
 	public synchronized IFileTree getFileTree() {
 		return fileTree;
-	}
-
-	private class FileActionTimeComparator implements Comparator<FileComponent> {
-		@Override
-		public int compare(FileComponent a, FileComponent b) {
-			return Long.compare(a.getAction().getTimestamp(), b.getAction().getTimestamp());
-		}
 	}
 
 }
