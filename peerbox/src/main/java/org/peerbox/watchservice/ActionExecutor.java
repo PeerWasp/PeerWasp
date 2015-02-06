@@ -217,33 +217,26 @@ public class ActionExecutor implements Runnable {
 	private void removeComponentFromSetMultimap(FileComponent toRemove, 
 			SetMultimap<String, FileComponent> byContent,
 			SetMultimap<String, FolderComposite> byStructure){
-		Set<FileComponent> sameHashes = byContent.get(toRemove.getContentHash());
 		Iterator<Map.Entry<String, FileComponent>> componentIterator = byContent.entries().iterator(); //.sameHashes.iterator();
-		logger.trace("Attempt to delete {} with content hash {}", toRemove.getPath(), toRemove.getContentHash());
-		while(componentIterator.hasNext()){
-			FileComponent candidate = componentIterator.next().getValue();
-			logger.trace("candidate {} with content hash {}", candidate.getPath(), candidate.getContentHash());
-			if(candidate.getPath().toString().equals(toRemove.getPath().toString())){
-				componentIterator.remove();
-				break;
+		
+		if(toRemove.isFile()){
+			while(componentIterator.hasNext()){
+				FileComponent candidate = componentIterator.next().getValue();
+				if(candidate.getPath().toString().equals(toRemove.getPath().toString())){
+					componentIterator.remove();
+					break;
+				}
 			}
-		}
-		if(toRemove.isFolder()){
-			logger.debug("toRemove.isFolder() == {} structure hash = {}", toRemove.isFolder(), toRemove.getStructureHash());
-			FolderComposite nextAsFolder = (FolderComposite)toRemove;
-//			boolean wasRemoved = byStructure.get(nextAsFolder.getStructureHash()).remove(toRemove);
-			Iterator<Map.Entry<String, FolderComposite>> folderIterator = byStructure.entries().iterator();//byStructure.get(nextAsFolder.getStructureHash()).iterator();
+		} else {
+			Iterator<Map.Entry<String, FolderComposite>> folderIterator = byStructure.entries().iterator();
 			while(folderIterator.hasNext()){
 				Map.Entry<String, FolderComposite> candidate = folderIterator.next();
-				logger.trace("Compare {} to {}", nextAsFolder.getPath(), candidate.getValue().getPath());
 				if(candidate.getValue().getPath().toString().equals(toRemove.getPath().toString())){
 					folderIterator.remove();
-					logger.trace("Attempt to remove {} from created successful", nextAsFolder.getPath());
 					break;
 				}
 			}
 		}
-
 	}
 
 	public void onActionExecuteSucceeded(final IAction action) {

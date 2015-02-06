@@ -62,11 +62,9 @@ public class InitialState extends AbstractActionState {
 		if(action.getFile().isFile()){
 			SetMultimap<String, FileComponent> createdByContentHash = action.getFileEventManager().getFileTree().getCreatedByContentHash();
 			createdByContentHash.put(action.getFile().getContentHash(), action.getFile());
-			logger.trace("Put file {} with hash {} to createdComponents", action.getFile().getPath(), action.getFile().getContentHash());
 		} else {
 			SetMultimap<String, FolderComposite> createdByStructureHash = action.getFileEventManager().getFileTree().getCreatedByStructureHash();
 			createdByStructureHash.put(action.getFile().getContentHash(), (FolderComposite)action.getFile());
-			logger.trace("Put folder {} with hash {} to createdComponents", action.getFile().getPath(), action.getFile().getContentHash());
 		}
 		
 		final IFileEventManager eventManager = action.getFileEventManager();
@@ -103,7 +101,6 @@ public class InitialState extends AbstractActionState {
 				eventManager.getFileComponentQueue().remove(file);
 				
 				String contentHash = action.getFile().getContentHash();
-				Path pathToRemove = action.getFile().getPath();
 				boolean isRemoved = fileTree.getCreatedByContentHash().get(contentHash).remove(action.getFile());
 				logger.trace("InitialState.handleLocalDelete: IsRemoved for file {} with hash {}: {}", action.getFile().getPath(), contentHash, isRemoved);
 				
@@ -131,24 +128,6 @@ public class InitialState extends AbstractActionState {
 		return changeStateOnLocalCreate();
 		
 	}
-		
-//		FileComponent moveSource = fileTree.findDeletedByContent(file);
-//		if (moveSource == null) {
-//			// eventManager.getFileTree().putComponent(action.getFilePath().toString(), action.getFile());
-//			// eventManager.getFileTree().putFile(action.getFilePath(), action.getFile());
-//			if (file.isUploaded()) {
-//				logger.debug("This file is already uploaded, hence it is not uploaded again.");
-//				updateTimeAndQueue();
-//				return changeStateOnLocalUpdate();
-//			}
-//			logger.trace("Handle regular create of {}, no move source has been found.", filePath);
-//			updateTimeAndQueue();
-//			return changeStateOnLocalCreate();
-//		} else {
-//			
-//		}
-//
-//	}
 
 	@Override
 	public AbstractActionState handleLocalDelete() {
