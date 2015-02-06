@@ -52,7 +52,7 @@ public abstract class AbstractActionState {
 		action.getFileEventManager().getFileComponentQueue().add(action.getFile());
 	}
 
-	protected void logStateTransission(StateType stateBefore, EventType event, StateType stateAfter){
+	protected void logStateTransition(StateType stateBefore, EventType event, StateType stateAfter){
 		logger.debug("File {}: {} + {}  --> {}", action.getFile().getPath(),
 				stateBefore.getString(), event.getString(), stateAfter.getString());
 	}
@@ -65,7 +65,7 @@ public abstract class AbstractActionState {
 	 * LOCAL state changers
 	 */
 	public AbstractActionState changeStateOnLocalCreate(){
-		logStateTransission(getStateType(), EventType.LOCAL_CREATE, StateType.LOCAL_CREATE);
+		logStateTransition(getStateType(), EventType.LOCAL_CREATE, StateType.LOCAL_CREATE);
 		return new LocalCreateState(action);
 	}
 
@@ -78,7 +78,7 @@ public abstract class AbstractActionState {
 	}
 
 	public AbstractActionState changeStateOnLocalMove(Path oldPath){
-		logStateTransission(getStateType(), EventType.LOCAL_MOVE, StateType.LOCAL_MOVE);
+		logStateTransition(getStateType(), EventType.LOCAL_MOVE, StateType.LOCAL_MOVE);
 		return new LocalMoveState(action, oldPath);
 //		throw new NotImplException(action.getCurrentState().getStateType().getString() + ".changeStateOnLocalMove");
 	}

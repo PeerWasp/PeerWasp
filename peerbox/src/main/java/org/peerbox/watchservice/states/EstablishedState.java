@@ -22,7 +22,7 @@ public class EstablishedState extends AbstractActionState{
 
 	@Override
 	public AbstractActionState changeStateOnLocalCreate() {
-		logStateTransission(getStateType(), EventType.LOCAL_CREATE, StateType.LOCAL_CREATE);
+		logStateTransition(getStateType(), EventType.LOCAL_CREATE, StateType.ESTABLISHED);
 
 		action.getFile().bubbleContentHashUpdate();
 		return this;
@@ -30,13 +30,13 @@ public class EstablishedState extends AbstractActionState{
 
 	@Override
 	public AbstractActionState changeStateOnRemoteCreate() {
-		logStateTransission(getStateType(), EventType.REMOTE_CREATE, StateType.REMOTE_UPDATE);
+		logStateTransition(getStateType(), EventType.REMOTE_CREATE, StateType.REMOTE_UPDATE);
 		return new RemoteUpdateState(action);
 	}
 
 	@Override
 	public AbstractActionState changeStateOnRemoteMove(Path oldFilePath) {
-		logStateTransission(getStateType(), EventType.REMOTE_MOVE, StateType.ESTABLISHED);
+		logStateTransition(getStateType(), EventType.REMOTE_MOVE, StateType.ESTABLISHED);
 		return this;
 	}
 

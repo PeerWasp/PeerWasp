@@ -43,7 +43,7 @@ public class InitialState extends AbstractActionState {
 
 	@Override
 	public AbstractActionState changeStateOnLocalMove(Path source) {
-		logStateTransission(getStateType(), EventType.LOCAL_MOVE, StateType.LOCAL_MOVE);
+		logStateTransition(getStateType(), EventType.LOCAL_MOVE, StateType.LOCAL_MOVE);
 		return new LocalMoveState(action, source);
 	}
 
@@ -63,6 +63,10 @@ public class InitialState extends AbstractActionState {
 			SetMultimap<String, FileComponent> createdByContentHash = action.getFileEventManager().getFileTree().getCreatedByContentHash();
 			createdByContentHash.put(action.getFile().getContentHash(), action.getFile());
 			logger.trace("Put file {} with hash {} to createdComponents", action.getFile().getPath(), action.getFile().getContentHash());
+		} else {
+			SetMultimap<String, FolderComposite> createdByStructureHash = action.getFileEventManager().getFileTree().getCreatedByStructureHash();
+			createdByStructureHash.put(action.getFile().getContentHash(), (FolderComposite)action.getFile());
+			logger.trace("Put folder {} with hash {} to createdComponents", action.getFile().getPath(), action.getFile().getContentHash());
 		}
 		
 		final IFileEventManager eventManager = action.getFileEventManager();
@@ -70,7 +74,6 @@ public class InitialState extends AbstractActionState {
 		final FileComponent file = action.getFile();
 		final Path filePath = file.getPath();
 
-		
 		String oldContentHash = file.getContentHash();
 		fileTree.putFile(filePath, file);
 		file.bubbleContentHashUpdate();
@@ -117,9 +120,7 @@ public class InitialState extends AbstractActionState {
 				}
 			}
 		}
-		
-		// eventManager.getFileTree().putComponent(action.getFilePath().toString(), action.getFile());
-		// eventManager.getFileTree().putFile(action.getFilePath(), action.getFile());
+
 		if (file.isUploaded()) {
 			logger.debug("This file is already uploaded, hence it is not uploaded again.");
 			updateTimeAndQueue();

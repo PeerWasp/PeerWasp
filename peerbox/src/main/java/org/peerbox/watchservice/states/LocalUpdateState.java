@@ -47,7 +47,7 @@ public class LocalUpdateState extends AbstractActionState {
 
 	@Override
 	public AbstractActionState changeStateOnRemoteMove(Path oldFilePath) {
-		logStateTransission(getStateType(), EventType.REMOTE_MOVE, StateType.LOCAL_UPDATE);
+		logStateTransition(getStateType(), EventType.REMOTE_MOVE, StateType.LOCAL_UPDATE);
 		return this;
 	}
 

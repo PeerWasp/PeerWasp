@@ -446,7 +446,14 @@ public abstract class FileIntegrationTest extends BaseJUnitTest {
 			}
 			assertTrue(client.getFileEventManager().getFileComponentQueue().size() == 0);
 			assertTrue(client.getActionExecutor().getFailedJobs().size() == 0);
+			
+			IFileTree fileTree = client.getFileEventManager().getFileTree();
+			assertTrue(fileTree.getCreatedByContentHash().size() == 0);
+			assertTrue(fileTree.getCreatedByStructureHash().size() == 0);
+			assertTrue(fileTree.getDeletedByContentHash().size() == 0);
+			assertTrue(fileTree.getDeletedByStructureHash().size() == 0);
 		}
+		
 	}
 
 //	private boolean areExecutionsPending() {

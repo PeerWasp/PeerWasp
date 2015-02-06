@@ -23,19 +23,19 @@ public class RemoteUpdateState extends AbstractActionState {
 
 	@Override
 	public AbstractActionState changeStateOnLocalCreate() {
-		logStateTransission(getStateType(), EventType.LOCAL_CREATE, StateType.REMOTE_UPDATE);
+		logStateTransition(getStateType(), EventType.LOCAL_CREATE, StateType.REMOTE_UPDATE);
 		return new LocalUpdateState(action);
 	}
 
 	@Override
 	public AbstractActionState changeStateOnLocalDelete() {
-		logStateTransission(getStateType(), EventType.LOCAL_DELETE, StateType.REMOTE_UPDATE);
+		logStateTransition(getStateType(), EventType.LOCAL_DELETE, StateType.REMOTE_UPDATE);
 		return this;
 	}
 
 	@Override
 	public AbstractActionState changeStateOnLocalMove(Path newPath) {
-		logStateTransission(getStateType(), EventType.LOCAL_MOVE, getStateType());
+		logStateTransition(getStateType(), EventType.LOCAL_MOVE, getStateType());
 		return new LocalMoveState(action, newPath);
 	}
 
