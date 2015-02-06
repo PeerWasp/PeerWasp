@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
@@ -448,6 +449,14 @@ public abstract class FileIntegrationTest extends BaseJUnitTest {
 			assertTrue(client.getActionExecutor().getFailedJobs().size() == 0);
 			
 			IFileTree fileTree = client.getFileEventManager().getFileTree();
+			
+			for(Map.Entry<String, FileComponent> entry : fileTree.getCreatedByContentHash().entries()){
+				logger.trace("Created file left: {}", entry.getValue().getPath());
+			}
+			for(Map.Entry<String, FileComponent> entry : fileTree.getDeletedByContentHash().entries()){
+				logger.trace("Deleted file left: {}", entry.getValue().getPath());
+			}
+			
 			assertTrue(fileTree.getCreatedByContentHash().size() == 0);
 			assertTrue(fileTree.getCreatedByStructureHash().size() == 0);
 			assertTrue(fileTree.getDeletedByContentHash().size() == 0);

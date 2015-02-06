@@ -60,13 +60,7 @@ public class InitialState extends AbstractActionState {
 
 	@Override
 	public AbstractActionState handleLocalCreate() {
-		if(action.getFile().isFile()){
-			SetMultimap<String, FileComponent> createdByContentHash = action.getFileEventManager().getFileTree().getCreatedByContentHash();
-			createdByContentHash.put(action.getFile().getContentHash(), action.getFile());
-		} else {
-			SetMultimap<String, FolderComposite> createdByStructureHash = action.getFileEventManager().getFileTree().getCreatedByStructureHash();
-			createdByStructureHash.put(action.getFile().getContentHash(), (FolderComposite)action.getFile());
-		}
+
 		
 		final IFileEventManager eventManager = action.getFileEventManager();
 		final IFileTree fileTree = eventManager.getFileTree();
@@ -78,6 +72,15 @@ public class InitialState extends AbstractActionState {
 		file.bubbleContentHashUpdate();
 		logger.debug("File {}: content hash update: '{}' -> '{}'", filePath, oldContentHash, file.getContentHash());
 
+		if(action.getFile().isFile()){
+			SetMultimap<String, FileComponent> createdByContentHash = action.getFileEventManager().getFileTree().getCreatedByContentHash();
+			logger.trace("Put file {} with content hash {}", action.getFile().getPath(), action.getFile().getContentHash());
+			createdByContentHash.put(action.getFile().getContentHash(), action.getFile());
+		} else {
+			SetMultimap<String, FolderComposite> createdByStructureHash = action.getFileEventManager().getFileTree().getCreatedByStructureHash();
+			createdByStructureHash.put(action.getFile().getStructureHash(), (FolderComposite)action.getFile());
+		}
+		
 		if (file.isFolder()) {
 			// find deleted by structure hash
 			String structureHash = file.getStructureHash();
@@ -88,6 +91,9 @@ public class InitialState extends AbstractActionState {
 				logger.trace("Folder move detected from {} to {}", moveSource.getPath(), filePath);
 				moveSource.getAction().handleLocalMoveEvent(filePath);
 				eventManager.getFileComponentQueue().remove(file);
+				
+				SetMultimap<String, FolderComposite> createdByStructureHash = action.getFileEventManager().getFileTree().getCreatedByStructureHash();
+				boolean wasRemoved = createdByStructureHash.get(action.getFile().getStructureHash()).remove((FolderComposite)action.getFile());
 				// TODO: cleanup filecomponentqueue: remove children of folder if in localcreate state!
 				return changeStateOnLocalMove(filePath);
 			}
@@ -119,8 +125,8 @@ public class InitialState extends AbstractActionState {
 			}
 		}
 
-		if (file.isUploaded()) {
-			logger.debug("This file is already uploaded, hence it is not uploaded again.");
+		if (file.isUploaded() && file.isSynchronized()) {
+			logger.debug("File {} is already uploaded, hence it is not uploaded again.", file.getPath());
 			ConflictHandler.resolveConflict(file.getPath(), true);
 			updateTimeAndQueue();
 			return changeStateOnLocalUpdate();
