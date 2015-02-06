@@ -380,11 +380,20 @@ public abstract class FileIntegrationTest extends BaseJUnitTest {
 		return true;
 	}
 
+	protected void assertSyncClientPaths() throws IOException {
+		assertSyncClientPaths(true);
+	}
 	/**
 	 * Asserts that all root paths of all clients have the same content.
 	 * @throws IOException
 	 */
-	protected void assertSyncClientPaths() throws IOException {
+	protected void assertSyncClientPaths(boolean compareTwoway) throws IOException {
+		try {
+			Thread.sleep(10000);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		// compute client index as a reference
 		IndexRootPath clientIndex = new IndexRootPath(masterRootPath);
 		Files.walkFileTree(masterRootPath, clientIndex);
@@ -400,6 +409,9 @@ public abstract class FileIntegrationTest extends BaseJUnitTest {
 			Files.walkFileTree(rp, indexOther);
 
 			assertSyncPathIndices(clientIndex, indexOther);
+			if(compareTwoway){
+				assertSyncPathIndices(indexOther, clientIndex);
+			}
 		}
 		logger.info("Client paths are SYNC!");
 	}
@@ -459,6 +471,7 @@ public abstract class FileIntegrationTest extends BaseJUnitTest {
 		// 1. compare the paths relative to the root path (set difference must be empty)
 		Set<Path> difference = new HashSet<Path>(indexThis.getHashes().keySet());
 		difference.removeAll(indexOther.getHashes().keySet());
+
 		// log difference
 		for (Path relativePath : difference) {
 			Path thisPath = indexThis.getRootPath().resolve(relativePath);
@@ -531,6 +544,7 @@ public abstract class FileIntegrationTest extends BaseJUnitTest {
 		public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
 			String hash = com.google.common.io.Files.hash(file.toFile(), Hashing.sha256()).toString();
 			Path relative = rootPath.relativize(file);
+			logger.debug("Add path: {}", file);
 			pathToHash.put(relative, hash);
 			return super.visitFile(file, attrs);
 		}
@@ -549,7 +563,19 @@ public abstract class FileIntegrationTest extends BaseJUnitTest {
 	}
 
 	protected void assertCleanedUpState(int existingFiles) throws IOException {
-		assertSyncClientPaths();
+//		try {
+//			Thread.sleep(10000);
+//		} catch (InterruptedException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+		assertSyncClientPaths(true);
+		assertQueuesAreEmpty();
+		assertRootContains(existingFiles);
+	}
+	
+	protected void assertCleanedUpState(int existingFiles, boolean compareTwoway) throws IOException {
+		assertSyncClientPaths(compareTwoway);
 		assertQueuesAreEmpty();
 		assertRootContains(existingFiles);
 	}

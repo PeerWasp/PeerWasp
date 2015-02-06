@@ -20,6 +20,7 @@ import org.peerbox.watchservice.conflicthandling.ConflictHandler;
 import org.peerbox.watchservice.filetree.FileTree;
 import org.peerbox.watchservice.filetree.IFileTree;
 import org.peerbox.watchservice.filetree.composite.FileComponent;
+import org.peerbox.watchservice.states.InitialState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -60,11 +61,11 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 
 		final boolean isFolder = Files.isDirectory(path);
 		final FileComponent file = fileTree.getOrCreateFileComponent(path, this);
-		if(file.isUploaded() && !file.isSynchronized()){
-			logger.trace("The file {} has already been uploaded and was recreated. Resolve conflict.");
-			ConflictHandler.resolveConflict(path, true);
-			return;
-		}
+//		if(file.isUploaded() && !file.isSynchronized() && file.getAction().getCurrentState() instanceof InitialState){
+//			logger.trace("The file {} has already been uploaded and was recreated. Resolve conflict.");
+//			ConflictHandler.resolveConflict(path, true);
+//			return;
+//		}
 		file.setIsSynchronized(true);
 
 		if (isFolder) {

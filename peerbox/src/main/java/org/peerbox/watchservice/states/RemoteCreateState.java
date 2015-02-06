@@ -53,10 +53,10 @@ public class RemoteCreateState extends AbstractActionState {
 		return changeStateOnLocalUpdate();
 	}
 
-	@Override
-	public AbstractActionState handleLocalMove(Path oldPath) {
-		return changeStateOnLocalMove(oldPath);
-	}
+//	@Override
+//	public AbstractActionState handleLocalMove(Path oldPath) {
+//		return changeStateOnLocalMove(oldPath);
+//	}
 
 	@Override
 	public AbstractActionState handleRemoteCreate() {

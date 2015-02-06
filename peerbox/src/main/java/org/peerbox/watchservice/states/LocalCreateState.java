@@ -1,6 +1,7 @@
 package org.peerbox.watchservice.states;
 
 import java.nio.file.Path;
+import java.util.Map;
 
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.hive2hive.core.exceptions.NoSessionException;
@@ -9,6 +10,8 @@ import org.hive2hive.processframework.exceptions.ProcessExecutionException;
 import org.peerbox.app.manager.file.IFileManager;
 import org.peerbox.watchservice.IAction;
 import org.peerbox.watchservice.conflicthandling.ConflictHandler;
+import org.peerbox.watchservice.filetree.IFileTree;
+import org.peerbox.watchservice.filetree.composite.FileComponent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -65,18 +68,23 @@ public class LocalCreateState extends AbstractActionState {
 		} else {
 			System.err.println("process or handle is null");
 		}
+		
+		String contentHash = action.getFile().getContentHash();
+		Path pathToRemove = action.getFile().getPath();
+		IFileTree fileTree = action.getFileEventManager().getFileTree();
+		boolean isRemoved = fileTree.getCreatedByContentHash().get(contentHash).remove(action.getFile());
+		logger.trace("IsRemoved for file {} with hash {}: {}", action.getFile().getPath(), contentHash, isRemoved);
 
+		for (Map.Entry entry : fileTree.getCreatedByContentHash().entries()) {
+			FileComponent comp = (FileComponent)entry.getValue();
+			logger.trace("- Hash: {} Path: {}", entry.getKey(), comp.getPath());
+		}
 		return new ExecutionHandle(action, handle);
 	}
 
 	@Override
 	public AbstractActionState handleLocalCreate() {
 		return changeStateOnLocalCreate();
-	}
-
-	@Override
-	public AbstractActionState handleLocalMove(Path oldPath) {
-		return changeStateOnLocalMove(oldPath);
 	}
 
 	@Override

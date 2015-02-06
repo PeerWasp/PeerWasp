@@ -71,10 +71,10 @@ public class LocalHardDeleteState extends AbstractActionState{
 		return changeStateOnLocalUpdate();
 	}
 
-	@Override
-	public AbstractActionState handleLocalMove(Path oldFilePath) {
-		throw new NotImplException("LocalHardDeleteState.handleLocalMove()");
-	}
+//	@Override
+//	public AbstractActionState handleLocalMove(Path oldFilePath) {
+//		throw new NotImplException("LocalHardDeleteState.handleLocalMove()");
+//	}
 
 	@Override
 	public AbstractActionState handleRemoteCreate() {

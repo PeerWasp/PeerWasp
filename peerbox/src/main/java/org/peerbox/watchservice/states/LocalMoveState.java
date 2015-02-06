@@ -9,6 +9,7 @@ import org.hive2hive.processframework.exceptions.ProcessExecutionException;
 import org.peerbox.app.manager.file.IFileManager;
 import org.peerbox.exceptions.NotImplException;
 import org.peerbox.watchservice.IAction;
+import org.peerbox.watchservice.filetree.IFileTree;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -84,7 +85,14 @@ public class LocalMoveState extends AbstractActionState {
 			handle.executeAsync();
 		}
 
-//		logger.debug("Task \"Move File\" executed from: " + source.toString()  + " to " + path.toString());
+		String contentHash = action.getFile().getContentHash();
+		Path pathToRemove = action.getFile().getPath();
+		IFileTree fileTree = action.getFileEventManager().getFileTree();
+		boolean isRemoved = fileTree.getCreatedByContentHash().get(contentHash).remove(action.getFile());
+		logger.trace("IsRemoved for file {} with hash {}: {}", action.getFile().getPath(), contentHash, isRemoved);
+
+		
+		logger.debug("Task \"Move File\" executed from: " + source.toString()  + " to " + path.toString());
 		return new ExecutionHandle(action, handle);
 	}
 
@@ -105,10 +113,10 @@ public class LocalMoveState extends AbstractActionState {
 		throw new NotImplException("LocalMoveState.handleLocalUpdate");
 	}
 
-	@Override
-	public AbstractActionState handleLocalMove(Path oldPath) {
-		throw new NotImplException("LocalMoveState.handleLocalMove");
-	}
+//	@Override
+//	public AbstractActionState handleLocalMove(Path oldPath) {
+//		throw new NotImplException("LocalMoveState.handleLocalMove");
+//	}
 
 	@Override
 	public AbstractActionState handleRemoteCreate() {

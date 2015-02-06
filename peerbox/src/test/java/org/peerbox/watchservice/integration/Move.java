@@ -128,7 +128,7 @@ public class Move extends FileIntegrationTest{
 		waitForNotExistsLocally(fileToDesync, WAIT_TIME_VERY_SHORT);
 		
 		moveFileOrFolder(folderToMove, dstFolder);
-		assertCleanedUpState(-1);
+		assertCleanedUpState(-1, false);
 	}
 	
 	@Test

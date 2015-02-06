@@ -16,6 +16,8 @@ import org.peerbox.watchservice.filetree.composite.FolderComposite;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.SetMultimap;
+
 /**
  * the Initial state is given when a file is considered as new, synced or unknown.
  * The transition to another state is always valid and will be therefore accepted.
@@ -57,7 +59,12 @@ public class InitialState extends AbstractActionState {
 
 	@Override
 	public AbstractActionState handleLocalCreate() {
-
+		if(action.getFile().isFile()){
+			SetMultimap<String, FileComponent> createdByContentHash = action.getFileEventManager().getFileTree().getCreatedByContentHash();
+			createdByContentHash.put(action.getFile().getContentHash(), action.getFile());
+			logger.trace("Put file {} with hash {} to createdComponents", action.getFile().getPath(), action.getFile().getContentHash());
+		}
+		
 		final IFileEventManager eventManager = action.getFileEventManager();
 		final IFileTree fileTree = eventManager.getFileTree();
 		final FileComponent file = action.getFile();
@@ -97,18 +104,25 @@ public class InitialState extends AbstractActionState {
 			updateTimeAndQueue();
 			return changeStateOnLocalCreate();
 		} else {
-			if(moveSource.isSynchronized() == false){
-				updateTimeAndQueue();
-				return changeStateOnLocalCreate();
-			}
+//			if(moveSource.isSynchronized() == false){
+//				updateTimeAndQueue();
+//				return changeStateOnLocalCreate();
+//			}
 			fileTree.deleteFile(moveSource.getPath());
 			eventManager.getFileComponentQueue().remove(file);
+			
+			String contentHash = action.getFile().getContentHash();
+			Path pathToRemove = action.getFile().getPath();
+			boolean isRemoved = fileTree.getCreatedByContentHash().get(contentHash).remove(action.getFile());
+			logger.trace("InitialState.handleLocalDelete: IsRemoved for file {} with hash {}: {}", action.getFile().getPath(), contentHash, isRemoved);
+			
 			if (moveSource.isUploaded()) {
 				logger.trace("Handle move of {}, from {}.", filePath, moveSource.getPath());
 				// eventManager.getFileTree().deleteFile(action.getFile().getPath());
 				moveSource.getAction().handleLocalMoveEvent(filePath);
 				return changeStateOnLocalMove(filePath);
 			} else {
+				logger.trace("No move of {}, as it was not uploaded.", moveSource.getPath());
 				fileTree.putFile(filePath, file);
 				updateTimeAndQueue();
 				return changeStateOnLocalCreate();

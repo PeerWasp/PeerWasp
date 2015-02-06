@@ -20,7 +20,9 @@ public interface IFileTree {
 	public Path getRootPath();
 	
 	public SetMultimap<String, FileComponent> getDeletedByContentHash();
+	public SetMultimap<String, FileComponent> getCreatedByContentHash();
 	public Map<String, FolderComposite> getDeletedByContentNamesHash();
 	public FileComponent findDeletedByContent(FileComponent createdComponent);
+	public FileComponent findCreatedByContent(FileComponent deletedComponent);
 	public FileComponent getOrCreateFileComponent(Path path, IFileEventManager eventManager);
 }

@@ -2,6 +2,7 @@ package org.peerbox.watchservice.states;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Map;
 
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
@@ -77,7 +78,9 @@ public abstract class AbstractActionState {
 	}
 
 	public AbstractActionState changeStateOnLocalMove(Path oldPath){
-		throw new NotImplException(action.getCurrentState().getStateType().getString() + ".changeStateOnLocalMove");
+		logStateTransission(getStateType(), EventType.LOCAL_MOVE, StateType.LOCAL_MOVE);
+		return new LocalMoveState(action, oldPath);
+//		throw new NotImplException(action.getCurrentState().getStateType().getString() + ".changeStateOnLocalMove");
 	}
 
 	public AbstractActionState changeStateOnLocalHardDelete(){
@@ -120,19 +123,31 @@ public abstract class AbstractActionState {
 		eventManager.getFileComponentQueue().remove(action.getFile());
 //		eventManager.getFileTree().deleteFile(action.getFile().getPath());
 		action.getFile().setIsSynchronized(false);
-		logger.debug("Deleted {} from tree.", action.getFile().getPath());
+//		logger.debug("Deleted {} from tree.", action.getFile().getPath());
+		
+		FileComponent moveTarget = action.getFileEventManager().getFileTree().findCreatedByContent(action.getFile());
+		if(moveTarget != null){
+			logger.trace("We observed a swapped move (deletion of source file "
+					+ "was reported after creation of target file: {} -> {}", action.getFile().getPath(), moveTarget.getPath());
+			
+			FileComponent file = eventManager.getFileTree().deleteFile(action.getFile().getPath());
+			eventManager.getFileComponentQueue().remove(moveTarget);
+//			moveTarget.getAction().handleLocalMoveEvent(moveTarget.getPath());
+			return handleLocalMove(moveTarget.getPath());
+		}
 		if(action.getFile().isFile()){
 //			String oldHash = action.getFile().getContentHash();
 //			logger.debug("File: {}Previous content hash: {} new content hash: ", action.getFilePath(), oldHash, action.getFile().getContentHash());
 			SetMultimap<String, FileComponent> deletedFiles = action.getFileEventManager().getFileTree().getDeletedByContentHash();
 			deletedFiles.put(action.getFile().getContentHash(), action.getFile());
-//			logger.debug("Put deleted file {} with hash {} to SetMultimap<String, FileComponent>", action.getFilePath(), action.getFile().getContentHash());
+			logger.debug("Put deleted file {} with hash {} to SetMultimap<String, FileComponent>", action.getFile().getPath(), action.getFile().getContentHash());
 		} else {
 			Map<String, FolderComposite> deletedFolders = eventManager.getFileTree().getDeletedByContentNamesHash();
 			deletedFolders.put(action.getFile().getStructureHash(), (FolderComposite)action.getFile());
 		}
 		
 		action.getFile().getParent().bubbleContentHashUpdate();
+		action.getFile().getParent().bubbleContentNamesHashUpdate();
 		return this.changeStateOnLocalDelete();
 	}
 
@@ -141,9 +156,15 @@ public abstract class AbstractActionState {
 		return changeStateOnLocalUpdate();
 	}
 
-
-	public AbstractActionState handleLocalMove(Path oldFilePath){
-		return changeStateOnLocalMove(oldFilePath);
+	public AbstractActionState handleLocalMove(Path newPath) {
+		Path oldPath = Paths.get(action.getFile().getPath().toString());
+		logger.trace("oldPath1: {}", oldPath);
+		action.getFile().setPath(newPath);
+		action.getFileEventManager().getFileTree().putFile(newPath, action.getFile());
+		updateTimeAndQueue();
+		logger.trace("Added {} to queue", action.getFile().getPath());
+		logger.trace("oldPath2: {}", oldPath);
+		return changeStateOnLocalMove(oldPath);
 	}
 
 	/*

@@ -28,6 +28,7 @@ public class FileTree implements IFileTree{
 	private FolderComposite rootOfFileTree;
 	private Map<String, FolderComposite> deletedByContentNamesHash = new ConcurrentHashMap<String, FolderComposite>();
 	private SetMultimap<String, FileComponent> deletedByContentHash = HashMultimap.create();
+	private SetMultimap<String, FileComponent> createdByContentHash = HashMultimap.create();
     private boolean maintainContentHashes;
 
     @Inject
@@ -95,6 +96,7 @@ public class FileTree implements IFileTree{
 			component = new FolderComposite(path, getMaintainContentHashes());
 		}
 
+		logger.trace("Content hash of newly created file {} is {}", component.getPath(), component.getContentHash());
 //		getSynchronizedFiles().add(path);
 		return component;
 	}
@@ -160,25 +162,37 @@ public class FileTree implements IFileTree{
 	 * @return
 	 */
 	public FileComponent findDeletedByContent(FileComponent createdComponent){
-		FileComponent deletedComponent = null;
-		String contentHash = createdComponent.getContentHash();
+		return findComponentInSetMultiMap(createdComponent, getDeletedByContentHash());
+	}
+	
+	private FileComponent findComponentInSetMultiMap(FileComponent toSearch, SetMultimap<String, FileComponent> filesByContent){
+		FileComponent result = null;
+		String contentHash = toSearch.getContentHash();
 		logger.trace("Contenthash to search for: {}", contentHash);
-		Set<FileComponent> deletedComponents = getDeletedByContentHash().get(contentHash);
-
-
-		for(FileComponent comp : deletedComponents){
-			logger.trace("Compoonent {} with hash {}", comp.getPath(), comp.getContentHash());
+		Set<FileComponent> sameContentSet = filesByContent.get(contentHash);
+		
+		for(FileComponent comp: sameContentSet){
+			logger.trace("Set contains {}", comp.getPath());
 		}
 		long minTimeDiff = Long.MAX_VALUE;
-		for(FileComponent candidate : deletedComponents) {
-			long timeDiff = createdComponent.getAction().getTimestamp() - candidate.getAction().getTimestamp();
+		for(FileComponent candidate : sameContentSet) {
+			long timeDiff = toSearch.getAction().getTimestamp() - candidate.getAction().getTimestamp();
 			if(timeDiff < minTimeDiff) {
 				minTimeDiff = timeDiff;
-				deletedComponent = candidate;
+				result = candidate;
 			}
 		}
-		deletedComponents.remove(deletedComponent);
-		return deletedComponent;
+		if(result != null){
+			boolean isRemoved = sameContentSet.remove(result);
+			logger.trace("findComponentsInSetMultimap - file: {} removed {}", result.getPath(), isRemoved);
+		}
+		
+		return result;
+	}
+	
+	@Override
+	public FileComponent findCreatedByContent(FileComponent deletedComponent) {
+		return findComponentInSetMultiMap(deletedComponent, getCreatedByContentHash());
 	}
 
 	public Path getRootPath(){
@@ -190,5 +204,10 @@ public class FileTree implements IFileTree{
 		Set<Path> synchronizedFiles = new ConcurrentHashSet<Path>();
 		rootOfFileTree.getSynchronizedChildrenPaths(synchronizedFiles);
 		return synchronizedFiles;
+	}
+
+	@Override
+	public SetMultimap<String, FileComponent> getCreatedByContentHash() {
+		return createdByContentHash;
 	}
 }

@@ -73,5 +73,15 @@ public class DummyFileTree implements IFileTree{
 		// TODO Auto-generated method stub
 		return synchronizedFiles;
 	}
+	@Override
+	public SetMultimap<String, FileComponent> getCreatedByContentHash() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	@Override
+	public FileComponent findCreatedByContent(FileComponent deletedComponent) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 
 }

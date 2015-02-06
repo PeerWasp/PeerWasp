@@ -53,11 +53,11 @@ public class EstablishedState extends AbstractActionState{
 		return changeStateOnLocalCreate();
 	}
 
-	@Override
-	public AbstractActionState handleLocalMove(Path newPath) {
-		action.getFileEventManager().getFileTree().putFile(newPath, action.getFile());
-		return changeStateOnLocalMove(newPath);
-	}
+//	@Override
+//	public AbstractActionState handleLocalMove(Path newPath) {
+//		action.getFileEventManager().getFileTree().putFile(newPath, action.getFile());
+//		return changeStateOnLocalMove(newPath);
+//	}
 
 	@Override
 	public AbstractActionState handleRemoteCreate() {
