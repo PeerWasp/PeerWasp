@@ -21,8 +21,12 @@ public interface IFileTree {
 	
 	public SetMultimap<String, FileComponent> getDeletedByContentHash();
 	public SetMultimap<String, FileComponent> getCreatedByContentHash();
-	public Map<String, FolderComposite> getDeletedByContentNamesHash();
+	public SetMultimap<String, FolderComposite> getDeletedByStructureHash();
+	public SetMultimap<String, FolderComposite> getCreatedByStructureHash();
+	
 	public FileComponent findDeletedByContent(FileComponent createdComponent);
 	public FileComponent findCreatedByContent(FileComponent deletedComponent);
+	public FolderComposite findCreatedByStructure(FolderComposite deletedFolder);
+	public FolderComposite findDeletedByStructure(FolderComposite createdFolder);
 	public FileComponent getOrCreateFileComponent(Path path, IFileEventManager eventManager);
 }

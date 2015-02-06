@@ -163,7 +163,7 @@ public class FileWalkerTestWhenFolderCreated {
 			Thread.sleep(10);
 			
 			assertTrue(manager.getFileTree().getDeletedByContentHash().size() == 0);
-			assertTrue(manager.getFileTree().getDeletedByContentNamesHash().size() == 0);
+			assertTrue(manager.getFileTree().getDeletedByStructureHash().size() == 0);
 			assertTrue(manager.getFileComponentQueue().size() == 1);
 			
 			//Ensure old files are removed and new ones appended to the tree
@@ -201,7 +201,7 @@ public class FileWalkerTestWhenFolderCreated {
 			}
 			
 			assertTrue(manager.getFileTree().getDeletedByContentHash().size() == 0);
-			assertTrue(manager.getFileTree().getDeletedByContentNamesHash().size() == 0);
+			assertTrue(manager.getFileTree().getDeletedByStructureHash().size() == 0);
 			assertTrue(manager.getFileComponentQueue().size() == 0);
 			Files.move(file1New.toPath(), file1Root.toPath());
 			Thread.sleep(10);
@@ -212,7 +212,7 @@ public class FileWalkerTestWhenFolderCreated {
 			}
 			
 			assertTrue(manager.getFileTree().getDeletedByContentHash().size() == 0);
-			assertTrue(manager.getFileTree().getDeletedByContentNamesHash().size() == 0);
+			assertTrue(manager.getFileTree().getDeletedByStructureHash().size() == 0);
 			ArrayList<FileComponent> list = new ArrayList<FileComponent>(manager.getFileComponentQueue());
 
 			for(FileComponent comp : list){

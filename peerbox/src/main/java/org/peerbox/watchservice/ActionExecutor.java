@@ -25,6 +25,7 @@ import org.peerbox.watchservice.states.ExecutionHandle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.SetMultimap;
 import com.google.inject.Inject;
 
 /**
@@ -108,6 +109,7 @@ public class ActionExecutor implements Runnable {
 				if (isTimerReady(next.getAction()) && isExecuteSlotFree()) {
 
 					removeFromDeleted(next);
+					removeFromCreated(next);
 
 					logger.debug("Start execution: {}", next.getPath());
 
@@ -201,19 +203,32 @@ public class ActionExecutor implements Runnable {
 	}
 
 	private void removeFromDeleted(FileComponent next) {
-		Set<FileComponent> sameHashDeletes = fileEventManager.getFileTree().getDeletedByContentHash().get(next.getContentHash());
+		SetMultimap<String, FileComponent> deletedByContent = fileEventManager.getFileTree().getDeletedByContentHash();
+		SetMultimap<String, FolderComposite> deletedByStructure = fileEventManager.getFileTree().getDeletedByStructureHash();
+		removeComponentFromSetMultimap(next, deletedByContent, deletedByStructure);
+	}
+	
+	private void removeFromCreated(FileComponent next){
+		SetMultimap<String, FileComponent> createdByContent = fileEventManager.getFileTree().getCreatedByContentHash();
+		SetMultimap<String, FolderComposite> createdByStructure = fileEventManager.getFileTree().getCreatedByStructureHash();
+		removeComponentFromSetMultimap(next, createdByContent, createdByStructure);
+	}
+	
+	private void removeComponentFromSetMultimap(FileComponent toRemove, 
+			SetMultimap<String, FileComponent> byContent,
+			SetMultimap<String, FolderComposite> byStructure){
+		Set<FileComponent> sameHashDeletes = byContent.get(toRemove.getContentHash());
 		Iterator<FileComponent> componentIterator = sameHashDeletes.iterator();
 		while(componentIterator.hasNext()){
 			FileComponent candidate = componentIterator.next();
-			if(candidate.getPath().toString().equals(next.getPath().toString())){
+			if(candidate.getPath().toString().equals(toRemove.getPath().toString())){
 				componentIterator.remove();
 				break;
 			}
 		}
-		Map<String, FolderComposite> deletedByContentNamesHash = fileEventManager.getFileTree().getDeletedByContentNamesHash();
-		if(next instanceof FolderComposite){
-			FolderComposite nextAsFolder = (FolderComposite)next;
-			deletedByContentNamesHash.remove(nextAsFolder.getStructureHash());
+		if(toRemove.isFolder()){
+			FolderComposite nextAsFolder = (FolderComposite)toRemove;
+			byStructure.get(nextAsFolder.getStructureHash()).remove(toRemove);
 		}
 
 	}

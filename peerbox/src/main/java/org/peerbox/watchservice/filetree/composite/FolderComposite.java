@@ -29,7 +29,7 @@ public class FolderComposite extends AbstractFileComponent {
 		super(path, updateContentHash);
 
 		this.children = new ConcurrentSkipListMap<Path, FileComponent>();
-		this.structureHash = "";
+		computeContentNamesHash();
 		this.isRoot = isRoot;
 
 		if (isRoot) {

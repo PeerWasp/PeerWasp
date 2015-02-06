@@ -54,7 +54,7 @@ public class DummyFileTree implements IFileTree{
 		return null;
 	}
 	@Override
-	public Map<String, FolderComposite> getDeletedByContentNamesHash() {
+	public SetMultimap<String, FolderComposite> getDeletedByStructureHash() {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -80,6 +80,22 @@ public class DummyFileTree implements IFileTree{
 	}
 	@Override
 	public FileComponent findCreatedByContent(FileComponent deletedComponent) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	
+	@Override
+	public SetMultimap<String, FolderComposite> getCreatedByStructureHash() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	@Override
+	public FolderComposite findCreatedByStructure(FolderComposite deletedFolder) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	@Override
+	public FolderComposite findDeletedByStructure(FolderComposite createdFolder) {
 		// TODO Auto-generated method stub
 		return null;
 	}

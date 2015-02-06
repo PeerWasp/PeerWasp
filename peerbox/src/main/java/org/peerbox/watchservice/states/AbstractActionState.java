@@ -124,17 +124,28 @@ public abstract class AbstractActionState {
 //		eventManager.getFileTree().deleteFile(action.getFile().getPath());
 		action.getFile().setIsSynchronized(false);
 //		logger.debug("Deleted {} from tree.", action.getFile().getPath());
-		
-		FileComponent moveTarget = action.getFileEventManager().getFileTree().findCreatedByContent(action.getFile());
-		if(moveTarget != null){
-			logger.trace("We observed a swapped move (deletion of source file "
-					+ "was reported after creation of target file: {} -> {}", action.getFile().getPath(), moveTarget.getPath());
-			
-			FileComponent file = eventManager.getFileTree().deleteFile(action.getFile().getPath());
-			eventManager.getFileComponentQueue().remove(moveTarget);
-//			moveTarget.getAction().handleLocalMoveEvent(moveTarget.getPath());
-			return handleLocalMove(moveTarget.getPath());
+		if(action.getFile().isFolder()){
+			FileComponent moveTarget = action.getFileEventManager().getFileTree().findCreatedByStructure((FolderComposite)action.getFile());
+			if(moveTarget != null){
+				logger.trace("We observed a swapped folder move (deletion of source file "
+						+ "was reported after creation of target file: {} -> {}", action.getFile().getPath(), moveTarget.getPath());
+				FileComponent file = eventManager.getFileTree().deleteFile(action.getFile().getPath());
+				eventManager.getFileComponentQueue().remove(moveTarget);
+				return handleLocalMove(moveTarget.getPath());
+			}
+		} else {
+			FileComponent moveTarget = action.getFileEventManager().getFileTree().findCreatedByContent(action.getFile());
+			if(moveTarget != null){
+				logger.trace("We observed a swapped move (deletion of source file "
+						+ "was reported after creation of target file: {} -> {}", action.getFile().getPath(), moveTarget.getPath());
+				
+				FileComponent file = eventManager.getFileTree().deleteFile(action.getFile().getPath());
+				eventManager.getFileComponentQueue().remove(moveTarget);
+//				moveTarget.getAction().handleLocalMoveEvent(moveTarget.getPath());
+				return handleLocalMove(moveTarget.getPath());
+			}
 		}
+		
 		if(action.getFile().isFile()){
 //			String oldHash = action.getFile().getContentHash();
 //			logger.debug("File: {}Previous content hash: {} new content hash: ", action.getFilePath(), oldHash, action.getFile().getContentHash());
@@ -142,7 +153,8 @@ public abstract class AbstractActionState {
 			deletedFiles.put(action.getFile().getContentHash(), action.getFile());
 			logger.debug("Put deleted file {} with hash {} to SetMultimap<String, FileComponent>", action.getFile().getPath(), action.getFile().getContentHash());
 		} else {
-			Map<String, FolderComposite> deletedFolders = eventManager.getFileTree().getDeletedByContentNamesHash();
+			SetMultimap<String, FolderComposite> deletedFolders = eventManager.getFileTree().getDeletedByStructureHash();
+			logger.trace("Delete folder: put folder {} with structure hash {} to deleted folders.", action.getFile().getPath(), action.getFile().getStructureHash());
 			deletedFolders.put(action.getFile().getStructureHash(), (FolderComposite)action.getFile());
 		}
 		

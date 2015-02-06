@@ -26,7 +26,8 @@ public class FileTree implements IFileTree{
 	private static final Logger logger = LoggerFactory.getLogger(FileTree.class);
 
 	private FolderComposite rootOfFileTree;
-	private Map<String, FolderComposite> deletedByContentNamesHash = new ConcurrentHashMap<String, FolderComposite>();
+	private SetMultimap<String, FolderComposite> deletedByStructureHash = HashMultimap.create();
+	private SetMultimap<String, FolderComposite> createdByStructureHash = HashMultimap.create();
 	private SetMultimap<String, FileComponent> deletedByContentHash = HashMultimap.create();
 	private SetMultimap<String, FileComponent> createdByContentHash = HashMultimap.create();
     private boolean maintainContentHashes;
@@ -111,9 +112,9 @@ public class FileTree implements IFileTree{
 		return null;
 	}
 
-
-	public Map<String, FolderComposite> getDeletedByContentNamesHash() {
-		return deletedByContentNamesHash;
+	@Override
+	public SetMultimap<String, FolderComposite> getDeletedByStructureHash() {
+		return deletedByStructureHash;
 	}
 
 	public SetMultimap<String, FileComponent> getDeletedByContentHash(){
@@ -154,22 +155,21 @@ public class FileTree implements IFileTree{
 		return walker.indexContentRecursively();
 	}
 
-	/**
-	 * Searches the SetMultiMap<String, FileComponent> deletedByContentHash for
-	 * a deleted FileComponent with the same content hash. If several exist, the temporally
-	 * closest is returned.
-	 * @param createdComponent The previously deleted component
-	 * @return
-	 */
-	public FileComponent findDeletedByContent(FileComponent createdComponent){
-		return findComponentInSetMultiMap(createdComponent, getDeletedByContentHash());
-	}
+
 	
-	private FileComponent findComponentInSetMultiMap(FileComponent toSearch, SetMultimap<String, FileComponent> filesByContent){
+	private FileComponent findComponentInSetMultimap(FileComponent toSearch, 
+			SetMultimap<String, ? extends FileComponent> filesByContent, 
+			boolean checkContent){
 		FileComponent result = null;
-		String contentHash = toSearch.getContentHash();
-		logger.trace("Contenthash to search for: {}", contentHash);
-		Set<FileComponent> sameContentSet = filesByContent.get(contentHash);
+		String hash = "";
+		if(checkContent){
+			hash = toSearch.getContentHash();
+		} else {
+			hash = toSearch.getStructureHash();
+		}
+
+		logger.trace("Contenthash to search for: {}", hash);
+		Set<? extends FileComponent> sameContentSet = filesByContent.get(hash);
 		
 		for(FileComponent comp: sameContentSet){
 			logger.trace("Set contains {}", comp.getPath());
@@ -192,9 +192,31 @@ public class FileTree implements IFileTree{
 	
 	@Override
 	public FileComponent findCreatedByContent(FileComponent deletedComponent) {
-		return findComponentInSetMultiMap(deletedComponent, getCreatedByContentHash());
+		return findComponentInSetMultimap(deletedComponent, getCreatedByContentHash(), true);
+	}
+	
+	/**
+	 * Searches the SetMultiMap<String, FileComponent> deletedByContentHash for
+	 * a deleted FileComponent with the same content hash. If several exist, the temporally
+	 * closest is returned.
+	 * @param createdComponent The previously deleted component
+	 * @return
+	 */
+	@Override
+	public FileComponent findDeletedByContent(FileComponent createdComponent){
+		return findComponentInSetMultimap(createdComponent, getDeletedByContentHash(), true);
+	}
+	
+	@Override
+	public FolderComposite findCreatedByStructure(FolderComposite toSearch){
+		return (FolderComposite)findComponentInSetMultimap((FileComponent)toSearch, getCreatedByStructureHash(), false);
 	}
 
+	@Override
+	public FolderComposite findDeletedByStructure(FolderComposite toSearch){
+		return (FolderComposite)findComponentInSetMultimap((FileComponent)toSearch, getDeletedByStructureHash(), false);
+	}
+	
 	public Path getRootPath(){
 		return rootOfFileTree.getPath();
 	}
@@ -209,5 +231,11 @@ public class FileTree implements IFileTree{
 	@Override
 	public SetMultimap<String, FileComponent> getCreatedByContentHash() {
 		return createdByContentHash;
+	}
+
+	@Override
+	public SetMultimap<String, FolderComposite> getCreatedByStructureHash() {
+		// TODO Auto-generated method stub
+		return createdByStructureHash;
 	}
 }

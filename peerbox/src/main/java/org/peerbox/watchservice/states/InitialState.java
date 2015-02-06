@@ -70,12 +70,17 @@ public class InitialState extends AbstractActionState {
 		final FileComponent file = action.getFile();
 		final Path filePath = file.getPath();
 
-		if (Files.isDirectory(filePath)) {
+		
+		String oldContentHash = file.getContentHash();
+		fileTree.putFile(filePath, file);
+		file.bubbleContentHashUpdate();
+		logger.debug("File {}: content hash update: '{}' -> '{}'", filePath, oldContentHash, file.getContentHash());
+
+		if (file.isFolder()) {
 			// find deleted by structure hash
-			Map<String, FolderComposite> deletedFolders = fileTree.getDeletedByContentNamesHash();
 			String structureHash = file.getStructureHash();
 			logger.trace("LocalCreate: structure hash of {} is {}", filePath, structureHash);
-			FolderComposite moveSource = deletedFolders.get(structureHash);
+			FolderComposite moveSource = fileTree.findDeletedByStructure((FolderComposite)file);
 			if (moveSource != null) {
 				fileTree.deleteFile(moveSource.getPath());
 				logger.trace("Folder move detected from {} to {}", moveSource.getPath(), filePath);
@@ -84,52 +89,65 @@ public class InitialState extends AbstractActionState {
 				// TODO: cleanup filecomponentqueue: remove children of folder if in localcreate state!
 				return changeStateOnLocalMove(filePath);
 			}
-		}
-
-		String oldContentHash = file.getContentHash();
-		fileTree.putFile(filePath, file);
-		file.bubbleContentHashUpdate();
-		logger.debug("File {}: content hash update: '{}' -> '{}'", filePath, oldContentHash, file.getContentHash());
-
-		FileComponent moveSource = fileTree.findDeletedByContent(file);
-		if (moveSource == null) {
-			// eventManager.getFileTree().putComponent(action.getFilePath().toString(), action.getFile());
-			// eventManager.getFileTree().putFile(action.getFilePath(), action.getFile());
-			if (file.isUploaded()) {
-				logger.debug("This file is already uploaded, hence it is not uploaded again.");
-				updateTimeAndQueue();
-				return changeStateOnLocalUpdate();
-			}
-			logger.trace("Handle regular create of {}, no move source has been found.", filePath);
-			updateTimeAndQueue();
-			return changeStateOnLocalCreate();
 		} else {
-//			if(moveSource.isSynchronized() == false){
+			FileComponent moveSource = fileTree.findDeletedByContent(file);
+			if(moveSource != null){
+//				if(moveSource.isSynchronized() == false){
 //				updateTimeAndQueue();
 //				return changeStateOnLocalCreate();
 //			}
-			fileTree.deleteFile(moveSource.getPath());
-			eventManager.getFileComponentQueue().remove(file);
-			
-			String contentHash = action.getFile().getContentHash();
-			Path pathToRemove = action.getFile().getPath();
-			boolean isRemoved = fileTree.getCreatedByContentHash().get(contentHash).remove(action.getFile());
-			logger.trace("InitialState.handleLocalDelete: IsRemoved for file {} with hash {}: {}", action.getFile().getPath(), contentHash, isRemoved);
-			
-			if (moveSource.isUploaded()) {
-				logger.trace("Handle move of {}, from {}.", filePath, moveSource.getPath());
-				// eventManager.getFileTree().deleteFile(action.getFile().getPath());
-				moveSource.getAction().handleLocalMoveEvent(filePath);
-				return changeStateOnLocalMove(filePath);
-			} else {
-				logger.trace("No move of {}, as it was not uploaded.", moveSource.getPath());
-				fileTree.putFile(filePath, file);
-				updateTimeAndQueue();
-				return changeStateOnLocalCreate();
+				fileTree.deleteFile(moveSource.getPath());
+				eventManager.getFileComponentQueue().remove(file);
+				
+				String contentHash = action.getFile().getContentHash();
+				Path pathToRemove = action.getFile().getPath();
+				boolean isRemoved = fileTree.getCreatedByContentHash().get(contentHash).remove(action.getFile());
+				logger.trace("InitialState.handleLocalDelete: IsRemoved for file {} with hash {}: {}", action.getFile().getPath(), contentHash, isRemoved);
+				
+				if (moveSource.isUploaded()) {
+					logger.trace("Handle move of {}, from {}.", filePath, moveSource.getPath());
+					// eventManager.getFileTree().deleteFile(action.getFile().getPath());
+					moveSource.getAction().handleLocalMoveEvent(filePath);
+					return changeStateOnLocalMove(filePath);
+				} else {
+					logger.trace("No move of {}, as it was not uploaded.", moveSource.getPath());
+					fileTree.putFile(filePath, file);
+					updateTimeAndQueue();
+					return changeStateOnLocalCreate();
+				}
 			}
 		}
-
+		
+		// eventManager.getFileTree().putComponent(action.getFilePath().toString(), action.getFile());
+		// eventManager.getFileTree().putFile(action.getFilePath(), action.getFile());
+		if (file.isUploaded()) {
+			logger.debug("This file is already uploaded, hence it is not uploaded again.");
+			updateTimeAndQueue();
+			return changeStateOnLocalUpdate();
+		}
+		logger.trace("Handle regular create of {}, no move source has been found.", filePath);
+		updateTimeAndQueue();
+		return changeStateOnLocalCreate();
+		
 	}
+		
+//		FileComponent moveSource = fileTree.findDeletedByContent(file);
+//		if (moveSource == null) {
+//			// eventManager.getFileTree().putComponent(action.getFilePath().toString(), action.getFile());
+//			// eventManager.getFileTree().putFile(action.getFilePath(), action.getFile());
+//			if (file.isUploaded()) {
+//				logger.debug("This file is already uploaded, hence it is not uploaded again.");
+//				updateTimeAndQueue();
+//				return changeStateOnLocalUpdate();
+//			}
+//			logger.trace("Handle regular create of {}, no move source has been found.", filePath);
+//			updateTimeAndQueue();
+//			return changeStateOnLocalCreate();
+//		} else {
+//			
+//		}
+//
+//	}
 
 	@Override
 	public AbstractActionState handleLocalDelete() {
