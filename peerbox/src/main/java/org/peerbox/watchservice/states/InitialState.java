@@ -10,6 +10,7 @@ import org.peerbox.app.manager.file.IFileManager;
 import org.peerbox.exceptions.NotImplException;
 import org.peerbox.watchservice.IAction;
 import org.peerbox.watchservice.IFileEventManager;
+import org.peerbox.watchservice.conflicthandling.ConflictHandler;
 import org.peerbox.watchservice.filetree.IFileTree;
 import org.peerbox.watchservice.filetree.composite.FileComponent;
 import org.peerbox.watchservice.filetree.composite.FolderComposite;
@@ -120,6 +121,7 @@ public class InitialState extends AbstractActionState {
 
 		if (file.isUploaded()) {
 			logger.debug("This file is already uploaded, hence it is not uploaded again.");
+			ConflictHandler.resolveConflict(file.getPath(), true);
 			updateTimeAndQueue();
 			return changeStateOnLocalUpdate();
 		}
