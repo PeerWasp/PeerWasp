@@ -482,6 +482,7 @@ public class Action implements IAction {
 
 	@Override
 	public boolean isExecuting() {
+		logger.trace("File {} is executing: {}", file.getPath(), isExecuting);
 		return isExecuting;
 	}
 

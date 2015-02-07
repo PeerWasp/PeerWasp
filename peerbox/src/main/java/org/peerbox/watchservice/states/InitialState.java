@@ -59,6 +59,17 @@ public class InitialState extends AbstractActionState {
 	}
 
 	@Override
+	public AbstractActionState changeStateOnLocalCreate(){
+		//case: 
+		if(action.getFile().isUploaded()){
+			logStateTransition(getStateType(), EventType.LOCAL_CREATE, StateType.ESTABLISHED);
+			return new EstablishedState(action);
+		}
+		logStateTransition(getStateType(), EventType.LOCAL_CREATE, StateType.LOCAL_CREATE);
+		return new LocalCreateState(action);
+	}
+	
+	@Override
 	public AbstractActionState handleLocalCreate() {
 
 		
