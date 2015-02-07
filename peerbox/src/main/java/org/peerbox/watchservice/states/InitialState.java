@@ -126,8 +126,8 @@ public class InitialState extends AbstractActionState {
 		}
 
 		if (file.isUploaded() && file.isSynchronized()) {
-			logger.debug("File {} is already uploaded, hence it is not uploaded again.", file.getPath());
-			ConflictHandler.resolveConflict(file.getPath(), true);
+			logger.debug("File {} has been soft-deleted and recreated. This is regarded as a file update.", file.getPath());
+//			ConflictHandler.resolveConflict(file.getPath(), true);
 			updateTimeAndQueue();
 			return changeStateOnLocalUpdate();
 		}

@@ -60,13 +60,14 @@ public class SelectiveSynchronization extends FileIntegrationTest{
 		waitForNotExistsLocally(path, WAIT_TIME_VERY_SHORT);
 		
 		FileTestUtils.recreateRandomFile(path);
-		toSync = new ArrayList<Path>();
 
-		Path renamedFile = ConflictHandler.rename(path);
-		toSync.add(renamedFile);
+//		Path renamedFile = ConflictHandler.rename(path);
+//		toSync.add(renamedFile);
+		waitForUpdate(toSync, WAIT_TIME_SHORT);
 		waitForExists(toSync, WAIT_TIME_SHORT);
+		
 		eventManager.onFileSynchronized(path, false);
-		assertCleanedUpState(2);
+		assertCleanedUpState(1);
 	}
 	
 	@Test
