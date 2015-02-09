@@ -3,7 +3,6 @@ package org.peerbox.watchservice.states;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Map;
 
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.hive2hive.core.exceptions.NoSessionException;
@@ -54,7 +53,7 @@ public abstract class AbstractActionState {
 
 	protected void logStateTransition(StateType stateBefore, EventType event, StateType stateAfter){
 		logger.debug("File {}: {} + {}  --> {}", action.getFile().getPath(),
-				stateBefore.getString(), event.getString(), stateAfter.getString());
+				stateBefore.getName(), event.getString(), stateAfter.getName());
 	}
 
 	public void performCleanup(){
@@ -103,7 +102,7 @@ public abstract class AbstractActionState {
 	}
 
 	public AbstractActionState changeStateOnRemoteMove(Path oldFilePath){
-		throw new NotImplException(action.getCurrentState().getStateType().getString() + ".changeStateOnRemoteMove");
+		throw new NotImplException(action.getCurrentState().getStateType().getName() + ".changeStateOnRemoteMove");
 	}
 
 	/*
@@ -138,14 +137,14 @@ public abstract class AbstractActionState {
 			if(moveTarget != null){
 				logger.trace("We observed a swapped move (deletion of source file "
 						+ "was reported after creation of target file: {} -> {}", action.getFile().getPath(), moveTarget.getPath());
-				
+
 				FileComponent file = eventManager.getFileTree().deleteFile(action.getFile().getPath());
 				eventManager.getFileComponentQueue().remove(moveTarget);
 //				moveTarget.getAction().handleLocalMoveEvent(moveTarget.getPath());
 				return handleLocalMove(moveTarget.getPath());
 			}
 		}
-		
+
 		if(action.getFile().isFile()){
 //			String oldHash = action.getFile().getContentHash();
 //			logger.debug("File: {}Previous content hash: {} new content hash: ", action.getFilePath(), oldHash, action.getFile().getContentHash());
@@ -157,8 +156,8 @@ public abstract class AbstractActionState {
 			logger.trace("Delete folder: put folder {} with structure hash {} to deleted folders.", action.getFile().getPath(), action.getFile().getStructureHash());
 			deletedFolders.put(action.getFile().getStructureHash(), (FolderComposite)action.getFile());
 		}
-		
-		action.getFile().getParent().bubbleContentHashUpdate();
+
+		action.getFile().getParent().updateContentHash();
 		action.getFile().getParent().bubbleContentNamesHashUpdate();
 		return this.changeStateOnLocalDelete();
 	}

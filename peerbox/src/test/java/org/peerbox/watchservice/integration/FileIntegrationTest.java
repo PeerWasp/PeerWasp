@@ -433,7 +433,7 @@ public abstract class FileIntegrationTest extends BaseJUnitTest {
 
 		List<ClientNode> clients = network.getClients();
 		for(ClientNode client : clients){
-			Vector<FileComponent> queue = new Vector<FileComponent>(client.getFileEventManager().getFileComponentQueue());
+			Vector<FileComponent> queue = new Vector<FileComponent>(client.getFileEventManager().getFileComponentQueue().getQueue());
 			Vector<ExecutionHandle> execs = new Vector<ExecutionHandle>(client.getActionExecutor().getFailedJobs());
 			if(queue.size() != 0){
 				for(int i = 0; i < queue.size(); i++){
@@ -447,22 +447,22 @@ public abstract class FileIntegrationTest extends BaseJUnitTest {
 			}
 			assertTrue(client.getFileEventManager().getFileComponentQueue().size() == 0);
 			assertTrue(client.getActionExecutor().getFailedJobs().size() == 0);
-			
+
 			IFileTree fileTree = client.getFileEventManager().getFileTree();
-			
+
 			for(Map.Entry<String, FileComponent> entry : fileTree.getCreatedByContentHash().entries()){
 				logger.trace("Created file left: {}", entry.getValue().getPath());
 			}
 			for(Map.Entry<String, FileComponent> entry : fileTree.getDeletedByContentHash().entries()){
 				logger.trace("Deleted file left: {}", entry.getValue().getPath());
 			}
-			
+
 			assertTrue(fileTree.getCreatedByContentHash().size() == 0);
 			assertTrue(fileTree.getCreatedByStructureHash().size() == 0);
 			assertTrue(fileTree.getDeletedByContentHash().size() == 0);
 			assertTrue(fileTree.getDeletedByStructureHash().size() == 0);
 		}
-		
+
 	}
 
 //	private boolean areExecutionsPending() {
@@ -589,7 +589,7 @@ public abstract class FileIntegrationTest extends BaseJUnitTest {
 		assertQueuesAreEmpty();
 		assertRootContains(existingFiles);
 	}
-	
+
 	protected void assertCleanedUpState(int existingFiles, boolean compareTwoway) throws IOException {
 		assertSyncClientPaths(compareTwoway);
 		assertQueuesAreEmpty();
@@ -618,3 +618,4 @@ public abstract class FileIntegrationTest extends BaseJUnitTest {
 	}
 
 }
+

@@ -58,7 +58,7 @@ public class RemoteUpdateState extends AbstractActionState {
 
 	@Override
 	public AbstractActionState handleLocalUpdate() {
-		action.getFile().bubbleContentHashUpdate();
+		action.getFile().updateContentHash();
 		ConflictHandler.resolveConflict(action.getFile().getPath());
 		return changeStateOnLocalUpdate();
 	}

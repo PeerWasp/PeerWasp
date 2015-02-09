@@ -60,7 +60,7 @@ public class InitialState extends AbstractActionState {
 
 	@Override
 	public AbstractActionState changeStateOnLocalCreate(){
-		//case: 
+		//case:
 		if(action.getFile().isUploaded()){
 			logStateTransition(getStateType(), EventType.LOCAL_CREATE, StateType.ESTABLISHED);
 			return new EstablishedState(action);
@@ -68,11 +68,11 @@ public class InitialState extends AbstractActionState {
 		logStateTransition(getStateType(), EventType.LOCAL_CREATE, StateType.LOCAL_CREATE);
 		return new LocalCreateState(action);
 	}
-	
+
 	@Override
 	public AbstractActionState handleLocalCreate() {
 
-		
+
 		final IFileEventManager eventManager = action.getFileEventManager();
 		final IFileTree fileTree = eventManager.getFileTree();
 		final FileComponent file = action.getFile();
@@ -80,7 +80,7 @@ public class InitialState extends AbstractActionState {
 
 		String oldContentHash = file.getContentHash();
 		fileTree.putFile(filePath, file);
-		file.bubbleContentHashUpdate();
+		file.updateContentHash();
 		logger.debug("File {}: content hash update: '{}' -> '{}'", filePath, oldContentHash, file.getContentHash());
 
 		if(action.getFile().isFile()){
@@ -91,7 +91,7 @@ public class InitialState extends AbstractActionState {
 			SetMultimap<String, FolderComposite> createdByStructureHash = action.getFileEventManager().getFileTree().getCreatedByStructureHash();
 			createdByStructureHash.put(action.getFile().getStructureHash(), (FolderComposite)action.getFile());
 		}
-		
+
 		if (file.isFolder()) {
 			// find deleted by structure hash
 			String structureHash = file.getStructureHash();
@@ -102,7 +102,7 @@ public class InitialState extends AbstractActionState {
 				logger.trace("Folder move detected from {} to {}", moveSource.getPath(), filePath);
 				moveSource.getAction().handleLocalMoveEvent(filePath);
 				eventManager.getFileComponentQueue().remove(file);
-				
+
 				SetMultimap<String, FolderComposite> createdByStructureHash = action.getFileEventManager().getFileTree().getCreatedByStructureHash();
 				boolean wasRemoved = createdByStructureHash.get(action.getFile().getStructureHash()).remove((FolderComposite)action.getFile());
 				// TODO: cleanup filecomponentqueue: remove children of folder if in localcreate state!
@@ -117,11 +117,11 @@ public class InitialState extends AbstractActionState {
 //			}
 				fileTree.deleteFile(moveSource.getPath());
 				eventManager.getFileComponentQueue().remove(file);
-				
+
 				String contentHash = action.getFile().getContentHash();
 				boolean isRemoved = fileTree.getCreatedByContentHash().get(contentHash).remove(action.getFile());
 				logger.trace("InitialState.handleLocalDelete: IsRemoved for file {} with hash {}: {}", action.getFile().getPath(), contentHash, isRemoved);
-				
+
 				if (moveSource.isUploaded()) {
 					logger.trace("Handle move of {}, from {}.", filePath, moveSource.getPath());
 					// eventManager.getFileTree().deleteFile(action.getFile().getPath());
@@ -145,7 +145,7 @@ public class InitialState extends AbstractActionState {
 		logger.trace("Handle regular create of {}, no move source has been found.", filePath);
 		updateTimeAndQueue();
 		return changeStateOnLocalCreate();
-		
+
 	}
 
 	@Override

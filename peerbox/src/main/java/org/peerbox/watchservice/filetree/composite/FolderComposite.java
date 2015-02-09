@@ -38,7 +38,7 @@ public class FolderComposite extends AbstractFileComponent {
 		}
 
 		if (updateContentHash) {
-			updateContentHash();
+			computeContentHash();
 		}
 	}
 
@@ -113,7 +113,7 @@ public class FolderComposite extends AbstractFileComponent {
 		children.put(nextLevelPath, component);
 		component.setParent(this);
 		if (updateContentHash) {
-			bubbleContentHashUpdate();
+			updateContentHash();
 		}
 		updateParentPathInChild(component);
 
@@ -147,7 +147,7 @@ public class FolderComposite extends AbstractFileComponent {
 		if (remainingPath.getNameCount() == 1) {
 			removed = children.remove(nextLevelPath);
 			if (updateContentHash) {
-				bubbleContentHashUpdate();
+				updateContentHash();
 			}
 			bubbleContentNamesHashUpdate();
 		} else {
@@ -180,12 +180,13 @@ public class FolderComposite extends AbstractFileComponent {
 //				logger.trace("Extend names hash of {} using {}", getParent(), child.getKey());
 				nameHashInput = nameHashInput.concat(child.getKey().toString());
 			}
-			
+
 		}
 
 		byte[] rawHash = HashUtil.hash(nameHashInput.getBytes());
-		structureHash = PathUtils.createStringFromByteArray(rawHash);
+		structureHash = PathUtils.base64Encode(rawHash);
 		logger.trace("After: structure hash of {} is {}", getPath(), structureHash);
+
 		boolean hasChanged = !structureHash.equals(oldNamesHash);
 		return hasChanged;
 	}
@@ -198,7 +199,7 @@ public class FolderComposite extends AbstractFileComponent {
 	}
 
 	@Override
-	protected boolean updateContentHash() {
+	protected boolean computeContentHash() {
 		String hashOfChildren = "";
 		for (FileComponent child : children.values()) {
 			if(child.isSynchronized()){
@@ -208,7 +209,7 @@ public class FolderComposite extends AbstractFileComponent {
 		}
 
 		byte[] rawHash = HashUtil.hash(hashOfChildren.getBytes());
-		String newHash = PathUtils.createStringFromByteArray(rawHash);
+		String newHash = PathUtils.base64Encode(rawHash);
 
 		if (!getContentHash().equals(newHash)) {
 			setContentHash(newHash);

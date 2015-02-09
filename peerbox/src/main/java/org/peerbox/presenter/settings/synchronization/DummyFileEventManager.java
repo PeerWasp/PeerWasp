@@ -4,6 +4,7 @@ import java.nio.file.Path;
 import java.util.concurrent.BlockingQueue;
 
 import org.hive2hive.core.events.framework.interfaces.file.IFileAddEvent;
+import org.peerbox.watchservice.ActionQueue;
 import org.peerbox.watchservice.IFileEventManager;
 import org.peerbox.watchservice.filetree.IFileTree;
 import org.peerbox.watchservice.filetree.composite.FileComponent;
@@ -16,7 +17,7 @@ public class DummyFileEventManager implements IFileEventManager{
 
 	private static final Logger logger = LoggerFactory.getLogger(DummyFileEventManager.class);
     private IFileTree fileTree;
-    
+
     @Inject
 	public DummyFileEventManager(){
 		DummyUserConfig userConfig = new DummyUserConfig();
@@ -28,7 +29,7 @@ public class DummyFileEventManager implements IFileEventManager{
 	}
 
 	@Override
-	public BlockingQueue<FileComponent> getFileComponentQueue() {
+	public ActionQueue getFileComponentQueue() {
 		return null;
 	}
 
@@ -43,12 +44,12 @@ public class DummyFileEventManager implements IFileEventManager{
 	@Override
 	public void onFileAdd(IFileAddEvent fileEvent) {
 		// TODO Auto-generated method stub
-		
+
 	}
 	@Override
 	public void onLocalFileHardDelete(Path toDelete) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 }

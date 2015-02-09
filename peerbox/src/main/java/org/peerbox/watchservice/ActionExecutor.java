@@ -127,7 +127,7 @@ public class ActionExecutor implements Runnable {
 						logger.debug("All slots used! Current jobs: ");
 						logRunningJobs();
 					}
-					fileEventManager.getFileComponentQueue().put(next);
+					fileEventManager.getFileComponentQueue().add(next);
 					long timeToWait = calculateWaitTime(next);
 					wait(timeToWait);
 				}

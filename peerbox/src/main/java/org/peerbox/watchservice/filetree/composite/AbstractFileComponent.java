@@ -9,6 +9,8 @@ import org.peerbox.watchservice.IAction;
 
 abstract class AbstractFileComponent implements FileComponent {
 
+	private long id;
+
 	private final IAction action;
 	private Path path;
 	private String contentHash;
@@ -19,12 +21,23 @@ abstract class AbstractFileComponent implements FileComponent {
 	private FolderComposite parent;
 
 	protected AbstractFileComponent(final Path path, final boolean updateContentHash) {
+		this.id = Long.MIN_VALUE;
 		this.action = new Action();
 		this.path = path;
 		this.contentHash = "";
 		this.updateContentHash = updateContentHash;
 		this.isUploaded = false;
 		this.isSynchronized = false;
+	}
+
+	@Override
+	public long getId() {
+		return id;
+	}
+
+	@Override
+	public void setId(long id) {
+		this.id = id;
 	}
 
 	@Override
@@ -67,20 +80,21 @@ abstract class AbstractFileComponent implements FileComponent {
 		return contentHash;
 	}
 
-	protected final void setContentHash(String contentHash) {
+	@Override
+	public final void setContentHash(final String contentHash) {
 		this.contentHash = contentHash;
 	}
 
 	@Override
-	public final boolean bubbleContentHashUpdate() {
-		boolean hasChanged = updateContentHash();
+	public final boolean updateContentHash() {
+		boolean hasChanged = computeContentHash();
 		if (hasChanged && getParent() != null) {
-			getParent().bubbleContentHashUpdate();
+			getParent().updateContentHash();
 		}
 		return hasChanged;
 	}
 
-	protected abstract boolean updateContentHash();
+	protected abstract boolean computeContentHash();
 
 	@Override
 	public final boolean isSynchronized() {

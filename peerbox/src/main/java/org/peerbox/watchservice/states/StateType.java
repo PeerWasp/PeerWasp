@@ -17,14 +17,14 @@ public enum StateType {
 	REMOTE_MOVE("RemoteMove");
 
 
-	private final String type;
+	private final String name;
 
-	private StateType(String type) {
-		this.type = type;
+	private StateType(String name) {
+		this.name = name;
 	}
 
-	public String getString() {
-		return type;
+	public String getName() {
+		return name;
 	}
 
 }

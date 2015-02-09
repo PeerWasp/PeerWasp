@@ -111,7 +111,7 @@ public class FileComponentTest {
 			e.printStackTrace();
 		}
 
-		fileInDirInDirOnRoot.bubbleContentHashUpdate();
+		fileInDirInDirOnRoot.updateContentHash();
 		String newHashRoot = fileTree.getContentHash();
 		String newHashFile = component.getContentHash();
 
