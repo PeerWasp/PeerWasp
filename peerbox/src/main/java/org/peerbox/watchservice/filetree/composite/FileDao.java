@@ -4,6 +4,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 import javax.sql.DataSource;
@@ -19,24 +21,11 @@ public class FileDao {
 
 	private static final String FILE_TABLE = "files";
 
+	private static final String DEFAULT_COLUMNS = "id, path, is_file, content_hash, "
+												+ "is_synchronized, is_uploaded, "
+												+ "current_state";
+
 	private Sql2o sql2o = null;
-
-	public FileDao() {
-
-		HikariConfig hikariConfig = new HikariConfig();
-		hikariConfig.setJdbcUrl("jdbc:h2:~/userDB");
-		hikariConfig.setUsername("sa");
-		// hikariConfig.setPassword("");
-		hikariConfig.addDataSourceProperty("cachePrepStmts", "true");
-		hikariConfig.addDataSourceProperty("prepStmtCacheSize", "250");
-		hikariConfig.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");
-		hikariConfig.addDataSourceProperty("useServerPrepStmts", "true");
-
-		DataSource dataSource = new HikariDataSource(hikariConfig);
-
-		sql2o = new Sql2o(dataSource);
-	}
-
 
 
 	public static void main(String[] args) {
@@ -54,6 +43,23 @@ public class FileDao {
 		System.out.println(f);
 
 		dao.dumpCsv();
+
+	}
+
+	public FileDao() {
+
+		HikariConfig hikariConfig = new HikariConfig();
+		hikariConfig.setJdbcUrl("jdbc:h2:~/userDB");
+		hikariConfig.setUsername("sa");
+		// hikariConfig.setPassword("");
+		hikariConfig.addDataSourceProperty("cachePrepStmts", "true");
+		hikariConfig.addDataSourceProperty("prepStmtCacheSize", "250");
+		hikariConfig.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");
+		hikariConfig.addDataSourceProperty("useServerPrepStmts", "true");
+
+		DataSource dataSource = new HikariDataSource(hikariConfig);
+
+		sql2o = new Sql2o(dataSource);
 
 	}
 
@@ -81,29 +87,23 @@ public class FileDao {
 	}
 
 	public List<FileComponent> getFiles() {
-		final String sql =
-				"SELECT id, path, is_file, content_hash, is_synchronized, is_uploaded "
-				+ "FROM " + FILE_TABLE + " "
-				+ "ORDER BY path ASC;";
+		final String sql = String.format(
+				"SELECT %s FROM %s ORDER BY path ASC;", DEFAULT_COLUMNS, FILE_TABLE);
 
 		try (Connection con = sql2o.open()) {
 			return con.createQuery(sql)
-					.executeAndFetch(FileComponent.class);
+					.executeAndFetch(new FileComponentResultSetHandler());
 		}
 	}
 
-
 	public FileComponent getFileByPath(final Path path) {
-		final String sql =
-				"SELECT * "
-				+ "FROM " + FILE_TABLE + " "
-				+ "WHERE path = :path;";
+		final String sql = String.format(
+				"SELECT %s FROM %s WHERE path = :path;", DEFAULT_COLUMNS, FILE_TABLE);
 
 		try (Connection con = sql2o.open()) {
 			return con.createQuery(sql)
 					.addParameter("path", path.toString())
 					.executeAndFetchFirst(new FileComponentResultSetHandler());
-//					.executeAndFetchFirst(FileComponent.class);
 		}
 	}
 
@@ -111,6 +111,7 @@ public class FileDao {
 
 		@Override
 		public FileComponent handle(ResultSet resultSet) throws SQLException {
+
 			FileComponent f = null;
 
 			final long id = resultSet.getLong("id");
@@ -120,10 +121,10 @@ public class FileDao {
 			final boolean isSynchronized = resultSet.getBoolean("is_synchronized");
 			final boolean isUploaded = resultSet.getBoolean("is_uploaded");
 
-			if(isFile) {
-				f = new FileLeaf(path, false);
+			if (isFile) {
+				f = new FileLeaf(path, true);
 			} else {
-				f = new FolderComposite(path, false, false);
+				f = new FolderComposite(path, true, true);
 			}
 
 			f.setId(id);
@@ -133,7 +134,6 @@ public class FileDao {
 
 			return f;
 		}
-
 	}
 
 	public void persistFile(final FileComponent file) {
@@ -189,16 +189,24 @@ public class FileDao {
 	}
 
 	public void dumpCsv() {
+		long ts = System.currentTimeMillis();
+		Date date = new Date(ts);
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");
+		String fileName = String.format("%s-%s.csv", FILE_TABLE, sdf.format(date));
+		Path file = Paths.get(fileName);
+		dumpCsv(file);
+	}
+
+	private void dumpCsv(Path file) {
 		final String sql =
 				"CALL "
 				+ "CSVWRITE( "
-				+ String.format("'%s.csv', ", FILE_TABLE)
+				+ String.format("'%s', ", file.toString())
 				+ String.format("'SELECT * FROM %s', 'charset=UTF-8 fieldSeparator=;'", FILE_TABLE)
 				+ " );";
 
 		try (Connection con = sql2o.open()) {
 			con.createQuery(sql).executeUpdate();
 		}
-
 	}
 }
