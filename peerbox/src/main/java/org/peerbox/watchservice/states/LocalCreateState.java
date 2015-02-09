@@ -40,8 +40,7 @@ public class LocalCreateState extends AbstractActionState {
 
 	@Override
 	public AbstractActionState changeStateOnRemoteDelete() {
-		logger.debug("Remote Delete Event: Local Create -> Conflict ({})", action.getFile()
-				.getPath());
+		logStateTransition(getStateType(), EventType.REMOTE_DELETE, StateType.LOCAL_CREATE);
 		return this;
 	}
 
@@ -95,6 +94,7 @@ public class LocalCreateState extends AbstractActionState {
 
 	@Override
 	public AbstractActionState handleRemoteDelete() {
+		updateTimeAndQueue();
 		return changeStateOnRemoteDelete();
 	}
 

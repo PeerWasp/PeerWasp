@@ -226,6 +226,9 @@ public class ActionExecutor implements Runnable {
 					componentIterator.remove();
 					break;
 				}
+				if(System.currentTimeMillis() - candidate.getAction().getTimestamp() > ACTION_WAIT_TIME_MS){
+					componentIterator.remove();
+				}
 			}
 		} else {
 			Iterator<Map.Entry<String, FolderComposite>> folderIterator = byStructure.entries().iterator();
