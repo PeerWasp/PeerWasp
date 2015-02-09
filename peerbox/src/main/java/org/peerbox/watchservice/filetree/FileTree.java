@@ -33,7 +33,7 @@ public class FileTree implements IFileTree{
 	private SetMultimap<String, FileComponent> createdByContentHash = HashMultimap.create();
     private boolean maintainContentHashes;
 
-    private final FileDao dao;
+//    private final FileDao dao;
 
 	@Inject
 	public FileTree(Path rootPath) {
@@ -48,7 +48,7 @@ public class FileTree implements IFileTree{
 	public FileTree(Path rootPath, boolean maintainContentHashes) {
 		this.maintainContentHashes = maintainContentHashes;
 		rootOfFileTree = new FolderComposite(rootPath, maintainContentHashes, true);
-		dao = new FileDao();
+//		dao = new FileDao();
 	}
 
     public boolean getMaintainContentHashes(){
@@ -159,9 +159,9 @@ public class FileTree implements IFileTree{
 	}
 
 
-	
-	private FileComponent findComponentInSetMultimap(FileComponent toSearch, 
-			SetMultimap<String, ? extends FileComponent> filesByContent, 
+
+	private FileComponent findComponentInSetMultimap(FileComponent toSearch,
+			SetMultimap<String, ? extends FileComponent> filesByContent,
 			boolean checkContent){
 		FileComponent result = null;
 		String hash = "";
@@ -173,7 +173,7 @@ public class FileTree implements IFileTree{
 
 		logger.trace("Contenthash to search for: {}", hash);
 		Set<? extends FileComponent> sameContentSet = filesByContent.get(hash);
-		
+
 		for(FileComponent comp: sameContentSet){
 			logger.trace("Set contains {}", comp.getPath());
 		}
@@ -189,15 +189,15 @@ public class FileTree implements IFileTree{
 			boolean isRemoved = sameContentSet.remove(result);
 			logger.trace("findComponentsInSetMultimap - file: {} removed {}", result.getPath(), isRemoved);
 		}
-		
+
 		return result;
 	}
-	
+
 	@Override
 	public FileComponent findCreatedByContent(FileComponent deletedComponent) {
 		return findComponentInSetMultimap(deletedComponent, getCreatedByContentHash(), true);
 	}
-	
+
 	/**
 	 * Searches the SetMultiMap<String, FileComponent> deletedByContentHash for
 	 * a deleted FileComponent with the same content hash. If several exist, the temporally
@@ -209,7 +209,7 @@ public class FileTree implements IFileTree{
 	public FileComponent findDeletedByContent(FileComponent createdComponent){
 		return findComponentInSetMultimap(createdComponent, getDeletedByContentHash(), true);
 	}
-	
+
 	@Override
 	public FolderComposite findCreatedByStructure(FolderComposite toSearch){
 		return (FolderComposite)findComponentInSetMultimap((FileComponent)toSearch, getCreatedByStructureHash(), false);
@@ -219,7 +219,7 @@ public class FileTree implements IFileTree{
 	public FolderComposite findDeletedByStructure(FolderComposite toSearch){
 		return (FolderComposite)findComponentInSetMultimap((FileComponent)toSearch, getDeletedByStructureHash(), false);
 	}
-	
+
 	public Path getRootPath(){
 		return rootOfFileTree.getPath();
 	}
