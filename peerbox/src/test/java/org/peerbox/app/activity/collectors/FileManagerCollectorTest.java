@@ -18,6 +18,7 @@ import org.peerbox.app.manager.file.FileConflictMessage;
 import org.peerbox.app.manager.file.FileDeleteMessage;
 import org.peerbox.app.manager.file.FileDesyncMessage;
 import org.peerbox.app.manager.file.FileDownloadMessage;
+import org.peerbox.app.manager.file.FileExecutionFailedMessage;
 import org.peerbox.app.manager.file.FileUploadMessage;
 
 public class FileManagerCollectorTest extends BaseJUnitTest {
@@ -88,6 +89,14 @@ public class FileManagerCollectorTest extends BaseJUnitTest {
 		collector.onFileDesynchronized(message);
 		
 		CollectorTestUtils.captureAddActivityItem(ActivityType.INFORMATION, activityLogger);
+	}
+	
+	@Test
+	public void testOnFileExecutionFailed(){
+		FileExecutionFailedMessage message = new FileExecutionFailedMessage(Paths.get("this/is/a/path.txt"));
+		collector.onFileExecutionFailed(message);
+		
+		CollectorTestUtils.captureAddActivityItem(ActivityType.ERROR, activityLogger);
 	}
 	
 	@Test @Ignore

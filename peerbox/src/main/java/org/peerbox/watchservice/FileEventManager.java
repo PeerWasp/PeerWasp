@@ -43,6 +43,10 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 		this.messageBus = messageBus;
 	}
     
+    public MessageBus getMessageBus(){
+    	return messageBus;
+    }
+    
 //    @Inject
 //    public FileEventManager(final FileTree fileTree){
 //    	this.fileComponentQueue = new ActionQueue();

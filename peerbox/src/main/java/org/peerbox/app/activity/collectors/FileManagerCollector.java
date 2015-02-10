@@ -9,6 +9,7 @@ import org.peerbox.app.manager.file.FileConflictMessage;
 import org.peerbox.app.manager.file.FileDeleteMessage;
 import org.peerbox.app.manager.file.FileDesyncMessage;
 import org.peerbox.app.manager.file.FileDownloadMessage;
+import org.peerbox.app.manager.file.FileExecutionFailedMessage;
 import org.peerbox.app.manager.file.FileUploadMessage;
 import org.peerbox.app.manager.file.IFileMessage;
 import org.peerbox.app.manager.file.IFileMessageListener;
@@ -66,6 +67,16 @@ class FileManagerCollector extends AbstractActivityCollector implements IFileMes
 				.setType(ActivityType.WARNING)
 				.setTitle("Conflict detected, local version renamed.")
 				.setDescription(formatDescription(conflict));
+		getActivityLogger().addActivityItem(item);
+	}
+	
+	@Handler
+	@Override
+	public void onFileExecutionFailed(FileExecutionFailedMessage failure) {
+		ActivityItem item = ActivityItem.create()
+				.setType(ActivityType.ERROR)
+				.setTitle("All attempts to handle events failed.")
+				.setDescription(formatDescription(failure));
 		getActivityLogger().addActivityItem(item);
 	}
 

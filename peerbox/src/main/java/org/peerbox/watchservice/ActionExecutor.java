@@ -18,6 +18,7 @@ import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.hive2hive.core.exceptions.NoSessionException;
 import org.hive2hive.processframework.exceptions.ProcessExecutionException;
 import org.peerbox.app.manager.ProcessHandle;
+import org.peerbox.app.manager.file.FileExecutionFailedMessage;
 import org.peerbox.app.manager.file.IFileManager;
 import org.peerbox.watchservice.filetree.composite.FileComponent;
 import org.peerbox.watchservice.filetree.composite.FolderComposite;
@@ -295,6 +296,7 @@ public class ActionExecutor implements Runnable {
 			action.updateTimestamp();
 			fileEventManager.getFileComponentQueue().add(action.getFile());
 		} else {
+			fileEventManager.getMessageBus().publish(new FileExecutionFailedMessage(path));
 			logger.error("To many attempts, action of {} has not been executed again.", path);
 			onActionExecuteSucceeded(action);
 		}
