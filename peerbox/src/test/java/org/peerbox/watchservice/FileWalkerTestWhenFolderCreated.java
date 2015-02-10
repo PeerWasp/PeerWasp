@@ -62,7 +62,7 @@ public class FileWalkerTestWhenFolderCreated {
 		testDirectory = new File(parentPath);
 		testDirectory.mkdir();
 		fileTree = new FileTree(Paths.get(parentPath), false);
-		manager = new FileEventManager(fileTree);
+		manager = new FileEventManager(fileTree, null);
 		fileManager = Mockito.mock(IFileManager.class);
 		actionExecutor = new ActionExecutor(manager, fileManager);
 		actionExecutor.setWaitForActionCompletion(false);

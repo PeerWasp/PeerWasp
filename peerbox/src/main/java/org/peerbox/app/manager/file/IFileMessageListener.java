@@ -17,5 +17,8 @@ public interface IFileMessageListener extends IMessageListener {
 
 	@Handler
 	void onFileConfilct(FileConflictMessage conflict);
+	
+	@Handler
+	void onFileDesynchronized(FileDesyncMessage desync);
 
 }

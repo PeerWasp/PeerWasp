@@ -13,6 +13,9 @@ import org.hive2hive.core.events.framework.interfaces.file.IFileMoveEvent;
 import org.hive2hive.core.events.framework.interfaces.file.IFileShareEvent;
 import org.hive2hive.core.events.framework.interfaces.file.IFileUpdateEvent;
 import org.hive2hive.core.events.implementations.FileAddEvent;
+import org.peerbox.app.manager.file.FileDesyncMessage;
+import org.peerbox.app.manager.file.IFileMessage;
+import org.peerbox.events.MessageBus;
 import org.peerbox.watchservice.conflicthandling.ConflictHandler;
 import org.peerbox.watchservice.filetree.FileTree;
 import org.peerbox.watchservice.filetree.IFileTree;
@@ -31,12 +34,21 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 
 	private final ActionQueue fileComponentQueue;
 	private final FileTree fileTree;
+	private final MessageBus messageBus;
 
     @Inject
-	public FileEventManager(final FileTree fileTree) {
+	public FileEventManager(final FileTree fileTree, MessageBus messageBus) {
     	this.fileComponentQueue = new ActionQueue();
 		this.fileTree = fileTree;
+		this.messageBus = messageBus;
 	}
+    
+//    @Inject
+//    public FileEventManager(final FileTree fileTree){
+//    	this.fileComponentQueue = new ActionQueue();
+//		this.fileTree = fileTree;
+//		this.messageBus = null;
+//    }
 
     /**
 	 * Handles incoming create events the following way:
@@ -107,6 +119,7 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 	 */
 	@Override
 	public void onLocalFileDeleted(final Path path) {
+		publishMessage(new FileDesyncMessage(path));
 		logger.debug("onLocalFileDelete: {}", path);
 
 		final FileComponent file = fileTree.getOrCreateFileComponent(path, this);
@@ -116,6 +129,14 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 		}
 
 		file.getAction().handleLocalDeleteEvent();
+	}
+
+	private void publishMessage(IFileMessage message) {
+		if(messageBus != null){
+			messageBus.publish(message);
+		} else {
+			logger.warn("No message sent, as message bus is null!");
+		}
 	}
 
 	@Override

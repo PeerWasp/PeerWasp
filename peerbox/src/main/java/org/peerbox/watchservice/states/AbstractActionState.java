@@ -119,7 +119,9 @@ public abstract class AbstractActionState {
 
 	public AbstractActionState handleLocalDelete(){
 		IFileEventManager eventManager = action.getFileEventManager();
-		eventManager.getFileComponentQueue().remove(action.getFile());
+//		eventManager.getFileComponentQueue().remove(action.getFile());
+		
+		updateTimeAndQueue();
 //		eventManager.getFileTree().deleteFile(action.getFile().getPath());
 		action.getFile().setIsSynchronized(false);
 //		logger.debug("Deleted {} from tree.", action.getFile().getPath());

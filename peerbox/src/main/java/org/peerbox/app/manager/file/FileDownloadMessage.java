@@ -4,7 +4,7 @@ import java.nio.file.Path;
 
 public final class FileDownloadMessage extends AbstractFileMessage {
 
-	FileDownloadMessage(Path path) {
+	public FileDownloadMessage(Path path) {
 		super(path);
 	}
 

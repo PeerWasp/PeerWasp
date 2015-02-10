@@ -4,7 +4,7 @@ import java.nio.file.Path;
 
 public final class FileUploadMessage extends AbstractFileMessage {
 
-	FileUploadMessage(Path path) {
+	public FileUploadMessage(Path path) {
 		super(path);
 	}
 

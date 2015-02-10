@@ -227,6 +227,7 @@ public class ActionExecutor implements Runnable {
 					break;
 				}
 				if(System.currentTimeMillis() - candidate.getAction().getTimestamp() > ACTION_WAIT_TIME_MS){
+					logger.trace("Remove old entry: {}", candidate.getPath());
 					componentIterator.remove();
 				}
 			}

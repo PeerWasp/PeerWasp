@@ -9,5 +9,6 @@ package org.peerbox.app.activity;
  */
 public enum ActivityType {
 	INFORMATION,
-	WARNING
+	WARNING,
+	ERROR
 }

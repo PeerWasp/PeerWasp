@@ -89,6 +89,7 @@ public class LocalCreateState extends AbstractActionState {
 	@Override
 	public AbstractActionState handleRemoteCreate() {
 		ConflictHandler.resolveConflict(action.getFile().getPath());
+		
 		return changeStateOnRemoteCreate();
 	}
 

@@ -64,7 +64,7 @@ public class NativeFolderWatchServiceTest {
 
 		watchService = new FolderWatchService();
 		fileTree = new FileTree(basePath, true);
-		eventManager = new FileEventManager(fileTree);
+		eventManager = new FileEventManager(fileTree, null);
 		actionExecutor = new ActionExecutor(eventManager, fileManager);
 		actionExecutor.start();
 		watchService.addFileEventListener(eventManager);

@@ -49,7 +49,7 @@ public class FileWalkerTest {
 			e.printStackTrace();
 		}
 		fileTree = new FileTree(Paths.get(parentPath), true);
-		manager = new FileEventManager(fileTree);
+		manager = new FileEventManager(fileTree, null);
 	}
 	
 	@Before

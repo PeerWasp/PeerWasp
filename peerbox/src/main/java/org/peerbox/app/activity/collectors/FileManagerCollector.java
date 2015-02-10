@@ -4,8 +4,10 @@ import net.engio.mbassy.listener.Handler;
 
 import org.peerbox.app.activity.ActivityItem;
 import org.peerbox.app.activity.ActivityLogger;
+import org.peerbox.app.activity.ActivityType;
 import org.peerbox.app.manager.file.FileConflictMessage;
 import org.peerbox.app.manager.file.FileDeleteMessage;
+import org.peerbox.app.manager.file.FileDesyncMessage;
 import org.peerbox.app.manager.file.FileDownloadMessage;
 import org.peerbox.app.manager.file.FileUploadMessage;
 import org.peerbox.app.manager.file.IFileMessage;
@@ -47,12 +49,24 @@ class FileManagerCollector extends AbstractActivityCollector implements IFileMes
 				.setDescription(formatDescription(delete));
 		getActivityLogger().addActivityItem(item);
 	}
+	
+	@Handler
+	@Override
+	public void onFileDesynchronized(FileDesyncMessage desync){
+		ActivityItem item = ActivityItem.create()
+				.setTitle("Soft-delete finished. File has been locally deleted.")
+				.setDescription(formatDescription(desync));
+		getActivityLogger().addActivityItem(item);
+	}
 
 	@Handler
 	@Override
 	public void onFileConfilct(FileConflictMessage conflict) {
-		// TODO: implement it
-		throw new NotImplException("onFileConflict not implemented.");
+		ActivityItem item = ActivityItem.create()
+				.setType(ActivityType.WARNING)
+				.setTitle("Conflict detected, local version renamed.")
+				.setDescription(formatDescription(conflict));
+		getActivityLogger().addActivityItem(item);
 	}
 
 	private String formatDescription(IFileMessage msg) {

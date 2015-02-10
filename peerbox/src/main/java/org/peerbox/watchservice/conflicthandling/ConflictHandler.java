@@ -8,6 +8,8 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import org.apache.commons.io.FilenameUtils;
+import org.peerbox.app.manager.file.FileConflictMessage;
+import org.peerbox.events.MessageBus;
 
 public class ConflictHandler {
 	
@@ -43,18 +45,31 @@ public class ConflictHandler {
 		resolveConflict(file, false);
 	}
 	
-	public static void resolveConflict(Path file, boolean moveFile){
+	public static void resolveConflictAndNotifyGUI(Path file, boolean moveFile, MessageBus bus){
 		Path renamedFile = ConflictHandler.rename(file);
 		try {
 			if(moveFile){
 				Files.move(file, renamedFile);
+				if(bus != null){
+					bus.publish(new FileConflictMessage(file));
+				}
 			} else {
-				Files.copy(file, renamedFile);			
+				Files.copy(file, renamedFile);
+				if(bus != null){
+					bus.publish(new FileConflictMessage(file));
+				}
+			if(bus != null){
+					
+				}
 			}
 
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
+	
+	public static void resolveConflict(Path file, boolean moveFile){
+		resolveConflictAndNotifyGUI(file, moveFile, null);
 	}
 
 }

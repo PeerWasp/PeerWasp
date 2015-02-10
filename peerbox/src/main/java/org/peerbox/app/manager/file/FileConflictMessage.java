@@ -4,7 +4,7 @@ import java.nio.file.Path;
 
 public final class FileConflictMessage extends AbstractFileMessage {
 
-	FileConflictMessage(Path path) {
+	public FileConflictMessage(Path path) {
 		super(path);
 	}
 

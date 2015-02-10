@@ -4,7 +4,7 @@ import java.nio.file.Path;
 
 public final class FileDeleteMessage extends AbstractFileMessage {
 
-	FileDeleteMessage(Path path) {
+	public FileDeleteMessage(Path path) {
 		super(path);
 	}
 

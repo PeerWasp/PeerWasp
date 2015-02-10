@@ -77,7 +77,7 @@ public class ClientNode {
 
 		fileManager = new FileManager(manager, userConfig, messageBus);
 		fileTree = new FileTree(rootPath, true);
-		fileEventManager = new FileEventManager(fileTree);
+		fileEventManager = new FileEventManager(fileTree, messageBus);
 		actionExecutor = new ActionExecutor(fileEventManager, fileManager);
 		watchService = new FolderWatchService();
 		watchService.addFileEventListener(fileEventManager);

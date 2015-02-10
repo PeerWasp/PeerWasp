@@ -43,7 +43,7 @@ public class UserManagerCollectorTest extends BaseJUnitTest {
 		RegisterMessage msg = new RegisterMessage("username");
 		collector.onUserRegister(msg);
 
-		captureAddActivityItem(ActivityType.INFORMATION);
+		CollectorTestUtils.captureAddActivityItem(ActivityType.INFORMATION, activityLogger);
 	}
 
 	@Test
@@ -51,7 +51,7 @@ public class UserManagerCollectorTest extends BaseJUnitTest {
 		LoginMessage msg = new LoginMessage("username");
 		collector.onUserLogin(msg);
 
-		captureAddActivityItem(ActivityType.INFORMATION);
+		CollectorTestUtils.captureAddActivityItem(ActivityType.INFORMATION, activityLogger);
 	}
 
 	@Test
@@ -59,16 +59,8 @@ public class UserManagerCollectorTest extends BaseJUnitTest {
 		LogoutMessage msg = new LogoutMessage("username");
 		collector.onUserLogout(msg);
 
-		captureAddActivityItem(ActivityType.INFORMATION);
+		CollectorTestUtils.captureAddActivityItem(ActivityType.INFORMATION, activityLogger);
 	}
 
-	/**
-	 * captures and verifies addActivityItem argument
-	 */
-	private void captureAddActivityItem(ActivityType expectedType) {
-		ArgumentCaptor<ActivityItem> arg = ArgumentCaptor.forClass(ActivityItem.class);
-		Mockito.verify(activityLogger, times(1)).addActivityItem(arg.capture());
-		arg.getValue().getType().equals(expectedType);
-	}
 
 }

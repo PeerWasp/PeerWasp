@@ -60,7 +60,7 @@ public class FileEventManagerTest {
 	@BeforeClass
 	public static void staticSetup(){
 		fileTree = new FileTree(Paths.get(parentPath), true);
-		manager = new FileEventManager(fileTree);
+		manager = new FileEventManager(fileTree, null);
 		fileManager = Mockito.mock(IFileManager.class);
 		actionExecutor = new ActionExecutor(manager, fileManager);
 		actionExecutor.setWaitForActionCompletion(false);
