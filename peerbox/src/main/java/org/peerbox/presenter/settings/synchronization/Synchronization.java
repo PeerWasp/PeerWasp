@@ -12,11 +12,14 @@ import java.util.Vector;
 
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
+import javafx.scene.control.CheckBoxTreeItem.TreeModificationEvent;
+import javafx.scene.control.CheckBoxTreeItem;
 import javafx.scene.control.cell.CheckBoxTreeCell;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -105,17 +108,22 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 
 	private void listFiles(FileNode fileNode){
 		ImageView graphic = new ImageView(new Image(getClass().getResourceAsStream("/images/folder.jpg"))); 
-		PathTreeItem invisibleRoot = new PathTreeItem(fileNode, this, graphic, false, true);
+//		CheckBoxTreeItem<PathItem> invisibleRoot = new CheckBoxTreeItem<PathItem>(new PathItem(Paths.get(fileNode.getPath())));
 		fileTreeView.setCellFactory(CheckBoxTreeCell.<PathItem>forTreeView());
 	    fileTreeView.setRoot(invisibleRoot);
         fileTreeView.setEditable(false);
         fileTreeView.setShowRoot(false);
 //
-//        for(FileNode topLevelNode : fileNode.getChildren()){
-//        	boolean isSynched = synchronizedFiles.contains(topLevelNode.getFile().toPath());
-//			PathTreeItem rootItem = new PathTreeItem(topLevelNode, this, graphic, isSynched);
-//			invisibleRoot.getChildren().add(rootItem);
-//		}
+//        createTreeFromFileNode(fileNode);
+
+	}
+	
+	private void createTreeFromFileNode(FileNode fileNode){
+        for(FileNode topLevelNode : fileNode.getChildren()){
+        	boolean isSynched = synchronizedFiles.contains(topLevelNode.getFile().toPath());
+			CheckBoxTreeItem<PathItem> item = putTreeItem(topLevelNode.getFile().toPath(), isSynched);
+			createTreeFromFileNode(topLevelNode);
+		}
 	}
 
 	public void acceptSyncAction(ActionEvent event) {
@@ -185,7 +193,7 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 		if(item != null){
 			logger.trace("item != null for {}, change icon!", message.getPath());
 		} else {
-			item = putTreeItem(message.getPath());
+			item = putTreeItem(message.getPath(), false);
 			logger.trace("item == null for {}", message.getPath());
 		}
 
@@ -197,14 +205,15 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 	@Handler
 	public void onExecutionSucceeds(ExecutionSuccessfulMessage message) {
 		logger.trace("onExecutionSucceeds: {}", message.getPath());
-		TreeItem<PathItem> item = getTreeItem(message.getPath());
+		CheckBoxTreeItem<PathItem> item = getTreeItem(message.getPath());
 		if(item != null){
 			logger.trace("item != null for {}, change icon!", message.getPath());
 		} else {
-			item = putTreeItem(message.getPath());
+			item = putTreeItem(message.getPath(), true);
 			logger.trace("item == null for {}", message.getPath());
 		}
 		item.setGraphic(new ImageView(new Image(getClass().getResourceAsStream("/images/index_successful.jpg"))));
+		item.setSelected(true);
 		forceUpdateTreeItem(item);
 	}
 
@@ -212,20 +221,21 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 	@Handler
 	public void onExecutionFails(FileExecutionFailedMessage message) {
 		logger.trace("onExecutionFails: {}", message.getPath());
-		TreeItem<PathItem> item = getTreeItem(message.getPath());
+		CheckBoxTreeItem<PathItem> item = getTreeItem(message.getPath());
 		if(item != null){
 			logger.trace("item != null for {}, change icon!", message.getPath());
 		} else {
-			item = putTreeItem(message.getPath());
+			item = putTreeItem(message.getPath(), false);
 			logger.trace("item == null for {}", message.getPath());
 		}
 
 		item.setGraphic(new ImageView(new Image(getClass().getResourceAsStream("/images/index_failed.jpg"))));
+		item.setSelected(true);
 		forceUpdateTreeItem(item);
 	}
 	
-	private TreeItem<PathItem> getTreeItem(Path path){
-		TreeItem<PathItem> root = fileTreeView.getRoot();
+	private CheckBoxTreeItem<PathItem> getTreeItem(Path path){
+		CheckBoxTreeItem<PathItem> root = (CheckBoxTreeItem<PathItem>) fileTreeView.getRoot();
 		Path prefix = root.getValue().getPath();
 		return getTreeItem(root, path);
 		
@@ -237,7 +247,7 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 		item.setValue(value);
 	}
 	
-	private TreeItem<PathItem> getTreeItem(TreeItem<PathItem> item, Path path){
+	private CheckBoxTreeItem<PathItem> getTreeItem(CheckBoxTreeItem<PathItem> item, Path path){
 		Path wholePath = path;
 		Path prefix = item.getValue().getPath();
 		if(path.startsWith(prefix)){
@@ -249,32 +259,35 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 		}
 		Path nextLevel = path.getName(0);
 		ObservableList<TreeItem<PathItem>> children = item.getChildren();
+
 		for(TreeItem<PathItem> child : item.getChildren()){
-			logger.trace("check child {} of {}", child.getValue().getPath(), item.getValue().getPath());
+			CheckBoxTreeItem<PathItem> castedChild = (CheckBoxTreeItem<PathItem>)child;
+			logger.trace("check child {} of {}", castedChild.getValue().getPath(), item.getValue().getPath());
 			
 			Path childNextLevel = prefix.relativize(child.getValue().getPath()).getName(0);
 			logger.trace("childNextLevel: {} nextLevel {}", childNextLevel, nextLevel);
 			if(childNextLevel.equals(nextLevel)){
 				 logger.trace("Found as next level {} for {}", item.getValue().getPath(), wholePath);
-				 return getTreeItem(child, wholePath);
+				 return getTreeItem(castedChild, wholePath);
 			 }
 		}
 		return null;
 	}
 	
-	private TreeItem<PathItem> putTreeItem(Path path){
-		TreeItem<PathItem> root = fileTreeView.getRoot();
+	private CheckBoxTreeItem<PathItem> putTreeItem(Path path, boolean isSynched){
+		CheckBoxTreeItem<PathItem> root = (CheckBoxTreeItem)fileTreeView.getRoot();
 		Path prefix = root.getValue().getPath();
 		Path pathLeft = prefix.relativize(path);
-		return putTreeItem(root, pathLeft);
+		return putTreeItem(root, pathLeft, isSynched);
 	}
 	
-	private TreeItem<PathItem> putTreeItem(TreeItem<PathItem> parent, Path pathLeft){
+	private CheckBoxTreeItem<PathItem> putTreeItem(CheckBoxTreeItem<PathItem> parent, Path pathLeft, boolean isSynched){
 		Path parentPath = parent.getValue().getPath();
 		Path wholePath = parentPath.resolve(pathLeft);
 
 		if(pathLeft.getNameCount() == 1){
-			TreeItem<PathItem> created = new TreeItem<PathItem>(new PathItem(wholePath));
+			CheckBoxTreeItem<PathItem> created = new CheckBoxTreeItem<PathItem>(new PathItem(wholePath));
+			created.addEventHandler(CheckBoxTreeItem.checkBoxSelectionChangedEvent(), new ClickEventHandler());
 			Iterator<TreeItem<PathItem>> iter = parent.getChildren().iterator();
 			while(iter.hasNext()){
 				if(iter.next().getValue().getPath().equals(wholePath)){
@@ -288,14 +301,16 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 			Path nextLevel = pathLeft.getName(0);
 			Path pathToSearch = parentPath.resolve(nextLevel);
 			while(iter.hasNext()){
-				TreeItem<PathItem> child = iter.next();
+				CheckBoxTreeItem<PathItem> child = (CheckBoxTreeItem)iter.next();
 				if(child.getValue().getPath().equals(pathToSearch)){
-					return putTreeItem(child, child.getValue().getPath().relativize(wholePath));
+					return putTreeItem(child, child.getValue().getPath().relativize(wholePath), isSynched);
 				}
 			}
-			TreeItem<PathItem> created = new TreeItem<PathItem>(new PathItem(pathToSearch));
+			CheckBoxTreeItem<PathItem> created = new CheckBoxTreeItem<PathItem>(new PathItem(pathToSearch));
+			created.addEventHandler(CheckBoxTreeItem.checkBoxSelectionChangedEvent(), new ClickEventHandler());
+			created.setSelected(isSynched);
 			parent.getChildren().add(created);
-			return putTreeItem(created, created.getValue().getPath().relativize(wholePath));
+			return putTreeItem(created, created.getValue().getPath().relativize(wholePath), isSynched);
 		}
 	}
 
@@ -328,4 +343,27 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 //        fileTreeView.setRoot(rootItem);
 //        fileTreeView.setShowRoot(true);
 //	}
+	
+	private class ClickEventHandler implements EventHandler<TreeModificationEvent<PathItem>>{
+
+		@Override
+		public void handle(TreeModificationEvent<PathItem> arg0) {
+				CheckBoxTreeItem<PathItem> pathItem = (CheckBoxTreeItem<PathItem>) arg0.getSource();
+				Path path = pathItem.getValue().getPath();
+				PathTreeItem source = (PathTreeItem)arg0.getSource();
+				if(!source.getIsRoot()){
+					if(source.isSelected() || source.isIndeterminate()){
+						getToSynchronize().add(source.getFileNode());
+						getToDesynchronize().remove(source.getFileNode());
+					} else if(!source.isIndeterminate()){
+						getToSynchronize().remove(source.getFileNode());
+						getToDesynchronize().add(source.getFileNode());
+					}
+				}
+				arg0.consume();
+		}
+		
+	}
 }
+
+
