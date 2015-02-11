@@ -11,11 +11,17 @@ import javafx.collections.ObservableList;
 import javafx.event.EventHandler;
 import javafx.scene.control.CheckBoxTreeItem;
 import javafx.scene.control.TreeItem;
+import javafx.scene.Node;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 
+import org.controlsfx.control.PropertySheet.Item;
 import org.hive2hive.core.processes.files.list.FileNode;
 import org.peerbox.watchservice.IFileEventManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+
 
 public class PathTreeItem extends CheckBoxTreeItem<PathItem> {
 	private static final Logger logger = LoggerFactory.getLogger(PathTreeItem.class);
@@ -26,13 +32,15 @@ public class PathTreeItem extends CheckBoxTreeItem<PathItem> {
     private FileNode fileNode;
     private IFileEventManager fileEventManager;
     private Synchronization sync;
+    private ImageView graphic;//  = new ImageView(new Image(PathTreeItem.class.getResourceAsStream("../folder.jpg"))); 
 
-    public PathTreeItem(FileNode file, Synchronization sync, boolean isSelected, boolean isRoot){
-    	super(new PathItem(file.getFile().toPath()), null, isSelected);
+    public PathTreeItem(FileNode file, Synchronization sync, ImageView graphic, boolean isSelected, boolean isRoot){
+    	super(new PathItem(file.getFile().toPath()), graphic, isSelected);
       	this.fileEventManager = sync.getFileEventManager();
       	this.fileNode = file;
       	this.sync = sync;
       	this.isRoot = isRoot;
+      	this.graphic = graphic;
 
       	if(!isRoot){
           	this.setSelected(isSelected);
@@ -58,8 +66,8 @@ public class PathTreeItem extends CheckBoxTreeItem<PathItem> {
       	}
     }
     
-    public PathTreeItem(FileNode file, Synchronization sync, boolean isSelected) {
-    	this(file, sync, isSelected, false);
+    public PathTreeItem(FileNode file, Synchronization sync, ImageView graphic, boolean isSelected) {
+    	this(file, sync, graphic, isSelected, false);
     }
     
     public boolean getIsRoot(){
@@ -67,7 +75,8 @@ public class PathTreeItem extends CheckBoxTreeItem<PathItem> {
     }
 
     public static PathTreeItem createNode(FileNode fileNode, Synchronization sync, boolean isSelected) {
-        return new PathTreeItem(fileNode, sync, isSelected, false);
+    	ImageView graphic = new ImageView(new Image(PathTreeItem.class.getResourceAsStream("/images/folder.jpg"))); 
+        return new PathTreeItem(fileNode, sync, graphic, isSelected, false);
     }
 
     public FileNode getFileNode(){
@@ -78,7 +87,7 @@ public class PathTreeItem extends CheckBoxTreeItem<PathItem> {
     public ObservableList<TreeItem<PathItem>> getChildren() {
         if (isFirstTimeChildren && !isRoot) {
             isFirstTimeChildren = false;
-            super.getChildren().setAll(buildChildren(this));
+//            super.getChildren().setAll(buildChildren(this));
         }
         return super.getChildren();
     }  

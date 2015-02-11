@@ -20,6 +20,8 @@ import org.hive2hive.processframework.exceptions.ProcessExecutionException;
 import org.peerbox.app.manager.ProcessHandle;
 import org.peerbox.app.manager.file.FileExecutionFailedMessage;
 import org.peerbox.app.manager.file.IFileManager;
+import org.peerbox.presenter.settings.synchronization.messages.ExecutionStartsMessage;
+import org.peerbox.presenter.settings.synchronization.messages.ExecutionSuccessfulMessage;
 import org.peerbox.watchservice.filetree.composite.FileComponent;
 import org.peerbox.watchservice.filetree.composite.FolderComposite;
 import org.peerbox.watchservice.states.ExecutionHandle;
@@ -118,6 +120,7 @@ public class ActionExecutor implements Runnable {
 					if (waitForActionCompletion) {
 						if (ehandle != null && ehandle.getProcessHandle() != null) {
 							logger.debug("Put into async handles!");
+							fileEventManager.getMessageBus().publish(new ExecutionStartsMessage(next.getAction().getFile().getPath()));
 							asyncHandles.put(ehandle);
 						}
 					} else {
@@ -247,7 +250,9 @@ public class ActionExecutor implements Runnable {
 	public void onActionExecuteSucceeded(final IAction action) {
 		logger.debug("Action succeeded: {} {}.",
 				action.getFile().getPath(), action.getCurrentStateName());
-
+		//inform gui to adjust icon
+		fileEventManager.getMessageBus().publish(new ExecutionSuccessfulMessage(action.getFile().getPath()));
+		
 		boolean changedWhileExecuted = action.getChangedWhileExecuted();
 		action.getFile().setIsUploaded(true);
 		action.onSucceeded();

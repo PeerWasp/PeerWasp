@@ -2,11 +2,11 @@ package org.peerbox.app.manager.file;
 
 import java.nio.file.Path;
 
-class AbstractFileMessage implements IFileMessage {
+public class AbstractFileMessage implements IFileMessage {
 
 	private final Path path;
 
-	AbstractFileMessage(final Path path) {
+	public AbstractFileMessage(final Path path) {
 		this.path = path;
 	}
 
