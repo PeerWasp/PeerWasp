@@ -70,6 +70,11 @@ public class PathUtils {
 		return hashString;
 	}
 
+	public static byte[] base64Decode(String data) {
+		byte[] d = Base64.getDecoder().decode(data);
+		return d;
+	}
+
 //	public static boolean deleteRecursively(File path) {
 //		if (path.exists()) {
 //			if(path.isDirectory()){

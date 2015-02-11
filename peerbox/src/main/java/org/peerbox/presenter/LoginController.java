@@ -247,11 +247,14 @@ public class LoginController implements Initializable {
 			ClientContext ctx = clientContext.get();
 			ctx.getActionExecutor().start();
 
+
 			// register for local/remote events
 			ctx.getFolderWatchService().addFileEventListener(ctx.getFileEventManager());
 			ctx.getNodeManager().getNode().getFileManager().subscribeFileEvents(ctx.getFileEventManager());
 
 			ctx.getFolderWatchService().start(userConfig.getRootPath());
+
+			ctx.getRemoteProfilePersister().start();
 
 		} catch (Exception e) {
 			// TODO Auto-generated catch block

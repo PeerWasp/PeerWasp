@@ -12,7 +12,6 @@ import org.peerbox.watchservice.FileEventManager;
 import org.peerbox.watchservice.FileWalker;
 import org.peerbox.watchservice.IFileEventManager;
 import org.peerbox.watchservice.filetree.composite.FileComponent;
-import org.peerbox.watchservice.filetree.composite.FileDao;
 import org.peerbox.watchservice.filetree.composite.FileLeaf;
 import org.peerbox.watchservice.filetree.composite.FolderComposite;
 import org.slf4j.Logger;

@@ -1,8 +1,14 @@
 package org.peerbox.guice;
 
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
+import javax.sql.DataSource;
+
 import javafx.stage.Stage;
 
+import org.apache.commons.io.FileUtils;
 import org.peerbox.app.ClientContext;
 import org.peerbox.app.ExitHandler;
 import org.peerbox.app.IExitHandler;
@@ -29,11 +35,14 @@ import org.peerbox.view.tray.JSystemTray;
 import org.peerbox.watchservice.FileEventManager;
 import org.peerbox.watchservice.IFileEventManager;
 import org.peerbox.watchservice.filetree.FileTree;
+import org.peerbox.watchservice.filetree.persistency.DaoUtils;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
+import com.google.inject.Singleton;
 import com.google.inject.TypeLiteral;
 import com.google.inject.matcher.Matchers;
+import com.google.inject.name.Named;
 import com.google.inject.name.Names;
 import com.google.inject.spi.InjectionListener;
 import com.google.inject.spi.TypeEncounter;
@@ -61,6 +70,7 @@ public class PeerBoxModule extends AbstractModule {
 		bind(IFxmlLoaderProvider.class).to(GuiceFxmlLoader.class);
 		bind(IExitHandler.class).to(ExitHandler.class);
 		bind(ClientContext.class).toProvider(ClientContextProvider.class);
+
 	}
 
 	private void bindMessageBus() {
@@ -119,6 +129,14 @@ public class PeerBoxModule extends AbstractModule {
 		f.setNodesDefaultUrl(getClass().getResource("/config/default_bootstrappingnodes"));
 
 		return f;
+	}
+
+	@Provides
+	@Singleton
+	@Named("userdb")
+	private DataSource providesUserDbDataSource() {
+		Path dbPath = Paths.get(FileUtils.getUserDirectoryPath(), "peerbox.testdb");
+		return DaoUtils.createDataSource(dbPath.toString());
 	}
 
 }

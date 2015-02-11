@@ -5,12 +5,13 @@ import org.peerbox.app.manager.node.INodeManager;
 import org.peerbox.watchservice.ActionExecutor;
 import org.peerbox.watchservice.FileEventManager;
 import org.peerbox.watchservice.FolderWatchService;
+import org.peerbox.watchservice.filetree.persistency.H2HUserProfilePersister;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 
 public class ClientContextProvider implements Provider<ClientContext> {
-	
+
 	@Inject
 	private ActionExecutor actionExecutor;
 	@Inject
@@ -19,7 +20,9 @@ public class ClientContextProvider implements Provider<ClientContext> {
 	private FolderWatchService folderWatchService;
 	@Inject
 	private INodeManager nodeManager;
-	
+	@Inject
+	private H2HUserProfilePersister remoteProfilePersister;
+
 	@Override
 	public ClientContext get() {
 		ClientContext ctx = new ClientContext();
@@ -27,6 +30,7 @@ public class ClientContextProvider implements Provider<ClientContext> {
 		ctx.setFileEventManager(fileEventManager);
 		ctx.setFolderWatchService(folderWatchService);
 		ctx.setNodeManager(nodeManager);
+		ctx.setRemoteProfilePersister(remoteProfilePersister);
 		return ctx;
 	}
 }

@@ -5,21 +5,23 @@ import org.peerbox.app.manager.node.INodeManager;
 import org.peerbox.watchservice.ActionExecutor;
 import org.peerbox.watchservice.FileEventManager;
 import org.peerbox.watchservice.FolderWatchService;
+import org.peerbox.watchservice.filetree.persistency.H2HUserProfilePersister;
 
 import com.google.inject.Singleton;
 
 @Singleton
 public class ClientContext {
-	
+
 	private ActionExecutor actionExecutor;
 	private FileEventManager fileEventManager;
 	private FolderWatchService folderWatchService;
 	private INodeManager nodeManager;
-	
+	private H2HUserProfilePersister remoteProfilePersister;
+
 	public ClientContext() {
-		
+
 	}
-	
+
 	public ActionExecutor getActionExecutor() {
 		return actionExecutor;
 	}
@@ -50,5 +52,13 @@ public class ClientContext {
 
 	public void setNodeManager(INodeManager nodeManager) {
 		this.nodeManager = nodeManager;
+	}
+
+	public H2HUserProfilePersister getRemoteProfilePersister() {
+		return remoteProfilePersister;
+	}
+
+	public void setRemoteProfilePersister(H2HUserProfilePersister persister) {
+		this.remoteProfilePersister = persister;
 	}
 }
