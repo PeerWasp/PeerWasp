@@ -26,6 +26,7 @@ import javafx.scene.image.ImageView;
 import javafx.stage.Window;
 import net.engio.mbassy.listener.Handler;
 
+import org.controlsfx.tools.Platform;
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.hive2hive.core.exceptions.NoSessionException;
 import org.hive2hive.core.processes.files.list.FileNode;
@@ -94,7 +95,11 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 	private void createTreeWithFilesFromNetwork() {
 		try {
 			FileNode filesFromNetwork = fileManager.listFiles().execute();
-			listFiles(filesFromNetwork);
+			if(filesFromNetwork != null){
+				listFiles(filesFromNetwork);
+			} else {
+				logger.trace("Files from network are null");
+			}
 		} catch (NoSessionException | NoPeerConnectionException
 				| InvalidProcessStateException | ProcessExecutionException e) {
 			e.printStackTrace();
@@ -115,10 +120,12 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 	}
 	
 	private void createTreeFromFileNode(FileNode fileNode){
-        for(FileNode topLevelNode : fileNode.getChildren()){
-        	boolean isSynched = synchronizedFiles.contains(topLevelNode.getFile().toPath());
-        	PathTreeItem item = putTreeItem(topLevelNode.getFile().toPath(), isSynched);
-			createTreeFromFileNode(topLevelNode);
+		if(fileNode.getChildren() != null){
+	        for(FileNode topLevelNode : fileNode.getChildren()){
+	        	boolean isSynched = synchronizedFiles.contains(topLevelNode.getFile().toPath());
+	        	PathTreeItem item = putTreeItem(topLevelNode.getFile().toPath(), isSynched);
+				createTreeFromFileNode(topLevelNode);
+			}
 		}
 	}
 
@@ -198,9 +205,20 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 			item = putTreeItem(message.getPath(), true);
 			logger.trace("item == null for {}", message.getPath());
 		}
-		forceUpdateTreeItem(item);
+		
 		item.setGraphic(new ImageView(new Image(getClass().getResourceAsStream("/images/index_successful.jpg"))));
-//		item.setSelected(true);
+		forceUpdateTreeItem(item);
+		
+		final CheckBoxTreeItem<PathItem> item2 = item;
+
+		javafx.application.Platform.runLater(new Runnable() {
+	        @Override
+	        public void run() {
+	        	item2.setSelected(true);
+	        }
+	   });
+
+		
 	}
 
 	@Override
@@ -272,7 +290,7 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 
 		if(pathLeft.getNameCount() == 1){
 			PathTreeItem created = new PathTreeItem(wholePath);
-			created.addEventHandler(CheckBoxTreeItem.checkBoxSelectionChangedEvent(), new ClickEventHandler());
+//			created.addEventHandler(CheckBoxTreeItem.checkBoxSelectionChangedEvent(), new ClickEventHandler());
 			Iterator<TreeItem<PathItem>> iter = parent.getChildren().iterator();
 			while(iter.hasNext()){
 				if(iter.next().getValue().getPath().equals(wholePath)){
@@ -292,7 +310,7 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 				}
 			}
 			PathTreeItem created = new PathTreeItem(pathToSearch);
-			created.addEventHandler(CheckBoxTreeItem.checkBoxSelectionChangedEvent(), new ClickEventHandler());
+//			created.addEventHandler(CheckBoxTreeItem.checkBoxSelectionChangedEvent(), new ClickEventHandler());
 			created.setSelected(isSynched);
 			parent.getChildren().add(created);
 			return putTreeItem(created, created.getValue().getPath().relativize(wholePath), isSynched);
@@ -333,23 +351,20 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 
 		@Override
 		public void handle(TreeModificationEvent<PathItem> arg0) {
-				PathTreeItem source = (PathTreeItem) arg0.getSource();
-				Path path = source.getValue().getPath();
-//				if(!source.getIsRoot()){
-				FileHelper file = new FileHelper(source.getValue().getPath(), source.isFile());
-					if(source.isSelected() || source.isIndeterminate()){
-						getToSynchronize().add(file);
-						getToDesynchronize().remove(file);
-					} else if(!source.isIndeterminate()){
-						getToSynchronize().remove(file);
-						getToDesynchronize().add(file);
-					}
-//				}
-				arg0.consume();
+			PathTreeItem source = (PathTreeItem) arg0.getSource();
+			Path path = source.getValue().getPath();
+			FileHelper file = new FileHelper(source.getValue().getPath(), source.isFile());
+			if(source.isSelected() || source.isIndeterminate()){
+				getToSynchronize().add(file);
+				getToDesynchronize().remove(file);
+			} else if(!source.isIndeterminate()){
+				getToSynchronize().remove(file);
+				getToDesynchronize().add(file);
+			}
+			arg0.consume();
 		}
 		
 	}
-	
 	
 	private class FileHelperComparator implements Comparator<FileHelper>{
 		
@@ -360,7 +375,6 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 			return path1.compareTo(path2);
 		}
 	}
-
 }
 
 
