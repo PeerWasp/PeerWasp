@@ -20,8 +20,26 @@ public class PathTreeItem extends CheckBoxTreeItem<PathItem> {
     private IFileEventManager fileEventManager;
 
     public PathTreeItem(Path path){
-    	super(new PathItem(path));
+    	this(path, null, false);
     }
+    
+    public PathTreeItem(Path path, ImageView view){
+    	this(path, view, false);
+    }
+    
+    public PathTreeItem(Path path, ImageView view, boolean isSynched){
+    	super(new PathItem(path));
+    	setGraphic(view);
+    	setSelected(isSynched);
+    }
+    
+    public PathTreeItem(Path path, ImageView view, boolean isSynched, boolean isFile){
+    	super(new PathItem(path));
+    	setGraphic(view);
+    	setSelected(isSynched);
+    	setIsFile(isFile);
+    }
+    
     
     public PathTreeItem(Path path, boolean isSelected, boolean isFile){
     	super(new PathItem(path));
@@ -31,6 +49,10 @@ public class PathTreeItem extends CheckBoxTreeItem<PathItem> {
     
     public boolean isFile(){
     	return isFile;
+    }
+    
+    private void setIsFile(boolean isFile){
+    	this.isFile = isFile;
     }
     
     public boolean isFolder(){

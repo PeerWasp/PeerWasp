@@ -4,6 +4,7 @@ import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.ResourceBundle;
 import java.util.Set;
@@ -50,7 +51,8 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 
 	private static final Logger logger = LoggerFactory.getLogger(Synchronization.class);
 	private Set<Path> synchronizedFiles;
-
+	private Set<Path> failedFiles = new HashSet<Path>();
+	private Set<Path> executingFiles = new HashSet<Path>();
 	@FXML private TreeView<PathItem> fileTreeView;
 	@FXML private Button okButton;
 	@FXML private Button cancelButton;
@@ -64,6 +66,10 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 	private TreeSet<FileHelper> toDesynchronize = new TreeSet<FileHelper>(new FileHelperComparator());
 	private UserConfig userConfig;
 	
+	private Image inProgressIcon = new Image(getClass().getResourceAsStream("/images/file-synch.png"));
+	private Image successIcon = new Image(getClass().getResourceAsStream("/images/file-success.png"));
+	private Image errorIcon = new Image(getClass().getResourceAsStream("/images/file-error.png"));
+	private Image standardIcon = new Image(getClass().getResourceAsStream("/images/file-standard.png"));
 	public Set<FileHelper> getToSynchronize(){
 		return toSynchronize;
 	}
@@ -107,7 +113,7 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 	}
 
 	private void listFiles(FileNode fileNode){
-		ImageView graphic = new ImageView(new Image(getClass().getResourceAsStream("/images/folder.jpg"))); 
+		
 		PathTreeItem invisibleRoot = new PathTreeItem(userConfig.getRootPath());
 		//new CheckBoxTreeItem<PathItem>(new PathItem(userConfig.getRootPath()));
 		fileTreeView.setCellFactory(CheckBoxTreeCell.<PathItem>forTreeView());
@@ -120,10 +126,22 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 	}
 	
 	private void createTreeFromFileNode(FileNode fileNode){
+		
 		if(fileNode.getChildren() != null){
+
 	        for(FileNode topLevelNode : fileNode.getChildren()){
-	        	boolean isSynched = synchronizedFiles.contains(topLevelNode.getFile().toPath());
-	        	PathTreeItem item = putTreeItem(topLevelNode.getFile().toPath(), isSynched);
+				ImageView view = null;
+	        	Path path = topLevelNode.getFile().toPath();
+	        	boolean isSynched = synchronizedFiles.contains(path);
+	        	
+	        	if(failedFiles.contains(path)){
+	        		view = new ImageView(errorIcon);
+	        	} else if(executingFiles.contains(path)){
+	        		view = new ImageView(inProgressIcon);
+	        	} else {
+	        		view = new ImageView(successIcon);
+	        	}
+	        	PathTreeItem item = putTreeItem(topLevelNode.getFile().toPath(), isSynched, view);
 				createTreeFromFileNode(topLevelNode);
 			}
 		}
@@ -182,31 +200,33 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 	@Handler
 	public void onExecutionStarts(ExecutionStartsMessage message) {
 		logger.trace("onExecutionStarts: {}", message.getPath());
+		ImageView view = new ImageView(new Image(getClass().getResourceAsStream("/images/file-synch.png")));
 		TreeItem<PathItem> item = getTreeItem(message.getPath());
 		if(item != null){
 			logger.trace("item != null for {}, change icon!", message.getPath());
 		} else {
-			item = putTreeItem(message.getPath(), false);
+			item = putTreeItem(message.getPath(), false, view);
 			logger.trace("item == null for {}", message.getPath());
 		}
 		forceUpdateTreeItem(item);
-		item.setGraphic(new ImageView(new Image(getClass().getResourceAsStream("/images/index_progress.jpg"))));
+		item.setGraphic(new ImageView(new Image(getClass().getResourceAsStream("/images/file-synch.png"))));
 
 	}
 
 	@Override
 	@Handler
 	public void onExecutionSucceeds(ExecutionSuccessfulMessage message) {
+		ImageView view = new ImageView(new Image(getClass().getResourceAsStream("/images/file-success.png")));
 		logger.trace("onExecutionSucceeds: {}", message.getPath());
 		CheckBoxTreeItem<PathItem> item = getTreeItem(message.getPath());
 		if(item != null){
 			logger.trace("item != null for {}, change icon!", message.getPath());
 		} else {
-			item = putTreeItem(message.getPath(), true);
+			item = putTreeItem(message.getPath(), true, view);
 			logger.trace("item == null for {}", message.getPath());
 		}
 		
-		item.setGraphic(new ImageView(new Image(getClass().getResourceAsStream("/images/index_successful.jpg"))));
+		item.setGraphic(view);
 		forceUpdateTreeItem(item);
 		
 		final CheckBoxTreeItem<PathItem> item2 = item;
@@ -224,16 +244,17 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 	@Override
 	@Handler
 	public void onExecutionFails(FileExecutionFailedMessage message) {
+		ImageView view = new ImageView(new Image(getClass().getResourceAsStream("/images/file-error.png")));
 		logger.trace("onExecutionFails: {}", message.getPath());
 		PathTreeItem item = getTreeItem(message.getPath());
 		if(item != null){
 			logger.trace("item != null for {}, change icon!", message.getPath());
 		} else {
-			item = putTreeItem(message.getPath(), false);
+			item = putTreeItem(message.getPath(), false, view);
 			logger.trace("item == null for {}", message.getPath());
 		}
 		forceUpdateTreeItem(item);
-		item.setGraphic(new ImageView(new Image(getClass().getResourceAsStream("/images/index_failed.jpg"))));
+		item.setGraphic(view);
 		item.setSelected(true);
 	}
 	
@@ -277,20 +298,20 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 		return null;
 	}
 	
-	private PathTreeItem putTreeItem(Path path, boolean isSynched){
+	private PathTreeItem putTreeItem(Path path, boolean isSynched, ImageView view){
 		PathTreeItem root = (PathTreeItem)fileTreeView.getRoot();
 		Path prefix = root.getValue().getPath();
 		Path pathLeft = prefix.relativize(path);
-		return putTreeItem(root, pathLeft, isSynched);
+		return putTreeItem(root, pathLeft, isSynched, view);
 	}
 	
-	private PathTreeItem putTreeItem(PathTreeItem parent, Path pathLeft, boolean isSynched){
+	private PathTreeItem putTreeItem(PathTreeItem parent, Path pathLeft, boolean isSynched, ImageView view){
 		Path parentPath = parent.getValue().getPath();
 		Path wholePath = parentPath.resolve(pathLeft);
 
 		if(pathLeft.getNameCount() == 1){
-			PathTreeItem created = new PathTreeItem(wholePath);
-//			created.addEventHandler(CheckBoxTreeItem.checkBoxSelectionChangedEvent(), new ClickEventHandler());
+			PathTreeItem created = new PathTreeItem(wholePath, view, isSynched);
+			created.addEventHandler(CheckBoxTreeItem.checkBoxSelectionChangedEvent(), new ClickEventHandler());
 			Iterator<TreeItem<PathItem>> iter = parent.getChildren().iterator();
 			while(iter.hasNext()){
 				if(iter.next().getValue().getPath().equals(wholePath)){
@@ -306,14 +327,13 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 			while(iter.hasNext()){
 				PathTreeItem child = (PathTreeItem)iter.next();
 				if(child.getValue().getPath().equals(pathToSearch)){
-					return putTreeItem(child, child.getValue().getPath().relativize(wholePath), isSynched);
+					return putTreeItem(child, child.getValue().getPath().relativize(wholePath), isSynched, view);
 				}
 			}
-			PathTreeItem created = new PathTreeItem(pathToSearch);
-//			created.addEventHandler(CheckBoxTreeItem.checkBoxSelectionChangedEvent(), new ClickEventHandler());
-			created.setSelected(isSynched);
+			PathTreeItem created = new PathTreeItem(pathToSearch, view, isSynched);
+			created.addEventHandler(CheckBoxTreeItem.checkBoxSelectionChangedEvent(), new ClickEventHandler());
 			parent.getChildren().add(created);
-			return putTreeItem(created, created.getValue().getPath().relativize(wholePath), isSynched);
+			return putTreeItem(created, created.getValue().getPath().relativize(wholePath), isSynched, view);
 		}
 	}
 
@@ -355,9 +375,11 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 			Path path = source.getValue().getPath();
 			FileHelper file = new FileHelper(source.getValue().getPath(), source.isFile());
 			if(source.isSelected() || source.isIndeterminate()){
+				logger.trace("Add {} to SYNC", path);
 				getToSynchronize().add(file);
 				getToDesynchronize().remove(file);
 			} else if(!source.isIndeterminate()){
+				logger.trace("Remove {} from SYNC", path);
 				getToSynchronize().remove(file);
 				getToDesynchronize().add(file);
 			}
