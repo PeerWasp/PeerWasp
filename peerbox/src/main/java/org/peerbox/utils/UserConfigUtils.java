@@ -1,0 +1,85 @@
+package org.peerbox.utils;
+
+import java.io.IOException;
+import java.nio.file.DirectoryStream;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.PathMatcher;
+import java.util.Map;
+import java.util.TreeMap;
+
+import org.peerbox.app.config.UserConfig;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.common.base.Charsets;
+import com.google.common.hash.Hashing;
+
+public class UserConfigUtils {
+
+	private static final Logger logger = LoggerFactory.getLogger(UserConfigUtils.class);
+
+	private UserConfigUtils() {
+		// prevent instances
+	}
+
+	public static UserConfig createUserConfig(String username) {
+		String filename = createFileName(username);
+		Path file = AppData.getConfigFolder().resolve(filename);
+		UserConfig cfg = createUserConfig(file);
+		return cfg;
+	}
+
+	public static UserConfig createUserConfig(Path file) {
+		UserConfig cfg = new UserConfig(file);
+		return cfg;
+	}
+
+	private static String createFileName(String username) {
+		String usernameLower = username.toLowerCase();
+		String usernameHash = hashString(usernameLower);
+		String filename = String.format("%s.conf", usernameHash);
+		return filename;
+	}
+
+	private static String hashString(String str) {
+		return Hashing.sha256().hashString(str, Charsets.UTF_8).toString();
+	}
+
+	public static Map<String, UserConfig> getAllConfigFiles() {
+		return getAllConfigFiles(AppData.getConfigFolder());
+	}
+
+	private static Map<String, UserConfig> getAllConfigFiles(Path configFolder) {
+		Map<String, UserConfig> userToFile = new TreeMap<>();
+
+		try {
+
+			DirectoryStream<Path> dirStream = Files.newDirectoryStream(configFolder,
+					new DirectoryStream.Filter<Path>() {
+						PathMatcher matcher = FileSystems.getDefault().getPathMatcher("glob:*.conf");
+						@Override
+						public boolean accept(Path entry) throws IOException {
+							return Files.isRegularFile(entry) && matcher.matches(entry.getFileName());
+						}
+					});
+
+			for (Path configFile : dirStream) {
+				UserConfig cfg = new UserConfig(configFile);
+				cfg.load();
+				if (cfg.hasUsername()) {
+					String username = cfg.getUsername();
+					userToFile.put(username, cfg);
+				}
+			}
+
+		} catch (IOException e) {
+			logger.warn("Could not search for config files.", e);
+			userToFile.clear();
+		}
+
+		return userToFile;
+	}
+
+}

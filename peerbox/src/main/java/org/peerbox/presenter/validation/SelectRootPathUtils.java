@@ -13,28 +13,29 @@ import javafx.scene.control.ButtonType;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Window;
 
+import org.apache.commons.io.FileUtils;
 import org.peerbox.presenter.validation.ValidationUtils.ValidationResult;
 
 public class SelectRootPathUtils {
 
 	public static boolean confirmMoveDirectoryDialog(File newPath) {
 		boolean yes = false;
-		
+
 		Alert dlg = new Alert(AlertType.CONFIRMATION);
 		dlg.setTitle("Move Directory");
 		dlg.setHeaderText("Move the directory?");
 		dlg.setContentText(String.format("This will move the directory to a new location: %s.",
 								newPath.toString()));
-		
+
 		dlg.getButtonTypes().clear();
 		dlg.getButtonTypes().addAll(ButtonType.YES, ButtonType.NO);
-		
+
 		dlg.showAndWait();
 		yes = dlg.getResult() == ButtonType.YES;
-		
+
 		return yes;
 	}
-	
+
 
 	public static ValidationResult validateRootPath(Path rootPath) {
 		// check whether dir exists and create it if desired
@@ -50,34 +51,34 @@ public class SelectRootPathUtils {
 				return ValidationResult.ROOTPATH_NOTEXISTS;
 			}
 		}
-		
+
 		// path exists -- is it a directory?
 		if(!Files.isDirectory(rootPath, LinkOption.NOFOLLOW_LINKS)) {
 			return ValidationResult.ROOTPATH_NOTADIRECTORY;
 		}
-		
+
 		// check write permissions
 		if(!Files.isWritable(rootPath)) {
 			return ValidationResult.ROOTPATH_NOTWRITABLE;
 		}
-		
+
 		return ValidationResult.OK;
 	}
-	
+
 	private static boolean askToCreateDirectory() {
-		
+
 		boolean yes = false;
-		
+
 		Alert dlg = new Alert(AlertType.CONFIRMATION);
 		dlg.setTitle("Create Directory");
 		dlg.setHeaderText("Create the directory?");
 		dlg.setContentText("The directory does not exist yet. Do you want to create it?");
 		dlg.getButtonTypes().clear();
 		dlg.getButtonTypes().addAll(ButtonType.YES, ButtonType.NO);
-		
+
 		dlg.showAndWait();
 		yes = dlg.getResult() == ButtonType.YES;
-		
+
 		return yes;
 	}
 
@@ -85,7 +86,7 @@ public class SelectRootPathUtils {
 		try {
 			Files.createDirectories(path);
 		} catch (AccessDeniedException ae) {
-			return ValidationResult.ROOTPATH_CREATE_ACCESSDENIED; 
+			return ValidationResult.ROOTPATH_CREATE_ACCESSDENIED;
 		} catch (IOException e) {
 			return ValidationResult.ROOTPATH_CREATE_FAILED;
 		}
@@ -93,14 +94,23 @@ public class SelectRootPathUtils {
 		if (!Files.exists(path)) {
 			return ValidationResult.ROOTPATH_CREATE_FAILED;
 		}
-		
+
 		return ValidationResult.OK;
 	}
 
 	public static String showDirectoryChooser(String pathAsString, Window toOpenDialog) {
 		DirectoryChooser chooser = new DirectoryChooser();
 		chooser.setTitle("Choose your root directory");
-		chooser.setInitialDirectory(new File(pathAsString).getParentFile());
+
+		// if parent of given directory does exist, we open chooser with that location.
+		// otherwise, take the user home as fallback.
+		File path = new File(pathAsString).getParentFile();
+		if(path.getParentFile().exists()) {
+			chooser.setInitialDirectory(path.getParentFile());
+		} else {
+			chooser.setInitialDirectory(FileUtils.getUserDirectory());
+		}
+
 		try {
 			File selectedDirectory = chooser.showDialog(toOpenDialog);
 			if (selectedDirectory != null) {
@@ -112,7 +122,7 @@ public class SelectRootPathUtils {
 		}
 		return pathAsString;
 	}
-	
+
 	private static void showInvalidDirectoryChooserEntryInformation() {
 		Alert dlg = new Alert(AlertType.ERROR);
 		dlg.setTitle("Error");
@@ -120,11 +130,11 @@ public class SelectRootPathUtils {
 		dlg.setContentText("The selected directory or its parent directory does not exist.");
 		dlg.showAndWait();
 	}
-	
+
 	public static boolean isValidRootPath(Path path) {
-		return path != null 
-				&& Files.exists(path) 
-				&& Files.isDirectory(path) 
+		return path != null
+				&& Files.exists(path)
+				&& Files.isDirectory(path)
 				&& Files.isWritable(path);
 	}
 }

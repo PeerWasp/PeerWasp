@@ -36,6 +36,7 @@ import org.peerbox.watchservice.FileEventManager;
 import org.peerbox.watchservice.IFileEventManager;
 import org.peerbox.watchservice.filetree.FileTree;
 import org.peerbox.watchservice.filetree.persistency.DaoUtils;
+import org.peerbox.watchservice.filetree.persistency.FileDao;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
@@ -48,12 +49,12 @@ import com.google.inject.spi.InjectionListener;
 import com.google.inject.spi.TypeEncounter;
 import com.google.inject.spi.TypeListener;
 
-public class PeerBoxModule extends AbstractModule {
+public class AppModule extends AbstractModule {
 
 	private final MessageBus messageBus = new MessageBus();
 	private final Stage primaryStage;
 
-	public PeerBoxModule(Stage primaryStage) {
+	public AppModule(Stage primaryStage) {
 		this.primaryStage = primaryStage;
 	}
 
@@ -116,8 +117,8 @@ public class PeerBoxModule extends AbstractModule {
 	}
 
 	@Provides
-	FileTree providesFileTree(IUserConfig cfg){
-		return new FileTree(cfg.getRootPath());
+	FileTree providesFileTree(IUserConfig cfg, FileDao fileDao){
+		return new FileTree(cfg.getRootPath(), fileDao);
 	}
 
 	@Provides

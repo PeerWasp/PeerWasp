@@ -15,6 +15,7 @@ import org.sql2o.Connection;
 import org.sql2o.ResultSetHandler;
 import org.sql2o.Sql2o;
 
+import com.google.inject.Inject;
 import com.google.inject.name.Named;
 
 
@@ -29,6 +30,7 @@ public class FileDao {
 	private final Sql2o sql2o;
 	private final DataSource dataSource;
 
+	@Inject
 	public FileDao(@Named("userdb") DataSource dataSource) {
 		this.dataSource = dataSource;
 		this.sql2o = new Sql2o(this.dataSource);
@@ -41,7 +43,6 @@ public class FileDao {
 					    + "path NVARCHAR NOT NULL UNIQUE, "
 					    + "is_file BOOLEAN NOT NULL, "
 					    + "content_hash NVARCHAR(64) NOT NULL, "
-					    + "execute_content_hash NVARCHAR(64), "
 					    + "is_synchronized BOOLEAN NOT NULL DEFAULT(false), "
 					    + "is_uploaded BOOLEAN NOT NULL DEFAULT(false), "
 					    + "current_state NVARCHAR(32), "
@@ -85,6 +86,7 @@ public class FileDao {
 		final String sql =
 				"MERGE INTO " + FILE_TABLE + " "
 				+ "(path, is_file, content_hash, is_synchronized, is_uploaded, current_state, next_state) "
+				+ "KEY(path) "
 				+ "VALUES (:path, :is_file, :content_hash, :is_synchronized, :is_uploaded, :current_state, :next_state);";
 
 		try (Connection con = sql2o.open()) {

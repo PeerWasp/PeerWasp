@@ -22,7 +22,7 @@ import org.peerbox.events.InformationMessage;
 import org.peerbox.events.MessageBus;
 import org.peerbox.events.WarningMessage;
 import org.peerbox.guice.ApiServerModule;
-import org.peerbox.guice.PeerBoxModule;
+import org.peerbox.guice.AppModule;
 import org.peerbox.guice.UserConfigModule;
 import org.peerbox.presenter.tray.TrayException;
 import org.peerbox.presenter.validation.SelectRootPathUtils;
@@ -150,7 +150,7 @@ public class App extends Application
 
 	private void initializeGuice() {
 		injector = Guice.createInjector(
-				new PeerBoxModule(primaryStage),
+				new AppModule(primaryStage),
 				new UserConfigModule(),
 				new ApiServerModule());
 		injector.injectMembers(this);

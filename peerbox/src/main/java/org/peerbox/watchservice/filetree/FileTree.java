@@ -2,18 +2,17 @@ package org.peerbox.watchservice.filetree;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Map;
+import java.util.HashSet;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 
 import org.eclipse.jetty.util.ConcurrentHashSet;
-import org.hive2hive.core.events.framework.interfaces.file.IFileEvent;
 import org.peerbox.watchservice.FileEventManager;
 import org.peerbox.watchservice.FileWalker;
 import org.peerbox.watchservice.IFileEventManager;
 import org.peerbox.watchservice.filetree.composite.FileComponent;
 import org.peerbox.watchservice.filetree.composite.FileLeaf;
 import org.peerbox.watchservice.filetree.composite.FolderComposite;
+import org.peerbox.watchservice.filetree.persistency.FileDao;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,11 +31,11 @@ public class FileTree implements IFileTree{
 	private SetMultimap<String, FileComponent> createdByContentHash = HashMultimap.create();
     private boolean maintainContentHashes;
 
-//    private final FileDao dao;
+    private final FileDao fileDao;
 
 	@Inject
-	public FileTree(Path rootPath) {
-		this(rootPath, true);
+	public FileTree(Path rootPath, FileDao fileDao) {
+		this(rootPath, fileDao, true);
 	}
 
 	/**
@@ -44,10 +43,14 @@ public class FileTree implements IFileTree{
 	 * @param maintainContentHashes set to true if content hashes have to be maintained.
 	 *            Content hash changes are then propagated upwards to the parent directory.
 	 */
-	public FileTree(Path rootPath, boolean maintainContentHashes) {
+	public FileTree(Path rootPath, FileDao fileDao, boolean maintainContentHashes) {
 		this.maintainContentHashes = maintainContentHashes;
-		rootOfFileTree = new FolderComposite(rootPath, maintainContentHashes, true);
-//		dao = new FileDao();
+		this.rootOfFileTree = new FolderComposite(rootPath, maintainContentHashes, true);
+		this.fileDao = fileDao;
+
+		if (this.fileDao != null) {
+			this.fileDao.createTable();
+		}
 	}
 
     public boolean getMaintainContentHashes(){
@@ -201,30 +204,33 @@ public class FileTree implements IFileTree{
 	 * Searches the SetMultiMap<String, FileComponent> deletedByContentHash for
 	 * a deleted FileComponent with the same content hash. If several exist, the temporally
 	 * closest is returned.
+	 *
 	 * @param createdComponent The previously deleted component
 	 * @return
 	 */
 	@Override
-	public FileComponent findDeletedByContent(FileComponent createdComponent){
+	public FileComponent findDeletedByContent(FileComponent createdComponent) {
 		return findComponentInSetMultimap(createdComponent, getDeletedByContentHash(), true);
 	}
 
 	@Override
-	public FolderComposite findCreatedByStructure(FolderComposite toSearch){
-		return (FolderComposite)findComponentInSetMultimap((FileComponent)toSearch, getCreatedByStructureHash(), false);
+	public FolderComposite findCreatedByStructure(FolderComposite toSearch) {
+		return (FolderComposite) findComponentInSetMultimap((FileComponent) toSearch,
+				getCreatedByStructureHash(), false);
 	}
 
 	@Override
-	public FolderComposite findDeletedByStructure(FolderComposite toSearch){
-		return (FolderComposite)findComponentInSetMultimap((FileComponent)toSearch, getDeletedByStructureHash(), false);
+	public FolderComposite findDeletedByStructure(FolderComposite toSearch) {
+		return (FolderComposite) findComponentInSetMultimap((FileComponent) toSearch,
+				getDeletedByStructureHash(), false);
 	}
 
-	public Path getRootPath(){
+	public Path getRootPath() {
 		return rootOfFileTree.getPath();
 	}
 
 	@Override
-	public Set<Path> getSynchronizedPathsAsSet(){
+	public Set<Path> getSynchronizedPathsAsSet() {
 		Set<Path> synchronizedFiles = new ConcurrentHashSet<Path>();
 		rootOfFileTree.getSynchronizedChildrenPaths(synchronizedFiles);
 		return synchronizedFiles;
@@ -239,5 +245,32 @@ public class FileTree implements IFileTree{
 	public SetMultimap<String, FolderComposite> getCreatedByStructureHash() {
 		// TODO Auto-generated method stub
 		return createdByStructureHash;
+	}
+
+	@Override
+	public void persistFile(FileComponent file) {
+		if (fileDao != null) {
+			fileDao.persistFile(file);
+		}
+	}
+
+	@Override
+	public void persistFileAndDescendants(FileComponent root) {
+		if (fileDao == null) {
+			return;
+		}
+
+		Set<FileComponent> elements = new HashSet<>();
+		elements.add(root);
+
+		while (!elements.isEmpty()) {
+			FileComponent current = elements.iterator().next();
+			persistFile(current);
+			if (current.isFolder()) {
+				FolderComposite folder = (FolderComposite) current;
+				elements.addAll(folder.getChildren().values());
+			}
+		}
+
 	}
 }

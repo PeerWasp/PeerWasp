@@ -76,7 +76,7 @@ public class ClientNode {
 		IUserConfig userConfig = Mockito.mock(IUserConfig.class);
 
 		fileManager = new FileManager(manager, userConfig, messageBus);
-		fileTree = new FileTree(rootPath, true);
+		fileTree = new FileTree(rootPath, null, true);
 		fileEventManager = new FileEventManager(fileTree, messageBus);
 		actionExecutor = new ActionExecutor(fileEventManager, fileManager);
 		watchService = new FolderWatchService();

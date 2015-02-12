@@ -4,9 +4,14 @@ import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Map;
 import java.util.ResourceBundle;
 
 import javafx.application.Platform;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.concurrent.Task;
 import javafx.concurrent.WorkerStateEvent;
 import javafx.event.ActionEvent;
@@ -20,12 +25,15 @@ import javafx.scene.control.PasswordField;
 import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 
+import org.apache.commons.io.FileUtils;
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.peerbox.ResultStatus;
 import org.peerbox.app.ClientContext;
+import org.peerbox.app.Constants;
 import org.peerbox.app.config.UserConfig;
 import org.peerbox.app.manager.user.IUserManager;
 import org.peerbox.guice.provider.ClientContextProvider;
@@ -33,6 +41,7 @@ import org.peerbox.presenter.validation.EmptyTextFieldValidator;
 import org.peerbox.presenter.validation.RootPathValidator;
 import org.peerbox.presenter.validation.SelectRootPathUtils;
 import org.peerbox.presenter.validation.ValidationUtils.ValidationResult;
+import org.peerbox.utils.UserConfigUtils;
 import org.peerbox.view.ViewNames;
 import org.peerbox.view.controls.ErrorLabel;
 import org.slf4j.Logger;
@@ -63,7 +72,11 @@ public class LoginController implements Initializable {
 	@FXML
 	private Label lblPinError;
 	@FXML
+	private HBox boxRootPath;
+	@FXML
 	private TextField txtRootPath;
+	@FXML
+	private Button btnRootPath;
 	@FXML
 	private Label lblPathError;
 	@FXML
@@ -84,10 +97,16 @@ public class LoginController implements Initializable {
 	private EmptyTextFieldValidator pinValidator;
 	private RootPathValidator pathValidator;
 
+
+	private Map<String, UserConfig> availableConfigFiles;
+	private final BooleanProperty disableRootPathProperty;
+
 	@Inject
 	public LoginController(NavigationService navigationService, IUserManager userManager) {
 		this.fNavigationService = navigationService;
 		this.userManager = userManager;
+
+		this.disableRootPathProperty = new SimpleBooleanProperty(false);
 	}
 
 	public void initialize(URL location, ResourceBundle resources) {
@@ -96,13 +115,41 @@ public class LoginController implements Initializable {
 	}
 
 	private void loadUserConfig() {
-		if (userConfig.hasUsername()) {
-			txtUsername.setText(userConfig.getUsername());
-		}
-		if (userConfig.hasRootPath()) {
-			txtRootPath.setText(userConfig.getRootPath().toString());
-		}
-		chbAutoLogin.setSelected(userConfig.isAutoLoginEnabled());
+		// allow or prevent that user can select / edit root path
+		boxRootPath.disableProperty().bind(disableRootPathProperty);
+
+		// read config for user and set root path if config file found
+		availableConfigFiles = UserConfigUtils.getAllConfigFiles();
+		txtUsername.textProperty().addListener(new ChangeListener<String>() {
+			@Override
+			public void changed(
+					ObservableValue<? extends String> observable,
+					String oldValue,
+					String newValue) {
+				boolean disableRootPath = false;
+				String newValueLower = newValue.toLowerCase();
+				if(availableConfigFiles.containsKey(newValueLower)) {
+					logger.info("Found config file for user: '{}' - Path: '{}'",
+							newValueLower, userConfig.getConfigFileName());
+
+					UserConfig cfg = availableConfigFiles.get(newValueLower);
+					if(cfg.hasRootPath()) {
+						txtRootPath.setText(cfg.getRootPath().toString());
+						disableRootPath = true;
+					}
+				}
+
+				// if user can select root path, we propose '.../userhome/synqbox/username' as name
+				if(!disableRootPath) {
+					Path newUserRootPath = Paths.get(FileUtils.getUserDirectoryPath(),
+							Constants.APP_NAME, getUsername());
+					txtRootPath.setText(newUserRootPath.toString());
+				}
+
+				disableRootPathProperty.set(disableRootPath);
+			}
+		});
+
 	}
 
 	private void resetForm() {
@@ -132,6 +179,7 @@ public class LoginController implements Initializable {
 		pathValidator.reset();
 	}
 
+	@FXML
 	public void loginAction(ActionEvent event) {
 		boolean inputValid = false;
 		try {
@@ -300,11 +348,13 @@ public class LoginController implements Initializable {
 		});
 	}
 
+	@FXML
 	public void registerAction(ActionEvent event) {
 		logger.debug("Navigate to register view.");
 		fNavigationService.navigate(ViewNames.REGISTER_VIEW);
 	}
 
+	@FXML
 	public void changeRootPathAction(ActionEvent event) {
 		String path = txtRootPath.getText();
 		Window toOpenDialog = grdForm.getScene().getWindow();
@@ -312,6 +362,7 @@ public class LoginController implements Initializable {
 		txtRootPath.setText(path);
 	}
 
+	@FXML
 	public void navigateBackAction(ActionEvent event) {
 		logger.debug("Navigate back.");
 		fNavigationService.navigateBack();

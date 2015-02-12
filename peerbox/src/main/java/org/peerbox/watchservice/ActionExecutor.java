@@ -3,7 +3,6 @@ package org.peerbox.watchservice;
 import java.nio.file.Path;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
@@ -20,6 +19,7 @@ import org.hive2hive.processframework.exceptions.ProcessExecutionException;
 import org.peerbox.app.manager.ProcessHandle;
 import org.peerbox.app.manager.file.FileExecutionFailedMessage;
 import org.peerbox.app.manager.file.IFileManager;
+import org.peerbox.watchservice.filetree.IFileTree;
 import org.peerbox.watchservice.filetree.composite.FileComponent;
 import org.peerbox.watchservice.filetree.composite.FolderComposite;
 import org.peerbox.watchservice.states.ExecutionHandle;
@@ -133,6 +133,8 @@ public class ActionExecutor implements Runnable {
 					wait(timeToWait);
 				}
 
+				getFileTree().persistFile(next);
+
 			} catch (InterruptedException iex) {
 				logger.error("Exception occurred: {}", iex.getMessage(), iex);
 			} catch (NoSessionException nse) {
@@ -190,6 +192,13 @@ public class ActionExecutor implements Runnable {
 		return asyncHandles;
 	}
 
+	/**
+	 * @return the file tree
+	 */
+	private IFileTree getFileTree() {
+		return fileEventManager.getFileTree();
+	}
+
 	private void logRunningJobs() {
 		Iterator<ExecutionHandle> it = asyncHandles.iterator();
 		int index = 0;
@@ -204,22 +213,22 @@ public class ActionExecutor implements Runnable {
 	}
 
 	private void removeFromDeleted(FileComponent next) {
-		SetMultimap<String, FileComponent> deletedByContent = fileEventManager.getFileTree().getDeletedByContentHash();
-		SetMultimap<String, FolderComposite> deletedByStructure = fileEventManager.getFileTree().getDeletedByStructureHash();
+		SetMultimap<String, FileComponent> deletedByContent = getFileTree().getDeletedByContentHash();
+		SetMultimap<String, FolderComposite> deletedByStructure = getFileTree().getDeletedByStructureHash();
 		removeComponentFromSetMultimap(next, deletedByContent, deletedByStructure);
 	}
-	
+
 	private void removeFromCreated(FileComponent next){
-		SetMultimap<String, FileComponent> createdByContent = fileEventManager.getFileTree().getCreatedByContentHash();
-		SetMultimap<String, FolderComposite> createdByStructure = fileEventManager.getFileTree().getCreatedByStructureHash();
+		SetMultimap<String, FileComponent> createdByContent = getFileTree().getCreatedByContentHash();
+		SetMultimap<String, FolderComposite> createdByStructure = getFileTree().getCreatedByStructureHash();
 		removeComponentFromSetMultimap(next, createdByContent, createdByStructure);
 	}
-	
-	private void removeComponentFromSetMultimap(FileComponent toRemove, 
+
+	private void removeComponentFromSetMultimap(FileComponent toRemove,
 			SetMultimap<String, FileComponent> byContent,
 			SetMultimap<String, FolderComposite> byStructure){
 		Iterator<Map.Entry<String, FileComponent>> componentIterator = byContent.entries().iterator(); //.sameHashes.iterator();
-		
+
 		if(toRemove.isFile()){
 			while(componentIterator.hasNext()){
 				FileComponent candidate = componentIterator.next().getValue();
@@ -245,28 +254,30 @@ public class ActionExecutor implements Runnable {
 	}
 
 	public void onActionExecuteSucceeded(final IAction action) {
+		final FileComponent file = action.getFile();
 		logger.debug("Action succeeded: {} {}.",
-				action.getFile().getPath(), action.getCurrentStateName());
+				file.getPath(), action.getCurrentStateName());
 
 		boolean changedWhileExecuted = action.getChangedWhileExecuted();
-		action.getFile().setIsUploaded(true);
+		file.setIsUploaded(true);
 		action.onSucceeded();
 
 		if (changedWhileExecuted) {
 			logger.trace("File: {} changed during the execution process to state {}. "
 					+ "Put back into the queue",
-					action.getFile().getPath(),
+					file.getPath(),
 					action.getCurrentStateName());
 			action.updateTimestamp();
-			fileEventManager.getFileComponentQueue().add(action.getFile());
+			fileEventManager.getFileComponentQueue().add(file);
 		}
 
+		getFileTree().persistFile(file);
 	}
 
 
 	private void handleExecutionError(IAction action, ProcessExecutionException pex) {
-
-		logger.error("Action failed: {}", action.getFile().getPath(), pex);
+		final FileComponent file = action.getFile();
+		logger.error("Action failed: {}", file.getPath(), pex);
 
 		action.onFailed();
 
@@ -284,6 +295,8 @@ public class ActionExecutor implements Runnable {
 		if (!errorHandled) {
 			handleErrorDefault(action);
 		}
+
+		getFileTree().persistFile(file);
 	}
 
 
@@ -308,7 +321,7 @@ public class ActionExecutor implements Runnable {
 		if (error == AbortModificationCode.SAME_CONTENT) {
 
 			logger.debug("Update of file {} failed, content hash did not change", path);
-			FileComponent notModified = fileEventManager.getFileTree().getFile(path);
+			FileComponent notModified = getFileTree().getFile(path);
 			if (notModified == null) {
 				logger.trace("FileComponent not found (null): {}", path);
 			}

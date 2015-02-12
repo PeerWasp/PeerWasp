@@ -22,18 +22,18 @@ import org.peerbox.watchservice.filetree.FileTree;
 
 @Deprecated
 public class FileWalkerTest {
-	
+
 	private static int nrFiles = 3;
-	private static String parentPath = System.getProperty("user.home") + File.separator + "PeerBox_FileWalkerTest" + File.separator; 
+	private static String parentPath = System.getProperty("user.home") + File.separator + "PeerBox_FileWalkerTest" + File.separator;
 	private static File testDirectory;
 	private static ArrayList<String> filePaths = new ArrayList<String>();
 	private static ArrayList<File> files = new ArrayList<File>();
 	private static FileEventManager manager;
 	private static FileTree fileTree;
-	
+
 	@Mock
 	private IFileManager fileManager;
-	
+
 	@BeforeClass
 	public static void staticSetup(){
 		testDirectory = new File(parentPath);
@@ -44,19 +44,19 @@ public class FileWalkerTest {
 				files.add(new File(filePaths.get(i)));
 				files.get(i).createNewFile();
 			}
-			
+
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		fileTree = new FileTree(Paths.get(parentPath), true);
+		fileTree = new FileTree(Paths.get(parentPath), null, true);
 		manager = new FileEventManager(fileTree, null);
 	}
-	
+
 	@Before
 	public void setup(){
 		MockitoAnnotations.initMocks(this);
 	}
-	
+
 	@AfterClass @Ignore
 	public static void rollback(){
 		for(int i = 0; i < nrFiles; i++){
@@ -64,28 +64,28 @@ public class FileWalkerTest {
 		}
 		assertTrue(testDirectory.delete());
 	}
-	
+
 	/**
 	 * This test checks if events lost by the FolderWatchService are collected and
 	 * executed correctly by the FileWalker. To do that, three files are created, two
 	 * of them are announced to the FolderWatchService, and one is omitted (to simulate
 	 * the lost event. The FileWalker checks the files and triggers the corresponding event.
-	 * 
+	 *
 	 * Then, a file delete and a modification are performed, both without a reaction of the
 	 * FolderWatchService. The FileWalker then takes care and triggers the events.
 	 */
 	@Test
 	public void indexDirectoryRecursivelyTest(){
 		FileWalker walker = new FileWalker(Paths.get(parentPath), manager);
-		
+
 		addTwoOfThreeCreateEvents();
-		
+
 		handleMissingCreateEvents(walker);
 		FileEventManagerTest.sleepMillis(ActionExecutor.ACTION_WAIT_TIME_MS * 2);
-		
+
 		handleUnnoticedDeleteEvent(walker);
 		FileEventManagerTest.sleepMillis(ActionExecutor.ACTION_WAIT_TIME_MS * 2);
-		
+
 		handleUnnoticedModifyEvent(walker);
 		FileEventManagerTest.sleepMillis(ActionExecutor.ACTION_WAIT_TIME_MS * 2);
 
@@ -100,12 +100,12 @@ public class FileWalkerTest {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+
 		assertTrue(manager.getFileComponentQueue().size() == 0);
 		walker.alignActionMaps();
 		assertTrue(manager.getFileComponentQueue().size() == 1);
-		
-		
+
+
 	}
 
 	private void handleUnnoticedDeleteEvent(FileWalker walker) {
@@ -114,7 +114,7 @@ public class FileWalkerTest {
 		assertTrue(manager.getFileComponentQueue().size() == 0);
 		walker.alignActionMaps();
 		assertTrue(manager.getFileComponentQueue().size() == 1);
-			
+
 	}
 
 	private void handleMissingCreateEvents(FileWalker walker) {

@@ -27,40 +27,40 @@
 				<RowConstraints vgrow="SOMETIMES" />
 			</rowConstraints>
 			<children>
-			
+
 				<ErrorLabel fx:id="lblError" iconHeight="20.0" GridPane.rowIndex="0" />
-				
+
 				<HBox spacing="10" GridPane.hgrow="SOMETIMES" GridPane.rowIndex="1">
 					<Label text="Username:" />
 					<Label fx:id="lblUsernameError" styleClass="validation-error-label" />
 				</HBox>
 				<TextField fx:id="txtUsername" promptText="Enter username" GridPane.columnIndex="0"  GridPane.rowIndex="2" />
-				
+
 				<HBox spacing="10" GridPane.hgrow="SOMETIMES" GridPane.rowIndex="3">
 					<Label text="Password:" />
 					<Label fx:id="lblPasswordError" styleClass="validation-error-label" />
 				</HBox>
 				<PasswordField fx:id="txtPassword" promptText="Enter password" GridPane.columnIndex="0" GridPane.rowIndex="4" />
-				
+
 				<HBox spacing="10" GridPane.hgrow="SOMETIMES" GridPane.rowIndex="5">
 					<Label text="Pin:" />
 					<Label fx:id="lblPinError" styleClass="validation-error-label" />
 				</HBox>
 				<PasswordField fx:id="txtPin" promptText="Enter PIN" GridPane.columnIndex="0" GridPane.rowIndex="6" />
-				
+
 				<HBox spacing="10" GridPane.hgrow="SOMETIMES" GridPane.rowIndex="7">
 					<Label text="Path:" />
 					<Label fx:id="lblPathError" styleClass="validation-error-label" />
 				</HBox>
-				<HBox alignment="CENTER_LEFT" spacing="10.0" GridPane.columnIndex="0" GridPane.rowIndex="8" GridPane.valignment="CENTER">
+				<HBox fx:id="boxRootPath" alignment="CENTER_LEFT" spacing="10.0" GridPane.columnIndex="0" GridPane.rowIndex="8" GridPane.valignment="CENTER">
 					<children>
 						<TextField fx:id="txtRootPath" promptText="Enter path" GridPane.columnIndex="0" GridPane.rowIndex="3" HBox.hgrow="SOMETIMES" />
-						<Button mnemonicParsing="false" onAction="#changeRootPathAction" prefHeight="25.0" text="..." />
+						<Button fx:id="btnRootPath" mnemonicParsing="false" onAction="#changeRootPathAction" prefHeight="25.0" text="..." />
 					</children>
 				</HBox>
-				
+
 				<CheckBox fx:id="chbAutoLogin" mnemonicParsing="false" text="Login automatically" GridPane.columnIndex="0" GridPane.rowIndex="9" />
-				
+
 				<HBox alignment="CENTER_LEFT" spacing="10.0" GridPane.rowIndex="10">
 					<children>
 						<Button cancelButton="true" mnemonicParsing="false" onAction="#navigateBackAction" prefWidth="100.0" text="Back" />

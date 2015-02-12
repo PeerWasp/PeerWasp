@@ -16,11 +16,9 @@ import org.hive2hive.core.events.implementations.FileAddEvent;
 import org.peerbox.app.manager.file.FileDesyncMessage;
 import org.peerbox.app.manager.file.IFileMessage;
 import org.peerbox.events.MessageBus;
-import org.peerbox.watchservice.conflicthandling.ConflictHandler;
 import org.peerbox.watchservice.filetree.FileTree;
 import org.peerbox.watchservice.filetree.IFileTree;
 import org.peerbox.watchservice.filetree.composite.FileComponent;
-import org.peerbox.watchservice.states.InitialState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,17 +40,6 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 		this.fileTree = fileTree;
 		this.messageBus = messageBus;
 	}
-    
-    public MessageBus getMessageBus(){
-    	return messageBus;
-    }
-    
-//    @Inject
-//    public FileEventManager(final FileTree fileTree){
-//    	this.fileComponentQueue = new ActionQueue();
-//		this.fileTree = fileTree;
-//		this.messageBus = null;
-//    }
 
     /**
 	 * Handles incoming create events the following way:
@@ -91,6 +78,8 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 		if (isFolder) {
 			fileTree.discoverSubtreeCompletely(path, this);
 		}
+
+		fileTree.persistFile(file);
 	}
 
 	@Override
@@ -110,6 +99,8 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 		}
 
 		file.getAction().handleLocalUpdateEvent();
+
+		fileTree.persistFile(file);
 	}
 
 	//TODO: remove children from actionQueue as well!
@@ -133,14 +124,8 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 		}
 
 		file.getAction().handleLocalDeleteEvent();
-	}
 
-	private void publishMessage(IFileMessage message) {
-		if(messageBus != null){
-			messageBus.publish(message);
-		} else {
-			logger.warn("No message sent, as message bus is null!");
-		}
+		fileTree.persistFile(file);
 	}
 
 	@Override
@@ -159,6 +144,8 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 		file.setIsSynchronized(false);
 		// fileTree.deleteFile(path);
 		FileUtils.deleteQuietly(path.toFile());
+
+		fileTree.persistFile(file);
 	}
 
 	@Override
@@ -175,6 +162,20 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 		// FileCompositeUtils.setIsUploadedWithAncestors(file, true);
 		file.setIsSynchronized(true);
 		onFileAdd(new FileAddEvent(path.toFile(), isFolder));
+
+		fileTree.persistFile(file);
+	}
+
+	private boolean hasSynchronizedAncestor(final Path path) {
+		// TODO: maybe stop when rootPath is reached...!
+		FileComponent file = fileTree.getFile(path);
+		if (file == null) {
+			logger.trace("checkForSynchronizedAncestor: Did not find {}", path);
+			return hasSynchronizedAncestor(path.getParent());
+		} else {
+			logger.trace("checkForSynchronizedAncestor: isSynchronized({})", file.isSynchronized());
+			return file.isSynchronized();
+		}
 	}
 
 	@Override
@@ -196,18 +197,8 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 		file.getAction().setFile(file);
 		file.getAction().setFileEventManager(this);
 		file.getAction().handleRemoteCreateEvent();
-	}
 
-	private boolean hasSynchronizedAncestor(final Path path) {
-		// TODO: maybe stop when rootPath is reached...!
-		FileComponent file = fileTree.getFile(path);
-		if (file == null) {
-			logger.trace("checkForSynchronizedAncestor: Did not find {}", path);
-			return hasSynchronizedAncestor(path.getParent());
-		} else {
-			logger.trace("checkForSynchronizedAncestor: isSynchronized({})", file.isSynchronized());
-			return file.isSynchronized();
-		}
+		fileTree.persistFile(file);
 	}
 
 	@Override
@@ -228,6 +219,8 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 
 		final FileComponent file = fileTree.getOrCreateFileComponent(path, this);
 		file.getAction().handleRemoteUpdateEvent();
+
+		fileTree.persistFile(file);
 	}
 
 	@Override
@@ -239,6 +232,8 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 
 		final FileComponent source = fileTree.getOrCreateFileComponent(srcPath, this);
 		source.getAction().handleRemoteMoveEvent(dstPath);
+
+		fileTree.persistFileAndDescendants(source);
 	}
 
 	@Override
@@ -254,6 +249,18 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 	@Override
 	public synchronized IFileTree getFileTree() {
 		return fileTree;
+	}
+
+	public MessageBus getMessageBus() {
+		return messageBus;
+	}
+
+	private void publishMessage(IFileMessage message) {
+		if (messageBus != null) {
+			messageBus.publish(message);
+		} else {
+			logger.warn("No message sent, as message bus is null!");
+		}
 	}
 
 }

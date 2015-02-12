@@ -15,7 +15,7 @@ import com.google.common.collect.SetMultimap;
 public class DummyFileTree implements IFileTree{
 
     private Set<Path> synchronizedFiles = new ConcurrentHashSet<Path>();
-    
+
     public DummyFileTree(DummyUserConfig userConfig){
     	synchronizedFiles = SynchronizationTestUtils.generateLocalFiles(userConfig);
     }
@@ -83,7 +83,7 @@ public class DummyFileTree implements IFileTree{
 		// TODO Auto-generated method stub
 		return null;
 	}
-	
+
 	@Override
 	public SetMultimap<String, FolderComposite> getCreatedByStructureHash() {
 		// TODO Auto-generated method stub
@@ -98,6 +98,16 @@ public class DummyFileTree implements IFileTree{
 	public FolderComposite findDeletedByStructure(FolderComposite createdFolder) {
 		// TODO Auto-generated method stub
 		return null;
+	}
+	@Override
+	public void persistFile(FileComponent file) {
+		// TODO Auto-generated method stub
+
+	}
+	@Override
+	public void persistFileAndDescendants(FileComponent root) {
+		// TODO Auto-generated method stub
+
 	}
 
 }
