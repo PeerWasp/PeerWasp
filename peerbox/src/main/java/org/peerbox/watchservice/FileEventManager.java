@@ -97,6 +97,11 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 	public void onLocalFileModified(final Path path) {
 		logger.debug("onLocalFileModified: {}", path);
 
+
+		if(!Files.exists(path) || Files.isDirectory(path)){
+			logger.trace("File {} does not exist on disk or is a folder, discard local update", path);
+			return;
+		}
 		final FileComponent file = fileTree.getOrCreateFileComponent(path, this);
 		if (file.isFolder()) {
 			logger.debug("File {} is a folder. Update rejected.", path);
@@ -168,9 +173,10 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 		// TODO: need to specify whether it is a folder or not?
 		// is this even required if we do onFileAdd later?
 		final FileComponent file = fileTree.getOrCreateFileComponent(path, !isFolder, this);
-		if (file.isSynchronized()) {
-			return;
-		}
+//		if (file.isSynchronized()) {
+//			logger.trace("File {} is still synchronized, return!", path);
+//			return;
+//		}
 		fileTree.putFile(path, file);
 		// FileCompositeUtils.setIsUploadedWithAncestors(file, true);
 		file.setIsSynchronized(true);

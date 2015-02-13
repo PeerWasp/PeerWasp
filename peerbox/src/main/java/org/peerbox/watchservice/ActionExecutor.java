@@ -18,6 +18,7 @@ import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.hive2hive.core.exceptions.NoSessionException;
 import org.hive2hive.processframework.exceptions.ProcessExecutionException;
 import org.peerbox.app.manager.ProcessHandle;
+import org.peerbox.app.manager.file.FileDesyncMessage;
 import org.peerbox.app.manager.file.FileExecutionFailedMessage;
 import org.peerbox.app.manager.file.IFileManager;
 import org.peerbox.presenter.settings.synchronization.messages.ExecutionStartsMessage;
@@ -120,8 +121,12 @@ public class ActionExecutor implements Runnable {
 					if (waitForActionCompletion) {
 						if (ehandle != null && ehandle.getProcessHandle() != null) {
 							logger.debug("Put into async handles!");
-							fileEventManager.getMessageBus().publish(new ExecutionStartsMessage(next.getAction().getFile().getPath()));
+							fileEventManager.getMessageBus().publish(new ExecutionStartsMessage(next.getPath()));
 							asyncHandles.put(ehandle);
+						} else {
+//							if(!next.isSynchronized()){
+//								fileEventManager.getMessageBus().publish(new FileDesyncMessage(next.getPath()));
+//							}
 						}
 					} else {
 						onActionExecuteSucceeded(next.getAction());
@@ -138,6 +143,11 @@ public class ActionExecutor implements Runnable {
 
 			} catch (InterruptedException iex) {
 				logger.error("Exception occurred: {}", iex.getMessage(), iex);
+				ProcessExecutionException pex;
+				if (iex.getCause() instanceof ProcessExecutionException) {
+					logger.error("It is a process execution exception!");
+					pex = (ProcessExecutionException) iex.getCause();
+				}
 			} catch (NoSessionException nse) {
 				logger.warn("No session - cannot execute pending actions.", nse);
 			} catch(NoPeerConnectionException npc) {
@@ -317,6 +327,7 @@ public class ActionExecutor implements Runnable {
 			if (notModified == null) {
 				logger.trace("FileComponent not found (null): {}", path);
 			}
+			fileEventManager.getMessageBus().publish(new ExecutionSuccessfulMessage(action.getFile().getPath()));
 			action.onSucceeded();
 			return true;
 
@@ -336,6 +347,9 @@ public class ActionExecutor implements Runnable {
 			return true;
 
 		}
+//		else if (error == AbortModificationCode.FILE_DOES_NOT_EXIST){
+//			
+//		}
 
 		return false; // error not handled
 	}

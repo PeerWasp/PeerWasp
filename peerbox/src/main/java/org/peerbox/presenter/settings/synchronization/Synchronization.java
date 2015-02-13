@@ -1,5 +1,8 @@
 package org.peerbox.presenter.settings.synchronization;
 
+
+
+
 import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -22,6 +25,7 @@ import javafx.scene.control.TreeView;
 import javafx.scene.control.CheckBoxTreeItem.TreeModificationEvent;
 import javafx.scene.control.CheckBoxTreeItem;
 import javafx.scene.control.cell.CheckBoxTreeCell;
+import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.stage.Window;
@@ -34,6 +38,7 @@ import org.hive2hive.core.processes.files.list.FileNode;
 import org.hive2hive.processframework.exceptions.InvalidProcessStateException;
 import org.hive2hive.processframework.exceptions.ProcessExecutionException;
 import org.peerbox.app.config.UserConfig;
+import org.peerbox.app.manager.file.FileDesyncMessage;
 import org.peerbox.app.manager.file.FileExecutionFailedMessage;
 import org.peerbox.app.manager.file.IFileManager;
 import org.peerbox.presenter.settings.synchronization.eventbus.IExecutionMessageListener;
@@ -131,11 +136,14 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 
 	        for(FileNode topLevelNode : fileNode.getChildren()){
 				ImageView view = null;
+				Label label = null;
 	        	Path path = topLevelNode.getFile().toPath();
 	        	boolean isSynched = synchronizedFiles.contains(path);
 	        	
 	        	if(failedFiles.contains(path)){
 	        		view = new ImageView(errorIcon);
+	        		
+
 	        	} else if(executingFiles.contains(path)){
 	        		view = new ImageView(inProgressIcon);
 	        	} else {
@@ -200,7 +208,7 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 	@Handler
 	public void onExecutionStarts(ExecutionStartsMessage message) {
 		logger.trace("onExecutionStarts: {}", message.getPath());
-		ImageView view = new ImageView(new Image(getClass().getResourceAsStream("/images/file-synch.png")));
+		ImageView view = new ImageView(inProgressIcon);
 		TreeItem<PathItem> item = getTreeItem(message.getPath());
 		if(item != null){
 			logger.trace("item != null for {}, change icon!", message.getPath());
@@ -209,14 +217,14 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 			logger.trace("item == null for {}", message.getPath());
 		}
 		forceUpdateTreeItem(item);
-		item.setGraphic(new ImageView(new Image(getClass().getResourceAsStream("/images/file-synch.png"))));
+		item.setGraphic(new ImageView(inProgressIcon));
 
 	}
 
 	@Override
 	@Handler
 	public void onExecutionSucceeds(ExecutionSuccessfulMessage message) {
-		ImageView view = new ImageView(new Image(getClass().getResourceAsStream("/images/file-success.png")));
+		ImageView view = new ImageView(successIcon);
 		logger.trace("onExecutionSucceeds: {}", message.getPath());
 		CheckBoxTreeItem<PathItem> item = getTreeItem(message.getPath());
 		if(item != null){
@@ -256,6 +264,33 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 		forceUpdateTreeItem(item);
 		item.setGraphic(view);
 		item.setSelected(true);
+	}
+	
+	@Override
+	@Handler
+	public void onFileSoftDeleted(FileDesyncMessage message) {
+		logger.trace("onFileSoftDeleted: {}", message.getPath());
+		Path path = message.getPath();
+		ImageView view = new ImageView(standardIcon);
+		PathTreeItem item = getTreeItem(message.getPath());
+		if(item != null){
+			logger.trace("item != null for {}, change icon!", message.getPath());
+		} else {
+			item = putTreeItem(message.getPath(), false, view);
+			logger.trace("item == null for {}", message.getPath());
+		}
+		
+		item.setGraphic(view);
+		forceUpdateTreeItem(item);
+		
+		final CheckBoxTreeItem<PathItem> item2 = item;
+
+		javafx.application.Platform.runLater(new Runnable() {
+	        @Override
+	        public void run() {
+	        	item2.setSelected(false);
+	        }
+	   });
 	}
 	
 	private PathTreeItem getTreeItem(Path path){

@@ -3,6 +3,7 @@ package org.peerbox.watchservice.filetree.composite;
 import java.nio.file.Path;
 
 import org.peerbox.watchservice.PathUtils;
+import org.peerbox.watchservice.states.AbstractActionState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,6 +39,15 @@ public class FileLeaf extends AbstractFileComponent {
 	public boolean isReady() {
 		boolean parentUploaded = getParent().isUploaded();
 		return parentUploaded;
+	}
+	
+	public void updateStateOnLocalDelete(AbstractActionState state){
+		getAction().getCurrentState().changeStateOnLocalDelete();
+	}
+
+	@Override
+	public void updateStateOnLocalDelete() {
+		getAction().getCurrentState().changeStateOnLocalDelete();
 	}
 
 }

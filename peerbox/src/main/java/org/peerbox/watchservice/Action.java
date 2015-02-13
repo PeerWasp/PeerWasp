@@ -388,16 +388,23 @@ public class Action implements IAction {
 		if (isExecuting()) {
 			throw new IllegalStateException("Action is already executing.");
 		}
-
+		ExecutionHandle ehandle = null;
 		try {
 			acquireLock();
 
-			ExecutionHandle ehandle = null;
+
 			setIsExecuting(true);
 			++executionAttempts;
 			ehandle = currentState.execute(fileManager);
+			if(ehandle == null){
+				setIsExecuting(false);
+			}
 			return ehandle;
 
+//		} catch(IllegalArgumentException ex){
+//			logger.trace("Captured IllegalArgumentException ex for {}", getFile().getPath());
+//			setIsExecuting(false);
+//			return null;
 		} finally {
 			releaseLock();
 		}

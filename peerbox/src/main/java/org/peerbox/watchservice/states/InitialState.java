@@ -8,6 +8,7 @@ import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.hive2hive.core.exceptions.NoSessionException;
 import org.peerbox.app.manager.file.IFileManager;
 import org.peerbox.exceptions.NotImplException;
+import org.peerbox.presenter.settings.synchronization.messages.ExecutionSuccessfulMessage;
 import org.peerbox.watchservice.IAction;
 import org.peerbox.watchservice.IFileEventManager;
 import org.peerbox.watchservice.conflicthandling.ConflictHandler;
@@ -139,8 +140,16 @@ public class InitialState extends AbstractActionState {
 		if (file.isUploaded() && file.isSynchronized()) {
 			logger.debug("File {} has been soft-deleted and recreated. This is regarded as a file update.", file.getPath());
 //			ConflictHandler.resolveConflict(file.getPath(), true);
-			updateTimeAndQueue();
-			return changeStateOnLocalUpdate();
+			if(file.isFolder()){
+				logger.debug("Soft-deleted file {} is a folder. Ignore recreation", file.getPath());
+				action.getFileEventManager().getMessageBus().publish(new ExecutionSuccessfulMessage(file.getPath()));
+				action.getFileEventManager().getFileComponentQueue().remove(action.getFile());
+				return this;
+			} else {
+				updateTimeAndQueue();
+				return changeStateOnLocalUpdate();
+			}
+			
 		}
 		logger.trace("Handle regular create of {}, no move source has been found.", filePath);
 		updateTimeAndQueue();

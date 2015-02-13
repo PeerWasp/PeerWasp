@@ -3,6 +3,8 @@ package org.peerbox.presenter.settings.synchronization;
 import java.nio.file.Path;
 
 import javafx.scene.control.CheckBoxTreeItem;
+import javafx.scene.control.Label;
+import javafx.scene.control.Tooltip;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 
@@ -28,14 +30,18 @@ public class PathTreeItem extends CheckBoxTreeItem<PathItem> {
     }
     
     public PathTreeItem(Path path, ImageView view, boolean isSynched){
-    	super(new PathItem(path));
-    	setGraphic(view);
-    	setSelected(isSynched);
+    	this(path, view, isSynched, true);
     }
     
     public PathTreeItem(Path path, ImageView view, boolean isSynched, boolean isFile){
     	super(new PathItem(path));
-    	setGraphic(view);
+    	
+        Label label = new Label();
+//        label.setGraphic(view);
+//        final Tooltip tooltip = new Tooltip("Uncheck to remove the file\n from selective synchronization.");
+//        label.setTooltip(tooltip);
+//    	setGraphic(label);
+        setGraphic(view);
     	setSelected(isSynched);
     	setIsFile(isFile);
     }
