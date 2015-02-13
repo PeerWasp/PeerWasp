@@ -1,14 +1,12 @@
 package org.peerbox.presenter.settings.synchronization;
 
 import java.nio.file.Path;
-import java.util.concurrent.BlockingQueue;
 
 import org.hive2hive.core.events.framework.interfaces.file.IFileAddEvent;
 import org.peerbox.events.MessageBus;
 import org.peerbox.watchservice.ActionQueue;
 import org.peerbox.watchservice.IFileEventManager;
 import org.peerbox.watchservice.filetree.IFileTree;
-import org.peerbox.watchservice.filetree.composite.FileComponent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

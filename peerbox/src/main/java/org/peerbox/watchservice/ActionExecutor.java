@@ -261,7 +261,7 @@ public class ActionExecutor implements Runnable {
 		logger.debug("Action succeeded: {} {}.",
 				action.getFile().getPath(), action.getCurrentStateName());
 		//inform gui to adjust icon
-		fileEventManager.getMessageBus().publish(new ExecutionSuccessfulMessage(action.getFile().getPath()));
+		fileEventManager.getMessageBus().publish(new ExecutionSuccessfulMessage(action.getFile().getPath(), action.getCurrentState().getStateType()));
 		
 		boolean changedWhileExecuted = action.getChangedWhileExecuted();
 		action.getFile().setIsUploaded(true);
@@ -327,7 +327,7 @@ public class ActionExecutor implements Runnable {
 			if (notModified == null) {
 				logger.trace("FileComponent not found (null): {}", path);
 			}
-			fileEventManager.getMessageBus().publish(new ExecutionSuccessfulMessage(action.getFile().getPath()));
+			fileEventManager.getMessageBus().publish(new ExecutionSuccessfulMessage(action.getFile().getPath(), action.getCurrentState().getStateType()));
 			action.onSucceeded();
 			return true;
 

@@ -142,7 +142,7 @@ public class InitialState extends AbstractActionState {
 //			ConflictHandler.resolveConflict(file.getPath(), true);
 			if(file.isFolder()){
 				logger.debug("Soft-deleted file {} is a folder. Ignore recreation", file.getPath());
-				action.getFileEventManager().getMessageBus().publish(new ExecutionSuccessfulMessage(file.getPath()));
+				action.getFileEventManager().getMessageBus().publish(new ExecutionSuccessfulMessage(file.getPath(), file.getAction().getCurrentState().getStateType()));
 				action.getFileEventManager().getFileComponentQueue().remove(action.getFile());
 				return this;
 			} else {
