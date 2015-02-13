@@ -24,6 +24,7 @@ import org.peerbox.events.WarningMessage;
 import org.peerbox.guice.ApiServerModule;
 import org.peerbox.guice.PeerBoxModule;
 import org.peerbox.guice.UserConfigModule;
+import org.peerbox.notifications.InformationNotification;
 import org.peerbox.presenter.tray.TrayException;
 import org.peerbox.presenter.validation.SelectRootPathUtils;
 import org.peerbox.server.IServer;
@@ -98,6 +99,8 @@ public class App extends Application
 
 		messageBus.publish(new InformationMessage("PeerBox started", "Hello..."));
 		messageBus.publish(new WarningMessage("PeerBox started", "Hello..."));
+		
+		messageBus.post(new InformationNotification("PeerBox started", "Hello!")).now();
     }
 
 	private void initializeAppFolder() {

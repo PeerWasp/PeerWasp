@@ -4,6 +4,8 @@ import java.awt.AWTException;
 import java.awt.Image;
 import java.awt.TrayIcon;
 import java.awt.TrayIcon.MessageType;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.IOException;
 
 import net.engio.mbassy.listener.Handler;
@@ -107,6 +109,13 @@ public class JSystemTray extends AbstractSystemTray implements ITrayNotification
 	public void showInformation(InformationNotification in) {
 		logger.debug("information message: [{}] - [{}]", in.getTitle(), in.getMessage());
 		if(trayIcon != null) {
+			trayIcon.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                	menu.getTrayActionHandler().showActivity();
+                    System.out.println("Message Clicked");
+                    trayIcon.removeActionListener(this);
+                }
+            });
 			trayIcon.displayMessage(in.getTitle(), in.getMessage(), MessageType.INFO);
 		}
 	}
