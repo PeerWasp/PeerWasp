@@ -14,6 +14,9 @@ import net.engio.mbassy.listener.Handler;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.peerbox.app.manager.file.FileDeleteMessage;
+import org.peerbox.app.manager.file.FileDownloadMessage;
+import org.peerbox.app.manager.file.FileUploadMessage;
 import org.peerbox.events.MessageBus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,7 +57,7 @@ public class FileEventAggregatorTest  {
 			Thread.sleep(rnd.nextInt(5));
 			switch (rnd.nextInt(3)) {
 				case 0:
-					aggregator.onFileAdded(p);
+					aggregator.onFileUploaded(new FileUploadMessage(p));
 					++totalAdded;
 					break;
 				case 1:
@@ -62,7 +65,7 @@ public class FileEventAggregatorTest  {
 					++totalModified;
 					break;
 				case 2:
-					aggregator.onFileDeleted(p);
+					aggregator.onFileDeleted(new FileDeleteMessage(p));
 					++totalDeleted;
 					break;
 				default:

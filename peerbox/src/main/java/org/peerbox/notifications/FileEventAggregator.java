@@ -6,16 +6,23 @@ import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import net.engio.mbassy.listener.Handler;
+
+import org.peerbox.app.manager.file.FileDeleteMessage;
+import org.peerbox.app.manager.file.FileDownloadMessage;
+import org.peerbox.app.manager.file.FileUploadMessage;
+import org.peerbox.events.IMessageListener;
 import org.peerbox.events.MessageBus;
 
 
-public class FileEventAggregator {
+public class FileEventAggregator implements IMessageListener{
 	
 	protected static final int AGGREGATION_TIMESPAN = 10000;
 	
 	private MessageBus messageBus;
 	
-	private List<Path> addedFiles;
+	private List<Path> uploadedFiles;
+	private List<Path> downloadedFiles;
 	private List<Path> modifiedFiles;
 	private List<Path> deletedFiles;
 	
@@ -23,13 +30,23 @@ public class FileEventAggregator {
 	
 	public FileEventAggregator(MessageBus messageBus) {
 		this.messageBus = messageBus;
-		addedFiles = new ArrayList<Path>();
+		uploadedFiles = new ArrayList<Path>();
+		downloadedFiles = new ArrayList<Path>();
 		modifiedFiles = new ArrayList<Path>();
 		deletedFiles = new ArrayList<Path>();
 	}
 	
-	public void onFileAdded(Path path) {
-		addedFiles.add(path);
+	@Handler
+	public void onFileUploaded(FileUploadMessage message) {
+		Path path = message.getPath();
+		uploadedFiles.add(path);
+		scheduleNotification();
+	}
+	
+	@Handler
+	public void onFileDownloaded(FileDownloadMessage message){
+		Path path = message.getPath();
+		downloadedFiles.add(path);
 		scheduleNotification();
 	}
 
@@ -38,7 +55,9 @@ public class FileEventAggregator {
 		scheduleNotification();
 	}
 	
-	public void onFileDeleted(Path path) {
+	@Handler
+	public void onFileDeleted(FileDeleteMessage message) {
+		Path path = message.getPath();
 		deletedFiles.add(path);
 		scheduleNotification();
 	}
@@ -48,17 +67,18 @@ public class FileEventAggregator {
 			timer = new Timer(getClass().getName());
 			timer.schedule(new TimerTask() {
 				
-				List<Path> added = null;
+				List<Path> uploaded = null;
 				List<Path> modified = null;
 				List<Path> deleted = null;
+				List<Path> downloaded = null;
 				
 				@Override
 				public void run() {
 					timer = null;
 					
-					synchronized (addedFiles) {
-						added = addedFiles;
-						addedFiles = new ArrayList<Path>();
+					synchronized (uploadedFiles) {
+						uploaded = uploadedFiles;
+						uploadedFiles = new ArrayList<Path>();
 					}
 					synchronized (modifiedFiles) {
 						modified = modifiedFiles;
@@ -68,15 +88,20 @@ public class FileEventAggregator {
 						deleted = deletedFiles;
 						deletedFiles = new ArrayList<Path>();
 					}
+					synchronized (downloadedFiles){
+						downloaded = downloadedFiles;
+						downloadedFiles = new ArrayList<Path>();
+					}
 					  
 					StringBuilder sb = new StringBuilder();
-					sb.append("Added Files: " + added.size()).append("\n");
-					sb.append("Modified Files: " + modified.size()).append("\n");
+					sb.append("Uploaded Files: " + uploaded.size()).append("\n");
+					sb.append("Downloaded Files: " + downloaded.size()).append("\n");
 					sb.append("Deleted Files: " + deleted.size()).append("\n");
-					AggregatedFileEventStatus event = new AggregatedFileEventStatus(added.size(),
+					AggregatedFileEventStatus event = new AggregatedFileEventStatus(uploaded.size(),
 							modified.size(), deleted.size());
 					
 					messageBus.post(event).now();
+					messageBus.publish(event);
 					  
 				}
 			}, AGGREGATION_TIMESPAN);

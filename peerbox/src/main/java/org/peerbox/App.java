@@ -24,6 +24,7 @@ import org.peerbox.events.WarningMessage;
 import org.peerbox.guice.ApiServerModule;
 import org.peerbox.guice.PeerBoxModule;
 import org.peerbox.guice.UserConfigModule;
+import org.peerbox.notifications.FileEventAggregator;
 import org.peerbox.notifications.InformationNotification;
 import org.peerbox.presenter.tray.TrayException;
 import org.peerbox.presenter.validation.SelectRootPathUtils;
@@ -63,6 +64,7 @@ public class App extends Application
 	private UserConfig userConfig;
 	private IServer server;
 
+	private FileEventAggregator aggregator;
 	private ActivityConfiguration activityConfiguration;
 
 	public static void main(String[] args) {
@@ -87,6 +89,7 @@ public class App extends Application
 		startServer();
 
 		initializeSysTray();
+		
 
 		// TODO: if join/login fails -> action required? e.g. launch in foreground? do nothing but indicate with icon?
 		if (isAutoLoginFeasible()) {
@@ -176,6 +179,9 @@ public class App extends Application
 		try {
 			systemTray.show();
 			systemTray.showDefaultIcon();
+			
+			aggregator = new FileEventAggregator(messageBus);
+			messageBus.subscribe(aggregator);
 		} catch (TrayException e) {
 			logger.error("Could not initialize systray");
 		}

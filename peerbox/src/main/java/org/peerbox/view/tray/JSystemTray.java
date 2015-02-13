@@ -125,6 +125,13 @@ public class JSystemTray extends AbstractSystemTray implements ITrayNotification
 	public void showFileEvents(AggregatedFileEventStatus event) {
 		String msg = generateAggregatedFileEventStatusMessage(event);
 		logger.debug("Message received: \n[{}]", msg);
+		trayIcon.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+            	menu.getTrayActionHandler().showSettings();
+                System.out.println("Message Clicked");
+                trayIcon.removeActionListener(this);
+            }
+        });
 		trayIcon.displayMessage("File Synchronization", msg, MessageType.INFO);
 	}
 
