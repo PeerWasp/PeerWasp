@@ -1,4 +1,5 @@
-/target
+/target/*
+!/target/classes/images
 /bin
 /log
 .classpath
