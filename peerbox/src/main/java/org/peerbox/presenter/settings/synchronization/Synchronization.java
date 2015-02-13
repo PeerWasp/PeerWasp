@@ -410,7 +410,6 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 	}
 	
 	private class FileHelperComparator implements Comparator<FileHelper>{
-		
 		@Override
 		public int compare(FileHelper o1, FileHelper o2) {
 			String path1 = o1.getPath().toString();
