@@ -2,7 +2,7 @@ package org.peerbox.guice;
 
 import java.nio.file.Path;
 
-import org.peerbox.DbContext;
+import org.peerbox.app.DbContext;
 import org.peerbox.app.config.UserConfig;
 import org.peerbox.app.manager.file.FileManager;
 import org.peerbox.app.manager.file.IFileManager;

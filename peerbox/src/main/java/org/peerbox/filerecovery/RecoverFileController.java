@@ -78,10 +78,13 @@ public final class RecoverFileController  implements Initializable, IFileVersion
 
 	private final FileVersionSelector versionSelector;
 
-	private IFileManager fileManager;
+	private final IFileManager fileManager;
 	private RecoverFileTask recoverFileTask;
 
-	public RecoverFileController() {
+	@Inject
+	public RecoverFileController(IFileManager fileManager) {
+		this.fileManager = fileManager;
+
 		this.fileToRecoverProperty = new SimpleStringProperty();
 		this.statusProperty = new SimpleStringProperty();
 		this.busyProperty = new SimpleBooleanProperty(false);
@@ -278,12 +281,6 @@ public final class RecoverFileController  implements Initializable, IFileVersion
 				getStage().close();
 			});
 		}
-	}
-
-	@Inject
-	public void setFileManager(IFileManager fileManager) {
-		// TODO: maybe inject in constructor?
-		this.fileManager = fileManager;
 	}
 
 	public String getFileToRecover() {

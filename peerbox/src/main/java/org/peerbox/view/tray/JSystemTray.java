@@ -8,6 +8,7 @@ import java.io.IOException;
 
 import net.engio.mbassy.listener.Handler;
 
+import org.peerbox.app.Constants;
 import org.peerbox.notifications.AggregatedFileEventStatus;
 import org.peerbox.notifications.ITrayNotifications;
 import org.peerbox.notifications.InformationNotification;
@@ -32,7 +33,7 @@ public class JSystemTray extends AbstractSystemTray implements ITrayNotification
 		super(actionHandler);
 		this.iconProvider = new JTrayIcons();
 		this.menu = new JTrayMenu(trayActionHandler);
-		setTooltip("");
+		setTooltip(Constants.APP_NAME);
 	}
 
 	private TrayIcon create(Image image) throws IOException {

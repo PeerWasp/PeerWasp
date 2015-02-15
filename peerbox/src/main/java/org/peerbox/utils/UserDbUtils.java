@@ -4,7 +4,7 @@ import java.nio.file.Paths;
 
 import javax.sql.DataSource;
 
-import org.peerbox.DbContext;
+import org.peerbox.app.DbContext;
 
 import com.google.common.base.Charsets;
 import com.google.common.hash.Hashing;

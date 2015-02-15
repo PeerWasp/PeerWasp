@@ -13,7 +13,6 @@ import org.peerbox.app.manager.file.FileExecutionFailedMessage;
 import org.peerbox.app.manager.file.FileUploadMessage;
 import org.peerbox.app.manager.file.IFileMessage;
 import org.peerbox.app.manager.file.IFileMessageListener;
-import org.peerbox.exceptions.NotImplException;
 
 import com.google.inject.Inject;
 
@@ -50,7 +49,7 @@ class FileManagerCollector extends AbstractActivityCollector implements IFileMes
 				.setDescription(formatDescription(delete));
 		getActivityLogger().addActivityItem(item);
 	}
-	
+
 	@Handler
 	@Override
 	public void onFileDesynchronized(FileDesyncMessage desync){
@@ -69,7 +68,7 @@ class FileManagerCollector extends AbstractActivityCollector implements IFileMes
 				.setDescription(formatDescription(conflict));
 		getActivityLogger().addActivityItem(item);
 	}
-	
+
 	@Handler
 	@Override
 	public void onFileExecutionFailed(FileExecutionFailedMessage failure) {

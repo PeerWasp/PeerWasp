@@ -36,7 +36,7 @@ public class RemoteFileDaoTest {
 		dbFile = Paths.get(FileUtils.getTempDirectoryPath(),
 				String.format("%s.testdb", RandomStringUtils.randomAlphabetic(12)));
 
-		DataSource dataSource = DaoUtils.createDataSource(dbFile.toString());
+		DataSource dataSource = DaoUtils.createDbContext(dbFile.toString());
 		dao = new RemoteFileDao(dataSource);
 	}
 

@@ -8,9 +8,11 @@ import java.nio.file.Paths;
 import javafx.application.Application;
 import javafx.stage.Stage;
 
+import org.peerbox.app.AppContext;
 import org.peerbox.app.Constants;
 import org.peerbox.events.InformationMessage;
 import org.peerbox.events.WarningMessage;
+import org.peerbox.guice.ApiServerModule;
 import org.peerbox.guice.AppConfigModule;
 import org.peerbox.guice.AppModule;
 import org.peerbox.presenter.tray.TrayException;
@@ -67,7 +69,7 @@ public class App extends Application
 
     	loadAppConfig();
 
-//		startServer();
+		startServer();
 
 		initializeSysTray();
 
@@ -136,8 +138,9 @@ public class App extends Application
 	private void initializeGuice() {
 		injector = Guice.createInjector(
 				new AppModule(primaryStage),
-				new AppConfigModule()
-				/* new ApiServerModule() */);
+				new AppConfigModule(),
+				new ApiServerModule()
+		);
 	}
 
 	private void initializeAppContext() {

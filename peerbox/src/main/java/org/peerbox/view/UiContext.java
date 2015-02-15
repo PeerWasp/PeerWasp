@@ -1,4 +1,4 @@
-package org.peerbox;
+package org.peerbox.view;
 
 import javafx.stage.Stage;
 

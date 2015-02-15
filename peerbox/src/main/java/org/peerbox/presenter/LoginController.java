@@ -31,9 +31,9 @@ import javafx.stage.Window;
 
 import org.apache.commons.io.FileUtils;
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
-import org.peerbox.ClientContextFactory;
 import org.peerbox.ResultStatus;
 import org.peerbox.app.ClientContext;
+import org.peerbox.app.ClientContextFactory;
 import org.peerbox.app.Constants;
 import org.peerbox.app.config.UserConfig;
 import org.peerbox.app.manager.user.IUserManager;

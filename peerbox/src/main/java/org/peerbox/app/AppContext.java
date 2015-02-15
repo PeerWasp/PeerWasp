@@ -1,10 +1,10 @@
-package org.peerbox;
+package org.peerbox.app;
 
-import org.peerbox.app.ClientContext;
 import org.peerbox.app.activity.collectors.ActivityConfiguration;
 import org.peerbox.app.config.AppConfig;
 import org.peerbox.events.MessageBus;
 import org.peerbox.server.IServer;
+import org.peerbox.view.UiContext;
 
 import com.google.inject.Inject;
 import com.google.inject.Injector;
@@ -58,10 +58,10 @@ public class AppContext {
 		return server;
 	}
 
-//	@Inject
-//	protected void setServer(IServer server) {
-//		this.server = server;
-//	}
+	@Inject
+	protected void setServer(IServer server) {
+		this.server = server;
+	}
 
 	public ActivityConfiguration getActivityConfiguration() {
 		return activityConfiguration;

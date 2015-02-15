@@ -1,6 +1,7 @@
 package org.peerbox.app;
 
 
+import org.peerbox.app.config.UserConfig;
 import org.peerbox.app.manager.file.IFileManager;
 import org.peerbox.app.manager.node.INodeManager;
 import org.peerbox.app.manager.user.IUserManager;
@@ -17,6 +18,8 @@ import com.google.inject.Singleton;
 public class ClientContext {
 
 	private Injector clientInjector;
+
+	private UserConfig userConfig;
 
 	private INodeManager nodeManager;
 	private IUserManager userManager;
@@ -38,6 +41,15 @@ public class ClientContext {
 	@Inject
 	public void setInjector(Injector clientInjector) {
 		this.clientInjector = clientInjector;
+	}
+
+	public UserConfig getUserConfig() {
+		return userConfig;
+	}
+
+	@Inject
+	public void setUserConfig(UserConfig userConfig) {
+		this.userConfig = userConfig;
 	}
 
 	public ActionExecutor getActionExecutor() {

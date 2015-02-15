@@ -1,6 +1,5 @@
-package org.peerbox;
+package org.peerbox.app;
 
-import org.peerbox.app.ClientContext;
 import org.peerbox.app.config.UserConfig;
 import org.peerbox.guice.UserModule;
 

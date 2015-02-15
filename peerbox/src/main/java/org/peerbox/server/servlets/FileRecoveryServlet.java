@@ -24,9 +24,9 @@ public class FileRecoveryServlet extends BaseServlet {
 
 	private static final Logger logger = LoggerFactory.getLogger(FileRecoveryServlet.class);
 	private static final long serialVersionUID = 1L;
-	
+
 	private final Provider<IFileRecoveryHandler> fileRecoveryHandlerProvider;
-	
+
 	@Inject
 	public FileRecoveryServlet(Provider<IFileRecoveryHandler> fileRecoveryHandlerProvider) {
 		this.fileRecoveryHandlerProvider = fileRecoveryHandlerProvider;
@@ -36,25 +36,25 @@ public class FileRecoveryServlet extends BaseServlet {
 	protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 
 		try {
-			
+
 			if (!checkContentTypeJSON(req, resp)) {
 				logger.error("Received request with wrong ContentType: {}", req.getContentType());
 				sendErrorMessage(resp, new ServerReturnMessage(ServerReturnCode.WRONG_CONTENT_TYPE));
 				return;
 			}
-			
+
 			String content = readContentAsString(req);
 			if (content.isEmpty()) {
 				sendErrorMessage(resp, new ServerReturnMessage(ServerReturnCode.EMPTY_REQUEST));
 				return;
 			}
-			
+
 			Gson gson = createGsonInstance();
 			FileRecoveryMessage msg = null;
 			msg = gson.fromJson(content, FileRecoveryMessage.class);
-			
+
 			handleRecoveryRequest(msg);
-			
+
 			sendEmptyOK(resp);
 		} catch (JsonSyntaxException e) {
 			sendErrorMessage(resp, new ServerReturnMessage(ServerReturnCode.DESERIALIZE_ERROR));
@@ -73,7 +73,7 @@ public class FileRecoveryServlet extends BaseServlet {
 		if(msg.getPath() == null) {
 			throw new Exception("msg.getPath()==null");
 		}
-		
+
 		logger.info("Got request for file recovery: {}", msg.getPath());
 		IFileRecoveryHandler handler = fileRecoveryHandlerProvider.get();
 		handler.recoverFile(msg.getPath());
