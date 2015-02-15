@@ -31,6 +31,7 @@ public class AppContext {
 		return injector;
 	}
 
+	@Inject
 	protected void setInjector(Injector injector) {
 		this.injector = injector;
 	}

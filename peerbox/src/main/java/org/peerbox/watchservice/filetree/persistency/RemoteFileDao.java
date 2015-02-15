@@ -4,15 +4,13 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 
-import javax.sql.DataSource;
-
 import org.hive2hive.core.processes.files.list.FileNode;
+import org.peerbox.DbContext;
 import org.peerbox.watchservice.PathUtils;
 import org.sql2o.Connection;
 import org.sql2o.Sql2o;
 
 import com.google.inject.Inject;
-import com.google.inject.name.Named;
 
 public class RemoteFileDao {
 
@@ -21,13 +19,13 @@ public class RemoteFileDao {
 	/* aliases are important to match Java bean */
 	private static final String DEFAULT_COLUMNS = "path, is_file isFile, content_hash contentHash";
 
-	private final DataSource dataSource;
+	private final DbContext dbContext;
 	private final Sql2o sql2o;
 
 	@Inject
-	public RemoteFileDao(@Named("userdb") DataSource dataSource) {
-		this.dataSource = dataSource;
-		this.sql2o = new Sql2o(this.dataSource);
+	public RemoteFileDao(DbContext dbContext) {
+		this.dbContext = dbContext;
+		this.sql2o = new Sql2o(this.dbContext.getDataSource());
 	}
 
 	/**

@@ -7,25 +7,39 @@ import org.peerbox.watchservice.FileEventManager;
 import org.peerbox.watchservice.FolderWatchService;
 import org.peerbox.watchservice.filetree.persistency.H2HUserProfilePersister;
 
+import com.google.inject.Inject;
+import com.google.inject.Injector;
 import com.google.inject.Singleton;
 
 @Singleton
 public class ClientContext {
 
+	private Injector clientInjector;
+
+	private INodeManager nodeManager;
 	private ActionExecutor actionExecutor;
 	private FileEventManager fileEventManager;
 	private FolderWatchService folderWatchService;
-	private INodeManager nodeManager;
 	private H2HUserProfilePersister remoteProfilePersister;
 
 	public ClientContext() {
 
 	}
 
+	public Injector getInjector() {
+		return clientInjector;
+	}
+
+	@Inject
+	public void setInjector(Injector clientInjector) {
+		this.clientInjector = clientInjector;
+	}
+
 	public ActionExecutor getActionExecutor() {
 		return actionExecutor;
 	}
 
+	@Inject
 	public void setActionExecutor(ActionExecutor actionExecutor) {
 		this.actionExecutor = actionExecutor;
 	}
@@ -34,6 +48,7 @@ public class ClientContext {
 		return fileEventManager;
 	}
 
+	@Inject
 	public void setFileEventManager(FileEventManager fileEventManager) {
 		this.fileEventManager = fileEventManager;
 	}
@@ -42,6 +57,7 @@ public class ClientContext {
 		return folderWatchService;
 	}
 
+	@Inject
 	public void setFolderWatchService(FolderWatchService folderWatchService) {
 		this.folderWatchService = folderWatchService;
 	}
@@ -50,6 +66,7 @@ public class ClientContext {
 		return nodeManager;
 	}
 
+	@Inject
 	public void setNodeManager(INodeManager nodeManager) {
 		this.nodeManager = nodeManager;
 	}
@@ -58,6 +75,7 @@ public class ClientContext {
 		return remoteProfilePersister;
 	}
 
+	@Inject
 	public void setRemoteProfilePersister(H2HUserProfilePersister persister) {
 		this.remoteProfilePersister = persister;
 	}

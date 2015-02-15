@@ -19,7 +19,7 @@ import org.hive2hive.processframework.exceptions.ProcessExecutionException;
 import org.hive2hive.processframework.interfaces.IProcessComponent;
 import org.hive2hive.processframework.interfaces.IProcessComponentListener;
 import org.hive2hive.processframework.interfaces.IProcessEventArgs;
-import org.peerbox.app.config.IUserConfig;
+import org.peerbox.app.config.UserConfig;
 import org.peerbox.app.manager.AbstractManager;
 import org.peerbox.app.manager.ProcessHandle;
 import org.peerbox.app.manager.node.INodeManager;
@@ -34,9 +34,16 @@ public class FileManager extends AbstractManager implements IFileManager {
 
 	private static final Logger logger = LoggerFactory.getLogger(FileManager.class);
 
+	private final UserConfig userConfig;
+
 	@Inject
-	public FileManager(final INodeManager nodeManager, final IUserConfig userConfig, final MessageBus messageBus) {
-		super(nodeManager, userConfig, messageBus);
+	public FileManager(final INodeManager nodeManager, final UserConfig userConfig, final MessageBus messageBus) {
+		super(nodeManager, messageBus);
+		this.userConfig = userConfig;
+	}
+
+	private Path getRootPath() {
+		return userConfig.getRootPath();
 	}
 
 	@Override

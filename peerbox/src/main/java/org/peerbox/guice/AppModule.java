@@ -1,21 +1,10 @@
 package org.peerbox.guice;
 
 
-import java.nio.file.Path;
-import java.nio.file.Paths;
-
-import javax.sql.DataSource;
-
 import javafx.stage.Stage;
 
-import org.apache.commons.io.FileUtils;
-import org.peerbox.app.ClientContext;
 import org.peerbox.app.ExitHandler;
 import org.peerbox.app.IExitHandler;
-import org.peerbox.app.config.BootstrappingNodesFactory;
-import org.peerbox.app.config.IUserConfig;
-import org.peerbox.app.manager.file.FileManager;
-import org.peerbox.app.manager.file.IFileManager;
 import org.peerbox.app.manager.node.INodeManager;
 import org.peerbox.app.manager.node.NodeManager;
 import org.peerbox.app.manager.user.IUserManager;
@@ -25,25 +14,15 @@ import org.peerbox.delete.IFileDeleteHandler;
 import org.peerbox.events.MessageBus;
 import org.peerbox.filerecovery.FileRecoveryHandler;
 import org.peerbox.filerecovery.IFileRecoveryHandler;
-import org.peerbox.guice.provider.ClientContextProvider;
 import org.peerbox.interfaces.IFxmlLoaderProvider;
 import org.peerbox.share.IShareFolderHandler;
 import org.peerbox.share.ShareFolderHandler;
-import org.peerbox.utils.AppData;
 import org.peerbox.view.tray.AbstractSystemTray;
 import org.peerbox.view.tray.JSystemTray;
-import org.peerbox.watchservice.FileEventManager;
-import org.peerbox.watchservice.IFileEventManager;
-import org.peerbox.watchservice.filetree.FileTree;
-import org.peerbox.watchservice.filetree.persistency.DaoUtils;
-import org.peerbox.watchservice.filetree.persistency.FileDao;
 
 import com.google.inject.AbstractModule;
-import com.google.inject.Provides;
-import com.google.inject.Singleton;
 import com.google.inject.TypeLiteral;
 import com.google.inject.matcher.Matchers;
-import com.google.inject.name.Named;
 import com.google.inject.name.Names;
 import com.google.inject.spi.InjectionListener;
 import com.google.inject.spi.TypeEncounter;
@@ -51,27 +30,29 @@ import com.google.inject.spi.TypeListener;
 
 public class AppModule extends AbstractModule {
 
-	private final MessageBus messageBus = new MessageBus();
+	private final MessageBus messageBus;
 	private final Stage primaryStage;
 
 	public AppModule(Stage primaryStage) {
 		this.primaryStage = primaryStage;
+		this.messageBus = new MessageBus();
 	}
 
 	@Override
 	protected void configure() {
 		bindMessageBus();
+
 		bindSystemTray();
+
 		bindPrimaryStage();
 
 		bindManagers();
 
-		bindContextMenuHandlers();
+		// TODO(AA) dependency management / enable context menu again
+//		bindContextMenuHandlers();
 
 		bind(IFxmlLoaderProvider.class).to(GuiceFxmlLoader.class);
 		bind(IExitHandler.class).to(ExitHandler.class);
-		bind(ClientContext.class).toProvider(ClientContextProvider.class);
-
 	}
 
 	private void bindMessageBus() {
@@ -80,6 +61,9 @@ public class AppModule extends AbstractModule {
 	}
 
 	private void messageBusRegisterRule() {
+		// This rule registers all objects created by Guice with the message bus.
+		// As a result, all instances created by Guice can receive messages without explicit
+		// subscription.
 		bindListener(Matchers.any(), new TypeListener() {
 			@Override
 	        public <I> void hear(TypeLiteral<I> typeLiteral, TypeEncounter<I> typeEncounter) {
@@ -98,46 +82,19 @@ public class AppModule extends AbstractModule {
 			.toInstance(primaryStage);
 	}
 
+	private void bindSystemTray() {
+		bind(AbstractSystemTray.class).to(JSystemTray.class);
+	}
+
 	private void bindManagers() {
 		bind(INodeManager.class).to(NodeManager.class);
 		bind(IUserManager.class).to(UserManager.class);
-		bind(IFileManager.class).to(FileManager.class);
-
-		bind(IFileEventManager.class).to(FileEventManager.class);
 	}
 
 	private void bindContextMenuHandlers() {
 		bind(IFileRecoveryHandler.class).to(FileRecoveryHandler.class);
 		bind(IShareFolderHandler.class).to(ShareFolderHandler.class);
 		bind(IFileDeleteHandler.class).to(FileDeleteHandler.class);
-	}
-
-	private void bindSystemTray() {
-		bind(AbstractSystemTray.class).to(JSystemTray.class);
-	}
-
-	@Provides
-	FileTree providesFileTree(IUserConfig cfg, FileDao fileDao){
-		return new FileTree(cfg.getRootPath(), fileDao);
-	}
-
-	@Provides
-	private BootstrappingNodesFactory providesBootstrappingNodesFactory() {
-		BootstrappingNodesFactory f = new BootstrappingNodesFactory();
-
-		f.setLastNodeFile(AppData.getConfigFolder().resolve("lastnode"));
-		f.setNodesFile(AppData.getConfigFolder().resolve("bootstrappingnodes"));
-		f.setNodesDefaultUrl(getClass().getResource("/config/default_bootstrappingnodes"));
-
-		return f;
-	}
-
-	@Provides
-	@Singleton
-	@Named("userdb")
-	private DataSource providesUserDbDataSource() {
-		Path dbPath = Paths.get(FileUtils.getUserDirectoryPath(), "peerbox.testdb");
-		return DaoUtils.createDataSource(dbPath.toString());
 	}
 
 }

@@ -5,13 +5,8 @@ import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import javax.sql.DataSource;
-
 import org.sql2o.Connection;
 import org.sql2o.Sql2o;
-
-import com.zaxxer.hikari.HikariConfig;
-import com.zaxxer.hikari.HikariDataSource;
 
 /**
  * Utilities for database access (DAO classes).
@@ -23,26 +18,6 @@ public class DaoUtils {
 
 	private DaoUtils() {
 		// prevent instances
-	}
-
-	/**
-	 * Creates a data source with an associated connection pool.
-	 *
-	 * @param dbPath path to the db file
-	 * @return configured data source
-	 */
-	public static DataSource createDataSource(final String dbPath) {
-		HikariConfig hikariConfig = new HikariConfig();
-		hikariConfig.setJdbcUrl(String.format("jdbc:h2:%s", dbPath));
-		hikariConfig.setUsername("sa");
-		// hikariConfig.setPassword("");
-		hikariConfig.addDataSourceProperty("cachePrepStmts", "true");
-		hikariConfig.addDataSourceProperty("prepStmtCacheSize", "250");
-		hikariConfig.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");
-		hikariConfig.addDataSourceProperty("useServerPrepStmts", "true");
-
-		DataSource dataSource = new HikariDataSource(hikariConfig);
-		return dataSource;
 	}
 
 	/**

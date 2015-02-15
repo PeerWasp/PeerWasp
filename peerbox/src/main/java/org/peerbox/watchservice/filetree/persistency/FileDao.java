@@ -6,8 +6,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
-import javax.sql.DataSource;
-
+import org.peerbox.DbContext;
 import org.peerbox.watchservice.filetree.composite.FileComponent;
 import org.peerbox.watchservice.filetree.composite.FileLeaf;
 import org.peerbox.watchservice.filetree.composite.FolderComposite;
@@ -16,7 +15,6 @@ import org.sql2o.ResultSetHandler;
 import org.sql2o.Sql2o;
 
 import com.google.inject.Inject;
-import com.google.inject.name.Named;
 
 
 public class FileDao {
@@ -28,12 +26,12 @@ public class FileDao {
 												+ "current_state, next_state";
 
 	private final Sql2o sql2o;
-	private final DataSource dataSource;
+	private final DbContext dbContext;
 
 	@Inject
-	public FileDao(@Named("userdb") DataSource dataSource) {
-		this.dataSource = dataSource;
-		this.sql2o = new Sql2o(this.dataSource);
+	public FileDao(DbContext dbContext) {
+		this.dbContext = dbContext;
+		this.sql2o = new Sql2o(this.dbContext.getDataSource());
 	}
 
 	public void createTable() {

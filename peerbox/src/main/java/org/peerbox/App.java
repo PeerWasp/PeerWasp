@@ -4,28 +4,16 @@ package org.peerbox;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.List;
 
 import javafx.application.Application;
-import javafx.concurrent.Task;
-import javafx.concurrent.WorkerStateEvent;
-import javafx.event.EventHandler;
 import javafx.stage.Stage;
 
-import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.peerbox.app.Constants;
-import org.peerbox.app.activity.collectors.ActivityConfiguration;
-import org.peerbox.app.config.UserConfig;
-import org.peerbox.app.manager.node.INodeManager;
-import org.peerbox.app.manager.user.IUserManager;
 import org.peerbox.events.InformationMessage;
-import org.peerbox.events.MessageBus;
 import org.peerbox.events.WarningMessage;
-import org.peerbox.guice.ApiServerModule;
+import org.peerbox.guice.AppConfigModule;
 import org.peerbox.guice.AppModule;
-import org.peerbox.guice.UserConfigModule;
 import org.peerbox.presenter.tray.TrayException;
-import org.peerbox.presenter.validation.SelectRootPathUtils;
 import org.peerbox.server.IServer;
 import org.peerbox.utils.AppData;
 import org.peerbox.view.tray.AbstractSystemTray;
@@ -38,7 +26,6 @@ import ch.qos.logback.core.joran.spi.JoranException;
 import ch.qos.logback.core.util.StatusPrinter;
 
 import com.google.inject.Guice;
-import com.google.inject.Inject;
 import com.google.inject.Injector;
 
 /**
@@ -55,14 +42,9 @@ public class App extends Application
 	private static final String PARAM_APP_DIR = "appdir";
 
 	private Injector injector;
-	private MessageBus messageBus;
-	private INodeManager nodeManager;
-	private AbstractSystemTray systemTray;
 	private Stage primaryStage;
-	private UserConfig userConfig;
-	private IServer server;
 
-	private ActivityConfiguration activityConfiguration;
+	private AppContext appContext;
 
 	public static void main(String[] args) {
 		launch(args);
@@ -81,9 +63,11 @@ public class App extends Application
 
     	initializeGuice();
 
-    	loadConfig();
+    	initializeAppContext();
 
-		startServer();
+    	loadAppConfig();
+
+//		startServer();
 
 		initializeSysTray();
 
@@ -96,8 +80,8 @@ public class App extends Application
 			launchInForeground();
 		}
 
-		messageBus.publish(new InformationMessage("PeerBox started", "Hello..."));
-		messageBus.publish(new WarningMessage("PeerBox started", "Hello..."));
+		appContext.getMessageBus().publish(new InformationMessage("PeerBox started", "Hello..."));
+		appContext.getMessageBus().publish(new WarningMessage("PeerBox started", "Hello..."));
     }
 
 	private void initializeAppFolder() {
@@ -139,38 +123,45 @@ public class App extends Application
 		logger.debug("Initialized logging (LOG_FOLDER={})", context.getProperty("LOG_FOLDER"));
 	}
 
-	private void loadConfig() {
+	private void loadAppConfig() {
 		try {
-			userConfig.load();
+			appContext.getAppConfig().load();
 		} catch (IOException ioex) {
-			// TODO: we should probably show a message and exit.
-			logger.warn("Could not load user properties: {}", userConfig.getConfigFileName(), ioex);
+			// TODO: we should probably show a message as well
+			logger.warn("Could not load app properties: {}",
+					appContext.getAppConfig().getConfigFile(), ioex);
 		}
 	}
 
 	private void initializeGuice() {
 		injector = Guice.createInjector(
 				new AppModule(primaryStage),
-				new UserConfigModule(),
-				new ApiServerModule());
-		injector.injectMembers(this);
+				new AppConfigModule()
+				/* new ApiServerModule() */);
+	}
+
+	private void initializeAppContext() {
+		appContext = injector.getInstance(AppContext.class);
 	}
 
 	private void startServer() {
-		try {
-			boolean success = server.start();
-			if(success) {
-				userConfig.setApiServerPort(server.getPort());
-			} else {
-				logger.warn("Could not start server.");
+		IServer server = appContext.getServer();
+		boolean success = server.start();
+		if (success) {
+			try {
+				appContext.getAppConfig().setApiServerPort(server.getPort());
+			} catch (IOException e) {
+				logger.warn("Could not set and save server port.", e);
+				success = false;
 			}
-		} catch(IOException e) {
-			logger.error("Could not save API server port.", e);
+		} else {
+			logger.warn("Could not start server.");
 		}
 	}
 
 	private void initializeSysTray() {
 		try {
+			AbstractSystemTray systemTray = appContext.getUiContext().getSystemTray();
 			systemTray.show();
 			systemTray.showDefaultIcon();
 		} catch (TrayException e) {
@@ -268,36 +259,6 @@ public class App extends Application
 	private void fatalExit(int exitCode) {
 		logger.warn("Exiting... (ExitCode: {})", exitCode);
 		System.exit(exitCode);
-	}
-
-	@Inject
-	private void setUserConfig(UserConfig userConfig) {
-		this.userConfig = userConfig;
-	}
-
-	@Inject
-	private void setSystemTray(AbstractSystemTray systemTray) {
-		this.systemTray = systemTray;
-	}
-
-	@Inject
-	private void setNodeManager(INodeManager manager) {
-		this.nodeManager = manager;
-	}
-
-	@Inject
-	private void setMessageBus(MessageBus messageBus) {
-		this.messageBus = messageBus;
-	}
-
-	@Inject
-	private void setServer(IServer server) {
-		this.server = server;
-	}
-
-	@Inject
-	private void setActivityConfiguration(ActivityConfiguration activityConfiguration) {
-		this.activityConfiguration = activityConfiguration;
 	}
 }
 

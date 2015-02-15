@@ -10,7 +10,7 @@ import com.google.inject.Provides;
 import com.google.inject.servlet.ServletModule;
 
 public class ApiServerModule extends ServletModule {
-	
+
 	@Override
 	protected void configureServlets() {
 		bind(DeleteServlet.class);
@@ -21,7 +21,7 @@ public class ApiServerModule extends ServletModule {
         serve(ServerFactory.getContextMenuVersionsPath()).with(FileRecoveryServlet.class);
         serve(ServerFactory.getContextMenuSharePath()).with(ShareFolderServlet.class);
 	}
-	
+
 	@Provides
 	IServer providesAPIServer() {
 		return ServerFactory.createServer();

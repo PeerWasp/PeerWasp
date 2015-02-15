@@ -41,7 +41,7 @@ public class RegisterController implements Initializable {
 	private static final Logger logger = LoggerFactory.getLogger(RegisterController.class);
 	private NavigationService fNavigationService;
 	private IUserManager fUserManager;
-	
+
 	@FXML
 	private TextField txtUsername;
 	@FXML
@@ -66,10 +66,10 @@ public class RegisterController implements Initializable {
 	private GridPane grdForm;
 	@FXML
 	private ProgressIndicator piProgress;
-	
-	@FXML 
+
+	@FXML
 	private ErrorLabel lblError;
-	
+
 	private UsernameValidator usernameValidator;
 	private CombinedPasswordValidator passwordValidator;
 	private CombinedPinValidator pinValidator;
@@ -79,11 +79,11 @@ public class RegisterController implements Initializable {
 		fNavigationService = navigationService;
 		fUserManager = userManager;
 	}
-	
+
 	public void initialize(URL location, ResourceBundle resources) {
 		initializeValidations();
 	}
-	
+
 	/**
 	 * Resets the controller to an initial state
 	 */
@@ -107,7 +107,7 @@ public class RegisterController implements Initializable {
 		passwordValidator = new CombinedPasswordValidator(txtPassword_1, lblPasswordError.textProperty(), txtPassword_2);
 		pinValidator = new CombinedPinValidator(txtPin_1, lblPinError.textProperty(), txtPin_2);
 	}
-	
+
 
 	/**
 	 * Remove the decorations that are installed during validation
@@ -129,19 +129,19 @@ public class RegisterController implements Initializable {
 			new Thread(task).start();
 		}
 	}
-	
+
 	/**
 	 * Complete validation of all input fields AND'ed
 	 * @return
 	 */
 	private ValidationResult validateAll() {
 		// note, we want to evaluate ALL fields, regardless whether one validation fails or not.
-		// this way, all fields will be analyzed and marked if validation fails and not just the first 
+		// this way, all fields will be analyzed and marked if validation fails and not just the first
 		// field where validation fails.
 		// thus: use & and not &&
 		return (usernameValidator.validate(true) == ValidationResult.OK
 				& passwordValidator.validate() == ValidationResult.OK
-				& pinValidator.validate() == ValidationResult.OK) 
+				& pinValidator.validate() == ValidationResult.OK)
 				? ValidationResult.OK : ValidationResult.ERROR;
 	}
 
@@ -155,7 +155,7 @@ public class RegisterController implements Initializable {
 	}
 
 	/**
-	 * Registers a new user given the credentials. 
+	 * Registers a new user given the credentials.
 	 * All checks regarding the input should happen before (e.g. is registered, password not empty, ...)
 	 * @param username
 	 * @param password
@@ -167,12 +167,12 @@ public class RegisterController implements Initializable {
 			return fUserManager.registerUser(username, password, pin);
 		} catch (NoPeerConnectionException e) {
 			return ResultStatus.error("Could not register user because connection to network failed.");
-		} 
+		}
 	}
 
 	/**
 	 * Creates an asynchronous task that registers an user.
-	 * 
+	 *
 	 * @return result of operation
 	 */
 	private Task<ResultStatus> createRegisterTask() {
@@ -186,7 +186,7 @@ public class RegisterController implements Initializable {
 				return registerUser(username, password, pin);
 			}
 		};
-		
+
 		task.setOnScheduled(new EventHandler<WorkerStateEvent>() {
 			@Override
 			public void handle(WorkerStateEvent event) {
@@ -195,14 +195,14 @@ public class RegisterController implements Initializable {
 				grdForm.disableProperty().bind(task.runningProperty());
 			}
 		});
-		
+
 		task.setOnFailed(new EventHandler<WorkerStateEvent>() {
 			@Override
 			public void handle(WorkerStateEvent event) {
 				onRegisterFailed(ResultStatus.error("Could not register user."));
 			}
 		});
-		
+
 		task.setOnSucceeded(new EventHandler<WorkerStateEvent>() {
 			@Override
 			public void handle(WorkerStateEvent event) {
@@ -214,17 +214,17 @@ public class RegisterController implements Initializable {
 				}
 			}
 		});
-		
+
 		return task;
 	}
-	
+
 	/**
 	 * Callback for the async register task
 	 */
 	private void onRegisterSucceeded() {
 		logger.info("Registration task succeeded: user {} registered.", getUsername());
 		resetForm();
-		fNavigationService.navigate(ViewNames.SELECT_ROOT_PATH_VIEW);
+		fNavigationService.navigate(ViewNames.LOGIN_VIEW);
 	}
 
 	/**
@@ -240,7 +240,7 @@ public class RegisterController implements Initializable {
 			setError(result.getErrorMessage());
 		});
 	}
-	
+
 	/**
 	 * Shows a progress indicator
 	 */
@@ -265,7 +265,7 @@ public class RegisterController implements Initializable {
 			piProgress.setVisible(false);
 		});
 	}
-	
+
 	/**
 	 * Set an error text
 	 * @param error
@@ -280,7 +280,7 @@ public class RegisterController implements Initializable {
 	private void clearError() {
 		lblError.setText("");
 	}
-	
+
 	/**
 	 * Trimmed username
 	 * @return
@@ -288,5 +288,5 @@ public class RegisterController implements Initializable {
 	private String getUsername() {
 		return txtUsername.getText().trim();
 	}
-	
+
 }

@@ -6,7 +6,7 @@ import java.nio.file.Path;
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.hive2hive.core.file.FileUtil;
 import org.peerbox.ResultStatus;
-import org.peerbox.app.config.IUserConfig;
+import org.peerbox.app.config.UserConfig;
 import org.peerbox.app.manager.file.IFileManager;
 import org.peerbox.app.manager.node.INodeManager;
 import org.peerbox.app.manager.user.IUserManager;
@@ -14,25 +14,25 @@ import org.peerbox.app.manager.user.IUserManager;
 import com.google.inject.Inject;
 
 public class FileRecoveryHandler implements IFileRecoveryHandler {
-	
+
 	private Path fileToRecover;
-	
-	private IUserConfig userConfig;
-	private INodeManager nodeManager; 
+
+	private UserConfig userConfig;
+	private INodeManager nodeManager;
 	private IFileManager fileManager;
 	private IUserManager userManager;
-	
+
 	private FileRecoveryUILoader uiLoader;
-	
+
 	public FileRecoveryHandler() {
 
 	}
-	
+
 	@Override
 	public void recoverFile(final Path fileToRecover) {
 		this.fileToRecover = fileToRecover;
 		uiLoader.setFileToRecover(fileToRecover);
-		
+
 		ResultStatus res = checkPreconditions();
 		if (res.isOk()) {
 			uiLoader.loadUi();
@@ -62,41 +62,41 @@ public class FileRecoveryHandler implements IFileRecoveryHandler {
 		if (Files.isDirectory(fileToRecover)) {
 			return ResultStatus.error("Recovery works only for files and not for folders.");
 		}
-		
+
 		if(!fileManager.existsRemote(fileToRecover)) {
 			return ResultStatus.error("File does not exist in the network.");
 		}
-		
+
 		if(fileManager.isLargeFile(fileToRecover)) {
 			return ResultStatus.error("File is too large, multiple versions are not supported.");
 		}
-		
+
 		return ResultStatus.ok();
 	}
-	
+
 	@Inject
 	public void setFileRecoveryUILoader(FileRecoveryUILoader uiLoader) {
 		this.uiLoader = uiLoader;
 	}
-	
+
 	@Inject
-	public void setUserConfig(IUserConfig userConfig) {
+	public void setUserConfig(UserConfig userConfig) {
 		this.userConfig = userConfig;
 	}
-	
+
 	@Inject
 	public void setNodeManager(INodeManager nodeManager) {
 		this.nodeManager = nodeManager;
 	}
-	
+
 	@Inject
 	public void setUserManager(IUserManager userManager) {
 		this.userManager = userManager;
 	}
-	
+
 	@Inject
 	public void setFileManager(IFileManager fileManager) {
 		this.fileManager = fileManager;
 	}
-	
+
 }
