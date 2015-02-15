@@ -16,6 +16,12 @@ import org.slf4j.LoggerFactory;
 import com.google.common.base.Charsets;
 import com.google.common.hash.Hashing;
 
+/**
+ * Utilities class for loading user config files and creating instances to use.
+ *
+ * @author albrecht
+ *
+ */
 public class UserConfigUtils {
 
 	private static final Logger logger = LoggerFactory.getLogger(UserConfigUtils.class);

@@ -7,6 +7,7 @@ import org.junit.runners.Suite.SuiteClasses;
 @RunWith(Suite.class)
 @SuiteClasses({
 	UserConfigTest.class,
+	AppConfigTest.class,
 	BootstrappingNodesTest.class,
 	BootstrappingNodesFactoryTest.class
 })

@@ -7,6 +7,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -28,7 +29,8 @@ public class UserConfigTest {
 	}
 
 	@After
-	public void tearDown() {
+	public void tearDown() throws IOException {
+		Files.deleteIfExists(configFile);
 		userConfig = null;
 	}
 
@@ -40,14 +42,14 @@ public class UserConfigTest {
 
 	@Test
 	public void testGetConfigFileName() {
-		assertEquals(userConfig.getConfigFileName(), configFile);
+		assertEquals(userConfig.getConfigFile(), configFile);
 
 		UserConfig cfg = new UserConfig(null);
-		assertNull(cfg.getConfigFileName());
+		assertNull(cfg.getConfigFile());
 
 		Path newPath = Paths.get(FileUtils.getTempDirectoryPath(), "test-config-file.txt");
 		cfg = new UserConfig(newPath);
-		assertEquals(cfg.getConfigFileName(), newPath);
+		assertEquals(cfg.getConfigFile(), newPath);
 	}
 
 	@Test
@@ -206,56 +208,6 @@ public class UserConfigTest {
 		userConfigAssertPersistence(userConfig, configFile);
 	}
 
-	@Test
-	public void testHasApiServerPort() throws IOException {
-		userConfig.setApiServerPort(0);
-		assertFalse(userConfig.hasApiServerPort());
-
-		userConfig.setApiServerPort(-1);
-		assertFalse(userConfig.hasApiServerPort());
-
-		userConfig.setApiServerPort(65536);
-		assertFalse(userConfig.hasApiServerPort());
-
-		userConfig.setApiServerPort(1);
-		assertTrue(userConfig.hasApiServerPort());
-
-		userConfig.setApiServerPort(47325);
-		assertTrue(userConfig.hasApiServerPort());
-
-		userConfig.setApiServerPort(65535);
-		assertTrue(userConfig.hasApiServerPort());
-	}
-
-	@Test
-	public void testSetApiServerPort() throws IOException {
-		// invalid ports
-		userConfig.setApiServerPort(0);
-		assertEquals(userConfig.getApiServerPort(), -1);
-		userConfigAssertPersistence(userConfig, configFile);
-
-		userConfig.setApiServerPort(-1);
-		assertEquals(userConfig.getApiServerPort(), -1);
-		userConfigAssertPersistence(userConfig, configFile);
-
-		userConfig.setApiServerPort(65536);
-		assertEquals(userConfig.getApiServerPort(), -1);
-		userConfigAssertPersistence(userConfig, configFile);
-
-		// valid ports
-		userConfig.setApiServerPort(1);
-		assertEquals(userConfig.getApiServerPort(), 1);
-		userConfigAssertPersistence(userConfig, configFile);
-
-		userConfig.setApiServerPort(37824);
-		assertEquals(userConfig.getApiServerPort(), 37824);
-		userConfigAssertPersistence(userConfig, configFile);
-
-		userConfig.setApiServerPort(65535);
-		assertEquals(userConfig.getApiServerPort(), 65535);
-		userConfigAssertPersistence(userConfig, configFile);
-	}
-
 	/**
 	 * Allows to check that changes made to a config are persistent, i.e. saved on disk in
 	 * a property file.
@@ -284,12 +236,9 @@ public class UserConfigTest {
 		assertEquals(a.getRootPath(), b.getRootPath());
 		assertTrue(a.hasRootPath() == b.hasRootPath());
 
-		assertEquals(a.getApiServerPort(), b.getApiServerPort());
-		assertTrue(a.hasApiServerPort() == b.hasApiServerPort());
-
 		assertEquals(a.isAutoLoginEnabled(), b.isAutoLoginEnabled());
 
-		assertEquals(a.getConfigFileName(), b.getConfigFileName());
+		assertEquals(a.getConfigFile(), b.getConfigFile());
 
 	}
 
