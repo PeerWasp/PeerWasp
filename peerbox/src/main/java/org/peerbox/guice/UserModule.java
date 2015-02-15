@@ -46,7 +46,7 @@ public class UserModule extends AbstractModule {
 		String filename = UserDbUtils.createFileName(username);
 		Path dbPath = AppData.getConfigFolder().resolve(filename);
 
-		DbContext dbContext = DaoUtils.createDbContext(dbPath.toString());
+		DbContext dbContext = UserDbUtils.createDbContext(dbPath.toString());
 		return dbContext;
 	}
 

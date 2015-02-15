@@ -1,7 +1,9 @@
 package org.peerbox.app;
 
 
+import org.peerbox.app.manager.file.IFileManager;
 import org.peerbox.app.manager.node.INodeManager;
+import org.peerbox.app.manager.user.IUserManager;
 import org.peerbox.watchservice.ActionExecutor;
 import org.peerbox.watchservice.FileEventManager;
 import org.peerbox.watchservice.FolderWatchService;
@@ -17,6 +19,9 @@ public class ClientContext {
 	private Injector clientInjector;
 
 	private INodeManager nodeManager;
+	private IUserManager userManager;
+	private IFileManager fileManager;
+
 	private ActionExecutor actionExecutor;
 	private FileEventManager fileEventManager;
 	private FolderWatchService folderWatchService;
@@ -69,6 +74,24 @@ public class ClientContext {
 	@Inject
 	public void setNodeManager(INodeManager nodeManager) {
 		this.nodeManager = nodeManager;
+	}
+
+	public IUserManager getUserManager() {
+		return userManager;
+	}
+
+	@Inject
+	public void setUserManager(IUserManager userManager) {
+		this.userManager = userManager;
+	}
+
+	public IFileManager getFileManager() {
+		return fileManager;
+	}
+
+	@Inject
+	public void getFileManager(IFileManager fileManager) {
+		this.fileManager = fileManager;
 	}
 
 	public H2HUserProfilePersister getRemoteProfilePersister() {
