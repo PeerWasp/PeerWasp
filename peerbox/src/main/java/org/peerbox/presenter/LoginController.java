@@ -31,12 +31,12 @@ import javafx.stage.Window;
 
 import org.apache.commons.io.FileUtils;
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
+import org.peerbox.ClientContextFactory;
 import org.peerbox.ResultStatus;
 import org.peerbox.app.ClientContext;
 import org.peerbox.app.Constants;
 import org.peerbox.app.config.UserConfig;
 import org.peerbox.app.manager.user.IUserManager;
-import org.peerbox.guice.provider.ClientContextProvider;
 import org.peerbox.presenter.validation.EmptyTextFieldValidator;
 import org.peerbox.presenter.validation.RootPathValidator;
 import org.peerbox.presenter.validation.SelectRootPathUtils;
@@ -55,9 +55,9 @@ public class LoginController implements Initializable {
 
 	private NavigationService fNavigationService;
 	private IUserManager userManager;
-	private UserConfig userConfig;
+
 	@Inject
-	private ClientContextProvider clientContext;
+	private ClientContextFactory clientContextFactory;
 
 	@FXML
 	private TextField txtUsername;
@@ -129,10 +129,11 @@ public class LoginController implements Initializable {
 				boolean disableRootPath = false;
 				String newValueLower = newValue.toLowerCase();
 				if(availableConfigFiles.containsKey(newValueLower)) {
-					logger.info("Found config file for user: '{}' - Path: '{}'",
-							newValueLower, userConfig.getConfigFileName());
 
 					UserConfig cfg = availableConfigFiles.get(newValueLower);
+					logger.info("Found config file for user: '{}' - Path: '{}'",
+							newValueLower, cfg.getConfigFile());
+
 					if(cfg.hasRootPath()) {
 						txtRootPath.setText(cfg.getRootPath().toString());
 						disableRootPath = true;
@@ -228,9 +229,9 @@ public class LoginController implements Initializable {
 		Task<ResultStatus> task = new Task<ResultStatus>() {
 			// credentials
 			final String username = getUsername();
-			final String password = txtPassword.getText();
-			final String pin = txtPin.getText();
-			final Path path = Paths.get(txtRootPath.getText().trim());
+			final String password = getPassword();
+			final String pin = getPin();
+			final Path path = getRootPath();
 
 			@Override
 			public ResultStatus call() {
@@ -280,21 +281,30 @@ public class LoginController implements Initializable {
 
 	private void onLoginSucceeded() {
 		logger.debug("Login task succeeded: user {} logged in.", getUsername());
-		saveLoginConfig();
 
-		initializeServices();
+		UserConfig userConfig = UserConfigUtils.createUserConfig(getUsername());
+		try {
+			userConfig.load();
+			saveLoginConfig(userConfig);
 
-	    resetForm();
+			initializeServices(userConfig);
+
+		} catch (IOException e) {
+			logger.warn("Could not load and save user config.", e);
+			setError("Could not load and save user config.");
+		}
+
+		resetForm();
 	    fNavigationService.clearPages();
 		hideWindow();
 	}
 
-	private void initializeServices() {
+	private void initializeServices(UserConfig userConfig) {
 		try {
 
-			ClientContext ctx = clientContext.get();
-			ctx.getActionExecutor().start();
+			ClientContext ctx = clientContextFactory.create(userConfig);
 
+			ctx.getActionExecutor().start();
 
 			// register for local/remote events
 			ctx.getFolderWatchService().addFileEventListener(ctx.getFileEventManager());
@@ -310,13 +320,13 @@ public class LoginController implements Initializable {
 		}
 	}
 
-	private void saveLoginConfig() {
+	private void saveLoginConfig(UserConfig userConfig) {
 		try {
 			userConfig.setUsername(getUsername());
-			userConfig.setRootPath(Paths.get(txtRootPath.getText()));
+			userConfig.setRootPath(getRootPath());
 			if (chbAutoLogin.isSelected()) {
-				userConfig.setPassword(txtPassword.getText());
-				userConfig.setPin(txtPin.getText());
+				userConfig.setPassword(getPassword());
+				userConfig.setPin(getPin());
 				userConfig.setAutoLogin(true);
 			} else {
 				userConfig.setPassword("");
@@ -356,7 +366,7 @@ public class LoginController implements Initializable {
 
 	@FXML
 	public void changeRootPathAction(ActionEvent event) {
-		String path = txtRootPath.getText();
+		String path = getRootPathAsString();
 		Window toOpenDialog = grdForm.getScene().getWindow();
 		path = SelectRootPathUtils.showDirectoryChooser(path, toOpenDialog);
 		txtRootPath.setText(path);
@@ -391,17 +401,28 @@ public class LoginController implements Initializable {
 		return txtUsername.getText().trim();
 	}
 
+	private String getPassword() {
+		return txtPassword.getText();
+	}
+
+	private String getPin() {
+		return txtPin.getText();
+	}
+
+	private Path getRootPath() {
+		return Paths.get(getRootPathAsString());
+	}
+
+	private String getRootPathAsString() {
+		return txtRootPath.getText();
+	}
+
 	private void setError(String error) {
 		lblError.setText(error);
 	}
 
 	private void clearError() {
 		lblError.setText("");
-	}
-
-	@Inject
-	public void setUserConfig(UserConfig userConfig) {
-		this.userConfig = userConfig;
 	}
 
 }
