@@ -85,7 +85,7 @@ public class AppContext {
 		return currentClientContext;
 	}
 
-	protected void setCurrentClientContext(ClientContext currentClientContext) {
+	public void setCurrentClientContext(ClientContext currentClientContext) {
 		this.currentClientContext = currentClientContext;
 	}
 

@@ -11,7 +11,7 @@ import org.hive2hive.core.security.UserCredentials;
 import org.hive2hive.core.utils.TestExecutionUtil;
 import org.hive2hive.processframework.interfaces.IProcessComponent;
 import org.mockito.Mockito;
-import org.peerbox.app.config.IUserConfig;
+import org.peerbox.app.config.UserConfig;
 import org.peerbox.app.manager.file.FileManager;
 import org.peerbox.app.manager.file.IFileManager;
 import org.peerbox.app.manager.node.INodeManager;
@@ -73,7 +73,7 @@ public class ClientNode {
 		INodeManager manager = Mockito.mock(INodeManager.class);
 		Mockito.stub(manager.getNode()).toReturn(node);
 
-		IUserConfig userConfig = Mockito.mock(IUserConfig.class);
+		UserConfig userConfig = Mockito.mock(UserConfig.class);
 
 		fileManager = new FileManager(manager, userConfig, messageBus);
 		fileTree = new FileTree(rootPath, null, true);

@@ -32,6 +32,7 @@ import javafx.stage.Window;
 import org.apache.commons.io.FileUtils;
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.peerbox.ResultStatus;
+import org.peerbox.app.AppContext;
 import org.peerbox.app.ClientContext;
 import org.peerbox.app.ClientContextFactory;
 import org.peerbox.app.Constants;
@@ -53,8 +54,9 @@ public class LoginController implements Initializable {
 
 	private static final Logger logger = LoggerFactory.getLogger(LoginController.class);
 
-	private NavigationService fNavigationService;
-	private IUserManager userManager;
+	private final NavigationService fNavigationService;
+	private final AppContext appContext;
+	private final IUserManager userManager;
 
 	@Inject
 	private ClientContextFactory clientContextFactory;
@@ -102,8 +104,9 @@ public class LoginController implements Initializable {
 	private final BooleanProperty disableRootPathProperty;
 
 	@Inject
-	public LoginController(NavigationService navigationService, IUserManager userManager) {
+	public LoginController(NavigationService navigationService, AppContext appContext, IUserManager userManager) {
 		this.fNavigationService = navigationService;
+		this.appContext = appContext;
 		this.userManager = userManager;
 
 		this.disableRootPathProperty = new SimpleBooleanProperty(false);
@@ -303,20 +306,14 @@ public class LoginController implements Initializable {
 		try {
 
 			ClientContext ctx = clientContextFactory.create(userConfig);
+			appContext.setCurrentClientContext(ctx);
 
 			ctx.getActionExecutor().start();
-
-			// register for local/remote events
-			ctx.getFolderWatchService().addFileEventListener(ctx.getFileEventManager());
-			ctx.getNodeManager().getNode().getFileManager().subscribeFileEvents(ctx.getFileEventManager());
-
 			ctx.getFolderWatchService().start(userConfig.getRootPath());
-
 			ctx.getRemoteProfilePersister().start();
 
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.warn("Exception: ", e);
 		}
 	}
 

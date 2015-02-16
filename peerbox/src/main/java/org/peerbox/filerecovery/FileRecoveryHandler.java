@@ -21,12 +21,10 @@ public class FileRecoveryHandler implements IFileRecoveryHandler {
 
 	private AppContext appContext;
 
-	private FileRecoveryUILoader uiLoader;
-
-
 	@Override
 	public void recoverFile(final Path fileToRecover) {
 		this.fileToRecover = fileToRecover;
+		FileRecoveryUILoader uiLoader = createUiLoader();
 		uiLoader.setFileToRecover(fileToRecover);
 
 		ResultStatus res = checkPreconditions();
@@ -35,6 +33,13 @@ public class FileRecoveryHandler implements IFileRecoveryHandler {
 		} else {
 			uiLoader.showError(res);
 		}
+	}
+
+	private FileRecoveryUILoader createUiLoader() {
+		// we have to use the child injector of the client because of the FileManager instance
+		// which is specific to the current user
+		ClientContext clientContext = appContext.getCurrentClientContext();
+		return clientContext.getInjector().getInstance(FileRecoveryUILoader.class);
 	}
 
 	private ResultStatus checkPreconditions() {
@@ -83,11 +88,6 @@ public class FileRecoveryHandler implements IFileRecoveryHandler {
 		}
 
 		return ResultStatus.ok();
-	}
-
-	@Inject
-	public void setFileRecoveryUILoader(FileRecoveryUILoader uiLoader) {
-		this.uiLoader = uiLoader;
 	}
 
 	@Inject

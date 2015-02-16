@@ -7,6 +7,7 @@ import javafx.util.Callback;
 
 import org.peerbox.interfaces.IFxmlLoaderProvider;
 
+import com.google.common.base.Preconditions;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
 
@@ -45,6 +46,10 @@ public class GuiceFxmlLoader implements IFxmlLoaderProvider {
 		this.injector = injector;
 	}
 
+	public GuiceFxmlLoader() {
+		this.injector = null;
+	}
+
 	/**
 	 * Creates a new FXMLLoader instance. The location is set to the provided .fxml file name.
 	 * The controller will be created using DI. The FXMLLoader is provided ready to be used, e.g.
@@ -59,6 +64,13 @@ public class GuiceFxmlLoader implements IFxmlLoaderProvider {
 	 */
 	@Override
 	public FXMLLoader create(final String fxmlFile) throws IOException {
+		Preconditions.checkNotNull(injector);
+		FXMLLoader loader = create(fxmlFile, injector);
+		return loader;
+	}
+
+	@Override
+	public FXMLLoader create(final String fxmlFile, Injector injector) throws IOException {
 		FXMLLoader loader = new FXMLLoader();
 		loader.setLocation(getClass().getResource(fxmlFile));
 		loader.setControllerFactory(new Callback<Class<?>, Object>() {

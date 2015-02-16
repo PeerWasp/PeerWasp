@@ -19,28 +19,32 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.inject.Inject;
+import com.google.inject.Injector;
 
 public class FileRecoveryUILoader {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(FileRecoveryUILoader.class);
+
+	@Inject
+	private Injector injector;
 
 	private Path fileToRecover;
 
 	private IFxmlLoaderProvider fxmlLoaderProvider;
 	private Stage stage;
 	private RecoverFileController controller;
-	
+
 	public void loadUi() {
 		try {
-			FXMLLoader loader = fxmlLoaderProvider.create("/view/RecoverFileView.fxml");
+			FXMLLoader loader = fxmlLoaderProvider.create("/view/RecoverFileView.fxml", injector);
 			Parent root = loader.load();
 			controller = loader.getController();
 			controller.setFileToRecover(fileToRecover);
 			controller.loadVersions();
-			
+
 			// load UI on Application thread and show
 			Platform.runLater(() -> {
-				
+
 				Scene scene = new Scene(root);
 				stage = new Stage();
 				stage.setTitle("File Recovery");
@@ -56,7 +60,7 @@ public class FileRecoveryUILoader {
 				});
 
 				stage.show();
-				
+
 			});
 
 		} catch (IOException e) {
@@ -68,7 +72,7 @@ public class FileRecoveryUILoader {
 	public void showError(ResultStatus res) {
 		showError(res.getErrorMessage());
 	}
-	
+
 	private void showError(final String message) {
 		Runnable dialog = new Runnable() {
 			@Override
@@ -80,14 +84,14 @@ public class FileRecoveryUILoader {
 				dlg.showAndWait();
 			}
 		};
-		
+
 		if (Platform.isFxApplicationThread()) {
 			dialog.run();
 		} else {
 			Platform.runLater(dialog);
 		}
 	}
-	
+
 	public void setFileToRecover(Path fileToRecover) {
 		this.fileToRecover = fileToRecover;
 	}

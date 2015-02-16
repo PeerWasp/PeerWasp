@@ -6,12 +6,12 @@ import org.peerbox.app.DbContext;
 import org.peerbox.app.config.UserConfig;
 import org.peerbox.app.manager.file.FileManager;
 import org.peerbox.app.manager.file.IFileManager;
+import org.peerbox.filerecovery.FileRecoveryUILoader;
 import org.peerbox.utils.AppData;
 import org.peerbox.utils.UserDbUtils;
 import org.peerbox.watchservice.FileEventManager;
 import org.peerbox.watchservice.IFileEventManager;
 import org.peerbox.watchservice.filetree.FileTree;
-import org.peerbox.watchservice.filetree.persistency.DaoUtils;
 import org.peerbox.watchservice.filetree.persistency.FileDao;
 
 import com.google.inject.AbstractModule;
@@ -30,8 +30,10 @@ public class UserModule extends AbstractModule {
 	protected void configure() {
 		bind(UserConfig.class).toInstance(userConfig);
 
-		bind(IFileEventManager.class).to(FileEventManager.class);
+		bind(FileRecoveryUILoader.class);
+
 		bind(IFileManager.class).to(FileManager.class);
+		bind(IFileEventManager.class).to(FileEventManager.class);
 	}
 
 	@Provides

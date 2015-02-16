@@ -31,7 +31,7 @@ import com.google.inject.Injector;
 import com.google.inject.Provides;
 
 public class GuiceFxmlLoaderTest {
-	
+
 	@BeforeClass
 	public static void initJFX() {
 		Thread t = new Thread("JavaFX Init Thread") {
@@ -44,13 +44,13 @@ public class GuiceFxmlLoaderTest {
 		t.setDaemon(true);
 		t.start();
 	}
-	
+
 	@Test(expected = IllegalArgumentException.class)
 	public void testGuiceFxmlLoader() {
 		new GuiceFxmlLoader(null);
 	}
 
-	
+
 	@Test
 	public void testCreateLoginViewDependencies() throws IOException, NoSuchFieldException,
 			SecurityException, IllegalArgumentException, IllegalAccessException {
@@ -64,7 +64,7 @@ public class GuiceFxmlLoaderTest {
 			@Provides
 			IUserManager providesUserManager(INodeManager manager) {
 				// do not need the instances here
-				return new UserManager(null, null, null);
+				return new UserManager(null, null);
 			}
 		});
 
@@ -103,13 +103,13 @@ public class GuiceFxmlLoaderTest {
 		assertNotNull(navigationService);
 		assertTrue(navigationService instanceof NavigationService);
 	}
-	
+
 	@Test
 	public void testCreateMainViewMock() throws IOException {
 		Injector injector = Mockito.mock(Injector.class);
 		when(injector.getInstance(MainController.class)).thenReturn(new MainController());
 		IFxmlLoaderProvider fxmlLoaderProvider = new GuiceFxmlLoader(injector);
-		
+
 		FXMLLoader fxmlLoader = fxmlLoaderProvider.create(ViewNames.MAIN_VIEW);
 		Parent mainView = fxmlLoader.load();
 		Object mainController = fxmlLoader.getController();
@@ -118,14 +118,14 @@ public class GuiceFxmlLoaderTest {
 		// getInstance called to get a controller instance?
 		Mockito.verify(injector, Mockito.times(1)).getInstance(MainController.class);
 	}
-	
-	
+
+
 	@SuppressWarnings("unused")
 	@Test(expected = IOException.class)
 	public void testCreateNoName() throws IOException {
 		Injector injector = Guice.createInjector();
 		IFxmlLoaderProvider fxmlLoaderProvider = new GuiceFxmlLoader(injector);
-		
+
 		FXMLLoader fxmlLoader;
 		fxmlLoader = fxmlLoaderProvider.create("");
 		Parent mainView = fxmlLoader.load(); /* should throw exception */
