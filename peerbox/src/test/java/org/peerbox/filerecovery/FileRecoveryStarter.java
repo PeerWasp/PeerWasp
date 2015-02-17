@@ -22,7 +22,9 @@ import org.hive2hive.core.utils.FileTestUtil;
 import org.hive2hive.processframework.exceptions.InvalidProcessStateException;
 import org.hive2hive.processframework.exceptions.ProcessExecutionException;
 import org.mockito.Mockito;
-import org.peerbox.app.config.IUserConfig;
+import org.peerbox.app.AppContext;
+import org.peerbox.app.ClientContext;
+import org.peerbox.app.config.UserConfig;
 import org.peerbox.app.manager.file.FileManager;
 import org.peerbox.app.manager.file.IFileManager;
 import org.peerbox.app.manager.node.INodeManager;
@@ -31,6 +33,8 @@ import org.peerbox.app.manager.user.UserManager;
 import org.peerbox.events.MessageBus;
 import org.peerbox.interfaces.IFxmlLoaderProvider;
 import org.peerbox.testutils.NetworkTestUtil;
+
+import com.google.inject.Injector;
 
 public class FileRecoveryStarter extends Application {
 
@@ -41,7 +45,7 @@ public class FileRecoveryStarter extends Application {
 	private IUserManager userManager;
 	private IFileManager fileManager;
 
-	private IUserConfig userConfig;
+	private UserConfig userConfig;
 	private MessageBus messageBus;
 
 
@@ -85,11 +89,11 @@ public class FileRecoveryStarter extends Application {
 
 		// user config
 		root = FileTestUtil.getTempDirectory();
-		userConfig = Mockito.mock(IUserConfig.class);
+		userConfig = Mockito.mock(UserConfig.class);
 		Mockito.stub(userConfig.getRootPath()).toReturn(root.toPath());
 
 		// register and login
-		userManager = new UserManager(nodeManager, userConfig, messageBus);
+		userManager = new UserManager(nodeManager, messageBus);
 		userManager.registerUser(userCredentials.getUserId(), userCredentials.getPassword(), userCredentials.getPin());
 		userManager.loginUser(userCredentials.getUserId(), userCredentials.getPassword(), userCredentials.getPin(), root.toPath());
 	}
@@ -120,24 +124,35 @@ public class FileRecoveryStarter extends Application {
 
 	private void initGui() {
 
-		controller = new RecoverFileController();
-		controller.setFileManager(fileManager);
+		controller = new RecoverFileController(fileManager);
+
+		ClientContext clientContext = new ClientContext();
+		clientContext.setNodeManager(nodeManager);
+		clientContext.setUserManager(userManager);
+		clientContext.setFileManager(fileManager);
+		clientContext.setUserConfig(userConfig);
+		clientContext.setInjector(Mockito.mock(Injector.class));
+
+
+		AppContext appContext = Mockito.mock(AppContext.class);
+		Mockito.stub(appContext.getCurrentClientContext()).toReturn(clientContext);
 
 		// recovery
-		FileRecoveryHandler stage = new FileRecoveryHandler();
-		stage.setNodeManager(nodeManager);
-		stage.setUserManager(userManager);
-		stage.setFileManager(fileManager);
-		stage.setUserConfig(userConfig);
+		FileRecoveryHandler stage = new FileRecoveryHandler(appContext);
 
 		// fxml GUI loading and controller wiring
 		FileRecoveryUILoader uiLoader = new FileRecoveryUILoader();
 		uiLoader.setFxmlLoaderProvider(new IFxmlLoaderProvider() {
 			@Override
 			public FXMLLoader create(String fxmlFile) throws IOException {
+				return create(fxmlFile, null);
+			}
+
+			@Override
+			public FXMLLoader create(String fxmlFile, Injector injector) throws IOException {
 				FXMLLoader loader = new FXMLLoader();
 				loader.setLocation(getClass().getResource(fxmlFile));
-				loader.setControllerFactory( new Callback<Class<?>, Object>() {
+				loader.setControllerFactory(new Callback<Class<?>, Object>() {
 					@Override
 					public Object call(Class<?> param) {
 						return controller;
@@ -146,7 +161,7 @@ public class FileRecoveryStarter extends Application {
 				return loader;
 			}
 		});
-		stage.setFileRecoveryUILoader(uiLoader);
+		Mockito.doReturn(uiLoader).when(clientContext.getInjector()).getInstance(FileRecoveryUILoader.class);
 
 		// start recovery procedure
 		stage.recoverFile(Paths.get(root.toString(), fileName));
