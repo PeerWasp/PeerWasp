@@ -1,6 +1,7 @@
 package org.peerbox.watchservice.filetree;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -10,8 +11,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-import javax.sql.DataSource;
-
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.hive2hive.core.processes.files.list.FileNode;
@@ -19,8 +18,9 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
+import org.peerbox.app.DbContext;
+import org.peerbox.utils.UserDbUtils;
 import org.peerbox.watchservice.PathUtils;
-import org.peerbox.watchservice.filetree.persistency.DaoUtils;
 import org.peerbox.watchservice.filetree.persistency.RemoteFileDao;
 import org.peerbox.watchservice.filetree.persistency.RemoteFileDao.FileNodeAttr;
 
@@ -36,8 +36,8 @@ public class RemoteFileDaoTest {
 		dbFile = Paths.get(FileUtils.getTempDirectoryPath(),
 				String.format("%s.testdb", RandomStringUtils.randomAlphabetic(12)));
 
-		DataSource dataSource = DaoUtils.createDbContext(dbFile.toString());
-		dao = new RemoteFileDao(dataSource);
+		DbContext dbContext = UserDbUtils.createDbContext(dbFile.toString());
+		dao = new RemoteFileDao(dbContext);
 	}
 
 	@After

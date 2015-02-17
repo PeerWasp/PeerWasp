@@ -10,7 +10,6 @@ import org.peerbox.app.manager.user.FileAgentTest;
 import org.peerbox.app.manager.user.UserManagerTest;
 import org.peerbox.guice.GuiceFxmlLoaderTest;
 import org.peerbox.notifications.FileEventAggregatorTest;
-import org.peerbox.presenter.CreateNetworkControllerTest;
 import org.peerbox.presenter.NavigationServiceTest;
 import org.peerbox.server.ServerTestSuite;
 import org.peerbox.utils.UtilsTestSuite;
@@ -26,7 +25,6 @@ import org.peerbox.utils.UtilsTestSuite;
 	GuiceFxmlLoaderTest.class,
 	FileAgentTest.class,
 	UserConfigTest.class,
-	CreateNetworkControllerTest.class,
 	FileEventAggregatorTest.class,
 
 	ConfigTestSuite.class,

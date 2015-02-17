@@ -138,7 +138,8 @@ public class FileRecoveryStarter extends Application {
 		Mockito.stub(appContext.getCurrentClientContext()).toReturn(clientContext);
 
 		// recovery
-		FileRecoveryHandler stage = new FileRecoveryHandler(appContext);
+		FileRecoveryHandler handler = new FileRecoveryHandler();
+		handler.setAppContext(appContext);
 
 		// fxml GUI loading and controller wiring
 		FileRecoveryUILoader uiLoader = new FileRecoveryUILoader();
@@ -164,7 +165,7 @@ public class FileRecoveryStarter extends Application {
 		Mockito.doReturn(uiLoader).when(clientContext.getInjector()).getInstance(FileRecoveryUILoader.class);
 
 		// start recovery procedure
-		stage.recoverFile(Paths.get(root.toString(), fileName));
+		handler.recoverFile(Paths.get(root.toString(), fileName));
 
 	}
 
