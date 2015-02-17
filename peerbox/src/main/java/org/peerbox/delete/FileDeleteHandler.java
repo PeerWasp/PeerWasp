@@ -24,6 +24,11 @@ public class FileDeleteHandler implements IFileDeleteHandler {
 
 	private AppContext appContext;
 
+	@Inject
+	public FileDeleteHandler(AppContext appContext) {
+		this.appContext = appContext;
+	}
+
 	@Override
 	public void deleteFile(final Path fileToDelete) {
 		this.fileToDelete = fileToDelete;
@@ -93,11 +98,6 @@ public class FileDeleteHandler implements IFileDeleteHandler {
 		}
 
 		return ResultStatus.ok();
-	}
-
-	@Inject
-	public void setAppContext(AppContext appContext) {
-		this.appContext = appContext;
 	}
 
 }

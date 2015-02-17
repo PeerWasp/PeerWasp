@@ -4,7 +4,6 @@ import org.peerbox.server.IServer;
 import org.peerbox.server.ServerFactory;
 import org.peerbox.server.servlets.FileDeleteServlet;
 import org.peerbox.server.servlets.FileRecoveryServlet;
-import org.peerbox.server.servlets.ShareFolderServlet;
 
 import com.google.inject.Provides;
 import com.google.inject.servlet.ServletModule;

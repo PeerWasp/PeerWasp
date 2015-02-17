@@ -7,9 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javafx.application.Application;
-import javafx.fxml.FXMLLoader;
 import javafx.stage.Stage;
-import javafx.util.Callback;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -31,7 +29,6 @@ import org.peerbox.app.manager.node.INodeManager;
 import org.peerbox.app.manager.user.IUserManager;
 import org.peerbox.app.manager.user.UserManager;
 import org.peerbox.events.MessageBus;
-import org.peerbox.interfaces.IFxmlLoaderProvider;
 import org.peerbox.testutils.NetworkTestUtil;
 
 import com.google.inject.Injector;
@@ -138,30 +135,10 @@ public class FileRecoveryStarter extends Application {
 		Mockito.stub(appContext.getCurrentClientContext()).toReturn(clientContext);
 
 		// recovery
-		FileRecoveryHandler handler = new FileRecoveryHandler();
-		handler.setAppContext(appContext);
+		FileRecoveryHandler handler = new FileRecoveryHandler(appContext);
 
 		// fxml GUI loading and controller wiring
-		FileRecoveryUILoader uiLoader = new FileRecoveryUILoader();
-		uiLoader.setFxmlLoaderProvider(new IFxmlLoaderProvider() {
-			@Override
-			public FXMLLoader create(String fxmlFile) throws IOException {
-				return create(fxmlFile, null);
-			}
-
-			@Override
-			public FXMLLoader create(String fxmlFile, Injector injector) throws IOException {
-				FXMLLoader loader = new FXMLLoader();
-				loader.setLocation(getClass().getResource(fxmlFile));
-				loader.setControllerFactory(new Callback<Class<?>, Object>() {
-					@Override
-					public Object call(Class<?> param) {
-						return controller;
-					}
-				});
-				return loader;
-			}
-		});
+		FileRecoveryUILoader uiLoader = new FileRecoveryUILoader(controller);
 		Mockito.doReturn(uiLoader).when(clientContext.getInjector()).getInstance(FileRecoveryUILoader.class);
 
 		// start recovery procedure

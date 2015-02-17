@@ -14,31 +14,33 @@ import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 
 import org.peerbox.ResultStatus;
-import org.peerbox.interfaces.IFxmlLoaderProvider;
+import org.peerbox.view.ViewNames;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.inject.Inject;
-import com.google.inject.Injector;
 
 public class FileRecoveryUILoader {
 
 	private static final Logger logger = LoggerFactory.getLogger(FileRecoveryUILoader.class);
 
-	@Inject
-	private Injector injector;
-
 	private Path fileToRecover;
 
-	private IFxmlLoaderProvider fxmlLoaderProvider;
 	private Stage stage;
 	private RecoverFileController controller;
 
+	@Inject
+	public FileRecoveryUILoader(RecoverFileController controller) {
+		this.controller = controller;
+	}
+
 	public void loadUi() {
 		try {
-			FXMLLoader loader = fxmlLoaderProvider.create("/view/RecoverFileView.fxml", injector);
+			FXMLLoader loader = new FXMLLoader();
+			loader.setLocation(getClass().getResource(ViewNames.RECOVER_FILE_VIEW));
+			// we set the controller manually because GuiceFxmlLoader would use parent injector
+			loader.setController(controller);
 			Parent root = loader.load();
-			controller = loader.getController();
 			controller.setFileToRecover(fileToRecover);
 			controller.loadVersions();
 
@@ -69,11 +71,11 @@ public class FileRecoveryUILoader {
 		}
 	}
 
-	public void showError(ResultStatus res) {
+	public static void showError(ResultStatus res) {
 		showError(res.getErrorMessage());
 	}
 
-	private void showError(final String message) {
+	private static void showError(final String message) {
 		Runnable dialog = new Runnable() {
 			@Override
 			public void run() {
@@ -94,11 +96,6 @@ public class FileRecoveryUILoader {
 
 	public void setFileToRecover(Path fileToRecover) {
 		this.fileToRecover = fileToRecover;
-	}
-
-	@Inject
-	public void setFxmlLoaderProvider(IFxmlLoaderProvider fxmlLoaderProvider) {
-		this.fxmlLoaderProvider = fxmlLoaderProvider;
 	}
 
 }

@@ -6,8 +6,11 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.layout.VBox?>
-
-<AnchorPane fx:id="pane" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.peerbox.filerecovery.RecoverFileController">
+<!-- Expect RecoverFileController, but we do not specify here such that we can set the actual
+controller instance manually using the FXMLLoader.setController method
+(and not the controller factory of the loader)-->
+<!-- fx:controller="org.peerbox.filerecovery.RecoverFileController" -->
+<AnchorPane fx:id="pane" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
 	<children>
 
 		<VBox fx:id="recoverFileView" spacing="10.0" AnchorPane.leftAnchor="40.0" AnchorPane.rightAnchor="40.0" AnchorPane.topAnchor="40.0">
@@ -49,6 +52,6 @@
             <Insets bottom="80.0" />
          </padding>
 		</VBox>
-		
-	</children>	
+
+	</children>
 </AnchorPane>
