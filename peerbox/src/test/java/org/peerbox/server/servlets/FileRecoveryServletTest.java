@@ -25,17 +25,17 @@ import com.jayway.restassured.http.ContentType;
 public class FileRecoveryServletTest extends ServletTest {
 
 	private String url;
-	
+
 	public FileRecoveryServletTest() {
 		url = getUrl(ServerFactory.getContextMenuVersionsPath());
 	}
-	
+
 	@Test
 	public void testGet() {
 		// GET not supported
 		get(url).then().assertThat().statusCode(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
 	}
-	
+
 	@Test
 	public void testPostNoContentType() {
 		post(url).
@@ -44,7 +44,7 @@ public class FileRecoveryServletTest extends ServletTest {
 			assertThat().contentType(ContentType.JSON).
 			assertThat().body("returnCode", equalTo(ServerReturnCode.WRONG_CONTENT_TYPE.ordinal()));
 	}
-	
+
 	@Test
 	public void testPostTextContentType() {
 		given().
@@ -55,7 +55,7 @@ public class FileRecoveryServletTest extends ServletTest {
 			assertThat().contentType(ContentType.JSON).
 			assertThat().body("returnCode", equalTo(ServerReturnCode.WRONG_CONTENT_TYPE.ordinal()));
 	}
-	
+
 	@Test
 	public void testPostEmpty() {
 		given().
@@ -66,9 +66,9 @@ public class FileRecoveryServletTest extends ServletTest {
 			assertThat().contentType(ContentType.JSON).
 			assertThat().body("returnCode", equalTo(ServerReturnCode.EMPTY_REQUEST.ordinal()));
 	}
-	
+
 	@Test
-	public void testPostEmptyJson() {	
+	public void testPostEmptyJson() {
 		given().
 			contentType(ContentType.JSON).
 			content("{}").
@@ -76,9 +76,9 @@ public class FileRecoveryServletTest extends ServletTest {
 		then().
 			assertThat().statusCode(HttpServletResponse.SC_BAD_REQUEST).
 			assertThat().contentType(ContentType.JSON).
-			assertThat().body("returnCode", equalTo(ServerReturnCode.DESERIALIZE_ERROR.ordinal()));
+			assertThat().body("returnCode", equalTo(ServerReturnCode.REQUEST_EXCEPTION.ordinal()));
 	}
-	
+
 	@Test
 	public void testCollectionOfUrls() {
 		StringBuilder sb = new StringBuilder();
@@ -86,7 +86,7 @@ public class FileRecoveryServletTest extends ServletTest {
 		.append("\"").append(Paths.get("/tmp/testpath/file1")).append("\"")
 		.append(",\"").append(Paths.get("/tmp/testpath/file2")).append("\"")
 		.append("]}");
-		
+
 		given().
 			contentType(ContentType.JSON).
 			content(sb.toString()).
@@ -96,9 +96,9 @@ public class FileRecoveryServletTest extends ServletTest {
 			assertThat().contentType(ContentType.JSON).
 			assertThat().body("returnCode", equalTo(ServerReturnCode.DESERIALIZE_ERROR.ordinal()));
 	}
-	
+
 	@Test
-	public void testPostWrongJson() {	
+	public void testPostWrongJson() {
 		given().
 			contentType(ContentType.JSON).
 			content("{file:\"/tmp/PeerBox_test/f\"").
@@ -108,16 +108,16 @@ public class FileRecoveryServletTest extends ServletTest {
 			assertThat().contentType(ContentType.JSON).
 			assertThat().body("returnCode", equalTo(ServerReturnCode.DESERIALIZE_ERROR.ordinal()));
 	}
-	
+
 	@Test
 	public void testPostWrongMsg() {
-		// send a wrong message 
+		// send a wrong message
 		DeleteMessage msg = new DeleteMessage();
 		List<Path> paths = new ArrayList<Path>();
 		paths.add(Paths.get("/tmp/PeerBox_test/f1"));
 		paths.add(Paths.get("/tmp/PeerBox_test/f2"));
 		msg.setPaths(paths);
-		
+
 		given().
 			contentType(ContentType.JSON).
 			content(msg).
@@ -125,9 +125,9 @@ public class FileRecoveryServletTest extends ServletTest {
 		then().
 			assertThat().statusCode(HttpServletResponse.SC_BAD_REQUEST).
 			assertThat().contentType(ContentType.JSON).
-			assertThat().body("returnCode", equalTo(ServerReturnCode.DESERIALIZE_ERROR.ordinal()));
+			assertThat().body("returnCode", equalTo(ServerReturnCode.REQUEST_EXCEPTION.ordinal()));
 	}
-	
+
 	@Test
 	public void testPostFile() {
 		FileRecoveryMessage msg = new FileRecoveryMessage();
@@ -141,7 +141,7 @@ public class FileRecoveryServletTest extends ServletTest {
 			assertThat().statusCode(HttpServletResponse.SC_OK).
 			assertThat().contentType(ContentType.JSON);
 	}
-	
+
 	@Test
 	public void testPostFileAndAdditionalParameter() {
 		StringBuilder sb = new StringBuilder();

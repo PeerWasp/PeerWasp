@@ -21,22 +21,22 @@ import com.jayway.restassured.config.RestAssuredConfig;
 import com.jayway.restassured.mapper.factory.GsonObjectMapperFactory;
 
 public class ServletTest {
-	
+
 	protected static IServer server;
 	protected static String baseUrl;
 	@BeforeClass
 	public static void beforeClass() {
-		
+
 		Injector injector = Guice.createInjector(new ApiServerModule(), new ApiServerTestModule());
 		server = injector.getInstance(IServer.class);
 		server.start();
-		
+
 		baseUrl = String.format("http://localhost:%d", server.getPort());
-		
+
 		configureRestAssured();
-		
+
 	}
-	
+
 	@AfterClass
 	public static void afterClass() {
 		server.stop();
@@ -62,10 +62,10 @@ public class ServletTest {
 	protected String getBaseUrl() {
 		return baseUrl;
 	}
-	
-	
+
+
 	protected String getUrl(String path) {
 		return String.format("%s%s", getBaseUrl(), path);
 	}
-	
+
 }
