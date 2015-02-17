@@ -37,7 +37,7 @@ import org.junit.Test;
 
 public class FileVersionSelectorTest {
 
-	private static final int NETWORK_SIZE = 15;
+	private static final int NETWORK_SIZE = 6;
 	private static List<IH2HNode> network;
 
 	private static IH2HNode client;

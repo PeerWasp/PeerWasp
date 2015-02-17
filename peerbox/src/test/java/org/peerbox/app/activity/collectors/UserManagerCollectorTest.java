@@ -1,15 +1,12 @@
 package org.peerbox.app.activity.collectors;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.times;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.peerbox.BaseJUnitTest;
-import org.peerbox.app.activity.ActivityItem;
 import org.peerbox.app.activity.ActivityLogger;
 import org.peerbox.app.activity.ActivityType;
 import org.peerbox.app.manager.user.LoginMessage;

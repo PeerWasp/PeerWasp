@@ -102,7 +102,7 @@ public class ClientContext {
 	}
 
 	@Inject
-	public void getFileManager(IFileManager fileManager) {
+	public void setFileManager(IFileManager fileManager) {
 		this.fileManager = fileManager;
 	}
 

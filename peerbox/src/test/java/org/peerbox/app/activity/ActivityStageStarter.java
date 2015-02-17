@@ -1,5 +1,7 @@
 package org.peerbox.app.activity;
 
+import java.io.IOException;
+
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.stage.Stage;
@@ -8,6 +10,8 @@ import javafx.util.Callback;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.RandomUtils;
 import org.peerbox.interfaces.IFxmlLoaderProvider;
+
+import com.google.inject.Injector;
 
 /**
  * Starter class for the activity view.
@@ -53,6 +57,11 @@ public class ActivityStageStarter extends Application {
 						}
 					});
 					return loader;
+				}
+
+				@Override
+				public FXMLLoader create(String fxmlFile, Injector injector) throws IOException {
+					return create(fxmlFile);
 				}
 			});
 

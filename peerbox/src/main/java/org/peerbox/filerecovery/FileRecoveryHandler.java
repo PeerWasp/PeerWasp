@@ -21,6 +21,11 @@ public class FileRecoveryHandler implements IFileRecoveryHandler {
 
 	private AppContext appContext;
 
+	@Inject
+	public FileRecoveryHandler(AppContext appContext) {
+		this.appContext = appContext;
+	}
+
 	@Override
 	public void recoverFile(final Path fileToRecover) {
 		this.fileToRecover = fileToRecover;
@@ -88,11 +93,6 @@ public class FileRecoveryHandler implements IFileRecoveryHandler {
 		}
 
 		return ResultStatus.ok();
-	}
-
-	@Inject
-	public void setAppContext(AppContext appContext) {
-		this.appContext = appContext;
 	}
 
 }

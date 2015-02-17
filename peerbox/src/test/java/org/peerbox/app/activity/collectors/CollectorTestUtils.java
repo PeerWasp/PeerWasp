@@ -2,7 +2,6 @@ package org.peerbox.app.activity.collectors;
 
 import static org.mockito.Mockito.times;
 
-import org.junit.Before;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.peerbox.BaseJUnitTest;
