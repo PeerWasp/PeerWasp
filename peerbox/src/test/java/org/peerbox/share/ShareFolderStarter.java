@@ -1,4 +1,4 @@
-package org.peerbox.view;
+package org.peerbox.share;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -21,7 +21,7 @@ import org.hive2hive.core.utils.helper.TestFileAgent;
 import org.hive2hive.processframework.exceptions.InvalidProcessStateException;
 import org.hive2hive.processframework.exceptions.ProcessExecutionException;
 import org.mockito.Mockito;
-import org.peerbox.app.config.IUserConfig;
+import org.peerbox.app.config.UserConfig;
 import org.peerbox.app.manager.file.FileManager;
 import org.peerbox.app.manager.file.IFileManager;
 import org.peerbox.app.manager.node.INodeManager;
@@ -31,6 +31,8 @@ import org.peerbox.events.MessageBus;
 import org.peerbox.interfaces.IFxmlLoaderProvider;
 import org.peerbox.share.ShareFolderController;
 import org.peerbox.share.ShareFolderHandler;
+
+import com.google.inject.Injector;
 
 public class ShareFolderStarter extends Application {
 
@@ -118,11 +120,11 @@ public class ShareFolderStarter extends Application {
 	private void initGui() {
 		INodeManager manager = Mockito.mock(INodeManager.class);
 		Mockito.stub(manager.getNode()).toReturn(clientsA[0]);
-		IUserConfig userConfig = Mockito.mock(IUserConfig.class);
+		UserConfig userConfig = Mockito.mock(UserConfig.class);
 		MessageBus messageBus = new MessageBus();
 
 		IFileManager fileManager = new FileManager(manager, userConfig, messageBus);
-		IUserManager userManager = new UserManager(manager, userConfig, messageBus);
+		IUserManager userManager = new UserManager(manager, messageBus);
 
 		stage = new ShareFolderHandler();
 		ShareFolderController controller = new ShareFolderController(fileManager, userManager);
@@ -140,6 +142,11 @@ public class ShareFolderStarter extends Application {
 					}
 				});
 				return loader;
+			}
+
+			@Override
+			public FXMLLoader create(String fxmlFile, Injector injector) throws IOException {
+				return create(fxmlFile);
 			}
 		});
 	}
