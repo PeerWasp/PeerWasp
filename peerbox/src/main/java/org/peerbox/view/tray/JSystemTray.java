@@ -148,15 +148,20 @@ public class JSystemTray extends AbstractSystemTray implements ITrayNotification
 	}
 
 	private String generateAggregatedFileEventStatusMessage(AggregatedFileEventStatus e) {
+		
 		StringBuilder sb = new StringBuilder();
+		sb.append("Hi there, some of your files changed.\n\n");
 		if(e.getNumFilesAdded() > 0) {
-			sb.append("Files added: ").append(e.getNumFilesAdded()).append("\n");
+			sb.append("new files: ").append(e.getNumFilesAdded()).append("\n");
 		}
 		if(e.getNumFilesModified() > 0) {
-			sb.append("Files modified: ").append(e.getNumFilesModified()).append("\n");
+			sb.append("updated files: ").append(e.getNumFilesModified()).append("\n");
 		}
 		if(e.getNumFilesDeleted() > 0) {
-			sb.append("Files deleted: ").append(e.getNumFilesDeleted());
+			sb.append("deleted files: ").append(e.getNumFilesDeleted()).append("\n");
+		}
+		if(e.getNumFilesMoved() > 0) {
+			sb.append("moved files: ").append(e.getNumFilesMoved()).append("\n");
 		}
 		return sb.toString();
 	}

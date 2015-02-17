@@ -103,16 +103,9 @@ public class FileEventAggregator implements IMessageListener{
 						moved = movedFiles;
 						movedFiles = new ArrayList<Path>();
 					}
-					  
-					StringBuilder sb = new StringBuilder();
-					sb.append(added.size() + " files have been added").append("\n");
-					sb.append(deleted.size() + " files have been deleted.").append("\n");
-					sb.append(updated.size() + "files have been updated.").append("\n");
-					sb.append(moved.size() + "files have been moved").append("\n");
-					sb.append("Click here to see your files.");
 					
 					AggregatedFileEventStatus event = new AggregatedFileEventStatus(added.size(),
-							updated.size(), deleted.size());
+							updated.size(), deleted.size(), moved.size());
 					
 					messageBus.post(event).now();
 					messageBus.publish(event);
