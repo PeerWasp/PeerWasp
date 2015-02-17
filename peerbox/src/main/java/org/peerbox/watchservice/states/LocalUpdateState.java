@@ -13,6 +13,8 @@ import org.peerbox.watchservice.IAction;
 import org.peerbox.watchservice.IFileEventManager;
 import org.peerbox.watchservice.conflicthandling.ConflictHandler;
 import org.peerbox.watchservice.filetree.composite.FileComponent;
+import org.peerbox.watchservice.states.listeners.LocalFileAddListener;
+import org.peerbox.watchservice.states.listeners.LocalFileUpdateListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,6 +59,7 @@ public class LocalUpdateState extends AbstractActionState {
 		logger.debug("Execute LOCAL UPDATE: {}", path);
 		handle = fileManager.update(path);
 		if (handle != null && handle.getProcess() != null) {
+			handle.getProcess().attachListener(new LocalFileUpdateListener(path, action.getFileEventManager().getMessageBus()));
 			handle.executeAsync();
 		} else {
 			System.err.println("Process or handle is null.");

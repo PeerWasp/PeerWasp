@@ -10,6 +10,8 @@ import org.peerbox.app.manager.file.IFileManager;
 import org.peerbox.exceptions.NotImplException;
 import org.peerbox.watchservice.IAction;
 import org.peerbox.watchservice.filetree.IFileTree;
+import org.peerbox.watchservice.states.listeners.LocalFileAddListener;
+import org.peerbox.watchservice.states.listeners.LocalFileMoveListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -82,6 +84,7 @@ public class LocalMoveState extends AbstractActionState {
 		final Path path = action.getFile().getPath();
 		handle = fileManager.move(source, path);
 		if(handle != null){
+			handle.getProcess().attachListener(new LocalFileMoveListener(path, action.getFileEventManager().getMessageBus()));
 			handle.executeAsync();
 		}
 

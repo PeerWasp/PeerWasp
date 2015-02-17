@@ -8,6 +8,7 @@ import java.util.concurrent.ConcurrentSkipListMap;
 
 import org.hive2hive.core.security.HashUtil;
 import org.peerbox.watchservice.PathUtils;
+import org.peerbox.watchservice.states.AbstractActionState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -234,6 +235,13 @@ public class FolderComposite extends AbstractFileComponent {
 				FolderComposite childAsFolder = (FolderComposite) child;
 				childAsFolder.propagatePathChangeToChildren();
 			}
+		}
+	}
+	
+	public void updateStateOnLocalDelete(){
+		getAction().getCurrentState().changeStateOnLocalDelete();
+		for(FileComponent child : children.values()){
+			child.updateStateOnLocalDelete();
 		}
 	}
 

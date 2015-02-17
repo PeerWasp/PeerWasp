@@ -34,6 +34,9 @@ public class JTrayMenu {
 		return root;
 	}
 
+	public TrayActionHandler getTrayActionHandler(){
+		return actionHandler;
+	}
 	private MenuItem createRootFolderMenu() {
 		MenuItem rootItem = new MenuItem("Open Folder");
 		rootItem.addActionListener(createRootFolderListener());
@@ -61,7 +64,7 @@ public class JTrayMenu {
 		return settingsItem;
 	}
 
-	private ActionListener createSettingsListener() {
+	public ActionListener createSettingsListener() {
 		ActionListener settingsListener = new ActionListener() {
 			@Override
 			public void actionPerformed(java.awt.event.ActionEvent e) {

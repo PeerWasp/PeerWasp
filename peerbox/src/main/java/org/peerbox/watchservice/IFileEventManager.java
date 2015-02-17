@@ -3,6 +3,7 @@ package org.peerbox.watchservice;
 import java.nio.file.Path;
 
 import org.hive2hive.core.events.framework.interfaces.file.IFileAddEvent;
+import org.peerbox.events.MessageBus;
 import org.peerbox.watchservice.filetree.IFileTree;
 
 public interface IFileEventManager {
@@ -14,5 +15,7 @@ public interface IFileEventManager {
 	public void onFileSynchronized(Path path, boolean isFolder);
 	public void onFileAdd(IFileAddEvent fileEvent);
 	public void onLocalFileHardDelete(Path toDelete);
+	
+	public MessageBus getMessageBus();
 
 }

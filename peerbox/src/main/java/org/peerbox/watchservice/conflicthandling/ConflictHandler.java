@@ -8,7 +8,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import org.apache.commons.io.FilenameUtils;
-import org.peerbox.app.manager.file.FileConflictMessage;
+import org.peerbox.app.manager.file.LocalFileConflictMessage;
 import org.peerbox.events.MessageBus;
 
 public class ConflictHandler {
@@ -51,12 +51,12 @@ public class ConflictHandler {
 			if(moveFile){
 				Files.move(file, renamedFile);
 				if(bus != null){
-					bus.publish(new FileConflictMessage(file));
+					bus.publish(new LocalFileConflictMessage(file));
 				}
 			} else {
 				Files.copy(file, renamedFile);
 				if(bus != null){
-					bus.publish(new FileConflictMessage(file));
+					bus.publish(new LocalFileConflictMessage(file));
 				}
 			if(bus != null){
 					

@@ -7,7 +7,7 @@ public final class Constants {
 		// prevent instance
 	}
 
-	public static final String APP_NAME = "Synqbox";
+	public static final String APP_NAME = "PeerWasp";
 
 	//User password length
 	public static final int MIN_PASSWORD_LENGTH = 6;

@@ -4,11 +4,14 @@ import java.awt.AWTException;
 import java.awt.Image;
 import java.awt.TrayIcon;
 import java.awt.TrayIcon.MessageType;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.IOException;
 
 import net.engio.mbassy.listener.Handler;
 
 import org.peerbox.app.Constants;
+import org.peerbox.events.IMessageListener;
 import org.peerbox.notifications.AggregatedFileEventStatus;
 import org.peerbox.notifications.ITrayNotifications;
 import org.peerbox.notifications.InformationNotification;
@@ -19,7 +22,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.inject.Inject;
 
-public class JSystemTray extends AbstractSystemTray implements ITrayNotifications {
+public class JSystemTray extends AbstractSystemTray implements ITrayNotifications, IMessageListener {
 
 	private final static Logger logger = LoggerFactory.getLogger(JSystemTray.class);
 
@@ -92,6 +95,17 @@ public class JSystemTray extends AbstractSystemTray implements ITrayNotification
 	}
 
 	@Override
+	public void showSuccessIcon() throws TrayException {
+		try {
+			trayIcon.setImage(iconProvider.getSuccessIcon());
+		} catch (IOException e) {
+			logger.debug("SysTray.show IOException.", e);
+			logger.error("Could not change icon (image not found?)");
+			throw new TrayException(e);
+		}
+	}
+
+	@Override
 	public void showInformationMessage(String title, String message) {
 		System.out.println(title);
 		if(trayIcon != null) {
@@ -108,6 +122,13 @@ public class JSystemTray extends AbstractSystemTray implements ITrayNotification
 	public void showInformation(InformationNotification in) {
 		logger.debug("information message: [{}] - [{}]", in.getTitle(), in.getMessage());
 		if(trayIcon != null) {
+			trayIcon.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                	menu.getTrayActionHandler().showActivity();
+                    System.out.println("Message Clicked");
+                    trayIcon.removeActionListener(this);
+                }
+            });
 			trayIcon.displayMessage(in.getTitle(), in.getMessage(), MessageType.INFO);
 		}
 	}
@@ -117,20 +138,44 @@ public class JSystemTray extends AbstractSystemTray implements ITrayNotification
 	public void showFileEvents(AggregatedFileEventStatus event) {
 		String msg = generateAggregatedFileEventStatusMessage(event);
 		logger.debug("Message received: \n[{}]", msg);
+		trayIcon.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+            	menu.getTrayActionHandler().showSettings();
+                System.out.println("Message Clicked");
+                trayIcon.removeActionListener(this);
+            }
+        });
 		trayIcon.displayMessage("File Synchronization", msg, MessageType.INFO);
 	}
 
 	private String generateAggregatedFileEventStatusMessage(AggregatedFileEventStatus e) {
+
 		StringBuilder sb = new StringBuilder();
+		sb.append("Hi there, some of your files changed.\n\n");
 		if(e.getNumFilesAdded() > 0) {
-			sb.append("Files added: ").append(e.getNumFilesAdded()).append("\n");
+			sb.append("new files: ").append(e.getNumFilesAdded()).append("\n");
 		}
 		if(e.getNumFilesModified() > 0) {
-			sb.append("Files modified: ").append(e.getNumFilesModified()).append("\n");
+			sb.append("updated files: ").append(e.getNumFilesModified()).append("\n");
 		}
 		if(e.getNumFilesDeleted() > 0) {
-			sb.append("Files deleted: ").append(e.getNumFilesDeleted());
+			sb.append("deleted files: ").append(e.getNumFilesDeleted()).append("\n");
+		}
+		if(e.getNumFilesMoved() > 0) {
+			sb.append("moved files: ").append(e.getNumFilesMoved()).append("\n");
 		}
 		return sb.toString();
+	}
+
+	@Handler
+	public void onSynchronizationComplete(SynchronizationCompleteNotification message) throws TrayException {
+		logger.trace("Set success icon.");
+		showSuccessIcon();
+	}
+
+	@Handler
+	public void onSynchronizationStart(SynchronizationStartsNotification message) throws TrayException {
+		logger.trace("Set synchronization icon.");
+		showSyncingIcon();
 	}
 }

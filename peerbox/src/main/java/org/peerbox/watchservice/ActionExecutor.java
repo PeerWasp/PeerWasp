@@ -20,6 +20,10 @@ import org.peerbox.app.manager.ProcessHandle;
 import org.peerbox.app.manager.file.FileExecutionFailedMessage;
 import org.peerbox.app.manager.file.IFileManager;
 import org.peerbox.watchservice.filetree.IFileTree;
+import org.peerbox.presenter.settings.synchronization.messages.FileExecutionStartedMessage;
+import org.peerbox.presenter.settings.synchronization.messages.FileExecutionSucceededMessage;
+import org.peerbox.view.tray.SynchronizationCompleteNotification;
+import org.peerbox.view.tray.SynchronizationStartsNotification;
 import org.peerbox.watchservice.filetree.composite.FileComponent;
 import org.peerbox.watchservice.filetree.composite.FolderComposite;
 import org.peerbox.watchservice.states.ExecutionHandle;
@@ -118,7 +122,15 @@ public class ActionExecutor implements Runnable {
 					if (waitForActionCompletion) {
 						if (ehandle != null && ehandle.getProcessHandle() != null) {
 							logger.debug("Put into async handles!");
+							fileEventManager.getMessageBus().publish(new FileExecutionStartedMessage(next.getPath()));
 							asyncHandles.put(ehandle);
+						} else {
+//							if(!next.isSynchronized()){
+//								fileEventManager.getMessageBus().publish(new FileDesyncMessage(next.getPath()));
+//							}
+						}
+						if(asyncHandles.size() != 0){
+							fileEventManager.getMessageBus().publish(new SynchronizationStartsNotification());
 						}
 					} else {
 						onActionExecuteSucceeded(next.getAction());
@@ -258,6 +270,9 @@ public class ActionExecutor implements Runnable {
 		logger.debug("Action succeeded: {} {}.",
 				file.getPath(), action.getCurrentStateName());
 
+		//inform gui to adjust icon
+		fileEventManager.getMessageBus().publish(new FileExecutionSucceededMessage(action.getFile().getPath(), action.getCurrentState().getStateType()));
+
 		boolean changedWhileExecuted = action.getChangedWhileExecuted();
 		file.setIsUploaded(true);
 		action.onSucceeded();
@@ -325,6 +340,7 @@ public class ActionExecutor implements Runnable {
 			if (notModified == null) {
 				logger.trace("FileComponent not found (null): {}", path);
 			}
+			fileEventManager.getMessageBus().publish(new FileExecutionSucceededMessage(action.getFile().getPath(), action.getCurrentState().getStateType()));
 			action.onSucceeded();
 			return true;
 
@@ -344,6 +360,9 @@ public class ActionExecutor implements Runnable {
 			return true;
 
 		}
+//		else if (error == AbortModificationCode.FILE_DOES_NOT_EXIST){
+//
+//		}
 
 		return false; // error not handled
 	}
@@ -375,6 +394,9 @@ public class ActionExecutor implements Runnable {
 						// if this point reached, no error occurred (get() did not throw exception)
 						onActionExecuteSucceeded(next.getAction());
 
+						if(asyncHandles.size() == 0){
+							fileEventManager.getMessageBus().publish(new SynchronizationCompleteNotification());
+						}
 					} catch (ExecutionException eex) {
 
 						ProcessExecutionException pex = null;

@@ -157,10 +157,13 @@ public abstract class AbstractActionState {
 			SetMultimap<String, FolderComposite> deletedFolders = eventManager.getFileTree().getDeletedByStructureHash();
 			logger.trace("Delete folder: put folder {} with structure hash {} to deleted folders.", action.getFile().getPath(), action.getFile().getStructureHash());
 			deletedFolders.put(action.getFile().getStructureHash(), (FolderComposite)action.getFile());
+		
+		
 		}
 
 		action.getFile().getParent().updateContentHash();
 		action.getFile().getParent().bubbleContentNamesHashUpdate();
+		action.getFile().updateStateOnLocalDelete();
 		return this.changeStateOnLocalDelete();
 	}
 

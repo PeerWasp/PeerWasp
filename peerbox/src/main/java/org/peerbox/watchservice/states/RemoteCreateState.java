@@ -10,6 +10,7 @@ import org.peerbox.app.manager.file.IFileManager;
 import org.peerbox.exceptions.NotImplException;
 import org.peerbox.watchservice.IAction;
 import org.peerbox.watchservice.conflicthandling.ConflictHandler;
+import org.peerbox.watchservice.states.listeners.RemoteFileAddListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -85,6 +86,7 @@ public class RemoteCreateState extends AbstractActionState {
 		logger.debug("Execute REMOTE ADD, download the file: {}", path);
 		handle = fileManager.download(path);
 		if (handle != null && handle.getProcess() != null) {
+			handle.getProcess().attachListener(new RemoteFileAddListener(path, action.getFileEventManager().getMessageBus()));
 			handle.executeAsync();
 		} else {
 			System.err.println("process or handle is null");

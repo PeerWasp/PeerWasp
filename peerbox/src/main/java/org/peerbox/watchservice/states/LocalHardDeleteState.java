@@ -11,6 +11,8 @@ import org.peerbox.exceptions.NotImplException;
 import org.peerbox.watchservice.IAction;
 import org.peerbox.watchservice.IFileEventManager;
 import org.peerbox.watchservice.filetree.composite.FileComponent;
+import org.peerbox.watchservice.states.listeners.LocalFileAddListener;
+import org.peerbox.watchservice.states.listeners.LocalFileDeleteListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -113,6 +115,7 @@ public class LocalHardDeleteState extends AbstractActionState{
 		logger.debug("Execute LOCAL DELETE: {}", path);
 		handle = fileManager.delete(path);
 		if (handle != null && handle.getProcess() != null) {
+			handle.getProcess().attachListener(new LocalFileDeleteListener(path, action.getFileEventManager().getMessageBus()));
 			handle.executeAsync();
 		} else {
 			System.err.println("handle or process is null.");

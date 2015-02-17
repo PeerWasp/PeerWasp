@@ -14,7 +14,12 @@ import net.engio.mbassy.listener.Handler;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.peerbox.app.manager.file.RemoteFileDeletedMessage;
+import org.peerbox.app.manager.file.RemoteFileMovedMessage;
+import org.peerbox.app.manager.file.RemoteFileAddedMessage;
+import org.peerbox.app.manager.file.RemoteFileUpdatedMessage;
 import org.peerbox.events.MessageBus;
+import org.peerbox.presenter.tray.TrayException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,32 +51,36 @@ public class FileEventAggregatorTest  {
 		int totalAdded = 0;
 		int totalModified = 0;
 		int totalDeleted = 0;
+		int totalMoved = 0;
 		
 		long startTime = System.currentTimeMillis();
 		int numFile = 0;
 		while(System.currentTimeMillis() < (startTime + timeToSendEvents)) {
 			Path p = Paths.get(String.valueOf(numFile));
 			Thread.sleep(rnd.nextInt(5));
-			switch (rnd.nextInt(3)) {
+			switch (rnd.nextInt(4)) {
 				case 0:
-					aggregator.onFileAdded(p);
+					aggregator.onFileAdded(new RemoteFileAddedMessage(p));
 					++totalAdded;
 					break;
 				case 1:
-					aggregator.onFileModified(p);
+					aggregator.onFileUpdated(new RemoteFileUpdatedMessage(p));
 					++totalModified;
 					break;
 				case 2:
-					aggregator.onFileDeleted(p);
+					aggregator.onFileDeleted(new RemoteFileDeletedMessage(p));
 					++totalDeleted;
 					break;
+				case 3:
+					aggregator.onFileMoved(new RemoteFileMovedMessage(p, Paths.get("my/path")));
+					++totalMoved;
 				default:
 					break;
 			}
 			++numFile;
 		}
 		
-		return new AggregatedFileEventStatus(totalAdded, totalModified, totalDeleted);
+		return new AggregatedFileEventStatus(totalAdded, totalModified, totalDeleted, totalMoved);
 	}
 	
 	@Test
@@ -162,6 +171,13 @@ public class FileEventAggregatorTest  {
 		@Handler
 		public void showFileEvents(AggregatedFileEventStatus event) {
 			aggregatedFileEvents.add(event);
+		}
+
+
+		@Override
+		public void showSuccessIcon() throws TrayException {
+			// TODO Auto-generated method stub
+			
 		}
 	}
 }
