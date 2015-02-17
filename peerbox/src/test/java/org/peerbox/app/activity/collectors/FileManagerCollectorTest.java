@@ -14,12 +14,12 @@ import org.mockito.Mockito;
 import org.peerbox.BaseJUnitTest;
 import org.peerbox.app.activity.ActivityLogger;
 import org.peerbox.app.activity.ActivityType;
-import org.peerbox.app.manager.file.FileConflictMessage;
-import org.peerbox.app.manager.file.FileDeleteMessage;
-import org.peerbox.app.manager.file.FileDesyncMessage;
-import org.peerbox.app.manager.file.FileDownloadMessage;
+import org.peerbox.app.manager.file.LocalFileConflictMessage;
+import org.peerbox.app.manager.file.RemoteFileDeletedMessage;
+import org.peerbox.app.manager.file.LocalFileDesyncMessage;
+import org.peerbox.app.manager.file.RemoteFileMovedMessage;
 import org.peerbox.app.manager.file.FileExecutionFailedMessage;
-import org.peerbox.app.manager.file.FileUploadMessage;
+import org.peerbox.app.manager.file.RemoteFileAddedMessage;
 
 public class FileManagerCollectorTest extends BaseJUnitTest {
 
@@ -53,40 +53,40 @@ public class FileManagerCollectorTest extends BaseJUnitTest {
 
 	@Test
 	public void testOnFileUploaded() {
-		FileUploadMessage message = new FileUploadMessage(Paths.get("this/is/a/path.txt"));
-		collector.onFileUploaded(message);
+		RemoteFileAddedMessage message = new RemoteFileAddedMessage(Paths.get("this/is/a/path.txt"));
+		collector.onRemoteFileAdded(message);
 		
 		CollectorTestUtils.captureAddActivityItem(ActivityType.INFORMATION, activityLogger);
 	}
 
 	@Test
 	public void testOnFileDownloaded() {
-		FileDownloadMessage message = new FileDownloadMessage(Paths.get("this/is/a/path.txt"));
-		collector.onFileDownloaded(message);
+		RemoteFileMovedMessage message = new RemoteFileMovedMessage(Paths.get("this/is/a/path.txt"), Paths.get("this/is/another/path.txt"));
+		collector.onRemoteFileMoved(message);
 		
 		CollectorTestUtils.captureAddActivityItem(ActivityType.INFORMATION, activityLogger);
 	}
 
 	@Test
 	public void testOnFileDeleted() {
-		FileDeleteMessage message = new FileDeleteMessage(Paths.get("this/is/a/path.txt"));
-		collector.onFileDeleted(message);
+		RemoteFileDeletedMessage message = new RemoteFileDeletedMessage(Paths.get("this/is/a/path.txt"));
+		collector.onRemoteFileDeleted(message);
 		
 		CollectorTestUtils.captureAddActivityItem(ActivityType.INFORMATION, activityLogger);
 	}
 
 	@Test
 	public void testOnFileConfilct() {
-		FileConflictMessage message = new FileConflictMessage(Paths.get("this/is/a/path.txt"));
-		collector.onFileConfilct(message);
+		LocalFileConflictMessage message = new LocalFileConflictMessage(Paths.get("this/is/a/path.txt"));
+		collector.onLocalFileConfilct(message);
 		
 		CollectorTestUtils.captureAddActivityItem(ActivityType.WARNING, activityLogger);
 	}
 	
 	@Test
 	public void testOnFileDesynchronized(){
-		FileDesyncMessage message = new FileDesyncMessage(Paths.get("this/is/a/path.txt"));
-		collector.onFileDesynchronized(message);
+		LocalFileDesyncMessage message = new LocalFileDesyncMessage(Paths.get("this/is/a/path.txt"));
+		collector.onLocalFileDesynchronized(message);
 		
 		CollectorTestUtils.captureAddActivityItem(ActivityType.INFORMATION, activityLogger);
 	}

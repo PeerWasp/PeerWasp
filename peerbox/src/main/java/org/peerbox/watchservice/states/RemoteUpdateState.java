@@ -10,6 +10,7 @@ import org.peerbox.app.manager.file.IFileManager;
 import org.peerbox.exceptions.NotImplException;
 import org.peerbox.watchservice.IAction;
 import org.peerbox.watchservice.conflicthandling.ConflictHandler;
+import org.peerbox.watchservice.states.listeners.RemoteFileUpdateListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -97,6 +98,7 @@ public class RemoteUpdateState extends AbstractActionState {
 
 		handle = fileManager.download(path);
 		if (handle != null && handle.getProcess() != null) {
+			handle.getProcess().attachListener(new RemoteFileUpdateListener(path, action.getFileEventManager().getMessageBus()));
 			handle.executeAsync();
 		} else {
 			System.err.println("process or handle is null");

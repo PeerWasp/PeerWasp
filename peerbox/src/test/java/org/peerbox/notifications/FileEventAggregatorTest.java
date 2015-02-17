@@ -14,10 +14,12 @@ import net.engio.mbassy.listener.Handler;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.peerbox.app.manager.file.FileDeleteMessage;
-import org.peerbox.app.manager.file.FileDownloadMessage;
-import org.peerbox.app.manager.file.FileUploadMessage;
+import org.peerbox.app.manager.file.RemoteFileDeletedMessage;
+import org.peerbox.app.manager.file.RemoteFileMovedMessage;
+import org.peerbox.app.manager.file.RemoteFileAddedMessage;
+import org.peerbox.app.manager.file.RemoteFileUpdatedMessage;
 import org.peerbox.events.MessageBus;
+import org.peerbox.presenter.tray.TrayException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,15 +59,15 @@ public class FileEventAggregatorTest  {
 			Thread.sleep(rnd.nextInt(5));
 			switch (rnd.nextInt(3)) {
 				case 0:
-					aggregator.onFileUploaded(new FileUploadMessage(p));
+					aggregator.onFileAdded(new RemoteFileAddedMessage(p));
 					++totalAdded;
 					break;
 				case 1:
-					aggregator.onFileModified(p);
+					aggregator.onFileUpdated(new RemoteFileUpdatedMessage(p));
 					++totalModified;
 					break;
 				case 2:
-					aggregator.onFileDeleted(new FileDeleteMessage(p));
+					aggregator.onFileDeleted(new RemoteFileDeletedMessage(p));
 					++totalDeleted;
 					break;
 				default:
@@ -165,6 +167,13 @@ public class FileEventAggregatorTest  {
 		@Handler
 		public void showFileEvents(AggregatedFileEventStatus event) {
 			aggregatedFileEvents.add(event);
+		}
+
+
+		@Override
+		public void showSuccessIcon() throws TrayException {
+			// TODO Auto-generated method stub
+			
 		}
 	}
 }

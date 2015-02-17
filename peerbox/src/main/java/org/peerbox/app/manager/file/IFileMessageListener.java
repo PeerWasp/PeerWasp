@@ -1,5 +1,6 @@
 package org.peerbox.app.manager.file;
 
+import org.peerbox.app.activity.ActivityItem;
 import org.peerbox.events.IMessageListener;
 
 import net.engio.mbassy.listener.Handler;
@@ -7,21 +8,36 @@ import net.engio.mbassy.listener.Handler;
 public interface IFileMessageListener extends IMessageListener {
 
 	@Handler
-	void onFileUploaded(FileUploadMessage upload);
+	void onLocalFileAdded(LocalFileAddedMessage message);
 
 	@Handler
-	void onFileDownloaded(FileDownloadMessage download);
+	void onLocalFileMoved(LocalFileMovedMessage message);
 
 	@Handler
-	void onFileDeleted(FileDeleteMessage delete);
-
-	@Handler
-	void onFileConfilct(FileConflictMessage conflict);
+	void onLocalFileDeleted(LocalFileDeletedMessage message);
 	
 	@Handler
-	void onFileDesynchronized(FileDesyncMessage desync);
+	void onLocalFileUpdated(LocalFileUpdatedMessage message);
+
+	@Handler
+	void onLocalFileConfilct(LocalFileConflictMessage message);
 	
 	@Handler
-	void onFileExecutionFailed(FileExecutionFailedMessage conflict);
+	void onLocalFileDesynchronized(LocalFileDesyncMessage message);
+	
+	@Handler
+	void onRemoteFileAdded(RemoteFileAddedMessage message);
+
+	@Handler
+	void onRemoteFileMoved(RemoteFileMovedMessage message);
+
+	@Handler
+	void onRemoteFileDeleted(RemoteFileDeletedMessage message);
+	
+	@Handler
+	void onRemoteFileUpdated(RemoteFileUpdatedMessage message);
+	
+	@Handler
+	void onFileExecutionFailed(FileExecutionFailedMessage message);
 
 }

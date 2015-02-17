@@ -5,10 +5,10 @@ import java.nio.file.Path;
 import org.peerbox.app.manager.file.AbstractFileMessage;
 import org.peerbox.watchservice.states.StateType;
 
-public class ExecutionSuccessfulMessage extends AbstractFileMessage{
+public class FileExecutionSucceededMessage extends AbstractFileMessage{
 
 	private StateType stateType;
-	public ExecutionSuccessfulMessage(Path path, StateType stateType) {
+	public FileExecutionSucceededMessage(Path path, StateType stateType) {
 		super(path);
 		this.stateType = stateType;
 	}

@@ -4,9 +4,9 @@ import java.nio.file.Path;
 
 import org.peerbox.app.manager.file.AbstractFileMessage;
 
-public class ExecutionStartsMessage extends AbstractFileMessage {
+public class FileExecutionStartedMessage extends AbstractFileMessage {
 
-	public ExecutionStartsMessage(Path path) {
+	public FileExecutionStartedMessage(Path path) {
 		super(path);
 	}
 

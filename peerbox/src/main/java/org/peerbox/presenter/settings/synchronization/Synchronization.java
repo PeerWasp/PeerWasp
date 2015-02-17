@@ -37,12 +37,12 @@ import org.hive2hive.core.processes.files.list.FileNode;
 import org.hive2hive.processframework.exceptions.InvalidProcessStateException;
 import org.hive2hive.processframework.exceptions.ProcessExecutionException;
 import org.peerbox.app.config.UserConfig;
-import org.peerbox.app.manager.file.FileDesyncMessage;
+import org.peerbox.app.manager.file.LocalFileDesyncMessage;
 import org.peerbox.app.manager.file.FileExecutionFailedMessage;
 import org.peerbox.app.manager.file.IFileManager;
 import org.peerbox.presenter.settings.synchronization.eventbus.IExecutionMessageListener;
-import org.peerbox.presenter.settings.synchronization.messages.ExecutionStartsMessage;
-import org.peerbox.presenter.settings.synchronization.messages.ExecutionSuccessfulMessage;
+import org.peerbox.presenter.settings.synchronization.messages.FileExecutionStartedMessage;
+import org.peerbox.presenter.settings.synchronization.messages.FileExecutionSucceededMessage;
 import org.peerbox.watchservice.FileEventManager;
 import org.peerbox.watchservice.IFileEventManager;
 import org.peerbox.watchservice.filetree.composite.FileComponent;
@@ -207,7 +207,7 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 
 	@Override
 	@Handler
-	public void onExecutionStarts(ExecutionStartsMessage message) {
+	public void onExecutionStarts(FileExecutionStartedMessage message) {
 		logger.trace("onExecutionStarts: {}", message.getPath());
 		ImageView view = new ImageView(inProgressIcon);
 		TreeItem<PathItem> item = getTreeItem(message.getPath());
@@ -223,7 +223,7 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 
 	@Override
 	@Handler
-	public void onExecutionSucceeds(ExecutionSuccessfulMessage message) {
+	public void onExecutionSucceeds(FileExecutionSucceededMessage message) {
 		StateType stateType = message.getStateType();
 		
 		switch(stateType){
@@ -253,7 +253,12 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 			javafx.application.Platform.runLater(new Runnable() {
 		        @Override
 		        public void run() {
-		        	item2.setSelected(true);
+		        	if(message.getPath().toFile().isDirectory()){
+		        		item2.setIndeterminate(true);
+		        	} else {
+		        		item2.setSelected(true);
+		        	}
+		        	
 		        }
 			});
 		}
@@ -278,7 +283,7 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 	
 	@Override
 	@Handler
-	public void onFileSoftDeleted(FileDesyncMessage message) {
+	public void onFileSoftDeleted(LocalFileDesyncMessage message) {
 		logger.trace("onFileSoftDeleted: {}", message.getPath());
 		Path path = message.getPath();
 		ImageView view = new ImageView(standardIcon);

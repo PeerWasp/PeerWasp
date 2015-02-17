@@ -10,6 +10,7 @@ import java.io.IOException;
 
 import net.engio.mbassy.listener.Handler;
 
+import org.peerbox.events.IMessageListener;
 import org.peerbox.notifications.AggregatedFileEventStatus;
 import org.peerbox.notifications.ITrayNotifications;
 import org.peerbox.notifications.InformationNotification;
@@ -20,7 +21,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.inject.Inject;
 
-public class JSystemTray extends AbstractSystemTray implements ITrayNotifications {
+public class JSystemTray extends AbstractSystemTray implements ITrayNotifications, IMessageListener {
 
 	private final static Logger logger = LoggerFactory.getLogger(JSystemTray.class);
 
@@ -91,7 +92,18 @@ public class JSystemTray extends AbstractSystemTray implements ITrayNotification
 			throw new TrayException(e);
 		}
 	}
-
+	
+	@Override
+	public void showSuccessIcon() throws TrayException {
+		try {
+			trayIcon.setImage(iconProvider.getSuccessIcon());
+		} catch (IOException e) {
+			logger.debug("SysTray.show IOException.", e);
+			logger.error("Could not change icon (image not found?)");
+			throw new TrayException(e);
+		}
+	}
+	
 	@Override
 	public void showInformationMessage(String title, String message) {
 		System.out.println(title);
@@ -147,5 +159,17 @@ public class JSystemTray extends AbstractSystemTray implements ITrayNotification
 			sb.append("Files deleted: ").append(e.getNumFilesDeleted());
 		}
 		return sb.toString();
+	}
+	
+	@Handler
+	public void onSynchronizationComplete(SynchronizationCompleteNotification message) throws TrayException {
+		logger.trace("Set success icon.");
+		showSuccessIcon();
+	}
+	
+	@Handler 
+	public void onSynchronizationStart(SynchronizationStartsNotification message) throws TrayException {
+		logger.trace("Set synchronization icon.");
+		showSyncingIcon();
 	}
 }
