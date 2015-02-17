@@ -15,8 +15,6 @@ import org.peerbox.events.MessageBus;
 import org.peerbox.filerecovery.FileRecoveryHandler;
 import org.peerbox.filerecovery.IFileRecoveryHandler;
 import org.peerbox.interfaces.IFxmlLoaderProvider;
-import org.peerbox.share.IShareFolderHandler;
-import org.peerbox.share.ShareFolderHandler;
 import org.peerbox.view.tray.AbstractSystemTray;
 import org.peerbox.view.tray.JSystemTray;
 
@@ -40,6 +38,7 @@ public class AppModule extends AbstractModule {
 
 	@Override
 	protected void configure() {
+
 		bindMessageBus();
 
 		bindSystemTray();
@@ -48,8 +47,7 @@ public class AppModule extends AbstractModule {
 
 		bindManagers();
 
-		// TODO(AA) dependency management / enable context menu again
-//		bindContextMenuHandlers();
+		bindContextMenuHandlers();
 
 		bind(IFxmlLoaderProvider.class).to(GuiceFxmlLoader.class);
 		bind(IExitHandler.class).to(ExitHandler.class);
@@ -92,9 +90,9 @@ public class AppModule extends AbstractModule {
 	}
 
 	private void bindContextMenuHandlers() {
-		bind(IFileRecoveryHandler.class).to(FileRecoveryHandler.class);
-		bind(IShareFolderHandler.class).to(ShareFolderHandler.class);
 		bind(IFileDeleteHandler.class).to(FileDeleteHandler.class);
+		bind(IFileRecoveryHandler.class).to(FileRecoveryHandler.class);
+//		bind(IShareFolderHandler.class).to(ShareFolderHandler.class);
 	}
 
 }

@@ -2,7 +2,7 @@ package org.peerbox.guice;
 
 import org.peerbox.server.IServer;
 import org.peerbox.server.ServerFactory;
-import org.peerbox.server.servlets.DeleteServlet;
+import org.peerbox.server.servlets.FileDeleteServlet;
 import org.peerbox.server.servlets.FileRecoveryServlet;
 import org.peerbox.server.servlets.ShareFolderServlet;
 
@@ -13,13 +13,13 @@ public class ApiServerModule extends ServletModule {
 
 	@Override
 	protected void configureServlets() {
-		bind(DeleteServlet.class);
+		bind(FileDeleteServlet.class);
         bind(FileRecoveryServlet.class);
-        bind(ShareFolderServlet.class);
+//        bind(ShareFolderServlet.class);
 
-        serve(ServerFactory.getContextMenuDeletePath()).with(DeleteServlet.class);
+        serve(ServerFactory.getContextMenuDeletePath()).with(FileDeleteServlet.class);
         serve(ServerFactory.getContextMenuVersionsPath()).with(FileRecoveryServlet.class);
-        serve(ServerFactory.getContextMenuSharePath()).with(ShareFolderServlet.class);
+//        serve(ServerFactory.getContextMenuSharePath()).with(ShareFolderServlet.class);
 	}
 
 	@Provides
