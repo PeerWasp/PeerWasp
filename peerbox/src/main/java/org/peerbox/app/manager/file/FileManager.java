@@ -28,8 +28,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.inject.Inject;
+import com.google.inject.Singleton;
 
-
+@Singleton
 public class FileManager extends AbstractManager implements IFileManager {
 
 	private static final Logger logger = LoggerFactory.getLogger(FileManager.class);
@@ -305,4 +306,5 @@ public class FileManager extends AbstractManager implements IFileManager {
 		}
 
 	}
+
 }

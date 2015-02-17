@@ -19,9 +19,8 @@ import com.google.gson.GsonBuilder;
 class BaseServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	private static final Logger logger = LoggerFactory.getLogger(BaseServlet.class);
-	
+
 	protected Gson createGsonInstance() {
-		// deserialize into message
 		GsonBuilder gsonBuilder = new GsonBuilder();
 		gsonBuilder.registerTypeAdapter(Path.class, new PathDeserializer());
 		return gsonBuilder.create();
@@ -41,7 +40,7 @@ class BaseServlet extends HttpServlet {
 		}
 		return true;
 	}
-	
+
 	protected void sendErrorMessage(HttpServletResponse resp, ServerReturnMessage msg) throws IOException {
 		resp.setContentType(MimeTypes.Type.APPLICATION_JSON.asString());
 		resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
