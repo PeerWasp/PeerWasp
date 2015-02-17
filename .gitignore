@@ -1,6 +1,9 @@
 # OS X
 .DS_Store
 
+# Windows
+Thumbs.db
+
 # Shell extension
 WindowsShellExtensions/ContextMenu.opensdf
 WindowsShellExtensions/ContextMenu.sdf
