@@ -1,6 +1,7 @@
 package org.peerbox.presenter.settings.synchronization;
 
 import java.nio.file.Path;
+
 import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.scene.control.CheckBoxTreeItem;
@@ -40,15 +41,32 @@ public class PathTreeItem extends CheckBoxTreeItem<PathItem> {
     
     public PathTreeItem(Path path, ImageView view, boolean isSynched, boolean isFile){
     	super(new PathItem(path));
+
     	
-        Label label = new Label();
-//        label.setGraphic(view);
-//        final Tooltip tooltip = new Tooltip("Uncheck to remove the file\n from selective synchronization.");
-//        label.setTooltip(tooltip);
-//    	setGraphic(label);
-        setGraphic(view);
+//        setGraphic(view);
     	setSelected(isSynched);
     	setIsFile(isFile);
+    	Label label = new Label(path.getFileName().toString());
+        label.setGraphic(view);
+//        label.setGraphic(view);
+//        Tooltip tooltip = new Tooltip("asdfadsf");
+//        label.setTooltip(tooltip);
+//    	setGraphic(label);
+    	
+
+    	javafx.application.Platform.runLater(new Runnable() {
+	        @Override
+	        public void run() {
+
+        final Tooltip tooltip;
+	         tooltip = new Tooltip("Uncheck to remove the file\n from selective synchronization.");
+	         label.setTooltip(tooltip);
+	        }
+		});
+        setGraphic(label);
+//        label.setTooltip(tooltip);
+
+
     	
 //    	MenuItem deleteItem = new MenuItem("Delete from network");
 //        menu.getItems().add(deleteItem);
@@ -61,6 +79,7 @@ public class PathTreeItem extends CheckBoxTreeItem<PathItem> {
 //            }
 //        });
 //        setContextMenu(menu);
+    	
     }
     
     

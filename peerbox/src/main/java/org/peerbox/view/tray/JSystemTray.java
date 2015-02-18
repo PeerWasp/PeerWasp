@@ -127,7 +127,7 @@ public class JSystemTray extends AbstractSystemTray implements ITrayNotification
 	@Override
 	@Handler
 	public void showInformation(InformationNotification in) {
-		logger.debug("information message: [{}] - [{}]", in.getTitle(), in.getMessage());
+		logger.debug("Information: [{}] - [{}]", in.getTitle(), in.getMessage());
 		if(trayIcon != null) {
 			trayIcon.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {

@@ -21,6 +21,7 @@ import org.peerbox.app.manager.ProcessHandle;
 import org.peerbox.app.manager.file.LocalFileDesyncMessage;
 import org.peerbox.app.manager.file.FileExecutionFailedMessage;
 import org.peerbox.app.manager.file.IFileManager;
+import org.peerbox.notifications.InformationNotification;
 import org.peerbox.presenter.settings.synchronization.messages.FileExecutionStartedMessage;
 import org.peerbox.presenter.settings.synchronization.messages.FileExecutionSucceededMessage;
 import org.peerbox.view.tray.SynchronizationCompleteNotification;
@@ -330,6 +331,9 @@ public class ActionExecutor implements Runnable {
 			fileEventManager.getFileComponentQueue().add(action.getFile());
 		} else {
 			fileEventManager.getMessageBus().publish(new FileExecutionFailedMessage(path));
+			
+			fileEventManager.getMessageBus().post(new InformationNotification("Synchronization error ", 
+					"Operation on " + path + " failed")).now();
 			logger.error("To many attempts, action of {} has not been executed again.", path);
 			onActionExecuteSucceeded(action);
 			fileEventManager.getFailedOperations().add(action.getFile().getPath());

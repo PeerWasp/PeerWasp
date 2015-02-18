@@ -12,10 +12,11 @@ public class PathItem {
     }
     @Override
     public String toString() {
-        if (path.getFileName() == null) {
-            return path.toString();
-        } else {
-            return path.getFileName().toString(); // showing file name on the TreeView
-        }
+    	return "";
+//        if (path.getFileName() == null) {
+//            return path.toString();
+//        } else {
+//            return path.getFileName().toString(); // showing file name on the TreeView
+//        }
     }        
 }

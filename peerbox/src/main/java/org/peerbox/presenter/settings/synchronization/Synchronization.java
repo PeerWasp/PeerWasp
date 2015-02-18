@@ -18,6 +18,7 @@ import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
+import javafx.scene.control.Tooltip;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import javafx.scene.control.CheckBoxTreeItem.TreeModificationEvent;
@@ -140,6 +141,7 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 	        for(FileNode topLevelNode : fileNode.getChildren()){
 				ImageView view = null;
 	        	Path path = topLevelNode.getFile().toPath();
+	        	String tooltip = "Example tooltip";
 	        	boolean isSynched = synchronizedFiles.contains(path);
 	        	
 	        	if(failedFiles.contains(path)){
@@ -150,7 +152,7 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 	        		view = new ImageView(successIcon);
 	        	}
 	        	
-	        	putTreeItem(topLevelNode.getFile().toPath(), isSynched, view);
+	        	putTreeItem(topLevelNode.getFile().toPath(), isSynched, view, tooltip);
 				createTreeFromFileNode(topLevelNode);
 			}
 		}
@@ -215,11 +217,12 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 		if(item != null){
 			logger.trace("item != null for {}, change icon!", message.getPath());
 		} else {
-			item = putTreeItem(message.getPath(), false, view);
+		    item = putTreeItem(message.getPath(), false, view, "");
 			logger.trace("item == null for {}", message.getPath());
 		}
 		forceUpdateTreeItem(item);
-		item.setGraphic(view);
+//		setIconAndTooltip(item, view, "This file is synchronized. Right-click to delete it.");
+//		item.setGraphic(view);
 	}
 
 	@Override
@@ -244,12 +247,12 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 			if(item != null){
 				logger.trace("item != null for {}, change icon!", message.getPath());
 			} else {
-				item = putTreeItem(message.getPath(), true, view);
+				item = putTreeItem(message.getPath(), true, view, "");
 				logger.trace("item == null for {}", message.getPath());
 			}
+
+			setIconAndTooltip(item, view, "This file is synchronized. Right-click to delete it.");
 			
-			item.setGraphic(view);
-			forceUpdateTreeItem(item);
 			final CheckBoxTreeItem<PathItem> item2 = item;
 			javafx.application.Platform.runLater(new Runnable() {
 		        @Override
@@ -262,7 +265,22 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 		        	
 		        }
 			});
+			
+			forceUpdateTreeItem(item);
 		}
+	}
+	
+	private void setIconAndTooltip(TreeItem<PathItem> item, ImageView icon, String tooltip){
+		javafx.application.Platform.runLater(new Runnable() {
+	        @Override
+	        public void run() {
+	        	Label label = new Label(item.getValue().getPath().getFileName().toString());
+	        	label.setGraphic(icon);
+	        	label.setTooltip(new Tooltip("This file is synchronized. Right-click to delete it."));
+	        	item.setGraphic(label);  
+
+	        }
+		});
 	}
 
 	@Override
@@ -274,7 +292,7 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 		if(item != null){
 			logger.trace("item != null for {}, change icon!", message.getPath());
 		} else {
-			item = putTreeItem(message.getPath(), false, view);
+			item = putTreeItem(message.getPath(), false, view, "");
 			logger.trace("item == null for {}", message.getPath());
 		}
 		forceUpdateTreeItem(item);
@@ -292,7 +310,7 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 		if(item != null){
 			logger.trace("item != null for {}, change icon!", message.getPath());
 		} else {
-			item = putTreeItem(message.getPath(), false, view);
+			item = putTreeItem(message.getPath(), false, view, "");
 			logger.trace("item == null for {}", message.getPath());
 		}
 		
@@ -319,11 +337,11 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 		return findTreeItem(root, path, false);
 	}
 
-	private PathTreeItem putTreeItem(Path path, boolean isSynched, ImageView view){
+	private PathTreeItem putTreeItem(Path path, boolean isSynched, ImageView view, String tooltip){
 		PathTreeItem root = (PathTreeItem)fileTreeView.getRoot();
 		Path prefix = root.getValue().getPath();
 		Path pathLeft = prefix.relativize(path);
-		return putTreeItem(root, pathLeft, isSynched, view);
+		return putTreeItem(root, pathLeft, isSynched, view, tooltip);
 	}
 	private PathTreeItem removeTreeItem(Path path){
 		PathTreeItem root = (PathTreeItem)fileTreeView.getRoot();
@@ -361,7 +379,7 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 		return null;
 	}
 	
-	private PathTreeItem putTreeItem(PathTreeItem parent, Path pathLeft, boolean isSynched, ImageView view){
+	private PathTreeItem putTreeItem(PathTreeItem parent, Path pathLeft, boolean isSynched, ImageView view, String tooltip){
 		Path parentPath = parent.getValue().getPath();
 		Path wholePath = parentPath.resolve(pathLeft);
 
@@ -383,13 +401,13 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 			while(iter.hasNext()){
 				PathTreeItem child = (PathTreeItem)iter.next();
 				if(child.getValue().getPath().equals(pathToSearch)){
-					return putTreeItem(child, child.getValue().getPath().relativize(wholePath), isSynched, view);
+					return putTreeItem(child, child.getValue().getPath().relativize(wholePath), isSynched, view, tooltip);
 				}
 			}
 			PathTreeItem created = new PathTreeItem(pathToSearch, view, isSynched);
 			created.addEventHandler(CheckBoxTreeItem.checkBoxSelectionChangedEvent(), new ClickEventHandler());
 			parent.getChildren().add(created);
-			return putTreeItem(created, created.getValue().getPath().relativize(wholePath), isSynched, view);
+			return putTreeItem(created, created.getValue().getPath().relativize(wholePath), isSynched, view, tooltip);
 		}
 	}
 

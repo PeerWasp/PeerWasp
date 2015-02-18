@@ -29,12 +29,12 @@ public class CustomizedTreeCell extends CheckBoxTreeCell<PathItem> {
 			}
 		});
 		
-		final Tooltip tooltip = new Tooltip();
-        tooltip.setText(
-            "\nThis is an example tooltip\n");
+//		final Tooltip tooltip = new Tooltip();
+//        tooltip.setText(
+//            "\nThis is an example tooltip\n");
 	  
         setContextMenu(menu);
-        setTooltip(tooltip);
+//        setTooltip(tooltip);
 	}
 
 }
