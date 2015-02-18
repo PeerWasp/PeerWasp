@@ -1,9 +1,12 @@
 package org.peerbox.events;
 
+import com.google.inject.Singleton;
+
 import net.engio.mbassy.bus.MBassador;
 import net.engio.mbassy.bus.config.BusConfiguration;
 import net.engio.mbassy.bus.config.Feature;
 
+@Singleton
 public class MessageBus extends MBassador<IMessage> {
 
 	public MessageBus() {

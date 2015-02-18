@@ -5,6 +5,7 @@ import org.peerbox.app.config.UserConfig;
 import org.peerbox.app.manager.file.IFileManager;
 import org.peerbox.app.manager.node.INodeManager;
 import org.peerbox.app.manager.user.IUserManager;
+import org.peerbox.notifications.FileEventAggregator;
 import org.peerbox.watchservice.ActionExecutor;
 import org.peerbox.watchservice.FileEventManager;
 import org.peerbox.watchservice.FolderWatchService;
@@ -29,6 +30,7 @@ public class ClientContext {
 	private FileEventManager fileEventManager;
 	private FolderWatchService folderWatchService;
 	private H2HUserProfilePersister remoteProfilePersister;
+	private FileEventAggregator fileEventAggregator;
 
 	public ClientContext() {
 
@@ -114,4 +116,14 @@ public class ClientContext {
 	public void setRemoteProfilePersister(H2HUserProfilePersister persister) {
 		this.remoteProfilePersister = persister;
 	}
+
+	public FileEventAggregator getFileEventAggregator() {
+		return fileEventAggregator;
+	}
+
+	@Inject
+	public void setFileEventAggregator(FileEventAggregator fileEventAggregator) {
+		this.fileEventAggregator = fileEventAggregator;
+	}
+
 }
