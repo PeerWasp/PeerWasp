@@ -2,6 +2,7 @@ package org.peerbox.view.tray;
 
 import java.awt.AWTException;
 import java.awt.Image;
+import java.awt.PopupMenu;
 import java.awt.TrayIcon;
 import java.awt.TrayIcon.MessageType;
 import java.awt.event.ActionEvent;
@@ -11,6 +12,10 @@ import java.io.IOException;
 import net.engio.mbassy.listener.Handler;
 
 import org.peerbox.app.Constants;
+import org.peerbox.app.manager.user.IUserMessageListener;
+import org.peerbox.app.manager.user.LoginMessage;
+import org.peerbox.app.manager.user.LogoutMessage;
+import org.peerbox.app.manager.user.RegisterMessage;
 import org.peerbox.events.IMessageListener;
 import org.peerbox.notifications.AggregatedFileEventStatus;
 import org.peerbox.notifications.ITrayNotifications;
@@ -22,20 +27,18 @@ import org.slf4j.LoggerFactory;
 
 import com.google.inject.Inject;
 
-public class JSystemTray extends AbstractSystemTray implements ITrayNotifications, IMessageListener {
+public class JSystemTray extends AbstractSystemTray implements ITrayNotifications, IMessageListener, IUserMessageListener {
 
 	private final static Logger logger = LoggerFactory.getLogger(JSystemTray.class);
 
 	private String tooltip;
 	private java.awt.TrayIcon trayIcon;
-	private JTrayIcons iconProvider;
-	private JTrayMenu menu;
+	private final JTrayIcons iconProvider;
 
 	@Inject
 	public JSystemTray(TrayActionHandler actionHandler) {
 		super(actionHandler);
 		this.iconProvider = new JTrayIcons();
-		this.menu = new JTrayMenu(trayActionHandler);
 		setTooltip(Constants.APP_NAME);
 	}
 
@@ -43,8 +46,14 @@ public class JSystemTray extends AbstractSystemTray implements ITrayNotification
 		TrayIcon trayIcon = new java.awt.TrayIcon(image);
 		trayIcon.setImageAutoSize(true);
 		trayIcon.setToolTip(tooltip);
-		trayIcon.setPopupMenu(menu.create());
+		trayIcon.setPopupMenu(createMenu(false));
 		return trayIcon;
+	}
+
+	private PopupMenu createMenu(boolean isUserLoggedIn) {
+		JTrayMenu menu = new JTrayMenu(trayActionHandler);
+		PopupMenu root = menu.create(isUserLoggedIn);
+		return root;
 	}
 
 	@Override
@@ -124,7 +133,7 @@ public class JSystemTray extends AbstractSystemTray implements ITrayNotification
 		if(trayIcon != null) {
 			trayIcon.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
-                	menu.getTrayActionHandler().showActivity();
+                	trayActionHandler.showActivity();
                     System.out.println("Message Clicked");
                     trayIcon.removeActionListener(this);
                 }
@@ -140,7 +149,7 @@ public class JSystemTray extends AbstractSystemTray implements ITrayNotification
 		logger.debug("Message received: \n[{}]", msg);
 		trayIcon.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-            	menu.getTrayActionHandler().showSettings();
+            	trayActionHandler.showSettings();
                 System.out.println("Message Clicked");
                 trayIcon.removeActionListener(this);
             }
@@ -177,5 +186,31 @@ public class JSystemTray extends AbstractSystemTray implements ITrayNotification
 	public void onSynchronizationStart(SynchronizationStartsNotification message) throws TrayException {
 		logger.trace("Set synchronization icon.");
 		showSyncingIcon();
+	}
+
+	/***
+	 * User event handling
+	 ***/
+
+	@Handler
+	@Override
+	public void onUserRegister(RegisterMessage register) {
+		// nothing to do
+	}
+
+	@Handler
+	@Override
+	public void onUserLogin(LoginMessage login) {
+		// refresh menu
+		trayIcon.setPopupMenu(null);
+		trayIcon.setPopupMenu(createMenu(true));
+	}
+
+	@Handler
+	@Override
+	public void onUserLogout(LogoutMessage logout) {
+		// refresh menu
+		trayIcon.setPopupMenu(null);
+		trayIcon.setPopupMenu(createMenu(false));
 	}
 }

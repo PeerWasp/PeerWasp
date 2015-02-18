@@ -3,15 +3,10 @@ package org.peerbox.view.tray;
 import java.awt.MenuItem;
 import java.awt.PopupMenu;
 import java.awt.event.ActionListener;
-import java.io.IOException;
 
 import org.peerbox.presenter.tray.TrayActionHandler;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-public class JTrayMenu {
-
-	private static final Logger logger = LoggerFactory.getLogger(JTrayMenu.class);
+final class JTrayMenu {
 
 	private PopupMenu root;
 	private TrayActionHandler actionHandler;
@@ -20,23 +15,22 @@ public class JTrayMenu {
 		this.actionHandler = actionHandler;
 	}
 
-	public PopupMenu create() {
+	public PopupMenu create(boolean isUserLoggedIn) {
 		root = new PopupMenu();
 
-		root.add(createRootFolderMenu());
-		// root.add(createRecentFilesMenu()); // TODO implement it...
-		root.addSeparator();
-		root.add(createSettingsMenu());
-		root.addSeparator();
+		if (isUserLoggedIn) {
+			root.add(createRootFolderMenu());
+			// root.add(createRecentFilesMenu()); // TODO implement it...
+			root.addSeparator();
+			root.add(createSettingsMenu());
+			root.addSeparator();
+		}
 		root.add(createActivityMenu());
 		root.add(createQuitMenu());
 
 		return root;
 	}
 
-	public TrayActionHandler getTrayActionHandler(){
-		return actionHandler;
-	}
 	private MenuItem createRootFolderMenu() {
 		MenuItem rootItem = new MenuItem("Open Folder");
 		rootItem.addActionListener(createRootFolderListener());
@@ -47,12 +41,7 @@ public class JTrayMenu {
 		ActionListener closeListener = new ActionListener() {
 			@Override
 			public void actionPerformed(java.awt.event.ActionEvent event) {
-				try {
-					actionHandler.openRootFolder();
-				} catch (IOException ex) {
-					logger.debug("Could not open folder.", ex);
-					logger.error("Could not open root folder.");
-				}
+				actionHandler.openRootFolder();
 			}
 		};
 		return closeListener;
