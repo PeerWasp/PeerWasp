@@ -2,10 +2,12 @@ package org.peerbox.watchservice;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Set;
 
 import net.engio.mbassy.listener.Handler;
 
 import org.apache.commons.io.FileUtils;
+import org.eclipse.jetty.util.ConcurrentHashSet;
 import org.hive2hive.core.events.framework.interfaces.IFileEventListener;
 import org.hive2hive.core.events.framework.interfaces.file.IFileAddEvent;
 import org.hive2hive.core.events.framework.interfaces.file.IFileDeleteEvent;
@@ -39,12 +41,14 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 	private final ActionQueue fileComponentQueue;
 	private final FileTree fileTree;
 	private final MessageBus messageBus;
+	private final Set<Path> failedOperations;
 
     @Inject
 	public FileEventManager(final FileTree fileTree, MessageBus messageBus) {
     	this.fileComponentQueue = new ActionQueue();
 		this.fileTree = fileTree;
 		this.messageBus = messageBus;
+		this.failedOperations = new ConcurrentHashSet<Path>();
 	}
     
     public MessageBus getMessageBus(){
@@ -269,5 +273,10 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 	public synchronized IFileTree getFileTree() {
 		return fileTree;
 	}
+	
+	@Override
+    public Set<Path> getFailedOperations(){
+    	return failedOperations;
+    }
 
 }

@@ -18,6 +18,7 @@ public class RemoteCreateState extends AbstractActionState {
 
 	private static final Logger logger = LoggerFactory.getLogger(RemoteCreateState.class);
 
+	private boolean localCreateHappened = false;
 	public RemoteCreateState(IAction action) {
 		super(action, StateType.REMOTE_CREATE);
 	}
@@ -92,6 +93,14 @@ public class RemoteCreateState extends AbstractActionState {
 			System.err.println("process or handle is null");
 		}
 		return new ExecutionHandle(action, handle);
+	}
+	
+	public boolean localCreateHappened(){
+		return localCreateHappened;
+	}
+
+	public void setLocalCreateHappened(boolean b) {
+		localCreateHappened = b;
 	}
 
 }

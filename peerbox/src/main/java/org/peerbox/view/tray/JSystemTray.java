@@ -10,6 +10,7 @@ import java.io.IOException;
 
 import net.engio.mbassy.listener.Handler;
 
+import org.peerbox.app.manager.file.FileExecutionFailedMessage;
 import org.peerbox.events.IMessageListener;
 import org.peerbox.notifications.AggregatedFileEventStatus;
 import org.peerbox.notifications.ITrayNotifications;
@@ -29,6 +30,8 @@ public class JSystemTray extends AbstractSystemTray implements ITrayNotification
 	private java.awt.TrayIcon trayIcon;
 	private JTrayIcons iconProvider;
 	private JTrayMenu menu;
+	
+	private boolean hasFailedOperations = false;
 
 	@Inject
 	public JSystemTray(TrayActionHandler actionHandler) {
@@ -96,7 +99,12 @@ public class JSystemTray extends AbstractSystemTray implements ITrayNotification
 	@Override
 	public void showSuccessIcon() throws TrayException {
 		try {
-			trayIcon.setImage(iconProvider.getSuccessIcon());
+			if(hasFailedOperations){
+				trayIcon.setImage(iconProvider.getErrorIcon());
+			} else {
+				trayIcon.setImage(iconProvider.getSuccessIcon());
+			}
+
 		} catch (IOException e) {
 			logger.debug("SysTray.show IOException.", e);
 			logger.error("Could not change icon (image not found?)");
@@ -177,4 +185,19 @@ public class JSystemTray extends AbstractSystemTray implements ITrayNotification
 		logger.trace("Set synchronization icon.");
 		showSyncingIcon();
 	}
+	
+	@Handler
+	public void onSynchronizationFailed(FileExecutionFailedMessage message) throws TrayException {
+		logger.trace("At least one operation failed. If the application is idle, "
+				+ "the error icon is shown.");
+		hasFailedOperations = true;
+	}
+	
+	@Handler
+	public void onSynchronizationErrorResolved(SynchronizationErrorsResolvedNotification message){
+		logger.trace("All failed operations successfully resolved. If the application is idle, "
+				+ "the success icon is shown.");
+		hasFailedOperations = false;
+	}
+	
 }

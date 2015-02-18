@@ -19,6 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Multimaps;
 import com.google.common.collect.SetMultimap;
 import com.google.inject.Inject;
 
@@ -27,10 +28,10 @@ public class FileTree implements IFileTree{
 	private static final Logger logger = LoggerFactory.getLogger(FileTree.class);
 
 	private FolderComposite rootOfFileTree;
-	private SetMultimap<String, FolderComposite> deletedByStructureHash = HashMultimap.create();
-	private SetMultimap<String, FolderComposite> createdByStructureHash = HashMultimap.create();
-	private SetMultimap<String, FileComponent> deletedByContentHash = HashMultimap.create();
-	private SetMultimap<String, FileComponent> createdByContentHash = HashMultimap.create();
+	private SetMultimap<String, FolderComposite> deletedByStructureHash = Multimaps.synchronizedSetMultimap(HashMultimap.create());
+	private SetMultimap<String, FolderComposite> createdByStructureHash = Multimaps.synchronizedSetMultimap(HashMultimap.create());
+	private SetMultimap<String, FileComponent> deletedByContentHash = Multimaps.synchronizedSetMultimap(HashMultimap.create());
+	private SetMultimap<String, FileComponent> createdByContentHash = Multimaps.synchronizedSetMultimap(HashMultimap.create());
     private boolean maintainContentHashes;
 
 //    private final FileDao dao;

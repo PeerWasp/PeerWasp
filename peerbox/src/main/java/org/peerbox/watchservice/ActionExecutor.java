@@ -24,6 +24,7 @@ import org.peerbox.app.manager.file.IFileManager;
 import org.peerbox.presenter.settings.synchronization.messages.FileExecutionStartedMessage;
 import org.peerbox.presenter.settings.synchronization.messages.FileExecutionSucceededMessage;
 import org.peerbox.view.tray.SynchronizationCompleteNotification;
+import org.peerbox.view.tray.SynchronizationErrorsResolvedNotification;
 import org.peerbox.view.tray.SynchronizationStartsNotification;
 import org.peerbox.watchservice.filetree.composite.FileComponent;
 import org.peerbox.watchservice.filetree.composite.FolderComposite;
@@ -116,7 +117,7 @@ public class ActionExecutor implements Runnable {
 
 					removeFromDeleted(next);
 					removeFromCreated(next);
-
+					removeFromFailed(next.getPath());
 					logger.debug("Start execution: {}", next.getPath());
 
 					ExecutionHandle ehandle = next.getAction().execute(fileManager);
@@ -233,30 +234,42 @@ public class ActionExecutor implements Runnable {
 		removeComponentFromSetMultimap(next, createdByContent, createdByStructure);
 	}
 	
+	private void removeFromFailed(Path failedOperation){
+		fileEventManager.getFailedOperations().remove(failedOperation);
+		
+		if(fileEventManager.getFailedOperations().size() == 0){
+			fileEventManager.getMessageBus().publish(new SynchronizationErrorsResolvedNotification());
+		}
+	}
+	
 	private void removeComponentFromSetMultimap(FileComponent toRemove, 
 			SetMultimap<String, FileComponent> byContent,
 			SetMultimap<String, FolderComposite> byStructure){
 		Iterator<Map.Entry<String, FileComponent>> componentIterator = byContent.entries().iterator(); //.sameHashes.iterator();
 		
 		if(toRemove.isFile()){
-			while(componentIterator.hasNext()){
-				FileComponent candidate = componentIterator.next().getValue();
-				if(candidate.getPath().toString().equals(toRemove.getPath().toString())){
-					componentIterator.remove();
-					break;
-				}
-				if(System.currentTimeMillis() - candidate.getAction().getTimestamp() > ACTION_WAIT_TIME_MS){
-					logger.trace("Remove old entry: {}", candidate.getPath());
-					componentIterator.remove();
+			synchronized(byContent){
+				while(componentIterator.hasNext()){
+					FileComponent candidate = componentIterator.next().getValue();
+					if(candidate.getPath().toString().equals(toRemove.getPath().toString())){
+						componentIterator.remove();
+						break;
+					}
+					if(System.currentTimeMillis() - candidate.getAction().getTimestamp() > ACTION_WAIT_TIME_MS){
+						logger.trace("Remove old entry: {}", candidate.getPath());
+						componentIterator.remove();
+					}
 				}
 			}
 		} else {
 			Iterator<Map.Entry<String, FolderComposite>> folderIterator = byStructure.entries().iterator();
-			while(folderIterator.hasNext()){
-				Map.Entry<String, FolderComposite> candidate = folderIterator.next();
-				if(candidate.getValue().getPath().toString().equals(toRemove.getPath().toString())){
-					folderIterator.remove();
-					break;
+			synchronized(byStructure){
+				while(folderIterator.hasNext()){
+					Map.Entry<String, FolderComposite> candidate = folderIterator.next();
+					if(candidate.getValue().getPath().toString().equals(toRemove.getPath().toString())){
+						folderIterator.remove();
+						break;
+					}
 				}
 			}
 		}
@@ -319,6 +332,7 @@ public class ActionExecutor implements Runnable {
 			fileEventManager.getMessageBus().publish(new FileExecutionFailedMessage(path));
 			logger.error("To many attempts, action of {} has not been executed again.", path);
 			onActionExecuteSucceeded(action);
+			fileEventManager.getFailedOperations().add(action.getFile().getPath());
 		}
 	}
 
@@ -355,7 +369,7 @@ public class ActionExecutor implements Runnable {
 //		else if (error == AbortModificationCode.FILE_DOES_NOT_EXIST){
 //			
 //		}
-
+		
 		return false; // error not handled
 	}
 

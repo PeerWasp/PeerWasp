@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 
 public class RemoteUpdateState extends AbstractActionState {
 
+	private boolean localUpdateHappened = false;
 	private final static Logger logger = LoggerFactory.getLogger(RemoteUpdateState.class);
 
 	public RemoteUpdateState(IAction action) {
@@ -105,5 +106,13 @@ public class RemoteUpdateState extends AbstractActionState {
 		}
 
 		return new ExecutionHandle(action, handle);
+	}
+	
+	public void setLocalUpdateHappened(boolean b){
+		localUpdateHappened = b;
+	}
+	
+	public boolean getLocalUpdateHappened(){
+		return localUpdateHappened;
 	}
 }

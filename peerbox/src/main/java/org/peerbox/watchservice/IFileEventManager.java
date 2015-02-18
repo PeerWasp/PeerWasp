@@ -1,6 +1,7 @@
 package org.peerbox.watchservice;
 
 import java.nio.file.Path;
+import java.util.Set;
 
 import org.hive2hive.core.events.framework.interfaces.file.IFileAddEvent;
 import org.peerbox.events.MessageBus;
@@ -17,5 +18,6 @@ public interface IFileEventManager {
 	public void onLocalFileHardDelete(Path toDelete);
 	
 	public MessageBus getMessageBus();
+	public Set<Path> getFailedOperations();
 
 }

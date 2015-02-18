@@ -16,6 +16,7 @@ class JTrayIcons {
 	private Image defaultIcon;
 	private Image syncingIcon;
 	private Image successIcon;
+	private Image errorIcon;
 
 	public Image getDefaultIcon() throws IOException {
 		if (defaultIcon == null) {
@@ -36,5 +37,12 @@ class JTrayIcons {
 			successIcon = ImageIO.read(getClass().getResource(SUCCESS_ICON));
 		}
 		return successIcon;
+	}
+	
+	public Image getErrorIcon() throws IOException{
+		if(errorIcon == null){
+			errorIcon = ImageIO.read(getClass().getResource(ERROR_ICON));
+		}
+		return errorIcon;
 	}
 }

@@ -133,9 +133,9 @@ public class AddDelete extends FileIntegrationTest {
 	 * and memory consumption.
 	 * @throws IOException
 	 */
-	@Test @Ignore
+	@Test
 	public void manyFilesStressTest() throws IOException {
-		manyFilesTest(1000, WAIT_TIME_STRESSTEST);
+		manyFilesTest(400, WAIT_TIME_STRESSTEST);
 
 	}
 
@@ -269,7 +269,7 @@ public class AddDelete extends FileIntegrationTest {
 		waitForNotExists(files, WAIT_TIME_SHORT);
 	}
 
-	private void deleteManyFilesInManyFolders(List<Path> files) throws IOException {
+	public static void deleteManyFilesInManyFolders(List<Path> files) throws IOException {
 		List<Path> folders = new ArrayList<Path>();
 		// delete files
 		for(Path p : files) {

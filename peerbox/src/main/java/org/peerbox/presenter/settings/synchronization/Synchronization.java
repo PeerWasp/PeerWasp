@@ -201,6 +201,7 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 	@FXML
 	public void refreshAction(ActionEvent event){
 		synchronizedFiles = eventManager.getFileTree().getSynchronizedPathsAsSet();
+		failedFiles = eventManager.getFailedOperations();
 		createTreeWithFilesFromNetwork();
 	}
 
