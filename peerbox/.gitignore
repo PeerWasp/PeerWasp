@@ -1,5 +1,4 @@
-/target/*
-!/target/classes/images
+/target
 /bin
 /log
 .classpath
@@ -7,4 +6,3 @@
 .settings/
 /Test.txt
 /peerbox.properties
-/target/
