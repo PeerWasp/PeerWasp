@@ -79,6 +79,11 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 	private final Image errorIcon = new Image(getClass().getResourceAsStream("/images/file-error.png"));
 	private final Image standardIcon = new Image(getClass().getResourceAsStream("/images/file-standard.png"));
 	
+	private final Image inProgressFolderIcon = new Image(getClass().getResourceAsStream("/images/folder-synch.png"));
+	private final Image successFolderIcon = new Image(getClass().getResourceAsStream("/images/folder-success.png"));
+	private final Image errorFolderIcon = new Image(getClass().getResourceAsStream("/images/folder-error.png"));
+	private final Image standardFolderIcon = new Image(getClass().getResourceAsStream("/images/folder-standard.png"));
+	
 	private final String successTooltip = "This file is synchronized.";
 	private final String errorTooltip = "Synchronization of this file failed.";
 	private final String inProgressTooltip = "Synchronization of this file is currently ongoing.";
@@ -153,13 +158,25 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 	        	boolean isSynched = synchronizedFiles.contains(path);
 	        	
 	        	if(failedFiles.contains(path)){
-	        		view = new ImageView(errorIcon);
+	        		if(topLevelNode.isFile()){
+	        			view = new ImageView(errorIcon);
+	        		} else {
+	        			view = new ImageView(errorFolderIcon);
+	        		}
 	        		tooltip = errorTooltip;
 	        	} else if(executingFiles.contains(path)){
-	        		view = new ImageView(inProgressIcon);
+	        		if(topLevelNode.isFile()){
+	        			view = new ImageView(inProgressIcon);
+	        		} else {
+	        			view = new ImageView(inProgressIcon);
+	        		}
 	        		tooltip = inProgressTooltip;
 	        	} else {
-	        		view = new ImageView(successIcon);
+	        		if(topLevelNode.isFile()){
+	        			view = new ImageView(successIcon);
+	        		} else {
+	        			view = new ImageView(successFolderIcon);
+	        		}
 	        		tooltip = successTooltip;
 	        	}
 	        	
@@ -230,12 +247,19 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 		logger.trace("onExecutionStarts: {}", message.getFile().getPath());
 		ImageView view = new ImageView(inProgressIcon);
 		TreeItem<PathItem> item = getTreeItem(message.getFile().getPath());
+		
+		if(message.getFile().isFile()){
+			view = new ImageView(inProgressIcon);
+		} else {
+			view = new ImageView(inProgressFolderIcon);
+		}
 		if(item != null){
 			logger.trace("item != null for {}, change icon!", message.getFile().getPath());
 		} else {
 		    item = putTreeItem(message.getFile().getPath(), false, message.getFile().isFile());
 			logger.trace("item == null for {}", message.getFile().getPath());
 		}
+		
 //		setIconAndTooltip(item, view, "This file is synchronized. Right-click to delete it.");
 		
 		updateIconInUIThread(item, view);
@@ -260,7 +284,7 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 			});
 			break;
 		default:
-			ImageView view = new ImageView(successIcon);
+	
 			logger.trace("onExecutionSucceeds: {}", message.getFile().getPath());
 			CheckBoxTreeItem<PathItem> item = getTreeItem(message.getFile().getPath());
 			
@@ -271,6 +295,13 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 				logger.trace("item == null for {}", message.getFile().getPath());
 			}
 //			setIconAndTooltip(item, view, "This file is synchronized. Right-click to delete it.");
+			
+			ImageView view;
+			if(message.getFile().isFile()){
+				view = new ImageView(successIcon);
+			} else {
+				view = new ImageView(successFolderIcon);
+			}
 			
 			updateIconInUIThread(item, view);
 			updateTooltipInUIThread(item, successTooltip);
@@ -351,7 +382,6 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 	@Override
 	@Handler
 	public void onExecutionFails(FileExecutionFailedMessage message) {
-		ImageView view = new ImageView(errorIcon);
 		logger.trace("onExecutionFails: {}", message.getFile().getPath());
 		CheckBoxTreeItem<PathItem> item = getTreeItem(message.getFile().getPath());
 		if(item != null){
@@ -359,6 +389,14 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 		} else {
 			item = putTreeItem(message.getFile().getPath(), false, message.getFile().isFile());
 			logger.trace("item == null for {}", message.getFile().getPath());
+		}
+		
+		
+		ImageView view;
+		if(message.getFile().isFile()){
+			view = new ImageView(errorIcon);
+		} else {
+			view = new ImageView(errorFolderIcon);
 		}
 		
 		updateIconInUIThread(item, view);
@@ -373,7 +411,7 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 	public void onFileSoftDeleted(LocalFileDesyncMessage message) {
 		logger.trace("onFileSoftDeleted: {}", message.getFile().getPath());
 		Path path = message.getFile().getPath();
-		ImageView view = new ImageView(standardIcon);
+		
 		CheckBoxTreeItem<PathItem> item = getTreeItem(message.getFile().getPath());
 		if(item != null){
 			logger.trace("item != null for {}, change icon!", message.getFile().getPath());
@@ -382,6 +420,13 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 			logger.trace("item == null for {}", message.getFile().getPath());
 		}
 
+		ImageView view;
+		if(message.getFile().isFile()){
+			view = new ImageView(standardIcon);
+		} else {
+			view = new ImageView(standardFolderIcon);
+		}
+		
 		updateIconInUIThread(item, view);
 		updateTooltipInUIThread(item, softDeletedTooltip);
 //		forceUpdateTreeItem(item);
@@ -502,7 +547,14 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 				getToSynchronize().remove(file);
 				getToDesynchronize().add(file);
 
-				updateIconInUIThread(source, new ImageView(standardIcon));
+				ImageView view;
+				if(file.isFile()){
+					view = new ImageView(standardIcon);
+				} else {
+					view = new ImageView(standardFolderIcon);
+				}
+				
+				updateIconInUIThread(source, view);
 				updateTooltipInUIThread(source, softDeletedTooltip);
 			}
 			arg0.consume();
