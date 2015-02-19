@@ -195,8 +195,8 @@ public class FileTree implements IFileTree{
 	}
 
 	@Override
-	public FileComponent findCreatedByContent(FileComponent deletedComponent) {
-		return findComponentInSetMultimap(deletedComponent, getCreatedByContentHash(), true);
+	public FileLeaf findCreatedByContent(FileLeaf deletedComponent) {
+		return (FileLeaf)findComponentInSetMultimap(deletedComponent, getCreatedByContentHash(), true);
 	}
 
 	/**
@@ -207,8 +207,8 @@ public class FileTree implements IFileTree{
 	 * @return
 	 */
 	@Override
-	public FileComponent findDeletedByContent(FileComponent createdComponent){
-		return findComponentInSetMultimap(createdComponent, getDeletedByContentHash(), true);
+	public FileLeaf findDeletedByContent(FileLeaf createdComponent){
+		return (FileLeaf)findComponentInSetMultimap(createdComponent, getDeletedByContentHash(), true);
 	}
 
 	@Override

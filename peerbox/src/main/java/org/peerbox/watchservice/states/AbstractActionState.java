@@ -14,6 +14,7 @@ import org.peerbox.exceptions.NotImplException;
 import org.peerbox.watchservice.IAction;
 import org.peerbox.watchservice.IFileEventManager;
 import org.peerbox.watchservice.filetree.composite.FileComponent;
+import org.peerbox.watchservice.filetree.composite.FileLeaf;
 import org.peerbox.watchservice.filetree.composite.FolderComposite;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -135,7 +136,7 @@ public abstract class AbstractActionState {
 				return handleLocalMove(moveTarget.getPath());
 			}
 		} else {
-			FileComponent moveTarget = action.getFileEventManager().getFileTree().findCreatedByContent(action.getFile());
+			FileLeaf moveTarget = action.getFileEventManager().getFileTree().findCreatedByContent((FileLeaf)action.getFile());
 			if(moveTarget != null){
 				logger.trace("We observed a swapped move (deletion of source file "
 						+ "was reported after creation of target file: {} -> {}", action.getFile().getPath(), moveTarget.getPath());

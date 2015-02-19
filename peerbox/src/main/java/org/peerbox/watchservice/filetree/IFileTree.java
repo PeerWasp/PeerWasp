@@ -6,6 +6,7 @@ import java.util.Set;
 
 import org.peerbox.watchservice.IFileEventManager;
 import org.peerbox.watchservice.filetree.composite.FileComponent;
+import org.peerbox.watchservice.filetree.composite.FileLeaf;
 import org.peerbox.watchservice.filetree.composite.FolderComposite;
 
 import com.google.common.collect.SetMultimap;
@@ -24,8 +25,8 @@ public interface IFileTree {
 	public SetMultimap<String, FolderComposite> getDeletedByStructureHash();
 	public SetMultimap<String, FolderComposite> getCreatedByStructureHash();
 	
-	public FileComponent findDeletedByContent(FileComponent createdComponent);
-	public FileComponent findCreatedByContent(FileComponent deletedComponent);
+	public FileLeaf findDeletedByContent(FileLeaf createdComponent);
+	public FileLeaf findCreatedByContent(FileLeaf deletedComponent);
 	public FolderComposite findCreatedByStructure(FolderComposite deletedFolder);
 	public FolderComposite findDeletedByStructure(FolderComposite createdFolder);
 	public FileComponent getOrCreateFileComponent(Path path, IFileEventManager eventManager);
