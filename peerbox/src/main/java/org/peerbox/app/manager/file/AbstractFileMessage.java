@@ -2,17 +2,19 @@ package org.peerbox.app.manager.file;
 
 import java.nio.file.Path;
 
+import org.peerbox.presenter.settings.synchronization.FileHelper;
+
 public class AbstractFileMessage implements IFileMessage {
 
-	private final Path path;
+	private final FileHelper file;
 
-	public AbstractFileMessage(final Path path) {
-		this.path = path;
+	public AbstractFileMessage(final FileHelper file) {
+		this.file = file;
 	}
 
 	@Override
-	public Path getPath() {
-		return path;
+	public FileHelper getFile() {
+		return file;
 	}
 
 }

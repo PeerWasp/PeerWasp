@@ -1,21 +1,21 @@
 package org.peerbox.app.manager.file;
 
-import java.nio.file.Path;
+import org.peerbox.presenter.settings.synchronization.FileHelper;
 
 public final class RemoteFileMovedMessage extends AbstractFileMessage {
 
-	private Path srcPath;
+	private FileHelper srcFile;
 	
-	public RemoteFileMovedMessage(Path srcPath, Path dstPath) {
-		super(dstPath);
+	public RemoteFileMovedMessage(FileHelper srcFile, FileHelper dstFile) {
+		super(dstFile);
 	}
 	
-	public Path getSourcePath(){
-		return srcPath;
+	public FileHelper getSourceFile(){
+		return srcFile;
 	}
 	
-	public Path getDestinationPath(){
-		return getPath();
+	public FileHelper getDestinationFile(){
+		return getFile();
 	}
 
 }

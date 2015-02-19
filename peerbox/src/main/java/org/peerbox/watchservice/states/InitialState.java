@@ -8,6 +8,7 @@ import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.hive2hive.core.exceptions.NoSessionException;
 import org.peerbox.app.manager.file.IFileManager;
 import org.peerbox.exceptions.NotImplException;
+import org.peerbox.presenter.settings.synchronization.FileHelper;
 import org.peerbox.presenter.settings.synchronization.messages.FileExecutionSucceededMessage;
 import org.peerbox.watchservice.IAction;
 import org.peerbox.watchservice.IFileEventManager;
@@ -141,7 +142,8 @@ public class InitialState extends AbstractActionState {
 //			ConflictHandler.resolveConflict(file.getPath(), true);
 			if(file.isFolder()){
 				logger.debug("Soft-deleted file {} is a folder. Ignore recreation", file.getPath());
-				action.getFileEventManager().getMessageBus().publish(new FileExecutionSucceededMessage(file.getPath(), file.getAction().getCurrentState().getStateType()));
+				FileHelper fileHelper = new FileHelper(file.getPath(), file.isFile());
+				action.getFileEventManager().getMessageBus().publish(new FileExecutionSucceededMessage(fileHelper, file.getAction().getCurrentState().getStateType()));
 				action.getFileEventManager().getFileComponentQueue().remove(action.getFile());
 				return this;
 			} else {

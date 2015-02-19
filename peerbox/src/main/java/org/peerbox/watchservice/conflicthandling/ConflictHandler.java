@@ -10,6 +10,7 @@ import java.util.Date;
 import org.apache.commons.io.FilenameUtils;
 import org.peerbox.app.manager.file.LocalFileConflictMessage;
 import org.peerbox.events.MessageBus;
+import org.peerbox.presenter.settings.synchronization.FileHelper;
 
 public class ConflictHandler {
 	
@@ -51,12 +52,14 @@ public class ConflictHandler {
 			if(moveFile){
 				Files.move(file, renamedFile);
 				if(bus != null){
-					bus.publish(new LocalFileConflictMessage(file));
+					FileHelper fileHelper = new FileHelper(file, true);
+					bus.publish(new LocalFileConflictMessage(fileHelper));
 				}
 			} else {
 				Files.copy(file, renamedFile);
 				if(bus != null){
-					bus.publish(new LocalFileConflictMessage(file));
+					FileHelper fileHelper = new FileHelper(file, true);
+					bus.publish(new LocalFileConflictMessage(fileHelper));
 				}
 			if(bus != null){
 					

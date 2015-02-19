@@ -1,11 +1,11 @@
 package org.peerbox.app.manager.file;
 
-import java.nio.file.Path;
+import org.peerbox.presenter.settings.synchronization.FileHelper;
 
 public class FileExecutionFailedMessage extends AbstractFileMessage{
 
-	public FileExecutionFailedMessage(Path path) {
-		super(path);
+	public FileExecutionFailedMessage(final FileHelper file) {
+		super(file);
 	}
 
 }

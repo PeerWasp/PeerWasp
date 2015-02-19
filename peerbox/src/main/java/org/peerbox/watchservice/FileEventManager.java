@@ -22,6 +22,7 @@ import org.peerbox.app.manager.file.RemoteFileMovedMessage;
 import org.peerbox.app.manager.file.RemoteFileUpdatedMessage;
 import org.peerbox.app.manager.file.IFileMessage;
 import org.peerbox.events.MessageBus;
+import org.peerbox.presenter.settings.synchronization.FileHelper;
 import org.peerbox.watchservice.conflicthandling.ConflictHandler;
 import org.peerbox.watchservice.filetree.FileTree;
 import org.peerbox.watchservice.filetree.IFileTree;
@@ -136,7 +137,7 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 	 */
 	@Override
 	public void onLocalFileDeleted(final Path path) {
-		publishMessage(new LocalFileDesyncMessage(path));
+		
 		logger.debug("onLocalFileDelete: {}", path);
 
 		final FileComponent file = fileTree.getOrCreateFileComponent(path, this);
@@ -144,7 +145,7 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 			logger.debug("onLocalFileDelete: structure hash of {} is '{}'",
 					path, file.getStructureHash());
 		}
-
+		publishMessage(new LocalFileDesyncMessage(new FileHelper(path, file.isFile())));
 		file.getAction().handleLocalDeleteEvent();
 	}
 
@@ -233,7 +234,8 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 		final FileComponent file = fileTree.getOrCreateFileComponent(path, fileEvent.isFile(), this);
 		file.getAction().handleRemoteDeleteEvent();
 		
-		messageBus.publish(new RemoteFileDeletedMessage(path));
+		FileHelper fileHelper = new FileHelper(path, file.isFile());
+		messageBus.publish(new RemoteFileDeletedMessage(fileHelper));
 	}
 
 	@Override
@@ -256,7 +258,9 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 		final FileComponent source = fileTree.getOrCreateFileComponent(srcPath, this);
 		source.getAction().handleRemoteMoveEvent(dstPath);
 		
-		messageBus.publish(new RemoteFileMovedMessage(srcPath, dstPath));
+		FileHelper srcFile = new FileHelper(srcPath, fileEvent.isFile());
+		FileHelper dstFile = new FileHelper(srcPath, fileEvent.isFile());
+		messageBus.publish(new RemoteFileMovedMessage(srcFile, dstFile));
 	}
 
 	@Override

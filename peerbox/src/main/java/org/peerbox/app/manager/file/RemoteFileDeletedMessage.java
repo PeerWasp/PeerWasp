@@ -1,11 +1,11 @@
 package org.peerbox.app.manager.file;
 
-import java.nio.file.Path;
+import org.peerbox.presenter.settings.synchronization.FileHelper;
 
 public final class RemoteFileDeletedMessage extends AbstractFileMessage {
 
-	public RemoteFileDeletedMessage(Path path) {
-		super(path);
+	public RemoteFileDeletedMessage(FileHelper file) {
+		super(file);
 	}
 
 }

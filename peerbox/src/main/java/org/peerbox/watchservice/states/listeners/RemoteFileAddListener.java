@@ -1,27 +1,26 @@
 package org.peerbox.watchservice.states.listeners;
 
-import java.nio.file.Path;
-
 import org.hive2hive.processframework.interfaces.IProcessEventArgs;
 import org.peerbox.app.manager.file.LocalFileDeletedMessage;
 import org.peerbox.app.manager.file.RemoteFileAddedMessage;
 import org.peerbox.events.MessageBus;
+import org.peerbox.presenter.settings.synchronization.FileHelper;
 
 public class RemoteFileAddListener extends FileOperationListener{
 
-	public RemoteFileAddListener(Path path, MessageBus messageBus) {
-		super(path, messageBus);
+	public RemoteFileAddListener(final FileHelper file, MessageBus messageBus) {
+		super(file, messageBus);
 	}
 	
 	@Override
 	public void onExecutionSucceeded(IProcessEventArgs args) {
 		super.onExecutionSucceeded(args);
-		notifyRemoteFileAdd(getPath());
+		notifyRemoteFileAdd(getFile());
 	}
 	
-	private void notifyRemoteFileAdd(final Path path){
+	private void notifyRemoteFileAdd(final FileHelper file){
 		if (getMessageBus() != null) {
-			getMessageBus().publish(new RemoteFileAddedMessage(path));
+			getMessageBus().publish(new RemoteFileAddedMessage(file));
 		}
 	}
 }

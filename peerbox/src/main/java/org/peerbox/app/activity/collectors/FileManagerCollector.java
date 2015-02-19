@@ -131,7 +131,7 @@ class FileManagerCollector extends AbstractActivityCollector implements IFileMes
 	}
 
 	private String formatDescription(IFileMessage msg) {
-		return String.format("%s", msg.getPath());
+		return String.format("%s", msg.getFile().getPath());
 	}
 
 

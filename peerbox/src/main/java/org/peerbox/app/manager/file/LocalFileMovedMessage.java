@@ -1,11 +1,11 @@
 package org.peerbox.app.manager.file;
 
-import java.nio.file.Path;
+import org.peerbox.presenter.settings.synchronization.FileHelper;
 
 public class LocalFileMovedMessage extends AbstractFileMessage {
 
-	public LocalFileMovedMessage(Path path) {
-		super(path);
+	public LocalFileMovedMessage(FileHelper file) {
+		super(file);
 	}
 
 }

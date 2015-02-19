@@ -9,6 +9,7 @@ import org.hive2hive.processframework.exceptions.InvalidProcessStateException;
 import org.hive2hive.processframework.exceptions.ProcessExecutionException;
 import org.hive2hive.processframework.interfaces.IProcessEventArgs;
 import org.peerbox.app.manager.file.IFileManager;
+import org.peerbox.presenter.settings.synchronization.FileHelper;
 import org.peerbox.watchservice.IAction;
 import org.peerbox.watchservice.conflicthandling.ConflictHandler;
 import org.peerbox.watchservice.filetree.IFileTree;
@@ -65,7 +66,8 @@ public class LocalCreateState extends AbstractActionState {
 		logger.debug("Execute LOCAL CREATE: {}", path);
 		handle = fileManager.add(path);
 		if (handle != null && handle.getProcess() != null) {
-			handle.getProcess().attachListener(new LocalFileAddListener(path, action.getFileEventManager().getMessageBus()));
+			FileHelper helper = new FileHelper(path, action.getFile().isFile());
+			handle.getProcess().attachListener(new LocalFileAddListener(helper, action.getFileEventManager().getMessageBus()));
 			handle.executeAsync();
 		} else {
 			System.err.println("process or handle is null");
