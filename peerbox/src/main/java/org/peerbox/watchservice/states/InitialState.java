@@ -109,6 +109,8 @@ public class InitialState extends AbstractActionState {
 				boolean wasRemoved = createdByStructureHash.get(action.getFile().getStructureHash()).remove((FolderComposite)action.getFile());
 				// TODO: cleanup filecomponentqueue: remove children of folder if in localcreate state!
 				return changeStateOnLocalMove(filePath);
+			} else {
+				//put it here?
 			}
 		} else {
 			FileComponent moveSource = fileTree.findDeletedByContent(file);
@@ -128,7 +130,7 @@ public class InitialState extends AbstractActionState {
 					logger.trace("Handle move of {}, from {}.", filePath, moveSource.getPath());
 					// eventManager.getFileTree().deleteFile(action.getFile().getPath());
 					moveSource.getAction().handleLocalMoveEvent(filePath);
-					return changeStateOnLocalMove(filePath);
+					return this; //changeStateOnLocalMove(filePath);
 				} else {
 					logger.trace("No move of {}, as it was not uploaded.", moveSource.getPath());
 					fileTree.putFile(filePath, file);
@@ -139,7 +141,6 @@ public class InitialState extends AbstractActionState {
 		}
 		if (file.isUploaded() && file.isSynchronized()) {
 			logger.debug("File {} has been soft-deleted and recreated. This is regarded as a file update.", file.getPath());
-//			ConflictHandler.resolveConflict(file.getPath(), true);
 			if(file.isFolder()){
 				logger.debug("Soft-deleted file {} is a folder. Ignore recreation", file.getPath());
 				FileHelper fileHelper = new FileHelper(file.getPath(), file.isFile());
