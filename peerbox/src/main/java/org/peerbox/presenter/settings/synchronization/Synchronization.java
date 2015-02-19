@@ -120,7 +120,7 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 		try {
 			FileNode filesFromNetwork = fileManager.listFiles().execute();
 			if(filesFromNetwork != null){
-				listFiles(filesFromNetwork);
+				createTreeView(filesFromNetwork);
 			} else {
 				logger.trace("Files from network are null");
 			}
@@ -130,14 +130,11 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 		}
 	}
 
-	private void listFiles(FileNode fileNode){
+	private void createTreeView(FileNode fileNode){
 		PathItem pathItem = new PathItem(userConfig.getRootPath(), false);
-//		fileTreeView = new TreeView<PathItem>();
 		CheckBoxTreeItem<PathItem> invisibleRoot = new CheckBoxTreeItem<PathItem>(pathItem);
-	//	fileTreeView.setCellFactory(CheckBoxTreeCell.<PathItem>forTreeView());
 	    fileTreeView.setRoot(invisibleRoot);
         fileTreeView.setEditable(false);
-        
         fileTreeView.setCellFactory(new Callback<TreeView<PathItem>, TreeCell<PathItem>>(){
             @Override
             public TreeCell<PathItem> call(TreeView<PathItem> p) {
@@ -146,46 +143,47 @@ public class Synchronization implements Initializable, IExecutionMessageListener
         });
         
         fileTreeView.setShowRoot(false);
+        
         createTreeFromFileNode(fileNode);
 	}
 	
 	private void createTreeFromFileNode(FileNode fileNode){
 		if(fileNode.getChildren() != null){
 	        for(FileNode topLevelNode : fileNode.getChildren()){
-				ImageView view;
-	        	Path path = topLevelNode.getFile().toPath();
+				ImageView icon;
 	        	String tooltip;
+	        	
+	        	Path path = topLevelNode.getFile().toPath();
 	        	boolean isSynched = synchronizedFiles.contains(path);
 	        	
 	        	if(failedFiles.contains(path)){
 	        		if(topLevelNode.isFile()){
-	        			view = new ImageView(errorIcon);
+	        			icon = new ImageView(errorIcon);
 	        		} else {
-	        			view = new ImageView(errorFolderIcon);
+	        			icon = new ImageView(errorFolderIcon);
 	        		}
 	        		tooltip = errorTooltip;
 	        	} else if(executingFiles.contains(path)){
 	        		if(topLevelNode.isFile()){
-	        			view = new ImageView(inProgressIcon);
+	        			icon = new ImageView(inProgressIcon);
 	        		} else {
-	        			view = new ImageView(inProgressIcon);
+	        			icon = new ImageView(inProgressIcon);
 	        		}
 	        		tooltip = inProgressTooltip;
 	        	} else {
 	        		if(topLevelNode.isFile()){
-	        			view = new ImageView(successIcon);
+	        			icon = new ImageView(successIcon);
 	        		} else {
-	        			view = new ImageView(successFolderIcon);
+	        			icon = new ImageView(successFolderIcon);
 	        		}
 	        		tooltip = successTooltip;
 	        	}
 	        	
 	        	CheckBoxTreeItem<PathItem> item = putTreeItem(topLevelNode.getFile().toPath(), isSynched, topLevelNode.isFile());
-	        	logger.trace("Put item with path {}", topLevelNode.getFile().toPath());
-
-	        	updateIconInUIThread(item, view);
+	        	
+	        	updateIconInUIThread(item, icon);
 	        	updateTooltipInUIThread(item, tooltip);
-				forceUpdateTreeItem(item);
+//				forceUpdateTreeItem(item);
 				createTreeFromFileNode(topLevelNode);
 			}
 		}
@@ -264,7 +262,7 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 		
 		updateIconInUIThread(item, view);
 		updateTooltipInUIThread(item, inProgressTooltip);
-		forceUpdateTreeItem(item);
+//		forceUpdateTreeItem(item);
 		
 //		item.setGraphic(view);
 	}
@@ -343,11 +341,6 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 	        		Label oldLabel = (Label)item.getGraphic();
 	        		oldLabel.setGraphic(icon);
 	        		Tooltip oldTooltip = oldLabel.getTooltip();
-//	        		oldLabel.setText(item.getValue().getPath().getFileName().toString());
-	        		//item.setGraphic(oldLabel);
-//	        		Label newLabel = new Label(item.getValue().getPath().getFileName().toString());
-//	        		newLabel.setGraphic(icon);
-//	        		newLabel.setTooltip(oldTooltip);
 	        		item.setGraphic(oldLabel);
 	        	} else {
 	        		Label newLabel = new Label(item.getValue().getPath().getFileName().toString());
@@ -366,8 +359,6 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 	        		Label oldLabel = (Label)item.getGraphic();
 	        		logger.trace("Set oldLabel tooltip: {}", tooltip);
 	        		oldLabel.setTooltip(new Tooltip(tooltip));
-//	        		oldLabel.setText(item.getValue().getPath().getFileName().toString());
-	        		//item.setGraphic(oldLabel);
 	        		item.setGraphic(oldLabel);
 	        	} else {
 	        		logger.trace("Set newLabel tooltip: {}", tooltip);
@@ -390,7 +381,6 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 			item = putTreeItem(message.getFile().getPath(), false, message.getFile().isFile());
 			logger.trace("item == null for {}", message.getFile().getPath());
 		}
-		
 		
 		ImageView view;
 		if(message.getFile().isFile()){
@@ -502,8 +492,7 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 			Label label = new Label(wholePath.getFileName().toString());
 			CheckBoxTreeItem<PathItem> created = new CheckBoxTreeItem<PathItem>(pathItem, label);
 			created.setSelected(isSynched);
-			//created.setGraphic(created.getValue());
-			
+
 			created.addEventHandler(CheckBoxTreeItem.checkBoxSelectionChangedEvent(), new ClickEventHandler());
 			Iterator<TreeItem<PathItem>> iter = parent.getChildren().iterator();
 			while(iter.hasNext()){
