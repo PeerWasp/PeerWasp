@@ -27,6 +27,7 @@ import org.peerbox.watchservice.states.LocalCreateState;
 import org.peerbox.watchservice.states.LocalHardDeleteState;
 import org.peerbox.watchservice.states.LocalMoveState;
 import org.peerbox.watchservice.states.LocalUpdateState;
+import org.sql2o.logging.SysOutLogger;
 
 import com.google.common.collect.SetMultimap;
 import com.google.common.io.Files;
@@ -87,6 +88,7 @@ public class FileEventManagerTest {
 				filePaths.add(parentPath + "file" + i + ".txt");
 				files.add(new File(filePaths.get(i)));
 				files.get(i).createNewFile();
+				System.out.println("Created file " + files.get(i));
 			}
 
 		} catch (IOException e) {
@@ -155,7 +157,7 @@ public class FileEventManagerTest {
 		long start = System.currentTimeMillis();
 
 		manager.onLocalFileDeleted(Paths.get(filePaths.get(7)));
-		assertTrue(actionsToCheck.size() == 0);
+		assertTrue(actionsToCheck.size() == 1);
 
 		//initiate re-creation, ensure that all happens in time
 		manager.onLocalFileCreated(Paths.get(filePaths.get(8)));
@@ -345,6 +347,10 @@ public class FileEventManagerTest {
 		manager.onLocalFileDeleted(Paths.get(filePaths.get(0)));
 		sleepMillis(10);
 		System.out.println("actionsToCheck.size() " + actionsToCheck.size());
+		ArrayList<FileComponent> array = new ArrayList<FileComponent>(actionsToCheck);
+		for(FileComponent comp : array){
+			System.out.println(comp.getPath() + ": " + comp.getAction().getCurrentState().getClass().toString());
+		}
 		assertTrue(actionsToCheck.size() == 2);
 		assertTrue(actionsToCheck.peek().getAction().getCurrentState() instanceof LocalCreateState);
 		assertTrue(actionsToCheck.peek().getPath().toString().equals(filePaths.get(1)));
@@ -363,17 +369,19 @@ public class FileEventManagerTest {
 		manager.onLocalFileDeleted(Paths.get(filePaths.get(2)));
 		sleepMillis(10);
 		System.out.println("size: " + actionsToCheck.size());
-		assertTrue(actionsToCheck.size() == 2);
+		
+		Vector<FileComponent> actions = new Vector<FileComponent>(actionsToCheck);
+		for(int i = 0; i < actions.size(); i++){
+			System.out.println(i + ": " + actions.get(i).getPath() + " - " + actions.get(i).getAction().getCurrentState().getClass());
+		}
+		
+		assertTrue(actionsToCheck.size() == 3);
 		assertTrue(actionsToCheck.peek().getAction().getCurrentState() instanceof LocalCreateState);
 		assertTrue(actionsToCheck.peek().getPath().toString().equals(filePaths.get(1)));
 
 		manager.onLocalFileCreated(Paths.get(filePaths.get(3)));
 		sleepMillis(10);
 		System.out.println("actionsToCheck.size() " + actionsToCheck.size());
-		Vector<FileComponent> actions = new Vector<FileComponent>(actionsToCheck);
-		for(int i = 0; i < actions.size(); i++){
-			System.out.println(i + ": " + actions.get(i).getPath() + " - " + actions.get(i).getAction().getCurrentState().getClass());
-		}
 		assertTrue(actionsToCheck.size() == 3);
 		assertTrue(actionsToCheck.peek().getAction().getCurrentState() instanceof LocalCreateState);
 		assertTrue(actionsToCheck.peek().getPath().toString().equals(filePaths.get(1)));
@@ -402,9 +410,9 @@ public class FileEventManagerTest {
 
 		//cleanup:
 
-		deleteFile(Paths.get(filePaths.get(0)));
+//		deleteFile(Paths.get(filePaths.get(0)));
 		deleteFile(Paths.get(filePaths.get(1)));
-		deleteFile(Paths.get(filePaths.get(2)));
+//		deleteFile(Paths.get(filePaths.get(2)));
 		deleteFile(Paths.get(filePaths.get(3)));
 		assertTrue(manager.getFileTree().getFile(files.get(0).toPath()) == null);
 		assertTrue(manager.getFileTree().getFile(files.get(1).toPath()) == null);
@@ -422,6 +430,7 @@ public class FileEventManagerTest {
 	}
 
 	private void deleteFile(Path filePath){
+		System.out.println("Hard delete file " + filePath);
 		manager.onLocalFileHardDelete(filePath);
 		sleepMillis(200);
 		manager.onLocalFileDeleted(filePath);
@@ -452,11 +461,19 @@ public class FileEventManagerTest {
 		sleepMillis(10);
 
 		manager.onLocalFileCreated(Paths.get(filePaths.get(5)));
+		//sleepMillis(10);
 
 		FileComponent head = actionsToCheck.peek();
-		assertTrue(actionsToCheck.size() == 1);
-		assertTrue(head.getAction().getCurrentState() instanceof LocalCreateState);
-		assertTrue(head.getPath().toString().equals(filePaths.get(5)));
+		System.out.println("actionsToCheck.size(): " + actionsToCheck.size());
+		ArrayList<FileComponent> array = new ArrayList<FileComponent>(actionsToCheck);
+		for(FileComponent comp : array){
+			System.out.println(comp.getPath() + ": " + comp.getAction().getCurrentState().getClass().toString());
+		}
+		assertTrue(actionsToCheck.size() == 2);
+		assertTrue(array.get(0).getAction().getCurrentState() instanceof InitialState);
+		assertTrue(array.get(0).getPath().toString().equals(filePaths.get(4)));
+		assertTrue(array.get(1).getAction().getCurrentState() instanceof LocalCreateState);
+		assertTrue(array.get(1).getPath().toString().equals(filePaths.get(5)));
 
 		long end = System.currentTimeMillis();
 		assertTrue(end - start <= ActionExecutor.ACTION_WAIT_TIME_MS);

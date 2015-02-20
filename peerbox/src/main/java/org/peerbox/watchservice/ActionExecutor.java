@@ -21,6 +21,7 @@ import org.peerbox.app.manager.ProcessHandle;
 import org.peerbox.app.manager.file.LocalFileDesyncMessage;
 import org.peerbox.app.manager.file.FileExecutionFailedMessage;
 import org.peerbox.app.manager.file.IFileManager;
+import org.peerbox.events.IMessage;
 import org.peerbox.notifications.InformationNotification;
 import org.peerbox.presenter.settings.synchronization.FileHelper;
 import org.peerbox.presenter.settings.synchronization.messages.FileExecutionStartedMessage;
@@ -107,6 +108,7 @@ public class ActionExecutor implements Runnable {
 
 				next = fileEventManager.getFileComponentQueue().take();
 
+				logger.trace("check readyness {}", next.getPath());
 				if (!isFileComponentReady(next)) {
 					logger.debug("{} is not ready yet!", next.getPath());
 					fileEventManager.getFileComponentQueue().remove(next);
@@ -127,7 +129,8 @@ public class ActionExecutor implements Runnable {
 						if (ehandle != null && ehandle.getProcessHandle() != null) {
 							logger.debug("Put into async handles!");
 							FileHelper file = new FileHelper(next.getPath(), next.isFile());
-							fileEventManager.getMessageBus().publish(new FileExecutionStartedMessage(file));
+//							fileEventManager.getMessageBus().publish(new FileExecutionStartedMessage(file));
+							publishMessage(new FileExecutionStartedMessage(file));
 							asyncHandles.put(ehandle);
 						} else {
 //							if(!next.isSynchronized()){
@@ -135,7 +138,8 @@ public class ActionExecutor implements Runnable {
 //							}
 						}
 						if(asyncHandles.size() != 0){
-							fileEventManager.getMessageBus().publish(new SynchronizationStartsNotification());
+//							fileEventManager.getMessageBus().publish(new SynchronizationStartsNotification());
+							publishMessage(new SynchronizationStartsNotification());
 						}
 					} else {
 						onActionExecuteSucceeded(next.getAction());
@@ -241,7 +245,13 @@ public class ActionExecutor implements Runnable {
 		fileEventManager.getFailedOperations().remove(failedOperation);
 		
 		if(fileEventManager.getFailedOperations().size() == 0){
-			fileEventManager.getMessageBus().publish(new SynchronizationErrorsResolvedNotification());
+			publishMessage(new SynchronizationErrorsResolvedNotification());
+		}
+	}
+	
+	private void publishMessage(IMessage message){
+		if(fileEventManager.getMessageBus() != null){
+			fileEventManager.getMessageBus().publish(message);
 		}
 	}
 	
@@ -284,8 +294,8 @@ public class ActionExecutor implements Runnable {
 		//inform gui to adjust icon
 		
 		FileHelper file = new FileHelper(action.getFile().getPath(), action.getFile().isFile());
-		fileEventManager.getMessageBus().publish(new FileExecutionSucceededMessage(file, action.getCurrentState().getStateType()));
-		
+//		fileEventManager.getMessageBus().publish(new FileExecutionSucceededMessage(file, action.getCurrentState().getStateType()));
+		publishMessage(new FileExecutionSucceededMessage(file, action.getCurrentState().getStateType()));
 		boolean changedWhileExecuted = action.getChangedWhileExecuted();
 		action.getFile().setIsUploaded(true);
 		action.onSucceeded();
@@ -335,8 +345,8 @@ public class ActionExecutor implements Runnable {
 			fileEventManager.getFileComponentQueue().add(action.getFile());
 		} else {
 			FileHelper file = new FileHelper(path, action.getFile().isFile());
-			fileEventManager.getMessageBus().publish(new FileExecutionFailedMessage(file));
-			
+//			fileEventManager.getMessageBus().publish(new FileExecutionFailedMessage(file));
+			publishMessage(new FileExecutionFailedMessage(file));
 			fileEventManager.getMessageBus().post(new InformationNotification("Synchronization error ", 
 					"Operation on " + path + " failed")).now();
 			logger.error("To many attempts, action of {} has not been executed again.", path);
@@ -356,7 +366,8 @@ public class ActionExecutor implements Runnable {
 				logger.trace("FileComponent not found (null): {}", path);
 			}
 			FileHelper file = new FileHelper(action.getFile().getPath(), action.getFile().isFile());
-			fileEventManager.getMessageBus().publish(new FileExecutionSucceededMessage(file, action.getCurrentState().getStateType()));
+//			fileEventManager.getMessageBus().publish(new FileExecutionSucceededMessage(file, action.getCurrentState().getStateType()));
+			publishMessage(new FileExecutionSucceededMessage(file, action.getCurrentState().getStateType()));
 			action.onSucceeded();
 			return true;
 
@@ -411,7 +422,8 @@ public class ActionExecutor implements Runnable {
 						onActionExecuteSucceeded(next.getAction());
 
 						if(asyncHandles.size() == 0){
-							fileEventManager.getMessageBus().publish(new SynchronizationCompleteNotification());
+//							fileEventManager.getMessageBus().publish(new SynchronizationCompleteNotification());
+							publishMessage(new SynchronizationCompleteNotification());
 						}
 					} catch (ExecutionException eex) {
 

@@ -11,6 +11,7 @@ import org.junit.runners.Suite.SuiteClasses;
  	FileComponentTest.class,
  	//PathUtilsTest.class,
  })
+
 public class FileTreeTestSuite {
 
 }

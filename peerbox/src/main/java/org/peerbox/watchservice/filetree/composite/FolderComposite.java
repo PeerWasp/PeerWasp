@@ -112,9 +112,9 @@ public class FolderComposite extends AbstractFileComponent {
 	protected void addComponentToChildren(final Path nextLevelPath, final FileComponent component) {
 		children.remove(nextLevelPath);
 		children.put(nextLevelPath, component);
-//		Path childPath = getPath().resolve(nextLevelPath);
+		Path childPath = getPath().resolve(nextLevelPath);
 //		logger.trace("childPath: {}", childPath);
-//		component.setPath(childPath);
+		component.setPath(childPath);
 		component.setParent(this);
 		if (updateContentHash) {
 			updateContentHash();
@@ -291,6 +291,7 @@ public class FolderComposite extends AbstractFileComponent {
 		if (isRoot) {
 			return true;
 		} else {
+			logger.trace("Path: {}", getPath());
 			boolean parentIsUploaded = getParent().isUploaded();
 			return parentIsUploaded;
 		}

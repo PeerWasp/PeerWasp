@@ -20,6 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.SetMultimap;
+import com.google.common.io.Files;
 
 /**
  * Interface for different states of implemented state pattern
@@ -127,8 +128,9 @@ public abstract class AbstractActionState {
 		action.getFile().setIsSynchronized(false);
 //		logger.debug("Deleted {} from tree.", action.getFile().getPath());
 		if(action.getFile().isFolder()){
+			//PROBLEM HIER!
 			FileComponent moveTarget = action.getFileEventManager().getFileTree().findCreatedByStructure((FolderComposite)action.getFile());
-			if(moveTarget != null){
+			if(moveTarget != null && moveTarget.getPath().toFile().exists()){
 				logger.trace("We observed a swapped folder move (deletion of source file "
 						+ "was reported after creation of target file: {} -> {}", action.getFile().getPath(), moveTarget.getPath());
 				FileComponent file = eventManager.getFileTree().deleteFile(action.getFile().getPath());
@@ -137,7 +139,7 @@ public abstract class AbstractActionState {
 			}
 		} else {
 			FileLeaf moveTarget = action.getFileEventManager().getFileTree().findCreatedByContent((FileLeaf)action.getFile());
-			if(moveTarget != null){
+			if(moveTarget != null && !moveTarget.getPath().equals(action.getFile().getPath())){
 				logger.trace("We observed a swapped move (deletion of source file "
 						+ "was reported after creation of target file: {} -> {}", action.getFile().getPath(), moveTarget.getPath());
 

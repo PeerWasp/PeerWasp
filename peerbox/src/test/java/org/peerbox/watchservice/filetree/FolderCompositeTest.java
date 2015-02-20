@@ -112,7 +112,7 @@ public class FolderCompositeTest {
 		assertEquals(r.getContentHash(), EMPTY_FOLDER_HASH);
 		assertTrue(r.isSynchronized());
 		assertTrue(r.isFolder());
-		assertTrue(r.getStructureHash().isEmpty());
+		assertEquals(r.getStructureHash(), EMPTY_FOLDER_HASH);
 		assertTrue(r.getChildren().isEmpty());
 		assertTrue(r.isReady());
 	}
@@ -128,7 +128,7 @@ public class FolderCompositeTest {
 		assertEquals(r.getContentHash(), EMPTY_FOLDER_HASH);
 		assertFalse(r.isSynchronized()); // now false
 		assertTrue(r.isFolder());
-		assertTrue(r.getStructureHash().isEmpty());
+		assertEquals(r.getStructureHash(), EMPTY_FOLDER_HASH);
 		assertTrue(r.getChildren().isEmpty());
 	}
 
