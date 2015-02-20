@@ -186,7 +186,7 @@ public class InitialState extends AbstractActionState {
 	@Override
 	public AbstractActionState handleLocalMove(Path newPath) {
 		Path oldPath = action.getFile().getPath();
-		action.getFile().setPath(newPath);
+//		action.getFile().setPath(newPath);
 		action.getFileEventManager().getFileTree().putFile(newPath, action.getFile());
 		updateTimeAndQueue();
 		return changeStateOnLocalMove(oldPath);

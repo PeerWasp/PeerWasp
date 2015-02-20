@@ -176,7 +176,7 @@ public abstract class AbstractActionState {
 	public AbstractActionState handleLocalMove(Path newPath) {
 		Path oldPath = Paths.get(action.getFile().getPath().toString());
 		logger.trace("oldPath1: {}", oldPath);
-		action.getFile().setPath(newPath);
+//		action.getFile().setPath(newPath);
 		action.getFileEventManager().getFileTree().putFile(newPath, action.getFile());
 		updateTimeAndQueue();
 		logger.trace("Added {} to queue", action.getFile().getPath());

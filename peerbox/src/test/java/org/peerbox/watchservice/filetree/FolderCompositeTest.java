@@ -52,7 +52,7 @@ public class FolderCompositeTest {
 	public void beforeTest() throws Exception {
 		rootPath = basePath.resolve("root");
 		createDirectoryIfNotExists(rootPath);
-		rootFolder = new FolderComposite(rootPath, true, true);
+		rootFolder = new TestFolderComposite(rootPath, true, true);
 	}
 
 	@After
@@ -66,19 +66,34 @@ public class FolderCompositeTest {
 		}
 	}
 
-	private FileComponent createFile(final Path path) throws IOException {
+	private FileComponent createFile(final Path path, final boolean useTestClasses) throws IOException {
 		Files.createDirectories(path.getParent());
 		Files.createFile(path);
 		String content = RandomStringUtils.randomAlphanumeric(1000);
 		Files.write(path, content.getBytes());
-		FileComponent f = new FileLeaf(path, true);
-		return f;
+
+		if(useTestClasses){
+			return new TestFileLeaf(path, true);
+		} else {
+			return new FileLeaf(path, true);
+		}
 	}
 
-	private FileComponent createFolder(final Path path) throws IOException {
+	private FileComponent createFolder(final Path path, final boolean useTestClasses) throws IOException {
 		Files.createDirectories(path);
-		FileComponent f = new FolderComposite(path, true);
-		return f;
+		if(useTestClasses){
+			return new TestFolderComposite(path, true);
+		} else {
+			return new FolderComposite(path, true);
+		}
+	}
+	
+	private FileComponent createFolder(final Path path) throws IOException {
+		return createFolder(path, true);
+	}
+	
+	private FileComponent createFile(final Path path) throws IOException {
+		return createFile(path, true);
 	}
 
 	private String computeHashOfString(String content) {
@@ -363,15 +378,15 @@ public class FolderCompositeTest {
 	@Test
 	public void testIsSynchronized() throws IOException {
 		Path folderA = rootPath.resolve("fA");
-		FileComponent fA = createFolder(folderA);
+		FileComponent fA = createFolder(folderA, false);
 		rootFolder.putComponent(folderA, fA);
 
 		Path folderB = folderA.resolve("fB");
-		FileComponent fB = createFolder(folderB);
+		FileComponent fB = createFolder(folderB, false);
 		rootFolder.putComponent(folderB, fB);
 
 		Path file = folderB.resolve("test.txt");
-		FileComponent fC = createFile(file);
+		FileComponent fC = createFile(file, false);
 		rootFolder.putComponent(file, fC);
 
 		assertTrue(rootFolder.isSynchronized());

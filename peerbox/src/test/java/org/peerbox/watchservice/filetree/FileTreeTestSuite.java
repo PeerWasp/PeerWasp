@@ -9,7 +9,7 @@ import org.junit.runners.Suite.SuiteClasses;
  	FileLeafTest.class,
  	FolderCompositeTest.class,
  	FileComponentTest.class,
- 	PathUtilsTest.class,
+ 	//PathUtilsTest.class,
  })
 public class FileTreeTestSuite {
 

@@ -73,7 +73,7 @@ public class FolderComposite extends AbstractFileComponent {
 		}
 	}
 
-	private Path stripOffPrefix(Path path, final Path prefix) {
+	protected Path stripOffPrefix(Path path, final Path prefix) {
 		if (path.startsWith(prefix)) {
 			path = prefix.relativize(path);
 		}
@@ -109,9 +109,12 @@ public class FolderComposite extends AbstractFileComponent {
 	/*
 	 * Because of the new children, the content hash of the directory may change and is propagated
 	 */
-	private void addComponentToChildren(final Path nextLevelPath, final FileComponent component) {
+	protected void addComponentToChildren(final Path nextLevelPath, final FileComponent component) {
 		children.remove(nextLevelPath);
 		children.put(nextLevelPath, component);
+//		Path childPath = getPath().resolve(nextLevelPath);
+//		logger.trace("childPath: {}", childPath);
+//		component.setPath(childPath);
 		component.setParent(this);
 		if (updateContentHash) {
 			updateContentHash();
@@ -161,7 +164,7 @@ public class FolderComposite extends AbstractFileComponent {
 		return removed;
 	}
 
-	private Path constructFullPath(final Path name) {
+	protected Path constructFullPath(final Path name) {
 		Path completePath = getPath().resolve(name);
 		return completePath;
 	}
