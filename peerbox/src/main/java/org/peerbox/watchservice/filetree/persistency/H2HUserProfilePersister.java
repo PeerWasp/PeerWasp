@@ -7,6 +7,9 @@ import java.util.concurrent.TimeUnit;
 
 import org.hive2hive.core.processes.files.list.FileNode;
 import org.peerbox.app.manager.file.IFileManager;
+import org.peerbox.watchservice.filetree.FileTree;
+import org.peerbox.watchservice.filetree.IFileTree;
+import org.peerbox.watchservice.filetree.composite.FileComponent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,16 +24,23 @@ public class H2HUserProfilePersister {
 	private static final long SCHEDULED_DELAY = 30L;
 
 	private final RemoteFileDao fileDao;
+	private FileDao localFileDao;
 	private final IFileManager fileManager;
 
+	private FileTree localFileTree;
+
+
 	@Inject
-	public H2HUserProfilePersister(final IFileManager fileManager, final RemoteFileDao fileDao) {
+	public H2HUserProfilePersister(final IFileManager fileManager, final RemoteFileDao fileDao, final FileDao localFileDao, FileTree tree) {
 		this.fileManager = fileManager;
 		this.fileDao = fileDao;
+		this.localFileDao = localFileDao;
+		this.localFileTree = tree;
 	}
 
 	public void start() {
 		fileDao.createTable();
+		localFileDao.createTable();
 
 		scheduler = Executors.newScheduledThreadPool(1);
 		Runnable task = new PersistRemoteProfile();
@@ -48,6 +58,11 @@ public class H2HUserProfilePersister {
 		@Override
 		public void run() {
 			try {
+
+				if(localFileTree != null) {
+					List<FileComponent> files = localFileTree.asList();
+					localFileDao.persistAndReplaceFileComponents(files);
+				}
 
 				FileNode root = fileManager.listFiles().execute();
 				if (root != null) {
