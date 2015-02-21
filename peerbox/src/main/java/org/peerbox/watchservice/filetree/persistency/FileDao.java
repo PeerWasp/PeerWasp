@@ -44,7 +44,8 @@ public class FileDao {
 					    + "is_synchronized BOOLEAN NOT NULL DEFAULT(false), "
 					    + "is_uploaded BOOLEAN NOT NULL DEFAULT(false), "
 					    + "current_state NVARCHAR(32), "
-					    + "next_state NVARCHAR(32) "
+					    + "next_state NVARCHAR(32), "
+					    + "to_delete BOOLEAN NOT NULL DEFAULT(false) "
 				+ ");";
 
 
@@ -80,12 +81,23 @@ public class FileDao {
 		}
 	}
 
+	public void deleteByPath(final Path file) {
+		final String sql = String.format(
+				"DELETE FROM %s WHERE path = :path", FILE_TABLE);
+
+		try (Connection con = sql2o.open()) {
+			con.createQuery(sql)
+				.addParameter("path", file.toString())
+				.executeUpdate();
+		}
+	}
+
 	public void persistFile(final FileComponent file) {
 		final String sql =
 				"MERGE INTO " + FILE_TABLE + " "
-				+ "(path, is_file, content_hash, is_synchronized, is_uploaded, current_state, next_state) "
+				+ "(path, is_file, content_hash, is_synchronized, is_uploaded, current_state, next_state, to_delete) "
 				+ "KEY(path) "
-				+ "VALUES (:path, :is_file, :content_hash, :is_synchronized, :is_uploaded, :current_state, :next_state);";
+				+ "VALUES (:path, :is_file, :content_hash, :is_synchronized, :is_uploaded, :current_state, :next_state, :to_delete);";
 
 		try (Connection con = sql2o.open()) {
 			con.createQuery(sql)
@@ -96,12 +108,51 @@ public class FileDao {
 				.addParameter("is_uploaded", file.isUploaded())
 				.addParameter("current_state", file.getAction().getCurrentState().getStateType().toString())
 				.addParameter("next_state", file.getAction().getNextState().getStateType().toString())
+				.addParameter("to_delete", false)
 				.executeUpdate();
 		}
 	}
 
 	public void dumpCsv() {
 		DaoUtils.dumpTableToCsv(FILE_TABLE, sql2o);
+	}
+
+	public void persistAndReplaceFileComponents(List<FileComponent> files) {
+		final String markToDelete = String.format(
+				"UPDATE %s SET to_delete = true;", FILE_TABLE);
+
+		final String deleteStale = String.format(
+				"DELETE FROM %s WHERE to_delete = true", FILE_TABLE);
+
+		final String sql =
+				"MERGE INTO " + FILE_TABLE + " "
+				+ "(path, is_file, content_hash, is_synchronized, is_uploaded, current_state, next_state, to_delete) "
+				+ "KEY(path) "
+				+ "VALUES (:path, :is_file, :content_hash, :is_synchronized, :is_uploaded, :current_state, :next_state, :to_delete);";
+
+		try (Connection con = sql2o.beginTransaction()) {
+			// mark to delete
+			con.createQuery(markToDelete).executeUpdate();
+
+			for (FileComponent file : files) {
+				// insert or update
+				con.createQuery(sql)
+					.addParameter("path", file.getPath().toString())
+					.addParameter("is_file", file.isFile())
+					.addParameter("content_hash", file.getContentHash())
+					.addParameter("is_synchronized", file.isSynchronized())
+					.addParameter("is_uploaded", file.isUploaded())
+					.addParameter("current_state", file.getAction().getCurrentState().getStateType().toString())
+					.addParameter("next_state", file.getAction().getNextState().getStateType().toString())
+					.addParameter("to_delete", false)
+					.executeUpdate();
+			}
+
+			// cleanup deleted files
+			con.createQuery(deleteStale).executeUpdate();
+
+			con.commit();
+		}
 	}
 
 	private class FileComponentResultSetHandler implements ResultSetHandler<FileComponent> {

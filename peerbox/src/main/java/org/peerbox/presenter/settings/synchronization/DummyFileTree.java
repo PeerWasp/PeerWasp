@@ -1,6 +1,7 @@
 package org.peerbox.presenter.settings.synchronization;
 
 import java.nio.file.Path;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -99,15 +100,20 @@ public class DummyFileTree implements IFileTree{
 		// TODO Auto-generated method stub
 		return null;
 	}
+//	@Override
+//	public void persistFile(FileComponent file) {
+//		// TODO Auto-generated method stub
+//
+//	}
+//	@Override
+//	public void persistFileAndDescendants(FileComponent root) {
+//		// TODO Auto-generated method stub
+//
+//	}
 	@Override
-	public void persistFile(FileComponent file) {
+	public List<FileComponent> asList() {
 		// TODO Auto-generated method stub
-
-	}
-	@Override
-	public void persistFileAndDescendants(FileComponent root) {
-		// TODO Auto-generated method stub
-
+		return null;
 	}
 
 }

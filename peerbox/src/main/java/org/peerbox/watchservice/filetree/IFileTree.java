@@ -1,6 +1,7 @@
 package org.peerbox.watchservice.filetree;
 
 import java.nio.file.Path;
+import java.util.List;
 import java.util.Set;
 
 import org.peerbox.watchservice.IFileEventManager;
@@ -29,6 +30,8 @@ public interface IFileTree {
 	FolderComposite findDeletedByStructure(FolderComposite createdFolder);
 	FileComponent getOrCreateFileComponent(Path path, IFileEventManager eventManager);
 
-	void persistFile(FileComponent file);
-	void persistFileAndDescendants(FileComponent root);
+	List<FileComponent> asList();
+
+//	void persistFile(FileComponent file);
+//	void persistFileAndDescendants(FileComponent root);
 }

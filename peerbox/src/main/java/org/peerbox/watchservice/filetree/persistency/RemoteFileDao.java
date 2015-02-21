@@ -103,12 +103,23 @@ public class RemoteFileDao {
 		}
 	}
 
-	public List<FileNodeAttr> getFileNodeAttributes() {
+	public List<FileNodeAttr> getAllFileNodeAttributes() {
 		final String sql = String.format(
 				"SELECT %s FROM %s ORDER BY path ASC;", DEFAULT_COLUMNS, REMOTE_FILE_TABLE);
 
 		try (Connection con = sql2o.open()) {
 			return con.createQuery(sql).executeAndFetch(FileNodeAttr.class);
+		}
+	}
+
+	public void deleteByPath(Path file) {
+		final String sql = String.format(
+				"DELETE FROM %s WHERE path = :path", REMOTE_FILE_TABLE);
+
+		try (Connection con = sql2o.open()) {
+			con.createQuery(sql)
+				.addParameter("path", file.toString())
+				.executeUpdate();
 		}
 	}
 

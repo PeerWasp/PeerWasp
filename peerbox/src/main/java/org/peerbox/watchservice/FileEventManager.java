@@ -81,7 +81,6 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 			fileTree.discoverSubtreeCompletely(path, this);
 		}
 
-		fileTree.persistFile(file);
 	}
 
 	@Override
@@ -107,7 +106,6 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 
 		file.getAction().handleLocalUpdateEvent();
 
-		fileTree.persistFile(file);
 	}
 
 	//TODO: remove children from actionQueue as well!
@@ -132,7 +130,6 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 
 		file.getAction().handleLocalDeleteEvent();
 
-		fileTree.persistFile(file);
 	}
 
 	@Override
@@ -152,7 +149,6 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 		// fileTree.deleteFile(path);
 		FileUtils.deleteQuietly(path.toFile());
 
-		fileTree.persistFile(file);
 	}
 
 	@Override
@@ -171,7 +167,6 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 		file.setIsSynchronized(true);
 		onFileAdd(new FileAddEvent(path.toFile(), isFolder));
 
-		fileTree.persistFile(file);
 	}
 
 	private boolean hasSynchronizedAncestor(final Path path) {
@@ -206,7 +201,6 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 		file.getAction().setFileEventManager(this);
 		file.getAction().handleRemoteCreateEvent();
 
-		fileTree.persistFile(file);
 	}
 
 	@Override
@@ -230,7 +224,6 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 		final FileComponent file = fileTree.getOrCreateFileComponent(path, this);
 		file.getAction().handleRemoteUpdateEvent();
 
-		fileTree.persistFile(file);
 	}
 
 	@Override
@@ -244,7 +237,6 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 		source.getAction().handleRemoteMoveEvent(dstPath);
 		messageBus.publish(new RemoteFileMovedMessage(srcPath, dstPath));
 
-		fileTree.persistFileAndDescendants(source);
 	}
 
 	@Override

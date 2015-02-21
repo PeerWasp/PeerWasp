@@ -145,8 +145,6 @@ public class ActionExecutor implements Runnable {
 					wait(timeToWait);
 				}
 
-				getFileTree().persistFile(next);
-
 			} catch (InterruptedException iex) {
 				logger.error("Exception occurred: {}", iex.getMessage(), iex);
 			} catch (NoSessionException nse) {
@@ -286,7 +284,6 @@ public class ActionExecutor implements Runnable {
 			fileEventManager.getFileComponentQueue().add(file);
 		}
 
-		getFileTree().persistFile(file);
 	}
 
 
@@ -311,7 +308,6 @@ public class ActionExecutor implements Runnable {
 			handleErrorDefault(action);
 		}
 
-		getFileTree().persistFile(file);
 	}
 
 

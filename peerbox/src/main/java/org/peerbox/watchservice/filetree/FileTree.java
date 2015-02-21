@@ -2,7 +2,8 @@ package org.peerbox.watchservice.filetree;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.HashSet;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 import org.eclipse.jetty.util.ConcurrentHashSet;
@@ -19,8 +20,10 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.SetMultimap;
 import com.google.inject.Inject;
+import com.google.inject.Singleton;
 
-public class FileTree implements IFileTree{
+@Singleton
+public class FileTree implements IFileTree {
 
 	private static final Logger logger = LoggerFactory.getLogger(FileTree.class);
 
@@ -247,30 +250,50 @@ public class FileTree implements IFileTree{
 		return createdByStructureHash;
 	}
 
-	@Override
-	public void persistFile(FileComponent file) {
-		if (fileDao != null) {
-			fileDao.persistFile(file);
-		}
-	}
+//	@Override
+//	public void persistFile(FileComponent file) {
+//		if (fileDao != null) {
+//			fileDao.persistFile(file);
+//		}
+//	}
+//
+//	@Override
+//	public void persistFileAndDescendants(FileComponent root) {
+//		if (fileDao == null) {
+//			return;
+//		}
+//
+//		Set<FileComponent> elements = new HashSet<>();
+//		elements.add(root);
+//
+//		while (!elements.isEmpty()) {
+//			FileComponent current = elements.iterator().next();
+//			persistFile(current);
+//			if (current.isFolder()) {
+//				FolderComposite folder = (FolderComposite) current;
+//				elements.addAll(folder.getChildren().values());
+//			}
+//		}
+//
+//	}
 
 	@Override
-	public void persistFileAndDescendants(FileComponent root) {
-		if (fileDao == null) {
-			return;
-		}
+	public List<FileComponent> asList() {
+		// resulting list
+		List<FileComponent> list = new ArrayList<>();
 
-		Set<FileComponent> elements = new HashSet<>();
-		elements.add(root);
-
-		while (!elements.isEmpty()) {
-			FileComponent current = elements.iterator().next();
-			persistFile(current);
+		// traversal through tree
+		List<FileComponent> toVisit = new ArrayList<>();
+		toVisit.add(rootOfFileTree);
+		while (!toVisit.isEmpty()) {
+			FileComponent current = toVisit.remove(0);
+			list.add(current);
+			// add children to visit in the future
 			if (current.isFolder()) {
-				FolderComposite folder = (FolderComposite) current;
-				elements.addAll(folder.getChildren().values());
+				FolderComposite currentFolder = (FolderComposite) current;
+				toVisit.addAll(currentFolder.getChildren().values());
 			}
 		}
-
+		return list;
 	}
 }

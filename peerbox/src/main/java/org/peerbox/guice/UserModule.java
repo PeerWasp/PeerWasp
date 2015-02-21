@@ -36,7 +36,7 @@ public class UserModule extends AbstractModule {
 		bind(IFileEventManager.class).to(FileEventManager.class);
 	}
 
-	@Provides
+	@Provides @Singleton
 	FileTree provideFileTree(UserConfig cfg, FileDao fileDao){
 		return new FileTree(cfg.getRootPath(), fileDao);
 	}
