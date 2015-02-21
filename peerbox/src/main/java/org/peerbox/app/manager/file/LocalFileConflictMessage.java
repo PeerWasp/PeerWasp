@@ -1,11 +1,11 @@
 package org.peerbox.app.manager.file;
 
-import java.nio.file.Path;
+import org.peerbox.presenter.settings.synchronization.FileHelper;
 
 public final class LocalFileConflictMessage extends AbstractFileMessage {
 
-	public LocalFileConflictMessage(Path path) {
-		super(path);
+	public LocalFileConflictMessage(FileHelper file) {
+		super(file);
 	}
 
 }

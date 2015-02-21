@@ -179,7 +179,7 @@ public abstract class FileIntegrationTest extends BaseJUnitTest {
 		return files;
 	}
 
-	protected void deleteSingleFile(Path filePath) throws IOException{
+	protected static void deleteSingleFile(Path filePath) throws IOException{
 		deleteFileOnClient(filePath, 0);
 	}
 
@@ -193,7 +193,7 @@ public abstract class FileIntegrationTest extends BaseJUnitTest {
 	}
 
 
-	private void deleteFileOnClient(Path filePath, int i) {
+	private static void deleteFileOnClient(Path filePath, int i) {
 
 		assertTrue(network.getClients().size() == 2);
 		FileEventManager manager = network.getClientNode(0).getFileEventManager();
@@ -299,14 +299,14 @@ public abstract class FileIntegrationTest extends BaseJUnitTest {
 		} while(!pathNotExistsOnAllNodes(path));
 	}
 
-	protected void waitForNotExists(List<Path> paths, int seconds) {
+	protected static void waitForNotExists(List<Path> paths, int seconds) {
 		H2HWaiter waiter = new H2HWaiter(seconds);
 		do {
 			waiter.tickASecond();
 		} while(!pathNotExistsOnAllNodes(paths));
 	}
 
-	private boolean pathNotExistsOnAllNodes(Path absPath) {
+	private static boolean pathNotExistsOnAllNodes(Path absPath) {
 		Path relativePath = masterRootPath.relativize(absPath);
 		for(Path rp : network.getRootPaths()) {
 			if(Files.exists(rp.resolve(relativePath))) {
@@ -316,7 +316,7 @@ public abstract class FileIntegrationTest extends BaseJUnitTest {
 		return true;
 	}
 
-	private boolean pathNotExistsOnAllNodes(List<Path> absPaths) {
+	private static boolean pathNotExistsOnAllNodes(List<Path> absPaths) {
 		for(Path p : absPaths) {
 			if(!pathNotExistsOnAllNodes(p)) {
 				logger.debug("Missing {}", p);

@@ -1,27 +1,26 @@
 package org.peerbox.watchservice.states.listeners;
 
-import java.nio.file.Path;
-
 import org.hive2hive.processframework.interfaces.IProcessEventArgs;
 import org.peerbox.app.manager.file.LocalFileAddedMessage;
 import org.peerbox.events.MessageBus;
+import org.peerbox.presenter.settings.synchronization.FileHelper;
 
 public class LocalFileAddListener extends FileOperationListener{
 
-	public LocalFileAddListener(Path path, MessageBus messageBus) {
-		super(path, messageBus);
+	public LocalFileAddListener(FileHelper file, MessageBus messageBus) {
+		super(file, messageBus);
 	}
 	
 	@Override
 	public void onExecutionSucceeded(IProcessEventArgs args) {
 		super.onExecutionSucceeded(args);
-		notifyLocalFileAdd(getPath());
+		notifyLocalFileAdd(getFile());
 	}
 	
 
-	private void notifyLocalFileAdd(final Path path) {
+	private void notifyLocalFileAdd(final FileHelper file) {
 		if (getMessageBus() != null) {
-			getMessageBus().publish(new LocalFileAddedMessage(path));
+			getMessageBus().publish(new LocalFileAddedMessage(file));
 		}
 	}
 }

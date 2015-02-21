@@ -76,12 +76,12 @@ public class FileLeafTest {
 		file = folderA.resolve(fileName);
 		content = RandomStringUtils.randomAlphanumeric(1000);
 		Files.write(file, content.getBytes());
-		leaf = new FileLeaf(file, true);
+		leaf = new TestFileLeaf(file, true);
 
 
-		rootBase = new FolderComposite(basePath, true, true); // root
-		parentA = new FolderComposite(folderA, true, false); // not root
-		parentB = new FolderComposite(folderB, true, false); // not root
+		rootBase = new TestFolderComposite(basePath, true, true); // root
+		parentA = new TestFolderComposite(folderA, true, false); // not root
+		parentB = new TestFolderComposite(folderB, true, false); // not root
 
 		rootBase.putComponent(parentA.getPath(), parentA);
 		rootBase.putComponent(parentB.getPath(), parentB);

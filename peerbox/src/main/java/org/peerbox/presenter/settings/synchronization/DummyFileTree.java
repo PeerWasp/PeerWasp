@@ -2,13 +2,13 @@ package org.peerbox.presenter.settings.synchronization;
 
 import java.nio.file.Path;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.jetty.util.ConcurrentHashSet;
 import org.peerbox.watchservice.IFileEventManager;
 import org.peerbox.watchservice.filetree.IFileTree;
 import org.peerbox.watchservice.filetree.composite.FileComponent;
+import org.peerbox.watchservice.filetree.composite.FileLeaf;
 import org.peerbox.watchservice.filetree.composite.FolderComposite;
 
 import com.google.common.collect.SetMultimap;
@@ -59,11 +59,7 @@ public class DummyFileTree implements IFileTree{
 		// TODO Auto-generated method stub
 		return null;
 	}
-	@Override
-	public FileComponent findDeletedByContent(FileComponent createdComponent) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+
 	@Override
 	public FileComponent getOrCreateFileComponent(Path path, IFileEventManager eventManager) {
 		// TODO Auto-generated method stub
@@ -76,11 +72,6 @@ public class DummyFileTree implements IFileTree{
 	}
 	@Override
 	public SetMultimap<String, FileComponent> getCreatedByContentHash() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-	@Override
-	public FileComponent findCreatedByContent(FileComponent deletedComponent) {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -100,6 +91,16 @@ public class DummyFileTree implements IFileTree{
 		// TODO Auto-generated method stub
 		return null;
 	}
+	@Override
+	public FileLeaf findDeletedByContent(FileLeaf createdComponent) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	@Override
+	public FileLeaf findCreatedByContent(FileLeaf deletedComponent) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 //	@Override
 //	public void persistFile(FileComponent file) {
 //		// TODO Auto-generated method stub
@@ -110,9 +111,9 @@ public class DummyFileTree implements IFileTree{
 //		// TODO Auto-generated method stub
 //
 //	}
+
 	@Override
 	public List<FileComponent> asList() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 

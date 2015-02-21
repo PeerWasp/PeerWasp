@@ -20,6 +20,9 @@ import org.peerbox.watchservice.states.EstablishedState;
 import org.peerbox.watchservice.states.ExecutionHandle;
 import org.peerbox.watchservice.states.InitialState;
 import org.peerbox.watchservice.states.LocalMoveState;
+import org.peerbox.watchservice.states.RemoteCreateState;
+import org.peerbox.watchservice.states.RemoteUpdateState;
+import org.peerbox.watchservice.states.StateType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -78,6 +81,10 @@ public class Action implements IAction {
 
 			if (isExecuting()) {
 
+				if(currentState.getStateType() == StateType.REMOTE_CREATE){
+					RemoteCreateState castedState = (RemoteCreateState)currentState;
+					castedState.setLocalCreateHappened(true);
+				}
 				nextState = nextState.changeStateOnLocalCreate();
 				checkIfChanged();
 
@@ -105,9 +112,30 @@ public class Action implements IAction {
 			acquireLock();
 
 			if (isExecuting()) {
+				if(currentState.getStateType() == StateType.REMOTE_CREATE){
+					RemoteCreateState castedState = (RemoteCreateState)currentState;
+					if(!castedState.localCreateHappened()){
+						nextState = nextState.changeStateOnLocalUpdate();
+						checkIfChanged();
+					} else {
+						logger.debug("File {}: LocalUpdateEvent after LocalCreateEvent "
+								+ "in RemoteCreateState - ignored!", file.getPath());
+					}
+				} else if(currentState.getStateType() == StateType.REMOTE_UPDATE){
+					RemoteUpdateState castedState = (RemoteUpdateState)currentState;
+					if(castedState.getLocalUpdateHappened()){
+						nextState = nextState.changeStateOnLocalUpdate();
+						checkIfChanged();
+					} else {
+						castedState.setLocalUpdateHappened(true);
+						logger.debug("File {}: First LocalUpdateEvent "
+								+ "in RemoteUpdateState - ignored!", file.getPath());
+					}
+				} else {
+					nextState = nextState.changeStateOnLocalUpdate();
+					checkIfChanged();
+				}
 
-				nextState = nextState.changeStateOnLocalUpdate();
-				checkIfChanged();
 
 			} else {
 

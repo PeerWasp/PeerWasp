@@ -19,11 +19,15 @@ import org.hive2hive.processframework.exceptions.ProcessExecutionException;
 import org.peerbox.app.manager.ProcessHandle;
 import org.peerbox.app.manager.file.FileExecutionFailedMessage;
 import org.peerbox.app.manager.file.IFileManager;
-import org.peerbox.watchservice.filetree.IFileTree;
+import org.peerbox.events.IMessage;
+import org.peerbox.notifications.InformationNotification;
+import org.peerbox.presenter.settings.synchronization.FileHelper;
 import org.peerbox.presenter.settings.synchronization.messages.FileExecutionStartedMessage;
 import org.peerbox.presenter.settings.synchronization.messages.FileExecutionSucceededMessage;
 import org.peerbox.view.tray.SynchronizationCompleteNotification;
+import org.peerbox.view.tray.SynchronizationErrorsResolvedNotification;
 import org.peerbox.view.tray.SynchronizationStartsNotification;
+import org.peerbox.watchservice.filetree.IFileTree;
 import org.peerbox.watchservice.filetree.composite.FileComponent;
 import org.peerbox.watchservice.filetree.composite.FolderComposite;
 import org.peerbox.watchservice.states.ExecutionHandle;
@@ -103,6 +107,7 @@ public class ActionExecutor implements Runnable {
 
 				next = fileEventManager.getFileComponentQueue().take();
 
+				logger.trace("check readyness {}", next.getPath());
 				if (!isFileComponentReady(next)) {
 					logger.debug("{} is not ready yet!", next.getPath());
 					fileEventManager.getFileComponentQueue().remove(next);
@@ -115,14 +120,16 @@ public class ActionExecutor implements Runnable {
 
 					removeFromDeleted(next);
 					removeFromCreated(next);
-
+					removeFromFailed(next.getPath());
 					logger.debug("Start execution: {}", next.getPath());
 
 					ExecutionHandle ehandle = next.getAction().execute(fileManager);
 					if (waitForActionCompletion) {
 						if (ehandle != null && ehandle.getProcessHandle() != null) {
 							logger.debug("Put into async handles!");
-							fileEventManager.getMessageBus().publish(new FileExecutionStartedMessage(next.getPath()));
+							FileHelper file = new FileHelper(next.getPath(), next.isFile());
+//							fileEventManager.getMessageBus().publish(new FileExecutionStartedMessage(file));
+							publishMessage(new FileExecutionStartedMessage(file));
 							asyncHandles.put(ehandle);
 						} else {
 //							if(!next.isSynchronized()){
@@ -130,7 +137,8 @@ public class ActionExecutor implements Runnable {
 //							}
 						}
 						if(asyncHandles.size() != 0){
-							fileEventManager.getMessageBus().publish(new SynchronizationStartsNotification());
+//							fileEventManager.getMessageBus().publish(new SynchronizationStartsNotification());
+							publishMessage(new SynchronizationStartsNotification());
 						}
 					} else {
 						onActionExecuteSucceeded(next.getAction());
@@ -234,30 +242,48 @@ public class ActionExecutor implements Runnable {
 		removeComponentFromSetMultimap(next, createdByContent, createdByStructure);
 	}
 
+	private void removeFromFailed(Path failedOperation) {
+		fileEventManager.getFailedOperations().remove(failedOperation);
+
+		if (fileEventManager.getFailedOperations().size() == 0) {
+			publishMessage(new SynchronizationErrorsResolvedNotification());
+		}
+	}
+
+	private void publishMessage(IMessage message) {
+		if (fileEventManager.getMessageBus() != null) {
+			fileEventManager.getMessageBus().publish(message);
+		}
+	}
+
 	private void removeComponentFromSetMultimap(FileComponent toRemove,
 			SetMultimap<String, FileComponent> byContent,
 			SetMultimap<String, FolderComposite> byStructure){
 		Iterator<Map.Entry<String, FileComponent>> componentIterator = byContent.entries().iterator(); //.sameHashes.iterator();
 
 		if(toRemove.isFile()){
-			while(componentIterator.hasNext()){
-				FileComponent candidate = componentIterator.next().getValue();
-				if(candidate.getPath().toString().equals(toRemove.getPath().toString())){
-					componentIterator.remove();
-					break;
-				}
-				if(System.currentTimeMillis() - candidate.getAction().getTimestamp() > ACTION_WAIT_TIME_MS){
-					logger.trace("Remove old entry: {}", candidate.getPath());
-					componentIterator.remove();
+			synchronized(byContent){
+				while(componentIterator.hasNext()){
+					FileComponent candidate = componentIterator.next().getValue();
+					if(candidate.getPath().toString().equals(toRemove.getPath().toString())){
+						componentIterator.remove();
+						break;
+					}
+					if(System.currentTimeMillis() - candidate.getAction().getTimestamp() > ACTION_WAIT_TIME_MS){
+						logger.trace("Remove old entry: {}", candidate.getPath());
+						componentIterator.remove();
+					}
 				}
 			}
 		} else {
 			Iterator<Map.Entry<String, FolderComposite>> folderIterator = byStructure.entries().iterator();
-			while(folderIterator.hasNext()){
-				Map.Entry<String, FolderComposite> candidate = folderIterator.next();
-				if(candidate.getValue().getPath().toString().equals(toRemove.getPath().toString())){
-					folderIterator.remove();
-					break;
+			synchronized(byStructure){
+				while(folderIterator.hasNext()){
+					Map.Entry<String, FolderComposite> candidate = folderIterator.next();
+					if(candidate.getValue().getPath().toString().equals(toRemove.getPath().toString())){
+						folderIterator.remove();
+						break;
+					}
 				}
 			}
 		}
@@ -269,7 +295,8 @@ public class ActionExecutor implements Runnable {
 				file.getPath(), action.getCurrentStateName());
 
 		//inform gui to adjust icon
-		fileEventManager.getMessageBus().publish(new FileExecutionSucceededMessage(action.getFile().getPath(), action.getCurrentState().getStateType()));
+		FileHelper fileHelper = new FileHelper(file.getPath(), file.isFile());
+		publishMessage(new FileExecutionSucceededMessage(fileHelper, action.getCurrentState().getStateType()));
 
 		boolean changedWhileExecuted = action.getChangedWhileExecuted();
 		file.setIsUploaded(true);
@@ -283,7 +310,6 @@ public class ActionExecutor implements Runnable {
 			action.updateTimestamp();
 			fileEventManager.getFileComponentQueue().add(file);
 		}
-
 	}
 
 
@@ -320,9 +346,14 @@ public class ActionExecutor implements Runnable {
 			action.updateTimestamp();
 			fileEventManager.getFileComponentQueue().add(action.getFile());
 		} else {
-			fileEventManager.getMessageBus().publish(new FileExecutionFailedMessage(path));
+			FileHelper file = new FileHelper(path, action.getFile().isFile());
+//			fileEventManager.getMessageBus().publish(new FileExecutionFailedMessage(file));
+			publishMessage(new FileExecutionFailedMessage(file));
+			fileEventManager.getMessageBus().post(new InformationNotification("Synchronization error ",
+					"Operation on " + path + " failed")).now();
 			logger.error("To many attempts, action of {} has not been executed again.", path);
 			onActionExecuteSucceeded(action);
+			fileEventManager.getFailedOperations().add(action.getFile().getPath());
 		}
 	}
 
@@ -336,7 +367,9 @@ public class ActionExecutor implements Runnable {
 			if (notModified == null) {
 				logger.trace("FileComponent not found (null): {}", path);
 			}
-			fileEventManager.getMessageBus().publish(new FileExecutionSucceededMessage(action.getFile().getPath(), action.getCurrentState().getStateType()));
+			FileHelper file = new FileHelper(action.getFile().getPath(), action.getFile().isFile());
+//			fileEventManager.getMessageBus().publish(new FileExecutionSucceededMessage(file, action.getCurrentState().getStateType()));
+			publishMessage(new FileExecutionSucceededMessage(file, action.getCurrentState().getStateType()));
 			action.onSucceeded();
 			return true;
 
@@ -391,7 +424,8 @@ public class ActionExecutor implements Runnable {
 						onActionExecuteSucceeded(next.getAction());
 
 						if(asyncHandles.size() == 0){
-							fileEventManager.getMessageBus().publish(new SynchronizationCompleteNotification());
+//							fileEventManager.getMessageBus().publish(new SynchronizationCompleteNotification());
+							publishMessage(new SynchronizationCompleteNotification());
 						}
 					} catch (ExecutionException eex) {
 

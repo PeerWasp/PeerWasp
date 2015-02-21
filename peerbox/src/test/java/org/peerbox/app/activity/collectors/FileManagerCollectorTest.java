@@ -20,6 +20,7 @@ import org.peerbox.app.manager.file.LocalFileDesyncMessage;
 import org.peerbox.app.manager.file.RemoteFileMovedMessage;
 import org.peerbox.app.manager.file.FileExecutionFailedMessage;
 import org.peerbox.app.manager.file.RemoteFileAddedMessage;
+import org.peerbox.presenter.settings.synchronization.FileHelper;
 
 public class FileManagerCollectorTest extends BaseJUnitTest {
 
@@ -53,7 +54,8 @@ public class FileManagerCollectorTest extends BaseJUnitTest {
 
 	@Test
 	public void testOnFileUploaded() {
-		RemoteFileAddedMessage message = new RemoteFileAddedMessage(Paths.get("this/is/a/path.txt"));
+		FileHelper file = new FileHelper(Paths.get("this/is/a/path.txt"), true);
+		RemoteFileAddedMessage message = new RemoteFileAddedMessage(file);
 		collector.onRemoteFileAdded(message);
 		
 		CollectorTestUtils.captureAddActivityItem(ActivityType.INFORMATION, activityLogger);
@@ -61,7 +63,9 @@ public class FileManagerCollectorTest extends BaseJUnitTest {
 
 	@Test
 	public void testOnFileDownloaded() {
-		RemoteFileMovedMessage message = new RemoteFileMovedMessage(Paths.get("this/is/a/path.txt"), Paths.get("this/is/another/path.txt"));
+		FileHelper file = new FileHelper(Paths.get("this/is/a/path.txt"), true);
+		FileHelper dstFile = new FileHelper(Paths.get("this/is/another/path.txt"), true);
+		RemoteFileMovedMessage message = new RemoteFileMovedMessage(file, dstFile);
 		collector.onRemoteFileMoved(message);
 		
 		CollectorTestUtils.captureAddActivityItem(ActivityType.INFORMATION, activityLogger);
@@ -69,7 +73,8 @@ public class FileManagerCollectorTest extends BaseJUnitTest {
 
 	@Test
 	public void testOnFileDeleted() {
-		RemoteFileDeletedMessage message = new RemoteFileDeletedMessage(Paths.get("this/is/a/path.txt"));
+		FileHelper file = new FileHelper(Paths.get("this/is/a/path.txt"), true);
+		RemoteFileDeletedMessage message = new RemoteFileDeletedMessage(file);
 		collector.onRemoteFileDeleted(message);
 		
 		CollectorTestUtils.captureAddActivityItem(ActivityType.INFORMATION, activityLogger);
@@ -77,7 +82,8 @@ public class FileManagerCollectorTest extends BaseJUnitTest {
 
 	@Test
 	public void testOnFileConfilct() {
-		LocalFileConflictMessage message = new LocalFileConflictMessage(Paths.get("this/is/a/path.txt"));
+		FileHelper file = new FileHelper(Paths.get("this/is/a/path.txt"), true);
+		LocalFileConflictMessage message = new LocalFileConflictMessage(file);
 		collector.onLocalFileConfilct(message);
 		
 		CollectorTestUtils.captureAddActivityItem(ActivityType.WARNING, activityLogger);
@@ -85,7 +91,8 @@ public class FileManagerCollectorTest extends BaseJUnitTest {
 	
 	@Test
 	public void testOnFileDesynchronized(){
-		LocalFileDesyncMessage message = new LocalFileDesyncMessage(Paths.get("this/is/a/path.txt"));
+		FileHelper file = new FileHelper(Paths.get("this/is/a/path.txt"), true);
+		LocalFileDesyncMessage message = new LocalFileDesyncMessage(file);
 		collector.onLocalFileDesynchronized(message);
 		
 		CollectorTestUtils.captureAddActivityItem(ActivityType.INFORMATION, activityLogger);
@@ -93,7 +100,8 @@ public class FileManagerCollectorTest extends BaseJUnitTest {
 	
 	@Test
 	public void testOnFileExecutionFailed(){
-		FileExecutionFailedMessage message = new FileExecutionFailedMessage(Paths.get("this/is/a/path.txt"));
+		FileHelper file = new FileHelper(Paths.get("this/is/a/path.txt"), true);
+		FileExecutionFailedMessage message = new FileExecutionFailedMessage(file);
 		collector.onFileExecutionFailed(message);
 		
 		CollectorTestUtils.captureAddActivityItem(ActivityType.ERROR, activityLogger);

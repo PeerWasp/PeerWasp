@@ -18,6 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Multimaps;
 import com.google.common.collect.SetMultimap;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -28,10 +29,10 @@ public class FileTree implements IFileTree {
 	private static final Logger logger = LoggerFactory.getLogger(FileTree.class);
 
 	private FolderComposite rootOfFileTree;
-	private SetMultimap<String, FolderComposite> deletedByStructureHash = HashMultimap.create();
-	private SetMultimap<String, FolderComposite> createdByStructureHash = HashMultimap.create();
-	private SetMultimap<String, FileComponent> deletedByContentHash = HashMultimap.create();
-	private SetMultimap<String, FileComponent> createdByContentHash = HashMultimap.create();
+	private SetMultimap<String, FolderComposite> deletedByStructureHash = Multimaps.synchronizedSetMultimap(HashMultimap.create());
+	private SetMultimap<String, FolderComposite> createdByStructureHash = Multimaps.synchronizedSetMultimap(HashMultimap.create());
+	private SetMultimap<String, FileComponent> deletedByContentHash = Multimaps.synchronizedSetMultimap(HashMultimap.create());
+	private SetMultimap<String, FileComponent> createdByContentHash = Multimaps.synchronizedSetMultimap(HashMultimap.create());
     private boolean maintainContentHashes;
 
     private final FileDao fileDao;
@@ -199,8 +200,8 @@ public class FileTree implements IFileTree {
 	}
 
 	@Override
-	public FileComponent findCreatedByContent(FileComponent deletedComponent) {
-		return findComponentInSetMultimap(deletedComponent, getCreatedByContentHash(), true);
+	public FileLeaf findCreatedByContent(FileLeaf deletedComponent) {
+		return (FileLeaf)findComponentInSetMultimap(deletedComponent, getCreatedByContentHash(), true);
 	}
 
 	/**
@@ -212,8 +213,8 @@ public class FileTree implements IFileTree {
 	 * @return
 	 */
 	@Override
-	public FileComponent findDeletedByContent(FileComponent createdComponent) {
-		return findComponentInSetMultimap(createdComponent, getDeletedByContentHash(), true);
+	public FileLeaf findDeletedByContent(FileLeaf createdComponent){
+		return (FileLeaf)findComponentInSetMultimap(createdComponent, getDeletedByContentHash(), true);
 	}
 
 	@Override

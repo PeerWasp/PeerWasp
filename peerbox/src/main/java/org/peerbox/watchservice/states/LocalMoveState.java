@@ -8,6 +8,7 @@ import org.hive2hive.processframework.exceptions.InvalidProcessStateException;
 import org.hive2hive.processframework.exceptions.ProcessExecutionException;
 import org.peerbox.app.manager.file.IFileManager;
 import org.peerbox.exceptions.NotImplException;
+import org.peerbox.presenter.settings.synchronization.FileHelper;
 import org.peerbox.watchservice.IAction;
 import org.peerbox.watchservice.filetree.IFileTree;
 import org.peerbox.watchservice.states.listeners.LocalFileAddListener;
@@ -84,7 +85,8 @@ public class LocalMoveState extends AbstractActionState {
 		final Path path = action.getFile().getPath();
 		handle = fileManager.move(source, path);
 		if(handle != null){
-			handle.getProcess().attachListener(new LocalFileMoveListener(path, action.getFileEventManager().getMessageBus()));
+			FileHelper file = new FileHelper(path, action.getFile().isFile());
+			handle.getProcess().attachListener(new LocalFileMoveListener(file, action.getFileEventManager().getMessageBus()));
 			handle.executeAsync();
 		}
 

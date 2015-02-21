@@ -19,6 +19,7 @@ import org.peerbox.app.manager.file.RemoteFileMovedMessage;
 import org.peerbox.app.manager.file.RemoteFileAddedMessage;
 import org.peerbox.app.manager.file.RemoteFileUpdatedMessage;
 import org.peerbox.events.MessageBus;
+import org.peerbox.presenter.settings.synchronization.FileHelper;
 import org.peerbox.presenter.tray.TrayException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,21 +59,24 @@ public class FileEventAggregatorTest  {
 		while(System.currentTimeMillis() < (startTime + timeToSendEvents)) {
 			Path p = Paths.get(String.valueOf(numFile));
 			Thread.sleep(rnd.nextInt(5));
+			FileHelper file = new FileHelper(p, true);
+			FileHelper dstFile = new FileHelper(Paths.get("my/path"), true);
 			switch (rnd.nextInt(4)) {
 				case 0:
-					aggregator.onFileAdded(new RemoteFileAddedMessage(p));
+					
+					aggregator.onFileAdded(new RemoteFileAddedMessage(file));
 					++totalAdded;
 					break;
 				case 1:
-					aggregator.onFileUpdated(new RemoteFileUpdatedMessage(p));
+					aggregator.onFileUpdated(new RemoteFileUpdatedMessage(file));
 					++totalModified;
 					break;
 				case 2:
-					aggregator.onFileDeleted(new RemoteFileDeletedMessage(p));
+					aggregator.onFileDeleted(new RemoteFileDeletedMessage(file));
 					++totalDeleted;
 					break;
 				case 3:
-					aggregator.onFileMoved(new RemoteFileMovedMessage(p, Paths.get("my/path")));
+					aggregator.onFileMoved(new RemoteFileMovedMessage(file, dstFile));
 					++totalMoved;
 				default:
 					break;

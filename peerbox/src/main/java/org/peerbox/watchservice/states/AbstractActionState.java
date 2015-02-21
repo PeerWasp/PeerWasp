@@ -14,11 +14,13 @@ import org.peerbox.exceptions.NotImplException;
 import org.peerbox.watchservice.IAction;
 import org.peerbox.watchservice.IFileEventManager;
 import org.peerbox.watchservice.filetree.composite.FileComponent;
+import org.peerbox.watchservice.filetree.composite.FileLeaf;
 import org.peerbox.watchservice.filetree.composite.FolderComposite;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.SetMultimap;
+import com.google.common.io.Files;
 
 /**
  * Interface for different states of implemented state pattern
@@ -126,8 +128,9 @@ public abstract class AbstractActionState {
 		action.getFile().setIsSynchronized(false);
 //		logger.debug("Deleted {} from tree.", action.getFile().getPath());
 		if(action.getFile().isFolder()){
+			//PROBLEM HIER!
 			FileComponent moveTarget = action.getFileEventManager().getFileTree().findCreatedByStructure((FolderComposite)action.getFile());
-			if(moveTarget != null){
+			if(moveTarget != null && moveTarget.getPath().toFile().exists()){
 				logger.trace("We observed a swapped folder move (deletion of source file "
 						+ "was reported after creation of target file: {} -> {}", action.getFile().getPath(), moveTarget.getPath());
 				FileComponent file = eventManager.getFileTree().deleteFile(action.getFile().getPath());
@@ -135,8 +138,8 @@ public abstract class AbstractActionState {
 				return handleLocalMove(moveTarget.getPath());
 			}
 		} else {
-			FileComponent moveTarget = action.getFileEventManager().getFileTree().findCreatedByContent(action.getFile());
-			if(moveTarget != null){
+			FileLeaf moveTarget = action.getFileEventManager().getFileTree().findCreatedByContent((FileLeaf)action.getFile());
+			if(moveTarget != null && !moveTarget.getPath().equals(action.getFile().getPath())){
 				logger.trace("We observed a swapped move (deletion of source file "
 						+ "was reported after creation of target file: {} -> {}", action.getFile().getPath(), moveTarget.getPath());
 
@@ -175,7 +178,7 @@ public abstract class AbstractActionState {
 	public AbstractActionState handleLocalMove(Path newPath) {
 		Path oldPath = Paths.get(action.getFile().getPath().toString());
 		logger.trace("oldPath1: {}", oldPath);
-		action.getFile().setPath(newPath);
+//		action.getFile().setPath(newPath);
 		action.getFileEventManager().getFileTree().putFile(newPath, action.getFile());
 		updateTimeAndQueue();
 		logger.trace("Added {} to queue", action.getFile().getPath());

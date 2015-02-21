@@ -57,9 +57,9 @@ public class FileComponentTest {
 	@Test
 	public void fileTreeOperationsTest(){
 
-		FolderComposite fileTree = new FolderComposite(parentPath, true);
-		FileLeaf fileOnRoot = new FileLeaf(fileOnRootPath, true);
-		FileLeaf fileInNewDir = new FileLeaf(fileInNewDirPath, true);
+		FolderComposite fileTree = new TestFolderComposite(parentPath, true, true);
+		FileLeaf fileOnRoot = new TestFileLeaf(fileOnRootPath, true);
+		FileLeaf fileInNewDir = new TestFileLeaf(fileInNewDirPath, true);
 		fileInNewDir.getAction().setFile(fileInNewDir);
 		fileOnRoot.getAction().setFile(fileOnRoot);
 		fileTree.putComponent(fileOnRootPath, fileOnRoot);
@@ -81,7 +81,7 @@ public class FileComponentTest {
 		component = fileTree.getComponent(dirInDirOnRootPath);
 		assertNull(component);
 
-		fileTree.putComponent(dirInDirOnRootPath, new FolderComposite(dirInDirOnRootPath, true));
+		fileTree.putComponent(dirInDirOnRootPath, new TestFolderComposite(dirInDirOnRootPath, true));
 		component = fileTree.getComponent(dirInDirOnRootPath);
 		assertTrue(component instanceof FolderComposite);
 		assertTrue(component.getPath().equals(dirInDirOnRootPath));
@@ -92,7 +92,7 @@ public class FileComponentTest {
 
 	private void bubbleContentHashUpdateTest(FolderComposite fileTree){
 		//put a new file in a lower directory
-		FileLeaf fileInDirInDirOnRoot = new FileLeaf(fileInDirInDirOnRootPath, true);
+		FileLeaf fileInDirInDirOnRoot = new TestFileLeaf(fileInDirInDirOnRootPath, true);
 		fileInDirInDirOnRoot.getAction().setFile(fileInDirInDirOnRoot);
 		fileTree.putComponent(fileInDirInDirOnRootPath, fileInDirInDirOnRoot);
 		FileComponent component = fileTree.getComponent(fileInDirInDirOnRootPath);

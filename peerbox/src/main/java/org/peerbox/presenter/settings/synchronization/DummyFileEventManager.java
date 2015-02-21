@@ -1,6 +1,7 @@
 package org.peerbox.presenter.settings.synchronization;
 
 import java.nio.file.Path;
+import java.util.Set;
 
 import org.hive2hive.core.events.framework.interfaces.file.IFileAddEvent;
 import org.peerbox.events.MessageBus;
@@ -52,6 +53,11 @@ public class DummyFileEventManager implements IFileEventManager{
 	}
 	@Override
 	public MessageBus getMessageBus() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	@Override
+	public Set<Path> getFailedOperations() {
 		// TODO Auto-generated method stub
 		return null;
 	}

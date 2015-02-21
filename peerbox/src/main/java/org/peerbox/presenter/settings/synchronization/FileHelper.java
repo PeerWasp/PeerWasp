@@ -6,21 +6,21 @@ public class FileHelper {
 
 	private Path path;
 	private boolean isFile;
-	
-	public FileHelper(Path path, boolean isFile){
+
+	public FileHelper(Path path, boolean isFile) {
 		this.path = path;
 		this.isFile = isFile;
 	}
-	
-	public Path getPath(){
+
+	public Path getPath() {
 		return path;
 	}
-	
-	public boolean isFile(){
+
+	public boolean isFile() {
 		return isFile;
 	}
-	
-	public boolean isFolder(){
+
+	public boolean isFolder() {
 		return !isFile;
 	}
 }

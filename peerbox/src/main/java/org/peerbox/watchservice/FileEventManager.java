@@ -2,10 +2,12 @@ package org.peerbox.watchservice;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Set;
 
 import net.engio.mbassy.listener.Handler;
 
 import org.apache.commons.io.FileUtils;
+import org.eclipse.jetty.util.ConcurrentHashSet;
 import org.hive2hive.core.events.framework.interfaces.IFileEventListener;
 import org.hive2hive.core.events.framework.interfaces.file.IFileAddEvent;
 import org.hive2hive.core.events.framework.interfaces.file.IFileDeleteEvent;
@@ -18,6 +20,7 @@ import org.peerbox.app.manager.file.LocalFileDesyncMessage;
 import org.peerbox.app.manager.file.RemoteFileDeletedMessage;
 import org.peerbox.app.manager.file.RemoteFileMovedMessage;
 import org.peerbox.events.MessageBus;
+import org.peerbox.presenter.settings.synchronization.FileHelper;
 import org.peerbox.watchservice.filetree.FileTree;
 import org.peerbox.watchservice.filetree.IFileTree;
 import org.peerbox.watchservice.filetree.composite.FileComponent;
@@ -35,12 +38,14 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 	private final ActionQueue fileComponentQueue;
 	private final FileTree fileTree;
 	private final MessageBus messageBus;
+	private final Set<Path> failedOperations;
 
     @Inject
 	public FileEventManager(final FileTree fileTree, MessageBus messageBus) {
     	this.fileComponentQueue = new ActionQueue();
 		this.fileTree = fileTree;
 		this.messageBus = messageBus;
+		this.failedOperations = new ConcurrentHashSet<Path>();
 	}
 
     /**
@@ -119,7 +124,7 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 	 */
 	@Override
 	public void onLocalFileDeleted(final Path path) {
-		publishMessage(new LocalFileDesyncMessage(path));
+
 		logger.debug("onLocalFileDelete: {}", path);
 
 		final FileComponent file = fileTree.getOrCreateFileComponent(path, this);
@@ -127,7 +132,7 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 			logger.debug("onLocalFileDelete: structure hash of {} is '{}'",
 					path, file.getStructureHash());
 		}
-
+		publishMessage(new LocalFileDesyncMessage(new FileHelper(path, file.isFile())));
 		file.getAction().handleLocalDeleteEvent();
 
 	}
@@ -212,7 +217,8 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 		final FileComponent file = fileTree.getOrCreateFileComponent(path, fileEvent.isFile(), this);
 		file.getAction().handleRemoteDeleteEvent();
 
-		messageBus.publish(new RemoteFileDeletedMessage(path));
+		FileHelper fileHelper = new FileHelper(path, file.isFile());
+		messageBus.publish(new RemoteFileDeletedMessage(fileHelper));
 	}
 
 	@Override
@@ -235,8 +241,10 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 
 		final FileComponent source = fileTree.getOrCreateFileComponent(srcPath, this);
 		source.getAction().handleRemoteMoveEvent(dstPath);
-		messageBus.publish(new RemoteFileMovedMessage(srcPath, dstPath));
 
+		FileHelper srcFile = new FileHelper(srcPath, fileEvent.isFile());
+		FileHelper dstFile = new FileHelper(srcPath, fileEvent.isFile());
+		messageBus.publish(new RemoteFileMovedMessage(srcFile, dstFile));
 	}
 
 	@Override
@@ -253,6 +261,11 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 	public synchronized IFileTree getFileTree() {
 		return fileTree;
 	}
+
+	@Override
+    public Set<Path> getFailedOperations(){
+    	return failedOperations;
+    }
 
 	public MessageBus getMessageBus() {
 		return messageBus;

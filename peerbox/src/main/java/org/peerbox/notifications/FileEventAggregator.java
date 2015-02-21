@@ -46,7 +46,7 @@ public class FileEventAggregator implements IMessageListener {
 	@Handler
 	public void onFileAdded(RemoteFileAddedMessage message) {
 		logger.trace("onFileAdded.");
-		Path path = message.getPath();
+		Path path = message.getFile().getPath();
 		addedFiles.add(path);
 		scheduleNotification();
 	}
@@ -54,7 +54,7 @@ public class FileEventAggregator implements IMessageListener {
 	@Handler
 	public void onFileMoved(RemoteFileMovedMessage message) {
 		logger.trace("onFileMoved.");
-		Path path = message.getPath();
+		Path path = message.getFile().getPath();;
 		movedFiles.add(path);
 		scheduleNotification();
 	}
@@ -62,7 +62,7 @@ public class FileEventAggregator implements IMessageListener {
 	@Handler
 	public void onFileUpdated(RemoteFileUpdatedMessage message) {
 		logger.trace("onFileUpdated.");
-		Path path = message.getPath();
+		Path path = message.getFile().getPath();
 		updatedFiles.add(path);
 		scheduleNotification();
 	}
@@ -70,7 +70,7 @@ public class FileEventAggregator implements IMessageListener {
 	@Handler
 	public void onFileDeleted(RemoteFileDeletedMessage message) {
 		logger.trace("onFileDeleted.");
-		Path path = message.getPath();
+		Path path = message.getFile().getPath();
 		deletedFiles.add(path);
 		scheduleNotification();
 	}

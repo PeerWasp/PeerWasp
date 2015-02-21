@@ -9,6 +9,7 @@ import org.hive2hive.core.exceptions.NoSessionException;
 import org.hive2hive.processframework.exceptions.InvalidProcessStateException;
 import org.hive2hive.processframework.exceptions.ProcessExecutionException;
 import org.peerbox.app.manager.file.IFileManager;
+import org.peerbox.presenter.settings.synchronization.FileHelper;
 import org.peerbox.watchservice.IAction;
 import org.peerbox.watchservice.IFileEventManager;
 import org.peerbox.watchservice.conflicthandling.ConflictHandler;
@@ -59,7 +60,8 @@ public class LocalUpdateState extends AbstractActionState {
 		logger.debug("Execute LOCAL UPDATE: {}", path);
 		handle = fileManager.update(path);
 		if (handle != null && handle.getProcess() != null) {
-			handle.getProcess().attachListener(new LocalFileUpdateListener(path, action.getFileEventManager().getMessageBus()));
+			FileHelper file = new FileHelper(path, action.getFile().isFile());
+			handle.getProcess().attachListener(new LocalFileUpdateListener(file, action.getFileEventManager().getMessageBus()));
 			handle.executeAsync();
 		} else {
 			System.err.println("Process or handle is null.");
