@@ -4,7 +4,6 @@ import java.nio.file.Path;
 import java.util.Set;
 
 import org.peerbox.watchservice.IAction;
-import org.peerbox.watchservice.states.AbstractActionState;
 
 public interface FileComponent {
 
@@ -53,7 +52,10 @@ public interface FileComponent {
 	boolean isReady();
 
 	void getSynchronizedChildrenPaths(Set<Path> synchronizedPaths);
-	
+
 	void updateStateOnLocalDelete();
+
+	@Override
+	String toString();
 
 }

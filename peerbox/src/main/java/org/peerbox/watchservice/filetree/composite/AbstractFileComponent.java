@@ -165,4 +165,7 @@ abstract class AbstractFileComponent implements FileComponent {
 //		throw new NotImplException(msg);
 	}
 
+	@Override
+	public abstract String toString();
+
 }

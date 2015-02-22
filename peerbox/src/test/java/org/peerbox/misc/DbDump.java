@@ -11,7 +11,7 @@ import org.peerbox.watchservice.filetree.persistency.RemoteFileDao;
 
 public class DbDump {
 
-	private static final Path db = Paths.get("/home/albrecht/PB1/config/688787d8ff144c502c7f5cffaafe2cc588d86079f9de88304c26b0cb99ce91c6.db");
+	private static final Path db = Paths.get("/home/albrecht/PW1/config/688787d8ff144c502c7f5cffaafe2cc588d86079f9de88304c26b0cb99ce91c6.db");
 
 	public static void main(String[] args) {
 		DbContext dbContext = UserDbUtils.createDbContext(db.toString());

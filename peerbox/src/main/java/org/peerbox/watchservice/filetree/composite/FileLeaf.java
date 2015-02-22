@@ -40,7 +40,7 @@ public class FileLeaf extends AbstractFileComponent {
 		boolean parentUploaded = getParent().isUploaded();
 		return parentUploaded;
 	}
-	
+
 	public void updateStateOnLocalDelete(AbstractActionState state){
 		getAction().getCurrentState().changeStateOnLocalDelete();
 	}
@@ -48,6 +48,13 @@ public class FileLeaf extends AbstractFileComponent {
 	@Override
 	public void updateStateOnLocalDelete() {
 		getAction().getCurrentState().changeStateOnLocalDelete();
+	}
+
+	@Override
+	public String toString() {
+		String s = String.format("File[path(%s), contentHash(%s), isUploaded(%s), isSynchronized(%s)]",
+				getPath(), getContentHash(), isUploaded(), isSynchronized());
+		return s;
 	}
 
 }

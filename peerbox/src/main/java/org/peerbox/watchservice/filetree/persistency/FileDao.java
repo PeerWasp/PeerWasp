@@ -181,4 +181,17 @@ public class FileDao {
 			return f;
 		}
 	}
+
+	public Boolean isSynchronizedByPath(Path path) {
+		final String sql = String.format(
+				"SELECT is_synchronized isSynchronized FROM %s WHERE path = :path", FILE_TABLE);
+
+		Boolean isSync = null;
+		try(Connection con = sql2o.open()) {
+			isSync = con.createQuery(sql)
+					.addParameter("path", path.toString())
+					.executeScalar(Boolean.class);
+		}
+		return isSync;
+	}
 }

@@ -517,7 +517,6 @@ public class Action implements IAction {
 
 	@Override
 	public boolean isExecuting() {
-		logger.trace("File {} is executing: {}", file.getPath(), isExecuting);
 		return isExecuting;
 	}
 
@@ -553,6 +552,17 @@ public class Action implements IAction {
 	@Override
 	public void setFile(final FileComponent file) {
 		this.file = file;
+	}
+
+	@Override
+	public void setCurrentState(AbstractActionState state) {
+		this.currentState = state;
+	}
+
+	@Override
+	public String toString() {
+		return String.format("Action[currentState(%s), nextState(%s), isExecuting(%s), changedWhileExecuted(%s), executionAttempts(%d),]",
+				getCurrentStateName(), getNextStateName(), isExecuting(), changedWhileExecuted, executionAttempts);
 	}
 
 }

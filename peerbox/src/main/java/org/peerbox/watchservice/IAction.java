@@ -46,5 +46,9 @@ public interface IAction {
 
 	void onSucceeded();
 	void onFailed();
+	void setCurrentState(AbstractActionState state);
+
+	@Override
+	String toString();
 
 }

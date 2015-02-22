@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.eclipse.jetty.util.ConcurrentHashSet;
+import org.peerbox.app.ClientContext;
 import org.peerbox.watchservice.FileEventManager;
 import org.peerbox.watchservice.FileWalker;
 import org.peerbox.watchservice.IFileEventManager;
@@ -297,4 +298,5 @@ public class FileTree implements IFileTree {
 		}
 		return list;
 	}
+
 }
