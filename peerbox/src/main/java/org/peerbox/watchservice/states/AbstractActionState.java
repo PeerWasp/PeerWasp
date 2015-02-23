@@ -128,7 +128,6 @@ public abstract class AbstractActionState {
 		action.getFile().setIsSynchronized(false);
 //		logger.debug("Deleted {} from tree.", action.getFile().getPath());
 		if(action.getFile().isFolder()){
-			//PROBLEM HIER!
 			FileComponent moveTarget = action.getFileEventManager().getFileTree().findCreatedByStructure((FolderComposite)action.getFile());
 			if(moveTarget != null && moveTarget.getPath().toFile().exists()){
 				logger.trace("We observed a swapped folder move (deletion of source file "

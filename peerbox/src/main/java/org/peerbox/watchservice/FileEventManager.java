@@ -17,13 +17,17 @@ import org.hive2hive.core.events.framework.interfaces.file.IFileUpdateEvent;
 import org.hive2hive.core.events.implementations.FileAddEvent;
 import org.peerbox.app.manager.file.IFileMessage;
 import org.peerbox.app.manager.file.LocalFileDesyncMessage;
+import org.peerbox.app.manager.file.RemoteFileAddedMessage;
 import org.peerbox.app.manager.file.RemoteFileDeletedMessage;
 import org.peerbox.app.manager.file.RemoteFileMovedMessage;
 import org.peerbox.events.MessageBus;
 import org.peerbox.presenter.settings.synchronization.FileHelper;
+import org.peerbox.presenter.settings.synchronization.messages.FileExecutionStartedMessage;
 import org.peerbox.watchservice.filetree.FileTree;
 import org.peerbox.watchservice.filetree.IFileTree;
 import org.peerbox.watchservice.filetree.composite.FileComponent;
+import org.peerbox.watchservice.states.StateType;
+import org.peerbox.watchservice.states.listeners.RemoteFileAddListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -193,18 +197,24 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 		logger.debug("onFileAdd: {}", path);
 
 		final FileComponent file = fileTree.getOrCreateFileComponent(path, fileEvent.isFile(), this);
+		
+		file.getAction().setFile(file);
+		file.getAction().setFileEventManager(this);
+		
 		if (!hasSynchronizedAncestor(path)) {
 			logger.debug("File {} is in folder that is not synchronized. Event ignored.", path);
 			// TODO: set isSynchronized = false?
-			return;
+			file.setIsSynchronized(false);
+			getMessageBus().publish(new FileExecutionStartedMessage(new FileHelper(path, fileEvent.isFile()), StateType.INITIAL));
+			//return;
 		} else {
 			logger.debug("File {} is in folder that is synchronized.", path);
 			file.setIsSynchronized(true);
+			file.getAction().handleRemoteCreateEvent();
 		}
 
-		file.getAction().setFile(file);
-		file.getAction().setFileEventManager(this);
-		file.getAction().handleRemoteCreateEvent();
+
+
 
 	}
 
@@ -218,6 +228,7 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 		file.getAction().handleRemoteDeleteEvent();
 
 		FileHelper fileHelper = new FileHelper(path, file.isFile());
+		
 		messageBus.publish(new RemoteFileDeletedMessage(fileHelper));
 	}
 

@@ -201,10 +201,13 @@ public class InitialState extends AbstractActionState {
 		return changeStateOnRemoteCreate();
 	}
 
-	@Override
-	public AbstractActionState handleRemoteDelete() {
-		throw new NotImplException("InitialState.handleRemoteDelete");
-	}
+//	@Override
+//	public AbstractActionState handleRemoteDelete() {
+//		logger.trace("Remote delete of a soft-deleted file: {}", action.getFile().getPath());
+//		updateTimeAndQueue();
+//		return this;//
+//		//throw new NotImplException("InitialState.handleRemoteDelete");
+//	}
 
 	@Override
 	public ExecutionHandle execute(IFileManager fileManager) throws NoSessionException,

@@ -255,7 +255,7 @@ public class FolderComposite extends AbstractFileComponent {
 		}
 		for (Map.Entry<Path, FileComponent> entry : children.entrySet()) {
 			if (entry.getValue().isSynchronized()) {
-				logger.debug("--Add {} to synchronized files.", entry.getValue().getPath());
+				logger.debug("--Add {} with ID {} to synchronized files.", entry.getValue().getPath(), entry.getValue().hashCode());
 				synchronizedPaths.add(entry.getValue().getPath());
 				entry.getValue().getSynchronizedChildrenPaths(synchronizedPaths);
 			}
@@ -275,9 +275,9 @@ public class FolderComposite extends AbstractFileComponent {
 	@Override
 	public void setIsSynchronized(boolean isSynchronized) {
 		super.setIsSynchronized(isSynchronized);
-		for (FileComponent child : children.values()) {
-			child.setIsSynchronized(isSynchronized);
-		}
+//		for (FileComponent child : children.values()) {
+//			child.setIsSynchronized(isSynchronized);
+//		}
 	}
 
 	@Override
