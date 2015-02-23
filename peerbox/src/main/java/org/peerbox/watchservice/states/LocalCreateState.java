@@ -9,6 +9,7 @@ import org.hive2hive.processframework.exceptions.InvalidProcessStateException;
 import org.hive2hive.processframework.exceptions.ProcessExecutionException;
 import org.hive2hive.processframework.interfaces.IProcessEventArgs;
 import org.peerbox.app.manager.file.IFileManager;
+import org.peerbox.events.MessageBus;
 import org.peerbox.presenter.settings.synchronization.FileHelper;
 import org.peerbox.watchservice.IAction;
 import org.peerbox.watchservice.conflicthandling.ConflictHandler;
@@ -37,8 +38,14 @@ public class LocalCreateState extends AbstractActionState {
 
 	@Override
 	public AbstractActionState changeStateOnLocalUpdate() {
-		logger.debug("Local Update Event: Stay in Local Create ({})", action.getFile().getPath());
+		logStateTransition(getStateType(), EventType.LOCAL_UPDATE, StateType.LOCAL_CREATE);
 		return this;
+	}
+	
+	@Override
+	public AbstractActionState changeStateOnLocalHardDelete(){
+		logStateTransition(getStateType(), EventType.LOCAL_HARD_DELETE, StateType.INITIAL);
+		return new InitialState(action);
 	}
 
 	@Override
@@ -62,27 +69,26 @@ public class LocalCreateState extends AbstractActionState {
 	@Override
 	public ExecutionHandle execute(IFileManager fileManager) throws InvalidProcessStateException,
 			ProcessExecutionException, NoSessionException, NoPeerConnectionException {
-		final Path path = action.getFile().getPath();
+
+		final FileComponent file = action.getFile();
+		final Path path = file.getPath();
+		final MessageBus messageBus = action.getFileEventManager().getMessageBus();
+		
 		logger.debug("Execute LOCAL CREATE: {}", path);
+		
 		handle = fileManager.add(path);
 		if (handle != null && handle.getProcess() != null) {
-			FileHelper helper = new FileHelper(path, action.getFile().isFile());
-			handle.getProcess().attachListener(new LocalFileAddListener(helper, action.getFileEventManager().getMessageBus()));
+			FileHelper helper = new FileHelper(path, file.isFile());
+			handle.getProcess().attachListener(new LocalFileAddListener(helper, messageBus));
 			handle.executeAsync();
 		} else {
 			System.err.println("process or handle is null");
 		}
 		
 		String contentHash = action.getFile().getContentHash();
-		Path pathToRemove = action.getFile().getPath();
 		IFileTree fileTree = action.getFileEventManager().getFileTree();
-		boolean isRemoved = fileTree.getCreatedByContentHash().get(contentHash).remove(action.getFile());
-		logger.trace("IsRemoved for file {} with hash {}: {}", action.getFile().getPath(), contentHash, isRemoved);
+		fileTree.getCreatedByContentHash().get(contentHash).remove(action.getFile());
 
-		for (Map.Entry entry : fileTree.getCreatedByContentHash().entries()) {
-			FileComponent comp = (FileComponent)entry.getValue();
-			logger.trace("- Hash: {} Path: {}", entry.getKey(), comp.getPath());
-		}
 		return new ExecutionHandle(action, handle);
 	}
 
@@ -116,13 +122,4 @@ public class LocalCreateState extends AbstractActionState {
 		action.getFileEventManager().getFileComponentQueue().remove(action.getFile());
 		return changeStateOnLocalHardDelete();
 	}
-
-	public AbstractActionState changeStateOnLocalHardDelete(){
-		return new InitialState(action);
-	}
-
-	public void performCleanup(){
-//		action.setIsUploaded(true);
-	}
-	
 }

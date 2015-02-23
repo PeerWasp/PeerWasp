@@ -7,6 +7,8 @@ import org.hive2hive.core.exceptions.NoSessionException;
 import org.hive2hive.processframework.exceptions.InvalidProcessStateException;
 import org.peerbox.app.manager.file.IFileManager;
 import org.peerbox.watchservice.IAction;
+import org.peerbox.watchservice.IFileEventManager;
+import org.peerbox.watchservice.filetree.IFileTree;
 import org.peerbox.watchservice.filetree.composite.FileComponent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,7 +19,13 @@ public class EstablishedState extends AbstractActionState{
 
 	public EstablishedState(IAction action) {
 		super(action, StateType.ESTABLISHED);
-
+	}
+	
+	@Override
+	public ExecutionHandle execute(IFileManager fileManager) throws NoSessionException,
+			NoPeerConnectionException, InvalidProcessStateException {
+		logger.error("Execute in the ESTABLISHED state is only called due to wrong behaviour! {}", action.getFile().getPath());
+		return null;
 	}
 
 	@Override
@@ -39,23 +47,10 @@ public class EstablishedState extends AbstractActionState{
 	}
 
 	@Override
-	public ExecutionHandle execute(IFileManager fileManager) throws NoSessionException,
-			NoPeerConnectionException, InvalidProcessStateException {
-		logger.error("Execute in the ESTABLISHED state is only called due to wrong behaviour! {}", action.getFile().getPath());
-		return null;
-	}
-
-	@Override
 	public AbstractActionState handleLocalCreate() {
 		action.getFile().updateContentHash();
 		return changeStateOnLocalCreate();
 	}
-
-//	@Override
-//	public AbstractActionState handleLocalMove(Path newPath) {
-//		action.getFileEventManager().getFileTree().putFile(newPath, action.getFile());
-//		return changeStateOnLocalMove(newPath);
-//	}
 
 	@Override
 	public AbstractActionState handleRemoteCreate() {
@@ -64,19 +59,18 @@ public class EstablishedState extends AbstractActionState{
 	}
 
 	@Override
-	public AbstractActionState handleRemoteMove(Path dstPath) {
-		action.getFileEventManager().getFileComponentQueue().remove(action.getFile());
-		Path oldPath = action.getFile().getPath();
-		logger.debug("Modify the tree accordingly. Src: {} Dst: {}", action.getFile().getPath(), dstPath);
+	public AbstractActionState handleRemoteMove(Path destPath) {
+		final IFileEventManager eventManager = action.getFileEventManager();
+		final IFileTree fileTree = eventManager.getFileTree();
+		final FileComponent file = action.getFile();
+		
+		eventManager.getFileComponentQueue().remove(file);
+		Path sourcePath = file.getPath();
 
-		FileComponent deleted = action.getFileEventManager().getFileTree().deleteFile(action.getFile().getPath());
-		action.getFileEventManager().getFileTree().putFile(dstPath, action.getFile());
+		fileTree.deleteFile(file.getPath());
+		fileTree.putFile(destPath, file);
 
-		Path path = dstPath;
-		logger.debug("Execute REMOTE MOVE: {}", path);
-
-		AbstractActionState returnState = changeStateOnRemoteMove(oldPath);
-		return returnState;
+		return changeStateOnRemoteMove(sourcePath);
 	}
 
 }

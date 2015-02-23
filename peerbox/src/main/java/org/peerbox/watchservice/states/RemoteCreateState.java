@@ -23,62 +23,7 @@ public class RemoteCreateState extends AbstractActionState {
 	public RemoteCreateState(IAction action) {
 		super(action, StateType.REMOTE_CREATE);
 	}
-
-	@Override
-	public AbstractActionState changeStateOnLocalCreate() {
-		logger.debug("Local Create Event in RemoteCreateState!  ({}) {}",
-				action.getFile().getPath(), action.hashCode());
-		return new EstablishedState(action);
-	}
-
-	@Override
-	public AbstractActionState changeStateOnRemoteUpdate() {
-		logger.debug("Remote Update Event:  ({})", action.getFile().getPath());
-		return this;
-	}
-
-	@Override
-	public AbstractActionState handleLocalCreate() {
-		action.getFile().updateContentHash();//updateContentHash();
-		return changeStateOnLocalCreate();
-	}
-
-	@Override
-	public AbstractActionState handleLocalDelete() {
-		return changeStateOnLocalDelete();
-	}
-
-	@Override
-	public AbstractActionState handleLocalUpdate() {
-		ConflictHandler.resolveConflict(action.getFile().getPath());
-		return changeStateOnLocalUpdate();
-	}
-
-//	@Override
-//	public AbstractActionState handleLocalMove(Path oldPath) {
-//		return changeStateOnLocalMove(oldPath);
-//	}
-
-	@Override
-	public AbstractActionState handleRemoteCreate() {
-		return changeStateOnRemoteCreate();
-	}
-
-	@Override
-	public AbstractActionState handleRemoteDelete() {
-		return changeStateOnRemoteDelete();
-	}
-
-	@Override
-	public AbstractActionState handleRemoteUpdate() {
-		throw new NotImplException("RemoteCreateState.handleRemoteUpdate");
-	}
-
-	@Override
-	public AbstractActionState handleRemoteMove(Path path) {
-		return changeStateOnRemoteMove(path);
-	}
-
+	
 	@Override
 	public ExecutionHandle execute(IFileManager fileManager) throws InvalidProcessStateException,
 			ProcessExecutionException, NoSessionException, NoPeerConnectionException {
@@ -93,6 +38,55 @@ public class RemoteCreateState extends AbstractActionState {
 			System.err.println("process or handle is null");
 		}
 		return new ExecutionHandle(action, handle);
+	}
+
+	@Override
+	public AbstractActionState changeStateOnLocalCreate() {
+		logStateTransition(getStateType(), EventType.LOCAL_CREATE, StateType.ESTABLISHED);
+		return new EstablishedState(action);
+	}
+
+	@Override
+	public AbstractActionState changeStateOnRemoteUpdate() {
+		logStateTransition(getStateType(), EventType.REMOTE_UPDATE, StateType.REMOTE_CREATE);
+		return this;
+	}
+
+	@Override
+	public AbstractActionState handleLocalCreate() {
+		action.getFile().updateContentHash();
+		return changeStateOnLocalCreate();
+	}
+
+	@Override
+	public AbstractActionState handleLocalDelete() {
+		return changeStateOnLocalDelete();
+	}
+
+	@Override
+	public AbstractActionState handleLocalUpdate() {
+		ConflictHandler.resolveConflict(action.getFile().getPath());
+		return changeStateOnLocalUpdate();
+	}
+
+	@Override
+	public AbstractActionState handleRemoteCreate() {
+		return changeStateOnRemoteCreate();
+	}
+
+	@Override
+	public AbstractActionState handleRemoteDelete() {
+		return changeStateOnRemoteDelete();
+	}
+
+	@Override
+	public AbstractActionState handleRemoteUpdate() {
+		return changeStateOnRemoteUpdate();
+	}
+
+	@Override
+	public AbstractActionState handleRemoteMove(Path path) {
+		return changeStateOnRemoteMove(path);
 	}
 	
 	public boolean localCreateHappened(){

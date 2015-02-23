@@ -37,14 +37,10 @@ public class InitialState extends AbstractActionState {
 		super(action, StateType.INITIAL);
 	}
 
-
-//	@Override
-//	public AbstractActionState changeStateOnLocalDelete() {
-//		logStateTransission(getStateType(), EventType.LOCAL_DELETE, StateType.LOCAL_DELETE);
-////		return new LocalDeleteState(action);
-//		return this;
-//	}
-
+	public AbstractActionState getDefaultState() {
+		return this;
+	}
+	
 	@Override
 	public AbstractActionState changeStateOnLocalMove(Path source) {
 		logStateTransition(getStateType(), EventType.LOCAL_MOVE, StateType.LOCAL_MOVE);
@@ -53,23 +49,18 @@ public class InitialState extends AbstractActionState {
 
 	@Override
 	public AbstractActionState changeStateOnRemoteMove(Path oldFilePath) {
-		logger.debug("Remote Move Event: Initial -> Remote Move ({}) {}",
-				action.getFile().getPath(), action.hashCode());
-
-		Path path = action.getFile().getPath();
-		logger.debug("Execute REMOTE MOVE: {}", path);
 		throw new NotImplException("InitialState.onremoteMove");
 	}
 
 	@Override
 	public AbstractActionState changeStateOnLocalCreate(){
-		//case:
 		if(action.getFile().isUploaded()){
 			logStateTransition(getStateType(), EventType.LOCAL_CREATE, StateType.ESTABLISHED);
 			return new EstablishedState(action);
+		} else {
+			logStateTransition(getStateType(), EventType.LOCAL_CREATE, StateType.LOCAL_CREATE);
+			return new LocalCreateState(action);
 		}
-		logStateTransition(getStateType(), EventType.LOCAL_CREATE, StateType.LOCAL_CREATE);
-		return new LocalCreateState(action);
 	}
 
 	@Override
@@ -100,6 +91,36 @@ public class InitialState extends AbstractActionState {
 		}
 	}
 
+	@Override
+	public AbstractActionState handleLocalDelete() {
+		logger.debug("Local Delete is ignored in InitialState for {}", action.getFile().getPath());
+		return this;
+	}
+
+	@Override
+	public AbstractActionState handleLocalMove(Path destPath) {
+		Path oldPath = action.getFile().getPath();
+		action.getFileEventManager().getFileTree().putFile(destPath, action.getFile());
+		updateTimeAndQueue();
+		return changeStateOnLocalMove(oldPath);
+	}
+
+	@Override
+	public AbstractActionState handleRemoteCreate() {
+		FileComponent file = action.getFile();
+		action.getFileEventManager().getFileTree().putFile(file.getPath(), file);
+		updateTimeAndQueue();
+		return changeStateOnRemoteCreate();
+	}
+
+	@Override
+	public ExecutionHandle execute(IFileManager fileManager) throws NoSessionException,
+			NoPeerConnectionException {
+		logger.warn("Execute is not defined in the initial state  ({})", action.getFile().getPath());
+		return null;
+	}
+
+	
 	private void addComponentToMoveTargetCandidates() {
 		if(action.getFile().isFile()){
 			SetMultimap<String, FileComponent> createdByContentHash = action.getFileEventManager().getFileTree().getCreatedByContentHash();
@@ -173,50 +194,6 @@ public class InitialState extends AbstractActionState {
 		SetMultimap<String, FolderComposite> createdByStructureHash = action.getFileEventManager().getFileTree().getCreatedByStructureHash();
 		boolean wasRemoved = createdByStructureHash.get(action.getFile().getStructureHash()).remove((FolderComposite)action.getFile());
 		// TODO: cleanup filecomponentqueue: remove children of folder if in localcreate state!
-		return this;
-	}
-
-
-	@Override
-	public AbstractActionState handleLocalDelete() {
-		logger.debug("Local Delete is ignored in InitialState for {}", action.getFile().getPath());
-		return this;
-	}
-
-	@Override
-	public AbstractActionState handleLocalMove(Path newPath) {
-		Path oldPath = action.getFile().getPath();
-//		action.getFile().setPath(newPath);
-		action.getFileEventManager().getFileTree().putFile(newPath, action.getFile());
-		updateTimeAndQueue();
-		return changeStateOnLocalMove(oldPath);
-	}
-
-	@Override
-	public AbstractActionState handleRemoteCreate() {
-//		logger.trace("{}", action.getFileEventManager().getFileTree().getClass().getSimpleName());
-//		action.getEventManager().getFileTree().putComponent(action.getFilePath().toString(), action.getFile());
-		action.getFileEventManager().getFileTree().putFile(action.getFile().getPath(), action.getFile());
-		updateTimeAndQueue();
-		return changeStateOnRemoteCreate();
-	}
-
-//	@Override
-//	public AbstractActionState handleRemoteDelete() {
-//		logger.trace("Remote delete of a soft-deleted file: {}", action.getFile().getPath());
-//		updateTimeAndQueue();
-//		return this;//
-//		//throw new NotImplException("InitialState.handleRemoteDelete");
-//	}
-
-	@Override
-	public ExecutionHandle execute(IFileManager fileManager) throws NoSessionException,
-			NoPeerConnectionException {
-		logger.warn("Execute is not defined in the initial state  ({})", action.getFile().getPath());
-		return null;
-	}
-
-	public AbstractActionState getDefaultState() {
 		return this;
 	}
 }

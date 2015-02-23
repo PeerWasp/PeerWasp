@@ -38,47 +38,7 @@ public class LocalMoveState extends AbstractActionState {
 	public Path getSourcePath() {
 		return source;
 	}
-
-	@Override
-	public AbstractActionState changeStateOnLocalCreate() {
-		return new InitialState(action); //Move is applied to source files, this is the destination, hence the event is ignored
-	}
-
-	// TODO Needs to be verified (Patrick, 21.10.14)
-	@Override
-	public AbstractActionState changeStateOnLocalUpdate() {
-		logger.debug("Local Update Event: Local Move -> Local Update ({})", action.getFile().getPath());
-
-		return new LocalUpdateState(action);
-	}
-
-	@Override
-	public AbstractActionState changeStateOnLocalMove(Path destination) {
-		logger.debug("Local Move Event: not defined ({})", action.getFile().getPath());
-//		throw new IllegalStateException("Local Move Event: not defined");
-		return new InitialState(action);
-	}
-
-	@Override
-	public AbstractActionState changeStateOnRemoteUpdate() {
-		logger.debug("Remote Update Event: Local Move -> Conflict ({})", action.getFile().getPath());
-		throw new NotImplException("Conflict handling during move not yet supported");
-//		return new ConflictState(action);
-	}
-
-	@Override
-	public AbstractActionState changeStateOnRemoteDelete() {
-		logger.debug("Remote Delete Event: Local Move -> Local Create ({})", action.getFile().getPath());
-		return new LocalCreateState(action);
-	}
-
-	@Override
-	public AbstractActionState changeStateOnRemoteMove(Path oldFilePath) {
-		logger.debug("Remote Move Event: Local Move -> Conflict ({})", action.getFile().getPath());
-		throw new NotImplException("Conflict handling during move not yet supported");
-//		return new ConflictState(action);
-	}
-
+	
 	@Override
 	public ExecutionHandle execute(IFileManager fileManager) throws NoSessionException, NoPeerConnectionException, ProcessExecutionException, InvalidProcessStateException {
 
@@ -102,9 +62,46 @@ public class LocalMoveState extends AbstractActionState {
 	}
 
 	@Override
-	public AbstractActionState changeStateOnRemoteCreate() {
+	public AbstractActionState changeStateOnLocalCreate() {
+		logStateTransition(getStateType(), EventType.LOCAL_CREATE, StateType.INITIAL);
+		return new InitialState(action); //Move is applied to source files, this is the destination, hence the event is ignored
+	}
+
+	// TODO Needs to be verified (Patrick, 21.10.14)
+	@Override
+	public AbstractActionState changeStateOnLocalUpdate() {
+		logStateTransition(getStateType(), EventType.LOCAL_UPDATE, StateType.LOCAL_UPDATE);
+		return new LocalUpdateState(action);
+	}
+
+	@Override
+	public AbstractActionState changeStateOnLocalMove(Path destination) {
+		logStateTransition(getStateType(), EventType.LOCAL_MOVE, StateType.INITIAL);
+		return new InitialState(action);
+	}
+
+	@Override
+	public AbstractActionState changeStateOnRemoteUpdate() {
+		logger.debug("Remote Update Event: Local Move -> Conflict ({})", action.getFile().getPath());
 		throw new NotImplException("Conflict handling during move not yet supported");
 //		return new ConflictState(action);
+	}
+
+	@Override
+	public AbstractActionState changeStateOnRemoteDelete() {
+		logStateTransition(getStateType(), EventType.REMOTE_DELETE, StateType.LOCAL_CREATE);
+		return new LocalCreateState(action);
+	}
+
+	@Override
+	public AbstractActionState changeStateOnRemoteMove(Path oldFilePath) {
+		logger.debug("Remote Move Event: Local Move -> Conflict ({})", action.getFile().getPath());
+		throw new NotImplException("Conflict handling during move not yet supported");
+	}
+
+	@Override
+	public AbstractActionState changeStateOnRemoteCreate() {
+		throw new NotImplException("Conflict handling during move not yet supported");
 	}
 
 	@Override
@@ -115,13 +112,8 @@ public class LocalMoveState extends AbstractActionState {
 
 	@Override
 	public AbstractActionState handleLocalUpdate() {
-		throw new NotImplException("LocalMoveState.handleLocalUpdate");
+		return changeStateOnLocalUpdate();
 	}
-
-//	@Override
-//	public AbstractActionState handleLocalMove(Path oldPath) {
-//		throw new NotImplException("LocalMoveState.handleLocalMove");
-//	}
 
 	@Override
 	public AbstractActionState handleRemoteCreate() {
@@ -143,6 +135,6 @@ public class LocalMoveState extends AbstractActionState {
 
 	@Override
 	public AbstractActionState handleRemoteMove(Path path) {
-		throw new NotImplException("LocalMoveState.handleRemoteMove");
+		return changeStateOnRemoteMove(path);
 	}
 }

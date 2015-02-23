@@ -14,7 +14,6 @@ import org.peerbox.watchservice.IAction;
 import org.peerbox.watchservice.IFileEventManager;
 import org.peerbox.watchservice.conflicthandling.ConflictHandler;
 import org.peerbox.watchservice.filetree.composite.FileComponent;
-import org.peerbox.watchservice.states.listeners.LocalFileAddListener;
 import org.peerbox.watchservice.states.listeners.LocalFileUpdateListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,25 +34,7 @@ public class LocalUpdateState extends AbstractActionState {
 	public LocalUpdateState(IAction action) {
 		super(action, StateType.LOCAL_UPDATE);
 	}
-
-	@Override
-	public AbstractActionState changeStateOnLocalCreate() {
-		logger.debug("Local Create Event: Stay in Local Update ({})", action.getFile().getPath());
-		return this;
-	}
-
-	@Override
-	public AbstractActionState changeStateOnRemoteDelete() {
-		logStateTransition(getStateType(), EventType.REMOTE_DELETE, StateType.LOCAL_CREATE);
-		return new LocalCreateState(action);
-	}
-
-	@Override
-	public AbstractActionState changeStateOnRemoteMove(Path oldFilePath) {
-		logStateTransition(getStateType(), EventType.REMOTE_MOVE, StateType.LOCAL_UPDATE);
-		return this;
-	}
-
+	
 	@Override
 	public ExecutionHandle execute(IFileManager fileManager) throws NoSessionException, NoPeerConnectionException, InvalidProcessStateException, ProcessExecutionException {
 		final Path path = action.getFile().getPath();
@@ -70,7 +51,26 @@ public class LocalUpdateState extends AbstractActionState {
 	}
 
 	@Override
+	public AbstractActionState changeStateOnLocalCreate() {
+		logStateTransition(getStateType(), EventType.LOCAL_CREATE, StateType.LOCAL_UPDATE);
+		return this;
+	}
+
+	@Override
+	public AbstractActionState changeStateOnRemoteDelete() {
+		logStateTransition(getStateType(), EventType.REMOTE_DELETE, StateType.LOCAL_CREATE);
+		return new LocalCreateState(action);
+	}
+
+	@Override
+	public AbstractActionState changeStateOnRemoteMove(Path oldFilePath) {
+		logStateTransition(getStateType(), EventType.REMOTE_MOVE, StateType.LOCAL_UPDATE);
+		return this;
+	}
+
+	@Override
 	public AbstractActionState changeStateOnRemoteCreate() {
+		logStateTransition(getStateType(), EventType.REMOTE_CREATE, StateType.REMOTE_CREATE);
 		return new RemoteCreateState(action);
 	}
 
@@ -81,7 +81,6 @@ public class LocalUpdateState extends AbstractActionState {
 
 	@Override
 	public AbstractActionState handleLocalUpdate() {
-		IFileEventManager eventManager = action.getFileEventManager();
 		updateTimeAndQueue();
 		return changeStateOnLocalUpdate();
 	}

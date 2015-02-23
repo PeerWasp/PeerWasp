@@ -446,7 +446,6 @@ public class Action implements IAction {
 		try {
 			acquireLock();
 
-			currentState.performCleanup();
 			currentState = nextState;
 			nextState = nextState.getDefaultState();
 			setIsExecuting(false);
