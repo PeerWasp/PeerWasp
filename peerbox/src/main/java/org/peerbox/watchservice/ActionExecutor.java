@@ -129,7 +129,7 @@ public class ActionExecutor implements Runnable {
 							logger.debug("Put into async handles!");
 							FileHelper file = new FileHelper(next.getPath(), next.isFile());
 //							fileEventManager.getMessageBus().publish(new FileExecutionStartedMessage(file));
-							publishMessage(new FileExecutionStartedMessage(file));
+							publishMessage(new FileExecutionStartedMessage(file, next.getAction().getCurrentState().getStateType()));
 							asyncHandles.put(ehandle);
 						} else {
 //							if(!next.isSynchronized()){

@@ -37,6 +37,8 @@ import org.peerbox.app.config.UserConfig;
 import org.peerbox.app.manager.file.LocalFileDesyncMessage;
 import org.peerbox.app.manager.file.FileExecutionFailedMessage;
 import org.peerbox.app.manager.file.IFileManager;
+import org.peerbox.app.manager.file.RemoteFileAddedMessage;
+import org.peerbox.app.manager.file.RemoteFileDeletedMessage;
 import org.peerbox.presenter.settings.synchronization.eventbus.IExecutionMessageListener;
 import org.peerbox.presenter.settings.synchronization.messages.FileExecutionStartedMessage;
 import org.peerbox.presenter.settings.synchronization.messages.FileExecutionSucceededMessage;
@@ -100,8 +102,13 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 	public void acceptSyncAction(ActionEvent event) {
 		synchronizedFiles = eventManager.getFileTree().getSynchronizedPathsAsSet();
 
+		for(Path path: synchronizedFiles){
+			logger.trace("in sync from fem: {}", path);
+		}
 		for(FileHelper node : toSynchronize){
+			logger.trace("Sync the file {}", node.getPath());
 			if(!synchronizedFiles.contains(node.getPath()))
+				
 				eventManager.onFileSynchronized(node.getPath(), node.isFolder());
 		}
 		for(FileHelper node: toDesynchronize.descendingSet()){
@@ -170,6 +177,19 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 		updateIconInUIThread(item, view);
 		updateTooltipInUIThread(item, SynchronizationUtils.getInProgressToolTip());
 	}
+	
+	@Override
+	@Handler
+	public void onFileRemotelyDeleted(RemoteFileDeletedMessage message){
+		logger.trace("onFileRemotelyDeleted: {}", message.getFile().getPath());	
+		
+		javafx.application.Platform.runLater(new Runnable() {
+	        @Override
+	        public void run() {
+	        	removeTreeItem(message.getFile().getPath());
+	        }
+		});
+	}
 
 	@Override
 	@Handler
@@ -185,8 +205,7 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 		        }
 			});
 			break;
-		default:
-	
+		case INITIAL:
 			logger.trace("onExecutionSucceeds: {}", message.getFile().getPath());
 			CheckBoxTreeItem<PathItem> item = getTreeItem(message.getFile().getPath());
 			
@@ -199,6 +218,28 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 			}
 		
 			ImageView view;
+			if(message.getFile().isFile()){
+				view = SynchronizationUtils.getFileSuccessIcon();
+			} else {
+				view = SynchronizationUtils.getFolderSuccessIcon();
+			}
+			
+			updateIconInUIThread(item, view);
+			updateTooltipInUIThread(item, SynchronizationUtils.getSuccessTooltip());
+			break;
+		default:
+	
+			logger.trace("onExecutionSucceeds: {}", message.getFile().getPath());
+			item = getTreeItem(message.getFile().getPath());
+			
+			if(item != null){
+				logger.trace("item != null for {}, change icon!", message.getFile().getPath());
+			} else {
+				item = createItem(message.getFile().getPath(), true, message.getFile().isFile());
+				putTreeItem(item);
+				logger.trace("item == null for {}", message.getFile().getPath());
+			}
+		
 			if(message.getFile().isFile()){
 				view = SynchronizationUtils.getFileSuccessIcon();
 			} else {
@@ -433,6 +474,12 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 		}
 	}
 
+	private void forceUpdateCheckBoxTreeItem(CheckBoxTreeItem<PathItem> item){
+		PathItem pathItem = item.getValue();
+		item.setValue(null);
+		item.setValue(pathItem);
+	}
+	
 	private CheckBoxTreeItem<PathItem> createItem(Path path, boolean isSynched,
 			boolean isFile) {
 		PathItem pathItem = new PathItem(path, isFile);
@@ -483,7 +530,8 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 			CheckBoxTreeItem<PathItem> source = (CheckBoxTreeItem<PathItem>) arg0.getSource();
 			Path path = source.getValue().getPath();
 			FileHelper file = new FileHelper(source.getValue().getPath(), source.getValue().isFile());
-			if(source.isSelected() || source.isIndeterminate()){
+//			if(source.isSelected() || source.isIndeterminate()){
+			if(source.isSelected()){
 				logger.trace("Add {} to SYNC", path);
 				getToSynchronize().add(file);
 				getToDesynchronize().remove(file);

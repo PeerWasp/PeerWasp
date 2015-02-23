@@ -29,7 +29,7 @@ public class FolderComposite extends AbstractFileComponent {
 		super(path, updateContentHash);
 
 		this.children = new ConcurrentSkipListMap<Path, FileComponent>();
-		computeContentNamesHash();
+		computeStructureHash();
 		this.isRoot = isRoot;
 
 		if (isRoot) {
@@ -124,7 +124,7 @@ public class FolderComposite extends AbstractFileComponent {
 			FolderComposite componentAsFolder = (FolderComposite) component;
 			componentAsFolder.propagatePathChangeToChildren();
 		}
-		bubbleContentNamesHashUpdate();
+		updateStructureHash();
 	}
 
 	private Path updateParentPathInChild(final FileComponent child) {
@@ -152,7 +152,7 @@ public class FolderComposite extends AbstractFileComponent {
 			if (updateContentHash) {
 				updateContentHash();
 			}
-			bubbleContentNamesHashUpdate();
+			updateStructureHash();
 		} else {
 			FileComponent nextLevel = children.get(nextLevelPath);
 			if (nextLevel != null && nextLevel.isFolder()) {
@@ -174,7 +174,7 @@ public class FolderComposite extends AbstractFileComponent {
 	 *
 	 * @return
 	 */
-	private boolean computeContentNamesHash() {
+	private boolean computeStructureHash() {
 		String nameHashInput = "";
 		String oldNamesHash = structureHash;
 		logger.trace("Before: structure hash of {} is {}", getPath(), oldNamesHash);
@@ -194,10 +194,10 @@ public class FolderComposite extends AbstractFileComponent {
 		return hasChanged;
 	}
 
-	public void bubbleContentNamesHashUpdate() {
-		boolean hasChanged = computeContentNamesHash();
+	public void updateStructureHash() {
+		boolean hasChanged = computeStructureHash();
 		if (hasChanged && getParent() != null) {
-			getParent().bubbleContentNamesHashUpdate();
+			getParent().updateStructureHash();
 		}
 	}
 
@@ -255,7 +255,7 @@ public class FolderComposite extends AbstractFileComponent {
 		}
 		for (Map.Entry<Path, FileComponent> entry : children.entrySet()) {
 			if (entry.getValue().isSynchronized()) {
-				logger.debug("--Add {} to synchronized files.", entry.getValue().getPath());
+				logger.debug("--Add {} with ID {} to synchronized files.", entry.getValue().getPath(), entry.getValue().hashCode());
 				synchronizedPaths.add(entry.getValue().getPath());
 				entry.getValue().getSynchronizedChildrenPaths(synchronizedPaths);
 			}
@@ -275,9 +275,9 @@ public class FolderComposite extends AbstractFileComponent {
 	@Override
 	public void setIsSynchronized(boolean isSynchronized) {
 		super.setIsSynchronized(isSynchronized);
-		for (FileComponent child : children.values()) {
-			child.setIsSynchronized(isSynchronized);
-		}
+//		for (FileComponent child : children.values()) {
+//			child.setIsSynchronized(isSynchronized);
+//		}
 	}
 
 	@Override

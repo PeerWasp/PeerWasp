@@ -135,29 +135,29 @@ public class FileComponentTest {
 		component = fileTree.getComponent(fileInNewDirPath);
 		assertTrue(component instanceof FileLeaf);
 
-		String oldContentNamesHashRoot = fileTree.getStructureHash();
+		String oldStructureHashRoot = fileTree.getStructureHash();
 		//delete subdirectory, ensure contained files and directories are deleted as well
 		component = fileTree.deleteComponent(dirOnRootPath);
-		assertFalse(fileTree.getStructureHash().equals(oldContentNamesHashRoot));
-		oldContentNamesHashRoot = fileTree.getStructureHash();
+		assertFalse(fileTree.getStructureHash().equals(oldStructureHashRoot));
+		oldStructureHashRoot = fileTree.getStructureHash();
 		assertTrue(component instanceof FolderComposite);
 
 
 		component = fileTree.deleteComponent(dirInDirOnRootPath);
 		assertNull(component);
-		assertTrue(fileTree.getStructureHash().equals(oldContentNamesHashRoot));
+		assertTrue(fileTree.getStructureHash().equals(oldStructureHashRoot));
 		component = fileTree.deleteComponent(fileInNewDirPath);
 		assertNull(component);
-		assertTrue(fileTree.getStructureHash().equals(oldContentNamesHashRoot));
+		assertTrue(fileTree.getStructureHash().equals(oldStructureHashRoot));
 	}
 
 
 	/**
 	 * This test ensures that create/delete events of components trigger hierarchical updates of
-	 * the contentNamesHash value, which encodes the filenames of all recusively contained components
+	 * the structureHash value, which encodes the filenames of all recusively contained components
 	 */
 
-	public void bubbleContentNamesHashUpdateTest(){
+	public void bubbleStructureHashUpdateTest(){
 
 	}
 

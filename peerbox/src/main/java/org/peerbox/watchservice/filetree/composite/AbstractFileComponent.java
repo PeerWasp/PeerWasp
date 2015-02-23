@@ -6,9 +6,11 @@ import java.util.Set;
 import org.peerbox.exceptions.NotImplException;
 import org.peerbox.watchservice.Action;
 import org.peerbox.watchservice.IAction;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 abstract class AbstractFileComponent implements FileComponent {
-
+	private static final Logger logger = LoggerFactory.getLogger(AbstractFileComponent.class);
 	private long id;
 
 	private final IAction action;
@@ -103,6 +105,7 @@ abstract class AbstractFileComponent implements FileComponent {
 
 	@Override
 	public void setIsSynchronized(boolean isSynchronized) {
+		logger.trace("setIsSynchronized of {} with ID {} to {}", getPath(), hashCode(), isSynchronized);
 		this.isSynchronized = isSynchronized;
 	}
 

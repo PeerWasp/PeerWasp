@@ -23,6 +23,23 @@ public class RemoteUpdateState extends AbstractActionState {
 	public RemoteUpdateState(IAction action) {
 		super(action, StateType.REMOTE_UPDATE);
 	}
+	
+	@Override
+	public ExecutionHandle execute(IFileManager fileManager) throws NoSessionException, NoPeerConnectionException, InvalidProcessStateException, ProcessExecutionException {
+		final Path path = action.getFile().getPath();
+		logger.debug("Execute REMOTE UPDATE, download the file: {}", path);
+
+		handle = fileManager.download(path);
+		if (handle != null && handle.getProcess() != null) {
+			FileHelper file = new FileHelper(path, action.getFile().isFile());
+			handle.getProcess().attachListener(new RemoteFileUpdateListener(file, action.getFileEventManager().getMessageBus()));
+			handle.executeAsync();
+		} else {
+			System.err.println("process or handle is null");
+		}
+
+		return new ExecutionHandle(action, handle);
+	}
 
 	@Override
 	public AbstractActionState changeStateOnLocalCreate() {
@@ -66,13 +83,6 @@ public class RemoteUpdateState extends AbstractActionState {
 		return changeStateOnLocalUpdate();
 	}
 
-//	@Override
-//	public AbstractActionState handleLocalMove(Path oldPath) {
-//
-//		action.getNextState().changeStateOnRemoteUpdate();
-//		return changeStateOnLocalMove(oldPath);
-//	}
-
 	@Override
 	public AbstractActionState handleRemoteCreate() {
 		return changeStateOnRemoteCreate();
@@ -80,7 +90,7 @@ public class RemoteUpdateState extends AbstractActionState {
 
 	@Override
 	public AbstractActionState handleRemoteDelete() {
-		throw new NotImplException("RemoteUpdateState.handleRemoteDelete");
+		return changeStateOnRemoteDelete();
 	}
 
 	@Override
@@ -91,23 +101,6 @@ public class RemoteUpdateState extends AbstractActionState {
 	@Override
 	public AbstractActionState handleRemoteMove(Path path) {
 		throw new NotImplException("RemoteUpdateState.handleRemoteMove");
-	}
-
-	@Override
-	public ExecutionHandle execute(IFileManager fileManager) throws NoSessionException, NoPeerConnectionException, InvalidProcessStateException, ProcessExecutionException {
-		final Path path = action.getFile().getPath();
-		logger.debug("Execute REMOTE UPDATE, download the file: {}", path);
-
-		handle = fileManager.download(path);
-		if (handle != null && handle.getProcess() != null) {
-			FileHelper file = new FileHelper(path, action.getFile().isFile());
-			handle.getProcess().attachListener(new RemoteFileUpdateListener(file, action.getFileEventManager().getMessageBus()));
-			handle.executeAsync();
-		} else {
-			System.err.println("process or handle is null");
-		}
-
-		return new ExecutionHandle(action, handle);
 	}
 	
 	public void setLocalUpdateHappened(boolean b){
