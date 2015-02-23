@@ -66,11 +66,11 @@ public class FileWalker {
 //		}
 	}
 
-	public String getContentNamesHashOfWalkedFolder(){
+	public String getStructureHashOfWalkedFolder(){
 		return fileTree.getStructureHash();
 		/*
 		 * Create new Map<String, FileComponent> in which deleted components are saved with
-		 * their contentNamesHash as key. if found -> move event!
+		 * their structureHash as key. if found -> move event!
 		 */
 		//if(eventManager.getDeletedFileComponents().)$
 

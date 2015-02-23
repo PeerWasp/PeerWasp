@@ -29,7 +29,7 @@ public class FolderComposite extends AbstractFileComponent {
 		super(path, updateContentHash);
 
 		this.children = new ConcurrentSkipListMap<Path, FileComponent>();
-		computeContentNamesHash();
+		computeStructureHash();
 		this.isRoot = isRoot;
 
 		if (isRoot) {
@@ -174,7 +174,7 @@ public class FolderComposite extends AbstractFileComponent {
 	 *
 	 * @return
 	 */
-	private boolean computeContentNamesHash() {
+	private boolean computeStructureHash() {
 		String nameHashInput = "";
 		String oldNamesHash = structureHash;
 		logger.trace("Before: structure hash of {} is {}", getPath(), oldNamesHash);
@@ -195,7 +195,7 @@ public class FolderComposite extends AbstractFileComponent {
 	}
 
 	public void updateStructureHash() {
-		boolean hasChanged = computeContentNamesHash();
+		boolean hasChanged = computeStructureHash();
 		if (hasChanged && getParent() != null) {
 			getParent().updateStructureHash();
 		}

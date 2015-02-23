@@ -148,7 +148,7 @@ public class FileTree implements IFileTree {
 		FileWalker walker = new FileWalker(filePath, manager);
 		logger.debug("start discovery of subtree structure at : {}", filePath);
 		walker.indexNamesRecursively();
-		return walker.getContentNamesHashOfWalkedFolder();
+		return walker.getStructureHashOfWalkedFolder();
 	}
 
 	/**

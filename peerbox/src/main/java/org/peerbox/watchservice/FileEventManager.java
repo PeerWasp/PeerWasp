@@ -123,7 +123,7 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 	 * a SetMultiMap<String, FileComponent>, the content hash is used as the key. Using
 	 * this map, future create events can be mapped to previous deletes and indicate
 	 * a move operation. If the deleted component is a folder, the
-	 * folder is additionally added to the deletedByContentNamesHash map with a hash
+	 * folder is additionally added to the deletedByStructureHash map with a hash
 	 * over the names of contained files as a key to allow optimized folder moves.
 	 */
 	@Override
