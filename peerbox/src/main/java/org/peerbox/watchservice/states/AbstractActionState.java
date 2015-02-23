@@ -11,8 +11,10 @@ import org.hive2hive.processframework.exceptions.ProcessExecutionException;
 import org.peerbox.app.manager.ProcessHandle;
 import org.peerbox.app.manager.file.IFileManager;
 import org.peerbox.exceptions.NotImplException;
+import org.peerbox.watchservice.FileEventManager;
 import org.peerbox.watchservice.IAction;
 import org.peerbox.watchservice.IFileEventManager;
+import org.peerbox.watchservice.filetree.IFileTree;
 import org.peerbox.watchservice.filetree.composite.FileComponent;
 import org.peerbox.watchservice.filetree.composite.FileLeaf;
 import org.peerbox.watchservice.filetree.composite.FolderComposite;
@@ -119,54 +121,60 @@ public abstract class AbstractActionState {
 		return changeStateOnLocalHardDelete();
 	}
 
+	private boolean moveTargetIsValid(FileComponent moveTarget){
+		return moveTarget != null && moveTarget.getPath().toFile().exists();
+	}
+	
 	public AbstractActionState handleLocalDelete(){
-		IFileEventManager eventManager = action.getFileEventManager();
-//		eventManager.getFileComponentQueue().remove(action.getFile());
+		IFileTree fileTree = action.getFileEventManager().getFileTree();
+		FileComponent file = action.getFile();
 		
 		updateTimeAndQueue();
-//		eventManager.getFileTree().deleteFile(action.getFile().getPath());
-		action.getFile().setIsSynchronized(false);
-//		logger.debug("Deleted {} from tree.", action.getFile().getPath());
-		if(action.getFile().isFolder()){
-			FileComponent moveTarget = action.getFileEventManager().getFileTree().findCreatedByStructure((FolderComposite)action.getFile());
-			if(moveTarget != null && moveTarget.getPath().toFile().exists()){
-				logger.trace("We observed a swapped folder move (deletion of source file "
-						+ "was reported after creation of target file: {} -> {}", action.getFile().getPath(), moveTarget.getPath());
-				FileComponent file = eventManager.getFileTree().deleteFile(action.getFile().getPath());
-				eventManager.getFileComponentQueue().remove(moveTarget);
-				return handleLocalMove(moveTarget.getPath());
+		file.setIsSynchronized(false);
+		
+		if(file.isFile()){
+			FileLeaf moveTarget = fileTree.findCreatedByContent((FileLeaf)file);
+			if(moveTargetIsValid(moveTarget)){
+				return performSwappedFolderMove(moveTarget);
+			} else {
+				putToFileMoveSources((FileLeaf)file);
 			}
 		} else {
-			FileLeaf moveTarget = action.getFileEventManager().getFileTree().findCreatedByContent((FileLeaf)action.getFile());
-			if(moveTarget != null && !moveTarget.getPath().equals(action.getFile().getPath())){
-				logger.trace("We observed a swapped move (deletion of source file "
-						+ "was reported after creation of target file: {} -> {}", action.getFile().getPath(), moveTarget.getPath());
-
-				FileComponent file = eventManager.getFileTree().deleteFile(action.getFile().getPath());
-				eventManager.getFileComponentQueue().remove(moveTarget);
-//				moveTarget.getAction().handleLocalMoveEvent(moveTarget.getPath());
-				return handleLocalMove(moveTarget.getPath());
+			FileComponent moveTarget = fileTree.findCreatedByStructure((FolderComposite)file);
+			if(moveTargetIsValid(moveTarget)){
+				return performSwappedFolderMove(moveTarget);
+			} else {
+				putToFolderMoveSources((FolderComposite)file);
 			}
 		}
-
-		if(action.getFile().isFile()){
-//			String oldHash = action.getFile().getContentHash();
-//			logger.debug("File: {}Previous content hash: {} new content hash: ", action.getFilePath(), oldHash, action.getFile().getContentHash());
-			SetMultimap<String, FileComponent> deletedFiles = action.getFileEventManager().getFileTree().getDeletedByContentHash();
-			deletedFiles.put(action.getFile().getContentHash(), action.getFile());
-			logger.debug("Put deleted file {} with hash {} to SetMultimap<String, FileComponent>", action.getFile().getPath(), action.getFile().getContentHash());
-		} else {
-			SetMultimap<String, FolderComposite> deletedFolders = eventManager.getFileTree().getDeletedByStructureHash();
-			logger.trace("Delete folder: put folder {} with structure hash {} to deleted folders.", action.getFile().getPath(), action.getFile().getStructureHash());
-			deletedFolders.put(action.getFile().getStructureHash(), (FolderComposite)action.getFile());
-		
-		
-		}
-
-		action.getFile().getParent().updateContentHash();
-		action.getFile().getParent().bubbleContentNamesHashUpdate();
-		action.getFile().updateStateOnLocalDelete();
+		file.getParent().updateContentHash();
+		file.getParent().bubbleContentNamesHashUpdate();
+		file.updateStateOnLocalDelete();
 		return this.changeStateOnLocalDelete();
+	}
+
+	private void putToFolderMoveSources(FolderComposite file) {
+		final IFileTree fileTree = action.getFileEventManager().getFileTree();
+		SetMultimap<String, FolderComposite> deletedFolders = fileTree.getDeletedByStructureHash();
+		logger.trace("Delete folder: put folder {} with structure hash {} to deleted folders.", file.getPath(), file.getStructureHash());
+		deletedFolders.put(file.getStructureHash(), (FolderComposite)file);
+	}
+
+	private void putToFileMoveSources(FileLeaf file) {
+		final IFileTree fileTree = action.getFileEventManager().getFileTree();
+		SetMultimap<String, FileComponent> deletedFiles = fileTree.getDeletedByContentHash();
+		deletedFiles.put(file.getContentHash(), file);
+		logger.debug("Put deleted file {} with hash {} to SetMultimap<String, FileComponent>", file.getPath(), file.getContentHash());
+	}
+
+	private AbstractActionState performSwappedFolderMove(
+			FileComponent moveTarget) {
+		final IFileEventManager eventManager = action.getFileEventManager();
+		logger.trace("We observed a swapped folder move (deletion of source file "
+				+ "was reported after creation of target file: {} -> {}", action.getFile().getPath(), moveTarget.getPath());
+		eventManager.getFileTree().deleteFile(action.getFile().getPath());
+		eventManager.getFileComponentQueue().remove(moveTarget);
+		return handleLocalMove(moveTarget.getPath());
 	}
 
 	public AbstractActionState handleLocalUpdate() {
