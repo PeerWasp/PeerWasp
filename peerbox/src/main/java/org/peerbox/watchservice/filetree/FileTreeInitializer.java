@@ -55,6 +55,7 @@ public class FileTreeInitializer {
 			component.setIsUploaded(true);
 			component.getAction().setFileEventManager(context.getFileEventManager());
 			component.getAction().setFile(component);
+			// state: InitialState for all
 		}
 
 		// Add the files on disk to the tree (if not present yet)
@@ -65,8 +66,10 @@ public class FileTreeInitializer {
 				if (component == null) {
 					component = new FolderComposite(dir, true);
 					component.setIsUploaded(false);
-					tree.putFile(dir,component);
+					tree.putFile(dir, component);
+					// state: initial, because not present in network
 				} else {
+					// already exists, i.e. present in network - state: established
 					component.getAction().setCurrentState(new EstablishedState(component.getAction()));
 				}
 
@@ -83,7 +86,9 @@ public class FileTreeInitializer {
 					component = new FileLeaf(file, true);
 					component.setIsUploaded(false);
 					tree.putFile(file, component);
+					// state: initial, because not present in network
 				} else {
+					// already exists, state: established
 					component.getAction().setCurrentState(new EstablishedState(component.getAction()));
 				}
 
