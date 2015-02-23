@@ -148,7 +148,7 @@ public abstract class AbstractActionState {
 			}
 		}
 		file.getParent().updateContentHash();
-		file.getParent().bubbleContentNamesHashUpdate();
+		file.getParent().updateStructureHash();
 		file.updateStateOnLocalDelete();
 		return this.changeStateOnLocalDelete();
 	}

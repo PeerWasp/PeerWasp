@@ -28,8 +28,6 @@ public class RemoteCreateState extends AbstractActionState {
 	public AbstractActionState changeStateOnLocalCreate() {
 		logger.debug("Local Create Event in RemoteCreateState!  ({}) {}",
 				action.getFile().getPath(), action.hashCode());
-
-		action.getFile().updateContentHash();//updateContentHash();
 		return new EstablishedState(action);
 	}
 

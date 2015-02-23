@@ -23,8 +23,6 @@ public class EstablishedState extends AbstractActionState{
 	@Override
 	public AbstractActionState changeStateOnLocalCreate() {
 		logStateTransition(getStateType(), EventType.LOCAL_CREATE, StateType.ESTABLISHED);
-
-		action.getFile().updateContentHash();
 		return this;
 	}
 

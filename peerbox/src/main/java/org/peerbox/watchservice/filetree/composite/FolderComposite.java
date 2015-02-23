@@ -124,7 +124,7 @@ public class FolderComposite extends AbstractFileComponent {
 			FolderComposite componentAsFolder = (FolderComposite) component;
 			componentAsFolder.propagatePathChangeToChildren();
 		}
-		bubbleContentNamesHashUpdate();
+		updateStructureHash();
 	}
 
 	private Path updateParentPathInChild(final FileComponent child) {
@@ -152,7 +152,7 @@ public class FolderComposite extends AbstractFileComponent {
 			if (updateContentHash) {
 				updateContentHash();
 			}
-			bubbleContentNamesHashUpdate();
+			updateStructureHash();
 		} else {
 			FileComponent nextLevel = children.get(nextLevelPath);
 			if (nextLevel != null && nextLevel.isFolder()) {
@@ -194,10 +194,10 @@ public class FolderComposite extends AbstractFileComponent {
 		return hasChanged;
 	}
 
-	public void bubbleContentNamesHashUpdate() {
+	public void updateStructureHash() {
 		boolean hasChanged = computeContentNamesHash();
 		if (hasChanged && getParent() != null) {
-			getParent().bubbleContentNamesHashUpdate();
+			getParent().updateStructureHash();
 		}
 	}
 
