@@ -75,12 +75,6 @@ public class LocalUpdateState extends AbstractActionState {
 	}
 
 	@Override
-	public AbstractActionState handleLocalCreate() {
-		return changeStateOnLocalCreate();
-	}
-
-
-	@Override
 	public AbstractActionState handleRemoteCreate() {
 		ConflictHandler.resolveConflict(action.getFile().getPath());
 		return changeStateOnRemoteCreate();

@@ -72,12 +72,6 @@ public class LocalHardDeleteState extends AbstractActionState{
 		return this;
 	}
 
-	@Override
-	public AbstractActionState handleLocalCreate() {
-		updateTimeAndQueue();
-		return changeStateOnLocalCreate();
-	}
-
 	public AbstractActionState handleLocalDelete(){
 		IFileEventManager eventManager = action.getFileEventManager();
 		IFileTree fileTree = eventManager.getFileTree();

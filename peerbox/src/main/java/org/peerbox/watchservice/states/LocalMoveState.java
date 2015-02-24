@@ -64,7 +64,7 @@ public class LocalMoveState extends AbstractActionState {
 	@Override
 	public AbstractActionState changeStateOnLocalCreate() {
 		logStateTransition(getStateType(), EventType.LOCAL_CREATE, StateType.INITIAL);
-		return new InitialState(action); //Move is applied to source files, this is the destination, hence the event is ignored
+		return new InitialState(action);//Move is applied to source files, this is the destination, hence the event is ignored
 	}
 
 	// TODO Needs to be verified (Patrick, 21.10.14)
@@ -102,12 +102,6 @@ public class LocalMoveState extends AbstractActionState {
 	@Override
 	public AbstractActionState changeStateOnRemoteCreate() {
 		throw new NotImplException("Conflict handling during move not yet supported");
-	}
-
-	@Override
-	public AbstractActionState handleLocalCreate() {
-		updateTimeAndQueue();
-		return this;
 	}
 
 	@Override

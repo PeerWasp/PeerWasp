@@ -8,7 +8,6 @@ import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.hive2hive.core.exceptions.NoSessionException;
 import org.hive2hive.processframework.exceptions.InvalidProcessStateException;
 import org.hive2hive.processframework.exceptions.ProcessExecutionException;
-
 import org.peerbox.app.manager.ProcessHandle;
 import org.peerbox.app.manager.file.IFileManager;
 import org.peerbox.exceptions.NotImplException;
@@ -18,7 +17,6 @@ import org.peerbox.watchservice.filetree.IFileTree;
 import org.peerbox.watchservice.filetree.composite.FileComponent;
 import org.peerbox.watchservice.filetree.composite.FileLeaf;
 import org.peerbox.watchservice.filetree.composite.FolderComposite;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -112,12 +110,10 @@ public abstract class AbstractActionState {
 	}
 
 
-	/**
-	 * This handler is abstract because local create events are
-	 * very state-sensitive and a default handling is not useful.
-	 * @return
-	 */
-	public abstract AbstractActionState handleLocalCreate();
+	public AbstractActionState handleLocalCreate() {
+		updateTimeAndQueue();
+		return changeStateOnLocalCreate();
+	}
 
 	public AbstractActionState handleLocalHardDelete(){
 		updateTimeAndQueue();
@@ -194,6 +190,7 @@ public abstract class AbstractActionState {
 	}
 
 	public AbstractActionState handleRemoteMove(Path path){
+		updateTimeAndQueue();
 		return changeStateOnRemoteMove(path);
 	}
 
