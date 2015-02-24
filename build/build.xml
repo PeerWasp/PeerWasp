@@ -4,25 +4,25 @@
 	and place it in the lib folder of ant.
 -->
 
-<project name="PeerBox" default="none" basedir="../"
+<project name="PeerWasp" default="none" basedir="../"
 	xmlns:artifact="antlib:org.apache.maven.artifact.ant">
 	<description>
-        Build tasks for PeerBox
+        Build tasks for PeerWasp
     </description>
 
-	<!-- reference the PeerBox pom to get version information and maven functionality -->
-	<artifact:pom id="peerbox_pom" file="peerbox/pom.xml" />
+	<!-- reference the Java project (maven pom) to get version information and maven functionality -->
+	<artifact:pom id="app_pom" file="peerbox/pom.xml" />
 
 	<!-- set global properties for this build -->
-	<property file="build/PeerBox.properties" />
+	<property file="build/App.properties" />
 	<property file="build/VisualStudio.properties" />
 	<property file="build/WindowsContextMenu.properties" />
 	<property file="build/launch4j.properties" />
 	<property file="build/InnoSetup.properties" />
 
 	<!-- create proper version property (for installer) -->
-	<loadresource property="peerbox.version">
-		<propertyresource name="peerbox_pom.version" />
+	<loadresource property="app.version">
+		<propertyresource name="app_pom.version" />
 		<filterchain>
 			<tokenfilter>
 				<filetokenizer />
@@ -31,7 +31,7 @@
 		</filterchain>
 	</loadresource>
 
-
+    <!-- specify OS on which this script is running -->
 	<condition property="isWindows">
 		<os family="windows" />
 	</condition>
@@ -41,7 +41,7 @@
 
 	<target name="none">
 		<echo>Select a task</echo>
-        <!-- some tasks -->
+        <!-- echo some tasks -->
         <echo>win_package</echo>
 	</target>
 
@@ -52,14 +52,14 @@
 	<target name="win_mvn_clean" if="isWindows">
 		<exec executable="cmd" failonerror="true">
 			<arg value="/c" />
-			<arg value="mvn clean -f ${peerbox.pomfile}" />
+			<arg value="mvn clean -f ${app.pomfile}" />
 		</exec>
 	</target>
 
 	<target name="win_mvn_package" if="isWindows">
 		<exec executable="cmd" failonerror="true">
 			<arg value="/c" />
-			<arg value="mvn package -f ${peerbox.pomfile}" />
+			<arg value="mvn package -f ${app.pomfile}" />
 			<arg value="-DskipTests" />
 		</exec>
 	</target>
@@ -82,16 +82,16 @@
 
 	<target name="win_jar2exe_launcher" if="isWindows">
 		<!-- fill in template placeholders -->
-		<copy file="${launch4j.configtemplate}" tofile="${peerbox.winbuild}/${launch4j.configname}" overwrite="true" />
+		<copy file="${launch4j.configtemplate}" tofile="${app.winbuild}/${launch4j.configname}" overwrite="true" />
 
-		<replace file="${peerbox.winbuild}/${launch4j.configname}">
-			<replacefilter token="@PEERBOX_JAR@" value="${peerbox.jarname}" />
-			<replacefilter token="@APP_VERSION@" value="${peerbox.version}" />
+		<replace file="${app.winbuild}/${launch4j.configname}">
+			<replacefilter token="@APP_JAR@" value="${app.jarname}" />
+			<replacefilter token="@APP_VERSION@" value="${app.version}" />
             <replacefilter token="@JAVA_VERSION_MIN@" value="${launch4.java_version_min}" />
 		</replace>
 
 		<exec executable="${launch4j.exe}" failonerror="true">
-			<arg value="${peerbox.winbuild}/${launch4j.configname}" />
+			<arg value="${app.winbuild}/${launch4j.configname}" />
 		</exec>
 
 	</target>
@@ -102,8 +102,8 @@
 
 		<replace file="${inno_setup.setup.config}">
 			<replacefilter token="@BASE_DIR@" value="Windows" />
-			<replacefilter token="@PEERBOX_JAR@" value="${peerbox.jarname}" />
-			<replacefilter token="@APP_VERSION@" value="${peerbox.version}" />
+			<replacefilter token="@APP_JAR@" value="${app.jarname}" />
+			<replacefilter token="@APP_VERSION@" value="${app.version}" />
 		</replace>
 
 		<!-- execute the compiler -->
@@ -112,7 +112,7 @@
 		</exec>
 
 		<!-- move tmp config to target dir -->
-		<move file="${inno_setup.setup.config}" todir="${peerbox.winbuild}" failonerror="true" />
+		<move file="${inno_setup.setup.config}" todir="${app.winbuild}" failonerror="true" />
 	</target>
 
 	<target name="win_package">
@@ -123,8 +123,8 @@
 		<antcall target="mvn_clean" />
 		<antcall target="mvn_package" />
         
-		<antcall target="copy_peerbox_package">
-			<param name="targetdir" value="${peerbox.winbuild}" />
+		<antcall target="copy_app_package">
+			<param name="targetdir" value="${app.winbuild}" />
 		</antcall>
 
 		<!-- build the context menu extensions -->
@@ -145,50 +145,50 @@
 
 	<target name="win_init_target_dir">
 		<!-- delete old and create new build folder -->
-		<delete dir="${peerbox.winbuild}" />
-		<mkdir dir="${peerbox.winbuild}" />
-        <mkdir dir="${peerbox.winbuild}/x86" />
-        <mkdir dir="${peerbox.winbuild}/x64" />
-		<echo>Create target directory: ${peerbox.winbuild}</echo>
+		<delete dir="${app.winbuild}" />
+		<mkdir dir="${app.winbuild}" />
+        <mkdir dir="${app.winbuild}/x86" />
+        <mkdir dir="${app.winbuild}/x64" />
+		<echo>Create target directory: ${app.winbuild}</echo>
 	</target>
 
-	<target name="copy_peerbox_package">
-		<echo>Copy PeerBox package to ${targetdir} ...</echo>
-		<copy file="${peerbox.jar}" todir="${targetdir}" failonerror="true" />
+	<target name="copy_app_package">
+		<echo>Copy app package to ${targetdir} ...</echo>
+		<copy file="${app.jar}" todir="${targetdir}" failonerror="true" />
 		<copy todir="${targetdir}/lib" failonerror="true">
-			<fileset dir="${peerbox.build}/lib" />
+			<fileset dir="${app.build}/lib" />
 		</copy>
 	</target>
     
     <target name="win_copy_contextmenu_x86">
         <echo>Copy Windows Context Menu (x86) extension...</echo>      
         <!-- 32bit -->
-        <copy file="${context_menu.home}/Release/ContextMenu.dll" todir="${peerbox.winbuild}/x86" failonerror="true" />
-		<copy todir="${peerbox.winbuild}/x86/" failonerror="true">
+        <copy file="${context_menu.home}/Release/ContextMenu.dll" todir="${app.winbuild}/x86" failonerror="true" />
+		<copy todir="${app.winbuild}/x86/" failonerror="true">
 			<fileset dir="${context_menu.home}/Release" includes="cpprest*.dll" />
 		</copy>
         <!-- copy visual c++ redistributable dlls -->
-        <copy file="${visual_studio.vc_redist_x86}/msvcp120.dll" todir="${peerbox.winbuild}/x86" failonerror="true" />
-        <copy file="${visual_studio.vc_redist_x86}/msvcr120.dll" todir="${peerbox.winbuild}/x86" failonerror="true" />
+        <copy file="${visual_studio.vc_redist_x86}/msvcp120.dll" todir="${app.winbuild}/x86" failonerror="true" />
+        <copy file="${visual_studio.vc_redist_x86}/msvcr120.dll" todir="${app.winbuild}/x86" failonerror="true" />
     </target>
     
     <target name="win_copy_contextmenu_x64">
         <echo>Copy Windows Context Menu (x64) extension...</echo> 
         <!-- 64bit -->
-		<copy file="${context_menu.home}/x64/Release/ContextMenu.dll" todir="${peerbox.winbuild}/x64/" failonerror="true" />
-		<copy todir="${peerbox.winbuild}/x64/" failonerror="true">
+		<copy file="${context_menu.home}/x64/Release/ContextMenu.dll" todir="${app.winbuild}/x64/" failonerror="true" />
+		<copy todir="${app.winbuild}/x64/" failonerror="true">
 			<fileset dir="${context_menu.home}/x64/Release" includes="cpprest*.dll" />
 		</copy>
         <!-- copy visual c++ redistributable dlls -->
-        <copy file="${visual_studio.vc_redist_x64}/msvcp120.dll" todir="${peerbox.winbuild}/x64" failonerror="true" />
-        <copy file="${visual_studio.vc_redist_x64}/msvcr120.dll" todir="${peerbox.winbuild}/x64" failonerror="true" />
+        <copy file="${visual_studio.vc_redist_x64}/msvcp120.dll" todir="${app.winbuild}/x64" failonerror="true" />
+        <copy file="${visual_studio.vc_redist_x64}/msvcr120.dll" todir="${app.winbuild}/x64" failonerror="true" />
     </target>
 
 	<target name="win_copy_installer_resources">
 		<echo>Copy resources ...</echo>
-		<copy file="resources/peerbox64.ico" todir="${peerbox.winbuild}" failonerror="true" />
-		<copy file="resources/License.rtf" todir="${peerbox.winbuild}" failonerror="true" />
-        <copy file="build/logback.xml" todir="${peerbox.winbuild}" failonerror="true" />
+		<copy file="resources/icon64.ico" todir="${app.winbuild}" failonerror="true" />
+		<copy file="resources/License.rtf" todir="${app.winbuild}" failonerror="true" />
+        <copy file="build/logback.xml" todir="${app.winbuild}" failonerror="true" />
 	</target>
 
 </project>
