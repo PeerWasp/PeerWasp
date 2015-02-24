@@ -16,12 +16,15 @@ Next, an exe launcher for the Java application respectively the jar is created (
 Finally, everything is wrapped in an installer (using *Inno Setup*).
 
 ### Steps
+#### Property files (preparations)
+- Paths to helper applications (e.g. Visual Studio) are specified in *.properties files. It is probably not required to adapt these files if default locations are used (such as C:\Program Files\\...)
+ 
+#### Build
 - ```cd``` into the ```build``` folder.
 - run ```ant win_package``` in order to package and create an installer.
 - Note: the installer works with Windows x64 and x86 and contains all files required to run on either platform. Hence, packaging must be done on a Windows x64 machine due to 64-bit compilation.
 
-## Property files
-- Paths to helper applications (e.g. Visual Studio) are specified in *.properties files. It is probably not required to adapt these files if default locations are used (such as C:\Program Files\\...)
+
 
 
 ## H2H Packaging
@@ -39,5 +42,5 @@ cd org.hive2hive.core
 mvn install -DskipTests -Dmaven.javadoc.skip=true
 ```
 
-## Open Issues and Todos: 
+## Open Issues and TODOs: 
 ...
