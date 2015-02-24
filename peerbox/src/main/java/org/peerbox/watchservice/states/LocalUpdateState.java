@@ -79,12 +79,6 @@ public class LocalUpdateState extends AbstractActionState {
 		return changeStateOnLocalCreate();
 	}
 
-	@Override
-	public AbstractActionState handleLocalUpdate() {
-		updateTimeAndQueue();
-		return changeStateOnLocalUpdate();
-	}
-
 
 	@Override
 	public AbstractActionState handleRemoteCreate() {

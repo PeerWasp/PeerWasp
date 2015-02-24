@@ -60,6 +60,7 @@ public class RemoteCreateState extends AbstractActionState {
 
 	@Override
 	public AbstractActionState handleLocalDelete() {
+		//TODO remove from queue?
 		return changeStateOnLocalDelete();
 	}
 
@@ -70,18 +71,9 @@ public class RemoteCreateState extends AbstractActionState {
 	}
 
 	@Override
-	public AbstractActionState handleRemoteCreate() {
-		return changeStateOnRemoteCreate();
-	}
-
-	@Override
 	public AbstractActionState handleRemoteDelete() {
+		//TODO: Remove from queue /tree
 		return changeStateOnRemoteDelete();
-	}
-
-	@Override
-	public AbstractActionState handleRemoteUpdate() {
-		return changeStateOnRemoteUpdate();
 	}
 
 	@Override

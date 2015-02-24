@@ -111,11 +111,6 @@ public class LocalMoveState extends AbstractActionState {
 	}
 
 	@Override
-	public AbstractActionState handleLocalUpdate() {
-		return changeStateOnLocalUpdate();
-	}
-
-	@Override
 	public AbstractActionState handleRemoteCreate() {
 		updateTimeAndQueue();
 		return changeStateOnRemoteCreate();

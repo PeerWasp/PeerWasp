@@ -44,7 +44,7 @@ public class RemoteUpdateState extends AbstractActionState {
 	@Override
 	public AbstractActionState changeStateOnLocalCreate() {
 		logStateTransition(getStateType(), EventType.LOCAL_CREATE, StateType.REMOTE_UPDATE);
-		return new LocalUpdateState(action);
+		return this; //new LocalUpdateState(action);
 	}
 
 	@Override
@@ -82,20 +82,15 @@ public class RemoteUpdateState extends AbstractActionState {
 		ConflictHandler.resolveConflict(action.getFile().getPath());
 		return changeStateOnLocalUpdate();
 	}
-
-	@Override
-	public AbstractActionState handleRemoteCreate() {
-		return changeStateOnRemoteCreate();
+	
+	public AbstractActionState changeStateOnLocalUpdate(){
+		logStateTransition(getStateType(), EventType.LOCAL_UPDATE, StateType.REMOTE_UPDATE);
+		return this;
 	}
 
 	@Override
 	public AbstractActionState handleRemoteDelete() {
 		return changeStateOnRemoteDelete();
-	}
-
-	@Override
-	public AbstractActionState handleRemoteUpdate() {
-		return changeStateOnRemoteUpdate();
 	}
 
 	@Override

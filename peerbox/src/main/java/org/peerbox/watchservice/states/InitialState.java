@@ -56,13 +56,14 @@ public class InitialState extends AbstractActionState {
 	public AbstractActionState changeStateOnLocalCreate(){
 		if(action.getFile().isUploaded()){
 			logStateTransition(getStateType(), EventType.LOCAL_CREATE, StateType.ESTABLISHED);
+			logger.trace("Weird case for file {}", action.getFile().getPath());
 			return new EstablishedState(action);
 		} else {
 			logStateTransition(getStateType(), EventType.LOCAL_CREATE, StateType.LOCAL_CREATE);
 			return new LocalCreateState(action);
 		}
 	}
-
+ 
 	@Override
 	public AbstractActionState handleLocalCreate() {
 		final IFileTree fileTree = action.getFileEventManager().getFileTree();
@@ -96,15 +97,7 @@ public class InitialState extends AbstractActionState {
 		logger.debug("Local Delete is ignored in InitialState for {}", action.getFile().getPath());
 		return this;
 	}
-
-	@Override
-	public AbstractActionState handleLocalMove(Path destPath) {
-		Path oldPath = action.getFile().getPath();
-		action.getFileEventManager().getFileTree().putFile(destPath, action.getFile());
-		updateTimeAndQueue();
-		return changeStateOnLocalMove(oldPath);
-	}
-
+	
 	@Override
 	public AbstractActionState handleRemoteCreate() {
 		FileComponent file = action.getFile();

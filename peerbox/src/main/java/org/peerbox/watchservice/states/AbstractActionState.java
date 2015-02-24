@@ -157,7 +157,7 @@ public abstract class AbstractActionState {
 		updateTimeAndQueue();
 		return changeStateOnLocalUpdate();
 	}
-
+	
 	public AbstractActionState handleLocalMove(Path newPath) {
 		Path oldPath = Paths.get(action.getFile().getPath().toString());
 		action.getFileEventManager().getFileTree().putFile(newPath, action.getFile());
@@ -170,6 +170,7 @@ public abstract class AbstractActionState {
 	 */
 
 	public AbstractActionState handleRemoteCreate(){
+		updateTimeAndQueue();
 		return changeStateOnRemoteCreate();
 	}
 
