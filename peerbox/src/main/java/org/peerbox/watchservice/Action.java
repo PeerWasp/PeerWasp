@@ -113,14 +113,14 @@ public class Action implements IAction {
 
 			if (isExecuting()) {
 				if(currentState.getStateType() == StateType.REMOTE_CREATE){
-					RemoteCreateState castedState = (RemoteCreateState)currentState;
-					if(!castedState.localCreateHappened()){
-						nextState = nextState.changeStateOnLocalUpdate();
-						checkIfChanged();
-					} else {
-						logger.debug("File {}: LocalUpdateEvent after LocalCreateEvent "
-								+ "in RemoteCreateState - ignored!", file.getPath());
-					}
+//					RemoteCreateState castedState = (RemoteCreateState)currentState;
+//					if(!castedState.localCreateHappened()){
+//						nextState = nextState.changeStateOnLocalUpdate();
+//						checkIfChanged();
+//					} else {
+//						logger.debug("File {}: LocalUpdateEvent after LocalCreateEvent "
+//								+ "in RemoteCreateState - ignored!", file.getPath());
+//					}
 				} else if(currentState.getStateType() == StateType.REMOTE_UPDATE){
 					RemoteUpdateState castedState = (RemoteUpdateState)currentState;
 					if(castedState.getLocalUpdateHappened()){
