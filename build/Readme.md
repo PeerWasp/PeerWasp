@@ -38,7 +38,7 @@ mvn install -DskipTests -Dmaven.javadoc.skip=true
 
 H2H core:
 ```
-cd org.hive2hive.core
+cd into Hive2Hive folder
 mvn install -DskipTests -Dmaven.javadoc.skip=true
 ```
 
