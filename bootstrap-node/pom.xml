@@ -1,7 +1,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>org.peerbox</groupId>
+	<groupId>com.peerwasp</groupId>
 	<artifactId>bootstrap-node</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>bootstrap-node</name>
@@ -10,21 +10,18 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<jdk.version>1.8</jdk.version>
-		<h2h.version>1.1.1-SNAPSHOT</h2h.version>
+		<h2h.version>1.2.0</h2h.version>
 	</properties>
+
+	<repositories>
+		<repository>
+			<id>hive2hive.org</id>
+			<url>http://repo.hive2hive.org</url>
+		</repository>
+	</repositories>
 
 
 	<dependencies>
-		<!-- peerbox -->
-		<!-- 
-		<dependency>
-			<groupId>org</groupId>
-			<artifactId>peerbox</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
-			<scope>compile</scope>
-		</dependency>
-		 -->
-
 		<!-- Hive2Hive https://github.com/Hive2Hive/Hive2Hive -->
 		<dependency>
 			<groupId>org.hive2hive</groupId>
@@ -32,7 +29,7 @@
 			<version>${h2h.version}</version>
 			<scope>compile</scope>
 		</dependency>
-		
+
 		<!-- logback logging: http://logback.qos.ch/ -->
 		<dependency>
 			<groupId>ch.qos.logback</groupId>
@@ -40,7 +37,7 @@
 			<version>1.1.1</version>
 			<scope>compile</scope>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>ch.qos.logback</groupId>
 			<artifactId>logback-classic</artifactId>
@@ -96,7 +93,7 @@
 						<manifest>
 							<addClasspath>true</addClasspath>
 							<classpathPrefix>lib/</classpathPrefix>
-							<mainClass>org.peerbox.bootstrapnode.Starter</mainClass>
+							<mainClass>com.peerwasp.bootstrapnode.Starter</mainClass>
 						</manifest>
 					</archive>
 				</configuration>

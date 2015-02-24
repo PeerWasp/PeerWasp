@@ -3,6 +3,7 @@
 .classpath
 .project
 .settings/
+log/
 
 # build package
 bootstrap.tar.gz
