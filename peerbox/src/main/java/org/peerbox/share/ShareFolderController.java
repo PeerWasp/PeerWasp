@@ -37,6 +37,7 @@ import org.peerbox.app.manager.user.IUserManager;
 import org.peerbox.presenter.validation.TextFieldValidator;
 import org.peerbox.presenter.validation.ValidationUtils;
 import org.peerbox.presenter.validation.ValidationUtils.ValidationResult;
+import org.peerbox.utils.IconUtils;
 
 import com.google.inject.Inject;
 
@@ -172,11 +173,12 @@ public final class ShareFolderController implements Initializable {
 			setStatus("");
 			setBusy(false);
 
-			Alert a = new Alert(AlertType.INFORMATION);
-			a.setTitle("Folder Sharing");
-			a.setHeaderText("Folder sharing finished");
-			a.setContentText("The user is granted access to the folder.");
-			a.showAndWait();
+			Alert dlg = new Alert(AlertType.INFORMATION);
+			IconUtils.decorateDialogWithIcon(dlg);
+			dlg.setTitle("Folder Sharing");
+			dlg.setHeaderText("Folder sharing finished");
+			dlg.setContentText("The user is granted access to the folder.");
+			dlg.showAndWait();
 			getStage().close();
 		});
 	}
@@ -186,11 +188,12 @@ public final class ShareFolderController implements Initializable {
 			setStatus("");
 			setBusy(false);
 
-			Alert a = new Alert(AlertType.ERROR);
-			a.setTitle("Folder Sharing");
-			a.setHeaderText("Folder sharing failed.");
-			a.setContentText(hint);
-			a.showAndWait();
+			Alert dlg = new Alert(AlertType.ERROR);
+			IconUtils.decorateDialogWithIcon(dlg);
+			dlg.setTitle("Folder Sharing");
+			dlg.setHeaderText("Folder sharing failed.");
+			dlg.setContentText(hint);
+			dlg.showAndWait();
 		});
 	}
 

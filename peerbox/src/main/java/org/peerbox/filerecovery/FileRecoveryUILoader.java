@@ -14,6 +14,7 @@ import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 
 import org.peerbox.ResultStatus;
+import org.peerbox.utils.IconUtils;
 import org.peerbox.view.ViewNames;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -80,6 +81,7 @@ public class FileRecoveryUILoader {
 			@Override
 			public void run() {
 				Alert dlg = new Alert(AlertType.ERROR);
+				IconUtils.decorateDialogWithIcon(dlg);
 				dlg.setTitle("Error Recovering File.");
 				dlg.setHeaderText("Could not recover file.");
 				dlg.setContentText(message);

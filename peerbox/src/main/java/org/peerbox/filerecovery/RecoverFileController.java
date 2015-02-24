@@ -42,6 +42,7 @@ import org.hive2hive.processframework.exceptions.InvalidProcessStateException;
 import org.hive2hive.processframework.exceptions.ProcessRollbackException;
 import org.peerbox.app.manager.ProcessHandle;
 import org.peerbox.app.manager.file.IFileManager;
+import org.peerbox.utils.IconUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -209,11 +210,12 @@ public final class RecoverFileController  implements Initializable, IFileVersion
 				setBusy(false);
 				setStatus("");
 
-				Alert a = new Alert(AlertType.INFORMATION);
-				a.setTitle("File Recovered");
-				a.setHeaderText("File recovery finished");
-				a.setContentText(String.format("The name of the recovered file is: %s", versionSelector.getRecoveredFileName()));
-				a.showAndWait();
+				Alert dlg = new Alert(AlertType.INFORMATION);
+				IconUtils.decorateDialogWithIcon(dlg);
+				dlg.setTitle("File Recovered");
+				dlg.setHeaderText("File recovery finished");
+				dlg.setContentText(String.format("The name of the recovered file is: %s", versionSelector.getRecoveredFileName()));
+				dlg.showAndWait();
 				getStage().close();
 			}
 		};
@@ -234,11 +236,12 @@ public final class RecoverFileController  implements Initializable, IFileVersion
 
 				if(!versionSelector.isCancelled()) {
 					// show error if user did not initiate cancel action
-					Alert a = new Alert(AlertType.ERROR);
-					a.setTitle("File Recovery Failed");
-					a.setHeaderText("File recovery did not succeed.");
-					a.setContentText(message);
-					a.showAndWait();
+					Alert dlg = new Alert(AlertType.ERROR);
+					IconUtils.decorateDialogWithIcon(dlg);
+					dlg.setTitle("File Recovery Failed");
+					dlg.setHeaderText("File recovery did not succeed.");
+					dlg.setContentText(message);
+					dlg.showAndWait();
 				}
 				getStage().close();
 			}
