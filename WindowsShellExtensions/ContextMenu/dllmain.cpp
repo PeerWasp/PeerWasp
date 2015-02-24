@@ -32,7 +32,7 @@ WARRANTIES OF MERCHANTABILITY AND/OR FITNESS FOR A PARTICULAR PURPOSE.
 #include "ClassFactory.h"           // For the class factory
 #include "Reg.h"					// Registry: (un)registering functions
 
-// PeerBox ContextMenu GUID
+// ContextMenu GUID
 // {94FFF587-6D72-44F1-9CD7-4478B9919563} 
 static const CLSID CLSID_ContextMenuExt =
 { 0x94fff587, 0x6d72, 0x44f1, { 0x9c, 0xd7, 0x44, 0x78, 0xb9, 0x91, 0x95, 0x63 } };
@@ -127,7 +127,7 @@ STDAPI DllRegisterServer(void)
 
     // Register the component.
 	hr = RegisterInprocServer(szModule, CLSID_ContextMenuExt,
-        L"PeerBoxShellExtContextMenuHandler.ContextMenuExt Class", 
+        L"PeerWaspShellExtContextMenuHandler.ContextMenuExt Class", 
         L"Apartment");
     if (SUCCEEDED(hr))
     {
@@ -135,7 +135,7 @@ STDAPI DllRegisterServer(void)
         // associated with the .cpp file class.
         hr = RegisterShellExtContextMenuHandler(L"AllFilesystemObjects", 
 			CLSID_ContextMenuExt,
-            L"PeerBoxShellExtContextMenuHandler.ContextMenuExt");
+            L"PeerWaspShellExtContextMenuHandler.ContextMenuExt");
     }
 
     return hr;

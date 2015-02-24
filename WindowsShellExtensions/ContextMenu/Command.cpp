@@ -11,9 +11,9 @@ std::map<CommandId, CommandInfo> Command::CreateCommandMap()
 
 	struct CommandInfo cmdTop;
 	cmdTop.id = CMD_TOP;
-	cmdTop.menuText = L"PeerBox";
-	cmdTop.helpText = L"PeerBox";
-	cmdTop.bitmapResourceId = IDI_PEERBOX;
+	cmdTop.menuText = L"PeerWasp";
+	cmdTop.helpText = L"PeerWasp";
+	cmdTop.bitmapResourceId = IDI_APP;
 	m[CMD_TOP] = cmdTop;
 
 	struct CommandInfo cmdDelete;

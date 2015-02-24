@@ -46,7 +46,7 @@
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
-    <Image Include="Icons\peerbox.ico">
+    <Image Include="Icons\app.ico">
       <Filter>Resource Files\Icons</Filter>
     </Image>
   </ItemGroup>

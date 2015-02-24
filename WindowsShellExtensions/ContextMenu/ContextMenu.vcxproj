@@ -162,7 +162,7 @@
     <ResourceCompile Include="ContextMenu.rc" />
   </ItemGroup>
   <ItemGroup>
-    <Image Include="Icons\peerbox.ico" />
+    <Image Include="Icons\app.ico" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ClassFactory.cpp" />
