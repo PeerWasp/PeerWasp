@@ -77,6 +77,7 @@ public class LocalUpdateState extends AbstractActionState {
 	@Override
 	public AbstractActionState handleRemoteCreate() {
 		ConflictHandler.resolveConflict(action.getFile().getPath());
+		updateTimeAndQueue();
 		return changeStateOnRemoteCreate();
 	}
 
@@ -89,6 +90,7 @@ public class LocalUpdateState extends AbstractActionState {
 	@Override
 	public AbstractActionState handleRemoteUpdate() {
 		ConflictHandler.resolveConflict(action.getFile().getPath());
+		updateTimeAndQueue();
 		return changeStateOnRemoteUpdate();
 	}
 

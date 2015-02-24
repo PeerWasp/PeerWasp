@@ -48,6 +48,7 @@ public class EstablishedState extends AbstractActionState{
 
 	@Override
 	public AbstractActionState handleLocalCreate() {
+		updateTimeAndQueue();
 		action.getFile().updateContentHash();
 		return changeStateOnLocalCreate();
 	}

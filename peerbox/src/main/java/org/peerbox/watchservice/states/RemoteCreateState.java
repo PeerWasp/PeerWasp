@@ -60,13 +60,13 @@ public class RemoteCreateState extends AbstractActionState {
 
 	@Override
 	public AbstractActionState handleLocalDelete() {
-		//TODO remove from queue?
 		return changeStateOnLocalDelete();
 	}
 
 	@Override
 	public AbstractActionState handleLocalUpdate() {
 		ConflictHandler.resolveConflict(action.getFile().getPath());
+		updateTimeAndQueue();
 		return changeStateOnLocalUpdate();
 	}
 	
