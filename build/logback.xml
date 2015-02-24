@@ -3,7 +3,7 @@
 	
 	<!-- location for log files -->
     <!-- NOTE: we set LOG_FOLDER dynamically at runtime.
-	<property name="LOG_FOLDER" value="${user.home}/.PeerBox/log" />
+	<property name="LOG_FOLDER" value="${user.home}/.PeerWasp/log" />
 	--> 
     
     <!-- log to file with size limitation -->

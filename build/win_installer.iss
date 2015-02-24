@@ -2,10 +2,10 @@
 ; NOTE: to debug and build in the studio, include a actual copy of 
 ; win_installer_config.iss into the build folder
 
-#define MyAppName "PeerBox"
-#define MyAppPublisher "PeerBox Developers"
-#define MyAppURL "http://www.peerbox.ch"
-#define MyAppExeName "peerbox.exe"
+#define MyAppName "PeerWasp"
+#define MyAppPublisher "PeerWasp Developers"
+#define MyAppURL "http://www.peerwasp.com/"
+#define MyAppExeName "peerwasp.exe"
 
 [Setup]
 ; NOTE: The value of AppId uniquely identifies this application.
@@ -22,7 +22,7 @@ AppUpdatesURL={#MyAppURL}
 
 VersionInfoProductName={#MyAppName}
 VersionInfoProductVersion={#MyAppVersion}
-VersionInfoDescription="PeerBox - Distributed File Sharing and Synchronization Application"
+VersionInfoDescription="PeerWasp - Distributed File Synchronization Application"
 VersionInfoVersion={#MyAppVersion}
 
 DefaultDirName={pf}\{#MyAppName}
@@ -30,7 +30,7 @@ DefaultGroupName={#MyAppName}
 LicenseFile={#BaseDir}\License.rtf
 OutputDir=.
 OutputBaseFilename={#OutputFilename}
-SetupIconFile={#BaseDir}\peerbox64.ico
+SetupIconFile={#BaseDir}\icon64.ico
 Compression=lzma
 SolidCompression=yes
 
@@ -45,11 +45,11 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{
 
 [Files]
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
-Source: "{#BaseDir}\peerbox.exe"; DestDir: "{app}"; Flags: ignoreversion
-Source: "{#BaseDir}\peerbox64.ico"; DestDir: "{app}"; Flags: ignoreversion
+Source: "{#BaseDir}\peerwasp.exe"; DestDir: "{app}"; Flags: ignoreversion
+Source: "{#BaseDir}\icon64.ico"; DestDir: "{app}"; Flags: ignoreversion
 
 ; -- java packages
-Source: "{#BaseDir}\{#PeerBoxJar}"; DestDir: "{app}"; Flags: ignoreversion
+Source: "{#BaseDir}\{#AppJar}"; DestDir: "{app}"; Flags: ignoreversion
 Source: "{#BaseDir}\lib\*"; DestDir: "{app}\lib"; Flags: ignoreversion createallsubdirs recursesubdirs
 
 ; -- context menu extension

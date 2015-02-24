@@ -1,5 +1,5 @@
-#define OutputFilename "peerbox_setup"
+#define OutputFilename "peerwasp_setup"
 
 #define MyAppVersion "@APP_VERSION@"
 #define BaseDir "@BASE_DIR@"
-#define PeerBoxJar "@PEERBOX_JAR@"
+#define AppJar "@APP_JAR@"
