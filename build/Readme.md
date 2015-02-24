@@ -16,7 +16,8 @@ Next, an exe launcher for the Java application respectively the jar is created (
 Finally, everything is wrapped in an installer (using *Inno Setup*).
 
 ### Steps
-#### Property files (preparations)
+#### Property files and preparations
+- Open ```App.properties``` and set the property ```app.version``` to the current version (same as in the ```pom.xml``` file). It should have the form ```x.x.x``` (integers only).
 - Paths to helper applications (e.g. Visual Studio) are specified in *.properties files. It is probably not required to adapt these files if default locations are used (such as C:\Program Files\\...)
  
 #### Build
@@ -27,7 +28,11 @@ Finally, everything is wrapped in an installer (using *Inno Setup*).
 
 
 
-## H2H Packaging
+## Development
+### Snapshots
+To build an installer using the current ```x.x.x-SNAPSHOT``` version, temporarily set the property ```app.jarname``` in ```App.properties``` to the packaged jar.
+
+### H2H Packaging
 If snapshot versions are required (e.g. during development or testing), the H2H processframework and core must be installed in the local maven repository. This is only required during development. 
 
 H2H processframework:
