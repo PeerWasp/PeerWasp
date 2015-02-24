@@ -40,11 +40,7 @@ public class EstablishedState extends AbstractActionState{
 		return new RemoteUpdateState(action);
 	}
 
-	@Override
-	public AbstractActionState changeStateOnRemoteMove(Path oldFilePath) {
-		logStateTransition(getStateType(), EventType.REMOTE_MOVE, StateType.ESTABLISHED);
-		return this;
-	}
+
 
 	@Override
 	public AbstractActionState handleLocalCreate() {
@@ -57,21 +53,6 @@ public class EstablishedState extends AbstractActionState{
 	public AbstractActionState handleRemoteCreate() {
 		updateTimeAndQueue();
 		return changeStateOnRemoteCreate();
-	}
-
-	@Override
-	public AbstractActionState handleRemoteMove(Path destPath) {
-		final IFileEventManager eventManager = action.getFileEventManager();
-		final IFileTree fileTree = eventManager.getFileTree();
-		final FileComponent file = action.getFile();
-		
-		eventManager.getFileComponentQueue().remove(file);
-		Path sourcePath = file.getPath();
-
-		fileTree.deleteFile(file.getPath());
-		fileTree.putFile(destPath, file);
-
-		return changeStateOnRemoteMove(sourcePath);
 	}
 
 }
