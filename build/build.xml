@@ -165,7 +165,7 @@
 
 	<target name="win_copy_installer_resources">
 		<echo>Copy resources ...</echo>
-		<copy file="resources/icon64.ico" todir="${app.winbuild}" failonerror="true" />
+		<copy file="resources/icon_multisize.ico" todir="${app.winbuild}" failonerror="true" />
 		<copy file="resources/License.rtf" todir="${app.winbuild}" failonerror="true" />
         <copy file="build/logback.xml" todir="${app.winbuild}" failonerror="true" />
 	</target>

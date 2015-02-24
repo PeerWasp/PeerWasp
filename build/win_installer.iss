@@ -30,7 +30,7 @@ DefaultGroupName={#MyAppName}
 LicenseFile={#BaseDir}\License.rtf
 OutputDir=.
 OutputBaseFilename={#OutputFilename}
-SetupIconFile={#BaseDir}\icon64.ico
+SetupIconFile={#BaseDir}\icon_multisize.ico
 Compression=lzma
 SolidCompression=yes
 
@@ -46,7 +46,7 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{
 [Files]
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 Source: "{#BaseDir}\peerwasp.exe"; DestDir: "{app}"; Flags: ignoreversion
-Source: "{#BaseDir}\icon64.ico"; DestDir: "{app}"; Flags: ignoreversion
+Source: "{#BaseDir}\icon_multisize.ico"; DestDir: "{app}"; Flags: ignoreversion
 
 ; -- java packages
 Source: "{#BaseDir}\{#AppJar}"; DestDir: "{app}"; Flags: ignoreversion
