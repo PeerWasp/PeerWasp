@@ -69,6 +69,11 @@ public class RemoteCreateState extends AbstractActionState {
 		ConflictHandler.resolveConflict(action.getFile().getPath());
 		return changeStateOnLocalUpdate();
 	}
+	
+	public AbstractActionState changeStateOnLocalUpdate(){
+		logStateTransition(getStateType(), EventType.LOCAL_UPDATE, StateType.REMOTE_CREATE);
+		return this;
+	}
 
 	@Override
 	public AbstractActionState handleRemoteDelete() {
