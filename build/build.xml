@@ -1,17 +1,7 @@
-<!-- 
-	note: download maven-ant-tasks*.jar from 
-	http://maven.apache.org/ant-tasks/download.cgi 
-	and place it in the lib folder of ant.
--->
-
-<project name="PeerWasp" default="none" basedir="../"
-	xmlns:artifact="antlib:org.apache.maven.artifact.ant">
+<project name="PeerWasp" default="none" basedir="../">
 	<description>
         Build tasks for PeerWasp
     </description>
-
-	<!-- reference the Java project (maven pom) to get version information and maven functionality -->
-	<artifact:pom id="app_pom" file="peerbox/pom.xml" />
 
 	<!-- set global properties for this build -->
 	<property file="build/App.properties" />
@@ -19,17 +9,6 @@
 	<property file="build/WindowsContextMenu.properties" />
 	<property file="build/launch4j.properties" />
 	<property file="build/InnoSetup.properties" />
-
-	<!-- create proper version property (for installer) -->
-	<loadresource property="app.version">
-		<propertyresource name="app_pom.version" />
-		<filterchain>
-			<tokenfilter>
-				<filetokenizer />
-				<replacestring from="-SNAPSHOT" to="" />
-			</tokenfilter>
-		</filterchain>
-	</loadresource>
 
     <!-- specify OS on which this script is running -->
 	<condition property="isWindows">
