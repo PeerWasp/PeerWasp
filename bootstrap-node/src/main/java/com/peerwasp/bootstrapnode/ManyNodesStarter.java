@@ -1,4 +1,4 @@
-package org.peerbox.bootstrapnode;
+package com.peerwasp.bootstrapnode;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -25,7 +25,7 @@ public class ManyNodesStarter {
 	private static final Logger logger = LoggerFactory
 			.getLogger(ManyNodesStarter.class);
 
-	private static int NUM_NODES = 15;
+	private static int NUM_NODES = 6;
 
 	public static void main(String[] args) {
 

@@ -37,7 +37,7 @@ public final class WinRegistry {
 
 		builder.command("reg", /* registry command */
 				"ADD", /* add a new key */
-				"HKCU\\Software\\PeerBox", /* registry key */
+				"HKCU\\Software\\PeerWasp", /* registry key */
 				"/v", "api_server_port", /* name of the value */
 				"/t", "REG_DWORD", /* type of the value */
 				"/d", String.format("%d", port), /* actual data */
@@ -69,7 +69,7 @@ public final class WinRegistry {
 
 		builder.command("reg", /* registry command */
 				"ADD", /* add a new key */
-				"HKCU\\Software\\PeerBox", /* registry key */
+				"HKCU\\Software\\PeerWasp", /* registry key */
 				"/v", "rootpath", /* name of the value */
 				"/t", "REG_SZ", /* type of the value */
 				"/d", rootPath.toString(), /* actual data */
