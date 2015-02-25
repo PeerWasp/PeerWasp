@@ -16,6 +16,7 @@ import javafx.scene.control.TextField;
 import javafx.stage.Window;
 
 import org.peerbox.app.manager.node.INodeManager;
+import org.peerbox.utils.IconUtils;
 import org.peerbox.view.ViewNames;
 import org.peerbox.view.controls.ErrorLabel;
 import org.slf4j.Logger;
@@ -26,23 +27,23 @@ import com.google.inject.Inject;
 public class CreateNetworkController implements Initializable {
 
 	private static final Logger logger = LoggerFactory.getLogger(CreateNetworkController.class);
-			
+
 	private INodeManager nodeManager;
 	private NavigationService fNavigationService;
-	
+
 	@FXML
 	private Button btnCreate;
 	@FXML
 	private TextField txtIPAddress;
 	@FXML
 	private ErrorLabel lblError;
-	
+
 	@Inject
 	public CreateNetworkController(NavigationService navigationService, INodeManager nodeManager) {
 		this.fNavigationService = navigationService;
 		this.nodeManager = nodeManager;
 	}
-	
+
 	public void initialize(URL arg0, ResourceBundle arg1) {
 		try {
 			txtIPAddress.setText(InetAddress.getLocalHost().getHostAddress().toString());
@@ -51,7 +52,7 @@ public class CreateNetworkController implements Initializable {
 			setError("Could not determine address of host.");
 		}
 	}
-	
+
 	public void navigateBackAction(ActionEvent event) {
 		boolean goBack = true;
 		clearError();
@@ -68,20 +69,21 @@ public class CreateNetworkController implements Initializable {
 
 	private boolean showConfirmDeleteNetworkDialog() {
 		boolean yes = false;
-		
+
 		Window owner = txtIPAddress.getScene().getWindow();
 		Alert dlg = new Alert(AlertType.CONFIRMATION);
+		IconUtils.decorateDialogWithIcon(dlg);
 		dlg.initOwner(owner);
 		dlg.setTitle("Delete Network");
 		dlg.setHeaderText("Delete the network?");
 		dlg.setContentText("If you go back, your peer will be shut down and your network deleted. Continue?");
 		dlg.showAndWait();
-		
+
 		yes = dlg.getResult() == ButtonType.OK;
 
 		return yes;
 	}
-	
+
 	public void createNetworkAction(ActionEvent event) {
 		clearError();
 		if (!nodeManager.isConnected()) {
@@ -99,13 +101,14 @@ public class CreateNetworkController implements Initializable {
 	private void showNetworkCreatedDialog() {
 		Window owner = txtIPAddress.getScene().getWindow();
 		Alert dlg = new Alert(AlertType.INFORMATION);
+		IconUtils.decorateDialogWithIcon(dlg);
 		dlg.initOwner(owner);
 		dlg.setTitle("Network Created");
 		dlg.setHeaderText("New network created");
 		dlg.setContentText(String.format("The bootstrapping peer started on %s.", txtIPAddress.getText()));
 		dlg.showAndWait();
 	}
-	
+
 	private void setError(String error) {
 		lblError.setText(error);
 	}

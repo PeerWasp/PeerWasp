@@ -1,4 +1,4 @@
-package org.peerbox.bootstrapnode;
+package com.peerwasp.bootstrapnode;
 
 import java.io.IOException;
 import java.net.InetAddress;

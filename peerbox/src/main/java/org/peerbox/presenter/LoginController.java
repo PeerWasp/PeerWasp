@@ -45,6 +45,7 @@ import org.peerbox.presenter.validation.ValidationUtils.ValidationResult;
 import org.peerbox.utils.UserConfigUtils;
 import org.peerbox.view.ViewNames;
 import org.peerbox.view.controls.ErrorLabel;
+import org.peerbox.watchservice.filetree.persistency.ListSync;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -310,6 +311,8 @@ public class LoginController implements Initializable {
 
 			ctx.getActionExecutor().start();
 			ctx.getFolderWatchService().start(userConfig.getRootPath());
+			ListSync listSync = ctx.getInjector().getInstance(ListSync.class);
+			listSync.sync();
 			ctx.getRemoteProfilePersister().start();
 
 		} catch (Exception e) {

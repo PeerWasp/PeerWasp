@@ -741,11 +741,11 @@ int ContextMenuExt::Handle_CmdShare()
 
 void ContextMenuExt::ShowServerNotRunningMessage(HWND hwnd)
 {
-	MessageBox(hwnd, L"Could not process the command. Please make sure that PeerBox is running.", L"Command Failed", MB_ICONINFORMATION);
+	MessageBox(hwnd, L"Could not process the command. Please make sure that PeerWasp is running.", L"Command Failed", MB_ICONINFORMATION);
 }
 
 void ContextMenuExt::ShowUnexpectedErrorMessage(HWND hwnd)
 {
-	MessageBox(hwnd, L"Could not process the command due to an unexpected error. Please make sure that PeerBox is running or restart the application.", L"Command Failed", MB_ICONERROR);
+	MessageBox(hwnd, L"Could not process the command due to an unexpected error. Please make sure that PeerWasp is running or restart the application.", L"Command Failed", MB_ICONERROR);
 }
 #pragma endregion

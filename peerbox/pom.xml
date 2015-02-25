@@ -78,13 +78,6 @@
 			<scope>compile</scope>
 		</dependency>
 
-		<!-- OpenJFX Dialog API package provided by ControlsFX. Java 8u40 should include the API itself -->
-		<dependency>
-			<groupId>org.controlsfx</groupId>
-			<artifactId>openjfx-dialogs</artifactId>
-			<version>1.0.2</version>
-		</dependency>
-
 		<!-- ControlsFX http://fxexperience.com/controlsfx/ -->
 		<dependency>
 			<groupId>org.controlsfx</groupId>

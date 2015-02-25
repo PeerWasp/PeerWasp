@@ -59,7 +59,7 @@ public class WinRegistryTest extends BaseJUnitTest {
 
 		builder.command("reg", /* registry command */
 				"QUERY", /* query a key */
-				"HKCU\\Software\\PeerBox", /* registry key */
+				"HKCU\\Software\\PeerWasp", /* registry key */
 				"/v", "api_server_port", /* name of the value */
 				"/t", "REG_DWORD" /* type of the value */
 		);
@@ -78,7 +78,7 @@ public class WinRegistryTest extends BaseJUnitTest {
 	public void testSetRootPath() {
 		for (int i = 0; i < NUMBER_ITERATIONS; ++i) {
 			String randomFolder = RandomStringUtils.randomAlphanumeric(12);
-			Path rootPath = Paths.get("C:\\PeerBox\\", randomFolder);
+			Path rootPath = Paths.get("C:\\PeerWasp\\", randomFolder);
 			WinRegistry.setRootPath(rootPath);
 			assertRootPath(rootPath);
 		}
@@ -89,7 +89,7 @@ public class WinRegistryTest extends BaseJUnitTest {
 
 		builder.command("reg", /* registry command */
 				"QUERY", /* query a key */
-				"HKCU\\Software\\PeerBox", /* registry key */
+				"HKCU\\Software\\PeerWasp", /* registry key */
 				"/v", "rootpath", /* name of the value */
 				"/t", "REG_SZ" /* type of the value */
 		);

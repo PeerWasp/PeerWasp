@@ -36,7 +36,7 @@ std::wstring Utils::GetRootPath()
 		// registry lookup
 		HRESULT hr;
 		wchar_t value[260] = { '\0' };
-		hr = GetHKCURegistryKeyAndValue(L"Software\\Peerbox", L"rootpath", value, sizeof(value));
+		hr = GetHKCURegistryKeyAndValue(L"Software\\PeerWasp", L"rootpath", value, sizeof(value));
 		if (SUCCEEDED(hr) && value[0] != L'\0')
 		{
 			m_cachedRootPath = std::wstring(value);
@@ -65,7 +65,7 @@ int Utils::GetApiServerPort()
 		// registry lookup
 		HRESULT hr;
 		int value = 0;
-		hr = GetHKCURegistryKeyAndValue(L"Software\\Peerbox", L"api_server_port", (PWSTR)&value, sizeof(value));
+		hr = GetHKCURegistryKeyAndValue(L"Software\\PeerWasp", L"api_server_port", (PWSTR)&value, sizeof(value));
 		if (SUCCEEDED(hr) && value != 0)
 		{
 			m_cachedApiServerPort = value;

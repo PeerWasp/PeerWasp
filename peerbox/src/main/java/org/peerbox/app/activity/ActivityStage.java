@@ -1,16 +1,19 @@
 package org.peerbox.app.activity;
 
 import java.io.IOException;
+import java.util.Collection;
 
 import javafx.application.Platform;
 import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 
 import org.peerbox.interfaces.IFxmlLoaderProvider;
+import org.peerbox.utils.IconUtils;
 import org.peerbox.view.ViewNames;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,6 +51,10 @@ public class ActivityStage {
 			Scene scene = new Scene(root, WINDOW_WIDTH, WINDOW_HEIGHT);
 			stage = new Stage();
 			stage.setTitle(WINDOW_TITLE);
+
+			Collection<Image> icons = IconUtils.createWindowIcons();
+			stage.getIcons().addAll(icons);
+
 			stage.setScene(scene);
 			stage.addEventHandler(WindowEvent.WINDOW_CLOSE_REQUEST, new WindowCloseRequestEventHandler());
 

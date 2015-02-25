@@ -2,36 +2,43 @@
 <launch4jConfig>
   <dontWrapJar>true</dontWrapJar>
   <headerType>gui</headerType>
-  <jar>@PEERBOX_JAR@</jar>
-  <outfile>peerbox.exe</outfile>
-  <errTitle></errTitle>
+  <jar>@APP_JAR@</jar>
+  <outfile>peerwasp.exe</outfile>
+  <errTitle>Java required</errTitle>
   <cmdLine></cmdLine>
   <chdir>.</chdir>
   <priority>normal</priority>
   <downloadUrl>http://java.com/download</downloadUrl>
-  <supportUrl>http://www.peerbox.ch</supportUrl>
+  <supportUrl>http://www.peerwasp.com/</supportUrl>
   <stayAlive>false</stayAlive>
   <restartOnCrash>false</restartOnCrash>
   <manifest></manifest>
-  <icon>../../resources/peerbox64.ico</icon>
+  <icon>../../resources/icon_multisize.ico</icon>
+  <singleInstance>
+    <!-- prevent multiple instances -->
+    <mutexName>PeerWasp_Instance</mutexName>
+    <windowTitle></windowTitle>
+  </singleInstance>
   <jre>
     <path></path>
     <bundledJre64Bit>false</bundledJre64Bit>
+    <bundledJreAsFallback>false</bundledJreAsFallback>
     <minVersion>@JAVA_VERSION_MIN@</minVersion>
     <maxVersion></maxVersion>
     <jdkPreference>preferJre</jdkPreference>
     <runtimeBits>64/32</runtimeBits>
   </jre>
   <versionInfo>
+    <!-- note: fileVersion and productVersion must have form x.x.x.x - thus, we add .0 at the end. --> 
     <fileVersion>@APP_VERSION@.0</fileVersion>
     <txtFileVersion>@APP_VERSION@</txtFileVersion>
-    <fileDescription>PeerBox Launcher</fileDescription>
-    <copyright>PeerBox Developers</copyright>
+    <fileDescription>PeerWasp Launcher</fileDescription>
+    <copyright>PeerWasp Developers</copyright>
     <productVersion>@APP_VERSION@.0</productVersion>
     <txtProductVersion>@APP_VERSION@</txtProductVersion>
-    <productName>PeerBox</productName>
+    <productName>PeerWasp</productName>
     <companyName></companyName>
-    <internalName>PeerBox</internalName>
-    <originalFilename>peerbox.exe</originalFilename>
+    <internalName>PeerWasp</internalName>
+    <originalFilename>peerwasp.exe</originalFilename>
   </versionInfo>
 </launch4jConfig>

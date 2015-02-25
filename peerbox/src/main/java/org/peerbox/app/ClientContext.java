@@ -9,6 +9,7 @@ import org.peerbox.notifications.FileEventAggregator;
 import org.peerbox.watchservice.ActionExecutor;
 import org.peerbox.watchservice.FileEventManager;
 import org.peerbox.watchservice.FolderWatchService;
+import org.peerbox.watchservice.filetree.FileTree;
 import org.peerbox.watchservice.filetree.persistency.FileDao;
 import org.peerbox.watchservice.filetree.persistency.H2HUserProfilePersister;
 
@@ -33,6 +34,7 @@ public class ClientContext {
 	private H2HUserProfilePersister remoteProfilePersister;
 	private FileEventAggregator fileEventAggregator;
 
+	private FileTree fileTree;
 	private FileDao fileDao;
 
 	public ClientContext() {
@@ -136,6 +138,15 @@ public class ClientContext {
 	@Inject
 	public void setFileDao(FileDao fileDao) {
 		this.fileDao = fileDao;
+	}
+
+	public FileTree getFileTree() {
+		return fileTree;
+	}
+
+	@Inject
+	public void setFileTree(FileTree fileTree) {
+		this.fileTree = fileTree;
 	}
 
 
