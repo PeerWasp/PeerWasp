@@ -285,7 +285,14 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 		
 		updateIconInUIThread(item, view);
 		updateTooltipInUIThread(item, SynchronizationUtils.getErrorTooltip());
-		item.setSelected(true);
+		
+		final CheckBoxTreeItem<PathItem> item2 = item;
+		javafx.application.Platform.runLater(new Runnable() {
+	        @Override
+	        public void run() {
+	        	item2.setSelected(true);
+	        }
+		});
 	}
 	
 	@Override
