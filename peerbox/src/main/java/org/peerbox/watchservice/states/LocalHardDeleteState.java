@@ -68,7 +68,7 @@ public class LocalHardDeleteState extends AbstractActionState{
 
 	@Override
 	public AbstractActionState changeStateOnRemoteMove(Path oldFilePath) {
-		logStateTransition(getStateType(), EventType.REMOTE_MOVE, StateType.REMOTE_MOVE);
+		logStateTransition(getStateType(), EventType.REMOTE_MOVE, StateType.LOCAL_HARD_DELETE);
 		return this;
 	}
 

@@ -161,6 +161,25 @@ public class Move extends FileIntegrationTest{
 		manyNonEmptyFolderMoveTestFunc();
 	}
 	
+	@Test @Ignore
+	public void simultaneousSingleFileMoveTest() throws IOException{
+		Path folder = addSingleFolder();
+		Path srcFile = addSingleFile(); 
+		Path srcFile2 = addSingleFile();
+		Path otherRoot = getNetwork().getRootPaths().get(1);
+		Path otherFolder = otherRoot.resolve(folder.getFileName());
+		Path resolvedSrc = otherRoot.resolve(srcFile2.getFileName());
+		Path resolvedDest = otherFolder.resolve(srcFile.getFileName());
+		logger.trace("1. Move from {} to {}", resolvedSrc, resolvedDest);
+		logger.trace("2. Move from {} to {}", srcFile, folder.resolve(srcFile.getFileName()));
+
+		assertCleanedUpState(3);
+		moveFileOrFolder(resolvedSrc, resolvedDest);
+		sleepMillis(2 * ActionExecutor.ACTION_WAIT_TIME_MS / 3);
+		moveFileOrFolder(srcFile, folder.resolve(srcFile.getFileName()));
+		assertCleanedUpState(3);
+	}
+	
 	private void manyNonEmptyFolderMoveTestFunc() throws IOException{
 		int nrFolders = 10;
 		int nrFilesPerFolder = 10;

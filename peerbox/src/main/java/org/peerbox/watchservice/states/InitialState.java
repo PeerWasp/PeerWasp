@@ -48,11 +48,6 @@ public class InitialState extends AbstractActionState {
 	}
 
 	@Override
-	public AbstractActionState changeStateOnRemoteMove(Path oldFilePath) {
-		throw new NotImplException("InitialState.onremoteMove");
-	}
-
-	@Override
 	public AbstractActionState changeStateOnLocalCreate(){
 		if(action.getFile().isUploaded()){
 			logStateTransition(getStateType(), EventType.LOCAL_CREATE, StateType.ESTABLISHED);
@@ -62,6 +57,12 @@ public class InitialState extends AbstractActionState {
 			logStateTransition(getStateType(), EventType.LOCAL_CREATE, StateType.LOCAL_CREATE);
 			return new LocalCreateState(action);
 		}
+	}
+	
+	@Override
+	public AbstractActionState changeStateOnRemoteMove(Path oldFilePath) {
+		logStateTransition(getStateType(), EventType.REMOTE_MOVE, StateType.ESTABLISHED);
+		return new EstablishedState(action);
 	}
  
 	@Override
