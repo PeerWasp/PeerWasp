@@ -54,9 +54,13 @@ public abstract class AbstractActionState {
 	}
 
 	public void updateTimeAndQueue(){
-		action.getFileEventManager().getFileComponentQueue().remove(action.getFile());
+		updateTimeAndQueue(action.getFile());
+	}
+	
+	public void updateTimeAndQueue(FileComponent file){
+		action.getFileEventManager().getFileComponentQueue().remove(file);
 		action.updateTimestamp();
-		action.getFileEventManager().getFileComponentQueue().add(action.getFile());
+		action.getFileEventManager().getFileComponentQueue().add(file);
 	}
 
 	/*

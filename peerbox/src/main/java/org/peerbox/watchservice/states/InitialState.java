@@ -168,8 +168,10 @@ public class InitialState extends AbstractActionState {
 			return this; //changeStateOnLocalMove(filePath);
 		} else {
 			logger.trace("No move of {}, as it was not uploaded.", source.getPath());
-			fileTree.putFile(filePath, file);
+//			fileTree.putFile(filePath, file);
 			updateTimeAndQueue();
+//			source.getAction().handleLocalCreateEvent();
+//			updateTimeAndQueue(source);
 			return changeStateOnLocalCreate();
 		}
 	}
@@ -182,7 +184,7 @@ public class InitialState extends AbstractActionState {
 		
 		fileTree.deleteFile(source.getPath());
 		logger.trace("Folder move detected from {} to {}", source.getPath(), filePath);
-		source.getAction().handleLocalMoveEvent(filePath);
+		//source.getAction().handleLocalMoveEvent(filePath);
 		action.getFileEventManager().getFileComponentQueue().remove(file);
 
 		SetMultimap<String, FolderComposite> createdByStructureHash = action.getFileEventManager().getFileTree().getCreatedByStructureHash();
@@ -198,6 +200,8 @@ public class InitialState extends AbstractActionState {
 			logger.trace("No move of {}, as it was not uploaded.", source.getPath());
 			fileTree.putFile(filePath, file);
 			updateTimeAndQueue();
+//			source.getAction().handleLocalCreateEvent();
+//			updateTimeAndQueue(source);
 			return changeStateOnLocalCreate();
 		}
 	}

@@ -53,7 +53,7 @@ public class ActionExecutor implements Runnable {
 	 *  amount of time that an action has to be "stable" in order to be executed
 	 */
 	public static final long ACTION_WAIT_TIME_MS = 8000;
-	public static final int NUMBER_OF_EXECUTE_SLOTS = 3;
+	public static final int NUMBER_OF_EXECUTE_SLOTS = 10;
 	public static final int MAX_EXECUTION_ATTEMPTS = 3;
 
 	private final IFileManager fileManager;
@@ -362,13 +362,14 @@ public class ActionExecutor implements Runnable {
 
 		if (error == AbortModificationCode.SAME_CONTENT) {
 
-			logger.debug("Update of file {} failed, content hash did not change", path);
+			logger.debug("Update of file {} failed as content hash did not change. "
+					+ "As there is no action to perform, we consider it as successful.", path);
+			
 			FileComponent notModified = getFileTree().getFile(path);
 			if (notModified == null) {
 				logger.trace("FileComponent not found (null): {}", path);
 			}
 			FileHelper file = new FileHelper(action.getFile().getPath(), action.getFile().isFile());
-//			fileEventManager.getMessageBus().publish(new FileExecutionSucceededMessage(file, action.getCurrentState().getStateType()));
 			publishMessage(new FileExecutionSucceededMessage(file, action.getCurrentState().getStateType()));
 			action.onSucceeded();
 			return true;
@@ -376,6 +377,9 @@ public class ActionExecutor implements Runnable {
 		} else if (error == AbortModificationCode.FOLDER_UPDATE) {
 
 			logger.debug("Attempt to update folder {} failed as folder cannot be updated.", path);
+			FileHelper file = new FileHelper(action.getFile().getPath(), action.getFile().isFile());
+			publishMessage(new FileExecutionSucceededMessage(file, action.getCurrentState().getStateType()));
+			action.onSucceeded();
 			return true;
 
 		} else if (error == AbortModificationCode.ROOT_DELETE_ATTEMPT) {
@@ -387,7 +391,14 @@ public class ActionExecutor implements Runnable {
 
 			logger.debug("Attempt to delete or write to {} failed. No write-permissions.", path);
 			return true;
-
+		} else if (error == AbortModificationCode.LARGE_FILE_UPDATE){
+			logger.debug("File {} is a large file and cannot be updated, as only one "
+					+ "version can exist. The update request is discarded and "
+					+ "considered as successful.");
+			FileHelper file = new FileHelper(action.getFile().getPath(), action.getFile().isFile());
+			publishMessage(new FileExecutionSucceededMessage(file, action.getCurrentState().getStateType()));
+			action.onSucceeded();
+			return true;
 		}
 //		else if (error == AbortModificationCode.FILE_DOES_NOT_EXIST){
 //
