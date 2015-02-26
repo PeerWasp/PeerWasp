@@ -34,6 +34,15 @@ public class Move extends FileIntegrationTest{
 		assertCleanedUpState(2);
 	}
 	
+	@Test
+	public void singleFileMoveWhileUploadTest() throws IOException {
+		Path folder = addSingleFolder();
+		Path srcFile = addSingleFile(false);
+		sleepMillis(ActionExecutor.ACTION_WAIT_TIME_MS * 4 + 1000);
+		moveFileOrFolder(srcFile, folder.resolve(srcFile.getFileName()));
+		assertCleanedUpState(2);
+	}
+	
 	
 	@Test
 	public void singleFileDoubleMoveTest() throws IOException{

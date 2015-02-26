@@ -112,8 +112,18 @@ public abstract class FileIntegrationTest extends BaseJUnitTest {
 
 
 	protected Path addSingleFile(int size) throws IOException {
+		return addSingleFile(size, true);
+	}
+	
+	protected Path addSingleFile(boolean waitForExists) throws IOException {
+		return addSingleFile(NUMBER_OF_CHARS, false);
+	}
+	
+	protected Path addSingleFile(int size, boolean waitForExists) throws IOException {
 		Path file = FileTestUtils.createRandomFile(masterRootPath, size);
-		waitForExists(file, WAIT_TIME_SHORT);
+		if(waitForExists){
+			waitForExists(file, WAIT_TIME_SHORT);
+		}
 		return file;
 	}
 
