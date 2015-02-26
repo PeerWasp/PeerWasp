@@ -12,6 +12,7 @@ import java.io.IOException;
 import net.engio.mbassy.listener.Handler;
 
 import org.peerbox.app.Constants;
+import org.peerbox.app.config.UserConfig;
 import org.peerbox.app.manager.user.IUserMessageListener;
 import org.peerbox.app.manager.user.LoginMessage;
 import org.peerbox.app.manager.user.LogoutMessage;
@@ -35,8 +36,11 @@ public class JSystemTray extends AbstractSystemTray implements ITrayNotification
 	private String tooltip;
 	private java.awt.TrayIcon trayIcon;
 	private final JTrayIcons iconProvider;
+	
+	private UserConfig userConfig;
 
 	private boolean hasFailedOperations = false;
+
 
 	@Inject
 	public JSystemTray(TrayActionHandler actionHandler) {
@@ -83,6 +87,8 @@ public class JSystemTray extends AbstractSystemTray implements ITrayNotification
 			trayIcon.setToolTip(this.tooltip);
 		}
 	}
+	
+
 
 	@Override
 	public void showDefaultIcon() throws TrayException {
@@ -162,7 +168,10 @@ public class JSystemTray extends AbstractSystemTray implements ITrayNotification
                 trayIcon.removeActionListener(this);
             }
         });
+		logger.info("TrayNotification Status: \n[{}]", userConfig.isTrayNotificationEnabled());
+	//	if(userConfig.isTrayNotificationEnabled()){
 		trayIcon.displayMessage("File Synchronization", msg, MessageType.INFO);
+	//	}
 	}
 
 	private String generateAggregatedFileEventStatusMessage(AggregatedFileEventStatus e) {

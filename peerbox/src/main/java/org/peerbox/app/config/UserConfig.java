@@ -35,6 +35,7 @@ public class UserConfig extends AbstractConfig {
 	private static final String PROPERTY_PIN = "pin";
 	private static final String PROPERTY_ROOTPATH = "rootpath";
 	private static final String PROPERTY_AUTO_LOGIN = "autologin";
+	private static final String PROPERTY_TRAY_NOTIFICATION = "trayNotification";
 
 
 	/**
@@ -183,7 +184,7 @@ public class UserConfig extends AbstractConfig {
 	}
 
 	/**
-	 * Sets the auto login property.
+	 * Sets the tray notification property.
 	 *
 	 * @param enabled
 	 * @throws IOException
@@ -192,5 +193,24 @@ public class UserConfig extends AbstractConfig {
 		setProperty(PROPERTY_AUTO_LOGIN, Boolean.toString(enabled));
 		saveProperties();
 	}
+	
+	/**
+	 * @return true if auto login is set, false otherwise.
+	 */
+	public synchronized boolean isTrayNotificationEnabled() {
+		return Boolean.valueOf(getProperty(PROPERTY_TRAY_NOTIFICATION));
+	}
+
+	/**
+	 * Sets the tray notification property.
+	 *
+	 * @param status
+	 * @throws IOException
+	 */
+	public synchronized void setTrayNotification(boolean status) throws IOException {
+		setProperty(PROPERTY_TRAY_NOTIFICATION, Boolean.toString(status));
+		saveProperties();
+	}
+
 
 }
