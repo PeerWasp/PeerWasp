@@ -188,6 +188,17 @@ public class InitialState extends AbstractActionState {
 		SetMultimap<String, FolderComposite> createdByStructureHash = action.getFileEventManager().getFileTree().getCreatedByStructureHash();
 		boolean wasRemoved = createdByStructureHash.get(action.getFile().getStructureHash()).remove((FolderComposite)action.getFile());
 		// TODO: cleanup filecomponentqueue: remove children of folder if in localcreate state!
-		return this;
+		
+		if (source.isUploaded()) {
+			logger.trace("Handle move of {}, from {}.", filePath, source.getPath());
+			// eventManager.getFileTree().deleteFile(action.getFile().getPath());
+			source.getAction().handleLocalMoveEvent(filePath);
+			return this; //changeStateOnLocalMove(filePath);
+		} else {
+			logger.trace("No move of {}, as it was not uploaded.", source.getPath());
+			fileTree.putFile(filePath, file);
+			updateTimeAndQueue();
+			return changeStateOnLocalCreate();
+		}
 	}
 }
