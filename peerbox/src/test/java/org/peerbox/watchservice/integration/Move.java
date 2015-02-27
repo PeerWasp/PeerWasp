@@ -26,8 +26,8 @@ public class Move extends FileIntegrationTest{
 	 */	
 	@Test
 	public void singleFileMoveTest() throws IOException{
-		Path folder = addSingleFolder();
-		Path srcFile = addSingleFile(); 
+		Path folder = addFolder();
+		Path srcFile = addFile(); 
 		assertCleanedUpState(2);
 		
 		moveFileOrFolder(srcFile, folder.resolve(srcFile.getFileName()));
@@ -36,8 +36,8 @@ public class Move extends FileIntegrationTest{
 	
 	@Test
 	public void singleFileMoveWhileUploadTest() throws IOException {
-		Path folder = addSingleFolder();
-		Path srcFile = addSingleFile(false);
+		Path folder = addFolder();
+		Path srcFile = addFile(false);
 		sleepMillis(ActionExecutor.ACTION_WAIT_TIME_MS * 4 + 1000);
 		moveFileOrFolder(srcFile, folder.resolve(srcFile.getFileName()));
 		assertCleanedUpState(2);
@@ -46,8 +46,8 @@ public class Move extends FileIntegrationTest{
 	
 	@Test
 	public void singleFileDoubleMoveTest() throws IOException{
-		Path folder = addSingleFolder();
-		Path srcFile = addSingleFile();
+		Path folder = addFolder();
+		Path srcFile = addFile();
 		assertCleanedUpState(2);
 		
 		moveFileOrFolder(srcFile, folder.resolve(srcFile.getFileName()));
@@ -59,8 +59,8 @@ public class Move extends FileIntegrationTest{
 	
 	@Test
 	public void singleFileDoubleMoveRemoteTest() throws IOException{
-		Path localFolder = addSingleFolder();
-		Path localSrcFile = addSingleFile();
+		Path localFolder = addFolder();
+		Path localSrcFile = addFile();
 		Path localDstFile = localFolder.resolve(localSrcFile.getFileName());
 		
 		assertCleanedUpState(2);
@@ -79,8 +79,8 @@ public class Move extends FileIntegrationTest{
 	
 	@Test
 	public void severalFilesMoveTest() throws IOException{
-		Path folder = addSingleFolder();
-		List<Path> files = addManyFiles(20, WAIT_TIME_SHORT);
+		Path folder = addFolder();
+		List<Path> files = addFiles(20, WAIT_TIME_SHORT);
 		assertCleanedUpState(21);
 		
 		moveManyFilesIntoFolder(files, folder, 10);
@@ -89,8 +89,8 @@ public class Move extends FileIntegrationTest{
 
 	@Test
 	public void manyFilesMoveTest() throws IOException, InterruptedException{
-		Path folder = addSingleFolder();
-		List<Path> files = addManyFiles(100, WAIT_TIME_LONG);
+		Path folder = addFolder();
+		List<Path> files = addFiles(100, WAIT_TIME_LONG);
 		assertCleanedUpState(101);
 		
 		moveManyFilesIntoFolder(files, folder, 50);
@@ -99,7 +99,7 @@ public class Move extends FileIntegrationTest{
 	
 	@Test
 	public void singleEmptyFolderMoveTest() throws IOException{
-		List<Path> paths = addManyFolders(2);
+		List<Path> paths = addFolders(2);
 		assertCleanedUpState(2);
 		
 		moveFileOrFolder(paths.get(0), paths.get(1).resolve(paths.get(0).getFileName()));
@@ -108,10 +108,10 @@ public class Move extends FileIntegrationTest{
 	
 	@Test
 	public void singleNonEmptyFolderMoveTest() throws IOException{
-		List<Path> folders = addManyFolders(2);
+		List<Path> folders = addFolders(2);
 		Path dstFolder = folders.get(1).resolve(folders.get(0).getFileName());
 		
-		addSingleFile(folders.get(0));
+		addFileToDestination(folders.get(0));
 		assertCleanedUpState(3);
 		moveFileOrFolder(folders.get(0), dstFolder);
 		assertCleanedUpState(3);
@@ -121,11 +121,11 @@ public class Move extends FileIntegrationTest{
 	public void singleFolderWithDesyncedFileMoveTest() throws IOException{
 //		Path folderToMove = addSingleFolder();
 //		Path dstFolderParent = addSingleFolder();
-		List<Path> folders = addManyFolders(2);
+		List<Path> folders = addFolders(2);
 		Path dstFolder = folders.get(1).resolve(folders.get(0).getFileName());
 		
-		addSingleFile(folders.get(0));
-		Path fileToDesync = addSingleFile(folders.get(0));
+		addFileToDestination(folders.get(0));
+		Path fileToDesync = addFileToDestination(folders.get(0));
 		assertCleanedUpState(4);
 		FileEventManager eventManager = getNetwork().getClients().get(0).getFileEventManager();
 		eventManager.onFileDesynchronized(fileToDesync);
@@ -141,8 +141,8 @@ public class Move extends FileIntegrationTest{
 	public void manyEmptyFolderMoveTest() throws IOException{
 		int nrFolders = 10;
 		List<Path> sources = new ArrayList<Path>();
-		Path destination = addSingleFolder();
-		sources = addManyFolders(nrFolders);
+		Path destination = addFolder();
+		sources = addFolders(nrFolders);
 
 		assertCleanedUpState(nrFolders + 1);
 		Path currentSource = null;
@@ -170,9 +170,9 @@ public class Move extends FileIntegrationTest{
 	
 	@Test @Ignore
 	public void simultaneousSingleFileMoveTest() throws IOException{
-		Path folder = addSingleFolder();
-		Path srcFile = addSingleFile(); 
-		Path srcFile2 = addSingleFile();
+		Path folder = addFolder();
+		Path srcFile = addFile(); 
+		Path srcFile2 = addFile();
 		Path otherRoot = getNetwork().getRootPaths().get(1);
 		Path otherFolder = otherRoot.resolve(folder.getFileName());
 		Path resolvedSrc = otherRoot.resolve(srcFile2.getFileName());
@@ -190,7 +190,7 @@ public class Move extends FileIntegrationTest{
 	private void manyNonEmptyFolderMoveTestFunc() throws IOException{
 		int nrFolders = 10;
 		int nrFilesPerFolder = 10;
-		Path destination = addSingleFolder();
+		Path destination = addFolder();
 		List<Path> paths = addManyFilesInManyFolders(10, 10);
 		List<Path> destinationPaths = new ArrayList<Path>();
 		int totalFiles = nrFolders + nrFolders * nrFilesPerFolder + 1;
@@ -215,7 +215,7 @@ public class Move extends FileIntegrationTest{
 	
 	@Test @Ignore
 	public void localMoveOnRemoteUpdateTest() throws IOException{
-		Path folder = addSingleFolder();
+		Path folder = addFolder();
 		Path srcFile = FileTestUtils.createRandomFile(masterRootPath, NUMBER_OF_CHARS);
 		waitForExists(srcFile, WAIT_TIME_SHORT);
 //		assertSyncClientPaths();

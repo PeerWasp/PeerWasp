@@ -20,7 +20,7 @@ public class SelectiveSynchronization extends FileIntegrationTest{
 
 	@Test
 	public void isFileSynchedByDefaultTest() throws IOException {
-		Path path = addSingleFile();
+		Path path = addFile();
 //		assertSyncClientPaths();
 //		assertQueuesAreEmpty();
 		assertCleanedUpState(1);
@@ -34,7 +34,7 @@ public class SelectiveSynchronization extends FileIntegrationTest{
 	
 	@Test
 	public void isFileUnsynchedOnDemandTest() throws IOException{
-		Path path = addSingleFile();
+		Path path = addFile();
 		assertCleanedUpState(1);
 		
 		FileEventManager eventManager = getNetwork().getClients().get(0).getFileEventManager();
@@ -48,7 +48,7 @@ public class SelectiveSynchronization extends FileIntegrationTest{
 	
 	@Test
 	public void createUnsyncedFileTest() throws IOException{
-		Path path = addSingleFile();
+		Path path = addFile();
 		assertCleanedUpState(1);
 		
 		FileEventManager eventManager = getNetwork().getClients().get(0).getFileEventManager();
@@ -71,7 +71,7 @@ public class SelectiveSynchronization extends FileIntegrationTest{
 	
 	@Test
 	public void isFolderUnsynchedOnDemandTest() throws IOException{
-		Path path = addSingleFolder();
+		Path path = addFolder();
 		assertCleanedUpState(1);
 		
 		FileEventManager eventManager = getNetwork().getClients().get(0).getFileEventManager();
@@ -84,7 +84,7 @@ public class SelectiveSynchronization extends FileIntegrationTest{
 	
 	@Test
 	public void isFolderResynchedOnDemandTest() throws IOException{
-		Path path = addSingleFolder();
+		Path path = addFolder();
 		assertCleanedUpState(1);
 		
 		FileEventManager eventManager = getNetwork().getClients().get(0).getFileEventManager();
@@ -100,7 +100,7 @@ public class SelectiveSynchronization extends FileIntegrationTest{
 	
 	@Test
 	public void isFolderSynchedByDefaultTest() throws IOException{
-		Path path = addSingleFolder();
+		Path path = addFolder();
 		assertCleanedUpState(1);
 		
 		FileEventManager eventManager = getNetwork().getClients().get(0).getFileEventManager();

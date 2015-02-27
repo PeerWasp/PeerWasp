@@ -20,7 +20,7 @@ public class ConflictTest extends FileIntegrationTest{
 	@Test
 	public void localCreateRemoteCreateTest() throws IOException, InterruptedException{
 		List<Path> paths = new ArrayList<Path>();
-		paths.add(addSingleFile(false));
+		paths.add(addFile(false));
 		paths.add(ConflictHandler.rename(paths.get(0)));
 		//paths.add(clientRootPath.resolve(paths.get(0).getFileName()));
 		Thread.sleep(ActionExecutor.ACTION_WAIT_TIME_MS / 2);
@@ -32,7 +32,7 @@ public class ConflictTest extends FileIntegrationTest{
 	
 	@Test
 	public void localUpdateRemoteUpdateTest() throws IOException, InterruptedException {	
-		Path client0File = addSingleFile();
+		Path client0File = addFile();
 		Path client1File = clientRootPath.resolve(client0File.getFileName());
 		assertCleanedUpState(1);
 		
@@ -46,7 +46,7 @@ public class ConflictTest extends FileIntegrationTest{
 	@Test
 	public void remoteCreateLocalCreateTest() throws IOException, InterruptedException{	
 		List<Path> paths = new ArrayList<Path>();
-		paths.add(addSingleFile(false));
+		paths.add(addFile(false));
 		paths.add(ConflictHandler.rename(paths.get(0)));
 		//paths.add(clientRootPath.resolve(paths.get(0).getFileName()));
 		Thread.sleep(3 * ActionExecutor.ACTION_WAIT_TIME_MS / 2);
@@ -58,7 +58,7 @@ public class ConflictTest extends FileIntegrationTest{
 	
 	@Test
 	public void remoteUpdateLocalUpdateTest() throws IOException, InterruptedException {
-		Path client0File = addSingleFile();
+		Path client0File = addFile();
 		Path client1File = clientRootPath.resolve(client0File.getFileName());
 		assertCleanedUpState(1);
 		

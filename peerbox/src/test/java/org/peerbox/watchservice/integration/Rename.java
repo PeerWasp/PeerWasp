@@ -18,7 +18,7 @@ public class Rename extends FileIntegrationTest{
 	 */	
 	@Test
 	public void singleFileRenameTest() throws IOException, InterruptedException{
-		Path initialFile = addSingleFile(true);
+		Path initialFile = addFile(true);
 		assertCleanedUpState(1);
 		
 		Path renamedFile = rename(initialFile, "RENAMED.file");
