@@ -9,7 +9,9 @@ public class FileExecutionSucceededMessage extends AbstractFileMessage{
 	private StateType stateType;
 	private FileHelper srcFile = null;;
 	public FileExecutionSucceededMessage(FileHelper file, StateType stateType) {
-		this(file, null, stateType);
+		super(file);
+		this.stateType = stateType;
+//		this(file, null, stateType);
 	}
 	
 	public FileExecutionSucceededMessage(FileHelper srcFile, FileHelper dstFile, StateType stateType) {

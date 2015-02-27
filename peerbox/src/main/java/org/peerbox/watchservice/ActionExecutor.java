@@ -32,6 +32,8 @@ import org.peerbox.watchservice.filetree.IFileTree;
 import org.peerbox.watchservice.filetree.composite.FileComponent;
 import org.peerbox.watchservice.filetree.composite.FolderComposite;
 import org.peerbox.watchservice.states.ExecutionHandle;
+import org.peerbox.watchservice.states.LocalMoveState;
+import org.peerbox.watchservice.states.StateType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -304,7 +306,14 @@ public class ActionExecutor implements Runnable {
 
 		//inform GUI to adjust icon
 		FileHelper fileHelper = new FileHelper(file.getPath(), file.isFile());
-		publishMessage(new FileExecutionSucceededMessage(fileHelper, action.getCurrentState().getStateType()));
+		if(action.getCurrentState().getStateType() == StateType.LOCAL_MOVE){
+			LocalMoveState state = (LocalMoveState)action.getCurrentState();
+			FileHelper source = new FileHelper(state.getSourcePath(), file.isFile());
+			publishMessage(new FileExecutionSucceededMessage(source, fileHelper, action.getCurrentState().getStateType()));
+		} else {
+			publishMessage(new FileExecutionSucceededMessage(fileHelper, action.getCurrentState().getStateType()));
+		}
+		
 
 		boolean changedWhileExecuted = action.getChangedWhileExecuted();
 		file.setIsUploaded(true);

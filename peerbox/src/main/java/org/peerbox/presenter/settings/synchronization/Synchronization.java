@@ -194,8 +194,9 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 
 	@Override
 	@Handler
+	
 	public void onExecutionSucceeds(FileExecutionSucceededMessage message) {
-		logger.trace("Synchronizaion: onExecutionSucceeds: {}", message.getFile().getPath());
+		logger.trace("Synchronization: onExecutionSucceeds: {}", message.getFile().getPath());
 		StateType stateType = message.getStateType();
 
 		switch(stateType){
