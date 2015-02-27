@@ -21,22 +21,21 @@ public class SelectiveSynchronization extends FileIntegrationTest{
 	@Test
 	public void isFileSynchedByDefaultTest() throws IOException {
 		Path path = addSingleFile();
-		assertSyncClientPaths();
-		assertQueuesAreEmpty();
+//		assertSyncClientPaths();
+//		assertQueuesAreEmpty();
+		assertCleanedUpState(1);
 		FileEventManager eventManager = getNetwork().getClients().get(0).getFileEventManager();
 		FileComponent file = eventManager.getFileTree().getFile(path);
 		assertTrue(file.isSynchronized());
 		
-		deleteSingleFile(path);
-		assertSyncClientPaths();
-		assertQueuesAreEmpty();
+		deleteSingleFile(path, true);
+		assertCleanedUpState(0);
 	}
 	
 	@Test
 	public void isFileUnsynchedOnDemandTest() throws IOException{
 		Path path = addSingleFile();
-		assertSyncClientPaths();
-		assertQueuesAreEmpty();
+		assertCleanedUpState(1);
 		
 		FileEventManager eventManager = getNetwork().getClients().get(0).getFileEventManager();
 		eventManager.onFileDesynchronized(path);
@@ -44,13 +43,13 @@ public class SelectiveSynchronization extends FileIntegrationTest{
 		toSync.add(path);
 		waitForSynchronized(toSync, WAIT_TIME_SHORT, false);
 		waitForNotExistsLocally(path, WAIT_TIME_VERY_SHORT);
+		assertQueuesAreEmpty();
 	}
 	
 	@Test
 	public void createUnsyncedFileTest() throws IOException{
 		Path path = addSingleFile();
-		assertSyncClientPaths();
-		assertQueuesAreEmpty();
+		assertCleanedUpState(1);
 		
 		FileEventManager eventManager = getNetwork().getClients().get(0).getFileEventManager();
 		eventManager.onFileDesynchronized(path);
@@ -73,8 +72,7 @@ public class SelectiveSynchronization extends FileIntegrationTest{
 	@Test
 	public void isFolderUnsynchedOnDemandTest() throws IOException{
 		Path path = addSingleFolder();
-		assertSyncClientPaths();
-		assertQueuesAreEmpty();
+		assertCleanedUpState(1);
 		
 		FileEventManager eventManager = getNetwork().getClients().get(0).getFileEventManager();
 		eventManager.onFileDesynchronized(path);
@@ -87,8 +85,7 @@ public class SelectiveSynchronization extends FileIntegrationTest{
 	@Test
 	public void isFolderResynchedOnDemandTest() throws IOException{
 		Path path = addSingleFolder();
-		assertSyncClientPaths();
-		assertQueuesAreEmpty();
+		assertCleanedUpState(1);
 		
 		FileEventManager eventManager = getNetwork().getClients().get(0).getFileEventManager();
 		eventManager.onFileDesynchronized(path);
@@ -104,8 +101,7 @@ public class SelectiveSynchronization extends FileIntegrationTest{
 	@Test
 	public void isFolderSynchedByDefaultTest() throws IOException{
 		Path path = addSingleFolder();
-		assertSyncClientPaths();
-		assertQueuesAreEmpty();
+		assertCleanedUpState(1);
 		
 		FileEventManager eventManager = getNetwork().getClients().get(0).getFileEventManager();
 		FileComponent file = eventManager.getFileTree().getFile(path);
@@ -116,9 +112,7 @@ public class SelectiveSynchronization extends FileIntegrationTest{
 	public void isFileInUnsyncedFolderUnsyncedByDefaultTest() throws IOException{
 		//onFileDesync -> check if unsynced recursively
 		List<Path> paths = addSingleFileInFolder();
-		waitForExists(paths, WAIT_TIME_SHORT);
-		assertSyncClientPaths();
-		assertQueuesAreEmpty();
+		assertCleanedUpState(paths.size());
 		waitForSynchronized(paths, WAIT_TIME_VERY_SHORT, true);
 		FileEventManager eventManager = getNetwork().getClients().get(0).getFileEventManager();
 		eventManager.onFileDesynchronized(paths.get(0));
@@ -132,8 +126,7 @@ public class SelectiveSynchronization extends FileIntegrationTest{
 	public void isFileInResyncedFolderResyncedByDefaultTest() throws IOException{
 		//onFileDesync -> check if unsynced recursively
 		List<Path> paths = addSingleFileInFolder();
-		assertSyncClientPaths();
-		assertQueuesAreEmpty();
+		assertCleanedUpState(paths.size());
 		waitForSynchronized(paths, WAIT_TIME_VERY_SHORT, true);
 		FileEventManager eventManager = getNetwork().getClients().get(0).getFileEventManager();
 		eventManager.onFileDesynchronized(paths.get(0));

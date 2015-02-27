@@ -3,6 +3,7 @@ package org.peerbox.watchservice;
 import java.nio.file.Path;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Vector;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
@@ -52,7 +53,8 @@ public class ActionExecutor implements Runnable {
 	/**
 	 *  amount of time that an action has to be "stable" in order to be executed
 	 */
-	public static final long ACTION_WAIT_TIME_MS = 8000;
+	public static final long ACTION_WAIT_TIME_MS = 1000;
+	public static final int ACTION_WAIT_TIME_SEC = (int)(ACTION_WAIT_TIME_MS / 1000);
 	public static final int NUMBER_OF_EXECUTE_SLOTS = 10;
 	public static final int MAX_EXECUTION_ATTEMPTS = 3;
 
@@ -135,6 +137,8 @@ public class ActionExecutor implements Runnable {
 //							if(!next.isSynchronized()){
 //								fileEventManager.getMessageBus().publish(new FileDesyncMessage(next.getPath()));
 //							}
+							FileHelper file = new FileHelper(next.getPath(), next.isFile());
+							publishMessage(new FileExecutionStartedMessage(file, next.getAction().getCurrentState().getStateType()));
 						}
 						if(asyncHandles.size() != 0){
 //							fileEventManager.getMessageBus().publish(new SynchronizationStartsNotification());
@@ -362,24 +366,21 @@ public class ActionExecutor implements Runnable {
 
 		if (error == AbortModificationCode.SAME_CONTENT) {
 
-			logger.debug("Update of file {} failed as content hash did not change. "
-					+ "As there is no action to perform, we consider it as successful.", path);
-			
+			logger.debug("Update of file {} failed, content hash did not change", path);
 			FileComponent notModified = getFileTree().getFile(path);
 			if (notModified == null) {
 				logger.trace("FileComponent not found (null): {}", path);
 			}
 			FileHelper file = new FileHelper(action.getFile().getPath(), action.getFile().isFile());
+//			fileEventManager.getMessageBus().publish(new FileExecutionSucceededMessage(file, action.getCurrentState().getStateType()));
 			publishMessage(new FileExecutionSucceededMessage(file, action.getCurrentState().getStateType()));
 			action.onSucceeded();
+			
 			return true;
 
 		} else if (error == AbortModificationCode.FOLDER_UPDATE) {
 
 			logger.debug("Attempt to update folder {} failed as folder cannot be updated.", path);
-			FileHelper file = new FileHelper(action.getFile().getPath(), action.getFile().isFile());
-			publishMessage(new FileExecutionSucceededMessage(file, action.getCurrentState().getStateType()));
-			action.onSucceeded();
 			return true;
 
 		} else if (error == AbortModificationCode.ROOT_DELETE_ATTEMPT) {
@@ -391,14 +392,7 @@ public class ActionExecutor implements Runnable {
 
 			logger.debug("Attempt to delete or write to {} failed. No write-permissions.", path);
 			return true;
-		} else if (error == AbortModificationCode.LARGE_FILE_UPDATE){
-			logger.debug("File {} is a large file and cannot be updated, as only one "
-					+ "version can exist. The update request is discarded and "
-					+ "considered as successful.");
-			FileHelper file = new FileHelper(action.getFile().getPath(), action.getFile().isFile());
-			publishMessage(new FileExecutionSucceededMessage(file, action.getCurrentState().getStateType()));
-			action.onSucceeded();
-			return true;
+
 		}
 //		else if (error == AbortModificationCode.FILE_DOES_NOT_EXIST){
 //

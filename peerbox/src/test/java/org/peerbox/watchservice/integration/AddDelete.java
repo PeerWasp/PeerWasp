@@ -39,7 +39,7 @@ public class AddDelete extends FileIntegrationTest {
 		Path folder = addSingleFolder();
 		assertCleanedUpState(1);
 		
-		deleteSingleFile(folder);
+		deleteSingleFile(folder, true);
 		assertCleanedUpState(0);
 	}
 
@@ -68,7 +68,7 @@ public class AddDelete extends FileIntegrationTest {
 		List<Path> folders = addSingleFolderInFolder();
 		assertCleanedUpState(2);
 		
-		deleteSingleFolderInFolder(folders);
+		deleteSingleFileInFolder(folders);
 		assertCleanedUpState(0);
 	}
 	
@@ -97,7 +97,7 @@ public class AddDelete extends FileIntegrationTest {
 		Path file = addSingleFile();
 		assertCleanedUpState(1);
 		
-		deleteSingleFile(file);
+		deleteSingleFile(file, true);
 		assertCleanedUpState(0);
 	}
 	
@@ -111,7 +111,7 @@ public class AddDelete extends FileIntegrationTest {
 		Path file = addSingleFile(1024);
 		assertCleanedUpState(1);
 		
-		deleteSingleFile(file);
+		deleteSingleFile(file, true);
 		assertCleanedUpState(0);
 	}
 	
@@ -178,9 +178,9 @@ public class AddDelete extends FileIntegrationTest {
 	public void manyFilesInManyFoldersTest() throws IOException {
 		int nrFolders = 10;
 		int nrFilesPerFolder = 10;
-		
+		int allFiles = nrFolders + nrFolders * nrFilesPerFolder;
 		List<Path> files = addManyFilesInManyFolders(nrFolders, nrFilesPerFolder);
-		assertCleanedUpState(nrFolders + nrFolders * nrFilesPerFolder);
+		assertCleanedUpState(allFiles);
 		
 		deleteManyFilesInManyFolders(files);
 		assertCleanedUpState(0);
@@ -212,11 +212,7 @@ public class AddDelete extends FileIntegrationTest {
 		assertCleanedUpState(0);
 	}
 	
-	private List<Path> addManyFolders(int numFolders) throws IOException {
-		List<Path> folders = FileTestUtils.createRandomFolders(masterRootPath, numFolders);
-		waitForExists(folders, WAIT_TIME_LONG);
-		return folders;
-	}
+
 	
 	private List<Path> addSingleFolderInFolder() throws IOException {
 		Path folder = FileTestUtils.createRandomFolder(masterRootPath);
@@ -228,15 +224,6 @@ public class AddDelete extends FileIntegrationTest {
 		
 		waitForExists(folders, WAIT_TIME_LONG);
 		return folders;
-	}
-	
-	private void deleteSingleFolderInFolder(List<Path> folders) throws IOException {
-		ListIterator<Path> it = folders.listIterator(folders.size());
-		while(it.hasPrevious()) {
-			Path f = it.previous();
-			deleteSingleFile(f);
-		}
-		waitForNotExists(folders, WAIT_TIME_LONG);
 	}
 	
 	private List<Path> addManyFoldersInFolder(int nrSubFolders) throws IOException {
