@@ -316,7 +316,7 @@ public abstract class FileIntegrationTest extends BaseJUnitTest {
 					logger.debug("Pending in queue: {}. {}:{}", i, vec.get(i).getPath(), vec.get(i).getAction().getCurrentState());
 				}
 			}
-		} while(isQueueEmpty(collection));
+		} while(!isQueueEmpty(collection));
 	}
 	
 	protected static void waitForAsyncHandlesEmpty(BlockingQueue<ExecutionHandle> collection, int seconds){

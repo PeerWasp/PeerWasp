@@ -47,8 +47,9 @@ public class LocalMoveState extends AbstractActionState {
 		final Path path = action.getFile().getPath();
 		handle = fileManager.move(source, path);
 		if(handle != null){
-			FileHelper file = new FileHelper(path, action.getFile().isFile());
-			handle.getProcess().attachListener(new LocalFileMoveListener(file, action.getFileEventManager().getMessageBus()));
+			FileHelper destFile = new FileHelper(path, action.getFile().isFile());
+			FileHelper sourceFile = new FileHelper(source, action.getFile().isFile());
+			handle.getProcess().attachListener(new LocalFileMoveListener(sourceFile, destFile, action.getFileEventManager().getMessageBus()));
 			handle.executeAsync();
 		}
 

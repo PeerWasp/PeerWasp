@@ -8,8 +8,10 @@ import org.peerbox.events.MessageBus;
 import org.peerbox.presenter.settings.synchronization.FileHelper;
 
 public class LocalFileMoveListener extends FileOperationListener{
-	public LocalFileMoveListener(final FileHelper file, final MessageBus messageBus) {
-		super(file, messageBus);
+	FileHelper source;
+	public LocalFileMoveListener(final FileHelper source, final FileHelper dest, final MessageBus messageBus) {
+		super(dest, messageBus);
+		this.source = source;
 	}
 
 	@Override
@@ -20,9 +22,8 @@ public class LocalFileMoveListener extends FileOperationListener{
 	
 	private void notifyLocalFileMove(final FileHelper file) {
 		if (getMessageBus() != null) {
-			getMessageBus().publish(new LocalFileMovedMessage(file));
+			getMessageBus().publish(new LocalFileMovedMessage(source, file));
 		}
 	}
-
 }
 

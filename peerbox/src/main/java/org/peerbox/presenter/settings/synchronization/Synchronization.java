@@ -37,6 +37,7 @@ import org.peerbox.app.config.UserConfig;
 import org.peerbox.app.manager.file.LocalFileDesyncMessage;
 import org.peerbox.app.manager.file.FileExecutionFailedMessage;
 import org.peerbox.app.manager.file.IFileManager;
+import org.peerbox.app.manager.file.LocalFileMovedMessage;
 import org.peerbox.app.manager.file.RemoteFileAddedMessage;
 import org.peerbox.app.manager.file.RemoteFileDeletedMessage;
 import org.peerbox.presenter.settings.synchronization.eventbus.IExecutionMessageListener;
@@ -194,28 +195,16 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 	@Override
 	@Handler
 	public void onExecutionSucceeds(FileExecutionSucceededMessage message) {
+		logger.trace("Synchronizaion: onExecutionSucceeds: {}", message.getFile().getPath());
 		StateType stateType = message.getStateType();
-		
+
 		switch(stateType){
 		case LOCAL_HARD_DELETE:
-			javafx.application.Platform.runLater(new Runnable() {
-		        @Override
-		        public void run() {
-		        	removeTreeItem(message.getFile().getPath());
-		        }
-			});
+			removeTreeItemInUIThread(message.getFile().getPath());
 			break;
-		case INITIAL:
-			logger.trace("onExecutionSucceeds: {}", message.getFile().getPath());
-			CheckBoxTreeItem<PathItem> item = getTreeItem(message.getFile().getPath());
 			
-			if(item != null){
-				logger.trace("item != null for {}, change icon!", message.getFile().getPath());
-			} else {
-				item = createItem(message.getFile().getPath(), true, message.getFile().isFile());
-				putTreeItem(item);
-				logger.trace("item == null for {}", message.getFile().getPath());
-			}
+		case INITIAL:
+			CheckBoxTreeItem<PathItem> item = getOrCreateItem(message.getFile());
 		
 			ImageView view;
 			if(message.getFile().isFile()){
@@ -227,19 +216,14 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 			updateIconInUIThread(item, view);
 			updateTooltipInUIThread(item, SynchronizationUtils.getSuccessTooltip());
 			break;
-		default:
-	
-			logger.trace("onExecutionSucceeds: {}", message.getFile().getPath());
-			item = getTreeItem(message.getFile().getPath());
+		case LOCAL_MOVE:
+			Path srcFile = message.getSourceFile().getPath();
+			Path dstFile = message.getFile().getPath();
+			logger.trace("onFileMoved: {} --> {}", srcFile, dstFile);	
 			
-			if(item != null){
-				logger.trace("item != null for {}, change icon!", message.getFile().getPath());
-			} else {
-				item = createItem(message.getFile().getPath(), true, message.getFile().isFile());
-				putTreeItem(item);
-				logger.trace("item == null for {}", message.getFile().getPath());
-			}
-		
+			removeTreeItemInUIThread(srcFile);
+			item = getOrCreateItem(message.getFile());
+			
 			if(message.getFile().isFile()){
 				view = SynchronizationUtils.getFileSuccessIcon();
 			} else {
@@ -248,21 +232,61 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 			
 			updateIconInUIThread(item, view);
 			updateTooltipInUIThread(item, SynchronizationUtils.getSuccessTooltip());
+			updateIsSelectedInUIThread(item, message.getFile(), true);
+			break;
+		default:
+			item = getOrCreateItem(message.getFile());
 			
-			final CheckBoxTreeItem<PathItem> item2 = item;
-			javafx.application.Platform.runLater(new Runnable() {
-		        @Override
-		        public void run() {
-		        	if(message.getFile().getPath().toFile().isDirectory()){
-		        		item2.setIndeterminate(true);
-		        	} else {
-		        		item2.setSelected(true);
-		        	}
-		        }
-			});
+			if(message.getFile().isFile()){
+				view = SynchronizationUtils.getFileSuccessIcon();
+			} else {
+				view = SynchronizationUtils.getFolderSuccessIcon();
+			}
+			
+			updateIconInUIThread(item, view);
+			updateTooltipInUIThread(item, SynchronizationUtils.getSuccessTooltip());
+			updateIsSelectedInUIThread(item, message.getFile(), true);
 		}
 	}
 	
+	private void removeTreeItemInUIThread(Path srcFile) {
+		javafx.application.Platform.runLater(new Runnable() {
+	        @Override
+	        public void run() {
+	        	removeTreeItem(srcFile);
+	        }
+		});
+	}
+
+	private void updateIsSelectedInUIThread(CheckBoxTreeItem<PathItem> item, FileHelper file,
+			boolean b) {
+		final CheckBoxTreeItem<PathItem> item2 = item;
+		javafx.application.Platform.runLater(new Runnable() {
+	        @Override
+	        public void run() {
+	        	if(file.getPath().toFile().isDirectory()){
+	        		item2.setIndeterminate(b);
+	        	} else {
+	        		item2.setSelected(b);
+	        	}
+	        }
+		});
+	}
+
+	private CheckBoxTreeItem<PathItem> getOrCreateItem(FileHelper file) {
+		// TODO Auto-generated method stub
+		CheckBoxTreeItem<PathItem> item = getTreeItem(file.getPath());
+		
+		if(item != null){
+			logger.trace("item != null for {}, change icon!", file.getPath());
+		} else {
+			item = createItem(file.getPath(), true, file.isFile());
+			putTreeItem(item);
+			logger.trace("item == null for {}", file.getPath());
+		}
+		return item;
+	}
+
 	@Override
 	@Handler
 	public void onExecutionFails(FileExecutionFailedMessage message) {

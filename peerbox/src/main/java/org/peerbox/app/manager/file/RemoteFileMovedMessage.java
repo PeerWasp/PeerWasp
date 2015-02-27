@@ -8,6 +8,7 @@ public final class RemoteFileMovedMessage extends AbstractFileMessage {
 	
 	public RemoteFileMovedMessage(FileHelper srcFile, FileHelper dstFile) {
 		super(dstFile);
+		this.srcFile = srcFile;
 	}
 	
 	public FileHelper getSourceFile(){

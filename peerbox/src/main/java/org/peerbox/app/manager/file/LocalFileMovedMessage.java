@@ -4,8 +4,19 @@ import org.peerbox.presenter.settings.synchronization.FileHelper;
 
 public class LocalFileMovedMessage extends AbstractFileMessage {
 
-	public LocalFileMovedMessage(FileHelper file) {
-		super(file);
+	private FileHelper srcFile;
+	
+	public LocalFileMovedMessage(FileHelper srcFile, FileHelper dstFile)  {
+		super(dstFile);
+		this.srcFile = srcFile;
+	}
+	
+	public FileHelper getSourceFile(){
+		return srcFile;
+	}
+	
+	public FileHelper getDestinationFile(){
+		return getFile();
 	}
 
 }
