@@ -40,6 +40,7 @@ import org.peerbox.app.manager.file.IFileManager;
 import org.peerbox.app.manager.file.LocalFileMovedMessage;
 import org.peerbox.app.manager.file.RemoteFileAddedMessage;
 import org.peerbox.app.manager.file.RemoteFileDeletedMessage;
+import org.peerbox.app.manager.file.RemoteFileMovedMessage;
 import org.peerbox.presenter.settings.synchronization.eventbus.IExecutionMessageListener;
 import org.peerbox.presenter.settings.synchronization.messages.FileExecutionStartedMessage;
 import org.peerbox.presenter.settings.synchronization.messages.FileExecutionSucceededMessage;
@@ -191,6 +192,30 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 	        }
 		});
 	}
+	
+	@Override
+	@Handler
+	public void onFileRemotelyMoved(RemoteFileMovedMessage message){
+		logger.trace("onFileRemotelyMoved: {}", message.getFile().getPath());		
+		
+		Path srcFile = message.getSourceFile().getPath();
+		Path dstFile = message.getDestinationFile().getPath();
+		logger.trace("onFileMoved: {} --> {}", srcFile, dstFile);	
+		
+		removeTreeItemInUIThread(srcFile);
+		CheckBoxTreeItem<PathItem> item = getOrCreateItem(message.getFile());
+		ImageView view = null;
+		if(message.getFile().isFile()){
+			view = SynchronizationUtils.getFileSuccessIcon();
+		} else {
+			view = SynchronizationUtils.getFolderSuccessIcon();
+		}
+		
+		updateIconInUIThread(item, view);
+		updateTooltipInUIThread(item, SynchronizationUtils.getSuccessTooltip());
+		updateIsSelectedInUIThread(item, message.getFile(), true);
+	}
+
 
 	@Override
 	@Handler
@@ -233,7 +258,7 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 			
 			updateIconInUIThread(item, view);
 			updateTooltipInUIThread(item, SynchronizationUtils.getSuccessTooltip());
-			updateIsSelectedInUIThread(item, message.getFile(), true);
+			selectFilesAndFolderInUIThread(item, message.getFile());
 			break;
 		default:
 			item = getOrCreateItem(message.getFile());
@@ -270,6 +295,16 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 	        	} else {
 	        		item2.setSelected(b);
 	        	}
+	        }
+		});
+	}
+	
+	private void selectFilesAndFolderInUIThread(CheckBoxTreeItem<PathItem> item, FileHelper file){
+		final CheckBoxTreeItem<PathItem> item2 = item;
+		javafx.application.Platform.runLater(new Runnable() {
+	        @Override
+	        public void run() {
+	        	item2.setSelected(true);
 	        }
 		});
 	}

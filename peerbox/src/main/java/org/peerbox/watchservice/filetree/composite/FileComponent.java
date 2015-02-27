@@ -58,4 +58,6 @@ public interface FileComponent {
 	@Override
 	String toString();
 
+	void setIsSynchronizedRecursively(boolean b);
+
 }

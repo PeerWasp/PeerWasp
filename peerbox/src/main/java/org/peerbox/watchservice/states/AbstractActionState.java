@@ -157,6 +157,7 @@ public abstract class AbstractActionState {
 	
 	public AbstractActionState handleLocalMove(Path newPath) {
 		Path oldPath = Paths.get(action.getFile().getPath().toString());
+		action.getFile().setIsSynchronizedRecursively(true);
 		action.getFileEventManager().getFileTree().putFile(newPath, action.getFile());
 		updateTimeAndQueue();
 		return changeStateOnLocalMove(oldPath);

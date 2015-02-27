@@ -135,10 +135,15 @@ public class ActionExecutor implements Runnable {
 						if (ehandle != null && ehandle.getProcessHandle() != null) {
 							logger.debug("Put into async handles!");
 							asyncHandles.put(ehandle);
+							FileHelper file = new FileHelper(next.getPath(), next.isFile());
+							publishMessage(new FileExecutionStartedMessage(file, next.getAction().getCurrentState().getStateType()));
+						} else {
+							//This happens with actions in InitialState/EstablishedState
+							FileHelper file = new FileHelper(next.getPath(), next.isFile());
+							publishMessage(new FileExecutionSucceededMessage(file, next.getAction().getCurrentState().getStateType()));
 						}
 						
-						FileHelper file = new FileHelper(next.getPath(), next.isFile());
-						publishMessage(new FileExecutionStartedMessage(file, next.getAction().getCurrentState().getStateType()));
+						
 						
 						if(asyncHandles.size() != 0){
 							publishMessage(new SynchronizationStartsNotification());

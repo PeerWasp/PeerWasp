@@ -57,4 +57,9 @@ public class FileLeaf extends AbstractFileComponent {
 		return s;
 	}
 
+	@Override
+	public void setIsSynchronizedRecursively(boolean b) {
+		setIsSynchronized(b);
+	}
+
 }
