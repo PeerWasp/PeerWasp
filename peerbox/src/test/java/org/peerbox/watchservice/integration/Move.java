@@ -38,7 +38,7 @@ public class Move extends FileIntegrationTest{
 	public void singleFileMoveWhileUploadTest() throws IOException {
 		Path folder = addFolder();
 		Path srcFile = addFile(false);
-		sleepMillis(ActionExecutor.ACTION_WAIT_TIME_MS * 4 + 1000);
+		sleepMillis(config.getAggregationIntervalInMillis() * 4 + 1000);
 		moveFileOrFolder(srcFile, folder.resolve(srcFile.getFileName()));
 		assertCleanedUpState(2);
 	}
@@ -182,7 +182,7 @@ public class Move extends FileIntegrationTest{
 
 		assertCleanedUpState(3);
 		moveFileOrFolder(resolvedSrc, resolvedDest);
-		sleepMillis(2 * ActionExecutor.ACTION_WAIT_TIME_MS / 3);
+		sleepMillis(2 * config.getAggregationIntervalInMillis() / 3);
 		moveFileOrFolder(srcFile, folder.resolve(srcFile.getFileName()));
 		assertCleanedUpState(3);
 	}
@@ -223,7 +223,7 @@ public class Move extends FileIntegrationTest{
 		assertCleanedUpState(1);
 		
 //		updateSingleFile(srcFile);
-		sleepMillis(2*ActionExecutor.ACTION_WAIT_TIME_MS);
+		sleepMillis(2 * config.getAggregationIntervalInMillis());
 		Path srcOnClient = Paths.get(clientRootPath + File.separator + srcFile.getFileName());
 		Path dstOnClient = Paths.get(clientRootPath + File.separator + folder.getFileName() + File.separator + srcFile.getFileName());
 		tryToMoveFile(srcOnClient, dstOnClient);

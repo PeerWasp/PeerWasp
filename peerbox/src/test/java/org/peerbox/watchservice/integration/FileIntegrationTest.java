@@ -65,6 +65,7 @@ public abstract class FileIntegrationTest extends BaseJUnitTest {
 	protected static final int WAIT_TIME_LONG = 240;
 	protected static final int WAIT_TIME_STRESSTEST = 600;
 
+	protected TestPeerWaspConfig config = new TestPeerWaspConfig();
 	@Before
 	public void beforeTest() throws IOException {
 

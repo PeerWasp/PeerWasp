@@ -23,7 +23,7 @@ public class ConflictTest extends FileIntegrationTest{
 		paths.add(addFile(false));
 		paths.add(ConflictHandler.rename(paths.get(0)));
 		//paths.add(clientRootPath.resolve(paths.get(0).getFileName()));
-		Thread.sleep(ActionExecutor.ACTION_WAIT_TIME_MS / 2);
+		Thread.sleep(config.getAggregationIntervalInMillis() / 2);
 		FileUtils.writeStringToFile(paths.get(1).toFile(), "_CLIENT1_SECOND");
 
 		waitForExists(paths, WAIT_TIME_SHORT);
@@ -37,7 +37,7 @@ public class ConflictTest extends FileIntegrationTest{
 		assertCleanedUpState(1);
 		
 		updateSingleFile(client0File, false);
-		Thread.sleep(ActionExecutor.ACTION_WAIT_TIME_MS / 2);
+		Thread.sleep(config.getAggregationIntervalInMillis()/ 2);
 		updateSingleFile(client1File, false);
 		Thread.sleep(10000);
 		assertCleanedUpState(2);
@@ -49,7 +49,7 @@ public class ConflictTest extends FileIntegrationTest{
 		paths.add(addFile(false));
 		paths.add(ConflictHandler.rename(paths.get(0)));
 		//paths.add(clientRootPath.resolve(paths.get(0).getFileName()));
-		Thread.sleep(3 * ActionExecutor.ACTION_WAIT_TIME_MS / 2);
+		Thread.sleep(3 * config.getAggregationIntervalInMillis() / 2);
 		FileUtils.writeStringToFile(paths.get(1).toFile(), "_CLIENT1_SECOND");
 
 		waitForExists(paths, WAIT_TIME_SHORT);
@@ -63,7 +63,7 @@ public class ConflictTest extends FileIntegrationTest{
 		assertCleanedUpState(1);
 		
 		updateSingleFile(client0File, false);
-		Thread.sleep(ActionExecutor.ACTION_WAIT_TIME_MS * 3 / 2);
+		Thread.sleep(config.getAggregationIntervalInMillis() * 3 / 2);
 		updateSingleFile(client1File, false);
 		Thread.sleep(10000);
 		assertCleanedUpState(2);

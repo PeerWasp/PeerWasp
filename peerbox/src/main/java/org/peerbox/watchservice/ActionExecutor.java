@@ -17,6 +17,7 @@ import org.hive2hive.core.exceptions.Hive2HiveException;
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.hive2hive.core.exceptions.NoSessionException;
 import org.hive2hive.processframework.exceptions.ProcessExecutionException;
+import org.peerbox.app.IPeerWaspConfig;
 import org.peerbox.app.manager.ProcessHandle;
 import org.peerbox.app.manager.file.FileExecutionFailedMessage;
 import org.peerbox.app.manager.file.IFileManager;
@@ -52,16 +53,7 @@ public class ActionExecutor implements Runnable {
 
 	private static final Logger logger = LoggerFactory.getLogger(ActionExecutor.class);
 
-
-	/** Amount of time that an action has to be "stable" in order to be executed **/
-	public static final long ACTION_WAIT_TIME_MS = 5000;
-	public static final int ACTION_WAIT_TIME_SEC = (int)(ACTION_WAIT_TIME_MS / 1000);
-	
-	/** Maximal number of concurrent network transactions **/
-	public static final int NUMBER_OF_EXECUTE_SLOTS = 10;
-	
-	/** Maximal number of attempts to re-execute failed transactions **/
-	public static final int MAX_EXECUTION_ATTEMPTS = 3;
+	private IPeerWaspConfig peerWaspConfig;
 
 	private final IFileManager fileManager;
 	private final FileEventManager fileEventManager;
@@ -77,9 +69,13 @@ public class ActionExecutor implements Runnable {
 	private final Thread executorThread;
 
 	@Inject
-	public ActionExecutor(final FileEventManager eventManager, final IFileManager fileManager) {
+	public ActionExecutor(final FileEventManager eventManager, 
+			final IFileManager fileManager, 
+			IPeerWaspConfig peerWaspConfig) {
+		
 		this.fileEventManager = eventManager;
 		this.fileManager = fileManager;
+		this.peerWaspConfig = peerWaspConfig;
 
 		asyncHandles = new LinkedBlockingQueue<ExecutionHandle>();
 		asyncHandlesThread = new Thread(new ExecutingActionHandler(), "AsyncActionHandlerThread");
@@ -102,6 +98,10 @@ public class ActionExecutor implements Runnable {
 		processActions();
 	}
 
+	public IPeerWaspConfig getPeerWaspConfig(){
+		return peerWaspConfig;
+	}
+	
 	/**
 	 * Processes the action in the action queue, one by one.
 	 * @throws IllegalFileLocation
@@ -192,7 +192,7 @@ public class ActionExecutor implements Runnable {
 	 */
 	private boolean isTimerReady(IAction action) {
 		long ageMs = getActionAge(action);
-		return ageMs >= ACTION_WAIT_TIME_MS;
+		return ageMs >= peerWaspConfig.getAggregationIntervalInMillis();
 	}
 
 	/**
@@ -205,7 +205,7 @@ public class ActionExecutor implements Runnable {
 	}
 
 	private long calculateWaitTime(FileComponent action) {
-		long timeToWait = ACTION_WAIT_TIME_MS - getActionAge(action.getAction()) + 1L;
+		long timeToWait = peerWaspConfig.getAggregationIntervalInMillis() - getActionAge(action.getAction()) + 1L;
 		if (timeToWait < 500L) {
 			// wait at least some time
 			timeToWait = 500L;
@@ -214,7 +214,7 @@ public class ActionExecutor implements Runnable {
 	}
 
 	private boolean isExecuteSlotFree() {
-		return asyncHandles.size() < NUMBER_OF_EXECUTE_SLOTS;
+		return asyncHandles.size() < peerWaspConfig.getNumberOfExecutionSlots();
 	}
 
 	public void setWaitForActionCompletion(boolean wait) {
@@ -284,7 +284,7 @@ public class ActionExecutor implements Runnable {
 						componentIterator.remove();
 						break;
 					}
-					if(System.currentTimeMillis() - candidate.getAction().getTimestamp() > ACTION_WAIT_TIME_MS){
+					if(System.currentTimeMillis() - candidate.getAction().getTimestamp() > peerWaspConfig.getAggregationIntervalInMillis()){
 						logger.trace("Remove old entry: {}", candidate.getPath());
 						componentIterator.remove();
 					}
@@ -362,7 +362,7 @@ public class ActionExecutor implements Runnable {
 		logger.trace("Default Error Handling: Re-initiate execution - {} - {} - attempt({}).",
 				path, action.getCurrentStateName(), action.getExecutionAttempts());
 
-		if (action.getExecutionAttempts() <= MAX_EXECUTION_ATTEMPTS) {
+		if (action.getExecutionAttempts() <= peerWaspConfig.getMaximalExecutionAttempts()) {
 			action.updateTimestamp();
 			fileEventManager.getFileComponentQueue().add(action.getFile());
 		} else {

@@ -21,6 +21,7 @@ import org.peerbox.app.manager.file.IFileManager;
 import org.peerbox.testutils.FileTestUtils;
 import org.peerbox.watchservice.filetree.FileTree;
 import org.peerbox.watchservice.filetree.composite.FileComponent;
+import org.peerbox.watchservice.integration.TestPeerWaspConfig;
 import org.peerbox.watchservice.states.EstablishedState;
 import org.peerbox.watchservice.states.InitialState;
 import org.peerbox.watchservice.states.LocalCreateState;
@@ -53,6 +54,7 @@ public class FileEventManagerTest {
 	private static ArrayList<String> filePaths = new ArrayList<String>();
 	private static ArrayList<File> files = new ArrayList<File>();
 
+	private TestPeerWaspConfig config = new TestPeerWaspConfig();
 
 
 	/**
@@ -63,7 +65,7 @@ public class FileEventManagerTest {
 		fileTree = new FileTree(Paths.get(parentPath), null, true);
 		manager = new FileEventManager(fileTree, null);
 		fileManager = Mockito.mock(IFileManager.class);
-		actionExecutor = new ActionExecutor(manager, fileManager);
+		actionExecutor = new ActionExecutor(manager, fileManager, new TestPeerWaspConfig());
 		actionExecutor.setWaitForActionCompletion(false);
 		actionExecutor.start();
 	}
@@ -119,9 +121,9 @@ public class FileEventManagerTest {
 		FileComponent file = fileComponentsToCheck.peek();
 		//check if the testcase was run in time
 		long end = System.currentTimeMillis();
-		assertTrue(end - start <= ActionExecutor.ACTION_WAIT_TIME_MS);
+		assertTrue(end - start <= config.getAggregationIntervalInMillis());
 
-		sleepMillis(ActionExecutor.ACTION_WAIT_TIME_MS * 2);
+		sleepMillis(config.getAggregationIntervalInMillis() * 2);
 
 		assertTrue(file.getAction().getCurrentState() instanceof EstablishedState);
 		assertTrue(fileComponentsToCheck.size() == 0);
@@ -130,7 +132,7 @@ public class FileEventManagerTest {
 		manager.onLocalFileHardDelete(Paths.get(filePaths.get(0)));
 		sleepMillis(200); //wait for the state machine before delete is simulated
 		manager.onLocalFileDeleted(Paths.get(filePaths.get(0)));
-		sleepMillis(ActionExecutor.ACTION_WAIT_TIME_MS * 2);
+		sleepMillis(config.getAggregationIntervalInMillis() * 2);
 		System.out.println("Current state: " + file.getAction().getCurrentState().getClass());
 		assertTrue(manager.getFileTree().getFile(files.get(0).toPath()) == null);
 		assertTrue(file.getAction().getCurrentState() instanceof InitialState);
@@ -148,7 +150,7 @@ public class FileEventManagerTest {
 		manager.onLocalFileCreated(Paths.get(filePaths.get(7)));
 		BlockingQueue<FileComponent> actionsToCheck = manager.getFileComponentQueue().getQueue();;
 		FileComponent file1 = actionsToCheck.peek();
-		sleepMillis(ActionExecutor.ACTION_WAIT_TIME_MS * 2);
+		sleepMillis(config.getAggregationIntervalInMillis() * 2);
 
 		//check if exactly one element exists in the queue
 		assertTrue(actionsToCheck.size() == 0);
@@ -167,12 +169,12 @@ public class FileEventManagerTest {
 		assertTrue(actionsToCheck.peek().getAction().getCurrentState() instanceof LocalMoveState);
 
 		long end = System.currentTimeMillis();
-		assertTrue(end - start <= ActionExecutor.ACTION_WAIT_TIME_MS);
-		sleepMillis(ActionExecutor.ACTION_WAIT_TIME_MS * 2);
+		assertTrue(end - start <= config.getAggregationIntervalInMillis());
+		sleepMillis(config.getAggregationIntervalInMillis() * 2);
 
 		//cleanup
 		deleteFile(Paths.get(filePaths.get(8)));
-		sleepMillis(ActionExecutor.ACTION_WAIT_TIME_MS * 2);
+		sleepMillis(config.getAggregationIntervalInMillis() * 2);
 		assertTrue(manager.getFileTree().getFile(files.get(8).toPath()) == null);
 		assertTrue(actionsToCheck.size() == 0);
 		assertTrue(file1.getAction().getCurrentState() instanceof InitialState);
@@ -194,7 +196,7 @@ public class FileEventManagerTest {
 		assertTrue(actionsToCheck.size() == 1);
 		assertTrue(createdFile.getAction().getCurrentState() instanceof LocalCreateState);
 
-		sleepMillis(ActionExecutor.ACTION_WAIT_TIME_MS * 2);
+		sleepMillis(config.getAggregationIntervalInMillis() * 2);
 
 		assertTrue(createdFile.getAction().getCurrentState() instanceof EstablishedState);
 		assertTrue(actionsToCheck.size() == 0);
@@ -220,11 +222,11 @@ public class FileEventManagerTest {
 
 		//check if the testcase was run in time
 		long end = System.currentTimeMillis();
-		assertTrue(end - start <= ActionExecutor.ACTION_WAIT_TIME_MS);
+		assertTrue(end - start <= config.getAggregationIntervalInMillis());
 
 
 
-		sleepMillis(ActionExecutor.ACTION_WAIT_TIME_MS * 5);
+		sleepMillis(config.getAggregationIntervalInMillis() * 5);
 
 		assertTrue(actionsToCheck.size() == 0);
 		assertTrue(manager.getFileTree().getFile(files.get(0).toPath()) == null);
@@ -255,24 +257,24 @@ public class FileEventManagerTest {
 
 		long end = System.currentTimeMillis();
 
-		assertTrue(end - start <= ActionExecutor.ACTION_WAIT_TIME_MS);
+		assertTrue(end - start <= config.getAggregationIntervalInMillis());
 
 		//issue continuous modifies over a period longer than the wait time
-		sleepMillis(ActionExecutor.ACTION_WAIT_TIME_MS * 2);
+		sleepMillis(config.getAggregationIntervalInMillis() * 2);
 
 		FileTestUtils.writeRandomData(files.get(0).toPath(), 50);
 		manager.onLocalFileModified(Paths.get(filePaths.get(0)));
-		sleepMillis(ActionExecutor.ACTION_WAIT_TIME_MS / 2);
+		sleepMillis(config.getAggregationIntervalInMillis() / 2);
 
 		FileTestUtils.writeRandomData(files.get(0).toPath(), 50);
 		manager.onLocalFileModified(Paths.get(filePaths.get(0)));
-		sleepMillis(ActionExecutor.ACTION_WAIT_TIME_MS / 2);
+		sleepMillis(config.getAggregationIntervalInMillis() / 2);
 
 		FileComponent comp = actionsToCheck.peek();
 		assertTrue(actionsToCheck.peek().getAction().getCurrentState() instanceof LocalUpdateState);
 		assertTrue(actionsToCheck.size() == 1);
 
-		sleepMillis(ActionExecutor.ACTION_WAIT_TIME_MS * 2);
+		sleepMillis(config.getAggregationIntervalInMillis() * 2);
 		printBlockingQueue(actionsToCheck);
 		assertTrue(actionsToCheck.size() == 0);
 	//	System.out.println(comp.getAction().getCurrentState().getClass());
@@ -281,7 +283,7 @@ public class FileEventManagerTest {
 		manager.onLocalFileHardDelete(Paths.get(filePaths.get(0)));
 		sleepMillis(200);
 		manager.onLocalFileDeleted(Paths.get(filePaths.get(0)));
-		sleepMillis(ActionExecutor.ACTION_WAIT_TIME_MS * 5);
+		sleepMillis(config.getAggregationIntervalInMillis() * 5);
 		assertTrue(manager.getFileTree().getFile(files.get(0).toPath()) == null);
 		assertTrue(comp.getAction().getCurrentState() instanceof InitialState);
 		assertTrue(actionsToCheck.size() == 0);
@@ -325,7 +327,7 @@ public class FileEventManagerTest {
 		//manager.onFileCreated(Paths.get(filePaths.get(1)), false);
 		manager.onLocalFileCreated(Paths.get(filePaths.get(2)));
 		//manager.onFileCreated(Paths.get(filePaths.get(3)), false);
-		sleepMillis(ActionExecutor.ACTION_WAIT_TIME_MS * 2);
+		sleepMillis(config.getAggregationIntervalInMillis() * 2);
 		long start = System.currentTimeMillis();
 		FileTestUtils.writeRandomData(files.get(0).toPath(), 50);
 		manager.onLocalFileModified(Paths.get(filePaths.get(0)));
@@ -406,7 +408,7 @@ public class FileEventManagerTest {
 
 		long end = System.currentTimeMillis();
 
-		assertTrue(end - start <= ActionExecutor.ACTION_WAIT_TIME_MS);
+		assertTrue(end - start <= config.getAggregationIntervalInMillis());
 
 		//cleanup:
 
@@ -419,7 +421,7 @@ public class FileEventManagerTest {
 		assertTrue(manager.getFileTree().getFile(files.get(2).toPath()) == null);
 		assertTrue(manager.getFileTree().getFile(files.get(3).toPath()) == null);
 
-		sleepMillis(ActionExecutor.ACTION_WAIT_TIME_MS * 5);
+		sleepMillis(config.getAggregationIntervalInMillis() * 5);
 	}
 
 	private void printQueue(BlockingQueue<FileComponent> queue) {
@@ -476,8 +478,8 @@ public class FileEventManagerTest {
 		assertTrue(array.get(1).getPath().toString().equals(filePaths.get(5)));
 
 		long end = System.currentTimeMillis();
-		assertTrue(end - start <= ActionExecutor.ACTION_WAIT_TIME_MS);
-		sleepMillis(ActionExecutor.ACTION_WAIT_TIME_MS * 5);
+		assertTrue(end - start <= config.getAggregationIntervalInMillis());
+		sleepMillis(config.getAggregationIntervalInMillis() * 5);
 	}
 
 	/**
