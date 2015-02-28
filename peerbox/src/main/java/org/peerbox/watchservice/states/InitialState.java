@@ -51,7 +51,7 @@ public class InitialState extends AbstractActionState {
 	public AbstractActionState changeStateOnLocalCreate(){
 		if(action.getFile().isUploaded()){
 			logStateTransition(getStateType(), EventType.LOCAL_CREATE, StateType.ESTABLISHED);
-			logger.trace("Weird case for file {}", action.getFile().getPath());
+			logger.trace("Re-creation of a softdeleted file. Ignore LocalCreate for  {}", action.getFile().getPath());
 			return new EstablishedState(action);
 		} else {
 			logStateTransition(getStateType(), EventType.LOCAL_CREATE, StateType.LOCAL_CREATE);
