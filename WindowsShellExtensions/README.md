@@ -1,8 +1,10 @@
 ShellExtension
 ==============
 
-Shell Extension for PeerBox
+# Context Menu Shell Extension for PeerWasp
 
+## Registry Entries
+### Register Extension
 To register the extension:
 
 ```regsvr32 /s ContextMenu.dll```
@@ -11,19 +13,37 @@ To unregister the extension:
 
 ```regsvr32 /s /u ContextMenu.dll```
 
-Extension queries windows registry for a root path:
-create the following key: 
+### Root path
+The extension queries the Windows registry for the root path in order to decide whether it should be visible or not. The following key is required: 
 
-```HKCU\Software\PeerBox\rootpath ```
+```HKCU\Software\PeerWasp\rootpath ```
 
-and set it to an existing path (e.g. C:\PeerBox) or edit and use the provided .reg file:
+Thus, create and set it to an existing path (e.g. C:\PeerWasp) or edit and use the provided .reg file:
 
-```regedit .\Utils\peerbox_rootpath.reg```
+```regedit .\Utils\registry\rootpath.reg```
 
-There is a simple http server that can be used for debugging purposes:
+### Server port
+The communication between the extension and the Java application is based on simple HTTP POST requests with JSON payload. 
+Thus, the extension has to know the port where the HTTP server is listening at runtime. The extension queries the Windows registry for the following key:
+
+```HKCU\Software\PeerWasp\api_server_port```
+
+Thus, create and set it to a valid port (integer), e.g. 30000. Alternatively, use the provided .reg file: 
+
+```regedit .\Utils\registry\api_server_port.reg```
+
+
+## Helper Utilities
+### HTTP Server for Development
+
+There is a simple python based HTTP server that can be used during development and for debugging purposes. It prints json requests to standard output. 
+Run (python3 required):
 
 ```python.exe .\Utils\httpserver.py localhost 9999```
 
 shutdown the server with: 
 
 ```CTRL+C ```
+
+### HTTP Client for Development
+The script ```.\Utils\httpclient.py``` contains code snippets to issue HTTP POST requests with JSON messages.
