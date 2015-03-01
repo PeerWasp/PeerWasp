@@ -3,7 +3,6 @@ package org.peerbox.watchservice;
 import java.nio.file.Path;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Vector;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
@@ -42,10 +41,22 @@ import com.google.common.collect.SetMultimap;
 import com.google.inject.Inject;
 
 /**
- * The FileActionExecutor service observes a set of file actions in a queue.
- * An action is executed as soon as it is considered to be "stable", i.e. no more events were
- * captured within a certain period of time.
- *
+ * The ActionExecutor service conducts the aggregation of events for 
+ * every file and folder and uses a {@link peerbox.src.main.java
+ * .org.peerbox.watchservice.ActionQueue ActionQueue} for this purpose, which
+ * runs in a separate thread. Ready actions, for which no new events
+ * have been observed for a specified time span, are executed. The class
+ * maintains asynchronous handles for ongoing executions to check whether
+ * they conclude successfully or not and react accordingly. 
+ * 
+ * This class uses the {@link org.peerbox.events.MessageBus MessageBus} instance of the
+ * injected {@link org.peerbox.watchservice.FileEventManager FileEventManager}
+ * instance to publish {@link org.peerbox.view.tray.SynchronizationErrorsResolvedNotification SynchronizationErrorsResolvedNotification}, 
+ * {@link org.peerbox.presenter.settings.synchronization.messages.FileExecutionStartedMessage FileExecutionStartedMessage},
+ * {@link org.peerbox.presenter.settings.synchronization.messages.FileExecutionSucceededMessage FileExecutionSucceededMessage},
+ * {@link org.peerbox.app.manager.file.FileExecutionFailedMessage FileExecutionFailedMessage}, and
+ * {@link org.peerbox.view.tray.SynchronizationCompleteNotification SynchronizationCompleteNotification}.
+
  * @author albrecht
  *
  */
@@ -68,6 +79,13 @@ public class ActionExecutor implements Runnable {
 	private final Thread asyncHandlesThread;
 	private final Thread executorThread;
 
+	/**
+	 * @param eventManager determines the event handling
+	 * @param fileManager is passed when actions are executed to access the H2H API.
+	 * @param peerWaspConfig defines important runtime parameters like
+	 * the number of concurrently executed actions or the aggregation
+	 * time span for events.
+	 */
 	@Inject
 	public ActionExecutor(final FileEventManager eventManager, 
 			final IFileManager fileManager, 
@@ -78,11 +96,12 @@ public class ActionExecutor implements Runnable {
 		this.peerWaspConfig = peerWaspConfig;
 
 		asyncHandles = new LinkedBlockingQueue<ExecutionHandle>();
+		
 		asyncHandlesThread = new Thread(new ExecutingActionHandler(), "AsyncActionHandlerThread");
-
 		executorThread = new Thread(this, "ActionExecutorThread");
 	}
 
+	
 	public void start() {
 		executorThread.start();
 	}
@@ -103,7 +122,13 @@ public class ActionExecutor implements Runnable {
 	}
 	
 	/**
-	 * Processes the action in the action queue, one by one.
+	 * Processes the actions in the action queue, one by one. For each action,
+	 * the thread checks if a slot is free (i.e. the upper bound of concurrent
+	 * executions is not reached) and if the timestamp (updated on every event) 
+	 * of the action is old enough to conclude the event aggregation for this
+	 * action. Besides that, the method checks if the ancestors of a file have
+	 * been uploaded to the network yet, to prevent a {@link org.hive2hive.core.
+	 * src.main.java.org.hive2hive.core.exceptions.ParentInUserProfileNotFoundException}
 	 * @throws IllegalFileLocation
 	 * @throws NoPeerConnectionException
 	 * @throws NoSessionException
@@ -142,9 +167,7 @@ public class ActionExecutor implements Runnable {
 							FileHelper file = new FileHelper(next.getPath(), next.isFile());
 							publishMessage(new FileExecutionSucceededMessage(file, next.getAction().getCurrentState().getStateType()));
 						}
-						
-						
-						
+							
 						if(asyncHandles.size() != 0){
 							publishMessage(new SynchronizationStartsNotification());
 						}
@@ -319,7 +342,6 @@ public class ActionExecutor implements Runnable {
 			publishMessage(new FileExecutionSucceededMessage(fileHelper, action.getCurrentState().getStateType()));
 		}
 		
-
 		boolean changedWhileExecuted = action.getChangedWhileExecuted();
 		file.setIsUploaded(true);
 		action.onSucceeded();
