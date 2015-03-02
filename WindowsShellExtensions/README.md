@@ -32,6 +32,9 @@ Thus, create and set it to a valid port (integer), e.g. 30000. Alternatively, us
 
 ```regedit .\Utils\registry\api_server_port.reg```
 
+# Debugging
+In order to debug the shell extension, register the extension in the registry and set the required values in the registry (root path, server port). Afterwards, launch the Windows Explorer and attach the debugger to the process ```explorer.exe``` (Visual Studio: Debug -> Attach to Process).
+
 
 ## Helper Utilities
 ### HTTP Server for Development
