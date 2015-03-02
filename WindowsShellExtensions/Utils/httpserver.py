@@ -3,10 +3,7 @@ import socketserver
 import sys
 import json
 
-
-
-
-
+# Simple HTTP server that prints json requests to the console.
 class HTTPHandler(http.server.BaseHTTPRequestHandler):
 
     def print_info(self):

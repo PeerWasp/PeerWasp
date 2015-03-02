@@ -153,10 +153,10 @@
     <ClInclude Include="ClassFactory.h" />
     <ClInclude Include="Command.h" />
     <ClInclude Include="IconHelper.h" />
+    <ClInclude Include="resource.h" />
     <ClInclude Include="Utils.h" />
     <ClInclude Include="ContextMenuExt.h" />
     <ClInclude Include="Reg.h" />
-    <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="ContextMenu.rc" />
