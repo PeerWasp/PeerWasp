@@ -310,4 +310,12 @@ public class FolderComposite extends AbstractFileComponent {
 				getPath(), getContentHash(), getStructureHash(), isUploaded(), isSynchronized(), children);
 		return s;
 	}
+	
+	@Override
+	public void setIsSynchronizedRecursively(boolean b) {
+		setIsSynchronized(b);
+		for(FileComponent comp : children.values()){
+			comp.setIsSynchronizedRecursively(b);
+		}
+	}
 }

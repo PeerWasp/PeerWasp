@@ -19,6 +19,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.peerbox.app.manager.file.IFileManager;
 import org.peerbox.watchservice.filetree.FileTree;
+import org.peerbox.watchservice.integration.TestPeerWaspConfig;
 
 @Deprecated
 public class FileWalkerTest {
@@ -30,6 +31,8 @@ public class FileWalkerTest {
 	private static ArrayList<File> files = new ArrayList<File>();
 	private static FileEventManager manager;
 	private static FileTree fileTree;
+	
+	private TestPeerWaspConfig config = new TestPeerWaspConfig();
 
 	@Mock
 	private IFileManager fileManager;
@@ -81,13 +84,13 @@ public class FileWalkerTest {
 		addTwoOfThreeCreateEvents();
 
 		handleMissingCreateEvents(walker);
-		FileEventManagerTest.sleepMillis(ActionExecutor.ACTION_WAIT_TIME_MS * 2);
+		FileEventManagerTest.sleepMillis(config.getAggregationIntervalInMillis() * 2);
 
 		handleUnnoticedDeleteEvent(walker);
-		FileEventManagerTest.sleepMillis(ActionExecutor.ACTION_WAIT_TIME_MS * 2);
+		FileEventManagerTest.sleepMillis(config.getAggregationIntervalInMillis() * 2);
 
 		handleUnnoticedModifyEvent(walker);
-		FileEventManagerTest.sleepMillis(ActionExecutor.ACTION_WAIT_TIME_MS * 2);
+		FileEventManagerTest.sleepMillis(config.getAggregationIntervalInMillis() * 2);
 
 	}
 
@@ -128,7 +131,7 @@ public class FileWalkerTest {
 		//inform event manager about two creates, wait until they're handled
 		manager.onLocalFileCreated(Paths.get(filePaths.get(0)));
 		manager.onLocalFileCreated(Paths.get(filePaths.get(1)));
-		FileEventManagerTest.sleepMillis(ActionExecutor.ACTION_WAIT_TIME_MS * 2);
+		FileEventManagerTest.sleepMillis(config.getAggregationIntervalInMillis() * 2);
 		assertTrue(manager.getFileComponentQueue().size() == 0);
 		//assertTrue(manager.getFilePathToAction().size() == 2);
 	}

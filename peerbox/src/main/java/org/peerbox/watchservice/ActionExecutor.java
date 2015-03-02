@@ -16,6 +16,7 @@ import org.hive2hive.core.exceptions.Hive2HiveException;
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.hive2hive.core.exceptions.NoSessionException;
 import org.hive2hive.processframework.exceptions.ProcessExecutionException;
+import org.peerbox.app.IPeerWaspConfig;
 import org.peerbox.app.manager.ProcessHandle;
 import org.peerbox.app.manager.file.FileExecutionFailedMessage;
 import org.peerbox.app.manager.file.IFileManager;
@@ -31,6 +32,8 @@ import org.peerbox.watchservice.filetree.IFileTree;
 import org.peerbox.watchservice.filetree.composite.FileComponent;
 import org.peerbox.watchservice.filetree.composite.FolderComposite;
 import org.peerbox.watchservice.states.ExecutionHandle;
+import org.peerbox.watchservice.states.LocalMoveState;
+import org.peerbox.watchservice.states.StateType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,10 +41,22 @@ import com.google.common.collect.SetMultimap;
 import com.google.inject.Inject;
 
 /**
- * The FileActionExecutor service observes a set of file actions in a queue.
- * An action is executed as soon as it is considered to be "stable", i.e. no more events were
- * captured within a certain period of time.
- *
+ * The ActionExecutor service conducts the aggregation of events for 
+ * every file and folder and uses a {@link peerbox.src.main.java
+ * .org.peerbox.watchservice.ActionQueue ActionQueue} for this purpose, which
+ * runs in a separate thread. Ready actions, for which no new events
+ * have been observed for a specified time span, are executed. The class
+ * maintains asynchronous handles for ongoing executions to check whether
+ * they conclude successfully or not and react accordingly. 
+ * 
+ * This class uses the {@link org.peerbox.events.MessageBus MessageBus} instance of the
+ * injected {@link org.peerbox.watchservice.FileEventManager FileEventManager}
+ * instance to publish {@link org.peerbox.view.tray.SynchronizationErrorsResolvedNotification SynchronizationErrorsResolvedNotification}, 
+ * {@link org.peerbox.presenter.settings.synchronization.messages.FileExecutionStartedMessage FileExecutionStartedMessage},
+ * {@link org.peerbox.presenter.settings.synchronization.messages.FileExecutionSucceededMessage FileExecutionSucceededMessage},
+ * {@link org.peerbox.app.manager.file.FileExecutionFailedMessage FileExecutionFailedMessage}, and
+ * {@link org.peerbox.view.tray.SynchronizationCompleteNotification SynchronizationCompleteNotification}.
+
  * @author albrecht
  *
  */
@@ -49,34 +64,44 @@ public class ActionExecutor implements Runnable {
 
 	private static final Logger logger = LoggerFactory.getLogger(ActionExecutor.class);
 
-	/**
-	 *  amount of time that an action has to be "stable" in order to be executed
-	 */
-	public static final long ACTION_WAIT_TIME_MS = 2000;
-	public static final int NUMBER_OF_EXECUTE_SLOTS = 10;
-	public static final int MAX_EXECUTION_ATTEMPTS = 3;
+	private IPeerWaspConfig peerWaspConfig;
 
 	private final IFileManager fileManager;
 	private final FileEventManager fileEventManager;
+	
+	/** Set to false if not interested in result of network transactions **/
 	private boolean waitForActionCompletion = true;
 
+	/** Queue to store the handles of executing transactions, ending
+	 * transactions are examined asynchronously **/
 	private final BlockingQueue<ExecutionHandle> asyncHandles;
+	
 	private final Thread asyncHandlesThread;
-
 	private final Thread executorThread;
 
+	/**
+	 * @param eventManager determines the event handling
+	 * @param fileManager is passed when actions are executed to access the H2H API.
+	 * @param peerWaspConfig defines important runtime parameters like
+	 * the number of concurrently executed actions or the aggregation
+	 * time span for events.
+	 */
 	@Inject
-	public ActionExecutor(final FileEventManager eventManager, final IFileManager fileManager) {
+	public ActionExecutor(final FileEventManager eventManager, 
+			final IFileManager fileManager, 
+			IPeerWaspConfig peerWaspConfig) {
+		
 		this.fileEventManager = eventManager;
 		this.fileManager = fileManager;
+		this.peerWaspConfig = peerWaspConfig;
 
 		asyncHandles = new LinkedBlockingQueue<ExecutionHandle>();
+		
 		asyncHandlesThread = new Thread(new ExecutingActionHandler(), "AsyncActionHandlerThread");
-
 		executorThread = new Thread(this, "ActionExecutorThread");
-
 	}
 
+	
 	public void start() {
 		executorThread.start();
 	}
@@ -92,8 +117,18 @@ public class ActionExecutor implements Runnable {
 		processActions();
 	}
 
+	public IPeerWaspConfig getPeerWaspConfig(){
+		return peerWaspConfig;
+	}
+	
 	/**
-	 * Processes the action in the action queue, one by one.
+	 * Processes the actions in the action queue, one by one. For each action,
+	 * the thread checks if a slot is free (i.e. the upper bound of concurrent
+	 * executions is not reached) and if the timestamp (updated on every event) 
+	 * of the action is old enough to conclude the event aggregation for this
+	 * action. Besides that, the method checks if the ancestors of a file have
+	 * been uploaded to the network yet, to prevent a {@link org.hive2hive.core.
+	 * src.main.java.org.hive2hive.core.exceptions.ParentInUserProfileNotFoundException}
 	 * @throws IllegalFileLocation
 	 * @throws NoPeerConnectionException
 	 * @throws NoSessionException
@@ -106,13 +141,8 @@ public class ActionExecutor implements Runnable {
 			try {
 
 				next = fileEventManager.getFileComponentQueue().take();
-
-				logger.trace("check readyness {}", next.getPath());
 				if (!isFileComponentReady(next)) {
-					logger.debug("{} is not ready yet!", next.getPath());
-					fileEventManager.getFileComponentQueue().remove(next);
-					next.getAction().updateTimestamp();
-					fileEventManager.getFileComponentQueue().add(next);
+					updateFileComponentQueueAndWait(next);
 					continue;
 				}
 
@@ -121,23 +151,24 @@ public class ActionExecutor implements Runnable {
 					removeFromDeleted(next);
 					removeFromCreated(next);
 					removeFromFailed(next.getPath());
+					
 					logger.debug("Start execution: {}", next.getPath());
 
 					ExecutionHandle ehandle = next.getAction().execute(fileManager);
 					if (waitForActionCompletion) {
+
 						if (ehandle != null && ehandle.getProcessHandle() != null) {
 							logger.debug("Put into async handles!");
-							FileHelper file = new FileHelper(next.getPath(), next.isFile());
-//							fileEventManager.getMessageBus().publish(new FileExecutionStartedMessage(file));
-							publishMessage(new FileExecutionStartedMessage(file, next.getAction().getCurrentState().getStateType()));
 							asyncHandles.put(ehandle);
+							FileHelper file = new FileHelper(next.getPath(), next.isFile());
+							publishMessage(new FileExecutionStartedMessage(file, next.getAction().getCurrentState().getStateType()));
 						} else {
-//							if(!next.isSynchronized()){
-//								fileEventManager.getMessageBus().publish(new FileDesyncMessage(next.getPath()));
-//							}
+							//This happens with actions in InitialState/EstablishedState
+							FileHelper file = new FileHelper(next.getPath(), next.isFile());
+							publishMessage(new FileExecutionSucceededMessage(file, next.getAction().getCurrentState().getStateType()));
 						}
+							
 						if(asyncHandles.size() != 0){
-//							fileEventManager.getMessageBus().publish(new SynchronizationStartsNotification());
 							publishMessage(new SynchronizationStartsNotification());
 						}
 					} else {
@@ -149,10 +180,8 @@ public class ActionExecutor implements Runnable {
 						logRunningJobs();
 					}
 					fileEventManager.getFileComponentQueue().add(next);
-					long timeToWait = calculateWaitTime(next);
-					wait(timeToWait);
+					wait(calculateWaitTime(next));
 				}
-
 			} catch (InterruptedException iex) {
 				logger.error("Exception occurred: {}", iex.getMessage(), iex);
 			} catch (NoSessionException nse) {
@@ -161,9 +190,18 @@ public class ActionExecutor implements Runnable {
 				logger.warn("No peer connection - cannot execute pending actions.", npc);
 			} catch (Exception e) {
 				logger.error("Exception occurred: {}", e.getMessage(), e);
-				// action FAILED!! --> exception occurred during execute()
 			}
 		}
+	}
+
+	private void updateFileComponentQueueAndWait(FileComponent next) throws InterruptedException{
+		logger.debug("Component {} is not ready yet!", next.getPath());
+		
+		fileEventManager.getFileComponentQueue().remove(next);
+		next.getAction().updateTimestamp();
+		fileEventManager.getFileComponentQueue().add(next);
+
+		wait(calculateWaitTime(next));
 	}
 
 	private boolean isFileComponentReady(FileComponent next) {
@@ -177,7 +215,7 @@ public class ActionExecutor implements Runnable {
 	 */
 	private boolean isTimerReady(IAction action) {
 		long ageMs = getActionAge(action);
-		return ageMs >= ACTION_WAIT_TIME_MS;
+		return ageMs >= peerWaspConfig.getAggregationIntervalInMillis();
 	}
 
 	/**
@@ -190,7 +228,7 @@ public class ActionExecutor implements Runnable {
 	}
 
 	private long calculateWaitTime(FileComponent action) {
-		long timeToWait = ACTION_WAIT_TIME_MS - getActionAge(action.getAction()) + 1L;
+		long timeToWait = peerWaspConfig.getAggregationIntervalInMillis() - getActionAge(action.getAction()) + 1L;
 		if (timeToWait < 500L) {
 			// wait at least some time
 			timeToWait = 500L;
@@ -199,7 +237,7 @@ public class ActionExecutor implements Runnable {
 	}
 
 	private boolean isExecuteSlotFree() {
-		return asyncHandles.size() < NUMBER_OF_EXECUTE_SLOTS;
+		return asyncHandles.size() < peerWaspConfig.getNumberOfExecutionSlots();
 	}
 
 	public void setWaitForActionCompletion(boolean wait) {
@@ -269,7 +307,7 @@ public class ActionExecutor implements Runnable {
 						componentIterator.remove();
 						break;
 					}
-					if(System.currentTimeMillis() - candidate.getAction().getTimestamp() > ACTION_WAIT_TIME_MS){
+					if(System.currentTimeMillis() - candidate.getAction().getTimestamp() > peerWaspConfig.getAggregationIntervalInMillis()){
 						logger.trace("Remove old entry: {}", candidate.getPath());
 						componentIterator.remove();
 					}
@@ -289,15 +327,21 @@ public class ActionExecutor implements Runnable {
 		}
 	}
 
-	public void onActionExecuteSucceeded(final IAction action) {
+	private void onActionExecuteSucceeded(final IAction action) {
 		final FileComponent file = action.getFile();
 		logger.debug("Action succeeded: {} {}.",
 				file.getPath(), action.getCurrentStateName());
 
-		//inform gui to adjust icon
+		//inform GUI to adjust icon
 		FileHelper fileHelper = new FileHelper(file.getPath(), file.isFile());
-		publishMessage(new FileExecutionSucceededMessage(fileHelper, action.getCurrentState().getStateType()));
-
+		if(action.getCurrentState().getStateType() == StateType.LOCAL_MOVE){
+			LocalMoveState state = (LocalMoveState)action.getCurrentState();
+			FileHelper source = new FileHelper(state.getSourcePath(), file.isFile());
+			publishMessage(new FileExecutionSucceededMessage(source, fileHelper, action.getCurrentState().getStateType()));
+		} else {
+			publishMessage(new FileExecutionSucceededMessage(fileHelper, action.getCurrentState().getStateType()));
+		}
+		
 		boolean changedWhileExecuted = action.getChangedWhileExecuted();
 		file.setIsUploaded(true);
 		action.onSucceeded();
@@ -329,11 +373,9 @@ public class ActionExecutor implements Runnable {
 				}
 			}
 		}
-
 		if (!errorHandled) {
 			handleErrorDefault(action);
 		}
-
 	}
 
 
@@ -342,12 +384,11 @@ public class ActionExecutor implements Runnable {
 		logger.trace("Default Error Handling: Re-initiate execution - {} - {} - attempt({}).",
 				path, action.getCurrentStateName(), action.getExecutionAttempts());
 
-		if (action.getExecutionAttempts() <= MAX_EXECUTION_ATTEMPTS) {
+		if (action.getExecutionAttempts() <= peerWaspConfig.getMaximalExecutionAttempts()) {
 			action.updateTimestamp();
 			fileEventManager.getFileComponentQueue().add(action.getFile());
 		} else {
 			FileHelper file = new FileHelper(path, action.getFile().isFile());
-//			fileEventManager.getMessageBus().publish(new FileExecutionFailedMessage(file));
 			publishMessage(new FileExecutionFailedMessage(file));
 			fileEventManager.getMessageBus().post(new InformationNotification("Synchronization error ",
 					"Operation on " + path + " failed")).now();
@@ -368,31 +409,22 @@ public class ActionExecutor implements Runnable {
 				logger.trace("FileComponent not found (null): {}", path);
 			}
 			FileHelper file = new FileHelper(action.getFile().getPath(), action.getFile().isFile());
-//			fileEventManager.getMessageBus().publish(new FileExecutionSucceededMessage(file, action.getCurrentState().getStateType()));
 			publishMessage(new FileExecutionSucceededMessage(file, action.getCurrentState().getStateType()));
 			action.onSucceeded();
 			return true;
 
 		} else if (error == AbortModificationCode.FOLDER_UPDATE) {
-
 			logger.debug("Attempt to update folder {} failed as folder cannot be updated.", path);
 			return true;
 
 		} else if (error == AbortModificationCode.ROOT_DELETE_ATTEMPT) {
-
 			logger.debug("Attempt to delete the root folder {} failed (operation not allowed)", path);
 			return true;
 
 		} else if (error == AbortModificationCode.NO_WRITE_PERM) {
-
 			logger.debug("Attempt to delete or write to {} failed. No write-permissions.", path);
 			return true;
-
 		}
-//		else if (error == AbortModificationCode.FILE_DOES_NOT_EXIST){
-//
-//		}
-
 		return false; // error not handled
 	}
 
@@ -416,15 +448,11 @@ public class ActionExecutor implements Runnable {
 						ProcessHandle<Void> process = next.getProcessHandle();
 						if(process != null) {
 							process.getFuture().get(5, TimeUnit.SECONDS);
-						} else {
-							// no async process, i.e. do not need to wait
 						}
 
-						// if this point reached, no error occurred (get() did not throw exception)
 						onActionExecuteSucceeded(next.getAction());
 
 						if(asyncHandles.size() == 0){
-//							fileEventManager.getMessageBus().publish(new SynchronizationCompleteNotification());
 							publishMessage(new SynchronizationCompleteNotification());
 						}
 					} catch (ExecutionException eex) {
@@ -449,6 +477,5 @@ public class ActionExecutor implements Runnable {
 				}
 			}
 		}
-
 	}
 }

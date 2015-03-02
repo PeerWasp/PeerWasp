@@ -26,6 +26,7 @@
             <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
             <RowConstraints vgrow="SOMETIMES" />
           <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
+            <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
         </rowConstraints>
          <children>
             <Label text="Account">
@@ -59,6 +60,8 @@
                   </Label>
                </children>
             </VBox>
+            <Label text="Show Tray Notification" GridPane.rowIndex="5" />
+            <CheckBox fx:id="chbTrayNotification" mnemonicParsing="false" onAction="#disableTrayNotificationAction" selected="true" text="Enabled (shows only error messages if disabled)" GridPane.columnIndex="1" GridPane.rowIndex="5" />
          </children>
       </GridPane>
       <GridPane hgap="10.0" vgap="10.0" GridPane.hgrow="SOMETIMES" GridPane.rowIndex="1">

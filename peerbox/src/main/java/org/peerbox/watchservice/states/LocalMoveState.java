@@ -10,7 +10,9 @@ import org.peerbox.app.manager.file.IFileManager;
 import org.peerbox.exceptions.NotImplException;
 import org.peerbox.presenter.settings.synchronization.FileHelper;
 import org.peerbox.watchservice.IAction;
+import org.peerbox.watchservice.conflicthandling.ConflictHandler;
 import org.peerbox.watchservice.filetree.IFileTree;
+import org.peerbox.watchservice.filetree.composite.FileComponent;
 import org.peerbox.watchservice.states.listeners.LocalFileAddListener;
 import org.peerbox.watchservice.states.listeners.LocalFileMoveListener;
 import org.slf4j.Logger;
@@ -45,8 +47,9 @@ public class LocalMoveState extends AbstractActionState {
 		final Path path = action.getFile().getPath();
 		handle = fileManager.move(source, path);
 		if(handle != null){
-			FileHelper file = new FileHelper(path, action.getFile().isFile());
-			handle.getProcess().attachListener(new LocalFileMoveListener(file, action.getFileEventManager().getMessageBus()));
+			FileHelper destFile = new FileHelper(path, action.getFile().isFile());
+			FileHelper sourceFile = new FileHelper(source, action.getFile().isFile());
+			handle.getProcess().attachListener(new LocalFileMoveListener(sourceFile, destFile, action.getFileEventManager().getMessageBus()));
 			handle.executeAsync();
 		}
 
@@ -64,7 +67,7 @@ public class LocalMoveState extends AbstractActionState {
 	@Override
 	public AbstractActionState changeStateOnLocalCreate() {
 		logStateTransition(getStateType(), EventType.LOCAL_CREATE, StateType.INITIAL);
-		return new InitialState(action); //Move is applied to source files, this is the destination, hence the event is ignored
+		return new InitialState(action);//Move is applied to source files, this is the destination, hence the event is ignored
 	}
 
 	// TODO Needs to be verified (Patrick, 21.10.14)
@@ -82,9 +85,8 @@ public class LocalMoveState extends AbstractActionState {
 
 	@Override
 	public AbstractActionState changeStateOnRemoteUpdate() {
-		logger.debug("Remote Update Event: Local Move -> Conflict ({})", action.getFile().getPath());
-		throw new NotImplException("Conflict handling during move not yet supported");
-//		return new ConflictState(action);
+		logStateTransition(getStateType(), EventType.REMOTE_UPDATE, StateType.REMOTE_UPDATE);
+		return new RemoteUpdateState(action);
 	}
 
 	@Override
@@ -95,29 +97,25 @@ public class LocalMoveState extends AbstractActionState {
 
 	@Override
 	public AbstractActionState changeStateOnRemoteMove(Path oldFilePath) {
-		logger.debug("Remote Move Event: Local Move -> Conflict ({})", action.getFile().getPath());
-		throw new NotImplException("Conflict handling during move not yet supported");
-	}
-
-	@Override
-	public AbstractActionState changeStateOnRemoteCreate() {
-		throw new NotImplException("Conflict handling during move not yet supported");
-	}
-
-	@Override
-	public AbstractActionState handleLocalCreate() {
-		updateTimeAndQueue();
+		logStateTransition(getStateType(), EventType.REMOTE_MOVE, StateType.LOCAL_MOVE);
 		return this;
 	}
 
 	@Override
-	public AbstractActionState handleLocalUpdate() {
-		return changeStateOnLocalUpdate();
+	public AbstractActionState changeStateOnRemoteCreate() {
+		logStateTransition(getStateType(), EventType.REMOTE_CREATE, StateType.REMOTE_CREATE);
+		return new RemoteCreateState(action);
 	}
 
 	@Override
 	public AbstractActionState handleRemoteCreate() {
+		logger.info("The file which was locally moved to a place where the "
+				+ "same file was remotely created. RemoteCreate at destination of local "
+				+ "move operation initiated to download the file: {}", action.getFile().getPath());
 		updateTimeAndQueue();
+		IFileTree fileTree = action.getFileEventManager().getFileTree();
+
+		ConflictHandler.resolveConflict(action.getFile().getPath(), true);
 		return changeStateOnRemoteCreate();
 	}
 
@@ -129,12 +127,27 @@ public class LocalMoveState extends AbstractActionState {
 
 	@Override
 	public AbstractActionState handleRemoteUpdate() {
+		logger.info("The file which was locally moved to a place where the "
+				+ "same file was remotely updated. RemoteUpdate at destination of local "
+				+ "move operation initiated to download the file: {}", action.getFile().getPath());
 		updateTimeAndQueue();
+		IFileTree fileTree = action.getFileEventManager().getFileTree();
+
+		ConflictHandler.resolveConflict(action.getFile().getPath(), true);
 		return changeStateOnRemoteUpdate();
 	}
 
 	@Override
 	public AbstractActionState handleRemoteMove(Path path) {
+		logger.info("The file which was locally moved after it has been "
+				+ "remotely moved. RemoteCreate at destination of remote "
+				+ "move operation initiated to download the file: {}", path);
+		updateTimeAndQueue();
+		IFileTree fileTree = action.getFileEventManager().getFileTree();
+
+		FileComponent moveDest = fileTree.getOrCreateFileComponent(path, action.getFileEventManager());
+		fileTree.putFile(path, moveDest);
+		moveDest.getAction().handleRemoteCreateEvent();
 		return changeStateOnRemoteMove(path);
 	}
 }

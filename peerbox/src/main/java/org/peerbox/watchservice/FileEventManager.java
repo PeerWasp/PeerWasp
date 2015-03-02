@@ -86,10 +86,11 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 
 		file.getAction().handleLocalCreateEvent();
 
-		if (isFolder) {
+		//check if it is a folder and the move detection did not work:
+		if (isFolder && fileTree.getFile(path).getAction().getCurrentState().getStateType() != StateType.INITIAL) {
+			logger.trace("No move detected after folder {} was created. Initiate complete discovery.", path);
 			fileTree.discoverSubtreeCompletely(path, this);
 		}
-
 	}
 
 	@Override

@@ -35,7 +35,7 @@ public class EnhancedMove extends FileIntegrationTest{
 		logger.debug("--------------------START------------");
 		int nrFolders = 10;
 		int nrFilesPerFolder = 10;
-		Path destination = addSingleFolder();
+		Path destination = addFolder();
 		List<Path> paths = addManyFilesInManyFolders(10, 10);
 		List<Path> destinationPaths = new ArrayList<Path>();
 		int totalFiles = nrFolders + nrFolders * nrFilesPerFolder + 1;

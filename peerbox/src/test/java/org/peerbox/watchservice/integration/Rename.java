@@ -18,15 +18,13 @@ public class Rename extends FileIntegrationTest{
 	 */	
 	@Test
 	public void singleFileRenameTest() throws IOException, InterruptedException{
-		Path initialFile = FileTestUtils.createRandomFile(masterRootPath, NUMBER_OF_CHARS);
-		waitForExists(initialFile, WAIT_TIME_SHORT);
-		assertSyncClientPaths();
+		Path initialFile = addFile(true);
+		assertCleanedUpState(1);
 		
 		Path renamedFile = rename(initialFile, "RENAMED.file");
-		initialFile = renamedFile;
-		
-		
-		assertSyncClientPaths();
+		waitForExists(renamedFile, WAIT_TIME_SHORT);
+		waitForNotExists(initialFile, WAIT_TIME_SHORT);
+		assertCleanedUpState(1);
 	}
 	
 

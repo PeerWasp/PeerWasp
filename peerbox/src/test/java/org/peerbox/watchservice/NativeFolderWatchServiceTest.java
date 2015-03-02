@@ -24,6 +24,7 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.peerbox.app.manager.file.IFileManager;
 import org.peerbox.watchservice.filetree.FileTree;
+import org.peerbox.watchservice.integration.TestPeerWaspConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -65,7 +66,7 @@ public class NativeFolderWatchServiceTest {
 		watchService = new FolderWatchService();
 		fileTree = new FileTree(basePath, null, true);
 		eventManager = new FileEventManager(fileTree, null);
-		actionExecutor = new ActionExecutor(eventManager, fileManager);
+		actionExecutor = new ActionExecutor(eventManager, fileManager, new TestPeerWaspConfig());
 		actionExecutor.start();
 		watchService.addFileEventListener(eventManager);
 

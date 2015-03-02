@@ -36,10 +36,10 @@ public class AddDelete extends FileIntegrationTest {
 	 */
 	@Test
 	public void singleFolderTest() throws IOException {
-		Path folder = addSingleFolder();
+		Path folder = addFolder();
 		assertCleanedUpState(1);
 		
-		deleteSingleFile(folder);
+		deleteSingleFile(folder, true);
 		assertCleanedUpState(0);
 	}
 
@@ -51,7 +51,7 @@ public class AddDelete extends FileIntegrationTest {
 	@Test
 	public void manyFoldersTest() throws IOException {
 		int numFolders = 20;
-		List<Path> folders = addManyFolders(numFolders);
+		List<Path> folders = addFolders(numFolders);
 		assertCleanedUpState(numFolders);
 		
 		deleteManyFiles(folders);
@@ -68,7 +68,7 @@ public class AddDelete extends FileIntegrationTest {
 		List<Path> folders = addSingleFolderInFolder();
 		assertCleanedUpState(2);
 		
-		deleteSingleFolderInFolder(folders);
+		deleteSingleFileInFolder(folders);
 		assertCleanedUpState(0);
 	}
 	
@@ -94,10 +94,10 @@ public class AddDelete extends FileIntegrationTest {
 	 */
 	@Test
 	public void singleFileTest() throws IOException {
-		Path file = addSingleFile();
+		Path file = addFile();
 		assertCleanedUpState(1);
 		
-		deleteSingleFile(file);
+		deleteSingleFile(file, true);
 		assertCleanedUpState(0);
 	}
 	
@@ -108,10 +108,10 @@ public class AddDelete extends FileIntegrationTest {
 	 */
 	@Test
 	public void singleLargeFileTest() throws IOException {
-		Path file = addSingleFile(1024);
+		Path file = addFile(1024);
 		assertCleanedUpState(1);
 		
-		deleteSingleFile(file);
+		deleteSingleFile(file, true);
 		assertCleanedUpState(0);
 	}
 	
@@ -146,6 +146,7 @@ public class AddDelete extends FileIntegrationTest {
 	 */
 	@Test
 	public void singleFileInFolderTest() throws IOException {
+		
 		List<Path> files = addSingleFileInFolder();
 		assertCleanedUpState(2);
 		
@@ -178,9 +179,9 @@ public class AddDelete extends FileIntegrationTest {
 	public void manyFilesInManyFoldersTest() throws IOException {
 		int nrFolders = 10;
 		int nrFilesPerFolder = 10;
-		
+		int allFiles = nrFolders + nrFolders * nrFilesPerFolder;
 		List<Path> files = addManyFilesInManyFolders(nrFolders, nrFilesPerFolder);
-		assertCleanedUpState(nrFolders + nrFolders * nrFilesPerFolder);
+		assertCleanedUpState(allFiles);
 		
 		deleteManyFilesInManyFolders(files);
 		assertCleanedUpState(0);
@@ -206,17 +207,13 @@ public class AddDelete extends FileIntegrationTest {
 	}
 	
 	private void manyFilesTest(int nrFiles, int waitTime) throws IOException {
-		List<Path> files = addManyFiles(nrFiles, waitTime);
+		List<Path> files = addFiles(nrFiles, waitTime);
 		assertCleanedUpState(nrFiles);
 		deleteManyFiles(files);
 		assertCleanedUpState(0);
 	}
 	
-	private List<Path> addManyFolders(int numFolders) throws IOException {
-		List<Path> folders = FileTestUtils.createRandomFolders(masterRootPath, numFolders);
-		waitForExists(folders, WAIT_TIME_LONG);
-		return folders;
-	}
+
 	
 	private List<Path> addSingleFolderInFolder() throws IOException {
 		Path folder = FileTestUtils.createRandomFolder(masterRootPath);
@@ -228,15 +225,6 @@ public class AddDelete extends FileIntegrationTest {
 		
 		waitForExists(folders, WAIT_TIME_LONG);
 		return folders;
-	}
-	
-	private void deleteSingleFolderInFolder(List<Path> folders) throws IOException {
-		ListIterator<Path> it = folders.listIterator(folders.size());
-		while(it.hasPrevious()) {
-			Path f = it.previous();
-			deleteSingleFile(f);
-		}
-		waitForNotExists(folders, WAIT_TIME_LONG);
 	}
 	
 	private List<Path> addManyFoldersInFolder(int nrSubFolders) throws IOException {

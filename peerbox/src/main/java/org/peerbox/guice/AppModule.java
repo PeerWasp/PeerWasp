@@ -5,6 +5,8 @@ import javafx.stage.Stage;
 
 import org.peerbox.app.ExitHandler;
 import org.peerbox.app.IExitHandler;
+import org.peerbox.app.IPeerWaspConfig;
+import org.peerbox.app.PeerWaspConfig;
 import org.peerbox.app.manager.node.INodeManager;
 import org.peerbox.app.manager.node.NodeManager;
 import org.peerbox.app.manager.user.IUserManager;
@@ -47,6 +49,8 @@ public class AppModule extends AbstractModule {
 
 		bindManagers();
 
+		bindConfigs();
+		
 		bindContextMenuHandlers();
 
 		bind(IFxmlLoaderProvider.class).to(GuiceFxmlLoader.class);
@@ -94,5 +98,11 @@ public class AppModule extends AbstractModule {
 		bind(IFileRecoveryHandler.class).to(FileRecoveryHandler.class);
 //		bind(IShareFolderHandler.class).to(ShareFolderHandler.class);
 	}
+	
+
+	private void bindConfigs() {
+		bind(IPeerWaspConfig.class).to(PeerWaspConfig.class);
+	}
+
 
 }

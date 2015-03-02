@@ -8,7 +8,6 @@ import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.hive2hive.core.exceptions.NoSessionException;
 import org.hive2hive.processframework.exceptions.InvalidProcessStateException;
 import org.hive2hive.processframework.exceptions.ProcessExecutionException;
-
 import org.peerbox.app.manager.ProcessHandle;
 import org.peerbox.app.manager.file.IFileManager;
 import org.peerbox.exceptions.NotImplException;
@@ -18,7 +17,6 @@ import org.peerbox.watchservice.filetree.IFileTree;
 import org.peerbox.watchservice.filetree.composite.FileComponent;
 import org.peerbox.watchservice.filetree.composite.FileLeaf;
 import org.peerbox.watchservice.filetree.composite.FolderComposite;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -107,17 +105,16 @@ public abstract class AbstractActionState {
 		return new RemoteUpdateState(action);
 	}
 
-	public AbstractActionState changeStateOnRemoteMove(Path oldFilePath){
-		throw new NotImplException(action.getCurrentState().getStateType().getName() + ".changeStateOnRemoteMove");
+	public AbstractActionState changeStateOnRemoteMove(Path oldFilePath) {
+		logStateTransition(getStateType(), EventType.REMOTE_MOVE, StateType.ESTABLISHED);
+		return new EstablishedState(action);
 	}
 
 
-	/**
-	 * This handler is abstract because local create events are
-	 * very state-sensitive and a default handling is not useful.
-	 * @return
-	 */
-	public abstract AbstractActionState handleLocalCreate();
+	public AbstractActionState handleLocalCreate() {
+		updateTimeAndQueue();
+		return changeStateOnLocalCreate();
+	}
 
 	public AbstractActionState handleLocalHardDelete(){
 		updateTimeAndQueue();
@@ -157,9 +154,10 @@ public abstract class AbstractActionState {
 		updateTimeAndQueue();
 		return changeStateOnLocalUpdate();
 	}
-
+	
 	public AbstractActionState handleLocalMove(Path newPath) {
 		Path oldPath = Paths.get(action.getFile().getPath().toString());
+		action.getFile().setIsSynchronizedRecursively(true);
 		action.getFileEventManager().getFileTree().putFile(newPath, action.getFile());
 		updateTimeAndQueue();
 		return changeStateOnLocalMove(oldPath);
@@ -170,6 +168,7 @@ public abstract class AbstractActionState {
 	 */
 
 	public AbstractActionState handleRemoteCreate(){
+		updateTimeAndQueue();
 		return changeStateOnRemoteCreate();
 	}
 
@@ -192,8 +191,18 @@ public abstract class AbstractActionState {
 		return changeStateOnRemoteUpdate();
 	}
 
-	public AbstractActionState handleRemoteMove(Path path){
-		return changeStateOnRemoteMove(path);
+	public AbstractActionState handleRemoteMove(Path destPath) {
+		final IFileEventManager eventManager = action.getFileEventManager();
+		final IFileTree fileTree = eventManager.getFileTree();
+		final FileComponent file = action.getFile();
+		
+		eventManager.getFileComponentQueue().remove(file);
+		Path sourcePath = file.getPath();
+
+		fileTree.deleteFile(file.getPath());
+		fileTree.putFile(destPath, file);
+
+		return changeStateOnRemoteMove(sourcePath);
 	}
 
 	private boolean moveTargetIsValid(FileComponent moveTarget){

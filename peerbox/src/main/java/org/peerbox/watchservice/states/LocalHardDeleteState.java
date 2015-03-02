@@ -68,14 +68,8 @@ public class LocalHardDeleteState extends AbstractActionState{
 
 	@Override
 	public AbstractActionState changeStateOnRemoteMove(Path oldFilePath) {
-		logStateTransition(getStateType(), EventType.REMOTE_MOVE, StateType.REMOTE_MOVE);
+		logStateTransition(getStateType(), EventType.REMOTE_MOVE, StateType.LOCAL_HARD_DELETE);
 		return this;
-	}
-
-	@Override
-	public AbstractActionState handleLocalCreate() {
-		updateTimeAndQueue();
-		return changeStateOnLocalCreate();
 	}
 
 	public AbstractActionState handleLocalDelete(){
@@ -83,34 +77,15 @@ public class LocalHardDeleteState extends AbstractActionState{
 		IFileTree fileTree = eventManager.getFileTree();
 		
 		fileTree.deleteFile(action.getFile().getPath());
-		eventManager.getFileComponentQueue().remove(action.getFile());
 		
 		updateTimeAndQueue();
 		return changeStateOnLocalDelete();
 	}
 
 	@Override
-	public AbstractActionState handleLocalUpdate() {
-		updateTimeAndQueue();
-		return changeStateOnLocalUpdate();
-	}
-
-	@Override
-	public AbstractActionState handleRemoteCreate() {
-		updateTimeAndQueue();
-		return changeStateOnRemoteCreate();
-	}
-
-	@Override
 	public AbstractActionState handleRemoteDelete() {
 		action.getFileEventManager().getFileComponentQueue().remove(action.getFile());
 		return changeStateOnRemoteDelete();
-	}
-
-	@Override
-	public AbstractActionState handleRemoteUpdate() {
-		updateTimeAndQueue();
-		return changeStateOnRemoteUpdate();
 	}
 
 	@Override

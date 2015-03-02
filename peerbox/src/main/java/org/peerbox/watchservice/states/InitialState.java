@@ -48,21 +48,23 @@ public class InitialState extends AbstractActionState {
 	}
 
 	@Override
-	public AbstractActionState changeStateOnRemoteMove(Path oldFilePath) {
-		throw new NotImplException("InitialState.onremoteMove");
-	}
-
-	@Override
 	public AbstractActionState changeStateOnLocalCreate(){
 		if(action.getFile().isUploaded()){
 			logStateTransition(getStateType(), EventType.LOCAL_CREATE, StateType.ESTABLISHED);
+			logger.trace("Re-creation of a softdeleted file. Ignore LocalCreate for  {}", action.getFile().getPath());
 			return new EstablishedState(action);
 		} else {
 			logStateTransition(getStateType(), EventType.LOCAL_CREATE, StateType.LOCAL_CREATE);
 			return new LocalCreateState(action);
 		}
 	}
-
+	
+	@Override
+	public AbstractActionState changeStateOnRemoteMove(Path oldFilePath) {
+		logStateTransition(getStateType(), EventType.REMOTE_MOVE, StateType.ESTABLISHED);
+		return new EstablishedState(action);
+	}
+ 
 	@Override
 	public AbstractActionState handleLocalCreate() {
 		final IFileTree fileTree = action.getFileEventManager().getFileTree();
@@ -96,15 +98,7 @@ public class InitialState extends AbstractActionState {
 		logger.debug("Local Delete is ignored in InitialState for {}", action.getFile().getPath());
 		return this;
 	}
-
-	@Override
-	public AbstractActionState handleLocalMove(Path destPath) {
-		Path oldPath = action.getFile().getPath();
-		action.getFileEventManager().getFileTree().putFile(destPath, action.getFile());
-		updateTimeAndQueue();
-		return changeStateOnLocalMove(oldPath);
-	}
-
+	
 	@Override
 	public AbstractActionState handleRemoteCreate() {
 		FileComponent file = action.getFile();
@@ -194,6 +188,17 @@ public class InitialState extends AbstractActionState {
 		SetMultimap<String, FolderComposite> createdByStructureHash = action.getFileEventManager().getFileTree().getCreatedByStructureHash();
 		boolean wasRemoved = createdByStructureHash.get(action.getFile().getStructureHash()).remove((FolderComposite)action.getFile());
 		// TODO: cleanup filecomponentqueue: remove children of folder if in localcreate state!
-		return this;
+		
+		if (source.isUploaded()) {
+			logger.trace("Handle move of {}, from {}.", filePath, source.getPath());
+			// eventManager.getFileTree().deleteFile(action.getFile().getPath());
+			source.getAction().handleLocalMoveEvent(filePath);
+			return this; //changeStateOnLocalMove(filePath);
+		} else {
+			logger.trace("No move of {}, as it was not uploaded.", source.getPath());
+			fileTree.putFile(filePath, file);
+			updateTimeAndQueue();
+			return changeStateOnLocalCreate();
+		}
 	}
 }

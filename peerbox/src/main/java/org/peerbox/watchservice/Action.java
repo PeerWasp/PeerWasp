@@ -28,8 +28,15 @@ import org.slf4j.LoggerFactory;
 
 
 /**
- * The Action class provides a systematic and lose-coupled way to change the
- * state of an object as part of the chosen state pattern design.
+ * The Action class has the context role in the State Pattern used to implement
+ * the state machine. It provides a systematic and lose-coupled way to change the
+ * state of a {@link org.peerbox.watchservice.filetree.composite.FileComponent 
+ * FileComponent}. In general, there is exactly one instance of each {@link org.peerbox.
+ * watchservice.filetree.composite.FileComponent FileComponent} and Action which form
+ * a tightly coupled pair. While the {@link org.peerbox.watchservice.filetree.
+ * composite.FileComponent FileComponent} is primarily used to represent files
+ * and their properties, Action is used to represent the application internal state 
+ * and to define the upcoming network operation for files.
  *
  *
  * @author albrecht, anliker, winzenried
@@ -59,7 +66,9 @@ public class Action implements IAction {
 	}
 
 	/**
-	 * Initialize with timestamp and set currentState to initial state
+	 * A new action is always in the {@link org.peerbox.watchservice.states.InitialState
+	 * InitialState}.
+	 * @param fileEventManager used to provide for 
 	 */
 	public Action(final IFileEventManager fileEventManager) {
 		this.currentState = new InitialState(this);
@@ -70,7 +79,10 @@ public class Action implements IAction {
 	}
 
 	/**
-	 * changes the state of the currentState to Create state if current state allows it.
+	 * Handles the local create event. If {@link isExecuting} == false,
+	 * the event is handled on the currentState. If it is true, the nextState
+	 * is changed accordingly and the {@link changedWhileExecuted} flag is set
+	 * if needed.
 	 */
 	@Override
 	public void handleLocalCreateEvent() {
@@ -80,20 +92,13 @@ public class Action implements IAction {
 			acquireLock();
 
 			if (isExecuting()) {
-
-				if(currentState.getStateType() == StateType.REMOTE_CREATE){
-					RemoteCreateState castedState = (RemoteCreateState)currentState;
-					castedState.setLocalCreateHappened(true);
-				}
 				nextState = nextState.changeStateOnLocalCreate();
 				checkIfChanged();
 
 			} else {
-
 				updateTimestamp();
 				currentState = currentState.handleLocalCreate();
 				nextState = currentState.getDefaultState();
-
 			}
 
 		} finally {
@@ -102,7 +107,16 @@ public class Action implements IAction {
 	}
 
 	/**
-	 * changes the state of the currentState to Modify state if current state allows it.
+	 * Handles the local update event. For further documentation on event handling, 
+	 * check {@link #handleLocalCreateEvent()}. If currentState is of 
+	 * type {@link org.peerbox.watchservice.states.RemoteUpdateState 
+	 * RemoteUpdateState} and {@link org.peerbox.watchservice.states.
+	 * RemoteUpdateState#getLocalUpdateHappened() RemoteUpdateState.getLocal
+	 * UpdateHappened()} == false (i.e. no local update event happened yet), the
+	 * event is ignored. This is useful, as the local update event introduced by the
+	 * H2H download() API call should not be mistaken for an actual local file change.
+	 * In any other case, the local update is simply forwarded to the corresponding
+	 * state.
 	 */
 	@Override
 	public void handleLocalUpdateEvent() {
@@ -113,14 +127,14 @@ public class Action implements IAction {
 
 			if (isExecuting()) {
 				if(currentState.getStateType() == StateType.REMOTE_CREATE){
-					RemoteCreateState castedState = (RemoteCreateState)currentState;
-					if(!castedState.localCreateHappened()){
-						nextState = nextState.changeStateOnLocalUpdate();
-						checkIfChanged();
-					} else {
-						logger.debug("File {}: LocalUpdateEvent after LocalCreateEvent "
-								+ "in RemoteCreateState - ignored!", file.getPath());
-					}
+//					RemoteCreateState castedState = (RemoteCreateState)currentState;
+//					if(!castedState.localCreateHappened()){
+//						nextState = nextState.changeStateOnLocalUpdate();
+//						checkIfChanged();
+//					} else {
+//						logger.debug("File {}: LocalUpdateEvent after LocalCreateEvent "
+//								+ "in RemoteCreateState - ignored!", file.getPath());
+//					}
 				} else if(currentState.getStateType() == StateType.REMOTE_UPDATE){
 					RemoteUpdateState castedState = (RemoteUpdateState)currentState;
 					if(castedState.getLocalUpdateHappened()){
@@ -155,7 +169,9 @@ public class Action implements IAction {
 	}
 
 	/**
-	 * changes the state of the currentState to Delete state if current state allows it.
+	 * Handles the local delete event triggered when a file is removed from the HDD
+	 * (or moved into the trash bin). For further documentation on event handling, 
+	 * check {@link #handleLocalCreateEvent()}.
 	 */
 	@Override
 	public void handleLocalDeleteEvent() {
@@ -182,6 +198,15 @@ public class Action implements IAction {
 		}
 	}
 
+	/**
+	 * Handles the local hard delete event. This event is triggered by the PeerWasp 
+	 * code and not by the file system. If the connected {@link org.peerbox.watchservice.
+	 * filetree.composite.FileComponent FileComponent} is a {@link org.peerbox.watchservice.
+	 * filetree.composite.FolderComposite FolderComposite}, the event is propagated manually
+	 * to all children to initiate a recursive handling. Besides that, the file is removed from
+	 * the HDD by code. This triggers a local delete event. For further documentation on 
+	 * event handling, check {@link #handleLocalCreateEvent()}.
+	 */
 	@Override
 	public void handleLocalHardDeleteEvent(){
 		logger.trace("handleLocalHardDeleteEvent - File: {}, isExecuting({})",
@@ -230,6 +255,19 @@ public class Action implements IAction {
 		}
 	}
 
+	/**
+	 * Handles the local move event. This event is triggered by the PeerWasp
+	 * code when a local delete and a local create event correspond to a
+	 * file move performed by the user.
+	 * 
+	 * In general, file modifications lead to modify events. Occasionally, the
+	 * file system triggers an additional pair of delete/create events on the same 
+	 * file. This case is inadvertently interpreted as a move to the same location 
+	 * up to this point. Hence, the handling of such an event stops here.
+	 * 
+	 * For further documentation on event handling, 
+	 * check {@link #handleLocalCreateEvent()}.
+	 */
 	@Override
 	public void handleLocalMoveEvent(Path oldFilePath) {
 		logger.debug("handleLocalMoveEvent - File: {}, isExecuting({})",
@@ -263,6 +301,10 @@ public class Action implements IAction {
 		}
 	}
 
+	/**
+	 * Handles the remote create event triggered by Hive2Hive. For further documentation 
+	 * on event handling, check {@link #handleLocalCreateEvent()}.
+	 */
 	@Override
 	public void handleRemoteCreateEvent() {
 		logger.trace("handleRemoteCreateEvent - File: {}, isExecuting({})",
@@ -288,6 +330,10 @@ public class Action implements IAction {
 		}
 	}
 
+	/**
+	 * Handles the remote update event triggered by Hive2Hive. For further documentation 
+	 * on event handling, check {@link #handleLocalCreateEvent()}.
+	 */
 	@Override
 	public void handleRemoteUpdateEvent() {
 		logger.trace("handleRemoteUpdateEvent - File: {}, isExecuting({})",
@@ -313,6 +359,14 @@ public class Action implements IAction {
 		}
 	}
 
+	/**
+	 * Handles the remote delete event triggered by Hive2Hive. For further documentation 
+	 * on event handling, check {@link #handleLocalCreateEvent()}. If the connected 
+	 * {@link org.peerbox.watchservice. filetree.composite.FileComponent FileComponent} 
+	 * is a {@link org.peerbox.watchservice.filetree.composite.FolderComposite FolderComposite},
+	 * the event is propagated manually to all children to initiate a recursive handling. 
+	 * For further documentation on event handling, check {@link #handleLocalCreateEvent()}.
+	 */
 	@Override
 	public void handleRemoteDeleteEvent() {
 		logger.trace("handleRemoteDeleteEvent - File: {}, isExecuting({})",
@@ -350,6 +404,11 @@ public class Action implements IAction {
 		}
 	}
 
+	/**
+	 * Handles the remote move event triggered by Hive2Hive. This method moves the 
+	 * file in the file system. For further documentation on event handling, 
+	 * check {@link #handleLocalCreateEvent()}.
+	 */
 	@Override
 	public void handleRemoteMoveEvent(Path path) {
 		logger.trace("handleRemoteMoveEvent - File: {}, isExecuting({})",

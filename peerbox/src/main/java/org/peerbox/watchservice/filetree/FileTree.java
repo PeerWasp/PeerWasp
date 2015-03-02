@@ -4,6 +4,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.jetty.util.ConcurrentHashSet;
@@ -181,8 +182,11 @@ public class FileTree implements IFileTree {
 		logger.trace("Contenthash to search for: {}", hash);
 		Set<? extends FileComponent> sameContentSet = filesByContent.get(hash);
 
-		for(FileComponent comp: sameContentSet){
-			logger.trace("Set contains {}", comp.getPath());
+//		for(FileComponent comp: sameContentSet){
+//			logger.trace("Set contains {}", comp.getPath());
+//		}
+		for(Map.Entry<String, ? extends FileComponent> entry : filesByContent.entries()){
+			logger.trace("Path: {} Hash: {}", entry.getValue().getPath(), entry.getKey());
 		}
 		long minTimeDiff = Long.MAX_VALUE;
 		for(FileComponent candidate : sameContentSet) {

@@ -20,6 +20,7 @@ import org.mockito.Mockito;
 import org.peerbox.app.manager.file.IFileManager;
 import org.peerbox.watchservice.filetree.FileTree;
 import org.peerbox.watchservice.filetree.composite.FileComponent;
+import org.peerbox.watchservice.integration.TestPeerWaspConfig;
 
 //import com.google.common.io.Files;
 
@@ -28,6 +29,8 @@ public class FileWalkerTestWhenFolderCreated {
 	private static IFileManager fileManager;
 
 	private static ActionExecutor actionExecutor;
+	
+	private static TestPeerWaspConfig config = new TestPeerWaspConfig();
 
 	private static String parentPath = System.getProperty("user.home") + File.separator + "PeerBox_FileWalkerTest" + File.separator;
 
@@ -64,7 +67,7 @@ public class FileWalkerTestWhenFolderCreated {
 		fileTree = new FileTree(Paths.get(parentPath), null, false);
 		manager = new FileEventManager(fileTree, null);
 		fileManager = Mockito.mock(IFileManager.class);
-		actionExecutor = new ActionExecutor(manager, fileManager);
+		actionExecutor = new ActionExecutor(manager, fileManager, config);
 		actionExecutor.setWaitForActionCompletion(false);
 		actionExecutor.start();
 
@@ -104,7 +107,7 @@ public class FileWalkerTestWhenFolderCreated {
 	@Before
 	public void setup(){
 		try {
-			Thread.sleep(ActionExecutor.ACTION_WAIT_TIME_MS * 2);
+			Thread.sleep(config.getAggregationIntervalInMillis() * 2);
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -155,7 +158,7 @@ public class FileWalkerTestWhenFolderCreated {
 			manager.onLocalFileCreated(file1.toPath());
 			manager.onLocalFileCreated(file2.toPath());
 			manager.onLocalFileCreated(dir2.toPath());
-			Thread.sleep(ActionExecutor.ACTION_WAIT_TIME_MS * 2);
+			Thread.sleep(config.getAggregationIntervalInMillis() * 2);
 			assertTrue(manager.getFileTree().getDeletedByContentHash().size() == 0);
 			assertTrue(manager.getFileComponentQueue().size() == 0);
 
@@ -193,7 +196,7 @@ public class FileWalkerTestWhenFolderCreated {
 				System.out.println(comp.getPath() + " : " + comp.getAction().getFile().getPath() + " : " + comp.getAction().getCurrentState().getClass().toString());
 			}
 
-			Thread.sleep(ActionExecutor.ACTION_WAIT_TIME_MS * 2);
+			Thread.sleep(config.getAggregationIntervalInMillis() * 2);
 
 			System.out.println("After folder move");
 			for(FileComponent comp : manager.getFileTree().getDeletedByContentHash().values()){

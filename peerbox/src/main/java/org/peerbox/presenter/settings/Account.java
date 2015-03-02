@@ -41,6 +41,9 @@ public class Account implements Initializable {
 	private CheckBox chbAutoLogin;
 	
 	@FXML
+	private CheckBox chbTrayNotification;
+	
+	@FXML
 	private TextField txtRootPath;
 	@FXML 
 	private Button btnMoveRootPath;
@@ -71,6 +74,8 @@ public class Account implements Initializable {
 		if(userConfig.hasRootPath()) {
 			txtRootPath.setText(userConfig.getRootPath().toString());
 		}
+		chbTrayNotification.setSelected(userConfig.isTrayNotificationEnabled());
+		
 	}
 	
 	
@@ -80,6 +85,15 @@ public class Account implements Initializable {
 			userConfig.setAutoLogin(false);
 		} catch (IOException e) {
 			logger.warn("Could not store user configuration.");
+		}
+	}
+	
+	public void disableTrayNotificationAction(ActionEvent event) {
+		try {
+			chbTrayNotification.setSelected(!userConfig.isTrayNotificationEnabled());
+			userConfig.setTrayNotification(!userConfig.isTrayNotificationEnabled());
+		} catch (IOException e) {
+			logger.warn("Was not possible to change Tray Notification status.");
 		}
 	}
 	

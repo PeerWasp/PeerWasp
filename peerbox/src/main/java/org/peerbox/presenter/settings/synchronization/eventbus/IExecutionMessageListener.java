@@ -6,6 +6,7 @@ import org.peerbox.app.manager.file.LocalFileDesyncMessage;
 import org.peerbox.app.manager.file.FileExecutionFailedMessage;
 import org.peerbox.app.manager.file.RemoteFileAddedMessage;
 import org.peerbox.app.manager.file.RemoteFileDeletedMessage;
+import org.peerbox.app.manager.file.RemoteFileMovedMessage;
 import org.peerbox.events.IMessageListener;
 import org.peerbox.presenter.settings.synchronization.messages.FileExecutionStartedMessage;
 import org.peerbox.presenter.settings.synchronization.messages.FileExecutionSucceededMessage;
@@ -26,4 +27,7 @@ public interface IExecutionMessageListener extends IMessageListener {
 	
 	@Handler
 	void onFileRemotelyDeleted(RemoteFileDeletedMessage message);
+	
+	@Handler
+	void onFileRemotelyMoved(RemoteFileMovedMessage message);
 }

@@ -10,6 +10,7 @@ import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -17,6 +18,7 @@ import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.Vector;
+import java.util.concurrent.BlockingQueue;
 
 import org.apache.commons.io.FileUtils;
 import org.hive2hive.core.utils.H2HWaiter;
@@ -26,15 +28,29 @@ import org.peerbox.BaseJUnitTest;
 import org.peerbox.client.ClientNode;
 import org.peerbox.client.NetworkStarter;
 import org.peerbox.testutils.FileTestUtils;
+import org.peerbox.watchservice.Action;
+import org.peerbox.watchservice.ActionExecutor;
 import org.peerbox.watchservice.FileEventManager;
+import org.peerbox.watchservice.IAction;
 import org.peerbox.watchservice.filetree.IFileTree;
 import org.peerbox.watchservice.filetree.composite.FileComponent;
+import org.peerbox.watchservice.filetree.composite.FolderComposite;
 import org.peerbox.watchservice.states.ExecutionHandle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.hash.Hashing;
 
+/**
+ * @author Claudio
+ * 
+ * This class provides useful functions for integration tests 
+ * with two peers like adding and deleting files and folders,
+ * updating files, waiting for file existence or removal and
+ * in particular to check if the internal data structures are
+ * in a well-defined state on both client when the test is
+ * supposed to end.
+ */
 public abstract class FileIntegrationTest extends BaseJUnitTest {
 
 	protected static final Logger logger = LoggerFactory.getLogger(FileIntegrationTest.class);
@@ -49,75 +65,66 @@ public abstract class FileIntegrationTest extends BaseJUnitTest {
 	protected static final int WAIT_TIME_LONG = 240;
 	protected static final int WAIT_TIME_STRESSTEST = 600;
 
-
-//	@BeforeClass
-//	public static void beforeClass() throws IOException {
-//		// setup network
-//		network = new NetworkStarter();
-////		network = new DummyNetwork();
-////		FileUtils.cleanDirectory(network.getBasePath().toFile());
-//
-//		// start running
-//		network.start();
-//
-//		// select random path as master path (operations will be executed within this path)
-//		masterRootPath = network.getRootPaths().get(
-//				RandomUtils.nextInt(0, network.getRootPaths().size()));
-//	}
-//
-//	@AfterClass
-//	public static void afterClass() throws IOException {
-//		network.stop();
-////		FileUtils.cleanDirectory(network.getBasePath().toFile());
-//	}
-	protected NetworkStarter getNetwork(){
-		return network;
-	}
-
+	protected TestPeerWaspConfig config = new TestPeerWaspConfig();
 	@Before
 	public void beforeTest() throws IOException {
-		// setup network
+
 		network = new NetworkStarter();
-//		network = new DummyNetwork();
+		
 		FileUtils.cleanDirectory(network.getBasePath().toFile());
 
-		// start running
 		network.start();
 
-		// select random path as master path (operations will be executed within this path)
+		// select client-0/ as master (operations will be executed within this path)
 		masterRootPath = network.getRootPaths().get(0);
-				//RandomUtils.nextInt(0, network.getRootPaths().size()));
 		clientRootPath = network.getRootPaths().get(1);
-
 	}
 
 	@After
 	public void afterTest() throws IOException {
-		logger.debug("Stop!!!");
+		logger.debug("Stop!");
 		network.stop();
 		network = null;
-//		FileUtils.cleanDirectory(network.getBasePath().toFile());
 	}
 
-	protected Path addSingleFolder() throws IOException {
+	protected NetworkStarter getNetwork(){
+		return network;
+	}
+	
+	protected Path addFolder() throws IOException {
 		Path folder = FileTestUtils.createRandomFolder(masterRootPath);
-
 		waitForExists(folder, WAIT_TIME_SHORT);
 		return folder;
 	}
+	
+	protected List<Path> addFolders(int numFolders) throws IOException {
+		List<Path> folders = FileTestUtils.createRandomFolders(masterRootPath, numFolders);
+		waitForExists(folders, WAIT_TIME_LONG);
+		return folders;
+	}
 
-	protected Path addSingleFile() throws IOException {
-		return addSingleFile(NUMBER_OF_CHARS);
+	protected Path addFile() throws IOException {
+		return addFile(NUMBER_OF_CHARS);
 	}
 
 
-	protected Path addSingleFile(int size) throws IOException {
+	protected Path addFile(int size) throws IOException {
+		return addFile(size, true);
+	}
+	
+	protected Path addFile(boolean waitForExists) throws IOException {
+		return addFile(NUMBER_OF_CHARS, waitForExists);
+	}
+	
+	private Path addFile(int size, boolean waitForExists) throws IOException {
 		Path file = FileTestUtils.createRandomFile(masterRootPath, size);
-		waitForExists(file, WAIT_TIME_SHORT);
+		if(waitForExists){
+			waitForExists(file, WAIT_TIME_SHORT);
+		}
 		return file;
 	}
 
-	protected Path addSingleFile(Path dstFolder) throws IOException {
+	protected Path addFileToDestination(Path dstFolder) throws IOException {
 		Path file = FileTestUtils.createRandomFile(dstFolder, NUMBER_OF_CHARS);
 
 		waitForExists(file, WAIT_TIME_SHORT);
@@ -125,18 +132,14 @@ public abstract class FileIntegrationTest extends BaseJUnitTest {
 		return file;
 	}
 
-	protected List<Path> addManyFiles(int nrFiles, int toWait) throws IOException {
+	protected List<Path> addFiles(int nrFiles, int toWait) throws IOException {
 		List<Path> files = FileTestUtils.createRandomFiles(masterRootPath, nrFiles, 100);
 
 		waitForExists(files, toWait);
 		return files;
 	}
 
-//	protected List<Path> addManyFiles() throws IOException {
-//		return addManyFiles(100, WAIT_TIME_LONG);
-//	}
-
-	protected List<Path> addManyFiles(Path dirPath) throws IOException {
+	protected List<Path> addFiles(Path dirPath) throws IOException {
 		List<Path> files = FileTestUtils.createRandomFiles(dirPath, 100, NUMBER_OF_CHARS);
 		waitForExists(files, WAIT_TIME_LONG);
 		assertSyncClientPaths();
@@ -161,10 +164,7 @@ public abstract class FileIntegrationTest extends BaseJUnitTest {
 
 
 	protected List<Path> addManyFilesInFolder(int nrFiles) throws IOException {
-		List<Path> files = addManyFilesInManyFolders(1, nrFiles); //FileTestUtils.createFolderWithFiles(masterRootPath, 10, NUMBER_OF_CHARS);
-
-		waitForExists(files, WAIT_TIME_LONG);
-		return files;
+		return addManyFilesInManyFolders(1, nrFiles); //FileTestUtils.createFolderWithFiles(masterRootPath, 10, NUMBER_OF_CHARS);
 	}
 
 	protected List<Path> addManyFilesInManyFolders(int nrFolders, int nrFilesPerFolder) throws IOException {
@@ -175,12 +175,18 @@ public abstract class FileIntegrationTest extends BaseJUnitTest {
 			files.addAll(f);
 		}
 
-		waitForExists(files, WAIT_TIME_LONG);
+		waitForExists(files, WAIT_TIME_SHORT);
 		return files;
 	}
 
-	protected static void deleteSingleFile(Path filePath) throws IOException{
+	protected static void deleteSingleFile(Path filePath, boolean waitForNotExists) throws IOException {
 		deleteFileOnClient(filePath, 0);
+		if(waitForNotExists){
+			waitForNotExists(filePath, WAIT_TIME_SHORT);
+		}
+	}
+	protected static void deleteSingleFile(Path filePath) throws IOException{
+		deleteSingleFile(filePath, false);
 	}
 
 	protected void deleteManyFiles(List<Path> files) throws IOException {
@@ -193,16 +199,7 @@ public abstract class FileIntegrationTest extends BaseJUnitTest {
 	}
 
 
-	private static void deleteFileOnClient(Path filePath, int i) {
 
-		assertTrue(network.getClients().size() == 2);
-		FileEventManager manager = network.getClientNode(0).getFileEventManager();
-
-		logger.debug("Delete file: {}", filePath);
-		logger.debug("Manager ID: {}", manager.hashCode());
-		manager.onLocalFileHardDelete(filePath);
-		sleepMillis(10);
-	}
 
 	protected void updateSingleFile(Path f, boolean wait) throws IOException {
 		FileTestUtils.writeRandomData(f, 100000);
@@ -240,18 +237,22 @@ public abstract class FileIntegrationTest extends BaseJUnitTest {
 		} while(!pathNotExistsLocally(path));
 	}
 
-	protected void waitIfNotExist(Path path, int seconds){
-		H2HWaiter waiter = new H2HWaiter(seconds);
-		while(!pathExistsOnAllNodes(path)){
-			waiter.tickASecond();
-		}
-	}
-
 	protected void waitForExists(List<Path> paths, int seconds) {
 		H2HWaiter waiter = new H2HWaiter(seconds);
 		do {
 			waiter.tickASecond();
 		} while(!pathExistsOnAllNodes(paths));
+	}
+	
+	private static void deleteFileOnClient(Path filePath, int i) {
+
+		assertTrue(network.getClients().size() == 2);
+		FileEventManager manager = network.getClientNode(0).getFileEventManager();
+
+		logger.debug("Delete file: {}", filePath);
+		logger.debug("Manager ID: {}", manager.hashCode());
+		manager.onLocalFileHardDelete(filePath);
+		sleepMillis(10);
 	}
 
 	private boolean pathExistsOnAllNodes(Path absPath) {
@@ -292,7 +293,7 @@ public abstract class FileIntegrationTest extends BaseJUnitTest {
 		return !path.toFile().exists();
 	}
 
-	protected void waitForNotExists(Path path, int seconds) {
+	protected static void waitForNotExists(Path path, int seconds) {
 		H2HWaiter waiter = new H2HWaiter(seconds);
 		do {
 			waiter.tickASecond();
@@ -304,6 +305,41 @@ public abstract class FileIntegrationTest extends BaseJUnitTest {
 		do {
 			waiter.tickASecond();
 		} while(!pathNotExistsOnAllNodes(paths));
+	}
+	
+	protected static void waitForActionQueueEmpty(BlockingQueue<FileComponent> collection, int seconds){
+		H2HWaiter waiter = new H2HWaiter(seconds);
+		do {
+			waiter.tickASecond();
+			Vector<FileComponent> vec = new Vector<FileComponent>(collection);
+			if(vec.size() != 0){
+				for(int i = 0; i < vec.size(); i++){
+					logger.debug("Pending in queue: {}. {}:{}", i, vec.get(i).getPath(), vec.get(i).getAction().getCurrentState());
+				}
+			}
+		} while(!isQueueEmpty(collection));
+	}
+	
+	protected static void waitForAsyncHandlesEmpty(BlockingQueue<ExecutionHandle> collection, int seconds){
+		H2HWaiter waiter = new H2HWaiter(seconds);
+		do {
+			waiter.tickASecond();
+			Vector<ExecutionHandle> vec = new Vector<ExecutionHandle>(collection);
+			if(vec.size() != 0){
+				for(int i = 0; i < collection.size(); i++){
+					FileComponent file = vec.get(i).getAction().getFile();
+					logger.debug("Pending in exec: {}. {}:{}", i, file.getPath(), file.getAction().getCurrentState());
+				}
+			}
+		} while(!isQueueEmpty(collection));
+	}
+
+	private static boolean isQueueEmpty(BlockingQueue queue) {
+		if(queue.size() == 0){
+			return true;
+		} else {
+			return false;
+		}
 	}
 
 	private static boolean pathNotExistsOnAllNodes(Path absPath) {
@@ -389,32 +425,24 @@ public abstract class FileIntegrationTest extends BaseJUnitTest {
 	 * @throws IOException
 	 */
 	protected void assertSyncClientPaths(boolean compareTwoway) throws IOException {
-		try {
-			Thread.sleep(10000);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+
 		// compute client index as a reference
 		IndexRootPath clientIndex = new IndexRootPath(masterRootPath);
 		Files.walkFileTree(masterRootPath, clientIndex);
 
 		// compare index with other root paths
 		for(Path rp : network.getRootPaths()) {
-			if(rp.equals(masterRootPath)) {
+			if(rp.equals(masterRootPath))
 				continue; // ignore comparison with itself
-			}
 
-			// compute index of other path
 			IndexRootPath indexOther = new IndexRootPath(rp);
 			Files.walkFileTree(rp, indexOther);
-
 			assertSyncPathIndices(clientIndex, indexOther);
-			if(compareTwoway){
+			
+			if(compareTwoway)
 				assertSyncPathIndices(indexOther, clientIndex);
-			}
 		}
-		logger.info("Client paths are SYNC!");
+		logger.info("Client paths are equal!");
 	}
 
 	protected void assertRootContains(int nrFiles) throws IOException {
@@ -429,53 +457,36 @@ public abstract class FileIntegrationTest extends BaseJUnitTest {
 	}
 
 	protected void assertQueuesAreEmpty(){
-		sleepMillis(10000);
-
 		List<ClientNode> clients = network.getClients();
 		for(ClientNode client : clients){
-			Vector<FileComponent> queue = new Vector<FileComponent>(client.getFileEventManager().getFileComponentQueue().getQueue());
-			Vector<ExecutionHandle> execs = new Vector<ExecutionHandle>(client.getActionExecutor().getFailedJobs());
-			if(queue.size() != 0){
-				for(int i = 0; i < queue.size(); i++){
-					logger.debug("Pending in queue: {}. {}:{}", i, queue.get(i).getPath(), queue.get(i).getAction().getCurrentState());
-				}
-			}
-			if(execs.size() != 0){
-				for(int i = 0; i < execs.size(); i++){
-					logger.debug("Pending executions: {}. {}:{}", i, execs.get(i).getAction().getFile().getPath(), execs.get(i).getAction().getCurrentState());
-				}
-			}
-			assertTrue(client.getFileEventManager().getFileComponentQueue().size() == 0);
-			assertTrue(client.getActionExecutor().getFailedJobs().size() == 0);
-
-			IFileTree fileTree = client.getFileEventManager().getFileTree();
-
-			for(Map.Entry<String, FileComponent> entry : fileTree.getCreatedByContentHash().entries()){
-				logger.trace("Created file left: {}", entry.getValue().getPath());
-			}
-			for(Map.Entry<String, FileComponent> entry : fileTree.getDeletedByContentHash().entries()){
-				logger.trace("Deleted file left: {}", entry.getValue().getPath());
-			}
-
-			assertTrue(fileTree.getCreatedByContentHash().size() == 0);
-			assertTrue(fileTree.getCreatedByStructureHash().size() == 0);
-			assertTrue(fileTree.getDeletedByContentHash().size() == 0);
-			assertTrue(fileTree.getDeletedByStructureHash().size() == 0);
+			BlockingQueue<FileComponent> queue = client.getFileEventManager().getFileComponentQueue().getQueue();
+			BlockingQueue<ExecutionHandle> execs = client.getActionExecutor().getFailedJobs();
+			
+			waitForActionQueueEmpty(queue, WAIT_TIME_LONG);
+			waitForAsyncHandlesEmpty(execs, WAIT_TIME_LONG);
+			
+			assertSetMultimapsAreEmpty(client.getFileEventManager().getFileTree());
 		}
-
 	}
 
-//	private boolean areExecutionsPending() {
-//		List<ClientNode> clients = network.getClients();
-//		for(ClientNode client : clients){
-//			Vector<FileComponent> queue = new Vector<FileComponent>(client.getFileEventManager().getFileComponentQueue());
-//			Vector<IAction> execs = client.getFileEventManager().getActionExecutor().getExecutingActions();
-//			if(queue.size() != 0 || execs.size() != 0){
-//				return true;
-//			}
-//		}
-//		return false;
-//	}
+	private static void assertSetMultimapsAreEmpty(IFileTree fileTree) {
+		for(Map.Entry<String, FileComponent> entry : fileTree.getCreatedByContentHash().entries())
+			logger.trace("Created file left: {}", entry.getValue().getPath());
+		
+		for(Map.Entry<String, FileComponent> entry : fileTree.getDeletedByContentHash().entries())
+			logger.trace("Deleted file left: {}", entry.getValue().getPath());
+		
+		for(Map.Entry<String, FolderComposite> entry : fileTree.getCreatedByStructureHash().entries())
+			logger.trace("Created folder left: {}", entry.getValue().getPath());
+		
+		for(Map.Entry<String, FolderComposite> entry : fileTree.getDeletedByStructureHash().entries())
+			logger.trace("Deleted file left: {}", entry.getValue().getPath());
+		
+		assertTrue(fileTree.getCreatedByContentHash().size() == 0);
+		assertTrue(fileTree.getCreatedByStructureHash().size() == 0);
+		assertTrue(fileTree.getDeletedByContentHash().size() == 0);
+		assertTrue(fileTree.getDeletedByStructureHash().size() == 0);
+	}
 
 	/**
 	 * Compares and asserts equality of two indices by looking at the paths and hashes of the content
@@ -484,11 +495,35 @@ public abstract class FileIntegrationTest extends BaseJUnitTest {
 	 * @throws IOException
 	 */
 	private void assertSyncPathIndices(IndexRootPath indexThis, IndexRootPath indexOther) throws IOException {
-		// 1. compare the paths relative to the root path (set difference must be empty)
+		compareContentByPaths(indexThis, indexOther);
+		compareContentByHashes(indexThis, indexOther);
+	}
+
+	private void compareContentByHashes(IndexRootPath indexThis,
+			IndexRootPath indexOther) {
+		
+		for (java.util.Map.Entry<Path, String> e : indexThis.getHashes().entrySet()) {
+			Path relativePath = e.getKey();
+			String thisHash = e.getValue();
+			String otherHash = indexOther.getHashes().get(relativePath);
+			boolean hashesEqual = thisHash.equals(otherHash);
+			
+			if (!hashesEqual) {
+				Path thisPath = indexThis.getRootPath().resolve(relativePath);
+				Path otherPath = indexOther.getRootPath().resolve(relativePath);
+				logger.error("Hashes not equal: {} ({}) <-> {} ({})",
+						thisPath, thisHash, otherPath, otherHash);
+			}
+			
+			assertTrue(hashesEqual);
+		}
+	}
+
+	private void compareContentByPaths(IndexRootPath indexThis,
+			IndexRootPath indexOther) {
 		Set<Path> difference = new HashSet<Path>(indexThis.getHashes().keySet());
 		difference.removeAll(indexOther.getHashes().keySet());
 
-		// log difference
 		for (Path relativePath : difference) {
 			Path thisPath = indexThis.getRootPath().resolve(relativePath);
 			Path otherPath = indexOther.getRootPath().resolve(relativePath);
@@ -496,25 +531,8 @@ public abstract class FileIntegrationTest extends BaseJUnitTest {
 					thisPath, Files.exists(thisPath) ? "exists" : "not exists",
 					otherPath, Files.exists(otherPath) ? "exists" : "not exists");
 		}
-		// difference has to be empty for sync folders
+		
 		assertTrue(difference.isEmpty());
-
-		// 2. compare the hashes of the paths
-		for (java.util.Map.Entry<Path, String> e : indexThis.getHashes().entrySet()) {
-			Path relativePath = e.getKey();
-			String thisHash = e.getValue();
-			String otherHash = indexOther.getHashes().get(relativePath);
-			boolean hashesEqual = thisHash.equals(otherHash);
-			// log difference
-			if (!hashesEqual) {
-				Path thisPath = indexThis.getRootPath().resolve(relativePath);
-				Path otherPath = indexOther.getRootPath().resolve(relativePath);
-				logger.error("Hashes not equal: {} ({}) <-> {} ({})",
-						thisPath, thisHash, otherPath, otherHash);
-			}
-			// hashes need to be equal for sync folders
-			assertTrue(hashesEqual);
-		}
 	}
 
 	/**
@@ -578,13 +596,19 @@ public abstract class FileIntegrationTest extends BaseJUnitTest {
 
 	}
 
+	/**
+	 * This method verifies the following properties on both peers:
+	 * 1.) The root folders are synchronized, i.e. their contents are
+	 * equal.
+	 * 2.) The internal data structures are empty (no pending executing actions,
+	 * no pending failed actions, no move candidates left in the various SetMultimaps)
+	 * 3.) The root folders contain recursively the defined number of files. this
+	 * ensures that no files are missing or unexpectedly existing on both peers.
+	 * 
+	 * @param existingFiles the number of recursively expected files contained in the root folder.
+	 * @throws IOException
+	 */
 	protected void assertCleanedUpState(int existingFiles) throws IOException {
-//		try {
-//			Thread.sleep(10000);
-//		} catch (InterruptedException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
 		assertSyncClientPaths(true);
 		assertQueuesAreEmpty();
 		assertRootContains(existingFiles);

@@ -20,6 +20,7 @@ import org.peerbox.watchservice.ActionExecutor;
 import org.peerbox.watchservice.FileEventManager;
 import org.peerbox.watchservice.FolderWatchService;
 import org.peerbox.watchservice.filetree.FileTree;
+import org.peerbox.watchservice.integration.TestPeerWaspConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -78,7 +79,7 @@ public class ClientNode {
 		fileManager = new FileManager(manager, userConfig, messageBus);
 		fileTree = new FileTree(rootPath, null, true);
 		fileEventManager = new FileEventManager(fileTree, messageBus);
-		actionExecutor = new ActionExecutor(fileEventManager, fileManager);
+		actionExecutor = new ActionExecutor(fileEventManager, fileManager, new TestPeerWaspConfig());
 		watchService = new FolderWatchService();
 		watchService.addFileEventListener(fileEventManager);
 

@@ -29,7 +29,7 @@ public class Update extends FileIntegrationTest {
 	
 	@Test 
 	public void singleFileTest() throws IOException {
-		Path f = addSingleFile();
+		Path f = addFile();
 		assertCleanedUpState(1);
 		
 		updateSingleFile(f, true);
@@ -39,7 +39,7 @@ public class Update extends FileIntegrationTest {
 	@Test
 	public void manyFilesTest() throws IOException {
 		int nrFiles = 100;
-		List<Path> files = addManyFiles(nrFiles, WAIT_TIME_LONG);
+		List<Path> files = addFiles(nrFiles, WAIT_TIME_LONG);
 		assertCleanedUpState(nrFiles);
 		
 		updateManyFiles(files);
