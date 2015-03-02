@@ -12,71 +12,66 @@ import org.peerbox.watchservice.filetree.composite.FolderComposite;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * This utility class can be used to traverse folders. This is done for two purposes:
+ * The first purpose is to compute a hash which represents the structure of the subtree
+ * to detect folder moves without the need of hashing over all of its (possibly huge)
+ * content. The second purpose is to artificially generate local create events. This is
+ * important since new folders have to be registered to the WatchService. Until this is done,
+ * create events can be lost. This has to be circumvented.
+ * @author Claudio
+ *
+ */
 public class FileWalker {
 
 	private static final Logger logger = LoggerFactory.getLogger(FileWalker.class);
 
-	private Path rootDirectory;
+	private Path rootFolder;
 	private FileEventManager eventManager;
 
+	/**
+	 * This object is used to build the subtree structuredefined by the Path 
+	 * {@link rootFolder}.
+	 */
 	private FolderComposite fileTree;
 
 	public FileWalker(Path rootDirectory, FileEventManager eventManager){
-		this.rootDirectory = rootDirectory;
+		this.rootFolder = rootDirectory;
 		this.fileTree = new FolderComposite(rootDirectory, true);
 		this.eventManager = eventManager;
 	}
 
-	public void indexNamesRecursively(){
+	/**
+	 * This method discovers the structure of the subtree defined by
+	 * {@link rootFolder}. The structure is defined as a recursive hash
+	 * over the {@link Path}s of all contained files and folders.
+	 * 
+	 * @return a hash representing the subtree's recursive structure.
+	 */
+	public String computeStructureHashOfFolder(){
 		try {
-			Files.walkFileTree(rootDirectory, new FileIndexer(false));
+			Files.walkFileTree(rootFolder, new FileIndexer(false));
 
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-	}
-
-	public void alignActionMaps(){
-//		indexDirectoryRecursively();
-//
-//		Map<Path, Action> filePathToAction = eventManager.getFilePathToAction();
-//
-//		//Set<Path> filePathToActionKeys = filePathToAction.keySet();
-//		for(Entry<Path, Action> entry : filesystemView.entrySet()){
-//			Path key = entry.getKey();
-//			Action action = filePathToAction.get(key);
-//			if (action != null){
-//				if(!action.getContentHash().equals(entry.getValue().getContentHash())){
-//					eventManager.onFileModified(key);
-//				}
-//			} else {
-//				eventManager.onFileCreated(key, false);
-//			}
-//		}
-//		for(Path p : filePathToAction.keySet()){
-//			if(!filesystemView.containsKey(p)){
-//				eventManager.onFileDeleted(p);
-//			}
-//		}
-	}
-
-	public String getStructureHashOfWalkedFolder(){
 		return fileTree.getStructureHash();
-		/*
-		 * Create new Map<String, FileComponent> in which deleted components are saved with
-		 * their structureHash as key. if found -> move event!
-		 */
-		//if(eventManager.getDeletedFileComponents().)$
-
 	}
 
-	public FolderComposite indexContentRecursively() {
+	/**
+	 * This method discovers the subtree defined by
+	 * {@link rootFolder} and throws local create events, which
+	 * are forwarded to the core using the {@link org.peerbox.
+	 * watchservice.FileEventManager FileEventManager}.
+	 * 
+	 * @return a hash representing the subtree's recursive structure.
+	 */
+	public void generateLocalCreateEvents() {
 		try {
-			Files.walkFileTree(rootDirectory, new FileIndexer(true));
+			Files.walkFileTree(rootFolder, new FileIndexer(true));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		return fileTree;
 	}
 
 	private class FileIndexer extends SimpleFileVisitor<Path> {
@@ -95,10 +90,9 @@ public class FileWalker {
 		public FileVisitResult preVisitDirectory(Path path, BasicFileAttributes attr)
 				throws IOException {
 			if(throwCreates){
-				if(path.toString().equals(rootDirectory.toString())){
+				if(path.toString().equals(rootFolder.toString())){
 					logger.trace("Skipping root directory.");
 				} else {
-					logger.trace("create event for {} ", path);
 					eventManager.onLocalFileCreated(path);
 				}
 			}
@@ -107,7 +101,6 @@ public class FileWalker {
 
 		@Override
 		public FileVisitResult visitFile(Path path, BasicFileAttributes attr) throws IOException {
-			logger.trace("Found file {}", path);
 			if (throwCreates) {
 				eventManager.onLocalFileCreated(path);
 			} else {
@@ -121,8 +114,6 @@ public class FileWalker {
 					newFile.setIsSynchronized(true);
 					fileTree.putComponent(path, newFile);
 				}
-				logger.debug("updated structure hash: of {} from {} to {}",
-						fileTree.getPath(), oldstr, fileTree.getStructureHash());
 			}
 
 			return FileVisitResult.CONTINUE;

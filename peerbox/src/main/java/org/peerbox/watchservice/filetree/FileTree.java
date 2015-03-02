@@ -148,8 +148,7 @@ public class FileTree implements IFileTree {
 	public String discoverSubtreeStructure(Path filePath, FileEventManager manager) {
 		FileWalker walker = new FileWalker(filePath, manager);
 		logger.debug("start discovery of subtree structure at : {}", filePath);
-		walker.indexNamesRecursively();
-		return walker.getStructureHashOfWalkedFolder();
+		return walker.computeStructureHashOfFolder();
 	}
 
 	/**
@@ -160,10 +159,10 @@ public class FileTree implements IFileTree {
 	 * @param filePath represents the root of the subtree
 	 * @return the complete subtree as a FolderComposite
 	 */
-	public FolderComposite discoverSubtreeCompletely(Path filePath, FileEventManager manager) {
+	public void discoverSubtreeCompletely(Path filePath, FileEventManager manager) {
 		FileWalker walker = new FileWalker(filePath, manager);
 		logger.debug("start complete subtree discovery at : {}", filePath);
-		return walker.indexContentRecursively();
+		walker.generateLocalCreateEvents();
 	}
 
 
