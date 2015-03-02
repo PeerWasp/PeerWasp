@@ -20,7 +20,6 @@ import org.peerbox.watchservice.states.EstablishedState;
 import org.peerbox.watchservice.states.ExecutionHandle;
 import org.peerbox.watchservice.states.InitialState;
 import org.peerbox.watchservice.states.LocalMoveState;
-import org.peerbox.watchservice.states.RemoteCreateState;
 import org.peerbox.watchservice.states.RemoteUpdateState;
 import org.peerbox.watchservice.states.StateType;
 import org.slf4j.Logger;
@@ -47,16 +46,43 @@ public class Action implements IAction {
 
 	private final static Logger logger = LoggerFactory.getLogger(Action.class);
 
+	/**
+	 * An instance of {@link org.peerbox.watchservice.filetree.composite.
+	 * FileComponent FileComponent} which is tightly coupled with this 
+	 * Action. This object represents the file in the PeerWasp system for
+	 * which this Action object maintains the state.
+	 */
 	private FileComponent file;
+	
 	private final AtomicLong timestamp;
 
+	/**
+	 * This state defines what operations are performed if the Action is executed
+	 * in the future. Events are applied to this state if the Action is not executed
+	 * when the event occurs.
+	 */
 	private volatile AbstractActionState currentState;
+	
 	private volatile AbstractActionState nextState;
 
+	/** 
+	 * Is true if the Action is currenly executed, i.e. after {@link #execute(IFileManager)} 
+	 * is called and before {@link #onSucceeded()} or {@link #onFailed()} are called.
+	 */
 	private volatile boolean isExecuting = false;
+	
 	private volatile boolean changedWhileExecuted = false;
+	
+	/**
+	 * How many times the PeerWasp tried to perform the current execution.
+	 * If the Action is currently not executed, this is 0.
+	 */
 	private volatile int executionAttempts = 0;
 
+	/**
+	 * This dependency is important as most states need this instance in various places
+	 * to perform a correct event handling.
+	 */
 	private IFileEventManager fileEventManager;
 
 	private final Lock lock = new ReentrantLock();
@@ -459,7 +485,11 @@ public class Action implements IAction {
 
 	/**
 	 * Each state is able to execute an action as soon the state is considered as stable.
-	 * The action itself depends on the current state (e.g. add file, delete file, etc.)
+	 * The action itself depends on the current state (e.g. add file, delete file, etc.).
+	 * If an action does not execute anything (i.e. if the state is {@link org.peerbox.
+	 * watchservice.states.InitialState InitialState} or {@link org.peerbox.
+	 * watchservice.states.EstablishedState EstablishedState}, the returned handle is null.
+	 * As a consequence, the {@link #isExecuting} flag is set to false in this case.
 	 * @return
 	 * @throws NoSessionException
 	 * @throws NoPeerConnectionException
@@ -498,6 +528,14 @@ public class Action implements IAction {
 
 	}
 
+	/**
+	 * This method performs the cleanup routine after an action's execution
+	 * terminated successfully as expected. It performs a state transition from
+	 * the {@link #currentState} to the {@link #nextState}, sets the {@link
+	 * #isExecuting} flag to false, and resets the {@link #changedWhileExecuted} flag
+	 * to false as well. To prevent concurrent manipulations on
+	 * the Action object, the object is locked in the meantime.
+	 */
 	@Override
 	public void onSucceeded() {
 		logger.trace("onSucceeded: File {} - Switch state from {} to {}",
@@ -516,6 +554,12 @@ public class Action implements IAction {
 		}
 	}
 
+	/**
+	 * This method performs the cleanup routine after an action's execution
+	 * terminated but failed. Until know, it only sets the {@link
+	 * #isExecuting} flag to false. To prevent concurrent manipulations on
+	 * the Action object, the object is locked in the meantime.
+	 */
 	@Override
 	public void onFailed() {
 		try {
@@ -540,39 +584,60 @@ public class Action implements IAction {
 				getFile().getPath(), System.currentTimeMillis(), getCurrentState().getStateType());
 	}
 
+
 	/**
-	 * @return current state object
+	 * @return The {@link #currentState}
 	 */
 	@Override
 	public AbstractActionState getCurrentState() {
 		return currentState;
 	}
 
+	/**
+	 * @return The simple name of the state (e.g. "LocalCreateState")
+	 */
 	@Override
 	public String getCurrentStateName() {
 		return currentState != null ? currentState.getClass().getSimpleName() : "null";
 	}
 
+	/**
+	 * @return The {@link #nextState}
+	 */
 	@Override
 	public AbstractActionState getNextState() {
 		return nextState;
 	}
 
+	/**
+	 * @return The simple name of the {@link #nextState} (e.g. "LocalCreateState")
+	 */
 	@Override
 	public String getNextStateName() {
 		return nextState != null ? nextState.getClass().getSimpleName() : "null";
 	}
 
+	/**
+	 * @return True if events happened during the Action's execution which changed the Action
+	 * in a way that implies further network operations. Example: While a local
+	 * create event is executed, the file is already modified locally.
+	 */
 	@Override
 	public boolean getChangedWhileExecuted() {
 		return changedWhileExecuted;
 	}
 
+	/**
+	 * @return How many times the PeerWasp tried to perform the current execution.
+	 */
 	@Override
 	public int getExecutionAttempts() {
 		return executionAttempts;
 	}
 
+	/**
+	 * @return Returns the flag {@link isExecuting}.
+	 */
 	@Override
 	public boolean isExecuting() {
 		return isExecuting;
@@ -582,41 +647,70 @@ public class Action implements IAction {
 		this.isExecuting = isExecuting;
 	}
 
+	/**
+	 * @returns The {@link #timeStamp}.
+	 */
 	@Override
 	public long getTimestamp() {
 		return timestamp.get();
 	}
 
+	/**
+	 * Updates the {@link timestamp} of this Action object to the current time
+	 * in milliseconds.
+	 */
 	@Override
 	public void updateTimestamp() {
 		timestamp.set(System.currentTimeMillis());
 	}
 
+	/**
+	 * @returns The {@link #fileEventManager}.
+	 */
 	@Override
 	public IFileEventManager getFileEventManager() {
 		return fileEventManager;
 	}
 
+	/**
+	 * Sets the {@link #fileEventManager}.
+	 */
 	@Override
 	public void setFileEventManager(final IFileEventManager fileEventManager) {
 		this.fileEventManager = fileEventManager;
 	}
 
+	/**
+	 * @returns The {@link #file}.
+	 */
 	@Override
 	public FileComponent getFile() {
 		return file;
 	}
 
+	/**
+	 * Sets the {@link #file}.
+	 */
 	@Override
 	public void setFile(final FileComponent file) {
 		this.file = file;
 	}
 
+	/**
+	 * Sets the {@link #currentState}. This should never be
+	 * used change the Action's state manually due to file events,
+	 * as the state machine already sets the states accordingly!
+	 */
 	@Override
 	public void setCurrentState(AbstractActionState state) {
 		this.currentState = state;
 	}
 
+	/**
+	 * Prints the Action object using a specified format. Example:
+	 * "Action[currentState(LocalCreateState), nextState(EstablishedState), 
+	 * isExecuting(true), changedWhileExecuted(false), executionAttempts(2)".
+	 */
 	@Override
 	public String toString() {
 		return String.format("Action[currentState(%s), nextState(%s), isExecuting(%s), changedWhileExecuted(%s), executionAttempts(%d),]",
