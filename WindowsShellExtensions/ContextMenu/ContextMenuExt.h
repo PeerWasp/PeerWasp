@@ -19,11 +19,16 @@ public:
     IFACEMETHODIMP_(ULONG) Release();
 
     // IShellExtInit
+	// Initialize the context menu handler. Called when user opens context menu and allows
+	// accessing currently marked files and folders.
     IFACEMETHODIMP Initialize(LPCITEMIDLIST pidlFolder, LPDATAOBJECT pDataObj, HKEY hKeyProgID);
 
     // IContextMenu
+	// Allows adding custom menu to the shell context menu. Called after initialization.
     IFACEMETHODIMP QueryContextMenu(HMENU hMenu, UINT indexMenu, UINT idCmdFirst, UINT idCmdLast, UINT uFlags);
+	// Executing a command. Called when user clicks on menu item.
     IFACEMETHODIMP InvokeCommand(LPCMINVOKECOMMANDINFO pici);
+	// Allows displaying help text. Called when user highlights a menu element (not clicking).
     IFACEMETHODIMP GetCommandString(UINT_PTR idCommand, UINT uFlags, UINT *pwReserved, LPSTR pszName, UINT cchMax);
 	
     ContextMenuExt(void);
@@ -76,31 +81,87 @@ private:
 	bool m_selectionOnlyOne;
 
 
-	// load and set icon for a menu itme given a command
-	HRESULT LoadAndSetBitmapByIcon(MENUITEMINFO *mii, CommandId cmd);
 
-	// returns the help text for a command item
-	// commandId is the key in the m_cmdIdToCommand map
-	std::wstring ContextMenuExt::GetHelpText(UINT commandId);
 
-	// updates the selection flags depending on the current selection of files
-	void UpdateSelectionFlags(std::wstring lastPath);
 
-	// menu building methods
+	/***************
+	** Building menu: called when user opens context menu (e.g. right click).
+	****************/
+	/*
+	* \brief		Creates the top level menu in the context menu
+	*/
 	bool CreateTopMenu();
+
+	/*
+	* \brief		Creates the actual menu with application specific entries (commands).
+	*/
 	bool CreateSubMenu();
+	// create menu entries 
 	bool MenuItemInitTop(UINT pos, UINT cmdId);
 	bool MenuItemInitSeparator(HMENU menuHandle, UINT pos);
 	bool MenuItemInitDelete(UINT pos, UINT cmdId);
 	bool MenuItemInitVersions(UINT pos, UINT cmdId);
 	bool MenuItemInitShare(UINT pos, UINT cmdId);
 
-	// CommandInvocation handlers
+	/*
+	* \brief		Loads an icon (*.ico) file and converts it to a bitmap that
+	*				is displayed in the context menu.
+	* \param[in]	mii		menu item info as given by the API
+	* \param[in]	cmd		the command
+	*/
+	HRESULT LoadAndSetBitmapByIcon(MENUITEMINFO *mii, CommandId cmd);
+
+	/*
+	* \brief		updates the selection flags depending on the current selection of files
+	* \param		currentPath	a path to a file or folder
+	*/
+	void UpdateSelectionFlags(std::wstring currentPath);
+
+	/*
+	* \brief		Get help text for a command item.
+	* \param		commandId	id is the key in the m_cmdIdToCommand map
+	* \return		help text
+	*/
+	std::wstring ContextMenuExt::GetHelpText(UINT commandId);
+
+
+
+	/***************
+	** CommandInvocation handlers: called when user clicks on menu item.
+	****************/
+	/*
+	* \brief		Handling of Delete command.
+	* \return		error code
+	*/
 	int Handle_CmdDelete();
+
+	/*
+	* \brief		Handling of Versions command
+	* \return		error code
+	*/
 	int Handle_CmdVersions();
+
+	/*
+	* \brief		Handling of Share command
+	* \return		error code
+	*/
 	int Handle_CmdShare();
 
-	// message box
+
+	/***************
+	** User feedback: message boxes
+	****************/
+	/*
+	* \brief		Shows a message box indicating that the communication between 
+	*				context menu and the server is not possible. Server probably offline or wrong port.
+	* \param		hwnd owner window handle
+	*/
 	void ShowServerNotRunningMessage(HWND hwnd);
+
+	/*
+	* \brief		Shows a message box indicating that an unexpected error occurred. This is usually the case
+	*				if an exception is thrown somewhere.
+	* \param		hwnd owner window handle
+	*/
 	void ShowUnexpectedErrorMessage(HWND hwnd);
 };

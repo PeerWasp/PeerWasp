@@ -60,7 +60,8 @@ web::http::uri Utils::CreateUri(std::wstring lastPathFragment)
 
 int Utils::GetApiServerPort()
 {
-	if (m_cachedApiServerPort <= 0 || m_cachedApiServerPort > 65535)
+	// if outside valid rankge, lookup port. otherwise return cached.
+	if (m_cachedApiServerPort < 1 || m_cachedApiServerPort > 65535)
 	{
 		// registry lookup
 		HRESULT hr;
@@ -69,6 +70,9 @@ int Utils::GetApiServerPort()
 		if (SUCCEEDED(hr) && value != 0)
 		{
 			m_cachedApiServerPort = value;
+		}
+		else {
+			m_cachedApiServerPort = 0;
 		}
 	}
 	return m_cachedApiServerPort;
