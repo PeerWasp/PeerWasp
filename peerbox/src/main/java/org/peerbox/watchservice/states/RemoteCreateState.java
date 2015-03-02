@@ -79,16 +79,6 @@ public class RemoteCreateState extends AbstractActionState {
 	}
 
 	@Override
-	public AbstractActionState handleRemoteDelete() {
-		Path path = action.getFile().getPath();
-		IFileEventManager manager = action.getFileEventManager();
-		manager.getFileTree().deleteFile(path);
-		manager.getFileComponentQueue().remove(action.getFile());
-		
-		return changeStateOnRemoteDelete();
-	}
-
-	@Override
 	public AbstractActionState handleRemoteMove(Path path) {
 		logger.info("The file which was remotely moved after it has been "
 				+ "remotely created. RemoteCreate at destination"

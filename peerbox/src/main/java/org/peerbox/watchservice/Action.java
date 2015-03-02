@@ -181,7 +181,11 @@ public class Action implements IAction {
 
 				updateTimestamp();
 				if (currentState instanceof LocalMoveState) {
+					logger.trace("A LocalUpdateEvent occured in LocalMoveState for file {}."
+							+ " Even though the Action is not yet executing, we apply the event"
+							+ "to the next state.", getFile().getPath());
 					nextState = nextState.changeStateOnLocalUpdate();
+					checkIfChanged();
 				} else {
 					currentState = currentState.handleLocalUpdate();
 					nextState = currentState.getDefaultState();
