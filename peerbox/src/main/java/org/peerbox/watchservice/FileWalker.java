@@ -104,7 +104,6 @@ public class FileWalker {
 			if (throwCreates) {
 				eventManager.onLocalFileCreated(path);
 			} else {
-				String oldstr = fileTree.getStructureHash();
 				if (Files.isDirectory(path)) {
 					FolderComposite newFolder = new FolderComposite(path, false);
 					newFolder.setIsSynchronized(true);
