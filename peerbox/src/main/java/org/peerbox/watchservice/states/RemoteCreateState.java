@@ -10,6 +10,7 @@ import org.peerbox.app.manager.file.IFileManager;
 import org.peerbox.exceptions.NotImplException;
 import org.peerbox.presenter.settings.synchronization.FileHelper;
 import org.peerbox.watchservice.IAction;
+import org.peerbox.watchservice.IFileEventManager;
 import org.peerbox.watchservice.conflicthandling.ConflictHandler;
 import org.peerbox.watchservice.filetree.IFileTree;
 import org.peerbox.watchservice.filetree.composite.FileComponent;
@@ -79,7 +80,11 @@ public class RemoteCreateState extends AbstractActionState {
 
 	@Override
 	public AbstractActionState handleRemoteDelete() {
-		//TODO: Remove from queue /tree
+		Path path = action.getFile().getPath();
+		IFileEventManager manager = action.getFileEventManager();
+		manager.getFileTree().deleteFile(path);
+		manager.getFileComponentQueue().remove(action.getFile());
+		
 		return changeStateOnRemoteDelete();
 	}
 
