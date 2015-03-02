@@ -104,12 +104,4 @@ public class RemoteCreateState extends AbstractActionState {
 		logStateTransition(getStateType(), EventType.REMOTE_MOVE, StateType.INITIAL);
 		return new InitialState(action);
 	}
-	public boolean localCreateHappened(){
-		return localCreateHappened;
-	}
-
-	public void setLocalCreateHappened(boolean b) {
-		localCreateHappened = b;
-	}
-
 }

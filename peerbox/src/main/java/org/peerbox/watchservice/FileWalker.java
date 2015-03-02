@@ -6,8 +6,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.util.HashMap;
-import java.util.Map;
 
 import org.peerbox.watchservice.filetree.composite.FileLeaf;
 import org.peerbox.watchservice.filetree.composite.FolderComposite;
@@ -20,11 +18,8 @@ public class FileWalker {
 
 	private Path rootDirectory;
 	private FileEventManager eventManager;
-	// TODO(CA) is this map used?
-	private Map<Path, IAction> filesystemView = new HashMap<Path, IAction>();
+
 	private FolderComposite fileTree;
-	// TODO(CA) is this used?
-	private boolean computeContentHash = false;
 
 	public FileWalker(Path rootDirectory, FileEventManager eventManager){
 		this.rootDirectory = rootDirectory;
@@ -34,7 +29,6 @@ public class FileWalker {
 
 	public void indexNamesRecursively(){
 		try {
-			filesystemView = new HashMap<Path, IAction>();
 			Files.walkFileTree(rootDirectory, new FileIndexer(false));
 
 		} catch (IOException e) {
@@ -77,14 +71,11 @@ public class FileWalker {
 	}
 
 	public FolderComposite indexContentRecursively() {
-		computeContentHash = true;
 		try {
-			filesystemView = new HashMap<Path, IAction>();
 			Files.walkFileTree(rootDirectory, new FileIndexer(true));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		computeContentHash = false;
 		return fileTree;
 	}
 
@@ -116,8 +107,6 @@ public class FileWalker {
 
 		@Override
 		public FileVisitResult visitFile(Path path, BasicFileAttributes attr) throws IOException {
-			filesystemView.put(path, new Action(eventManager));
-//			fileTree.putComponent(path, ne)
 			logger.trace("Found file {}", path);
 			if (throwCreates) {
 				eventManager.onLocalFileCreated(path);
