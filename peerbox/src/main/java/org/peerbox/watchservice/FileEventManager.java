@@ -17,7 +17,6 @@ import org.hive2hive.core.events.framework.interfaces.file.IFileUpdateEvent;
 import org.hive2hive.core.events.implementations.FileAddEvent;
 import org.peerbox.app.manager.file.IFileMessage;
 import org.peerbox.app.manager.file.LocalFileDesyncMessage;
-import org.peerbox.app.manager.file.RemoteFileAddedMessage;
 import org.peerbox.app.manager.file.RemoteFileDeletedMessage;
 import org.peerbox.app.manager.file.RemoteFileMovedMessage;
 import org.peerbox.events.MessageBus;
@@ -27,23 +26,61 @@ import org.peerbox.watchservice.filetree.FileTree;
 import org.peerbox.watchservice.filetree.IFileTree;
 import org.peerbox.watchservice.filetree.composite.FileComponent;
 import org.peerbox.watchservice.states.StateType;
-import org.peerbox.watchservice.states.listeners.RemoteFileAddListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
+/**
+ * The FileEventManager forms the glue between the events delivered by the 
+ * {@link org.peerbox.watchservice.FolderWatchService FolderWatchService} and
+ * the PeerWasp core, in which the state for each file is maintained. To fulfill
+ * this purpose, the FileEventManager provides a set of event handlers, which are
+ * used by the {@link org.peerbox.watchservice.FolderWatchService FolderWatchService} 
+ * or other code parts (like the GUI) to forward the events to an {@link org.peerbox.
+ * watchservice.Action Action} object coupled to a file. Depending on the type of
+ * the event, additional measures may be taken into consideration, like applying events
+ * recursively in case the triggering object is a folder.
+ * @author Claudio
+ *
+ */
 @Singleton
 public class FileEventManager implements IFileEventManager, ILocalFileEventListener, IFileEventListener {
 
 	private static final Logger logger = LoggerFactory.getLogger(FileEventManager.class);
 
+	/**
+	 * This queue contains FileComponents on which local or remote events happened that require
+	 * some kind of network operation. The objects can be picked from the queu when no new events 
+	 * occured for a specified time. Check {@link org.peerbox.watchservice.ActionQueue}
+	 */
 	private final ActionQueue fileComponentQueue;
+	
+	/**
+	 * Represents the file system view from the perspective
+	 * of PeerWasp, which is influenced by local and remote file events.
+	 */
 	private final FileTree fileTree;
+	
+	/** Used to publish important events system-wide.*/
 	private final MessageBus messageBus;
+	
+	/**
+	 * If the execution of an {@link org.peerbox.watchservice.Action Action}
+	 * definitely fails (i.e. repeatedly until the maximal number of attempts to
+	 * re-execute is reached), the path is added to this set. As soon as the PeerWasp
+	 * retries to execute it or clean it up, the file is removed again. This set is 
+	 * important to correctly represent failed operations in the {@link org.peerbox.
+	 * presenter.settings.synchronization.Synchronization Synchronzation}.
+	 */
 	private final Set<Path> failedOperations;
 
+	/**
+	 * 
+	 * @param fileTree The file tree representation of PeerWasp
+	 * @param messageBus To publish events system-wide
+	 */
     @Inject
 	public FileEventManager(final FileTree fileTree, MessageBus messageBus) {
     	this.fileComponentQueue = new ActionQueue();
@@ -53,18 +90,21 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 	}
 
     /**
-	 * Handles incoming create events the following way:
-	 * If the created component is a folder, check if it corresponds to a
-	 * previous delete, and trigger an optimized move based on the folder's
-	 * structure. Otherwise, make a complete content discovery.
+	 * Handles incoming create events. First of all, it gets or creates the
+	 * corresponding {@link org.peerbox.watchservice.filetree.composite.FileComponent
+	 * FileComponent} from the {@link #fileTree} and markes it as synchronized.
+	 * 
+	 * If the created component is a folder, check if the operation is part of a
+	 * move operation by checking the folder's
+	 * structure hash. Otherwise, make a complete content discovery.
 	 *
-	 * Furthermore, check if a move based on folder/file content is possible to trigger
-	 * a conventional move operation (this is expected in particular when ordinary files
-	 * are moved and the optimized move operation is not possible), otherwise just handle
-	 * the event as a conventional create
+	 * If it is a file, check if a move based on file content is possible to trigger
+	 * a conventional move operation, otherwise just handle
+	 * the event as a conventional create.
 	 *
 	 * Assumptions:
-	 * - The file exists
+	 * - The file exists, hence this handler is not invoked manually if the file has been
+	 * deleted before.
 	 */
 	@Override
 	public void onLocalFileCreated(final Path path) {
@@ -93,6 +133,12 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 		}
 	}
 
+	/**
+	 * Used to handdle local update events. The event is ignored if at least one of the
+	 * following requirements is met: The object does not exist on disk, the object is 
+	 * a folder, or the objects content hash did not change. Otherwise, the event is forwarded
+	 * to the core.
+	 */
 	@Override
 	public void onLocalFileModified(final Path path) {
 		logger.debug("onLocalFileModified: {}", path);
@@ -120,12 +166,9 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 
 	//TODO: remove children from actionQueue as well!
 	/**
-	 * Handles incoming delete events. The deleted component is added to
-	 * a SetMultiMap<String, FileComponent>, the content hash is used as the key. Using
-	 * this map, future create events can be mapped to previous deletes and indicate
-	 * a move operation. If the deleted component is a folder, the
-	 * folder is additionally added to the deletedByStructureHash map with a hash
-	 * over the names of contained files as a key to allow optimized folder moves.
+	 * Forwards the local delete event to the core. Additionally, it publishes a {@link 
+	 * org.peerbox.app.manager.file.LocalFileDesyncMessage LocalFileDesyncMessage} using
+	 * the {@link #messageBus} to inform GUI components.
 	 */
 	@Override
 	public void onLocalFileDeleted(final Path path) {
@@ -142,6 +185,11 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 
 	}
 
+	/**
+	 * Triggered by the user using the Windows Explorer context menu option "PeerWasp->Delete" or
+	 * the "Delete from network" option in the context menu of the view "Settings->Synchronization".
+	 * Completely deletes a file from the network such that it is not recoverable anymore.
+	 */
 	@Override
 	public void onLocalFileHardDelete(final Path path) {
 		logger.debug("onLocalFileHardDelete: {} - Manager ID {}", path, hashCode());
@@ -150,6 +198,11 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 		file.getAction().handleLocalHardDeleteEvent();
 	}
 
+	/**
+	 * Triggered by the user using the view "Settings->Synchronization". By unchecking checkboxes,
+	 * items can be soft-deleted, which is done by this event handler. This handler deletes the 
+	 * corresponding file or folder recursively.
+	 */
 	@Override
 	public void onFileDesynchronized(final Path path) {
 		logger.debug("onFileDesynchronized: {}", path);
@@ -161,6 +214,10 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 
 	}
 
+	/**
+	 * Triggered by the user using the view "Settings->Synchronization". By checking checkboxes,
+	 * soft-deleted items can be restored by downloading them again.
+	 */
 	@Override
 	public void onFileSynchronized(final Path path, boolean isFolder) {
 		logger.debug("onFileSynchronized: {}", path);
@@ -191,6 +248,12 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 		}
 	}
 
+	/**
+	 * This handler is for remote create events and is called by the network when 
+	 * new files are recognized. The file is only downloaded if it has an ancestor 
+	 * in the {@link #fileTree} that is existing and synchronized. Otherwise, the
+	 * event is ignored.
+	 */
 	@Override
 	@Handler
 	public void onFileAdd(final IFileAddEvent fileEvent){
@@ -219,6 +282,12 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 
 	}
 
+	/**
+	 * This handler is for remote delete events and is called by the network when 
+	 * a file has been definitely deleted. Besides forwarding the event to the core,
+	 * this method publishes a {@link org.peerbox.app.manager.file.RemoteFileDeletedMessage
+	 * RemoteFileDeletedMessage} to notify the GUI.
+	 */
 	@Override
 	@Handler
 	public void onFileDelete(final IFileDeleteEvent fileEvent) {
@@ -233,6 +302,10 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 		messageBus.publish(new RemoteFileDeletedMessage(fileHelper));
 	}
 
+	/**
+	 * This handler is for remote update events and is called by the network when 
+	 * a file has been changed remotely. This method only forwards the event to the core.
+	 */
 	@Override
 	@Handler
 	public void onFileUpdate(final IFileUpdateEvent fileEvent) {
@@ -244,6 +317,12 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 
 	}
 
+	/**
+	 * This handler is for remote move events and is called by the network when 
+	 * a file has been moved remotely. This method forwards the event to the core and
+	 * publishes a {@link org.peerbox.app.manager.file.RemoteFileMovedMessage
+	 * RemoteFileMovedMessage} to inform the GUI.
+	 */
 	@Override
 	@Handler
 	public void onFileMove(final IFileMoveEvent fileEvent) {
@@ -259,26 +338,41 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 		messageBus.publish(new RemoteFileMovedMessage(srcFile, dstFile));
 	}
 
+	/**
+	 * Sharing is not supported in the first version of PeerWasp.
+	 */
 	@Override
 	public void onFileShare(IFileShareEvent fileEvent) {
-		// TODO: share not implemented
 	}
 
+	/**
+	 * @return The {@link #fileComponentQueue}.
+	 */
 	@Override
 	public ActionQueue getFileComponentQueue() {
 		return fileComponentQueue;
 	}
 
+	/**
+	 * @return The {@link #fileTree}.
+	 */
 	@Override
 	public synchronized IFileTree getFileTree() {
 		return fileTree;
 	}
 
+	/**
+	 * @return The {@link #failedOperations} containing the {@link java.nio.file.Path
+	 * Path}s of all failed Actions.
+	 */
 	@Override
     public Set<Path> getFailedOperations(){
     	return failedOperations;
     }
 
+	/**
+	 * @return The {@link #messageBus} used to publish events system-wide.
+	 */
 	public MessageBus getMessageBus() {
 		return messageBus;
 	}

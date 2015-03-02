@@ -7,6 +7,14 @@ import java.util.concurrent.PriorityBlockingQueue;
 
 import org.peerbox.watchservice.filetree.composite.FileComponent;
 
+/**
+ * This class is a wrapper for a {@link java.util.concurrent.BlockingQueue
+ * } storing objects of type {@link org.peerbox.watchservice.filetree.composite.FileComponent
+ * FileComponent}. This class is used to build to queue of pending Actions.
+
+ * @author Andreas
+ *
+ */
 public class ActionQueue {
 
 	private static final int QUEUE_CAPACITY = 100;
