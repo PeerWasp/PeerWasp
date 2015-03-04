@@ -1,5 +1,10 @@
 package org.peerbox.presenter.settings.synchronization;
 
+import groovy.util.Node;
+
+
+
+import java.awt.MenuItem;
 import java.io.IOException;
 
 import org.peerbox.app.manager.file.IFileManager;
@@ -15,12 +20,14 @@ import org.slf4j.LoggerFactory;
 import com.google.inject.Injector;
 import com.google.inject.Provider;
 
+import javafx.scene.shape.Rectangle;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.cell.CheckBoxTreeCell;
 import javafx.event.Event;
 import javafx.event.EventHandler;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.control.MenuItem;
+import javafx.scene.control.Label;
+import javafx.scene.control.Tooltip;
+import javafx.scene.control.CustomMenuItem;
 import javafx.scene.control.CheckBoxTreeItem;
 import javafx.util.Callback;
 
@@ -40,8 +47,10 @@ public class CustomizedTreeCell extends CheckBoxTreeCell<PathItem> {
 	public CustomizedTreeCell(IFileEventManager fileEventManager, 
 			Provider<IShareFolderHandler> shareFolderHandlerProvider){
 		
-		MenuItem deleteItem = new MenuItem("Delete from network");
-		MenuItem shareItem = new MenuItem("Share");
+		CustomMenuItem deleteItem = new CustomMenuItem(new Label("Delete from network"));
+		Label shareLabel = new Label("Share");
+		shareLabel.setTooltip(new Tooltip("haha"));
+		CustomMenuItem shareItem = new CustomMenuItem(shareLabel);
 
 		menu.getItems().add(deleteItem);
 		menu.getItems().add(shareItem);
@@ -53,9 +62,17 @@ public class CustomizedTreeCell extends CheckBoxTreeCell<PathItem> {
 					shareItem.setVisible(false);
 				} else if(!getItem().getPath().toFile().exists()){
 					shareItem.setDisable(true);
+					Label label = (Label)shareItem.getContent();
+					label.setTooltip(new Tooltip("You cannot share this folder as it is not synchronized."));
 				} else {
 					shareItem.setDisable(false);
 					shareItem.setVisible(true);
+					Rectangle rect = new Rectangle();
+					rect.setWidth(200);
+					rect.setHeight(100);
+
+					Label label = (Label)shareItem.getContent();
+					label.setTooltip(new Tooltip("Right-click to share this folder with a friend."));
 				}
 			}
 		});
