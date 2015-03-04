@@ -1,5 +1,11 @@
 package org.peerbox.watchservice.states;
 
+/**
+ * This enum is used to assign types to the various states. This was done to
+ * have a way to distinguish the state without using "instanceof".
+ * @author Claudio
+ *
+ */
 public enum StateType {
 	ABSTRACT("Abstract"),
 	INITIAL("Initial"),

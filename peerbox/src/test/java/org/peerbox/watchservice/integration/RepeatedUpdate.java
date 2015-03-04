@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -21,16 +22,26 @@ public class RepeatedUpdate extends FileIntegrationTest{
     
 	@Test
 	public void manyFilesInManyFoldersTest() throws IOException {
-		System.out.println("---------- START ----------");
 		int nrFolders = 10;
 		int nrFilesPerFolder = 10;
 		int totalFiles = nrFolders + nrFolders * nrFilesPerFolder;
-		List<Path> files = addManyFilesInManyFolders(10, 10);
+		List<Path> files = addManyFilesInManyFolders(nrFolders, nrFilesPerFolder);
 		assertCleanedUpState(totalFiles);
 		
 		updateManyFiles(files);
 		assertCleanedUpState(totalFiles);
-		System.out.println("---------- END ---------");
+	}
+	
+	@Test @Ignore
+	public void singleFileInManyFoldersTest() throws IOException {
+		int nrFolders = 20;
+		int nrFilesPerFolder = 1;
+		int totalFiles = nrFolders + nrFolders * nrFilesPerFolder;
+		List<Path> files = addManyFilesInManyFolders(nrFolders, nrFilesPerFolder);
+		assertCleanedUpState(totalFiles);
+		
+		updateManyFiles(files);
+		assertCleanedUpState(totalFiles);
 	}
 
 	private List<Path> updateManyFiles(List<Path> files) throws IOException {

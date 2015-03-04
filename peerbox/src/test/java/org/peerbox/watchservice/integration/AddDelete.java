@@ -135,7 +135,7 @@ public class AddDelete extends FileIntegrationTest {
 	 */
 	@Test
 	public void manyFilesStressTest() throws IOException {
-		manyFilesTest(2000, WAIT_TIME_STRESSTEST);
+		manyFilesTest(500, WAIT_TIME_STRESSTEST);
 	}
 
 	/**

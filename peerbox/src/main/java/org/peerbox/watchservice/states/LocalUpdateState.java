@@ -20,13 +20,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * the modify state handles all events which would like
- * to alter the state from Modify to another state (or keep the current state) and decides
- * whether an transition into another state is allowed.
+ * Files in the LocalUpdateState have been uploaded and synchronized with
+ * the H2H network, but changed locally in the meantime. The change refers
+ * always to the actual content of a file, and not to meta-data like timestamps, as
+ * H2H only distinguishes between file versions if their content does not equal.
+ * 
+ * Since folders only have one version in H2H, the LocalUpdateState is not reasonable
+ * for folders. If a folder ends up in the LocalUpdateState for some reason and tries
+ * to upload a new version of itself, the network will reject the request.
  *
- *
- * @author winzenried
- *
+ * @author claudio
  */
 public class LocalUpdateState extends AbstractActionState {
 
@@ -106,6 +109,7 @@ public class LocalUpdateState extends AbstractActionState {
 		Path sourcePath = file.getPath();
 
 		fileTree.deleteFile(file.getPath());
+		//TODO set path of file to path
 		fileTree.putFile(path, file);
 		updateTimeAndQueue();
 		return changeStateOnRemoteMove(sourcePath);

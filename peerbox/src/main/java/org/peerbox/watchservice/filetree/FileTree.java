@@ -6,6 +6,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 import org.eclipse.jetty.util.ConcurrentHashSet;
 import org.peerbox.app.ClientContext;
@@ -39,6 +41,8 @@ public class FileTree implements IFileTree {
 
     private final FileDao fileDao;
 
+	private final Lock lock = new ReentrantLock();
+	
 	@Inject
 	public FileTree(Path rootPath, FileDao fileDao) {
 		this(rootPath, fileDao, true);
@@ -65,12 +69,26 @@ public class FileTree implements IFileTree {
 
 	@Override
 	public void putFile(Path dstPath, FileComponent fileToPut) {
+		try {
+			acquireLock("put" + dstPath.toString());
 		rootOfFileTree.putComponent(dstPath, fileToPut);
+		} finally {
+			releaseLock("put" + dstPath.toString());
+		}
+
 	}
 
 	@Override
 	public FileComponent getFile(Path fileToGet) {
-		return rootOfFileTree.getComponent(fileToGet);
+		FileComponent result = null;
+		try{
+			
+			acquireLock("get" + fileToGet.toString());
+			result = rootOfFileTree.getComponent(fileToGet);
+		} finally {
+			releaseLock("get" + fileToGet.toString());
+		}
+		return result;
 	}
 
 	public FileComponent getOrCreateFileComponent(Path path, Boolean isFile, IFileEventManager eventManager) {
@@ -115,7 +133,14 @@ public class FileTree implements IFileTree {
 
 	@Override
 	public FileComponent deleteFile(Path fileToDelete) {
-		return rootOfFileTree.deleteComponent(fileToDelete);
+		FileComponent deleted = null;
+		try {
+			acquireLock("delete" + fileToDelete.toString());
+			deleted = rootOfFileTree.deleteComponent(fileToDelete);
+		} finally {
+			releaseLock("delete" + fileToDelete.toString());
+		}
+		return deleted;
 	}
 
 	@Override
@@ -300,6 +325,17 @@ public class FileTree implements IFileTree {
 			}
 		}
 		return list;
+	}
+	
+	private void acquireLock(String operation) {
+		logger.trace("FileTree {}: Wait for lock at t={}", operation, System.currentTimeMillis());
+		lock.lock();
+		logger.trace("FileTree: {} Received lock at t={}", operation, System.currentTimeMillis());
+	}
+
+	private void releaseLock(String operation) {
+		lock.unlock();
+		logger.trace("FileTree: {} Released lock at t={} ", operation, System.currentTimeMillis());
 	}
 
 }

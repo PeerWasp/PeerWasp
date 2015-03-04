@@ -23,11 +23,9 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.SetMultimap;
 
 /**
- * the Initial state is given when a file is considered as new, synced or unknown.
- * The transition to another state is always valid and will be therefore accepted.
- *
+ * The Initial state is used when a file is considered as new, or known but 
+ * soft-deleted / de-synchronized.
  * @author winzenried
- *
  */
 public class InitialState extends AbstractActionState {
 
@@ -103,6 +101,7 @@ public class InitialState extends AbstractActionState {
 	public AbstractActionState handleRemoteCreate() {
 		FileComponent file = action.getFile();
 		action.getFileEventManager().getFileTree().putFile(file.getPath(), file);
+		logger.trace("put file {} to tree", file.getPath());
 		updateTimeAndQueue();
 		return changeStateOnRemoteCreate();
 	}

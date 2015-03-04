@@ -244,7 +244,8 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 			logger.trace("checkForSynchronizedAncestor: Did not find {}", path);
 			return hasSynchronizedAncestor(path.getParent());
 		} else {
-			logger.trace("checkForSynchronizedAncestor: isSynchronized({})", file.isSynchronized());
+			logger.trace("checkForSynchronizedAncestor: {} isSynchronized({})", path, file.isSynchronized());
+//			return hasSynchronizedAncestor(path.getParent());
 			return file.isSynchronized();
 		}
 	}
@@ -346,9 +347,9 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 	public void onFileShare(IFileShareEvent fileEvent) {
 		// TODO: share not implemented
 		String permissions = "";
-		for (UserPermission p : fileEvent.getUserPermissions()) {
-			permissions += p;
-		}
+//		for (UserPermission p : fileEvent.getUserPermission()) {
+//			permissions += p;
+//		}
 		logger.info("Share: Invited by: {}, Permission: [{}]", fileEvent.getInvitedBy(), permissions, fileEvent.getFile());
 	}
 
