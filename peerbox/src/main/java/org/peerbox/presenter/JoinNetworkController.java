@@ -132,6 +132,7 @@ public class JoinNetworkController implements Initializable {
 		});
 	}
 
+	@FXML
 	public void navigateBackAction(ActionEvent event) {
 		if (nodeManager.isConnected()) {
 			nodeManager.leaveNetwork();
@@ -142,11 +143,13 @@ public class JoinNetworkController implements Initializable {
 		fNavigationService.navigateBack();
 	}
 
+	@FXML
 	public void onBootstrapNodeSelected(ActionEvent event) {
 		String selectedNode = cbBootstrapNodes.getSelectionModel().getSelectedItem();
 		txtBootstrapAddress.setText(selectedNode);
 	}
 
+	@FXML
 	public void joinNetworkAction(ActionEvent event) {
 		clearError();
 		boolean inputValid = !validateAll().isError();

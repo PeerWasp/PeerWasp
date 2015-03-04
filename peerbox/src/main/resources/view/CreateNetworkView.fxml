@@ -12,13 +12,13 @@
 	<children>
 		<VBox spacing="10.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
 			<children>
-				<ErrorLabel fx:id="lblError" iconHeight="20.0" />
+				<ErrorLabel fx:id="lblError" />
 				<Label text="This option will create a bootstrapping peer for a new PeerBox network on this device. The IP shown below can be used by other users to join your network. As soon as you click &quot;create&quot;, the bootstrapping peer will be started." wrapText="true" />
 				<Label text="Your IP Address:" />
 				<TextField fx:id="txtIPAddress" editable="false" />
 				<HBox prefWidth="200.0" spacing="10.0">
 					<children>
-						<Button fx:id="btnBack" cancelButton="true" mnemonicParsing="false" onAction="#navigateBackAction" prefWidth="120.0" text="Back" />
+						<Button cancelButton="true" mnemonicParsing="false" onAction="#navigateBackAction" prefWidth="120.0" text="Back" />
 						<Button fx:id="btnCreate" defaultButton="true" mnemonicParsing="false" onAction="#createNetworkAction" prefWidth="120.0" text="Create" />
 					</children>
 				</HBox>

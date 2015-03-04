@@ -5,7 +5,11 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.layout.AnchorPane?>
 
-<AnchorPane stylesheets="css/settings.css" maxHeight="-Infinity" maxWidth="-Infinity"
+<?import org.controlsfx.glyphfont.*?>
+
+<!-- ICONS: https://fortawesome.github.io/Font-Awesome/icons/ -->
+
+<AnchorPane stylesheets="css/theme.css" maxHeight="-Infinity" maxWidth="-Infinity"
 	minHeight="-Infinity" minWidth="-Infinity" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.peerbox.presenter.settings.Settings">
 	<children>
 		<TabPane  styleClass="settings" tabClosingPolicy="UNAVAILABLE"
@@ -13,21 +17,36 @@
 			AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
 			<tabs>
 				<Tab styleClass="settings-general" text="General">
+					<graphic>
+			        	<Glyph fontFamily="FontAwesome" icon="WRENCH" />
+			    	</graphic>
 					<content>
 						<fx:include fx:id="general" source="General.fxml" />
 					</content>
 				</Tab>
+
 				<Tab styleClass="settings-account" text="Account">
+					<graphic>
+			        	<Glyph fontFamily="FontAwesome" icon="USER"/>
+			    	</graphic>
 					<content>
 						<fx:include fx:id="account" source="Account.fxml" />
 					</content>
 				</Tab>
-				<Tab styleClass="settings-account" text="Network">
+
+				<Tab styleClass="settings-network" text="Network">
+					<graphic>
+			        	<Glyph fontFamily="FontAwesome" icon="GLOBE"/>
+			    	</graphic>
 					<content>
 						<fx:include fx:id="network" source="Network.fxml" />
 					</content>
 				</Tab>
+
 				<Tab styleClass="settings-sync" text="Synchronization">
+					<graphic>
+			        	<Glyph fontFamily="FontAwesome" icon="REFRESH"/>
+			    	</graphic>
 					<content>
 						<fx:include fx:id="synchronization" source="Synchronization.fxml" />
 					</content>

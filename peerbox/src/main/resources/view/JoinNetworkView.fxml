@@ -13,7 +13,7 @@
 		<ProgressIndicator fx:id="piProgress" visible="false" />
 		<VBox fx:id="vboxForm" prefWidth="100.0" spacing="10.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
 			<children>
-				<ErrorLabel fx:id="lblError" iconHeight="20.0" />
+				<ErrorLabel fx:id="lblError" />
             <HBox spacing="10.0">
                <children>
       				<Label text="Select or enter node: " />
@@ -35,8 +35,8 @@
             </GridPane>
 				<HBox spacing="10.0">
 					<children>
-						<Button fx:id="btnBack" cancelButton="true" mnemonicParsing="false" onAction="#navigateBackAction" prefHeight="25.0" prefWidth="120.0" text="Back" />
-						<Button fx:id="btnAccessNetwork" defaultButton="true" mnemonicParsing="false" onAction="#joinNetworkAction" prefHeight="25.0" prefWidth="120.0" text="Join network" />
+						<Button cancelButton="true" mnemonicParsing="false" onAction="#navigateBackAction" prefHeight="25.0" prefWidth="120.0" text="Back" />
+						<Button defaultButton="true" mnemonicParsing="false" onAction="#joinNetworkAction" prefHeight="25.0" prefWidth="120.0" text="Join network" />
 					</children>
 				</HBox>
 			</children>

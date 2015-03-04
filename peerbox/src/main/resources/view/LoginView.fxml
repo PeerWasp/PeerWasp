@@ -28,7 +28,7 @@
 			</rowConstraints>
 			<children>
 
-				<ErrorLabel fx:id="lblError" iconHeight="20.0" GridPane.rowIndex="0" />
+				<ErrorLabel fx:id="lblError" GridPane.rowIndex="0" />
 
 				<HBox spacing="10" GridPane.hgrow="SOMETIMES" GridPane.rowIndex="1">
 					<Label text="Username:" />

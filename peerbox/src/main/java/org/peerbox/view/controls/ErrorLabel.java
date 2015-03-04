@@ -1,42 +1,31 @@
 package org.peerbox.view.controls;
 
-import javafx.beans.property.DoubleProperty;
-import javafx.beans.property.SimpleDoubleProperty;
-import javafx.fxml.FXML;
+import javafx.scene.Node;
 import javafx.scene.control.Label;
-import javafx.scene.image.ImageView;
 
-import org.peerbox.view.IconHelper;
+import org.peerbox.utils.IconUtils;
 
 public class ErrorLabel extends Label {
 
-	@FXML
-	private ImageView icon;
-	private DoubleProperty iconHeightProperty;
-
 	public ErrorLabel() {
-		icon = IconHelper.getErrorIcon();
-		icon.setPreserveRatio(true);
-		icon.setSmooth(true);
-		icon.fitHeightProperty().bind(iconHeightProperty());
-		setGraphic(icon);
-		visibleProperty().bind(textProperty().isNotEmpty());
+		this("");
+	}
+
+	public ErrorLabel(String text) {
+		super(text);
+		initialize();
+	}
+
+	private static Node createErrorIcon() {
+		return IconUtils.createErrorIcon();
+	}
+
+	private void initialize() {
 		setWrapText(true);
-	}
-
-	public DoubleProperty iconHeightProperty() {
-		if (iconHeightProperty == null) {
-			iconHeightProperty = new SimpleDoubleProperty(this, "iconHeight", 0);
-		}
-		return iconHeightProperty;
-	}
-
-	public void setIconHeight(double height) {
-		iconHeightProperty().set(height);
-	}
-
-	public double getIconHeight() {
-		return iconHeightProperty().get();
+		// error icon
+		setGraphic(createErrorIcon());
+		// only visible if text is set
+		visibleProperty().bind(textProperty().isEmpty().not());
 	}
 
 }
