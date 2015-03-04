@@ -43,8 +43,8 @@ import com.google.inject.Singleton;
  * watchservice.Action Action} object coupled to a file. Depending on the type of
  * the event, additional measures may be taken into consideration, like applying events
  * recursively in case the triggering object is a folder.
+ * 
  * @author Claudio
- *
  */
 @Singleton
 public class FileEventManager implements IFileEventManager, ILocalFileEventListener, IFileEventListener {
@@ -258,7 +258,7 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 	 */
 	@Override
 	@Handler
-	public void onFileAdd(final IFileAddEvent fileEvent){
+	public synchronized void onFileAdd(final IFileAddEvent fileEvent){
 		final Path path = fileEvent.getFile().toPath();
 		logger.debug("onFileAdd: {}", path);
 
@@ -267,6 +267,7 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 		file.getAction().setFile(file);
 		file.getAction().setFileEventManager(this);
 
+		logger.trace("file {} has ID {}", path, file.hashCode());
 		if (!hasSynchronizedAncestor(path)) {
 			logger.debug("File {} is in folder that is not synchronized. Event ignored.", path);
 			// TODO: set isSynchronized = false?
