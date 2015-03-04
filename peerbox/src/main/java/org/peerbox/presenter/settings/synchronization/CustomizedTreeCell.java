@@ -1,11 +1,11 @@
 package org.peerbox.presenter.settings.synchronization;
 
-import groovy.util.Node;
 
 
 
 import java.awt.MenuItem;
 import java.io.IOException;
+import java.nio.file.Path;
 
 import org.peerbox.app.manager.file.IFileManager;
 import org.peerbox.app.manager.user.IUserManager;
@@ -23,41 +23,48 @@ import com.google.inject.Provider;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.cell.CheckBoxTreeCell;
+import javafx.event.ActionEvent;
 import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.scene.control.Label;
 import javafx.scene.control.Tooltip;
 import javafx.scene.control.CustomMenuItem;
 import javafx.scene.control.CheckBoxTreeItem;
+import javafx.stage.WindowEvent;
 import javafx.util.Callback;
 
 /**
  * This class is used as a template to produce the context menu of
- * the {@link javafx.scene.control.CheckBoxTreeItem CheckBoxTreeItem}s 
+ * the {@link javafx.scene.control.CheckBoxTreeItem CheckBoxTreeItem}s
  * for the {@link org.peerbox.presenter.settings.synchronization.
- * Synchronization Synchronization} class. 
+ * Synchronization Synchronization} class.
  * @author Claudio
  *
  */
 public class CustomizedTreeCell extends CheckBoxTreeCell<PathItem> {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(CustomizedTreeCell.class);
 	private ContextMenu menu = new ContextMenu();
-	
-	public CustomizedTreeCell(IFileEventManager fileEventManager, 
+	private Provider<IShareFolderHandler> shareFolderHandlerProvider;
+
+	public CustomizedTreeCell(IFileEventManager fileEventManager,
 			Provider<IShareFolderHandler> shareFolderHandlerProvider){
-		
+
+		this.shareFolderHandlerProvider = shareFolderHandlerProvider;
+
 		CustomMenuItem deleteItem = new CustomMenuItem(new Label("Delete from network"));
 		Label shareLabel = new Label("Share");
 		shareLabel.setTooltip(new Tooltip("haha"));
 		CustomMenuItem shareItem = new CustomMenuItem(shareLabel);
 
+		shareItem.setOnAction(new ShareFolderAction());
+
 		menu.getItems().add(deleteItem);
 		menu.getItems().add(shareItem);
-			
-		menu.setOnShowing(new EventHandler() {
+
+		menu.setOnShowing(new EventHandler<WindowEvent>() {
 			@Override
-			public void handle(Event arg0) {
+			public void handle(WindowEvent arg0) {
 				if(getItem().isFile()){
 					shareItem.setVisible(false);
 				} else if(!getItem().getPath().toFile().exists()){
@@ -76,14 +83,24 @@ public class CustomizedTreeCell extends CheckBoxTreeCell<PathItem> {
 				}
 			}
 		});
-	
-		deleteItem.setOnAction(new EventHandler() {
-			public void handle(Event t) {
+
+		deleteItem.setOnAction(new EventHandler<ActionEvent>() {
+			public void handle(ActionEvent t) {
 				fileEventManager.onLocalFileHardDelete(getItem().getPath());
 			}
 		});
-		
+
         setContextMenu(menu);
+	}
+
+
+	private class ShareFolderAction implements EventHandler<ActionEvent> {
+		@Override
+		public void handle(ActionEvent event) {
+			IShareFolderHandler handler = shareFolderHandlerProvider.get();
+			Path toShare = getItem().getPath();
+			handler.shareFolder(toShare);
+		}
 	}
 
 }

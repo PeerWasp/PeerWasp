@@ -21,6 +21,13 @@ import org.slf4j.LoggerFactory;
 
 import com.google.inject.Inject;
 
+/**
+ * This class is responsible for initializing and loading the GUI where the user can specify details
+ * regarding sharing a folder (e.g. permissions, usernam, ...).
+ *
+ * @author albrecht
+ *
+ */
 public class ShareFolderUILoader {
 
 	private static final Logger logger = LoggerFactory.getLogger(ShareFolderUILoader.class);
@@ -35,35 +42,46 @@ public class ShareFolderUILoader {
 		this.controller = controller;
 	}
 
+	/**
+	 * Loads and shows the GUI.
+	 *
+	 * Precondition: folderToShare must be set.
+	 */
 	public void loadUi() {
 		try {
 			FXMLLoader loader = new FXMLLoader();
 			loader.setLocation(getClass().getResource(ViewNames.SHARE_FOLDER_VIEW));
 			// we set the controller manually because GuiceFxmlLoader would use parent injector
 			loader.setController(controller);
-			Parent root = loader.load();
 			controller.setFolderToShare(folderToShare);
+			Parent root = loader.load();
 
-			// load UI on Application thread and show
-			Platform.runLater(() -> {
+			// load UI on Application thread and show window
+			Runnable showStage = new Runnable() {
+				@Override
+				public void run() {
+					Scene scene = new Scene(root);
+					stage = new Stage();
+					stage.setTitle("Share Folder");
+					stage.setScene(scene);
 
-				Scene scene = new Scene(root);
-				stage = new Stage();
-				stage.setTitle("Share Folder");
-				stage.setScene(scene);
+					stage.setOnCloseRequest(new EventHandler<WindowEvent>() {
+						@Override
+						public void handle(WindowEvent event) {
+							stage = null;
+							controller = null;
+						}
+					});
 
-				stage.setOnCloseRequest(new EventHandler<WindowEvent>() {
-					@Override
-					public void handle(WindowEvent event) {
-						controller.cancel();
-						stage = null;
-						controller = null;
-					}
-				});
+					stage.show();
+				}
+			};
 
-				stage.show();
-
-			});
+			if (Platform.isFxApplicationThread()) {
+				showStage.run();
+			} else {
+				Platform.runLater(showStage);
+			}
 
 		} catch (IOException e) {
 			logger.error("Could not load share folder stage: {}", e.getMessage());
@@ -71,6 +89,11 @@ public class ShareFolderUILoader {
 		}
 	}
 
+	/**
+	 * Shows an error dialog to the user informing that sharing the folder failed.
+	 *
+	 * @param res the error result status
+	 */
 	public static void showError(ResultStatus res) {
 		showError(res.getErrorMessage());
 	}
@@ -95,6 +118,11 @@ public class ShareFolderUILoader {
 		}
 	}
 
+	/**
+	 * Set the folder to share. Must be set before loading the GUI.
+	 *
+	 * @param folderToShare path to the folder
+	 */
 	public void setFolderToShare(Path folderToShare) {
 		this.folderToShare = folderToShare;
 	}

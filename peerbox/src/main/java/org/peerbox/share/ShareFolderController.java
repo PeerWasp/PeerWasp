@@ -11,7 +11,10 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.concurrent.Task;
+import javafx.concurrent.WorkerStateEvent;
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Alert;
@@ -29,20 +32,28 @@ import org.hive2hive.core.exceptions.NoSessionException;
 import org.hive2hive.core.model.PermissionType;
 import org.hive2hive.processframework.exceptions.InvalidProcessStateException;
 import org.hive2hive.processframework.exceptions.ProcessExecutionException;
-import org.hive2hive.processframework.interfaces.IProcessComponentListener;
-import org.hive2hive.processframework.interfaces.IProcessEventArgs;
+import org.peerbox.ResultStatus;
 import org.peerbox.app.manager.ProcessHandle;
 import org.peerbox.app.manager.file.IFileManager;
 import org.peerbox.app.manager.user.IUserManager;
-import org.peerbox.presenter.validation.TextFieldValidator;
-import org.peerbox.presenter.validation.ValidationUtils;
+import org.peerbox.presenter.validation.UsernameRegisteredValidator;
 import org.peerbox.presenter.validation.ValidationUtils.ValidationResult;
 import org.peerbox.utils.IconUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.inject.Inject;
 
-
+/**
+ * Controller for the Share Folder View.
+ * Responsible for configuring sharing and starting process.
+ *
+ * @author albrecht
+ *
+ */
 public final class ShareFolderController implements Initializable {
+
+	private final static Logger logger = LoggerFactory.getLogger(ShareFolderController.class);
 
 	@FXML
 	private AnchorPane pane;
@@ -59,6 +70,7 @@ public final class ShareFolderController implements Initializable {
 	@FXML
 	private StatusBar statusBar;
 
+	/* checks whether user exists in the network */
 	private UsernameRegisteredValidator usernameValidator;
 
 	private Path folderToShare;
@@ -67,17 +79,17 @@ public final class ShareFolderController implements Initializable {
 	private final BooleanProperty busyProperty;
 	private final StringProperty statusProperty;
 
-	private IFileManager fileManager;
-	private IUserManager userManager;
+	private final IFileManager fileManager;
+	private final IUserManager userManager;
 
 	@Inject
 	public ShareFolderController(IFileManager fileManager, IUserManager userManager) {
 		this.statusProperty = new SimpleStringProperty();
 		this.busyProperty = new SimpleBooleanProperty(false);
+		this.folderToShareProperty = new SimpleStringProperty();
+
 		this.fileManager = fileManager;
 		this.userManager = userManager;
-
-		this.folderToShareProperty = new SimpleStringProperty();
 	}
 
 	@Override
@@ -90,7 +102,12 @@ public final class ShareFolderController implements Initializable {
 	}
 
 	private void initializeValidations() {
-		usernameValidator = new UsernameRegisteredValidator(txtUsername, lblUsernameError.textProperty(), userManager);
+		usernameValidator = new UsernameRegisteredValidator(
+				txtUsername, lblUsernameError.textProperty(), userManager);
+	}
+
+	private void uninstallValidationDecorations() {
+		usernameValidator.reset();
 	}
 
 	private void initializeStatusBar() {
@@ -111,6 +128,7 @@ public final class ShareFolderController implements Initializable {
 			}
 		});
 
+		// text in status bar
 		statusBar.textProperty().bind(statusProperty);
 	}
 
@@ -118,33 +136,82 @@ public final class ShareFolderController implements Initializable {
 		uninstallValidationDecorations();
 		txtUsername.clear();
 		rbtnReadWrite.setSelected(false);
+		setBusy(false);
+		setStatus("");
 	}
 
-	private void uninstallValidationDecorations() {
-		usernameValidator.reset();
-	}
-
+	@FXML
 	public void shareAction(ActionEvent event) {
+		boolean inputOk = validateAll();
+		if (inputOk) {
+			Task<ResultStatus> task = createShareTask();
+			new Thread(task).start();
+		}
+	}
 
-		if(validateAll()) {
-			try {
-				final String user = txtUsername.getText().trim();
-				final PermissionType permission = getPermissionType();
+	private Task<ResultStatus> createShareTask() {
+		Task<ResultStatus> task = new Task<ResultStatus>() {
+			final String username = getUsername();
+			final PermissionType permission = selectedPermissionType();
+			final Path toShare = getFolderToShare();
 
-				setStatus("Sharing folder...");
-				setBusy(true);
-
-				ProcessHandle<Void> handle = fileManager.share(folderToShare, user, permission);
-				handle.getProcess().attachListener(new ShareProcessListener());
-				handle.executeAsync();
-			} catch (IllegalArgumentException | NoSessionException
-					| NoPeerConnectionException | InvalidProcessStateException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (ProcessExecutionException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+			@Override
+			public ResultStatus call() {
+				return shareFolder(toShare, username, permission);
 			}
+		};
+
+		task.setOnScheduled(new EventHandler<WorkerStateEvent>() {
+			@Override
+			public void handle(WorkerStateEvent event) {
+				setStatus("Sharing folder... Please wait.");
+				setBusy(true);
+			}
+		});
+
+		task.setOnFailed(new EventHandler<WorkerStateEvent>() {
+			@Override
+			public void handle(WorkerStateEvent event) {
+				onShareFailed(ResultStatus.error("Could not share folder."));
+			}
+		});
+
+		task.setOnSucceeded(new EventHandler<WorkerStateEvent>() {
+			@Override
+			public void handle(WorkerStateEvent event) {
+				ResultStatus result = task.getValue();
+				if (result.isOk()) {
+					onShareSucceeded();
+				} else {
+					onShareFailed(result);
+				}
+			}
+		});
+		return task;
+	}
+
+	private ResultStatus shareFolder(Path toShare, String username, PermissionType permission) {
+		ProcessHandle<Void> handle =  null;
+		try {
+
+			handle = fileManager.share(toShare, username, permission);
+			handle.execute();
+			return ResultStatus.ok();
+
+		} catch (NoSessionException e) {
+			logger.warn("Cannot share folder - no session.", e);
+			return ResultStatus.error("The user is not logged in (no session).");
+		} catch (NoPeerConnectionException e) {
+			logger.warn("Cannot share folder - no connection to the network.", e);
+			return ResultStatus.error("There is no connection to the network.");
+		} catch (IllegalArgumentException e) {
+			logger.warn("Cannot share folder - invalid parameters.", e);
+			return ResultStatus.error(String.format(
+					"Invalid parameters provided (%s).", e.getMessage()));
+		} catch (InvalidProcessStateException | ProcessExecutionException e) {
+			logger.warn("Cannot share folder.", e);
+			return ResultStatus.error(String.format(
+					"Sharing folder failed (%s)", e.getMessage()));
 		}
 	}
 
@@ -152,54 +219,81 @@ public final class ShareFolderController implements Initializable {
 		return usernameValidator.validate(true) == ValidationResult.OK;
 	}
 
+	private void onShareSucceeded() {
+		Runnable succeeded = new Runnable() {
+			@Override
+			public void run() {
+				setStatus("Sharing succeeded.");
+				setBusy(false);
+
+				Alert dlg = new Alert(AlertType.INFORMATION);
+				IconUtils.decorateDialogWithIcon(dlg);
+				dlg.setTitle("Folder Sharing");
+				dlg.setHeaderText("Folder sharing finished");
+				dlg.setContentText("The user is granted access to the folder.");
+				dlg.showAndWait();
+				getStage().close();
+			}
+		};
+
+		if (Platform.isFxApplicationThread()) {
+			succeeded.run();
+		} else {
+			Platform.runLater(succeeded);
+		}
+	}
+
+	private void onShareFailed(ResultStatus status) {
+		Runnable failed = new Runnable() {
+			@Override
+			public void run() {
+				setStatus("Sharing failed.");
+				setBusy(false);
+
+				Alert dlg = new Alert(AlertType.ERROR);
+				IconUtils.decorateDialogWithIcon(dlg);
+				dlg.setTitle("Folder Sharing");
+				dlg.setHeaderText("Folder sharing failed.");
+				dlg.setContentText(status.getErrorMessage());
+				dlg.showAndWait();
+			}
+		};
+
+		if (Platform.isFxApplicationThread()) {
+			failed.run();
+		} else {
+			Platform.runLater(failed);
+		}
+	}
+
+	@FXML
 	public void cancelAction(ActionEvent event) {
 		resetForm();
 		getStage().close();
 	}
 
-	public void setFolderToShare(final Path path) {
-		folderToShare = path;
-		folderToShareProperty.set(path.toString());
+	private Stage getStage() {
+		return (Stage)pane.getScene().getWindow();
 	}
 
-	private PermissionType getPermissionType() {
+	private PermissionType selectedPermissionType() {
 		if(rbtnReadWrite.isSelected()) {
 			return PermissionType.WRITE;
 		}
 		return PermissionType.READ;
 	}
 
-	public void onFolderShareSucceeded() {
-		Platform.runLater(() -> {
-			setStatus("");
-			setBusy(false);
-
-			Alert dlg = new Alert(AlertType.INFORMATION);
-			IconUtils.decorateDialogWithIcon(dlg);
-			dlg.setTitle("Folder Sharing");
-			dlg.setHeaderText("Folder sharing finished");
-			dlg.setContentText("The user is granted access to the folder.");
-			dlg.showAndWait();
-			getStage().close();
-		});
+	private String getUsername() {
+		return txtUsername.getText().trim();
 	}
 
-	public void onFolderShareFailed(String hint) {
-		Platform.runLater(() -> {
-			setStatus("");
-			setBusy(false);
-
-			Alert dlg = new Alert(AlertType.ERROR);
-			IconUtils.decorateDialogWithIcon(dlg);
-			dlg.setTitle("Folder Sharing");
-			dlg.setHeaderText("Folder sharing failed.");
-			dlg.setContentText(hint);
-			dlg.showAndWait();
-		});
+	private Path getFolderToShare() {
+		return folderToShare;
 	}
 
-	private Stage getStage() {
-		return (Stage)pane.getScene().getWindow();
+	public void setFolderToShare(final Path path) {
+		folderToShare = path;
+		folderToShareProperty.set(path.toString());
 	}
 
 	public String getStatus() {
@@ -214,115 +308,16 @@ public final class ShareFolderController implements Initializable {
 		return statusProperty;
 	}
 
-	public Boolean getBusy() {
+	public Boolean isBusy() {
 		return busyProperty.get();
 	}
 
-	public void setBusy(Boolean busy) {
-		this.busyProperty.set(busy);
+	public void setBusy(Boolean isBusy) {
+		this.busyProperty.set(isBusy);
 	}
 
 	public BooleanProperty busyProperty() {
 		return busyProperty;
-	}
-
-	private class ShareProcessListener implements IProcessComponentListener {
-
-		@Override
-		public void onExecuting(IProcessEventArgs args) {
-			// TODO Auto-generated method stub
-
-		}
-
-		@Override
-		public void onRollbacking(IProcessEventArgs args) {
-			// TODO Auto-generated method stub
-
-		}
-
-		@Override
-		public void onPaused(IProcessEventArgs args) {
-			// TODO Auto-generated method stub
-
-		}
-
-		@Override
-		public void onExecutionSucceeded(IProcessEventArgs args) {
-			onFolderShareSucceeded();
-		}
-
-		@Override
-		public void onExecutionFailed(IProcessEventArgs args) {
-			onFolderShareFailed("Sharing folder failed.");
-		}
-
-		@Override
-		public void onRollbackSucceeded(IProcessEventArgs args) {
-			// TODO Auto-generated method stub
-
-		}
-
-		@Override
-		public void onRollbackFailed(IProcessEventArgs args) {
-			// TODO Auto-generated method stub
-
-		}
-	}
-
-	public final class UsernameRegisteredValidator extends TextFieldValidator {
-
-		private IUserManager userManager;
-
-		public UsernameRegisteredValidator(TextField txtUsername, StringProperty errorProperty, IUserManager userManager) {
-			super(txtUsername, errorProperty, true);
-			this.userManager = userManager;
-		}
-
-		@Override
-		public ValidationResult validate(final String username) {
-			return validate(username, false);
-		}
-
-		public ValidationResult validate(boolean checkIfRegistered) {
-			return validate(validateTxtField.getText(), checkIfRegistered);
-		}
-
-		public ValidationResult validate(final String username, boolean checkIfRegistered) {
-			try {
-
-				if(username == null) {
-					return ValidationResult.ERROR;
-				}
-
-				final String usernameTr = username.trim();
-				ValidationResult res = ValidationUtils.validateUserExists(usernameTr, checkIfRegistered, userManager);
-
-				if (res.isError()) {
-					setErrorMessage(res.getMessage());
-					decorateError();
-				} else {
-					clearErrorMessage();
-					undecorateError();
-				}
-
-				return res;
-
-			} catch (NoPeerConnectionException e) {
-				setErrorMessage("Network connection failed.");
-			}
-
-			return ValidationResult.ERROR;
-		}
-
-		public void reset() {
-			undecorateError();
-			clearErrorMessage();
-		}
-	}
-
-	public void cancel() {
-		// TODO (AA)
-
 	}
 
 }

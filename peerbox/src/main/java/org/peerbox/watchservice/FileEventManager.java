@@ -43,7 +43,7 @@ import com.google.inject.Singleton;
  * watchservice.Action Action} object coupled to a file. Depending on the type of
  * the event, additional measures may be taken into consideration, like applying events
  * recursively in case the triggering object is a folder.
- * 
+ *
  * @author Claudio
  */
 @Singleton
@@ -345,12 +345,13 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 	 * Sharing is not supported in the first version of PeerWasp.
 	 */
 	@Override
+	@Handler
 	public void onFileShare(IFileShareEvent fileEvent) {
 		// TODO: share not implemented
 		String permissions = "";
-//		for (UserPermission p : fileEvent.getUserPermission()) {
-//			permissions += p;
-//		}
+		for (UserPermission p : fileEvent.getUserPermissions()) {
+			permissions += p;
+		}
 		logger.info("Share: Invited by: {}, Permission: [{}]", fileEvent.getInvitedBy(), permissions, fileEvent.getFile());
 	}
 
