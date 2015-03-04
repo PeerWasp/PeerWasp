@@ -63,7 +63,7 @@ public abstract class FileIntegrationTest extends BaseJUnitTest {
 	protected static final int WAIT_TIME_VERY_SHORT = 5;
 	protected static final int WAIT_TIME_SHORT = 60;
 	protected static final int WAIT_TIME_LONG = 240;
-	protected static final int WAIT_TIME_STRESSTEST = 600;
+	protected static final int WAIT_TIME_STRESSTEST = 60 * 30;
 
 	protected TestPeerWaspConfig config = new TestPeerWaspConfig();
 	@Before
@@ -175,7 +175,7 @@ public abstract class FileIntegrationTest extends BaseJUnitTest {
 			files.addAll(f);
 		}
 
-		waitForExists(files, WAIT_TIME_SHORT);
+		waitForExists(files, WAIT_TIME_LONG);
 		return files;
 	}
 

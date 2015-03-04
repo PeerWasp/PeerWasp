@@ -13,6 +13,7 @@ import org.peerbox.presenter.settings.synchronization.FileHelper;
 import org.peerbox.watchservice.IAction;
 import org.peerbox.watchservice.IFileEventManager;
 import org.peerbox.watchservice.conflicthandling.ConflictHandler;
+import org.peerbox.watchservice.filetree.IFileTree;
 import org.peerbox.watchservice.filetree.composite.FileComponent;
 import org.peerbox.watchservice.states.listeners.LocalFileUpdateListener;
 import org.slf4j.Logger;
@@ -97,22 +98,17 @@ public class LocalUpdateState extends AbstractActionState {
 	//TODO write test-case for this!
 	@Override
 	public AbstractActionState handleRemoteMove(Path path) {
-		//Remove the file from the queue, move it in the tree, put it to the queue, move it on disk.
-		Path srcPath = action.getFile().getPath();
-		action.getFileEventManager().getFileComponentQueue().remove(action.getFile());
-		FileComponent src = action.getFileEventManager().getFileTree().deleteFile(action.getFile().getPath());
-		action.getFileEventManager().getFileTree().putFile(path, src);
-		updateTimeAndQueue();
+		final IFileEventManager eventManager = action.getFileEventManager();
+		final IFileTree fileTree = eventManager.getFileTree();
+		final FileComponent file = action.getFile();
+		
+		eventManager.getFileComponentQueue().remove(file);
+		Path sourcePath = file.getPath();
 
-		if (Files.exists(srcPath)) {
-			try {
-				Files.move(srcPath, path);
-			} catch (IOException e) {
-				logger.warn("Could not move file: from src={} to dst={} ({})",
-						srcPath, path, e.getMessage(), e);
-			}
-		}
-		return changeStateOnRemoteMove(path);
+		fileTree.deleteFile(file.getPath());
+		fileTree.putFile(path, file);
+		updateTimeAndQueue();
+		return changeStateOnRemoteMove(sourcePath);
 	}
 
 

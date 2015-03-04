@@ -21,7 +21,7 @@ public class RepeatedUpdate extends FileIntegrationTest{
     
 	@Test
 	public void manyFilesInManyFoldersTest() throws IOException {
-		System.out.println("---------- START ---------");
+		System.out.println("---------- START ----------");
 		int nrFolders = 10;
 		int nrFilesPerFolder = 10;
 		int totalFiles = nrFolders + nrFolders * nrFilesPerFolder;

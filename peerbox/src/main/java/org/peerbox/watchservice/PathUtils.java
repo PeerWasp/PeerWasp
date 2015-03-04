@@ -6,32 +6,13 @@ import java.util.Base64;
 
 import org.hive2hive.core.security.HashUtil;
 
+/**
+ * This is a utility class to compute file content hashes and
+ * to encode and decode using base64.
+ * @author Claudio
+ *
+ */
 public class PathUtils {
-
-//	public static String getNextPathFragment(String path){
-//
-//		int index = path.indexOf(File.separator);
-//		if(index == -1){
-//			return path;
-//		} else if(index == 0){
-//			return getNextPathFragment(path.substring(1));
-//		}
-//		return path.substring(0, index);
-//	}
-//
-//	public static String getRemainingPathFragment(String path) {
-//		String remainingPath = path;
-//		if(path.startsWith(File.separator)){
-//			remainingPath = path.substring(1);
-//		}
-//		return remainingPath.substring(getNextPathFragment(path).length());
-//	}
-
-//	public static Path getRecoveredFilePath(String file, int version){
-//		String fileWithoutExt = FilenameUtils.removeExtension(file);
-//		String ext = FilenameUtils.getExtension(file);
-//		return Paths.get(fileWithoutExt + "_v" + version + "_recovered." + ext);
-//	}
 
 	/**
 	 * This method computes the hash over a file. If the file
@@ -74,21 +55,4 @@ public class PathUtils {
 		byte[] d = Base64.getDecoder().decode(data);
 		return d;
 	}
-
-//	public static boolean deleteRecursively(File path) {
-//		if (path.exists()) {
-//			if(path.isDirectory()){
-//				File[] files = path.listFiles();
-//				for (int i = 0; i < files.length; i++) {
-//					if (files[i].isDirectory()) {
-//						deleteRecursively(files[i]);
-//					} else {
-//						files[i].delete();
-//					}
-//				}
-//			}
-//			return (path.delete());
-//		}
-//		return false;
-//	}
 }

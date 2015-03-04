@@ -10,6 +10,7 @@ import org.peerbox.app.manager.file.IFileManager;
 import org.peerbox.exceptions.NotImplException;
 import org.peerbox.presenter.settings.synchronization.FileHelper;
 import org.peerbox.watchservice.IAction;
+import org.peerbox.watchservice.IFileEventManager;
 import org.peerbox.watchservice.conflicthandling.ConflictHandler;
 import org.peerbox.watchservice.filetree.IFileTree;
 import org.peerbox.watchservice.filetree.composite.FileComponent;
@@ -75,12 +76,6 @@ public class RemoteCreateState extends AbstractActionState {
 	public AbstractActionState changeStateOnLocalUpdate(){
 		logStateTransition(getStateType(), EventType.LOCAL_UPDATE, StateType.REMOTE_CREATE);
 		return this;
-	}
-
-	@Override
-	public AbstractActionState handleRemoteDelete() {
-		//TODO: Remove from queue /tree
-		return changeStateOnRemoteDelete();
 	}
 
 	@Override
