@@ -5,6 +5,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.concurrent.ConcurrentSkipListMap;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 import org.hive2hive.core.security.HashUtil;
 import org.peerbox.watchservice.PathUtils;
@@ -125,6 +127,17 @@ public class FolderComposite extends AbstractFileComponent {
 			componentAsFolder.propagatePathChangeToChildren();
 		}
 		updateStructureHash();
+		if(component.isSynchronized()){
+			bubbleIsSynchronized(true);
+		}
+	}
+
+	private void bubbleIsSynchronized(boolean b) {
+		setIsSynchronized(true);
+		FolderComposite parent = getParent();
+		if(parent != null){
+			parent.setIsSynchronized(true);
+		}
 	}
 
 	private Path updateParentPathInChild(final FileComponent child) {
