@@ -36,30 +36,36 @@ public class CustomizedTreeCell extends CheckBoxTreeCell<PathItem> {
 	
 	private static final Logger logger = LoggerFactory.getLogger(CustomizedTreeCell.class);
 	private ContextMenu menu = new ContextMenu();
-	private CheckBoxTreeItem<PathItem> item;
 	
 	public CustomizedTreeCell(IFileEventManager fileEventManager, 
 			Provider<IShareFolderHandler> shareFolderHandlerProvider){
 		
 		MenuItem deleteItem = new MenuItem("Delete from network");
 		MenuItem shareItem = new MenuItem("Share");
+
 		menu.getItems().add(deleteItem);
 		menu.getItems().add(shareItem);
-		
+			
+		menu.setOnShowing(new EventHandler() {
+			@Override
+			public void handle(Event arg0) {
+				if(getItem().isFile()){
+					shareItem.setVisible(false);
+				} else if(!getItem().getPath().toFile().exists()){
+					shareItem.setDisable(true);
+				} else {
+					shareItem.setDisable(false);
+					shareItem.setVisible(true);
+				}
+			}
+		});
+	
 		deleteItem.setOnAction(new EventHandler() {
 			public void handle(Event t) {
 				fileEventManager.onLocalFileHardDelete(getItem().getPath());
 			}
 		});
 		
-		shareItem.setOnAction(new EventHandler() {
-			@Override
-			public void handle(Event arg0) {
-
-				IShareFolderHandler handler = shareFolderHandlerProvider.get();
-				handler.shareFolder(getItem().getPath());
-			}
-		});
         setContextMenu(menu);
 	}
 
