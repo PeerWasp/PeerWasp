@@ -11,6 +11,14 @@ import javafx.event.EventHandler;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.CheckBoxTreeItem;
 
+/**
+ * This class is used as a template to produce the context menu of
+ * the {@link javafx.scene.control.CheckBoxTreeItem CheckBoxTreeItem}s 
+ * for the {@link org.peerbox.presenter.settings.synchronization.
+ * Synchronization Synchronization} class. 
+ * @author Claudio
+ *
+ */
 public class CustomizedTreeCell extends CheckBoxTreeCell<PathItem> {
 	
 	private static final Logger logger = LoggerFactory.getLogger(CustomizedTreeCell.class);
