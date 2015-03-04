@@ -9,38 +9,28 @@
 <?import javafx.scene.paint.*?>
 <?import javafx.scene.text.*?>
 
-
-<!-- onMouseDragged="#onMouseDragged" onMousePressed="#onMousePressed" -->
-
-<VBox minHeight="-Infinity" minWidth="-Infinity" prefHeight="550.0" prefWidth="500.0" styleClass="background" stylesheets="css/theme.css" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.peerbox.presenter.MainController">
-  <children>
-  <!--
-      <HBox alignment="CENTER_RIGHT" prefHeight="20.0">
-         <children>
-            <Button layoutX="230.0" layoutY="-1.0" mnemonicParsing="false" onAction="#minApp" styleClass="button-minimize" stylesheets="css/theme.css">
-               <HBox.margin>
-                  <Insets right="-10.0" />
-               </HBox.margin></Button>
-            <Button layoutX="245.0" layoutY="-1.0" mnemonicParsing="false" onAction="#closeApp" styleClass="button-close" stylesheets="css/theme.css" />
-         </children>
-      </HBox>
-  -->
-	<StackPane style="-fx-background-color: rgb(0, 87, 119);">
-		<children>
-			<ImageView pickOnBounds="true" preserveRatio="true"
-				StackPane.alignment="CENTER">
-				<image>
-					<Image url="/images/header.png" />
-				</image>
-			</ImageView>
-		</children>
-	</StackPane>
-    <StackPane fx:id="mainPane" VBox.vgrow="ALWAYS">
-         <VBox.margin>
-            <Insets top="0.0" />
-         </VBox.margin>
-         <padding>
-            <Insets bottom="40.0" left="40.0" right="40.0" top="40.0" />
-         </padding></StackPane>
-  </children>
+<VBox minHeight="-Infinity" minWidth="-Infinity" prefHeight="550.0"
+	prefWidth="500.0" styleClass="background" stylesheets="css/theme.css"
+	xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1"
+	fx:controller="org.peerbox.presenter.MainController">
+	<children>
+		<StackPane style="-fx-background-color: rgb(0, 87, 119);">
+			<children>
+				<ImageView pickOnBounds="true" preserveRatio="true"
+					StackPane.alignment="CENTER">
+					<image>
+						<Image url="/images/header.png" />
+					</image>
+				</ImageView>
+			</children>
+		</StackPane>
+		<StackPane fx:id="mainPane" VBox.vgrow="ALWAYS">
+			<VBox.margin>
+				<Insets top="0.0" />
+			</VBox.margin>
+			<padding>
+				<Insets bottom="40.0" left="40.0" right="40.0" top="40.0" />
+			</padding>
+		</StackPane>
+	</children>
 </VBox>

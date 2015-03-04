@@ -7,7 +7,6 @@ public class ViewNames {
 	public static final String CREATE_NETWORK_VIEW = "/view/CreateNetworkView.fxml";
 	public static final String REGISTER_VIEW = "/view/RegisterView.fxml";
 	public static final String LOGIN_VIEW = "/view/LoginView.fxml";
-	public static final String SELECT_ROOT_PATH_VIEW = "/view/SelectRootPathView.fxml";
 
 	public static final String SETTINGS_MAIN = "/view/settings/Main.fxml";
 

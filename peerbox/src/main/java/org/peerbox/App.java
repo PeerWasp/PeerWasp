@@ -19,6 +19,7 @@ import org.peerbox.notifications.InformationNotification;
 import org.peerbox.presenter.tray.TrayException;
 import org.peerbox.server.IServer;
 import org.peerbox.utils.AppData;
+import org.peerbox.view.FontAwesomeOffline;
 import org.peerbox.view.tray.AbstractSystemTray;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -71,6 +72,8 @@ public class App extends Application
     	loadAppConfig();
 
 		startServer();
+
+		initializeFonts();
 
 		initializeSysTray();
 
@@ -164,6 +167,10 @@ public class App extends Application
 		} else {
 			logger.warn("Could not start server.");
 		}
+	}
+
+	private void initializeFonts() {
+		FontAwesomeOffline.init();
 	}
 
 	private void initializeSysTray() {

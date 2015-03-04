@@ -28,15 +28,15 @@
 			<RowConstraints minHeight="10.0" />
 		</rowConstraints>
          <children>
-            <ErrorLabel fx:id="lblError" iconHeight="20.0" GridPane.columnSpan="2" GridPane.rowIndex="0" />
+            <ErrorLabel fx:id="lblError" GridPane.columnSpan="2" GridPane.rowIndex="0" />
             <HBox spacing="10" GridPane.columnSpan="2" GridPane.hgrow="SOMETIMES" GridPane.rowIndex="1">
             	<children>
-		            <Label text="Username:" /> 
+		            <Label text="Username:" />
 		            <Label fx:id="lblUsernameError" styleClass="validation-error-label" />
 	            </children>
             </HBox>
             <TextField fx:id="txtUsername" promptText="Enter username" GridPane.columnSpan="2" GridPane.rowIndex="2" />
-            
+
             <HBox spacing="10" GridPane.columnSpan="2" GridPane.hgrow="SOMETIMES" GridPane.rowIndex="3">
             	<children>
             		<Label text="Password:" />
@@ -45,7 +45,7 @@
             </HBox>
             <PasswordField fx:id="txtPassword_1" promptText="Enter password" GridPane.rowIndex="4" />
             <PasswordField fx:id="txtPassword_2" promptText="Confirm password" GridPane.columnIndex="1" GridPane.rowIndex="4" />
-            
+
             <HBox spacing="10" GridPane.columnSpan="2" GridPane.hgrow="SOMETIMES" GridPane.rowIndex="5">
             	<children>
             		<Label text="Pin:" />
@@ -54,7 +54,7 @@
             </HBox>
             <PasswordField fx:id="txtPin_1" promptText="Enter PIN" GridPane.rowIndex="6" />
             <PasswordField fx:id="txtPin_2" promptText="Confirm PIN" GridPane.columnIndex="1" GridPane.rowIndex="6" />
-            
+
             <HBox alignment="CENTER_LEFT" spacing="10.0" GridPane.columnSpan="2" GridPane.rowIndex="7">
                <children>
                   <Button fx:id="btnBack" cancelButton="true" mnemonicParsing="false" onAction="#navigateBackAction" prefWidth="100.0" text="Back">

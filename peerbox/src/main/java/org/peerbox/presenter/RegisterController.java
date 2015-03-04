@@ -122,6 +122,7 @@ public class RegisterController implements Initializable {
 	 * Register new user action. Validates user input (on demand) first
 	 * @param event
 	 */
+	@FXML
 	public void registerAction(ActionEvent event) {
 		clearError();
 		if (!validateAll().isError()) {
@@ -149,6 +150,7 @@ public class RegisterController implements Initializable {
 	 * Go back to previous page
 	 * @param event
 	 */
+	@FXML
 	public void navigateBackAction(ActionEvent event) {
 		logger.debug("Navigate back.");
 		fNavigationService.navigateBack();

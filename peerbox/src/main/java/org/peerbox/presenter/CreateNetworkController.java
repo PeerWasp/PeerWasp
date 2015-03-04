@@ -33,8 +33,10 @@ public class CreateNetworkController implements Initializable {
 
 	@FXML
 	private Button btnCreate;
+
 	@FXML
 	private TextField txtIPAddress;
+
 	@FXML
 	private ErrorLabel lblError;
 
@@ -53,6 +55,7 @@ public class CreateNetworkController implements Initializable {
 		}
 	}
 
+	@FXML
 	public void navigateBackAction(ActionEvent event) {
 		boolean goBack = true;
 		clearError();
@@ -84,6 +87,7 @@ public class CreateNetworkController implements Initializable {
 		return yes;
 	}
 
+	@FXML
 	public void createNetworkAction(ActionEvent event) {
 		clearError();
 		if (!nodeManager.isConnected()) {
@@ -96,17 +100,6 @@ public class CreateNetworkController implements Initializable {
 			}
 		}
 		fNavigationService.navigate(ViewNames.REGISTER_VIEW);
-	}
-
-	private void showNetworkCreatedDialog() {
-		Window owner = txtIPAddress.getScene().getWindow();
-		Alert dlg = new Alert(AlertType.INFORMATION);
-		IconUtils.decorateDialogWithIcon(dlg);
-		dlg.initOwner(owner);
-		dlg.setTitle("Network Created");
-		dlg.setHeaderText("New network created");
-		dlg.setContentText(String.format("The bootstrapping peer started on %s.", txtIPAddress.getText()));
-		dlg.showAndWait();
 	}
 
 	private void setError(String error) {
