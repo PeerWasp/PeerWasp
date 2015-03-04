@@ -10,7 +10,7 @@
 
 <!-- Note: we create controller manually. -->
 <!-- fx:controller="org.peerbox.share.ShareFolderController" -->
-<AnchorPane fx:id="pane" stylesheets="css/pb_dark_theme.css" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
+<AnchorPane fx:id="pane" stylesheets="css/theme.css" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
 	<children>
 		<VBox prefHeight="400.0" prefWidth="400.0" spacing="10.0" AnchorPane.leftAnchor="40.0" AnchorPane.rightAnchor="40.0" AnchorPane.topAnchor="40.0">
 			<children>
