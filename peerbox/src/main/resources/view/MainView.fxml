@@ -17,11 +17,11 @@
   <!--
       <HBox alignment="CENTER_RIGHT" prefHeight="20.0">
          <children>
-            <Button layoutX="230.0" layoutY="-1.0" mnemonicParsing="false" onAction="#minApp" styleClass="button-minimize" stylesheets="css/pb_dark_theme.css">
+            <Button layoutX="230.0" layoutY="-1.0" mnemonicParsing="false" onAction="#minApp" styleClass="button-minimize" stylesheets="css/theme.css">
                <HBox.margin>
                   <Insets right="-10.0" />
                </HBox.margin></Button>
-            <Button layoutX="245.0" layoutY="-1.0" mnemonicParsing="false" onAction="#closeApp" styleClass="button-close" stylesheets="css/pb_dark_theme.css" />
+            <Button layoutX="245.0" layoutY="-1.0" mnemonicParsing="false" onAction="#closeApp" styleClass="button-close" stylesheets="css/theme.css" />
          </children>
       </HBox>
   -->

@@ -3,7 +3,8 @@ import socketserver
 import sys
 import json
 
-# Simple HTTP server that prints json requests to the console.
+# Simple HTTP server that prints json POST requests to the console.
+# Note: It does not check messages for validity or check the URLs.
 class HTTPHandler(http.server.BaseHTTPRequestHandler):
 
     def print_info(self):
@@ -53,7 +54,7 @@ if __name__ == "__main__":
 
     httpd = socketserver.TCPServer((HOST, PORT), HTTPHandler)
 
-    print("serving....")
+    print("Start serving...")
     try:
         httpd.serve_forever()
     except KeyboardInterrupt:
