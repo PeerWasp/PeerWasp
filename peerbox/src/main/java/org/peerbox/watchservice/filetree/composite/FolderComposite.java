@@ -154,7 +154,7 @@ public class FolderComposite extends AbstractFileComponent {
 	 * @return The deleted component. If it does not exist, null is returned
 	 */
 	@Override
-	public FileComponent deleteComponent(Path remainingPath) {
+	public synchronized FileComponent deleteComponent(Path remainingPath) {
 		remainingPath = stripOffPrefix(remainingPath, getPath());
 
 		Path nextLevelPath = remainingPath.getName(0);
