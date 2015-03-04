@@ -136,6 +136,7 @@ public final class ShareFolderController implements Initializable {
 
 				ProcessHandle<Void> handle = fileManager.share(folderToShare, user, permission);
 				handle.getProcess().attachListener(new ShareProcessListener());
+				handle.executeAsync();
 			} catch (IllegalArgumentException | NoSessionException
 					| NoPeerConnectionException | InvalidProcessStateException e) {
 				// TODO Auto-generated catch block
