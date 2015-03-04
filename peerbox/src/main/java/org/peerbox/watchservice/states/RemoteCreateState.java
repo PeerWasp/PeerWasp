@@ -7,10 +7,8 @@ import org.hive2hive.core.exceptions.NoSessionException;
 import org.hive2hive.processframework.exceptions.InvalidProcessStateException;
 import org.hive2hive.processframework.exceptions.ProcessExecutionException;
 import org.peerbox.app.manager.file.IFileManager;
-import org.peerbox.exceptions.NotImplException;
 import org.peerbox.presenter.settings.synchronization.FileHelper;
 import org.peerbox.watchservice.IAction;
-import org.peerbox.watchservice.IFileEventManager;
 import org.peerbox.watchservice.conflicthandling.ConflictHandler;
 import org.peerbox.watchservice.filetree.IFileTree;
 import org.peerbox.watchservice.filetree.composite.FileComponent;
@@ -18,6 +16,13 @@ import org.peerbox.watchservice.states.listeners.RemoteFileAddListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Files in the RemoteCreateState have been remotely added. The H2H network 
+ * already delivered a notification to announce the file's existence. If a file
+ * is in the RemoteCreateState, it might be already downloading.
+ * @author Claudio
+ *
+ */
 public class RemoteCreateState extends AbstractActionState {
 
 	private static final Logger logger = LoggerFactory.getLogger(RemoteCreateState.class);
@@ -88,6 +93,7 @@ public class RemoteCreateState extends AbstractActionState {
 		fileTree.deleteFile(action.getFile().getPath());
 		action.getFileEventManager().getFileComponentQueue().remove(action.getFile());
 		FileComponent moveDest = fileTree.getOrCreateFileComponent(path, action.getFileEventManager());
+		//TODO set path of moveDest to path
 		fileTree.putFile(path, moveDest);
 		moveDest.getAction().handleRemoteCreateEvent();
 

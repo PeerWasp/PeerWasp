@@ -20,11 +20,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * the create state handles all events which would like
- * to alter the state from "create" to another state (or keep the current state) and decides
- * whether an transition into another state is allowed.
- *
- *
+ * File in the LocalCreate state have been created locally, but not yet successfully
+ * uploaded to the H2H network.
  * @author winzenried
  *
  */

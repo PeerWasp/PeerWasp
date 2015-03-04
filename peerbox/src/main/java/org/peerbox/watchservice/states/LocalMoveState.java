@@ -19,11 +19,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * if a move or renaming (which actually is a move at the same path location) occurs,
- * this move state will be assigned. The transition to another state except the delete state
- * will not be accepted.
- *
- * @author winzenried
+ * Files in the LocalMove state have been locally moved. The file already exists
+ * at the destination of the move operation, both in the file-system and in the
+ * {@link org.peerbox.watchservice.filetree.FileTree FileTree} representing it.
+ * The source path of the file is known and provided to the H2H network.
+ * @author Claudio
  *
  */
 public class LocalMoveState extends AbstractActionState {
@@ -147,6 +147,7 @@ public class LocalMoveState extends AbstractActionState {
 		IFileTree fileTree = action.getFileEventManager().getFileTree();
 
 		FileComponent moveDest = fileTree.getOrCreateFileComponent(path, action.getFileEventManager());
+		//TODO set path of moveDest to path
 		fileTree.putFile(path, moveDest);
 		moveDest.getAction().handleRemoteCreateEvent();
 		return changeStateOnRemoteMove(path);

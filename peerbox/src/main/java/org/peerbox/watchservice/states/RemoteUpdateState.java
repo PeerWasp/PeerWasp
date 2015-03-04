@@ -17,6 +17,14 @@ import org.peerbox.watchservice.states.listeners.RemoteFileUpdateListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Files in the RemoteUpdateState have been remotely updated. The H2H network 
+ * already delivered a notification to announce the file's update. If a file
+ * is in the RemoteUpdateState, it is existing on the disk, but it might be 
+ * already downloading the newest version.
+ * @author Claudio
+ *
+ */
 public class RemoteUpdateState extends AbstractActionState {
 
 	private boolean localUpdateHappened = false;

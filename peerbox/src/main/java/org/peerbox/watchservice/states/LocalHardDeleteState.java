@@ -18,6 +18,14 @@ import org.peerbox.watchservice.states.listeners.LocalFileDeleteListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Files in the LocalHardDelete state have been locally hard-deleted by
+ * the user. In the PeerWasp context, "hard-deleted" means that a file or
+ * folder has been deleted locally with the goal to completely remove
+ * it from the network, such that it is not recoverable anymore.
+ * @author Claudio
+ *
+ */
 public class LocalHardDeleteState extends AbstractActionState{
 
 	private final static Logger logger = LoggerFactory.getLogger(LocalHardDeleteState.class);
@@ -95,6 +103,7 @@ public class LocalHardDeleteState extends AbstractActionState{
 		updateTimeAndQueue();
 		IFileTree fileTree = action.getFileEventManager().getFileTree();
 		FileComponent moveDest = fileTree.getOrCreateFileComponent(path, action.getFileEventManager());
+		//TODO set Path of moveDest to path
 		fileTree.putFile(path, moveDest);
 		moveDest.getAction().handleRemoteCreateEvent();
 
