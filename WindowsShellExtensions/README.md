@@ -42,11 +42,21 @@ In order to debug the shell extension, register the extension in the registry an
 There is a simple python based HTTP server that can be used during development and for debugging purposes. It prints json requests to standard output. 
 Run (python3 required):
 
-```python.exe .\Utils\httpserver.py localhost 9999 ```
+```python.exe .\Utils\httpserver.py localhost 30000 ```
 
 shutdown the server with: 
 
 ```CTRL+C ```
 
 ### HTTP Client for Development
-The script ```.\Utils\httpclient.py``` contains code snippets to issue HTTP POST requests with JSON messages.
+The script ```.\Utils\httpclient.py``` can be used to issue HTTP POST requests with JSON messages.
+It script sends the requests to localhost on port 30000.
+
+Example usage:
+```
+python httpclient.py delete /file/to/delete1.txt/file/to/delete2.txt 
+python httpclient.py versions /file/to/recover.txt
+python httpclient.py share /folder/to/share
+```
+
+
