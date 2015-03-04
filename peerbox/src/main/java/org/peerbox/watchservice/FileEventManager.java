@@ -15,6 +15,7 @@ import org.hive2hive.core.events.framework.interfaces.file.IFileMoveEvent;
 import org.hive2hive.core.events.framework.interfaces.file.IFileShareEvent;
 import org.hive2hive.core.events.framework.interfaces.file.IFileUpdateEvent;
 import org.hive2hive.core.events.implementations.FileAddEvent;
+import org.hive2hive.core.model.UserPermission;
 import org.peerbox.app.manager.file.IFileMessage;
 import org.peerbox.app.manager.file.LocalFileDesyncMessage;
 import org.peerbox.app.manager.file.RemoteFileAddedMessage;
@@ -198,10 +199,10 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 		logger.debug("onFileAdd: {}", path);
 
 		final FileComponent file = fileTree.getOrCreateFileComponent(path, fileEvent.isFile(), this);
-		
+
 		file.getAction().setFile(file);
 		file.getAction().setFileEventManager(this);
-		
+
 		if (!hasSynchronizedAncestor(path)) {
 			logger.debug("File {} is in folder that is not synchronized. Event ignored.", path);
 			// TODO: set isSynchronized = false?
@@ -229,7 +230,7 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 		file.getAction().handleRemoteDeleteEvent();
 
 		FileHelper fileHelper = new FileHelper(path, file.isFile());
-		
+
 		messageBus.publish(new RemoteFileDeletedMessage(fileHelper));
 	}
 
@@ -262,6 +263,11 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 	@Override
 	public void onFileShare(IFileShareEvent fileEvent) {
 		// TODO: share not implemented
+		String permissions = "";
+		for (UserPermission p : fileEvent.getUserPermissions()) {
+			permissions += p;
+		}
+		logger.info("Share: Invited by: {}, Permission: [{}]", fileEvent.getInvitedBy(), permissions, fileEvent.getFile());
 	}
 
 	@Override
