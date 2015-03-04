@@ -17,6 +17,8 @@ import org.peerbox.events.MessageBus;
 import org.peerbox.filerecovery.FileRecoveryHandler;
 import org.peerbox.filerecovery.IFileRecoveryHandler;
 import org.peerbox.interfaces.IFxmlLoaderProvider;
+import org.peerbox.share.IShareFolderHandler;
+import org.peerbox.share.ShareFolderHandler;
 import org.peerbox.view.tray.AbstractSystemTray;
 import org.peerbox.view.tray.JSystemTray;
 
@@ -50,7 +52,7 @@ public class AppModule extends AbstractModule {
 		bindManagers();
 
 		bindConfigs();
-		
+
 		bindContextMenuHandlers();
 
 		bind(IFxmlLoaderProvider.class).to(GuiceFxmlLoader.class);
@@ -96,9 +98,9 @@ public class AppModule extends AbstractModule {
 	private void bindContextMenuHandlers() {
 		bind(IFileDeleteHandler.class).to(FileDeleteHandler.class);
 		bind(IFileRecoveryHandler.class).to(FileRecoveryHandler.class);
-//		bind(IShareFolderHandler.class).to(ShareFolderHandler.class);
+		bind(IShareFolderHandler.class).to(ShareFolderHandler.class);
 	}
-	
+
 
 	private void bindConfigs() {
 		bind(IPeerWaspConfig.class).to(PeerWaspConfig.class);

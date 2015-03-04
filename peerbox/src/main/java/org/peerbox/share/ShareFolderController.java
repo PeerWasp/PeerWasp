@@ -320,4 +320,9 @@ public final class ShareFolderController implements Initializable {
 		}
 	}
 
+	public void cancel() {
+		// TODO (AA)
+
+	}
+
 }
