@@ -243,7 +243,8 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 			logger.trace("checkForSynchronizedAncestor: Did not find {}", path);
 			return hasSynchronizedAncestor(path.getParent());
 		} else {
-			logger.trace("checkForSynchronizedAncestor: isSynchronized({})", file.isSynchronized());
+			logger.trace("checkForSynchronizedAncestor: {} isSynchronized({})", path, file.isSynchronized());
+//			return hasSynchronizedAncestor(path.getParent());
 			return file.isSynchronized();
 		}
 	}
