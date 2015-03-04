@@ -41,7 +41,7 @@ public class FileTree implements IFileTree {
 
     private final FileDao fileDao;
 
-	private final Lock lock = new ReentrantLock();
+//	private final Lock lock = new ReentrantLock();
 	
 	@Inject
 	public FileTree(Path rootPath, FileDao fileDao) {
@@ -69,25 +69,25 @@ public class FileTree implements IFileTree {
 
 	@Override
 	public void putFile(Path dstPath, FileComponent fileToPut) {
-		try {
-			acquireLock("put" + dstPath.toString());
+//		try {
+//			acquireLock("put" + dstPath.toString() + " " + fileToPut.hashCode());
 		rootOfFileTree.putComponent(dstPath, fileToPut);
-		} finally {
-			releaseLock("put" + dstPath.toString());
-		}
+//		} finally {
+//			releaseLock("put" + dstPath.toString() + " " + fileToPut.hashCode());
+//		}
 
 	}
 
 	@Override
 	public FileComponent getFile(Path fileToGet) {
 		FileComponent result = null;
-		try{
-			
-			acquireLock("get" + fileToGet.toString());
+//		try{
+//			
+//			acquireLock("get" + fileToGet.toString() + " " + fileToGet.hashCode());
 			result = rootOfFileTree.getComponent(fileToGet);
-		} finally {
-			releaseLock("get" + fileToGet.toString());
-		}
+//		} finally {
+//			releaseLock("get" + fileToGet.toString() + " " + fileToGet.hashCode());
+//		}
 		return result;
 	}
 
@@ -134,12 +134,12 @@ public class FileTree implements IFileTree {
 	@Override
 	public FileComponent deleteFile(Path fileToDelete) {
 		FileComponent deleted = null;
-		try {
-			acquireLock("delete" + fileToDelete.toString());
+//		try {
+//			acquireLock("delete" + fileToDelete.toString() + " " + fileToDelete.hashCode());
 			deleted = rootOfFileTree.deleteComponent(fileToDelete);
-		} finally {
-			releaseLock("delete" + fileToDelete.toString());
-		}
+//		} finally {
+//			releaseLock("delete" + fileToDelete.toString() + " " + fileToDelete.hashCode());
+//		}
 		return deleted;
 	}
 
@@ -327,15 +327,15 @@ public class FileTree implements IFileTree {
 		return list;
 	}
 	
-	private void acquireLock(String operation) {
-		logger.trace("FileTree {}: Wait for lock at t={}", operation, System.currentTimeMillis());
-		lock.lock();
-		logger.trace("FileTree: {} Received lock at t={}", operation, System.currentTimeMillis());
-	}
-
-	private void releaseLock(String operation) {
-		lock.unlock();
-		logger.trace("FileTree: {} Released lock at t={} ", operation, System.currentTimeMillis());
-	}
+//	private void acquireLock(String operation) {
+//		logger.trace("FileTree {}: Wait for lock at t={}", operation, System.currentTimeMillis());
+//		lock.lock();
+//		logger.trace("FileTree: {} Received lock at t={}", operation, System.currentTimeMillis());
+//	}
+//
+//	private void releaseLock(String operation) {
+//		lock.unlock();
+//		logger.trace("FileTree: {} Released lock at t={} ", operation, System.currentTimeMillis());
+//	}
 
 }
