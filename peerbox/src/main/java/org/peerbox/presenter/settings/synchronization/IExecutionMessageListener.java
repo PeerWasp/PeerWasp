@@ -1,10 +1,9 @@
-package org.peerbox.presenter.settings.synchronization.eventbus;
+package org.peerbox.presenter.settings.synchronization;
 
 import net.engio.mbassy.listener.Handler;
 
 import org.peerbox.app.manager.file.LocalFileDesyncMessage;
 import org.peerbox.app.manager.file.FileExecutionFailedMessage;
-import org.peerbox.app.manager.file.RemoteFileAddedMessage;
 import org.peerbox.app.manager.file.RemoteFileDeletedMessage;
 import org.peerbox.app.manager.file.RemoteFileMovedMessage;
 import org.peerbox.events.IMessageListener;
