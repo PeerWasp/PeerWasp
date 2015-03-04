@@ -1,15 +1,28 @@
 package org.peerbox.presenter.settings.synchronization;
 
+import java.io.IOException;
+
+import org.peerbox.app.manager.file.IFileManager;
+import org.peerbox.app.manager.user.IUserManager;
+import org.peerbox.interfaces.IFxmlLoaderProvider;
+import org.peerbox.share.IShareFolderHandler;
+import org.peerbox.share.ShareFolderController;
+import org.peerbox.share.ShareFolderHandler;
 import org.peerbox.watchservice.IFileEventManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.inject.Injector;
+import com.google.inject.Provider;
 
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.cell.CheckBoxTreeCell;
 import javafx.event.Event;
 import javafx.event.EventHandler;
+import javafx.fxml.FXMLLoader;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.CheckBoxTreeItem;
+import javafx.util.Callback;
 
 /**
  * This class is used as a template to produce the context menu of
@@ -25,13 +38,26 @@ public class CustomizedTreeCell extends CheckBoxTreeCell<PathItem> {
 	private ContextMenu menu = new ContextMenu();
 	private CheckBoxTreeItem<PathItem> item;
 	
-	public CustomizedTreeCell(IFileEventManager fileEventManager){
+	public CustomizedTreeCell(IFileEventManager fileEventManager, 
+			Provider<IShareFolderHandler> shareFolderHandlerProvider){
 		
 		MenuItem deleteItem = new MenuItem("Delete from network");
+		MenuItem shareItem = new MenuItem("Share");
 		menu.getItems().add(deleteItem);
+		menu.getItems().add(shareItem);
+		
 		deleteItem.setOnAction(new EventHandler() {
 			public void handle(Event t) {
 				fileEventManager.onLocalFileHardDelete(getItem().getPath());
+			}
+		});
+		
+		shareItem.setOnAction(new EventHandler() {
+			@Override
+			public void handle(Event arg0) {
+
+				IShareFolderHandler handler = shareFolderHandlerProvider.get();
+				handler.shareFolder(getItem().getPath());
 			}
 		});
         setContextMenu(menu);

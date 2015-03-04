@@ -39,8 +39,11 @@ import org.peerbox.app.manager.file.FileExecutionFailedMessage;
 import org.peerbox.app.manager.file.IFileManager;
 import org.peerbox.app.manager.file.RemoteFileDeletedMessage;
 import org.peerbox.app.manager.file.RemoteFileMovedMessage;
+import org.peerbox.app.manager.user.IUserManager;
+import org.peerbox.filerecovery.IFileRecoveryHandler;
 import org.peerbox.presenter.settings.synchronization.messages.FileExecutionStartedMessage;
 import org.peerbox.presenter.settings.synchronization.messages.FileExecutionSucceededMessage;
+import org.peerbox.share.IShareFolderHandler;
 import org.peerbox.watchservice.FileEventManager;
 import org.peerbox.watchservice.IFileEventManager;
 import org.peerbox.watchservice.states.StateType;
@@ -48,6 +51,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.inject.Inject;
+import com.google.inject.Provider;
 
 /**
  * This is the presenter class controlling the view "Settings > Synchronization".
@@ -67,6 +71,7 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 
 	private IFileEventManager eventManager;
 	private IFileManager fileManager;
+	private IUserManager userManager;
 	
 	/**
 	 * These variables are used to build sets containing the paths of files
@@ -86,12 +91,16 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 	private Set<Path> synchronizedFiles;
 	private Set<Path> failedFiles = new HashSet<Path>();
 	private Set<Path> executingFiles = new HashSet<Path>();
+	
+	private final Provider<IShareFolderHandler> shareFolderHandlerProvider;
 
 	@Inject
-	public Synchronization(IFileManager fileManager, FileEventManager eventManager, UserConfig userConfig) {
+	public Synchronization(IFileManager fileManager, FileEventManager eventManager, 
+			UserConfig userConfig, Provider<IShareFolderHandler> shareFolderHandlerProvider) {
 		this.eventManager = eventManager;
 		this.fileManager = fileManager;
 		this.userConfig = userConfig;
+		this.shareFolderHandlerProvider = shareFolderHandlerProvider;
 	}
 
 	private Set<FileHelper> getToSynchronize(){
@@ -573,8 +582,17 @@ public class Synchronization implements Initializable, IExecutionMessageListener
         fileTreeView.setCellFactory(new Callback<TreeView<PathItem>, TreeCell<PathItem>>(){
             @Override
             public TreeCell<PathItem> call(TreeView<PathItem> p) {
-                return new CustomizedTreeCell(getFileEventManager());
+                return new CustomizedTreeCell(getFileEventManager(),
+                		shareFolderHandlerProvider);
             }
+
+			private IUserManager getUserManager() {
+				return userManager;
+			}
+
+			private IFileManager getFileManager() {
+				return fileManager;
+			}
         });
         
         fileTreeView.setShowRoot(false);

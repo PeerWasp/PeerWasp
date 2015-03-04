@@ -347,9 +347,9 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 	public void onFileShare(IFileShareEvent fileEvent) {
 		// TODO: share not implemented
 		String permissions = "";
-		for (UserPermission p : fileEvent.getUserPermissions()) {
-			permissions += p;
-		}
+//		for (UserPermission p : fileEvent.getUserPermission()) {
+//			permissions += p;
+//		}
 		logger.info("Share: Invited by: {}, Permission: [{}]", fileEvent.getInvitedBy(), permissions, fileEvent.getFile());
 	}
 
