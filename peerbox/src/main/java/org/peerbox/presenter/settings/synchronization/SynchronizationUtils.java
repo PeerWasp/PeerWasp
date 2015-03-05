@@ -17,6 +17,8 @@ public class SynchronizationUtils {
 	private static final String inProgressTooltip = "Synchronization of this file is currently ongoing.";
 	private static final String softDeletedTooltip = "This file is currently not synchronized.\n"
 			+ "Check the box to download it.";
+	private static final String sharedFolderTooltip = "This folder is shared with other users. Go to \""
+			+ "Properties in the context menu for additional information.";
 	
 	public static String getSuccessTooltip(){
 		return successTooltip;
@@ -32,6 +34,10 @@ public class SynchronizationUtils {
 	
 	public static String getSoftDeletedTooltip(){
 		return softDeletedTooltip;
+	}
+	
+	public static String getSharedFolderTooltip(){
+		return sharedFolderTooltip;
 	}
 	public static ImageView getFolderSuccessIcon(){
 		return new ImageView(new Image(SynchronizationUtils.class.getResourceAsStream("/images/folder-success.png")));
@@ -63,5 +69,9 @@ public class SynchronizationUtils {
 	
 	public static ImageView getFileStandardIcon(){
 		return new ImageView(new Image(SynchronizationUtils.class.getResourceAsStream("/images/file-standard.png")));
+	}
+	
+	public static ImageView getSharedFolderIcon(){
+		return new ImageView(new Image(SynchronizationUtils.class.getResourceAsStream("/images/folder-shared.png")));
 	}
 }
