@@ -16,15 +16,6 @@
 			AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
 			AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
 			<tabs>
-				<Tab styleClass="settings-general" text="General">
-					<graphic>
-			        	<Glyph fontFamily="FontAwesome" icon="WRENCH" />
-			    	</graphic>
-					<content>
-						<fx:include fx:id="general" source="General.fxml" />
-					</content>
-				</Tab>
-
 				<Tab styleClass="settings-account" text="Account">
 					<graphic>
 			        	<Glyph fontFamily="FontAwesome" icon="USER"/>
@@ -49,6 +40,14 @@
 			    	</graphic>
 					<content>
 						<fx:include fx:id="synchronization" source="Synchronization.fxml" />
+					</content>
+				</Tab>
+				<Tab styleClass="settings-aboutpeerwasp" text="About PeerWasp">
+					<graphic>
+			        	<Glyph fontFamily="FontAwesome" icon="INFO" />
+			    	</graphic>
+					<content>
+						<fx:include fx:id="general" source="AboutPeerWasp.fxml" />
 					</content>
 				</Tab>
 			</tabs>

@@ -7,36 +7,49 @@
 <?import javafx.scene.paint.*?>
 <?import javafx.scene.text.*?>
 <?import org.peerbox.view.controls.* ?>
+<?import javafx.scene.control.Label?>
 
-<AnchorPane prefHeight="100.0" prefWidth="250.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.peerbox.presenter.JoinNetworkController">
+<AnchorPane prefHeight="100.0" prefWidth="250.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1"
+	fx:controller="org.peerbox.presenter.JoinNetworkController">
 	<children>
 		<ProgressIndicator fx:id="piProgress" visible="false" />
-		<VBox fx:id="vboxForm" prefWidth="100.0" spacing="10.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+		<VBox fx:id="vboxForm" prefWidth="100.0" spacing="10.0"
+			AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
 			<children>
+				<Label text="Join Network" styleClass="form-title" />
+				<Label wrapText="true">
+					Connect to an existing network by entering a known address or hostname of another node.
+					This means that your machine joins the network and starts participating in the P2P network.
+					As a consequence, you contribute resources such as bandwidth and storage.
+				</Label>
+
 				<ErrorLabel fx:id="lblError" />
-            <HBox spacing="10.0">
-               <children>
-      				<Label text="Select or enter node: " />
-                  <Label fx:id="lblBootstrapAddressError" styleClass="validation-error-label" />
-               </children>
-            </HBox>
-            <GridPane hgap="10.0" vgap="10.0" VBox.vgrow="NEVER">
-              <columnConstraints>
-                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" percentWidth="50.0" />
-                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" percentWidth="50.0" />
-              </columnConstraints>
-              <rowConstraints>
-                <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
-              </rowConstraints>
-               <children>
-                    <TextField fx:id="txtBootstrapAddress" GridPane.hgrow="SOMETIMES" />
-                  	<ComboBox fx:id="cbBootstrapNodes" maxWidth="1.7976931348623157E308" onAction="#onBootstrapNodeSelected" promptText="Select node" GridPane.columnIndex="1" GridPane.hgrow="SOMETIMES" />
-               </children>
-            </GridPane>
 				<HBox spacing="10.0">
 					<children>
-						<Button cancelButton="true" mnemonicParsing="false" onAction="#navigateBackAction" prefHeight="25.0" prefWidth="120.0" text="Back" />
-						<Button defaultButton="true" mnemonicParsing="false" onAction="#joinNetworkAction" prefHeight="25.0" prefWidth="120.0" text="Join network" />
+						<Label text="Select or enter node: " />
+						<Label fx:id="lblBootstrapAddressError" styleClass="validation-error-label" />
+					</children>
+				</HBox>
+				<GridPane hgap="10.0" vgap="10.0" VBox.vgrow="NEVER">
+					<columnConstraints>
+						<ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" percentWidth="50.0" />
+						<ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" percentWidth="50.0" />
+					</columnConstraints>
+					<rowConstraints>
+						<RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
+					</rowConstraints>
+					<children>
+						<TextField fx:id="txtBootstrapAddress" GridPane.hgrow="SOMETIMES" />
+						<ComboBox fx:id="cbBootstrapNodes" maxWidth="1.7976931348623157E308" onAction="#onBootstrapNodeSelected"
+							promptText="Select node" GridPane.columnIndex="1" GridPane.hgrow="SOMETIMES" />
+					</children>
+				</GridPane>
+				<HBox spacing="10.0">
+					<children>
+						<Button cancelButton="true" mnemonicParsing="false" onAction="#navigateBackAction"
+							prefHeight="25.0" prefWidth="120.0" text="Back" />
+						<Button defaultButton="true" mnemonicParsing="false" onAction="#joinNetworkAction"
+							prefHeight="25.0" prefWidth="120.0" text="Join network" />
 					</children>
 				</HBox>
 			</children>

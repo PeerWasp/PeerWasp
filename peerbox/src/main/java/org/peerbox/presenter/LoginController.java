@@ -324,15 +324,17 @@ public class LoginController implements Initializable {
 		try {
 			userConfig.setUsername(getUsername());
 			userConfig.setRootPath(getRootPath());
-			if (chbAutoLogin.isSelected()) {
-				userConfig.setPassword(getPassword());
-				userConfig.setPin(getPin());
-				userConfig.setAutoLogin(true);
-			} else {
-				userConfig.setPassword("");
-				userConfig.setPin("");
-				userConfig.setAutoLogin(false);
-			}
+
+			// auto login is not enabled at the moment
+//			if (chbAutoLogin.isSelected()) {
+//				userConfig.setPassword(getPassword());
+//				userConfig.setPin(getPin());
+//				userConfig.setAutoLogin(true);
+//			} else {
+//				userConfig.setPassword("");
+//				userConfig.setPin("");
+//				userConfig.setAutoLogin(false);
+//			}
 		} catch (IOException ioex) {
 			logger.warn("Could not save login settings: {}", ioex.getMessage());
 			setError("Could not save login settings.");

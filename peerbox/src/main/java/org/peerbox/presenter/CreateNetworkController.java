@@ -1,10 +1,14 @@
 package org.peerbox.presenter;
 
+import java.net.Inet4Address;
 import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.net.SocketException;
 import java.net.URL;
-import java.net.UnknownHostException;
+import java.util.Enumeration;
 import java.util.ResourceBundle;
 
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -47,12 +51,41 @@ public class CreateNetworkController implements Initializable {
 	}
 
 	public void initialize(URL arg0, ResourceBundle arg1) {
+		String allIps = getAllIpAddresses();
+		Platform.runLater(() -> {
+			if (allIps != null) {
+				txtIPAddress.setText(allIps);
+			}
+		});
+	}
+
+	private String getAllIpAddresses() {
+		StringBuilder sb = new StringBuilder();
 		try {
-			txtIPAddress.setText(InetAddress.getLocalHost().getHostAddress().toString());
-		} catch (UnknownHostException e) {
-			logger.warn("Could not determine address of host (Exception: {})", e.getMessage());
-			setError("Could not determine address of host.");
+			// iterate through interface list and retrieve their addresses.
+			Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
+			if (interfaces != null) {
+				while (interfaces.hasMoreElements()) {
+					NetworkInterface netInt = interfaces.nextElement();
+					Enumeration<InetAddress> addresses = netInt.getInetAddresses();
+					if (addresses != null) {
+						while (addresses.hasMoreElements()) {
+							InetAddress inetAddr = addresses.nextElement();
+							// only consider IPv4 at the moment
+							if (inetAddr instanceof Inet4Address) {
+								String ip = inetAddr.getHostAddress();
+								sb.append(ip).append(", ");
+							}
+						}
+					}
+				}
+			}
+		} catch (SocketException e) {
+			setError("Could not retrieving network interface list.");
 		}
+
+		sb.delete(sb.lastIndexOf(","), sb.length());
+		return sb.toString();
 	}
 
 	@FXML
