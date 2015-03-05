@@ -2,6 +2,7 @@ package org.peerbox.share;
 
 import java.net.URL;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ResourceBundle;
 
 import javafx.application.Platform;
@@ -30,12 +31,16 @@ import org.controlsfx.control.StatusBar;
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.hive2hive.core.exceptions.NoSessionException;
 import org.hive2hive.core.model.PermissionType;
+import org.hive2hive.core.model.UserPermission;
 import org.hive2hive.processframework.exceptions.InvalidProcessStateException;
 import org.hive2hive.processframework.exceptions.ProcessExecutionException;
 import org.peerbox.ResultStatus;
 import org.peerbox.app.manager.ProcessHandle;
 import org.peerbox.app.manager.file.IFileManager;
+import org.peerbox.app.manager.file.LocalShareFolderMessage;
 import org.peerbox.app.manager.user.IUserManager;
+import org.peerbox.events.MessageBus;
+import org.peerbox.presenter.settings.synchronization.FileHelper;
 import org.peerbox.presenter.validation.UsernameRegisteredValidator;
 import org.peerbox.presenter.validation.ValidationUtils.ValidationResult;
 import org.peerbox.utils.IconUtils;
@@ -81,15 +86,17 @@ public final class ShareFolderController implements Initializable {
 
 	private final IFileManager fileManager;
 	private final IUserManager userManager;
+	private final MessageBus messageBus;
 
 	@Inject
-	public ShareFolderController(IFileManager fileManager, IUserManager userManager) {
+	public ShareFolderController(IFileManager fileManager, IUserManager userManager, MessageBus messageBus) {
 		this.statusProperty = new SimpleStringProperty();
 		this.busyProperty = new SimpleBooleanProperty(false);
 		this.folderToShareProperty = new SimpleStringProperty();
 
 		this.fileManager = fileManager;
 		this.userManager = userManager;
+		this.messageBus = messageBus;
 	}
 
 	@Override
@@ -241,6 +248,9 @@ public final class ShareFolderController implements Initializable {
 		} else {
 			Platform.runLater(succeeded);
 		}
+		FileHelper file = new FileHelper(Paths.get(folderToShareProperty.get()), false);
+		UserPermission permission = new UserPermission(getUsername(), selectedPermissionType());
+		messageBus.publish(new LocalShareFolderMessage(file, permission));
 	}
 
 	private void onShareFailed(ResultStatus status) {
