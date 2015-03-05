@@ -5,11 +5,11 @@ import java.util.Set;
 import org.hive2hive.core.model.UserPermission;
 import org.peerbox.presenter.settings.synchronization.FileHelper;
 
-public class FolderSharedMessage extends AbstractFileMessage {
+public class RemoteShareFolderMessage extends AbstractFileMessage {
 	
 	Set<UserPermission> permissions;
 	String invitedBy;
-	public FolderSharedMessage(FileHelper file, Set<UserPermission> permissions, String invitedBy) {
+	public RemoteShareFolderMessage(FileHelper file, Set<UserPermission> permissions, String invitedBy) {
 		super(file);
 		this.permissions = permissions;
 		this.invitedBy = invitedBy;
