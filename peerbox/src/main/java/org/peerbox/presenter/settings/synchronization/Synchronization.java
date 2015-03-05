@@ -30,6 +30,7 @@ import net.engio.mbassy.listener.Handler;
 
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.hive2hive.core.exceptions.NoSessionException;
+import org.hive2hive.core.model.PermissionType;
 import org.hive2hive.core.model.UserPermission;
 import org.hive2hive.core.processes.files.list.FileNode;
 import org.hive2hive.processframework.exceptions.InvalidProcessStateException;
@@ -228,7 +229,7 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 			view = SynchronizationUtils.getFolderInProgressIcon();
 		}
 		if(item == null){
-			item = createItem(message.getFile().getPath(), false, message.getFile().isFile(), null);
+			item = createItem(message.getFile().getPath(), false, message.getFile().isFile());
 		    putTreeItem(item);
 		    item.setSelected(false);
 			logger.trace("item == null for {}", message.getFile().getPath());
@@ -372,7 +373,7 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 		if(item != null){
 			logger.trace("item != null for {}, change icon!", message.getFile().getPath());
 		} else {
-			item = createItem(message.getFile().getPath(), false, message.getFile().isFile(), null);
+			item = createItem(message.getFile().getPath(), false, message.getFile().isFile());
 			putTreeItem(item);
 			logger.trace("item == null for {}", message.getFile().getPath());
 		}
@@ -414,7 +415,7 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 		if(item != null){
 			logger.trace("item != null for {}, change icon!", message.getFile().getPath());
 		} else {
-			item = createItem(message.getFile().getPath(), false, message.getFile().isFile(), null);
+			item = createItem(message.getFile().getPath(), false, message.getFile().isFile());
 			putTreeItem(item);
 			item.setSelected(false);
 			logger.trace("item == null for {}", message.getFile().getPath());
@@ -479,7 +480,7 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 		if(item != null){
 			logger.trace("item != null for {}, change icon!", file.getPath());
 		} else {
-			item = createItem(file.getPath(), true, file.isFile(), null);
+			item = createItem(file.getPath(), true, file.isFile());
 			putTreeItem(item);
 			logger.trace("item == null for {}", file.getPath());
 		}
@@ -661,6 +662,13 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 		CheckBoxTreeItem<PathItem> newItem = new CheckBoxTreeItem<PathItem>(pathItem, label);
 		newItem.setSelected(isSynched);
 		return newItem;
+	}
+	
+	private CheckBoxTreeItem<PathItem> createItem(Path path, boolean isSynched,
+			boolean isFile) {
+		Set<UserPermission> defaultPermissions = new HashSet<UserPermission>();
+		defaultPermissions.add(new UserPermission(userConfig.getUsername(), PermissionType.WRITE));
+		return createItem(path, isSynched, isFile, defaultPermissions);
 	}
 	
 	private void updateIconInUIThread(TreeItem<PathItem> item, ImageView icon){
