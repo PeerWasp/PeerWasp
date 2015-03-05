@@ -39,5 +39,11 @@ public interface IFileMessageListener extends IMessageListener {
 	
 	@Handler
 	void onFileExecutionFailed(FileExecutionFailedMessage message);
+	
+	@Handler
+	void onRemoteShareFolder(RemoteShareFolderMessage message);
+	
+	@Handler
+	void onLocalShareFolder(LocalShareFolderMessage message);
 
 }

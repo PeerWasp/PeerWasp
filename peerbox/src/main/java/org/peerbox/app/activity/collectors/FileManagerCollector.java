@@ -6,6 +6,8 @@ import org.peerbox.app.activity.ActivityItem;
 import org.peerbox.app.activity.ActivityLogger;
 import org.peerbox.app.activity.ActivityType;
 import org.peerbox.app.manager.file.FileExecutionFailedMessage;
+import org.peerbox.app.manager.file.LocalShareFolderMessage;
+import org.peerbox.app.manager.file.RemoteShareFolderMessage;
 import org.peerbox.app.manager.file.IFileMessage;
 import org.peerbox.app.manager.file.IFileMessageListener;
 import org.peerbox.app.manager.file.LocalFileAddedMessage;
@@ -131,6 +133,32 @@ class FileManagerCollector extends AbstractActivityCollector implements IFileMes
 
 	private String formatDescription(IFileMessage msg) {
 		return String.format("%s", msg.getFile().getPath());
+	}
+
+	@Override
+	public void onRemoteShareFolder(RemoteShareFolderMessage message) {
+		String description = "Received an invite for folder \"" + 
+				message.getFile().getPath() + " by user \"" +
+				message.getInvitedBy() + "\"";
+		
+		ActivityItem item = ActivityItem.create()
+				.setType(ActivityType.INFORMATION)
+				.setTitle("Folder sharing.")
+				.setDescription(description);
+		getActivityLogger().addActivityItem(item);
+	}
+
+	@Override
+	public void onLocalShareFolder(LocalShareFolderMessage message) {
+		String description = "Successful sharing of own folder" + 
+				message.getFile().getPath() + " with user \""+
+				message.getInvitedUserPermission().getUserId();
+		
+		ActivityItem item = ActivityItem.create()
+				.setType(ActivityType.INFORMATION)
+				.setTitle("Sharing complete.")
+				.setDescription(description);
+		getActivityLogger().addActivityItem(item);
 	}
 
 }
