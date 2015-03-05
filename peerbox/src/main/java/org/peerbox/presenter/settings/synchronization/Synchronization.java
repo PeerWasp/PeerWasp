@@ -30,6 +30,7 @@ import net.engio.mbassy.listener.Handler;
 
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.hive2hive.core.exceptions.NoSessionException;
+import org.hive2hive.core.model.UserPermission;
 import org.hive2hive.core.processes.files.list.FileNode;
 import org.hive2hive.processframework.exceptions.InvalidProcessStateException;
 import org.hive2hive.processframework.exceptions.ProcessExecutionException;
@@ -41,6 +42,7 @@ import org.peerbox.app.manager.file.RemoteFileDeletedMessage;
 import org.peerbox.app.manager.file.RemoteFileMovedMessage;
 import org.peerbox.app.manager.user.IUserManager;
 import org.peerbox.filerecovery.IFileRecoveryHandler;
+import org.peerbox.interfaces.IFxmlLoaderProvider;
 import org.peerbox.presenter.settings.synchronization.messages.FileExecutionStartedMessage;
 import org.peerbox.presenter.settings.synchronization.messages.FileExecutionSucceededMessage;
 import org.peerbox.share.IShareFolderHandler;
@@ -93,14 +95,17 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 	private Set<Path> executingFiles = new HashSet<Path>();
 	
 	private final Provider<IShareFolderHandler> shareFolderHandlerProvider;
+	private IFxmlLoaderProvider fxmlLoaderProvider;
 
 	@Inject
 	public Synchronization(IFileManager fileManager, FileEventManager eventManager, 
-			UserConfig userConfig, Provider<IShareFolderHandler> shareFolderHandlerProvider) {
+			UserConfig userConfig, Provider<IShareFolderHandler> shareFolderHandlerProvider, 
+			IFxmlLoaderProvider fxmlLoaderProvider) {
 		this.eventManager = eventManager;
 		this.fileManager = fileManager;
 		this.userConfig = userConfig;
 		this.shareFolderHandlerProvider = shareFolderHandlerProvider;
+		this.fxmlLoaderProvider = fxmlLoaderProvider;
 	}
 
 	private Set<FileHelper> getToSynchronize(){
@@ -223,7 +228,7 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 			view = SynchronizationUtils.getFolderInProgressIcon();
 		}
 		if(item == null){
-			item = createItem(message.getFile().getPath(), false, message.getFile().isFile());
+			item = createItem(message.getFile().getPath(), false, message.getFile().isFile(), null);
 		    putTreeItem(item);
 		    item.setSelected(false);
 			logger.trace("item == null for {}", message.getFile().getPath());
@@ -367,7 +372,7 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 		if(item != null){
 			logger.trace("item != null for {}, change icon!", message.getFile().getPath());
 		} else {
-			item = createItem(message.getFile().getPath(), false, message.getFile().isFile());
+			item = createItem(message.getFile().getPath(), false, message.getFile().isFile(), null);
 			putTreeItem(item);
 			logger.trace("item == null for {}", message.getFile().getPath());
 		}
@@ -409,7 +414,7 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 		if(item != null){
 			logger.trace("item != null for {}, change icon!", message.getFile().getPath());
 		} else {
-			createItem(message.getFile().getPath(), false, message.getFile().isFile());
+			item = createItem(message.getFile().getPath(), false, message.getFile().isFile(), null);
 			putTreeItem(item);
 			item.setSelected(false);
 			logger.trace("item == null for {}", message.getFile().getPath());
@@ -474,7 +479,7 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 		if(item != null){
 			logger.trace("item != null for {}, change icon!", file.getPath());
 		} else {
-			item = createItem(file.getPath(), true, file.isFile());
+			item = createItem(file.getPath(), true, file.isFile(), null);
 			putTreeItem(item);
 			logger.trace("item == null for {}", file.getPath());
 		}
@@ -552,7 +557,7 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 					return;
 				}
 			}
-			PathItem pathItem = new PathItem(pathToSearch, toPut.isSelected());
+			PathItem pathItem = new PathItem(pathToSearch, toPut.isSelected(), null);
 			CheckBoxTreeItem<PathItem> created = new CheckBoxTreeItem<PathItem>(pathItem);
 			toPut.addEventHandler(CheckBoxTreeItem.checkBoxSelectionChangedEvent(), new ClickEventHandler());
 			parent.getChildren().add(toPut);
@@ -575,7 +580,7 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 	}
 
 	private void createTreeView(FileNode fileNode){
-		PathItem pathItem = new PathItem(userConfig.getRootPath(), false);
+		PathItem pathItem = new PathItem(userConfig.getRootPath(), false, fileNode.getUserPermissions());
 		CheckBoxTreeItem<PathItem> invisibleRoot = new CheckBoxTreeItem<PathItem>(pathItem);
 	    fileTreeView.setRoot(invisibleRoot);
         fileTreeView.setEditable(false);
@@ -632,7 +637,8 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 	        		tooltip = SynchronizationUtils.getSuccessTooltip();
 	        	}
 	        	
-	        	CheckBoxTreeItem<PathItem> item = createItem(topLevelNode.getFile().toPath(), isSynched, topLevelNode.isFile());
+	        	CheckBoxTreeItem<PathItem> item = createItem(topLevelNode.getFile().toPath(),
+	        			isSynched, topLevelNode.isFile(), topLevelNode.getUserPermissions());
 	        	putTreeItem(item);
 	        	updateIconInUIThread(item, icon);
 	        	updateTooltipInUIThread(item, tooltip);
@@ -649,8 +655,8 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 	}
 	
 	private CheckBoxTreeItem<PathItem> createItem(Path path, boolean isSynched,
-			boolean isFile) {
-		PathItem pathItem = new PathItem(path, isFile);
+			boolean isFile, Set<UserPermission> permissions) {
+		PathItem pathItem = new PathItem(path, isFile, permissions);
 		Label label = new Label(path.getFileName().toString());
 		CheckBoxTreeItem<PathItem> newItem = new CheckBoxTreeItem<PathItem>(pathItem, label);
 		newItem.setSelected(isSynched);
