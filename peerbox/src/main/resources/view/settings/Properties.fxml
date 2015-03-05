@@ -6,7 +6,7 @@
 <?import java.lang.*?>
 <?import javafx.scene.layout.*?>
 
-<GridPane hgap="10.0" minHeight="200.0" minWidth="200.0" prefHeight="300.0" prefWidth="250.0" vgap="10.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
+<GridPane hgap="10.0" minHeight="200.0" minWidth="200.0" prefHeight="300.0" prefWidth="250.0" vgap="10.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.peerbox.presenter.settings.synchronization.Synchronization">
 	<columnConstraints>
 		<ColumnConstraints hgrow="ALWAYS" minWidth="60.0" />
 	</columnConstraints>
@@ -16,21 +16,10 @@
 		<RowConstraints maxHeight="40.0" minHeight="40.0" prefHeight="40.0" vgrow="NEVER" />
 	</rowConstraints>
 	<children>
-		 <VBox minHeight="16.0" prefHeight="16.0" prefWidth="230.0" spacing="10.0" GridPane.rowIndex="0">
-			<children>
-				<Label text="Properties of ">
-					<font>
-						<Font name="System Bold" size="13.0" />
-					</font>
-					<VBox.margin>
-						<Insets />
-					</VBox.margin>
-				</Label>
-			</children>
-		</VBox>
+		 <VBox minHeight="16.0" prefHeight="16.0" prefWidth="230.0" spacing="10.0" GridPane.rowIndex="0" />
 		<HBox alignment="CENTER_LEFT" GridPane.rowIndex="2">
 			<children>
-				<Button fx:id="okButton" defaultButton="true" onAction="#okAction" text="Ok" />
+				<Button fx:id="okButton" defaultButton="true" onAction="#acceptSyncAction" text="Ok" />
 			</children>
 			<padding>
 				<Insets top="20.0" />
@@ -45,8 +34,8 @@
           <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
         </rowConstraints>
          <children>
-            <ListView prefHeight="200.0" prefWidth="200.0" GridPane.rowIndex="1" fx:id="sharedListView"/>
-            <Label text="Sharing">
+            <ListView prefHeight="200.0" prefWidth="200.0" GridPane.rowIndex="1" />
+            <Label text="This folder is shared between">
                <font>
                   <Font name="System Bold" size="12.0" />
                </font>

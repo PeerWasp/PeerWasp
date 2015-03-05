@@ -16,7 +16,7 @@ import org.hive2hive.core.events.framework.interfaces.file.IFileShareEvent;
 import org.hive2hive.core.events.framework.interfaces.file.IFileUpdateEvent;
 import org.hive2hive.core.events.implementations.FileAddEvent;
 import org.hive2hive.core.model.UserPermission;
-import org.peerbox.app.manager.file.FolderSharedMessage;
+import org.peerbox.app.manager.file.RemoteShareFolderMessage;
 import org.peerbox.app.manager.file.IFileMessage;
 import org.peerbox.app.manager.file.LocalFileDesyncMessage;
 import org.peerbox.app.manager.file.RemoteFileDeletedMessage;
@@ -359,11 +359,12 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 		Set<UserPermission> permissions = fileEvent.getUserPermissions();
 		String invitedBy = fileEvent.getInvitedBy();
 		FileHelper file = new FileHelper(fileEvent.getFile().toPath(), fileEvent.getFile().isFile());
-		publishMessage(new FolderSharedMessage(file, permissions, invitedBy));
+		publishMessage(new RemoteShareFolderMessage(file, permissions, invitedBy));
 		StringBuilder sb = new StringBuilder();
 		sb.append("User ").append(invitedBy).append(" shared the folder ").
 		append(fileEvent.getFile().toPath()).append(" with you.");
 		getMessageBus().post(new InformationNotification("Shared folder", sb.toString())).now();
+		publishMessage(new RemoteShareFolderMessage(file, permissions, invitedBy));
 	}
 
 	/**
