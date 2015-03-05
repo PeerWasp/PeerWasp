@@ -61,7 +61,7 @@ import com.google.inject.Provider;
 public class Synchronization implements Initializable, IExecutionMessageListener{
 
 	private static final Logger logger = LoggerFactory.getLogger(Synchronization.class);
-	
+
 	@FXML private TreeView<PathItem> fileTreeView;
 	@FXML private Button okButton;
 	@FXML private Button cancelButton;
@@ -72,17 +72,17 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 	private IFileEventManager eventManager;
 	private IFileManager fileManager;
 	private IUserManager userManager;
-	
+
 	/**
 	 * These variables are used to build sets containing the paths of files
-	 * and folder whose synchronization state has to be changed in the {@link 
+	 * and folder whose synchronization state has to be changed in the {@link
 	 * org.peerbox.watchservice.FileEventManager FileEventManager}
 	 */
 	private TreeSet<FileHelper> toSynchronize = new TreeSet<FileHelper>(new FileHelperComparator());
 	private TreeSet<FileHelper> toDesynchronize = new TreeSet<FileHelper>(new FileHelperComparator());
-	
+
 	private UserConfig userConfig;
-	
+
 	/**
 	 * These variables are build directly from the {@link org.peerbox.
 	 * watchservice.FileEventManager FileEventManager} to correctly
@@ -91,15 +91,17 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 	private Set<Path> synchronizedFiles;
 	private Set<Path> failedFiles = new HashSet<Path>();
 	private Set<Path> executingFiles = new HashSet<Path>();
-	
+
 	private final Provider<IShareFolderHandler> shareFolderHandlerProvider;
+	private final Provider<IFileRecoveryHandler> recoverFileHandlerProvider;
 
 	@Inject
-	public Synchronization(IFileManager fileManager, FileEventManager eventManager, 
-			UserConfig userConfig, Provider<IShareFolderHandler> shareFolderHandlerProvider) {
+	public Synchronization(IFileManager fileManager, FileEventManager eventManager,
+			UserConfig userConfig, Provider<IFileRecoveryHandler> recoverFileHandlerProvider, Provider<IShareFolderHandler> shareFolderHandlerProvider) {
 		this.eventManager = eventManager;
 		this.fileManager = fileManager;
 		this.userConfig = userConfig;
+		this.recoverFileHandlerProvider = recoverFileHandlerProvider;
 		this.shareFolderHandlerProvider = shareFolderHandlerProvider;
 	}
 
@@ -111,7 +113,7 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 	private Set<FileHelper> getToDesynchronize(){
 		return toDesynchronize;
 	}
-	
+
 	private IFileEventManager getFileEventManager(){
 		return eventManager;
 	}
@@ -137,7 +139,7 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 		for(FileHelper node : toSynchronize){
 			logger.trace("Sync the file {}", node.getPath());
 			if(!synchronizedFiles.contains(node.getPath()))
-				
+
 				eventManager.onFileSynchronized(node.getPath(), node.isFolder());
 		}
 		for(FileHelper node: toDesynchronize.descendingSet()){
@@ -204,10 +206,10 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 
 	/**
 	 * This handler is automatically invoked when a {@link org.peerbox.
-	 * presenter.settings.synchronization.messages.FileExecutionStartedMessage 
+	 * presenter.settings.synchronization.messages.FileExecutionStartedMessage
 	 * FileExecutionStartedMessage} is published using the {@link org.peerbox.
-	 * events.MessageBus MessageBus}. This method changes the corresponding 
-	 * {@link javafx.scene.control.CheckBoxTreeItem CheckBoxTreeItem} in the 
+	 * events.MessageBus MessageBus}. This method changes the corresponding
+	 * {@link javafx.scene.control.CheckBoxTreeItem CheckBoxTreeItem} in the
 	 * {@link javafx.scene.control.TreeView TreeView} accordingly.
 	 */
 	@Override
@@ -216,7 +218,7 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 		logger.trace("onExecutionStarts: {}", message.getFile().getPath());
 		ImageView view;
 		CheckBoxTreeItem<PathItem> item = getTreeItem(message.getFile().getPath());
-		
+
 		if(message.getFile().isFile()){
 			view = SynchronizationUtils.getFileInProgressIcon();
 		} else {
@@ -228,15 +230,15 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 		    item.setSelected(false);
 			logger.trace("item == null for {}", message.getFile().getPath());
 		}
-		
+
 		updateIconInUIThread(item, view);
 		updateTooltipInUIThread(item, SynchronizationUtils.getInProgressToolTip());
 	}
-	
+
 	/**
 	 * This handler is automatically invoked when a {@link org.peerbox.app.
-	 * manager.file.RemoteFileDeletedMessage RemoteFileDeletedMessage} is 
-	 * published using the {@link org.peerbox.events.MessageBus MessageBus}. 
+	 * manager.file.RemoteFileDeletedMessage RemoteFileDeletedMessage} is
+	 * published using the {@link org.peerbox.events.MessageBus MessageBus}.
 	 * This method changes the corresponding {@link javafx.scene.control.
 	 * CheckBoxTreeItem CheckBoxTreeItem} in the {@link javafx.scene.control.
 	 * TreeView TreeView} accordingly.
@@ -244,8 +246,8 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 	@Override
 	@Handler
 	public void onFileRemotelyDeleted(RemoteFileDeletedMessage message){
-		logger.trace("onFileRemotelyDeleted: {}", message.getFile().getPath());	
-		
+		logger.trace("onFileRemotelyDeleted: {}", message.getFile().getPath());
+
 		javafx.application.Platform.runLater(new Runnable() {
 	        @Override
 	        public void run() {
@@ -253,11 +255,11 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 	        }
 		});
 	}
-	
+
 	/**
 	 * This handler is automatically invoked when a {@link org.peerbox.app.
-	 * manager.file.RemoteFileMovedMessage RemoteFileMovedMessage} is 
-	 * published using the {@link org.peerbox.events.MessageBus MessageBus}. 
+	 * manager.file.RemoteFileMovedMessage RemoteFileMovedMessage} is
+	 * published using the {@link org.peerbox.events.MessageBus MessageBus}.
 	 * This method changes the corresponding {@link javafx.scene.control.
 	 * CheckBoxTreeItem CheckBoxTreeItem} in the {@link javafx.scene.control.
 	 * TreeView TreeView} accordingly.
@@ -265,12 +267,12 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 	@Override
 	@Handler
 	public void onFileRemotelyMoved(RemoteFileMovedMessage message){
-		logger.trace("onFileRemotelyMoved: {}", message.getFile().getPath());		
-		
+		logger.trace("onFileRemotelyMoved: {}", message.getFile().getPath());
+
 		Path srcFile = message.getSourceFile().getPath();
 		Path dstFile = message.getDestinationFile().getPath();
-		logger.trace("onFileMoved: {} --> {}", srcFile, dstFile);	
-		
+		logger.trace("onFileMoved: {} --> {}", srcFile, dstFile);
+
 		removeTreeItemInUIThread(srcFile);
 		CheckBoxTreeItem<PathItem> item = getOrCreateItem(message.getFile());
 		ImageView view = null;
@@ -279,7 +281,7 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 		} else {
 			view = SynchronizationUtils.getFolderSuccessIcon();
 		}
-		
+
 		updateIconInUIThread(item, view);
 		updateTooltipInUIThread(item, SynchronizationUtils.getSuccessTooltip());
 		updateIsSelectedInUIThread(item, message.getFile(), true);
@@ -288,10 +290,10 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 
 	/**
 	 * This handler is automatically invoked when a {@link org.peerbox.
-	 * presenter.settings.synchronization.messages.FileExecutionSucceededMessage 
+	 * presenter.settings.synchronization.messages.FileExecutionSucceededMessage
 	 * FileExecutionSucceededMessage} is published using the {@link org.peerbox.
-	 * events.MessageBus MessageBus}. This method changes the corresponding 
-	 * {@link javafx.scene.control. CheckBoxTreeItem CheckBoxTreeItem} in the 
+	 * events.MessageBus MessageBus}. This method changes the corresponding
+	 * {@link javafx.scene.control. CheckBoxTreeItem CheckBoxTreeItem} in the
 	 * {@link javafx.scene.control.TreeView TreeView} accordingly.
 	 */
 	@Override
@@ -304,59 +306,59 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 		case LOCAL_HARD_DELETE:
 			removeTreeItemInUIThread(message.getFile().getPath());
 			break;
-			
+
 		case INITIAL:
 			CheckBoxTreeItem<PathItem> item = getOrCreateItem(message.getFile());
-		
+
 			ImageView view;
 			if(message.getFile().isFile()){
 				view = SynchronizationUtils.getFileSuccessIcon();
 			} else {
 				view = SynchronizationUtils.getFolderSuccessIcon();
 			}
-			
+
 			updateIconInUIThread(item, view);
 			updateTooltipInUIThread(item, SynchronizationUtils.getSuccessTooltip());
 			break;
 		case LOCAL_MOVE:
 			Path srcFile = message.getSourceFile().getPath();
 			Path dstFile = message.getFile().getPath();
-			logger.trace("onFileMoved: {} --> {}", srcFile, dstFile);	
-			
+			logger.trace("onFileMoved: {} --> {}", srcFile, dstFile);
+
 			removeTreeItemInUIThread(srcFile);
 			item = getOrCreateItem(message.getFile());
-			
+
 			if(message.getFile().isFile()){
 				view = SynchronizationUtils.getFileSuccessIcon();
 			} else {
 				view = SynchronizationUtils.getFolderSuccessIcon();
 			}
-			
+
 			updateIconInUIThread(item, view);
 			updateTooltipInUIThread(item, SynchronizationUtils.getSuccessTooltip());
 			selectFilesAndFolderInUIThread(item, message.getFile());
 			break;
 		default:
 			item = getOrCreateItem(message.getFile());
-			
+
 			if(message.getFile().isFile()){
 				view = SynchronizationUtils.getFileSuccessIcon();
 			} else {
 				view = SynchronizationUtils.getFolderSuccessIcon();
 			}
-			
+
 			updateIconInUIThread(item, view);
 			updateTooltipInUIThread(item, SynchronizationUtils.getSuccessTooltip());
 			updateIsSelectedInUIThread(item, message.getFile(), true);
 		}
 	}
-	
+
 	/**
 	 * This handler is automatically invoked when a {@link org.peerbox.
-	 * presenter.settings.synchronization.messages.FileExecutionFailedMessage 
+	 * presenter.settings.synchronization.messages.FileExecutionFailedMessage
 	 * FileExecutionFailedMessage} is published using the {@link org.peerbox.
-	 * events.MessageBus MessageBus}. This method changes the corresponding 
-	 * {@link javafx.scene.control. CheckBoxTreeItem CheckBoxTreeItem} in the 
+	 * events.MessageBus MessageBus}. This method changes the corresponding
+	 * {@link javafx.scene.control. CheckBoxTreeItem CheckBoxTreeItem} in the
 	 * {@link javafx.scene.control.TreeView TreeView} accordingly.
 	 */
 	@Override
@@ -371,17 +373,17 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 			putTreeItem(item);
 			logger.trace("item == null for {}", message.getFile().getPath());
 		}
-		
+
 		ImageView view;
 		if(message.getFile().isFile()){
 			view = SynchronizationUtils.getFileErrorIcon();
 		} else {
 			view = SynchronizationUtils.getFolderErrorIcon();
 		}
-		
+
 		updateIconInUIThread(item, view);
 		updateTooltipInUIThread(item, SynchronizationUtils.getErrorTooltip());
-		
+
 		final CheckBoxTreeItem<PathItem> item2 = item;
 		javafx.application.Platform.runLater(new Runnable() {
 	        @Override
@@ -390,13 +392,13 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 	        }
 		});
 	}
-	
+
 	/**
 	 * This handler is automatically invoked when a {@link org.peerbox.app.
-	 * manager.file.LocalFileDesyncMessage LocalFileDesyncMessage} is published 
-	 * using the {@link org.peerbox.events.MessageBus MessageBus}. This method 
-	 * changes the corresponding {@link javafx.scene.control. CheckBoxTreeItem 
-	 * CheckBoxTreeItem} in the {@link javafx.scene.control.TreeView TreeView} 
+	 * manager.file.LocalFileDesyncMessage LocalFileDesyncMessage} is published
+	 * using the {@link org.peerbox.events.MessageBus MessageBus}. This method
+	 * changes the corresponding {@link javafx.scene.control. CheckBoxTreeItem
+	 * CheckBoxTreeItem} in the {@link javafx.scene.control.TreeView TreeView}
 	 * accordingly.
 	 */
 	@Override
@@ -404,7 +406,7 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 	public void onFileSoftDeleted(LocalFileDesyncMessage message) {
 		logger.trace("onFileSoftDeleted: {}", message.getFile().getPath());
 		Path path = message.getFile().getPath();
-		
+
 		CheckBoxTreeItem<PathItem> item = getTreeItem(message.getFile().getPath());
 		if(item != null){
 			logger.trace("item != null for {}, change icon!", message.getFile().getPath());
@@ -421,7 +423,7 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 		} else {
 			view = SynchronizationUtils.getFolderStandardIcon();
 		}
-		
+
 		updateIconInUIThread(item, view);
 		updateTooltipInUIThread(item, SynchronizationUtils.getSoftDeletedTooltip());
 		final CheckBoxTreeItem<PathItem> item2 = item;
@@ -432,7 +434,7 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 	        }
 	   });
 	}
-	
+
 	private void removeTreeItemInUIThread(Path srcFile) {
 		javafx.application.Platform.runLater(new Runnable() {
 	        @Override
@@ -456,7 +458,7 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 	        }
 		});
 	}
-	
+
 	private void selectFilesAndFolderInUIThread(CheckBoxTreeItem<PathItem> item, FileHelper file){
 		final CheckBoxTreeItem<PathItem> item2 = item;
 		javafx.application.Platform.runLater(new Runnable() {
@@ -470,7 +472,7 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 	private CheckBoxTreeItem<PathItem> getOrCreateItem(FileHelper file) {
 		// TODO Auto-generated method stub
 		CheckBoxTreeItem<PathItem> item = getTreeItem(file.getPath());
-		
+
 		if(item != null){
 			logger.trace("item != null for {}, change icon!", file.getPath());
 		} else {
@@ -480,7 +482,7 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 		}
 		return item;
 	}
-	
+
 	private CheckBoxTreeItem<PathItem> getTreeItem(Path path){
 		CheckBoxTreeItem<PathItem> root = (CheckBoxTreeItem<PathItem>)fileTreeView.getRoot();
 		Path prefix = root.getValue().getPath();
@@ -494,14 +496,14 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 		putTreeItem(root, item, pathLeft);
 		return;
 	}
-	
+
 	private CheckBoxTreeItem<PathItem> removeTreeItem(Path path){
 		CheckBoxTreeItem<PathItem> root = (CheckBoxTreeItem<PathItem>)fileTreeView.getRoot();
 		Path prefix = root.getValue().getPath();
 		return findTreeItem(root, path, true);
-		
+
 	}
-	
+
 	private CheckBoxTreeItem<PathItem> findTreeItem(CheckBoxTreeItem<PathItem> item, Path path, boolean remove){
 		Path wholePath = path;
 		Path prefix = item.getValue().getPath();
@@ -526,7 +528,7 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 		}
 		return null;
 	}
-	
+
 	private void putTreeItem(CheckBoxTreeItem<PathItem> parent, CheckBoxTreeItem<PathItem> toPut, Path pathLeft){
 		Path parentPath = parent.getValue().getPath();
 		Path wholePath = parentPath.resolve(pathLeft);
@@ -559,7 +561,7 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 			putTreeItem(created, toPut, toPut.getValue().getPath().relativize(wholePath));
 		}
 	}
-	
+
 	private void createTreeViewFromNetwork() {
 		try {
 			FileNode filesFromNetwork = fileManager.listFiles().execute();
@@ -583,6 +585,7 @@ public class Synchronization implements Initializable, IExecutionMessageListener
             @Override
             public TreeCell<PathItem> call(TreeView<PathItem> p) {
                 return new CustomizedTreeCell(getFileEventManager(),
+                		recoverFileHandlerProvider,
                 		shareFolderHandlerProvider);
             }
 
@@ -594,21 +597,21 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 				return fileManager;
 			}
         });
-        
+
         fileTreeView.setShowRoot(false);
-        
+
         addFileNodeToTreeView(fileNode);
 	}
-	
+
 	private void addFileNodeToTreeView(FileNode fileNode){
 		if(fileNode.getChildren() != null){
 	        for(FileNode topLevelNode : fileNode.getChildren()){
 				ImageView icon;
 	        	String tooltip;
-	        	
+
 	        	Path path = topLevelNode.getFile().toPath();
 	        	boolean isSynched = synchronizedFiles.contains(path);
-	        	
+
 	        	if(failedFiles.contains(path)){
 	        		if(topLevelNode.isFile()){
 	        			icon = SynchronizationUtils.getFileErrorIcon();
@@ -631,7 +634,7 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 	        		}
 	        		tooltip = SynchronizationUtils.getSuccessTooltip();
 	        	}
-	        	
+
 	        	CheckBoxTreeItem<PathItem> item = createItem(topLevelNode.getFile().toPath(), isSynched, topLevelNode.isFile());
 	        	putTreeItem(item);
 	        	updateIconInUIThread(item, icon);
@@ -647,7 +650,7 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 		item.setValue(null);
 		item.setValue(pathItem);
 	}
-	
+
 	private CheckBoxTreeItem<PathItem> createItem(Path path, boolean isSynched,
 			boolean isFile) {
 		PathItem pathItem = new PathItem(path, isFile);
@@ -656,7 +659,7 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 		newItem.setSelected(isSynched);
 		return newItem;
 	}
-	
+
 	private void updateIconInUIThread(TreeItem<PathItem> item, ImageView icon){
 		javafx.application.Platform.runLater(new Runnable() {
 	        @Override
@@ -714,14 +717,14 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 				} else {
 					view = SynchronizationUtils.getFolderStandardIcon();
 				}
-				
+
 				updateIconInUIThread(source, view);
 				updateTooltipInUIThread(source, SynchronizationUtils.getSoftDeletedTooltip());
 			}
 			arg0.consume();
 		}
 	}
-	
+
 	private class FileHelperComparator implements Comparator<FileHelper>{
 		@Override
 		public int compare(FileHelper o1, FileHelper o2) {
