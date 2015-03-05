@@ -39,8 +39,10 @@ import org.peerbox.app.config.UserConfig;
 import org.peerbox.app.manager.file.LocalFileDesyncMessage;
 import org.peerbox.app.manager.file.FileExecutionFailedMessage;
 import org.peerbox.app.manager.file.IFileManager;
+import org.peerbox.app.manager.file.LocalShareFolderMessage;
 import org.peerbox.app.manager.file.RemoteFileDeletedMessage;
 import org.peerbox.app.manager.file.RemoteFileMovedMessage;
+import org.peerbox.app.manager.file.RemoteShareFolderMessage;
 import org.peerbox.app.manager.user.IUserManager;
 import org.peerbox.filerecovery.IFileRecoveryHandler;
 import org.peerbox.interfaces.IFxmlLoaderProvider;
@@ -443,6 +445,56 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 	        }
 	   });
 	}
+	
+	@Override
+	@Handler
+	public void onRemoteFolderShared(RemoteShareFolderMessage message) {
+		logger.trace("onRemoteFolderShared: {}", message.getFile().getPath());
+		Path path = message.getFile().getPath();
+
+		CheckBoxTreeItem<PathItem> item = getTreeItem(message.getFile().getPath());
+		if(item != null){
+			logger.trace("item != null for {}, change icon!", message.getFile().getPath());
+		} else {
+			item = createItem(message.getFile().getPath(), false, message.getFile().isFile());
+			putTreeItem(item);
+			item.setSelected(false);
+			logger.trace("item == null for {}", message.getFile().getPath());
+		}
+
+		ImageView view = SynchronizationUtils.getSharedFolderIcon();
+
+
+		updateIconInUIThread(item, view);
+		updateTooltipInUIThread(item, SynchronizationUtils.getSharedFolderTooltip());
+		final CheckBoxTreeItem<PathItem> item2 = item;
+	}
+
+	@Override
+	@Handler
+	public void onLocalFolderShared(LocalShareFolderMessage message) {
+		logger.trace("onLocalFolderShared: {}", message.getFile().getPath());
+		
+		Path path = message.getFile().getPath();
+
+		CheckBoxTreeItem<PathItem> item = getTreeItem(message.getFile().getPath());
+		if(item != null){
+			logger.trace("item != null for {}, change icon!", message.getFile().getPath());
+		} else {
+			item = createItem(message.getFile().getPath(), false, message.getFile().isFile());
+			putTreeItem(item);
+			item.setSelected(false);
+			logger.trace("item == null for {}", message.getFile().getPath());
+		}
+
+		ImageView view = SynchronizationUtils.getSharedFolderIcon();
+
+
+		updateIconInUIThread(item, view);
+		updateTooltipInUIThread(item, SynchronizationUtils.getSharedFolderTooltip());
+		final CheckBoxTreeItem<PathItem> item2 = item;
+		
+	}
 
 	private void removeTreeItemInUIThread(Path srcFile) {
 		javafx.application.Platform.runLater(new Runnable() {
@@ -750,4 +802,5 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 			return path1.compareTo(path2);
 		}
 	}
+	
 }

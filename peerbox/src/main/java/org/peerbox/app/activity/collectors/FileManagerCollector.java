@@ -135,6 +135,7 @@ class FileManagerCollector extends AbstractActivityCollector implements IFileMes
 		return String.format("%s", msg.getFile().getPath());
 	}
 
+	@Handler
 	@Override
 	public void onRemoteShareFolder(RemoteShareFolderMessage message) {
 		String description = "Received an invite for folder \"" + 
@@ -148,6 +149,7 @@ class FileManagerCollector extends AbstractActivityCollector implements IFileMes
 		getActivityLogger().addActivityItem(item);
 	}
 
+	@Handler
 	@Override
 	public void onLocalShareFolder(LocalShareFolderMessage message) {
 		String description = "Successful sharing of own folder" + 
