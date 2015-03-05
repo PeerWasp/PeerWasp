@@ -6,51 +6,53 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.layout.VBox?>
-<!-- Expect RecoverFileController, but we do not specify here such that we can set the actual
-controller instance manually using the FXMLLoader.setController method
-(and not the controller factory of the loader)-->
+<!--
+	Expect RecoverFileController, but we do not specify here such that we can set the actual controller instance manually
+	using the FXMLLoader.setController method (and not the controller factory of the loader)
+-->
 <!-- fx:controller="org.peerbox.filerecovery.RecoverFileController" -->
-<AnchorPane fx:id="pane" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
+
+<AnchorPane fx:id="pane" stylesheets="css/theme.css" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
 	<children>
 
-		<VBox fx:id="recoverFileView" spacing="10.0" AnchorPane.leftAnchor="40.0" AnchorPane.rightAnchor="40.0" AnchorPane.topAnchor="40.0">
-		   <children>
-		      <Label text="Recover Version">
-               <font>
-                  <Font size="24.0" />
-               </font></Label>
-		      <HBox alignment="CENTER_LEFT" spacing="10.0">
-		         <children>
-		            <Label minWidth="40.0" text="File:" />
-		            <TextField editable="false" text="${controller.fileToRecover}" HBox.hgrow="ALWAYS" />
-		         </children>
-		      </HBox>
-		      <TableView fx:id="tblFileVersions" prefHeight="250.0">
-		        <columns>
-		          <TableColumn fx:id="tblColIndex" editable="false" minWidth="30.0" prefWidth="75.0" text="Index" />
-		          <TableColumn fx:id="tblColDate" editable="false" minWidth="140.0" prefWidth="180.0" text="Date" />
-		            <TableColumn fx:id="tblColSize" editable="false" minWidth="100.0" prefWidth="150.0" text="Size" />
-		        </columns>
-		      </TableView>
-		      <HBox alignment="CENTER_RIGHT" spacing="10.0">
-		         <children>
-		            <Label text="Total versions found:" />
-		            <Label fx:id="lblNumberOfVersions" text="0" />
-		         </children>
-		      </HBox>
-		      <HBox alignment="CENTER_LEFT" spacing="10.0">
-		         <children>
-		            <Button cancelButton="true" mnemonicParsing="false" onAction="#cancelAction" text="Cancel" />
-		            <Button fx:id="btnRecover" defaultButton="true" mnemonicParsing="false" onAction="#recoverAction" text="Recover" />
-		         </children>
-		      </HBox>
-		   </children>
-         <opaqueInsets>
-            <Insets />
-         </opaqueInsets>
-         <padding>
-            <Insets bottom="80.0" />
-         </padding>
+		<VBox fx:id="recoverFileView" spacing="10.0"
+			AnchorPane.leftAnchor="40.0" AnchorPane.rightAnchor="40.0" AnchorPane.topAnchor="40.0">
+			<children>
+				<Label text="Recover Version" styleClass="form-title" />
+				<HBox alignment="CENTER_LEFT" spacing="10.0">
+					<children>
+						<Label minWidth="40.0" text="File:" />
+						<TextField editable="false" text="${controller.fileToRecover}" HBox.hgrow="ALWAYS" />
+					</children>
+				</HBox>
+				<TableView fx:id="tblFileVersions" prefHeight="250.0">
+					<columns>
+						<TableColumn fx:id="tblColIndex" editable="false" minWidth="30.0" prefWidth="75.0" text="Index" />
+						<TableColumn fx:id="tblColDate" editable="false" minWidth="140.0" prefWidth="180.0" text="Date" />
+						<TableColumn fx:id="tblColSize" editable="false" minWidth="100.0" prefWidth="150.0" text="Size" />
+					</columns>
+				</TableView>
+				<HBox alignment="CENTER_RIGHT" spacing="10.0">
+					<children>
+						<Label text="Total versions found:" />
+						<Label fx:id="lblNumberOfVersions" text="0" />
+					</children>
+				</HBox>
+				<HBox alignment="CENTER_LEFT" spacing="10.0">
+					<children>
+						<Button cancelButton="true" mnemonicParsing="false"
+							onAction="#cancelAction" text="Cancel" />
+						<Button fx:id="btnRecover" defaultButton="true" mnemonicParsing="false"
+							onAction="#recoverAction" text="Recover" />
+					</children>
+				</HBox>
+			</children>
+			<opaqueInsets>
+				<Insets />
+			</opaqueInsets>
+			<padding>
+				<Insets bottom="80.0" />
+			</padding>
 		</VBox>
 
 	</children>

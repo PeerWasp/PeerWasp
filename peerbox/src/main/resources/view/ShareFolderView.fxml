@@ -10,16 +10,14 @@
 
 <!-- Note: we create controller manually. -->
 <!-- fx:controller="org.peerbox.share.ShareFolderController" -->
+
 <AnchorPane fx:id="pane" stylesheets="css/theme.css" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
 	<children>
-		<VBox prefHeight="400.0" prefWidth="400.0" spacing="10.0" AnchorPane.leftAnchor="40.0" AnchorPane.rightAnchor="40.0" AnchorPane.topAnchor="40.0">
+		<VBox prefHeight="400.0" prefWidth="400.0" spacing="10.0"
+			AnchorPane.leftAnchor="40.0" AnchorPane.rightAnchor="40.0" AnchorPane.topAnchor="40.0">
 			<children>
 
-				<Label text="Share folder">
-					<font>
-						<Font size="22.0" />
-					</font>
-				</Label>
+				<Label text="Share folder" styleClass="form-title" />
 				<Label text="Enter the username and select the desired permissions." wrapText="true" />
 
 				<GridPane fx:id="grdForm" hgap="5.0" vgap="5.0">
@@ -58,14 +56,17 @@
 										<ToggleGroup fx:id="permissionsGroup" />
 									</toggleGroup>
 								</RadioButton>
-								<RadioButton fx:id="rbtnReadWrite" mnemonicParsing="false" text="Read/Write" toggleGroup="$permissionsGroup" />
+								<RadioButton fx:id="rbtnReadWrite" mnemonicParsing="false" text="Read/Write"
+									toggleGroup="$permissionsGroup" />
 							</children>
 						</HBox>
 
 						<HBox alignment="CENTER_LEFT" spacing="10.0" GridPane.rowIndex="6">
 							<children>
-								<Button fx:id="btnShare" defaultButton="true" mnemonicParsing="false" onAction="#shareAction" text="Share" />
-								<Button fx:id="btnCancel" cancelButton="true" mnemonicParsing="false" onAction="#cancelAction" text="Cancel" />
+								<Button fx:id="btnShare" defaultButton="true" mnemonicParsing="false"
+									onAction="#shareAction" text="Share" />
+								<Button fx:id="btnCancel" cancelButton="true" mnemonicParsing="false"
+									onAction="#cancelAction" text="Cancel" />
 							</children>
 							<GridPane.margin>
 								<Insets top="20.0" />

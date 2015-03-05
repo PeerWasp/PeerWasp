@@ -9,15 +9,13 @@
 <?import javafx.scene.paint.*?>
 <?import javafx.scene.text.*?>
 
-<VBox minHeight="-Infinity" minWidth="-Infinity" prefHeight="550.0"
-	prefWidth="500.0" styleClass="background" stylesheets="css/theme.css"
-	xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1"
+<VBox minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="500.0" styleClass="background"
+	stylesheets="css/theme.css" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1"
 	fx:controller="org.peerbox.presenter.MainController">
 	<children>
 		<StackPane prefHeight="120" style="-fx-background-color: rgb(0, 142, 214)">
 			<children>
-				<ImageView pickOnBounds="true" preserveRatio="true"
-					StackPane.alignment="CENTER">
+				<ImageView pickOnBounds="true" preserveRatio="true" StackPane.alignment="CENTER">
 					<image>
 						<Image url="/images/peerwasp-logo-white.png" />
 					</image>
