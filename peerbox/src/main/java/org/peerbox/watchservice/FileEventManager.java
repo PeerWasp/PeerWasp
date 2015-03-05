@@ -16,11 +16,13 @@ import org.hive2hive.core.events.framework.interfaces.file.IFileShareEvent;
 import org.hive2hive.core.events.framework.interfaces.file.IFileUpdateEvent;
 import org.hive2hive.core.events.implementations.FileAddEvent;
 import org.hive2hive.core.model.UserPermission;
+import org.peerbox.app.manager.file.FolderSharedMessage;
 import org.peerbox.app.manager.file.IFileMessage;
 import org.peerbox.app.manager.file.LocalFileDesyncMessage;
 import org.peerbox.app.manager.file.RemoteFileDeletedMessage;
 import org.peerbox.app.manager.file.RemoteFileMovedMessage;
 import org.peerbox.events.MessageBus;
+import org.peerbox.notifications.InformationNotification;
 import org.peerbox.presenter.settings.synchronization.FileHelper;
 import org.peerbox.presenter.settings.synchronization.messages.FileExecutionStartedMessage;
 import org.peerbox.watchservice.filetree.FileTree;
@@ -348,11 +350,20 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 	@Handler
 	public void onFileShare(IFileShareEvent fileEvent) {
 		// TODO: share not implemented
-		String permissions = "";
+		String permissionStr = "";
 //		for (UserPermission p : fileEvent.getUserPermissions()) {
 //			permissions += p;
 //		}
-		logger.info("Share: Invited by: {}, Permission: [{}]", fileEvent.getInvitedBy(), permissions, fileEvent.getFile());
+		logger.info("Share: Invited by: {}, Permission: [{}]", fileEvent.getInvitedBy(), permissionStr, fileEvent.getFile());
+		fileEvent.getInvitedBy();
+		Set<UserPermission> permissions = fileEvent.getUserPermissions();
+		String invitedBy = fileEvent.getInvitedBy();
+		FileHelper file = new FileHelper(fileEvent.getFile().toPath(), fileEvent.getFile().isFile());
+		publishMessage(new FolderSharedMessage(file, permissions, invitedBy));
+		StringBuilder sb = new StringBuilder();
+		sb.append("User ").append(invitedBy).append(" shared the folder ").
+		append(fileEvent.getFile().toPath()).append(" with you.");
+		getMessageBus().post(new InformationNotification("Shared folder", sb.toString())).now();
 	}
 
 	/**

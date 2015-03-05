@@ -7,5 +7,4 @@ public final class RemoteFileAddedMessage extends AbstractFileMessage {
 	public RemoteFileAddedMessage(FileHelper file) {
 		super(file);
 	}
-
 }

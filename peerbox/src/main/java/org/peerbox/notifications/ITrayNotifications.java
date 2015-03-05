@@ -12,6 +12,7 @@ public interface ITrayNotifications {
 	
 	@Handler
 	public void showFileEvents(AggregatedFileEventStatus event);
+	
 
 	void showSuccessIcon() throws TrayException;
 	
