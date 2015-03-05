@@ -11,6 +11,7 @@ public class ViewNames {
 	public static final String SETTINGS_MAIN = "/view/settings/Main.fxml";
 
 	public static final String ACTIVITY_VIEW = "/view/activity/Main.fxml";
+	public static final String PROPERTIES_VIEW = "/view/settings/Properties.fxml";
 
 	public static final String RECOVER_FILE_VIEW = "/view/RecoverFileView.fxml";
 	public static final String SHARE_FOLDER_VIEW = "/view/ShareFolderView.fxml";
