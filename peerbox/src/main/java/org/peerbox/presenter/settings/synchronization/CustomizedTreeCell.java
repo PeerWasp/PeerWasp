@@ -11,6 +11,7 @@ import org.controlsfx.dialog.Dialogs;
 import org.controlsfx.dialog.Dialog;
 import org.peerbox.app.manager.file.IFileManager;
 import org.peerbox.app.manager.user.IUserManager;
+import org.peerbox.filerecovery.IFileRecoveryHandler;
 import org.peerbox.interfaces.IFxmlLoaderProvider;
 import org.peerbox.presenter.settings.Properties;
 import org.peerbox.share.IShareFolderHandler;
@@ -38,6 +39,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Label;
+import javafx.scene.control.MenuItem;
 import javafx.scene.control.Tooltip;
 import javafx.scene.control.CustomMenuItem;
 import javafx.scene.control.MenuItem;
@@ -58,14 +60,24 @@ public class CustomizedTreeCell extends CheckBoxTreeCell<PathItem> {
 
 	private static final Logger logger = LoggerFactory.getLogger(CustomizedTreeCell.class);
 	private ContextMenu menu = new ContextMenu();
+
+	private Provider<IFileRecoveryHandler> recoverFileHandlerProvider;
 	private Provider<IShareFolderHandler> shareFolderHandlerProvider;
+
 
 	private Stage stage;
 	
+
+	private MenuItem recoverMenuItem;
+
 	public CustomizedTreeCell(IFileEventManager fileEventManager,
+			Provider<IFileRecoveryHandler> recoverFileHandlerProvider,
 			Provider<IShareFolderHandler> shareFolderHandlerProvider){
 
 		this.shareFolderHandlerProvider = shareFolderHandlerProvider;
+
+		this.recoverFileHandlerProvider = recoverFileHandlerProvider;
+
 		CustomMenuItem deleteItem = new CustomMenuItem(new Label("Delete from network"));
 		Label shareLabel = new Label("Share");
 		CustomMenuItem shareItem = new CustomMenuItem(shareLabel);
@@ -73,7 +85,10 @@ public class CustomizedTreeCell extends CheckBoxTreeCell<PathItem> {
 
 		shareItem.setOnAction(new ShareFolderAction());
 
+		recoverMenuItem = createRecoveMenuItem();
+
 		menu.getItems().add(deleteItem);
+		menu.getItems().add(recoverMenuItem);
 		menu.getItems().add(shareItem);
 		menu.getItems().add(propertiesItem);
 
@@ -96,6 +111,13 @@ public class CustomizedTreeCell extends CheckBoxTreeCell<PathItem> {
 
 					Label label = (Label)shareItem.getContent();
 					label.setTooltip(new Tooltip("Right-click to share this folder with a friend."));
+				}
+
+
+				if (getItem() != null && getItem().isFile()) {
+					recoverMenuItem.setDisable(false);
+				} else {
+					recoverMenuItem.setDisable(true);
 				}
 			}
 		});
@@ -171,12 +193,32 @@ public class CustomizedTreeCell extends CheckBoxTreeCell<PathItem> {
         setContextMenu(menu);
 	}
 
+	private MenuItem createRecoveMenuItem() {
+		Label label = new Label("Recover File");
+		MenuItem menuItem = new CustomMenuItem(label);
+		menuItem.setOnAction(new RecoverFileAction());
+		return menuItem;
+	}
+
+	private class RecoverFileAction implements EventHandler<ActionEvent> {
+		@Override
+		public void handle(ActionEvent event) {
+			if (getItem() != null && getItem().getPath() != null) {
+				IFileRecoveryHandler handler = recoverFileHandlerProvider.get();
+				Path toRecover = getItem().getPath();
+				handler.recoverFile(toRecover);
+			}
+		}
+	}
+
 	private class ShareFolderAction implements EventHandler<ActionEvent> {
 		@Override
 		public void handle(ActionEvent event) {
-			IShareFolderHandler handler = shareFolderHandlerProvider.get();
-			Path toShare = getItem().getPath();
-			handler.shareFolder(toShare);
+			if (getItem() != null && getItem().getPath() != null) {
+				IShareFolderHandler handler = shareFolderHandlerProvider.get();
+				Path toShare = getItem().getPath();
+				handler.shareFolder(toShare);
+			}
 		}
 	}
 	
