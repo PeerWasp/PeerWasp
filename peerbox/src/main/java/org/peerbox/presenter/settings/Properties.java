@@ -48,7 +48,7 @@ public class Properties implements Initializable {
 					sb.append(" (Read + Write)");
 				}
 				
-				ImageView icon = SynchronizationUtils.getSharedFolderIcon();
+				ImageView icon = SynchronizationUtils.getSharedFolderSuccessIcon();
 				Label label = new Label(sb.toString());
 				label.setGraphic(icon);
 				sharedListView.getItems().add(label);

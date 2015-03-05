@@ -71,7 +71,15 @@ public class SynchronizationUtils {
 		return new ImageView(new Image(SynchronizationUtils.class.getResourceAsStream("/images/file-standard.png")));
 	}
 	
-	public static ImageView getSharedFolderIcon(){
+	public static ImageView getSharedFolderSuccessIcon(){
 		return new ImageView(new Image(SynchronizationUtils.class.getResourceAsStream("/images/folder-shared.png")));
+	}
+	
+	public static ImageView getSharedFolderInProgressIcon(){
+		return new ImageView(new Image(SynchronizationUtils.class.getResourceAsStream("/images/folder-shared-synch.png")));
+	}
+	
+	public static ImageView getSharedFolderErrorIcon(){
+		return new ImageView(new Image(SynchronizationUtils.class.getResourceAsStream("/images/folder-shared-error.png")));
 	}
 }

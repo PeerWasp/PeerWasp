@@ -234,7 +234,13 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 			view = SynchronizationUtils.getFileInProgressIcon();
 		} else {
 			view = SynchronizationUtils.getFolderInProgressIcon();
+			if(item.getValue().getUserPermissions().size() > 1){
+				view = SynchronizationUtils.getSharedFolderInProgressIcon();
+			} else {
+				view = SynchronizationUtils.getFolderInProgressIcon();
+			}
 		}
+		
 		if(item == null){
 			item = createItem(message.getFile().getPath(), false, message.getFile().isFile());
 		    putTreeItem(item);
@@ -325,7 +331,11 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 			if(message.getFile().isFile()){
 				view = SynchronizationUtils.getFileSuccessIcon();
 			} else {
-				view = SynchronizationUtils.getFolderSuccessIcon();
+				if(item.getValue().getUserPermissions().size() > 1){
+					view = SynchronizationUtils.getSharedFolderSuccessIcon();
+				} else {
+					view = SynchronizationUtils.getFolderSuccessIcon();
+				}
 			}
 
 			updateIconInUIThread(item, view);
@@ -342,7 +352,11 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 			if(message.getFile().isFile()){
 				view = SynchronizationUtils.getFileSuccessIcon();
 			} else {
-				view = SynchronizationUtils.getFolderSuccessIcon();
+				if(item.getValue().getUserPermissions().size() > 1){
+					view = SynchronizationUtils.getSharedFolderSuccessIcon();
+				} else {
+					view = SynchronizationUtils.getFolderSuccessIcon();
+				}
 			}
 
 			updateIconInUIThread(item, view);
@@ -389,7 +403,11 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 		if(message.getFile().isFile()){
 			view = SynchronizationUtils.getFileErrorIcon();
 		} else {
-			view = SynchronizationUtils.getFolderErrorIcon();
+			if(item.getValue().getUserPermissions().size() > 1){
+				view = SynchronizationUtils.getSharedFolderErrorIcon();
+			} else {
+				view = SynchronizationUtils.getFolderErrorIcon();
+			}
 		}
 
 		updateIconInUIThread(item, view);
@@ -462,7 +480,7 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 			logger.trace("item == null for {}", message.getFile().getPath());
 		}
 
-		ImageView view = SynchronizationUtils.getSharedFolderIcon();
+		ImageView view = SynchronizationUtils.getSharedFolderSuccessIcon();
 
 
 		updateIconInUIThread(item, view);
@@ -487,7 +505,7 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 			logger.trace("item == null for {}", message.getFile().getPath());
 		}
 
-		ImageView view = SynchronizationUtils.getSharedFolderIcon();
+		ImageView view = SynchronizationUtils.getSharedFolderSuccessIcon();
 
 
 		updateIconInUIThread(item, view);
