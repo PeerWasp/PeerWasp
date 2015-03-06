@@ -422,6 +422,7 @@ public class ActionExecutor implements Runnable {
 			return true;
 
 		} else if (error == AbortModificationCode.NO_WRITE_PERM) {
+			//This happens when a user creates a file in a read-only folder.
 			logger.debug("Attempt to delete or write to {} failed. No write-permissions.", path);
 			return true;
 		}
