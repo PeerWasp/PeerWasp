@@ -470,10 +470,12 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 		logger.trace("onRemoteFolderShared: {}", message.getFile().getPath());
 		
 		CheckBoxTreeItem<PathItem> item = getOrCreateItem(message.getFile(), false);
-
+		item.getValue().getUserPermissions().clear();
+		item.getValue().getUserPermissions().addAll(message.getUserPermissions());
 		ImageView view = SynchronizationUtils.getSharedFolderStandardIcon();
 		String tooltip = "";
-		if(item.getGraphic() != null && item.getGraphic() instanceof Label){
+		if(item.getGraphic() != null && item.getGraphic() instanceof Label &&
+				((Label)item.getGraphic()).getTooltip() != null){
 			Label oldLabel = (Label) item.getGraphic();
 			tooltip = oldLabel.getTooltip().getText();
 		}
@@ -490,6 +492,7 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 		logger.trace("onLocalFolderShared: {}", message.getFile().getPath());
 		
 		CheckBoxTreeItem<PathItem> item = getOrCreateItem(message.getFile(), false);
+		item.getValue().getUserPermissions().add(message.getInvitedUserPermission());
 		ImageView view = SynchronizationUtils.getSharedFolderSuccessIcon();
 
 		updateIconInUIThread(item, view);
