@@ -71,8 +71,6 @@ public final class ShareFolderController implements Initializable {
 	@FXML
 	private Label lblUsernameError;
 	@FXML
-	private RadioButton rbtnReadWrite;
-	@FXML
 	private StatusBar statusBar;
 
 	/* checks whether user exists in the network */
@@ -142,7 +140,6 @@ public final class ShareFolderController implements Initializable {
 	private void resetForm() {
 		uninstallValidationDecorations();
 		txtUsername.clear();
-		rbtnReadWrite.setSelected(false);
 		setBusy(false);
 		setStatus("");
 	}
@@ -159,12 +156,11 @@ public final class ShareFolderController implements Initializable {
 	private Task<ResultStatus> createShareTask() {
 		Task<ResultStatus> task = new Task<ResultStatus>() {
 			final String username = getUsername();
-			final PermissionType permission = selectedPermissionType();
 			final Path toShare = getFolderToShare();
 
 			@Override
 			public ResultStatus call() {
-				return shareFolder(toShare, username, permission);
+				return shareFolder(toShare, username);
 			}
 		};
 
@@ -197,11 +193,11 @@ public final class ShareFolderController implements Initializable {
 		return task;
 	}
 
-	private ResultStatus shareFolder(Path toShare, String username, PermissionType permission) {
+	private ResultStatus shareFolder(Path toShare, String username) {
 		ProcessHandle<Void> handle =  null;
 		try {
 
-			handle = fileManager.share(toShare, username, permission);
+			handle = fileManager.share(toShare, username, PermissionType.WRITE);
 			handle.execute();
 			return ResultStatus.ok();
 
@@ -249,7 +245,7 @@ public final class ShareFolderController implements Initializable {
 			Platform.runLater(succeeded);
 		}
 		FileHelper file = new FileHelper(Paths.get(folderToShareProperty.get()), false);
-		UserPermission permission = new UserPermission(getUsername(), selectedPermissionType());
+		UserPermission permission = new UserPermission(getUsername(), PermissionType.WRITE);
 		messageBus.publish(new LocalShareFolderMessage(file, permission));
 	}
 
@@ -284,13 +280,6 @@ public final class ShareFolderController implements Initializable {
 
 	private Stage getStage() {
 		return (Stage)pane.getScene().getWindow();
-	}
-
-	private PermissionType selectedPermissionType() {
-		if(rbtnReadWrite.isSelected()) {
-			return PermissionType.WRITE;
-		}
-		return PermissionType.READ;
 	}
 
 	private String getUsername() {

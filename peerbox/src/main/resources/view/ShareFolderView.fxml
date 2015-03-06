@@ -13,11 +13,10 @@
 
 <AnchorPane fx:id="pane" stylesheets="css/theme.css" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
 	<children>
-		<VBox prefHeight="400.0" prefWidth="400.0" spacing="10.0"
-			AnchorPane.leftAnchor="40.0" AnchorPane.rightAnchor="40.0" AnchorPane.topAnchor="40.0">
+		<VBox prefHeight="262.0" prefWidth="400.0" spacing="10.0" AnchorPane.leftAnchor="40.0" AnchorPane.rightAnchor="40.0" AnchorPane.topAnchor="40.0">
 			<children>
 
-				<Label text="Share folder" styleClass="form-title" />
+				<Label styleClass="form-title" text="Share folder" />
 				<Label text="Enter the username and select the desired permissions." wrapText="true" />
 
 				<GridPane fx:id="grdForm" hgap="5.0" vgap="5.0">
@@ -25,8 +24,6 @@
 						<ColumnConstraints hgrow="SOMETIMES" minWidth="200.0" prefWidth="200.0" />
 					</columnConstraints>
 					<rowConstraints>
-						<RowConstraints minHeight="10.0" prefHeight="30.0" valignment="CENTER" vgrow="NEVER" />
-						<RowConstraints minHeight="10.0" prefHeight="30.0" valignment="CENTER" vgrow="NEVER" />
 						<RowConstraints minHeight="10.0" prefHeight="30.0" valignment="CENTER" vgrow="NEVER" />
 						<RowConstraints minHeight="10.0" prefHeight="30.0" valignment="CENTER" vgrow="NEVER" />
 						<RowConstraints minHeight="10.0" prefHeight="30.0" valignment="CENTER" vgrow="NEVER" />
@@ -47,26 +44,10 @@
 
 						<TextField fx:id="txtUsername" GridPane.rowIndex="3" />
 
-						<Label text="Permissions:" GridPane.rowIndex="4" />
-
-						<HBox alignment="CENTER_LEFT" spacing="10.0" GridPane.rowIndex="5">
+						<HBox alignment="CENTER_LEFT" spacing="10.0" GridPane.rowIndex="4">
 							<children>
-								<RadioButton fx:id="rbtnRead" mnemonicParsing="false" selected="true" text="Read">
-									<toggleGroup>
-										<ToggleGroup fx:id="permissionsGroup" />
-									</toggleGroup>
-								</RadioButton>
-								<RadioButton fx:id="rbtnReadWrite" mnemonicParsing="false" text="Read/Write"
-									toggleGroup="$permissionsGroup" />
-							</children>
-						</HBox>
-
-						<HBox alignment="CENTER_LEFT" spacing="10.0" GridPane.rowIndex="6">
-							<children>
-								<Button fx:id="btnShare" defaultButton="true" mnemonicParsing="false"
-									onAction="#shareAction" text="Share" />
-								<Button fx:id="btnCancel" cancelButton="true" mnemonicParsing="false"
-									onAction="#cancelAction" text="Cancel" />
+								<Button fx:id="btnShare" defaultButton="true" mnemonicParsing="false" onAction="#shareAction" text="Share" />
+								<Button fx:id="btnCancel" cancelButton="true" mnemonicParsing="false" onAction="#cancelAction" text="Cancel" />
 							</children>
 							<GridPane.margin>
 								<Insets top="20.0" />

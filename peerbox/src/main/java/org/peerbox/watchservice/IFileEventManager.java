@@ -19,5 +19,6 @@ public interface IFileEventManager {
 	
 	public MessageBus getMessageBus();
 	public Set<Path> getFailedOperations();
+	public Set<Path> getSharedFolders();
 
 }

@@ -80,6 +80,8 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 	 */
 	private final Set<Path> failedOperations;
 
+	private final Set<Path> sharedFolders;
+	
 	/**
 	 *
 	 * @param fileTree The file tree representation of PeerWasp
@@ -91,6 +93,7 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 		this.fileTree = fileTree;
 		this.messageBus = messageBus;
 		this.failedOperations = new ConcurrentHashSet<Path>();
+		this.sharedFolders = new ConcurrentHashSet<Path>();
 	}
 
     /**
@@ -350,7 +353,7 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 	@Override
 	@Handler
 	public void onFileShare(IFileShareEvent fileEvent) {
-		// TODO: share not implemented
+		sharedFolders.add(fileEvent.getFile().toPath());
 		String permissionStr = "";
 		for (UserPermission p : fileEvent.getUserPermissions()) {
 			permissionStr = permissionStr.concat(p.getUserId() + " ");
@@ -411,6 +414,11 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 		} else {
 			logger.warn("No message sent, as message bus is null!");
 		}
+	}
+
+	@Override
+	public Set<Path> getSharedFolders() {
+		return sharedFolders;
 	}
 
 }
