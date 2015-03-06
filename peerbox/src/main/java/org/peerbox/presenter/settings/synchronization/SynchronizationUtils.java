@@ -12,13 +12,12 @@ import javafx.scene.image.ImageView;
  */
 public class SynchronizationUtils {
 	
-	private static final String successTooltip = "This file is synchronized.";
-	private static final String errorTooltip = "Synchronization of this file failed.";
-	private static final String inProgressTooltip = "Synchronization of this file is currently ongoing.";
+	private static final String successTooltip = "This file is synchronized.\n";
+	private static final String errorTooltip = "Synchronization of this file failed.\n";
+	private static final String inProgressTooltip = "Synchronization of this file is currently ongoing.\n";
 	private static final String softDeletedTooltip = "This file is currently not synchronized.\n"
 			+ "Check the box to download it.";
-	private static final String sharedFolderTooltip = "This folder is shared with other users. Go to \""
-			+ "Properties in the context menu for additional information.";
+	private static final String sharedFolderTooltip = "This folder is shared with other users.\n";
 	
 	public static String getSuccessTooltip(){
 		return successTooltip;
@@ -81,5 +80,9 @@ public class SynchronizationUtils {
 	
 	public static ImageView getSharedFolderErrorIcon(){
 		return new ImageView(new Image(SynchronizationUtils.class.getResourceAsStream("/images/folder-shared-error.png")));
+	}
+	
+	public static ImageView getSharedFolderStandardIcon(){
+		return new ImageView(new Image(SynchronizationUtils.class.getResourceAsStream("/images/folder-shared-standard.png")));
 	}
 }

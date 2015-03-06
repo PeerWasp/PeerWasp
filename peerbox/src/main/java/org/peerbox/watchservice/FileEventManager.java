@@ -15,6 +15,7 @@ import org.hive2hive.core.events.framework.interfaces.file.IFileMoveEvent;
 import org.hive2hive.core.events.framework.interfaces.file.IFileShareEvent;
 import org.hive2hive.core.events.framework.interfaces.file.IFileUpdateEvent;
 import org.hive2hive.core.events.implementations.FileAddEvent;
+import org.hive2hive.core.model.PermissionType;
 import org.hive2hive.core.model.UserPermission;
 import org.peerbox.app.manager.file.RemoteShareFolderMessage;
 import org.peerbox.app.manager.file.IFileMessage;
@@ -351,15 +352,20 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 	public void onFileShare(IFileShareEvent fileEvent) {
 		// TODO: share not implemented
 		String permissionStr = "";
-//		for (UserPermission p : fileEvent.getUserPermissions()) {
-//			permissions += p;
-//		}
+		for (UserPermission p : fileEvent.getUserPermissions()) {
+			permissionStr = permissionStr.concat(p.getUserId() + " ");
+			if(p.getPermission() == PermissionType.READ){
+				permissionStr = permissionStr.concat("Read");
+			} else {
+				permissionStr = permissionStr.concat("Read / Write");
+			}
+		}
 		logger.info("Share: Invited by: {}, Permission: [{}]", fileEvent.getInvitedBy(), permissionStr, fileEvent.getFile());
 		fileEvent.getInvitedBy();
 		Set<UserPermission> permissions = fileEvent.getUserPermissions();
 		String invitedBy = fileEvent.getInvitedBy();
 		FileHelper file = new FileHelper(fileEvent.getFile().toPath(), fileEvent.getFile().isFile());
-		publishMessage(new RemoteShareFolderMessage(file, permissions, invitedBy));
+		
 		StringBuilder sb = new StringBuilder();
 		sb.append("User ").append(invitedBy).append(" shared the folder ").
 		append(fileEvent.getFile().toPath()).append(" with you.");
