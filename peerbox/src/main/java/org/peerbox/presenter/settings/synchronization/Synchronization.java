@@ -96,6 +96,7 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 	private Set<Path> synchronizedFiles;
 	private Set<Path> failedFiles = new HashSet<Path>();
 	private Set<Path> executingFiles = new HashSet<Path>();
+	private Set<Path> sharedFolders = new HashSet<Path>();
 
 	private final Provider<IShareFolderHandler> shareFolderHandlerProvider;
 
@@ -211,6 +212,7 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 	public void refreshAction(ActionEvent event){
 		synchronizedFiles = getFileEventManager().getFileTree().getSynchronizedPathsAsSet();
 		failedFiles = getFileEventManager().getFailedOperations();
+		sharedFolders = getFileEventManager().getSharedFolders();
 		createTreeViewFromNetwork();
 	}
 
@@ -233,7 +235,7 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 			view = SynchronizationUtils.getFileInProgressIcon();
 		} else {
 			view = SynchronizationUtils.getFolderInProgressIcon();
-			if(item.getValue().getUserPermissions().size() > 1){
+			if(eventManager.getSharedFolders().contains(message.getFile().getPath())){
 				view = SynchronizationUtils.getSharedFolderInProgressIcon();
 			} else {
 				view = SynchronizationUtils.getFolderInProgressIcon();
@@ -331,7 +333,7 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 			if(message.getFile().isFile()){
 				view = SynchronizationUtils.getFileSuccessIcon();
 			} else {
-				if(item.getValue().getUserPermissions().size() > 1){
+				if(eventManager.getSharedFolders().contains(message.getFile().getPath())){
 					view = SynchronizationUtils.getSharedFolderSuccessIcon();
 				} else {
 					view = SynchronizationUtils.getFolderSuccessIcon();
@@ -354,7 +356,7 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 				view = SynchronizationUtils.getFileSuccessIcon();
 			} else {
 				
-				if(item.getValue().getUserPermissions().size() > 1){
+				if(eventManager.getSharedFolders().contains(message.getFile().getPath())){
 					tooltip = tooltip.concat(SynchronizationUtils.getSharedFolderTooltip());
 					view = SynchronizationUtils.getSharedFolderSuccessIcon();
 				} else {
@@ -372,7 +374,7 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 			if(message.getFile().isFile()){
 				view = SynchronizationUtils.getFileSuccessIcon();
 			} else {
-				if(item.getValue().getUserPermissions().size() > 1){
+				if(eventManager.getSharedFolders().contains(message.getFile().getPath())){
 					view = SynchronizationUtils.getSharedFolderSuccessIcon();
 					tooltip = tooltip.concat(SynchronizationUtils.getSharedFolderTooltip());
 				} else {
@@ -405,7 +407,7 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 		if(message.getFile().isFile()){
 			view = SynchronizationUtils.getFileErrorIcon();
 		} else {
-			if(item.getValue().getUserPermissions().size() > 1){
+			if(eventManager.getSharedFolders().contains(message.getFile().getPath())){
 				tooltip = tooltip.concat(SynchronizationUtils.getSharedFolderTooltip());
 				view = SynchronizationUtils.getSharedFolderErrorIcon();
 			} else {
@@ -445,7 +447,7 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 			view = SynchronizationUtils.getFileStandardIcon();
 		} else {
 			
-			if(item.getValue().getUserPermissions().size() > 1){
+			if(eventManager.getSharedFolders().contains(message.getFile().getPath())){
 				view = SynchronizationUtils.getSharedFolderStandardIcon();
 				tooltip = tooltip.concat(SynchronizationUtils.getSharedFolderTooltip());
 			} else {
@@ -674,7 +676,7 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 	        		if(topLevelNode.isFile()){
 	        			icon = SynchronizationUtils.getFileErrorIcon();
 	        		} else {
-	        			if(topLevelNode.getUserPermissions().size() > 1){
+	        			if(sharedFolders.contains(path)){
 	        				icon = SynchronizationUtils.getSharedFolderErrorIcon();
 	        			} else {
 	        				icon = SynchronizationUtils.getFolderErrorIcon();
@@ -687,7 +689,7 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 	        		if(topLevelNode.isFile()){
 	        			icon = SynchronizationUtils.getFileInProgressIcon();//;new ImageView(inProgressIcon);
 	        		} else {
-	        			if(topLevelNode.getUserPermissions().size() > 1){
+	        			if(sharedFolders.contains(path)){
 	        				icon = SynchronizationUtils.getSharedFolderInProgressIcon();
 	        			} else {
 	        				icon = SynchronizationUtils.getFolderInProgressIcon();
@@ -700,7 +702,7 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 	        		if(topLevelNode.isFile()){
 	        			icon = SynchronizationUtils.getFileSuccessIcon();
 	        		} else {
-	        			if(topLevelNode.getUserPermissions().size() > 1){
+	        			if(sharedFolders.contains(path)){
 	        				icon = SynchronizationUtils.getSharedFolderSuccessIcon();
 	        			} else {
 	        				icon = SynchronizationUtils.getFolderSuccessIcon();
