@@ -4,8 +4,6 @@ import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.layout.Pane;
 
-import org.peerbox.interfaces.INavigatable;
-
 public class MainController implements INavigatable {
 
 	@FXML

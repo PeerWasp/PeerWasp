@@ -28,7 +28,7 @@ import org.peerbox.app.manager.node.INodeManager;
 import org.peerbox.app.manager.user.IUserManager;
 import org.peerbox.app.manager.user.UserManager;
 import org.peerbox.events.MessageBus;
-import org.peerbox.interfaces.IFxmlLoaderProvider;
+import org.peerbox.guice.IFxmlLoaderProvider;
 import org.peerbox.share.ShareFolderController;
 import org.peerbox.share.ShareFolderHandler;
 

@@ -45,7 +45,7 @@ import org.peerbox.app.manager.file.RemoteFileMovedMessage;
 import org.peerbox.app.manager.file.RemoteShareFolderMessage;
 import org.peerbox.app.manager.user.IUserManager;
 import org.peerbox.filerecovery.IFileRecoveryHandler;
-import org.peerbox.interfaces.IFxmlLoaderProvider;
+import org.peerbox.guice.IFxmlLoaderProvider;
 import org.peerbox.presenter.settings.synchronization.messages.FileExecutionStartedMessage;
 import org.peerbox.presenter.settings.synchronization.messages.FileExecutionSucceededMessage;
 import org.peerbox.share.IShareFolderHandler;
