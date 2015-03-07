@@ -7,16 +7,8 @@
 <?import javafx.scene.layout.*?>
 
 <GridPane hgap="10.0" minHeight="200.0" minWidth="200.0" prefHeight="450.0" prefWidth="600.0" vgap="10.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.peerbox.presenter.settings.synchronization.Synchronization">
-	<columnConstraints>
-		<ColumnConstraints hgrow="ALWAYS" minWidth="60.0" />
-	</columnConstraints>
-	<rowConstraints>
-		<RowConstraints maxHeight="60.0" minHeight="60.0" prefHeight="60.0" vgrow="NEVER" />
-		<RowConstraints prefHeight="150.0" vgrow="SOMETIMES" />
-		<RowConstraints maxHeight="40.0" minHeight="40.0" prefHeight="40.0" vgrow="NEVER" />
-	</rowConstraints>
 	<children>
-		 <VBox minHeight="50.0" spacing="10.0" GridPane.rowIndex="0">
+		 <VBox spacing="10.0" GridPane.rowIndex="0">
 			<children>
 				<Label text="Synchronization">
 					<font>
@@ -27,43 +19,40 @@
 					</VBox.margin>
 				</Label>
 				<Label text="Only marked files are synchronized to this device. Changes are only applied if you push &quot;OK.&quot;" wrapText="true" />
+      		<TreeView fx:id="fileTreeView" />
+            <HBox alignment="CENTER_LEFT" spacing="10.0">
+               <children>
+                  <Button fx:id="selectAllButton" onAction="#selectAllAction" prefHeight="25.0" text="Select all" />
+                  <Button fx:id="unselectAllButton" onAction="#unselectAllAction" text="Unselect all" />
+                  <Button fx:id="refreshButton" onAction="#refreshAction" prefHeight="25.0" text="Refresh" />
+               </children>
+               <padding>
+                  <Insets top="10.0" />
+               </padding>
+            </HBox>
+      		<HBox alignment="CENTER_LEFT">
+      			<children>
+            				<Button fx:id="okButton" defaultButton="true" onAction="#acceptSyncAction" text="Accept" />
+      				<Button fx:id="cancelButton" cancelButton="true" onAction="#cancelAction" text="Discard">
+      					<HBox.margin>
+      						<Insets left="10.0" />
+      					</HBox.margin>
+      				</Button>
+      			</children>
+      			<padding>
+      				<Insets top="10.0" />
+      			</padding>
+      		</HBox>
 			</children>
 		</VBox>
-		<GridPane hgap="10.0" minHeight="319.0" prefHeight="319.0" prefWidth="580.0" vgap="10.0" GridPane.rowIndex="1">
-			<columnConstraints>
-            <ColumnConstraints hgrow="NEVER" maxWidth="100.0" minWidth="63.0" />
-            <ColumnConstraints hgrow="NEVER" maxWidth="363.0" minWidth="75.0" />
-				<ColumnConstraints hgrow="SOMETIMES" minWidth="60.0" prefWidth="311.0" />
-				<ColumnConstraints hgrow="NEVER" maxWidth="1.7976931348623157E308" minWidth="20.0" prefWidth="93.0" />
-			</columnConstraints>
-			<rowConstraints>
-				<RowConstraints maxHeight="1.7976931348623157E308" minHeight="50.0" prefHeight="261.0" vgrow="ALWAYS" />
-            <RowConstraints maxHeight="50.0" minHeight="50.0" prefHeight="50.0" vgrow="NEVER" />
-			</rowConstraints>
-			<children>
-				<VBox GridPane.columnIndex="1" />
-     		<TreeView fx:id="fileTreeView" minHeight="50.0" GridPane.columnSpan="4" GridPane.hgrow="SOMETIMES" GridPane.vgrow="SOMETIMES" />
-            <Button fx:id="selectAllButton" onAction="#selectAllAction" prefHeight="25.0" text="Select all" GridPane.rowIndex="1" GridPane.valignment="TOP" />
-            <Button fx:id="unselectAllButton" onAction="#unselectAllAction" text="Unselect all" GridPane.columnIndex="1" GridPane.rowIndex="1" GridPane.valignment="TOP" />
-            <Button fx:id="refreshButton" onAction="#refreshAction" prefHeight="25.0" text="Refresh" GridPane.columnIndex="2" GridPane.rowIndex="1" GridPane.valignment="TOP" />
-  
-			</children>
-		</GridPane>
-		<HBox alignment="CENTER_LEFT" GridPane.rowIndex="2">
-			<children>
-				<Button fx:id="okButton" defaultButton="true" onAction="#acceptSyncAction" text="Accept" />
-				<Button fx:id="cancelButton" cancelButton="true" onAction="#cancelAction" text="Discard">
-					<HBox.margin>
-						<Insets left="10.0" />
-					</HBox.margin>
-				</Button>
-			</children>
-			<padding>
-				<Insets top="20.0" />
-			</padding>
-		</HBox>
 	</children>
 	<padding>
 		<Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
 	</padding>
+   <columnConstraints>
+      <ColumnConstraints />
+   </columnConstraints>
+   <rowConstraints>
+      <RowConstraints />
+   </rowConstraints>
 </GridPane>
