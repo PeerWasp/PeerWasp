@@ -580,6 +580,7 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 		if(path.equals(Paths.get(""))){
 			if(remove){
 				item.getParent().getChildren().remove(item);
+//				item.getParent().getValue().removePermissionsListener(item.getValue());
 			}
 			return item;
 		}
@@ -609,6 +610,8 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 				}
 			}
 			parent.getChildren().add(toPut);
+//			parent.getValue().addPermissionsListener(toPut.getValue());
+			toPut.getValue().bind(parent.getValue().getPermissionsSetProperty());
 			return;
 		} else {
 			Iterator<TreeItem<PathItem>> iter = parent.getChildren().iterator();
@@ -625,6 +628,8 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 			CheckBoxTreeItem<PathItem> created = new CheckBoxTreeItem<PathItem>(pathItem);
 			toPut.addEventHandler(CheckBoxTreeItem.checkBoxSelectionChangedEvent(), new ClickEventHandler(this));
 			parent.getChildren().add(toPut);
+			toPut.getValue().bind(parent.getValue().getPermissionsSetProperty());
+//			parent.getValue().addPermissionsListener(toPut.getValue());
 			putTreeItem(created, toPut, toPut.getValue().getPath().relativize(wholePath));
 		}
 	}

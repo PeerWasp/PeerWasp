@@ -97,7 +97,7 @@ public class CustomizedTreeCell extends CheckBoxTreeCell<PathItem> {
 			public void handle(WindowEvent arg0) {
 				if(getItem().isFile()){
 					shareItem.setVisible(false);
-					propertiesItem.setVisible(false);
+					propertiesItem.setVisible(true);
 				} else if(!getItem().getPath().toFile().exists()){
 					shareItem.setDisable(true);
 					Label label = (Label)shareItem.getContent();
@@ -105,9 +105,9 @@ public class CustomizedTreeCell extends CheckBoxTreeCell<PathItem> {
 				} else {
 					shareItem.setDisable(false);
 					shareItem.setVisible(true);
-					Rectangle rect = new Rectangle();
-					rect.setWidth(200);
-					rect.setHeight(100);
+//					Rectangle rect = new Rectangle();
+//					rect.setWidth(200);
+//					rect.setHeight(100);
 
 					Label label = (Label)shareItem.getContent();
 					label.setTooltip(new Tooltip("Right-click to share this folder with a friend."));
