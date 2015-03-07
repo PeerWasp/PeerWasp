@@ -111,7 +111,6 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 		this.userConfig = userConfig;
 		this.recoverFileHandlerProvider = recoverFileHandlerProvider;
 		this.shareFolderHandlerProvider = shareFolderHandlerProvider;
-		this.fxmlLoaderProvider = fxmlLoaderProvider;
 	}
 
 	public Set<FileHelper> getToSynchronize(){
@@ -171,7 +170,7 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 	 */
 	@FXML
 	public void selectAllAction(ActionEvent event) {
-		CheckBoxTreeItem<PathItem> root = (CheckBoxTreeItem<PathItem>)fileTreeView.getRoot();
+		SyncTreeItem root = (SyncTreeItem)fileTreeView.getRoot();
 		root.setSelected(true);
 	}
 
@@ -182,7 +181,7 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 	 */
 	@FXML
 	public void unselectAllAction(ActionEvent event) {
-		CheckBoxTreeItem<PathItem> root = (CheckBoxTreeItem<PathItem>)fileTreeView.getRoot();
+		SyncTreeItem root = (SyncTreeItem)fileTreeView.getRoot();
 		root.setSelected(true); // surprisingly, only setting to false has no effect!
 		root.setSelected(false);
 	}
@@ -227,28 +226,29 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 	public void onExecutionStarts(FileExecutionStartedMessage message) {
 		logger.trace("onExecutionStarts: {}", message.getFile().getPath());
 		ImageView view;
-		CheckBoxTreeItem<PathItem> item = getTreeItem(message.getFile().getPath());
+		SyncTreeItem item = getOrCreateItem(message.getFile(), false); //(message.getFile().getPath());
 
-		if(message.getFile().isFile()){
-			view = SynchronizationUtils.getFileInProgressIcon();
-		} else {
-			view = SynchronizationUtils.getFolderInProgressIcon();
-			if(eventManager.getSharedFolders().contains(message.getFile().getPath())){
-				view = SynchronizationUtils.getSharedFolderInProgressIcon();
-			} else {
-				view = SynchronizationUtils.getFolderInProgressIcon();
-			}
-		}
+//		if(message.getFile().isFile()){
+//			view = SynchronizationUtils.getFileInProgressIcon();
+//		} else {
+//			view = SynchronizationUtils.getFolderInProgressIcon();
+//			if(eventManager.getSharedFolders().contains(message.getFile().getPath())){
+//				view = SynchronizationUtils.getSharedFolderInProgressIcon();
+//			} else {
+//				view = SynchronizationUtils.getFolderInProgressIcon();
+//			}
+//		}
+		item.setProgressState(ProgressState.IN_PROGRESS);
 		
-		if(item == null){
-			item = createItem(message.getFile().getPath(), false, message.getFile().isFile());
-		    putTreeItem(item);
-		    item.setSelected(false);
-			logger.trace("item == null for {}", message.getFile().getPath());
-		}
+//		if(item == null){
+//			item = createItem(message.getFile().getPath(), false, message.getFile().isFile());
+//		    putTreeItem(item);
+//		    item.setSelected(false);
+//			logger.trace("item == null for {}", message.getFile().getPath());
+//		}
 
-		updateIconInUIThread(item, view);
-		updateTooltipInUIThread(item, SynchronizationUtils.getInProgressToolTip());
+//		updateIconInUIThread(item, view);
+//		updateTooltipInUIThread(item, SynchronizationUtils.getInProgressToolTip());
 	}
 
 	/**
@@ -290,16 +290,17 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 		logger.trace("onFileMoved: {} --> {}", srcFile, dstFile);
 
 		removeTreeItemInUIThread(srcFile);
-		CheckBoxTreeItem<PathItem> item = getOrCreateItem(message.getFile(), true);
+		SyncTreeItem item = getOrCreateItem(message.getFile(), true);
 		ImageView view = null;
-		if(message.getFile().isFile()){
-			view = SynchronizationUtils.getFileSuccessIcon();
-		} else {
-			view = SynchronizationUtils.getFolderSuccessIcon();
-		}
-
-		updateIconInUIThread(item, view);
-		updateTooltipInUIThread(item, SynchronizationUtils.getSuccessTooltip());
+//		if(message.getFile().isFile()){
+//			view = SynchronizationUtils.getFileSuccessIcon();
+//		} else {
+//			view = SynchronizationUtils.getFolderSuccessIcon();
+//		}
+//
+//		updateIconInUIThread(item, view);
+//		updateTooltipInUIThread(item, SynchronizationUtils.getSuccessTooltip());
+		item.setProgressState(ProgressState.SUCCESSFUL);
 		updateIsSelectedInUIThread(item, message.getFile(), true);
 	}
 
@@ -325,22 +326,23 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 			break;
 
 		case INITIAL:
-			CheckBoxTreeItem<PathItem> item = getOrCreateItem(message.getFile(), true);
-			ImageView view;
-			tooltip = SynchronizationUtils.getSuccessTooltip();
-			if(message.getFile().isFile()){
-				view = SynchronizationUtils.getFileSuccessIcon();
-			} else {
-				if(eventManager.getSharedFolders().contains(message.getFile().getPath())){
-					view = SynchronizationUtils.getSharedFolderSuccessIcon();
-				} else {
-					view = SynchronizationUtils.getFolderSuccessIcon();
-					tooltip = tooltip.concat(SynchronizationUtils.getSharedFolderTooltip());
-				}
-			}
-
-			updateIconInUIThread(item, view);
-			updateTooltipInUIThread(item, tooltip);
+			SyncTreeItem item = getOrCreateItem(message.getFile(), true);
+//			ImageView view;
+//			tooltip = SynchronizationUtils.getSuccessTooltip();
+//			if(message.getFile().isFile()){
+//				view = SynchronizationUtils.getFileSuccessIcon();
+//			} else {
+//				if(eventManager.getSharedFolders().contains(message.getFile().getPath())){
+//					view = SynchronizationUtils.getSharedFolderSuccessIcon();
+//				} else {
+//					view = SynchronizationUtils.getFolderSuccessIcon();
+//					tooltip = tooltip.concat(SynchronizationUtils.getSharedFolderTooltip());
+//				}
+//			}
+//
+//			updateIconInUIThread(item, view);
+//			updateTooltipInUIThread(item, tooltip);
+			item.setProgressState(ProgressState.SUCCESSFUL);
 			break;
 		case LOCAL_MOVE:
 			Path srcFile = message.getSourceFile().getPath();
@@ -349,39 +351,42 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 
 			removeTreeItemInUIThread(srcFile);
 			item = getOrCreateItem(message.getFile(), true);
-			tooltip = SynchronizationUtils.getSuccessTooltip();
-			if(message.getFile().isFile()){
-				view = SynchronizationUtils.getFileSuccessIcon();
-			} else {
-				
-				if(eventManager.getSharedFolders().contains(message.getFile().getPath())){
-					tooltip = tooltip.concat(SynchronizationUtils.getSharedFolderTooltip());
-					view = SynchronizationUtils.getSharedFolderSuccessIcon();
-				} else {
-					view = SynchronizationUtils.getFolderSuccessIcon();
-				}
-			}
-
-			updateIconInUIThread(item, view);
-			updateTooltipInUIThread(item, tooltip);
+//			tooltip = SynchronizationUtils.getSuccessTooltip();
+//			if(message.getFile().isFile()){
+//				view = SynchronizationUtils.getFileSuccessIcon();
+//			} else {
+//				
+//				if(eventManager.getSharedFolders().contains(message.getFile().getPath())){
+//					tooltip = tooltip.concat(SynchronizationUtils.getSharedFolderTooltip());
+//					view = SynchronizationUtils.getSharedFolderSuccessIcon();
+//				} else {
+//					view = SynchronizationUtils.getFolderSuccessIcon();
+//				}
+//			}
+//
+//			updateIconInUIThread(item, view);
+//			updateTooltipInUIThread(item, tooltip);
+			
+			item.setProgressState(ProgressState.SUCCESSFUL);
 			selectFilesAndFolderInUIThread(item, message.getFile());
 			break;
 		default:
 			item = getOrCreateItem(message.getFile(), true);
-			tooltip = SynchronizationUtils.getSuccessTooltip();
-			if(message.getFile().isFile()){
-				view = SynchronizationUtils.getFileSuccessIcon();
-			} else {
-				if(eventManager.getSharedFolders().contains(message.getFile().getPath())){
-					view = SynchronizationUtils.getSharedFolderSuccessIcon();
-					tooltip = tooltip.concat(SynchronizationUtils.getSharedFolderTooltip());
-				} else {
-					view = SynchronizationUtils.getFolderSuccessIcon();
-				}
-			}
-
-			updateIconInUIThread(item, view);
-			updateTooltipInUIThread(item, tooltip);
+//			tooltip = SynchronizationUtils.getSuccessTooltip();
+//			if(message.getFile().isFile()){
+//				view = SynchronizationUtils.getFileSuccessIcon();
+//			} else {
+//				if(eventManager.getSharedFolders().contains(message.getFile().getPath())){
+//					view = SynchronizationUtils.getSharedFolderSuccessIcon();
+//					tooltip = tooltip.concat(SynchronizationUtils.getSharedFolderTooltip());
+//				} else {
+//					view = SynchronizationUtils.getFolderSuccessIcon();
+//				}
+//			}
+//
+//			updateIconInUIThread(item, view);
+//			updateTooltipInUIThread(item, tooltip);
+			item.setProgressState(ProgressState.SUCCESSFUL);
 			updateIsSelectedInUIThread(item, message.getFile(), true);
 		}
 	}
@@ -399,24 +404,25 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 	public void onExecutionFails(FileExecutionFailedMessage message) {
 		logger.trace("onExecutionFails: {}", message.getFile().getPath());
 		
-		CheckBoxTreeItem<PathItem> item = getOrCreateItem(message.getFile(), false);
-		String tooltip = SynchronizationUtils.getErrorTooltip();
-		ImageView view;
-		if(message.getFile().isFile()){
-			view = SynchronizationUtils.getFileErrorIcon();
-		} else {
-			if(eventManager.getSharedFolders().contains(message.getFile().getPath())){
-				tooltip = tooltip.concat(SynchronizationUtils.getSharedFolderTooltip());
-				view = SynchronizationUtils.getSharedFolderErrorIcon();
-			} else {
-				view = SynchronizationUtils.getFolderErrorIcon();
-			}
-		}
+		SyncTreeItem item = getOrCreateItem(message.getFile(), false);
+//		String tooltip = SynchronizationUtils.getErrorTooltip();
+//		ImageView view;
+//		if(message.getFile().isFile()){
+//			view = SynchronizationUtils.getFileErrorIcon();
+//		} else {
+//			if(eventManager.getSharedFolders().contains(message.getFile().getPath())){
+//				tooltip = tooltip.concat(SynchronizationUtils.getSharedFolderTooltip());
+//				view = SynchronizationUtils.getSharedFolderErrorIcon();
+//			} else {
+//				view = SynchronizationUtils.getFolderErrorIcon();
+//			}
+//		}
+//
+//		updateIconInUIThread(item, view);
+//		updateTooltipInUIThread(item, tooltip);
 
-		updateIconInUIThread(item, view);
-		updateTooltipInUIThread(item, tooltip);
-
-		final CheckBoxTreeItem<PathItem> item2 = item;
+		item.setProgressState(ProgressState.FAILED);
+		final SyncTreeItem item2 = item;
 		javafx.application.Platform.runLater(new Runnable() {
 	        @Override
 	        public void run() {
@@ -438,24 +444,26 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 	public void onFileSoftDeleted(LocalFileDesyncMessage message) {
 		logger.trace("onFileSoftDeleted: {}", message.getFile().getPath());
 
-		String tooltip = SynchronizationUtils.getSoftDeletedTooltip();
-		CheckBoxTreeItem<PathItem> item = getOrCreateItem(message.getFile(), false);
-		ImageView view;
-		if(message.getFile().isFile()){
-			view = SynchronizationUtils.getFileStandardIcon();
-		} else {
-			
-			if(eventManager.getSharedFolders().contains(message.getFile().getPath())){
-				view = SynchronizationUtils.getSharedFolderStandardIcon();
-				tooltip = tooltip.concat(SynchronizationUtils.getSharedFolderTooltip());
-			} else {
-				view = SynchronizationUtils.getFolderStandardIcon();
-			}
-		}
+//		String tooltip = SynchronizationUtils.getSoftDeletedTooltip();
+		SyncTreeItem item = getOrCreateItem(message.getFile(), false);
+//		ImageView view;
+//		if(message.getFile().isFile()){
+//			view = SynchronizationUtils.getFileStandardIcon();
+//		} else {
+//			
+//			if(eventManager.getSharedFolders().contains(message.getFile().getPath())){
+//				view = SynchronizationUtils.getSharedFolderStandardIcon();
+//				tooltip = tooltip.concat(SynchronizationUtils.getSharedFolderTooltip());
+//			} else {
+//				view = SynchronizationUtils.getFolderStandardIcon();
+//			}
+//		}
 
-		updateIconInUIThread(item, view);
-		updateTooltipInUIThread(item, tooltip);
-		final CheckBoxTreeItem<PathItem> item2 = item;
+//		updateIconInUIThread(item, view);
+//		updateTooltipInUIThread(item, tooltip);
+		
+		item.setProgressState(ProgressState.DEFAULT);
+		final SyncTreeItem item2 = item;
 		javafx.application.Platform.runLater(new Runnable() {
 	        @Override
 	        public void run() {
@@ -469,35 +477,42 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 	public void onRemoteFolderShared(RemoteShareFolderMessage message) {
 		logger.trace("onRemoteFolderShared: {}", message.getFile().getPath());
 		
-		CheckBoxTreeItem<PathItem> item = getOrCreateItem(message.getFile(), false);
+		SyncTreeItem item = getOrCreateItem(message.getFile(), false);
 		item.getValue().getPermissions().clear();
 		item.getValue().getPermissions().addAll(message.getUserPermissions());
-		ImageView view = SynchronizationUtils.getSharedFolderStandardIcon();
-		String tooltip = "";
-		if(item.getGraphic() != null && item.getGraphic() instanceof Label &&
-				((Label)item.getGraphic()).getTooltip() != null){
-			Label oldLabel = (Label) item.getGraphic();
-			tooltip = oldLabel.getTooltip().getText();
-		}
-		tooltip = tooltip.concat(SynchronizationUtils.getSharedFolderTooltip());
 
-		updateIconInUIThread(item, view);
-		updateTooltipInUIThread(item, tooltip);
+		//		ImageView view = SynchronizationUtils.getSharedFolderStandardIcon();
+//		String tooltip = "";
+//		if(item.getGraphic() != null && item.getGraphic() instanceof Label &&
+//				((Label)item.getGraphic()).getTooltip() != null){
+//			Label oldLabel = (Label) item.getGraphic();
+//			tooltip = oldLabel.getTooltip().getText();
+//		}
+//		tooltip = tooltip.concat(SynchronizationUtils.getSharedFolderTooltip());
+//
+//		updateIconInUIThread(item, view);
+//		updateTooltipInUIThread(item, tooltip);
+		
 //		forceUpdateCheckBoxTreeItem(item);
+
+		item.setIsShared(true);
 	}
 
 	@Override
 	@Handler
 	public void onLocalFolderShared(LocalShareFolderMessage message) {
 		logger.trace("onLocalFolderShared: {}", message.getFile().getPath());
+		SyncTreeItem item = getOrCreateItem(message.getFile(), false);
 		
-		CheckBoxTreeItem<PathItem> item = getOrCreateItem(message.getFile(), false);
-		item.getValue().getPermissions().add(message.getInvitedUserPermission());
-		ImageView view = SynchronizationUtils.getSharedFolderSuccessIcon();
 
-		updateIconInUIThread(item, view);
-		updateTooltipInUIThread(item, SynchronizationUtils.getSharedFolderTooltip());
-		final CheckBoxTreeItem<PathItem> item2 = item;
+		item.getValue().getPermissions().add(message.getInvitedUserPermission());
+		item.setIsShared(true);
+		
+//		ImageView view = SynchronizationUtils.getSharedFolderSuccessIcon();
+//
+//		updateIconInUIThread(item, view);
+//		updateTooltipInUIThread(item, SynchronizationUtils.getSharedFolderTooltip());
+//		final SyncTreeItem item2 = item;
 	}
 
 	private void removeTreeItemInUIThread(Path srcFile) {
@@ -509,9 +524,9 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 		});
 	}
 
-	private void updateIsSelectedInUIThread(CheckBoxTreeItem<PathItem> item, FileHelper file,
+	private void updateIsSelectedInUIThread(SyncTreeItem item, FileHelper file,
 			boolean b) {
-		final CheckBoxTreeItem<PathItem> item2 = item;
+		final SyncTreeItem item2 = item;
 		javafx.application.Platform.runLater(new Runnable() {
 	        @Override
 	        public void run() {
@@ -524,8 +539,8 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 		});
 	}
 
-	private void selectFilesAndFolderInUIThread(CheckBoxTreeItem<PathItem> item, FileHelper file){
-		final CheckBoxTreeItem<PathItem> item2 = item;
+	private void selectFilesAndFolderInUIThread(SyncTreeItem item, FileHelper file){
+		final SyncTreeItem item2 = item;
 		javafx.application.Platform.runLater(new Runnable() {
 	        @Override
 	        public void run() {
@@ -534,9 +549,8 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 		});
 	}
 
-	private CheckBoxTreeItem<PathItem> getOrCreateItem(FileHelper file, boolean isSynched) {
-		// TODO Auto-generated method stub
-		CheckBoxTreeItem<PathItem> item = getTreeItem(file.getPath());
+	private SyncTreeItem getOrCreateItem(FileHelper file, boolean isSynched) {
+		SyncTreeItem item = getTreeItem(file.getPath());
 
 		if(item != null){
 			logger.trace("item != null for {}, change icon!", file.getPath());
@@ -548,28 +562,28 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 		return item;
 	}
 
-	private CheckBoxTreeItem<PathItem> getTreeItem(Path path){
-		CheckBoxTreeItem<PathItem> root = (CheckBoxTreeItem<PathItem>)fileTreeView.getRoot();
+	private SyncTreeItem getTreeItem(Path path){
+		SyncTreeItem root = (SyncTreeItem)fileTreeView.getRoot();
 		Path prefix = root.getValue().getPath();
 		return findTreeItem(root, path, false);
 	}
 
-	private void putTreeItem(CheckBoxTreeItem<PathItem> item){
-		CheckBoxTreeItem<PathItem> root = (CheckBoxTreeItem<PathItem>)fileTreeView.getRoot();
+	private void putTreeItem(SyncTreeItem item){
+		SyncTreeItem root = (SyncTreeItem)fileTreeView.getRoot();
 		Path prefix = root.getValue().getPath();
 		Path pathLeft = prefix.relativize(item.getValue().getPath());
 		putTreeItem(root, item, pathLeft);
 		return;
 	}
 
-	private CheckBoxTreeItem<PathItem> removeTreeItem(Path path){
-		CheckBoxTreeItem<PathItem> root = (CheckBoxTreeItem<PathItem>)fileTreeView.getRoot();
+	private SyncTreeItem removeTreeItem(Path path){
+		SyncTreeItem root = (SyncTreeItem)fileTreeView.getRoot();
 		Path prefix = root.getValue().getPath();
 		return findTreeItem(root, path, true);
 
 	}
 
-	private CheckBoxTreeItem<PathItem> findTreeItem(CheckBoxTreeItem<PathItem> item, Path path, boolean remove){
+	private SyncTreeItem findTreeItem(SyncTreeItem item, Path path, boolean remove){
 		Path wholePath = path;
 		Path prefix = item.getValue().getPath();
 		if(path.startsWith(prefix)){
@@ -578,6 +592,7 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 		if(path.equals(Paths.get(""))){
 			if(remove){
 				item.getParent().getChildren().remove(item);
+				item.unbind();
 //				item.getParent().getValue().removePermissionsListener(item.getValue());
 			}
 			return item;
@@ -586,7 +601,7 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 		ObservableList<TreeItem<PathItem>> children = item.getChildren();
 
 		for(TreeItem<PathItem> child : item.getChildren()){
-			CheckBoxTreeItem<PathItem> castedChild = (CheckBoxTreeItem<PathItem>)child;
+			SyncTreeItem castedChild = (SyncTreeItem)child;
 			Path childNextLevel = prefix.relativize(child.getValue().getPath()).getName(0);
 			if(childNextLevel.equals(nextLevel)){
 				 return findTreeItem(castedChild, wholePath, remove);
@@ -595,7 +610,7 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 		return null;
 	}
 
-	private void putTreeItem(CheckBoxTreeItem<PathItem> parent, CheckBoxTreeItem<PathItem> toPut, Path pathLeft){
+	private void putTreeItem(SyncTreeItem parent, SyncTreeItem toPut, Path pathLeft){
 		Path parentPath = parent.getValue().getPath();
 		Path wholePath = parentPath.resolve(pathLeft);
 
@@ -609,24 +624,26 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 			}
 			parent.getChildren().add(toPut);
 //			parent.getValue().addPermissionsListener(toPut.getValue());
-			toPut.getValue().bindPermissionsTo(parent.getValue().getPermissionsSetProperty());
+//			toPut.getValue().bindPermissionsTo(parent.getValue().getPermissionsSetProperty());
+			toPut.bindTo(parent);
 			return;
 		} else {
 			Iterator<TreeItem<PathItem>> iter = parent.getChildren().iterator();
 			Path nextLevel = pathLeft.getName(0);
 			Path pathToSearch = parentPath.resolve(nextLevel);
 			while(iter.hasNext()){
-				CheckBoxTreeItem<PathItem> child = (CheckBoxTreeItem<PathItem>)iter.next();
+				SyncTreeItem child = (SyncTreeItem)iter.next();
 				if(child.getValue().getPath().equals(pathToSearch)){
 					putTreeItem(child, toPut, child.getValue().getPath().relativize(wholePath));
 					return;
 				}
 			}
 			PathItem pathItem = new PathItem(pathToSearch, toPut.isSelected(), null);
-			CheckBoxTreeItem<PathItem> created = new CheckBoxTreeItem<PathItem>(pathItem);
+			SyncTreeItem created = new SyncTreeItem(pathItem);
 			toPut.addEventHandler(CheckBoxTreeItem.checkBoxSelectionChangedEvent(), new ClickEventHandler(this));
 			parent.getChildren().add(toPut);
-			toPut.getValue().bindPermissionsTo(parent.getValue().getPermissionsSetProperty());
+//			toPut.getValue().bindPermissionsTo(parent.getValue().getPermissionsSetProperty());
+			toPut.bindTo(parent);
 			putTreeItem(created, toPut, toPut.getValue().getPath().relativize(wholePath));
 		}
 	}
@@ -647,7 +664,7 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 
 	private void createTreeView(FileNode fileNode){
 		PathItem pathItem = new PathItem(userConfig.getRootPath(), false, fileNode.getUserPermissions());
-		CheckBoxTreeItem<PathItem> invisibleRoot = new CheckBoxTreeItem<PathItem>(pathItem);
+		SyncTreeItem invisibleRoot = new SyncTreeItem(pathItem);
 	    fileTreeView.setRoot(invisibleRoot);
         fileTreeView.setEditable(false);
         fileTreeView.setCellFactory(new Callback<TreeView<PathItem>, TreeCell<PathItem>>(){
@@ -673,106 +690,115 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 	        	Path path = topLevelNode.getFile().toPath();
 	        	boolean isSynched = synchronizedFiles.contains(path);
 
+	        	ProgressState stateToSet = ProgressState.DEFAULT;
 	        	if(failedFiles.contains(path)){
-	        		tooltip = SynchronizationUtils.getErrorTooltip();
-	        		if(topLevelNode.isFile()){
-	        			icon = SynchronizationUtils.getFileErrorIcon();
-	        		} else {
-	        			if(sharedFolders.contains(path)){
-	        				icon = SynchronizationUtils.getSharedFolderErrorIcon();
-	        			} else {
-	        				icon = SynchronizationUtils.getFolderErrorIcon();
-	        				tooltip = tooltip.concat(SynchronizationUtils.getSharedFolderTooltip());
-	        			}
-	        		}
+	        		stateToSet = ProgressState.FAILED;
+//	        		tooltip = SynchronizationUtils.getErrorTooltip();
+//	        		if(topLevelNode.isFile()){
+//	        			icon = SynchronizationUtils.getFileErrorIcon();
+//	        		} else {
+//	        			if(sharedFolders.contains(path)){
+//	        				icon = SynchronizationUtils.getSharedFolderErrorIcon();
+//	        			} else {
+//	        				icon = SynchronizationUtils.getFolderErrorIcon();
+//	        				tooltip = tooltip.concat(SynchronizationUtils.getSharedFolderTooltip());
+//	        			}
+//	        		}
 	        		
 	        	} else if(executingFiles.contains(path)){
-	        		tooltip = SynchronizationUtils.getInProgressToolTip();
-	        		if(topLevelNode.isFile()){
-	        			icon = SynchronizationUtils.getFileInProgressIcon();//;new ImageView(inProgressIcon);
-	        		} else {
-	        			if(sharedFolders.contains(path)){
-	        				icon = SynchronizationUtils.getSharedFolderInProgressIcon();
-	        			} else {
-	        				icon = SynchronizationUtils.getFolderInProgressIcon();
-	        				tooltip = tooltip.concat(SynchronizationUtils.getSharedFolderTooltip());
-	        			}
-	        		}
+	        		stateToSet = ProgressState.IN_PROGRESS;
+//	        		tooltip = SynchronizationUtils.getInProgressToolTip();
+//	        		if(topLevelNode.isFile()){
+//	        			icon = SynchronizationUtils.getFileInProgressIcon();//;new ImageView(inProgressIcon);
+//	        		} else {
+//	        			if(sharedFolders.contains(path)){
+//	        				icon = SynchronizationUtils.getSharedFolderInProgressIcon();
+//	        			} else {
+//	        				icon = SynchronizationUtils.getFolderInProgressIcon();
+//	        				tooltip = tooltip.concat(SynchronizationUtils.getSharedFolderTooltip());
+//	        			}
+//	        		}
 	        		
 	        	} else {
-	        		tooltip = SynchronizationUtils.getSuccessTooltip();
-	        		if(topLevelNode.isFile()){
-	        			icon = SynchronizationUtils.getFileSuccessIcon();
-	        		} else {
-	        			if(sharedFolders.contains(path)){
-	        				icon = SynchronizationUtils.getSharedFolderSuccessIcon();
-	        			} else {
-	        				icon = SynchronizationUtils.getFolderSuccessIcon();
-	        				tooltip = tooltip.concat(SynchronizationUtils.getSharedFolderTooltip());
-	        			}
-	        		}
+	        		stateToSet = ProgressState.SUCCESSFUL;
+//	        		tooltip = SynchronizationUtils.getSuccessTooltip();
+//	        		if(topLevelNode.isFile()){
+//	        			icon = SynchronizationUtils.getFileSuccessIcon();
+//	        		} else {
+//	        			if(sharedFolders.contains(path)){
+//	        				icon = SynchronizationUtils.getSharedFolderSuccessIcon();
+//	        			} else {
+//	        				icon = SynchronizationUtils.getFolderSuccessIcon();
+//	        				tooltip = tooltip.concat(SynchronizationUtils.getSharedFolderTooltip());
+//	        			}
+//	        		}
+
 	        	}
 
-	        	CheckBoxTreeItem<PathItem> item = createItem(topLevelNode.getFile().toPath(),
+	        	SyncTreeItem item = createItem(topLevelNode.getFile().toPath(),
 	        			isSynched, topLevelNode.isFile(), topLevelNode.getUserPermissions());
+	        	if(sharedFolders.contains(path)){
+	        		item.setIsShared(true);
+	        	}
 	        	putTreeItem(item);
-	        	updateIconInUIThread(item, icon);
-	        	updateTooltipInUIThread(item, tooltip);
+	        	
+	        	item.setProgressState(stateToSet);
+//	        	updateIconInUIThread(item, icon);
+//	        	updateTooltipInUIThread(item, tooltip);
 
 				addChildrensToTreeView(topLevelNode);
 			}
 		}
 	}
 
-	private CheckBoxTreeItem<PathItem> createItem(Path path, boolean isSynched,
+	private SyncTreeItem createItem(Path path, boolean isSynched,
 			boolean isFile, Set<UserPermission> permissions) {
 		PathItem pathItem = new PathItem(path, isFile, permissions);
-		Label label = new Label(path.getFileName().toString());
-		CheckBoxTreeItem<PathItem> newItem = new CheckBoxTreeItem<PathItem>(pathItem, label);
+		SyncTreeItem newItem = new SyncTreeItem(pathItem);
 		newItem.setSelected(isSynched);
 		return newItem;
 	}
 	
-	private CheckBoxTreeItem<PathItem> createItem(Path path, boolean isSynched,
+	private SyncTreeItem createItem(Path path, boolean isSynched,
 			boolean isFile) {
 		Set<UserPermission> defaultPermissions = new HashSet<UserPermission>();
 		defaultPermissions.add(new UserPermission(userConfig.getUsername(), PermissionType.WRITE));
 		return createItem(path, isSynched, isFile, defaultPermissions);
 	}
 
-	private void updateIconInUIThread(TreeItem<PathItem> item, ImageView icon){
-		javafx.application.Platform.runLater(new Runnable() {
-	        @Override
-	        public void run() {
-	        	if(item.getGraphic() != null && item.getGraphic() instanceof Label){
-	        		Label oldLabel = (Label)item.getGraphic();
-	        		oldLabel.setGraphic(icon);
-	        		item.setGraphic(oldLabel);
-	        	} else {
-	        		Label newLabel = new Label(item.getValue().getPath().getFileName().toString());
-	        		newLabel.setGraphic(icon);
-	        		item.setGraphic(newLabel);
-	        	}
-	        }
-		});
-	}
+//	private void updateIconInUIThread(TreeItem<PathItem> item, ImageView icon){
+//		javafx.application.Platform.runLater(new Runnable() {
+//	        @Override
+//	        public void run() {
+//	        	if(item.getGraphic() != null && item.getGraphic() instanceof Label){
+//	        		Label oldLabel = (Label)item.getGraphic();
+//	        		oldLabel.setGraphic(icon);
+//	        		item.setGraphic(oldLabel);
+//	        	} else {
+//	        		Label newLabel = new Label(item.getValue().getPath().getFileName().toString());
+//	        		newLabel.setGraphic(icon);
+//	        		item.setGraphic(newLabel);
+//	        	}
+//	        }
+//		});
+//	}
 
-	private void updateTooltipInUIThread(TreeItem<PathItem> item, String tooltip){
-		javafx.application.Platform.runLater(new Runnable() {
-	        @Override
-	        public void run() {
-	        	if(item.getGraphic() != null && item.getGraphic() instanceof Label){
-	        		Label oldLabel = (Label)item.getGraphic();
-	        		oldLabel.setTooltip(new Tooltip(tooltip));
-	        		item.setGraphic(oldLabel);
-	        	} else {
-	        		Label newLabel = new Label(item.getValue().getPath().getFileName().toString());
-	        		newLabel.setTooltip(new Tooltip(tooltip));
-	        		item.setGraphic(newLabel);
-	        	}
-	        }
-		});
-	}
+//	private void updateTooltipInUIThread(TreeItem<PathItem> item, String tooltip){
+//		javafx.application.Platform.runLater(new Runnable() {
+//	        @Override
+//	        public void run() {
+//	        	if(item.getGraphic() != null && item.getGraphic() instanceof Label){
+//	        		Label oldLabel = (Label)item.getGraphic();
+//	        		oldLabel.setTooltip(new Tooltip(tooltip));
+//	        		item.setGraphic(oldLabel);
+//	        	} else {
+//	        		Label newLabel = new Label(item.getValue().getPath().getFileName().toString());
+//	        		newLabel.setTooltip(new Tooltip(tooltip));
+//	        		item.setGraphic(newLabel);
+//	        	}
+//	        }
+//		});
+//	}
 
 	private class FileHelperComparator implements Comparator<FileHelper>{
 		@Override
