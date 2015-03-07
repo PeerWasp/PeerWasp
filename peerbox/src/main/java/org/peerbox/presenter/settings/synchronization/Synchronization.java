@@ -11,7 +11,6 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import javafx.util.Callback;
-import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -19,7 +18,6 @@ import javafx.scene.control.Button;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import javafx.scene.control.CheckBoxTreeItem;
-import javafx.scene.image.ImageView;
 import javafx.stage.Window;
 import javafx.scene.control.TreeCell;
 import net.engio.mbassy.listener.Handler;
@@ -31,6 +29,7 @@ import org.hive2hive.core.model.UserPermission;
 import org.hive2hive.core.processes.files.list.FileNode;
 import org.hive2hive.processframework.exceptions.InvalidProcessStateException;
 import org.hive2hive.processframework.exceptions.ProcessExecutionException;
+
 import org.peerbox.app.config.UserConfig;
 import org.peerbox.app.manager.file.LocalFileDesyncMessage;
 import org.peerbox.app.manager.file.FileExecutionFailedMessage;
@@ -39,15 +38,14 @@ import org.peerbox.app.manager.file.LocalShareFolderMessage;
 import org.peerbox.app.manager.file.RemoteFileDeletedMessage;
 import org.peerbox.app.manager.file.RemoteFileMovedMessage;
 import org.peerbox.app.manager.file.RemoteShareFolderMessage;
-import org.peerbox.app.manager.user.IUserManager;
 import org.peerbox.filerecovery.IFileRecoveryHandler;
-import org.peerbox.guice.IFxmlLoaderProvider;
 import org.peerbox.presenter.settings.synchronization.messages.FileExecutionStartedMessage;
 import org.peerbox.presenter.settings.synchronization.messages.FileExecutionSucceededMessage;
 import org.peerbox.share.IShareFolderHandler;
 import org.peerbox.watchservice.FileEventManager;
 import org.peerbox.watchservice.IFileEventManager;
 import org.peerbox.watchservice.states.StateType;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -72,7 +70,6 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 
 	private IFileEventManager eventManager;
 	private IFileManager fileManager;
-	private IUserManager userManager;
 
 	/**
 	 * These variables are used to build sets containing the paths of files
@@ -96,8 +93,6 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 
 	private final Provider<IShareFolderHandler> shareFolderHandlerProvider;
 
-	private IFxmlLoaderProvider fxmlLoaderProvider;
-
 	private final Provider<IFileRecoveryHandler> recoverFileHandlerProvider;
 
 
@@ -114,7 +109,6 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 	public Set<FileHelper> getToSynchronize(){
 		return toSynchronize;
 	}
-
 
 	public Set<FileHelper> getToDesynchronize(){
 		return toDesynchronize;
@@ -139,21 +133,18 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 	public void acceptSyncAction(ActionEvent event) {
 		synchronizedFiles = eventManager.getFileTree().getSynchronizedPathsAsSet();
 
-		for(Path path: synchronizedFiles){
-			logger.trace("in sync from fem: {}", path);
-		}
 		for(FileHelper node : toSynchronize){
-			logger.trace("Sync the file {}", node.getPath());
 			if(!synchronizedFiles.contains(node.getPath()))
-
 				eventManager.onFileSynchronized(node.getPath(), node.isFolder());
 		}
+		
 		for(FileHelper node: toDesynchronize.descendingSet()){
 			eventManager.onFileDesynchronized(node.getPath());
 		}
 
 		toSynchronize.clear();
 		toDesynchronize.clear();
+		
 		if(event.getTarget() != null && event.getTarget() instanceof Button){
 			Button okButton = (Button)event.getTarget();
 			Window window = okButton.getScene().getWindow();
@@ -239,7 +230,6 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 	@Handler
 	public void onFileRemotelyDeleted(RemoteFileDeletedMessage message){
 		logger.trace("onFileRemotelyDeleted: {}", message.getFile().getPath());
-
 		javafx.application.Platform.runLater(new Runnable() {
 	        @Override
 	        public void run() {
@@ -259,13 +249,12 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 	@Override
 	@Handler
 	public void onFileRemotelyMoved(RemoteFileMovedMessage message){
-		logger.trace("onFileRemotelyMoved: {}", message.getFile().getPath());
-
 		Path srcFile = message.getSourceFile().getPath();
 		Path dstFile = message.getDestinationFile().getPath();
-		logger.trace("onFileMoved: {} --> {}", srcFile, dstFile);
+		logger.trace("onFileRemotelyMoved: {} --> {}", srcFile, dstFile);
 
 		removeTreeItemInUIThread(srcFile);
+		
 		SyncTreeItem item = getOrCreateItem(message.getFile(), true);
 		item.setProgressState(ProgressState.SUCCESSFUL);
 		
@@ -286,13 +275,10 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 	public void onExecutionSucceeds(FileExecutionSucceededMessage message) {
 		logger.trace("Synchronization: onExecutionSucceeds: {}", message.getFile().getPath());
 		StateType stateType = message.getStateType();
-
-		String tooltip = SynchronizationUtils.getSuccessTooltip();
 		switch(stateType){
 		case LOCAL_HARD_DELETE:
 			removeTreeItemInUIThread(message.getFile().getPath());
 			break;
-
 		case INITIAL:
 			SyncTreeItem item = getOrCreateItem(message.getFile(), true);
 			item.setProgressState(ProgressState.SUCCESSFUL);
@@ -300,12 +286,11 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 		case LOCAL_MOVE:
 			Path srcFile = message.getSourceFile().getPath();
 			Path dstFile = message.getFile().getPath();
-			logger.trace("onFileMoved: {} --> {}", srcFile, dstFile);
 			removeTreeItemInUIThread(srcFile);
 			
 			item = getOrCreateItem(message.getFile(), true);		
 			item.setProgressState(ProgressState.SUCCESSFUL);
-			selectFilesAndFolderInUIThread(item, message.getFile());
+			updateIsSelectedInUIThread(item, message.getFile(), true);
 			break;
 		default:
 			item = getOrCreateItem(message.getFile(), true);
@@ -408,16 +393,6 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 		});
 	}
 
-	private void selectFilesAndFolderInUIThread(SyncTreeItem item, FileHelper file){
-		final SyncTreeItem item2 = item;
-		javafx.application.Platform.runLater(new Runnable() {
-	        @Override
-	        public void run() {
-	        	item2.setSelected(true);
-	        }
-		});
-	}
-
 	private SyncTreeItem getOrCreateItem(FileHelper file, boolean isSynched) {
 		SyncTreeItem item = getTreeItem(file.getPath());
 
@@ -462,13 +437,10 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 			}
 			return item;
 		}
-		Path nextLevel = path.getName(0);
-		ObservableList<TreeItem<PathItem>> children = item.getChildren();
-
 		for(TreeItem<PathItem> child : item.getChildren()){
 			SyncTreeItem castedChild = (SyncTreeItem)child;
 			Path childNextLevel = prefix.relativize(child.getValue().getPath()).getName(0);
-			if(childNextLevel.equals(nextLevel)){
+			if(childNextLevel.equals(path.getName(0))){
 				 return findTreeItem(castedChild, wholePath, remove);
 			 }
 		}
@@ -546,12 +518,8 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 	private void addChildrensToTreeView(FileNode fileNode){
 		if(fileNode.getChildren() != null){
 	        for(FileNode topLevelNode : fileNode.getChildren()){
-				ImageView icon;
-	        	String tooltip;
-
 	        	Path path = topLevelNode.getFile().toPath();
 	        	boolean isSynched = synchronizedFiles.contains(path);
-
 	        	ProgressState stateToSet = ProgressState.DEFAULT;
 	        	if(failedFiles.contains(path)){
 	        		stateToSet = ProgressState.FAILED;
@@ -563,11 +531,11 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 
 	        	SyncTreeItem item = createItem(topLevelNode.getFile().toPath(),
 	        			isSynched, topLevelNode.isFile(), topLevelNode.getUserPermissions());
+	        	
 	        	if(sharedFolders.contains(path)){
 	        		item.setIsShared(true);
 	        	}
 	        	putTreeItem(item);
-	        	
 	        	item.setProgressState(stateToSet);
 				addChildrensToTreeView(topLevelNode);
 			}
