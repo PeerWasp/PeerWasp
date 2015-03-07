@@ -37,8 +37,8 @@ public class Properties implements Initializable {
 	@Override
 	public void initialize(URL arg0, ResourceBundle arg1) {
 		logger.debug("Initialize Properties!");
-		if(item != null && item.getUserPermissions() != null){
-			for(UserPermission perm : item.getUserPermissions()){
+		if(item != null && item.getPermissions() != null){
+			for(UserPermission perm : item.getPermissions()){
 				StringBuilder sb = new StringBuilder();
 				sb.append(perm.getUserId());
 				PermissionType type = perm.getPermission();

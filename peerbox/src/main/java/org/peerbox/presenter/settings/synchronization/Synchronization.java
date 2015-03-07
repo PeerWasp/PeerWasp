@@ -13,14 +13,12 @@ import java.util.TreeSet;
 import javafx.util.Callback;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.Tooltip;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
-import javafx.scene.control.CheckBoxTreeItem.TreeModificationEvent;
 import javafx.scene.control.CheckBoxTreeItem;
 import javafx.scene.control.Label;
 import javafx.scene.image.ImageView;
@@ -185,8 +183,8 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 	@FXML
 	public void unselectAllAction(ActionEvent event) {
 		CheckBoxTreeItem<PathItem> root = (CheckBoxTreeItem<PathItem>)fileTreeView.getRoot();
+		root.setSelected(true); // surprisingly, only setting to false has no effect!
 		root.setSelected(false);
-		root.setIndeterminate(false);
 	}
 
 	/**
@@ -472,8 +470,8 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 		logger.trace("onRemoteFolderShared: {}", message.getFile().getPath());
 		
 		CheckBoxTreeItem<PathItem> item = getOrCreateItem(message.getFile(), false);
-		item.getValue().getUserPermissions().clear();
-		item.getValue().getUserPermissions().addAll(message.getUserPermissions());
+		item.getValue().getPermissions().clear();
+		item.getValue().getPermissions().addAll(message.getUserPermissions());
 		ImageView view = SynchronizationUtils.getSharedFolderStandardIcon();
 		String tooltip = "";
 		if(item.getGraphic() != null && item.getGraphic() instanceof Label &&
@@ -494,7 +492,7 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 		logger.trace("onLocalFolderShared: {}", message.getFile().getPath());
 		
 		CheckBoxTreeItem<PathItem> item = getOrCreateItem(message.getFile(), false);
-		item.getValue().getUserPermissions().add(message.getInvitedUserPermission());
+		item.getValue().getPermissions().add(message.getInvitedUserPermission());
 		ImageView view = SynchronizationUtils.getSharedFolderSuccessIcon();
 
 		updateIconInUIThread(item, view);
@@ -611,7 +609,7 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 			}
 			parent.getChildren().add(toPut);
 //			parent.getValue().addPermissionsListener(toPut.getValue());
-			toPut.getValue().bind(parent.getValue().getPermissionsSetProperty());
+			toPut.getValue().bindPermissionsTo(parent.getValue().getPermissionsSetProperty());
 			return;
 		} else {
 			Iterator<TreeItem<PathItem>> iter = parent.getChildren().iterator();
@@ -628,8 +626,7 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 			CheckBoxTreeItem<PathItem> created = new CheckBoxTreeItem<PathItem>(pathItem);
 			toPut.addEventHandler(CheckBoxTreeItem.checkBoxSelectionChangedEvent(), new ClickEventHandler(this));
 			parent.getChildren().add(toPut);
-			toPut.getValue().bind(parent.getValue().getPermissionsSetProperty());
-//			parent.getValue().addPermissionsListener(toPut.getValue());
+			toPut.getValue().bindPermissionsTo(parent.getValue().getPermissionsSetProperty());
 			putTreeItem(created, toPut, toPut.getValue().getPath().relativize(wholePath));
 		}
 	}

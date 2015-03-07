@@ -17,6 +17,7 @@ import org.hive2hive.core.events.framework.interfaces.file.IFileUpdateEvent;
 import org.hive2hive.core.events.implementations.FileAddEvent;
 import org.hive2hive.core.model.PermissionType;
 import org.hive2hive.core.model.UserPermission;
+import org.peerbox.app.manager.file.LocalShareFolderMessage;
 import org.peerbox.app.manager.file.RemoteShareFolderMessage;
 import org.peerbox.app.manager.file.IFileMessage;
 import org.peerbox.app.manager.file.LocalFileDesyncMessage;
@@ -374,6 +375,11 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 		append(fileEvent.getFile().toPath()).append(" with you.");
 		getMessageBus().post(new InformationNotification("Shared folder", sb.toString())).now();
 		publishMessage(new RemoteShareFolderMessage(file, permissions, invitedBy));
+	}
+	
+	@Handler
+	public void onShareSuccessful(LocalShareFolderMessage message){
+		sharedFolders.add(message.getFile().getPath());
 	}
 
 	/**
