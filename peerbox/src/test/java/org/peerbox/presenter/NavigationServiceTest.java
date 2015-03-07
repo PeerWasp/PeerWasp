@@ -22,9 +22,8 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+import org.peerbox.guice.IFxmlLoaderProvider;
 import org.peerbox.helper.JavaFXThreadingRule;
-import org.peerbox.interfaces.IFxmlLoaderProvider;
-import org.peerbox.interfaces.INavigatable;
 
 
 public class NavigationServiceTest {

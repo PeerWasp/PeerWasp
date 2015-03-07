@@ -5,8 +5,6 @@ import java.io.IOException;
 import javafx.fxml.FXMLLoader;
 import javafx.util.Callback;
 
-import org.peerbox.interfaces.IFxmlLoaderProvider;
-
 import com.google.common.base.Preconditions;
 import com.google.inject.Inject;
 import com.google.inject.Injector;

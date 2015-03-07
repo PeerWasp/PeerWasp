@@ -9,7 +9,7 @@ import javafx.util.Callback;
 
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.RandomUtils;
-import org.peerbox.interfaces.IFxmlLoaderProvider;
+import org.peerbox.guice.IFxmlLoaderProvider;
 
 import com.google.inject.Injector;
 

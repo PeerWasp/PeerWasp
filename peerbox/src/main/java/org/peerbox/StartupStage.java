@@ -14,7 +14,7 @@ import javafx.stage.WindowEvent;
 
 import org.peerbox.app.Constants;
 import org.peerbox.app.IExitHandler;
-import org.peerbox.interfaces.INavigatable;
+import org.peerbox.presenter.INavigatable;
 import org.peerbox.presenter.NavigationService;
 import org.peerbox.utils.IconUtils;
 import org.peerbox.view.ViewNames;

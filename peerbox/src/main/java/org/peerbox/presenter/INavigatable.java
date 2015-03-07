@@ -1,4 +1,4 @@
-package org.peerbox.interfaces;
+package org.peerbox.presenter;
 
 import javafx.scene.Node;
 

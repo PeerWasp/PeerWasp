@@ -19,7 +19,6 @@ import org.peerbox.app.manager.node.INodeManager;
 import org.peerbox.app.manager.user.IUserManager;
 import org.peerbox.app.manager.user.UserManager;
 import org.peerbox.helper.JavaFxNoOpApp;
-import org.peerbox.interfaces.IFxmlLoaderProvider;
 import org.peerbox.presenter.LoginController;
 import org.peerbox.presenter.MainController;
 import org.peerbox.presenter.NavigationService;

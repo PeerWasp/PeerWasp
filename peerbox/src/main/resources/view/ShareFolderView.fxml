@@ -13,11 +13,11 @@
 
 <AnchorPane fx:id="pane" stylesheets="css/theme.css" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
 	<children>
-		<VBox prefHeight="262.0" prefWidth="400.0" spacing="10.0" AnchorPane.leftAnchor="40.0" AnchorPane.rightAnchor="40.0" AnchorPane.topAnchor="40.0">
+		<VBox prefHeight="320.0" prefWidth="400.0" spacing="10.0" AnchorPane.leftAnchor="40.0" AnchorPane.rightAnchor="40.0" AnchorPane.topAnchor="40.0">
 			<children>
 
 				<Label styleClass="form-title" text="Share folder" />
-				<Label text="Enter the username and select the desired permissions." wrapText="true" />
+				<Label text="Enter the username of the other user. Once the folder is shared, all user will have full read and write permissions." wrapText="true" />
 
 				<GridPane fx:id="grdForm" hgap="5.0" vgap="5.0">
 					<columnConstraints>

@@ -7,8 +7,7 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 
-import org.peerbox.interfaces.IFxmlLoaderProvider;
-import org.peerbox.interfaces.INavigatable;
+import org.peerbox.guice.IFxmlLoaderProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

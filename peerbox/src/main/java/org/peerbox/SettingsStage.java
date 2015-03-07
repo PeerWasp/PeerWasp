@@ -13,7 +13,7 @@ import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 
 import org.peerbox.app.AppContext;
-import org.peerbox.interfaces.IFxmlLoaderProvider;
+import org.peerbox.guice.IFxmlLoaderProvider;
 import org.peerbox.utils.IconUtils;
 import org.peerbox.view.ViewNames;
 import org.slf4j.Logger;

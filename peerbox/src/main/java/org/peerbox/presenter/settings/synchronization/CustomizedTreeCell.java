@@ -12,7 +12,7 @@ import org.controlsfx.dialog.Dialog;
 import org.peerbox.app.manager.file.IFileManager;
 import org.peerbox.app.manager.user.IUserManager;
 import org.peerbox.filerecovery.IFileRecoveryHandler;
-import org.peerbox.interfaces.IFxmlLoaderProvider;
+import org.peerbox.guice.IFxmlLoaderProvider;
 import org.peerbox.presenter.settings.Properties;
 import org.peerbox.share.IShareFolderHandler;
 import org.peerbox.share.ShareFolderController;

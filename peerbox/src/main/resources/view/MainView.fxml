@@ -13,7 +13,7 @@
 	stylesheets="css/theme.css" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1"
 	fx:controller="org.peerbox.presenter.MainController">
 	<children>
-		<StackPane prefHeight="120" style="-fx-background-color: rgb(0, 142, 214)">
+		<StackPane minHeight="120" style="-fx-background-color: rgb(0, 142, 214)">
 			<children>
 				<ImageView pickOnBounds="true" preserveRatio="true" StackPane.alignment="CENTER">
 					<image>
