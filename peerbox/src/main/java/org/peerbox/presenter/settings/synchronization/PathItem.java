@@ -16,7 +16,7 @@ public class PathItem{
 	private SetProperty<UserPermission> permissions;
 
 	public PathItem(Path path) {
-		this(path, true, null);
+		this(path, true, new HashSet<UserPermission>());
 	}
 	
 	public PathItem(Path path, boolean isFile, Set<UserPermission> userPermissions) {
