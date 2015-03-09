@@ -12,6 +12,7 @@ import org.controlsfx.dialog.Dialog;
 import org.peerbox.app.manager.file.IFileManager;
 import org.peerbox.app.manager.user.IUserManager;
 import org.peerbox.filerecovery.IFileRecoveryHandler;
+import org.peerbox.forcesync.IForceSyncHandler;
 import org.peerbox.guice.IFxmlLoaderProvider;
 import org.peerbox.presenter.settings.Properties;
 import org.peerbox.share.IShareFolderHandler;
@@ -63,6 +64,7 @@ public class CustomizedTreeCell extends CheckBoxTreeCell<PathItem> {
 
 	private Provider<IFileRecoveryHandler> recoverFileHandlerProvider;
 	private Provider<IShareFolderHandler> shareFolderHandlerProvider;
+	private Provider<IForceSyncHandler> forceSyncHandlerProvider;
 
 
 	private Stage stage;
@@ -72,18 +74,23 @@ public class CustomizedTreeCell extends CheckBoxTreeCell<PathItem> {
 
 	public CustomizedTreeCell(IFileEventManager fileEventManager,
 			Provider<IFileRecoveryHandler> recoverFileHandlerProvider,
-			Provider<IShareFolderHandler> shareFolderHandlerProvider){
+			Provider<IShareFolderHandler> shareFolderHandlerProvider,
+			Provider<IForceSyncHandler> forceSyncHandlerProvider){
 
 		this.shareFolderHandlerProvider = shareFolderHandlerProvider;
 
 		this.recoverFileHandlerProvider = recoverFileHandlerProvider;
+		
+		this.forceSyncHandlerProvider = forceSyncHandlerProvider;
 
 		CustomMenuItem deleteItem = new CustomMenuItem(new Label("Delete from network"));
 		Label shareLabel = new Label("Share");
 		CustomMenuItem shareItem = new CustomMenuItem(shareLabel);
 		MenuItem propertiesItem = new MenuItem("Properties");
+		MenuItem forceSyncItem = new MenuItem("Force synchronization");
 
 		shareItem.setOnAction(new ShareFolderAction());
+		forceSyncItem.setOnAction(new ForceSyncAction());
 
 		recoverMenuItem = createRecoveMenuItem();
 
@@ -91,6 +98,7 @@ public class CustomizedTreeCell extends CheckBoxTreeCell<PathItem> {
 		menu.getItems().add(recoverMenuItem);
 		menu.getItems().add(shareItem);
 		menu.getItems().add(propertiesItem);
+		menu.getItems().add(forceSyncItem);
 
 		menu.setOnShowing(new EventHandler<WindowEvent>() {
 			@Override
@@ -220,6 +228,16 @@ public class CustomizedTreeCell extends CheckBoxTreeCell<PathItem> {
 				handler.shareFolder(toShare);
 			}
 		}
+	}
+	
+	private class ForceSyncAction implements EventHandler<ActionEvent> {
+
+		@Override
+		public void handle(ActionEvent arg0) {
+			IForceSyncHandler handler = forceSyncHandlerProvider.get();
+			handler.forceSync();
+		}
+		
 	}
 	
 }

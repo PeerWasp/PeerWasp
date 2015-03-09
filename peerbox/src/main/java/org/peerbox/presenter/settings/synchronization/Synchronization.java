@@ -40,6 +40,7 @@ import org.peerbox.app.manager.file.RemoteFileDeletedMessage;
 import org.peerbox.app.manager.file.RemoteFileMovedMessage;
 import org.peerbox.app.manager.file.RemoteShareFolderMessage;
 import org.peerbox.filerecovery.IFileRecoveryHandler;
+import org.peerbox.forcesync.IForceSyncHandler;
 import org.peerbox.presenter.settings.synchronization.messages.FileExecutionStartedMessage;
 import org.peerbox.presenter.settings.synchronization.messages.FileExecutionSucceededMessage;
 import org.peerbox.share.IShareFolderHandler;
@@ -94,16 +95,21 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 	private final Provider<IShareFolderHandler> shareFolderHandlerProvider;
 
 	private final Provider<IFileRecoveryHandler> recoverFileHandlerProvider;
+	
+	private final Provider<IForceSyncHandler> forceSyncHandlerProvider;
 
 
 	@Inject
 	public Synchronization(IFileManager fileManager, FileEventManager eventManager,
-			UserConfig userConfig, Provider<IFileRecoveryHandler> recoverFileHandlerProvider, Provider<IShareFolderHandler> shareFolderHandlerProvider) {
+			UserConfig userConfig, Provider<IFileRecoveryHandler> recoverFileHandlerProvider, 
+			Provider<IShareFolderHandler> shareFolderHandlerProvider,
+			Provider<IForceSyncHandler> forceSyncHandlerProvider) {
 		this.eventManager = eventManager;
 		this.fileManager = fileManager;
 		this.userConfig = userConfig;
 		this.recoverFileHandlerProvider = recoverFileHandlerProvider;
 		this.shareFolderHandlerProvider = shareFolderHandlerProvider;
+		this.forceSyncHandlerProvider = forceSyncHandlerProvider;
 	}
 
 	public Set<FileHelper> getToSynchronize(){
@@ -467,7 +473,8 @@ public class Synchronization implements Initializable, IExecutionMessageListener
             public TreeCell<PathItem> call(TreeView<PathItem> p) {
                 return new CustomizedTreeCell(getFileEventManager(),
                 		recoverFileHandlerProvider,
-                		shareFolderHandlerProvider);
+                		shareFolderHandlerProvider,
+                		forceSyncHandlerProvider);
             }
         });
 

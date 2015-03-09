@@ -24,6 +24,7 @@ import org.peerbox.app.manager.file.LocalFileDesyncMessage;
 import org.peerbox.app.manager.file.RemoteFileDeletedMessage;
 import org.peerbox.app.manager.file.RemoteFileMovedMessage;
 import org.peerbox.events.MessageBus;
+import org.peerbox.forcesync.ForceSyncMessage;
 import org.peerbox.notifications.InformationNotification;
 import org.peerbox.presenter.settings.synchronization.FileHelper;
 import org.peerbox.presenter.settings.synchronization.messages.FileExecutionStartedMessage;
@@ -82,6 +83,8 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 	private final Set<Path> failedOperations;
 
 	private final Set<Path> sharedFolders;
+
+	private boolean cleanupRunning;
 	
 	/**
 	 *
@@ -425,6 +428,16 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 	@Override
 	public Set<Path> getSharedFolders() {
 		return sharedFolders;
+	}
+	
+	@Handler
+	public void onForceSync(ForceSyncMessage message){
+		logger.trace("Received request to initiate forced synchronization on {}", message.getTopLevel());
+		setCleanupRunning(true);
+	}
+
+	private void setCleanupRunning(boolean b) {
+		cleanupRunning = b;
 	}
 
 }
