@@ -10,7 +10,7 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<jdk.version>1.8</jdk.version>
-		<h2h.version>1.2.0</h2h.version>
+		<h2h.version>1.2.2</h2h.version>
 	</properties>
 
 	<repositories>

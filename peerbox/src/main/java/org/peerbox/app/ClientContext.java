@@ -11,7 +11,7 @@ import org.peerbox.watchservice.FileEventManager;
 import org.peerbox.watchservice.FolderWatchService;
 import org.peerbox.watchservice.filetree.FileTree;
 import org.peerbox.watchservice.filetree.persistency.FileDao;
-import org.peerbox.watchservice.filetree.persistency.H2HUserProfilePersister;
+import org.peerbox.watchservice.filetree.persistency.PeriodicFileDataPersister;
 
 import com.google.inject.Inject;
 import com.google.inject.Injector;
@@ -31,7 +31,7 @@ public class ClientContext {
 	private ActionExecutor actionExecutor;
 	private FileEventManager fileEventManager;
 	private FolderWatchService folderWatchService;
-	private H2HUserProfilePersister remoteProfilePersister;
+	private PeriodicFileDataPersister remoteProfilePersister;
 	private FileEventAggregator fileEventAggregator;
 
 	private FileTree fileTree;
@@ -113,12 +113,12 @@ public class ClientContext {
 		this.fileManager = fileManager;
 	}
 
-	public H2HUserProfilePersister getRemoteProfilePersister() {
+	public PeriodicFileDataPersister getRemoteProfilePersister() {
 		return remoteProfilePersister;
 	}
 
 	@Inject
-	public void setRemoteProfilePersister(H2HUserProfilePersister persister) {
+	public void setRemoteProfilePersister(PeriodicFileDataPersister persister) {
 		this.remoteProfilePersister = persister;
 	}
 
