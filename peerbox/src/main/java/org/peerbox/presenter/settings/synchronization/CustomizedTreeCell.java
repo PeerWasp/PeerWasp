@@ -207,6 +207,21 @@ public class CustomizedTreeCell extends CheckBoxTreeCell<PathItem> {
 		menuItem.setOnAction(new RecoverFileAction());
 		return menuItem;
 	}
+	
+	@Override
+	public void updateItem(PathItem item, boolean empty){
+		super.updateItem(item, empty);
+
+		if(empty){
+			setText(null);
+			setGraphic(null);
+
+		} else {
+			setText(getItem() == null ? "" : getItem().toString());
+			setGraphic(getItem().getLabel());
+		}
+
+	}
 
 	private class RecoverFileAction implements EventHandler<ActionEvent> {
 		@Override

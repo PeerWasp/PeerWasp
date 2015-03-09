@@ -7,6 +7,8 @@ import java.util.Set;
 import javafx.beans.property.SetProperty;
 import javafx.beans.property.SimpleSetProperty;
 import javafx.collections.FXCollections;
+import javafx.scene.Node;
+import javafx.scene.control.Label;
 
 import org.hive2hive.core.model.UserPermission;
 
@@ -14,6 +16,7 @@ public class PathItem{
 	private Path path;
 	private boolean isFile;
 	private SetProperty<UserPermission> permissions;
+	private Label label = new Label();
 
 	public PathItem(Path path) {
 		this(path, true, new HashSet<UserPermission>());
@@ -58,6 +61,15 @@ public class PathItem{
 	@Override
 	public String toString() {
 		return "";
+	}
+
+	public Label getLabel() {
+		// TODO Auto-generated method stub
+		return label;
+	}
+	
+	public void setLabel(Label label){
+		this.label = label;
 	}
 	
 }

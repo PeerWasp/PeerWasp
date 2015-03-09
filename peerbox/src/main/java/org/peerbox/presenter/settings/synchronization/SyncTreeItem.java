@@ -36,9 +36,9 @@ public class SyncTreeItem extends CheckBoxTreeItem<PathItem> implements Property
 	
 	public SyncTreeItem(PathItem pathItem){
 		super(pathItem);
-		
-		setGraphic(new Label(pathItem.getPath().getFileName().toString()));
-		
+		Label label = new Label(pathItem.getPath().getFileName().toString());
+		setGraphic(label);
+		pathItem.setLabel(label);
 		initializeProgressStateProperty();
 		initializeIsSharedProperty();
 		
