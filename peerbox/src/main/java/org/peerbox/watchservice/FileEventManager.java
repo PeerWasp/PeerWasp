@@ -24,6 +24,7 @@ import org.peerbox.app.manager.file.LocalFileDesyncMessage;
 import org.peerbox.app.manager.file.RemoteFileDeletedMessage;
 import org.peerbox.app.manager.file.RemoteFileMovedMessage;
 import org.peerbox.events.MessageBus;
+import org.peerbox.forcesync.ForceSync;
 import org.peerbox.forcesync.ForceSyncMessage;
 import org.peerbox.notifications.InformationNotification;
 import org.peerbox.presenter.settings.synchronization.FileHelper;
@@ -86,6 +87,8 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 
 	private boolean cleanupRunning;
 	
+	private Set<Path> pendingEvents = new ConcurrentHashSet<Path>();
+	
 	/**
 	 *
 	 * @param fileTree The file tree representation of PeerWasp
@@ -119,6 +122,11 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 	 */
 	@Override
 	public void onLocalFileCreated(final Path path) {
+		if(cleanupRunning){
+			pendingEvents.add(path);
+			return;
+		}
+		
 		logger.debug("onLocalFileCreated: {} - Manager ID {}", path, hashCode());
 
 		final boolean isFolder = Files.isDirectory(path);
@@ -153,6 +161,11 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 	 */
 	@Override
 	public void onLocalFileModified(final Path path) {
+		if(cleanupRunning){
+			pendingEvents.add(path);
+			return;
+		}
+		
 		logger.debug("onLocalFileModified: {}", path);
 
 
@@ -184,7 +197,11 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 	 */
 	@Override
 	public void onLocalFileDeleted(final Path path) {
-
+		if(cleanupRunning){
+			pendingEvents.add(path);
+			return;
+		}
+		
 		logger.debug("onLocalFileDelete: {}", path);
 
 		final FileComponent file = fileTree.getOrCreateFileComponent(path, this);
@@ -204,6 +221,10 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 	 */
 	@Override
 	public void onLocalFileHardDelete(final Path path) {
+		if(cleanupRunning){
+			return;
+		}
+		
 		logger.debug("onLocalFileHardDelete: {} - Manager ID {}", path, hashCode());
 
 		final FileComponent file = fileTree.getOrCreateFileComponent(path, this);
@@ -217,6 +238,10 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 	 */
 	@Override
 	public void onFileDesynchronized(final Path path) {
+		if(cleanupRunning){
+			return;
+		}
+		
 		logger.debug("onFileDesynchronized: {}", path);
 
 		final FileComponent file = fileTree.getOrCreateFileComponent(path, this);
@@ -232,6 +257,10 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 	 */
 	@Override
 	public void onFileSynchronized(final Path path, boolean isFolder) {
+		if(cleanupRunning){
+			return;
+		}
+		
 		logger.debug("onFileSynchronized: {}", path);
 
 		// TODO: need to specify whether it is a folder or not?
@@ -270,6 +299,11 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 	@Override
 	@Handler
 	public synchronized void onFileAdd(final IFileAddEvent fileEvent){
+		if(cleanupRunning){
+			pendingEvents.add(fileEvent.getFile().toPath());
+			return;
+		}
+		
 		final Path path = fileEvent.getFile().toPath();
 		logger.debug("onFileAdd: {}", path);
 
@@ -305,6 +339,11 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 	@Override
 	@Handler
 	public void onFileDelete(final IFileDeleteEvent fileEvent) {
+		if(cleanupRunning){
+			pendingEvents.add(fileEvent.getFile().toPath());
+			return;
+		}
+		
 		final Path path = fileEvent.getFile().toPath();
 		logger.debug("onFileDelete: {}", path);
 
@@ -323,6 +362,10 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 	@Override
 	@Handler
 	public void onFileUpdate(final IFileUpdateEvent fileEvent) {
+		if(cleanupRunning){
+			pendingEvents.add(fileEvent.getFile().toPath());
+			return;
+		}
 		final Path path = fileEvent.getFile().toPath();
 		logger.debug("onFileUpdate: {}", path);
 
@@ -339,6 +382,11 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 	@Override
 	@Handler
 	public void onFileMove(final IFileMoveEvent fileEvent) {
+		if(cleanupRunning){
+			pendingEvents.add(fileEvent.getSrcFile().toPath());
+			pendingEvents.add(fileEvent.getDstFile().toPath());
+			return;
+		}
 		final Path srcPath = fileEvent.getSrcFile().toPath();
 		final Path dstPath = fileEvent.getDstFile().toPath();
 		logger.debug("onFileMove: {} -> {}", srcPath, dstPath);
@@ -434,10 +482,15 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 	public void onForceSync(ForceSyncMessage message){
 		logger.trace("Received request to initiate forced synchronization on {}", message.getTopLevel());
 		setCleanupRunning(true);
+		fileComponentQueue.clear();
 	}
 
-	private void setCleanupRunning(boolean b) {
+	public void setCleanupRunning(boolean b) {
 		cleanupRunning = b;
+	}
+
+	public Set<Path> getPendingEvents() {
+		return pendingEvents;
 	}
 
 }

@@ -55,4 +55,8 @@ public class ActionQueue {
 		}
 	}
 
+	public void clear() {
+		queue.clear();
+	}
+
 }

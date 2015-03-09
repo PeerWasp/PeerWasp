@@ -21,6 +21,9 @@ public class ForceSyncHandler implements IForceSyncHandler{
 	public void forceSync(Path topLevel) {
 		this.topLevel = topLevel;
 		appContext.getMessageBus().publish(new ForceSyncMessage(topLevel));
+		
+		ForceSync forceSync = new ForceSync(appContext.getCurrentClientContext());
+		forceSync.startForceSync(topLevel);
 	}
 
 	@Override

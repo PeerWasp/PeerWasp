@@ -440,8 +440,8 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 					findFirst().get();
 			
 			putTreeItem(found, toPut, found.getValue().getPath().relativize(wholePath));
-
-			PathItem pathItem = new PathItem(pathToSearch, toPut.isSelected(), null);
+//TODO : provide real user permissions
+			PathItem pathItem = new PathItem(pathToSearch, toPut.isSelected(), new HashSet<UserPermission>());
 			SyncTreeItem created = new SyncTreeItem(pathItem);
 			parent.getChildren().add(toPut);
 			toPut.bindTo(parent);

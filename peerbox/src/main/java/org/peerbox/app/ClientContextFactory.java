@@ -27,7 +27,7 @@ public class ClientContextFactory {
 		FileEventManager fileEventManager = context.getFileEventManager();
 
 		FileTreeInitializer treeInitializer = new FileTreeInitializer(context);
-		treeInitializer.initialize();
+		treeInitializer.initialize(userConfig.getRootPath());
 
 		context.getFolderWatchService().addFileEventListener(fileEventManager);
 		context.getNodeManager().getNode().getFileManager().subscribeFileEvents(fileEventManager);

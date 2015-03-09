@@ -6,7 +6,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 import org.hive2hive.core.processes.files.list.FileNode;
 import org.peerbox.app.ClientContext;
@@ -33,13 +36,25 @@ public class FileTreeInitializer {
 	 *
 	 * @throws Exception
 	 */
-	public void initialize() throws Exception {
+	public void initialize(Path topLevel) throws Exception {
 		// root of tree
 		final IFileTree tree = context.getFileEventManager().getFileTree();
 
 		// add the files in the DHT to the tree
 		FileNode root = context.getFileManager().listFiles().execute();
 		List<FileNode> fileList = FileNode.getNodeList(root, true, true);
+		
+		fileList = fileList.stream().filter(node -> node.getFile().toPath().
+				startsWith(topLevel)).sorted(new Comparator<FileNode>() {
+					@Override
+					public int compare(FileNode o1, FileNode o2) {
+						return o1.getFile().compareTo(o2.getFile());
+					}
+				}).collect(Collectors.toList());
+		
+		fileList.forEach(node -> logger.trace("fileList: {}", node.getFile().getPath()));
+		
+		
 		for (FileNode node : fileList) {
 			if(node == root) {
 				continue; // root does not need to be added.
@@ -59,7 +74,7 @@ public class FileTreeInitializer {
 		}
 
 		// Add the files on disk to the tree (if not present yet)
-		Files.walkFileTree(tree.getRootPath(), new SimpleFileVisitor<Path>() {
+		Files.walkFileTree(topLevel, new SimpleFileVisitor<Path>() {
 			@Override
 			public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
 				FileComponent component = tree.getFile(dir);
@@ -101,7 +116,17 @@ public class FileTreeInitializer {
 
 		// selective sync: use database to disable sync on some elements
 		final FileDao fileDao = context.getFileDao();
-		for (FileComponent c : tree.asList()) {
+		
+		List<FileComponent> subtreeList = tree.asList().stream().filter(node -> node.getPath().
+				startsWith(topLevel)).sorted(new Comparator<FileComponent>() {
+					@Override
+					public int compare(FileComponent o1, FileComponent o2) {
+						return o1.getPath().compareTo(o2.getPath());
+					}
+				}).collect(Collectors.toList());
+		
+		
+		for (FileComponent c : subtreeList) {
 			Boolean isSync = fileDao.isSynchronizedByPath(c.getPath());
 			if (isSync != null && !isSync.booleanValue()) {
 				c.setIsSynchronized(false);
@@ -116,7 +141,7 @@ public class FileTreeInitializer {
 
 		if (logger.isTraceEnabled()) {
 			logger.trace("Tree initialization finished. Current tree state: ");
-			for (FileComponent c : tree.asList()) {
+			for (FileComponent c : subtreeList) {
 				logger.trace("... {}", c.toString());
 				logger.trace("...... {}", c.getAction().toString());
 			}
