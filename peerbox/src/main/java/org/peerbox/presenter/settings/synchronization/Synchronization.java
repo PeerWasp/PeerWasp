@@ -9,8 +9,6 @@ import java.util.Iterator;
 import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.TreeSet;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import javafx.util.Callback;
 import javafx.event.ActionEvent;
@@ -220,7 +218,7 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 	@Handler
 	public void onExecutionStarts(FileExecutionStartedMessage message) {
 		logger.trace("onExecutionStarts: {}", message.getFile().getPath());
-		SyncTreeItem item = getOrCreate(message.getFile(), false);
+		SyncTreeItem item = getOrCreateItem(message.getFile(), false);
 		item.setProgressState(ProgressState.IN_PROGRESS);
 	}
 
@@ -261,10 +259,10 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 
 		removeTreeItemInUIThread(srcFile);
 		
-		SyncTreeItem item = getOrCreate(message.getFile(), true);
+		SyncTreeItem item = getOrCreateItem(message.getFile(), true);
 		item.setProgressState(ProgressState.SUCCESSFUL);
 		
-		item.updateSelectedInUIThread(true);
+		updateIsSelectedInUIThread(item, message.getFile(), true);
 	}
 
 
@@ -286,21 +284,22 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 			removeTreeItemInUIThread(message.getFile().getPath());
 			break;
 		case INITIAL:
-			SyncTreeItem item = getOrCreate(message.getFile(), true);
+			SyncTreeItem item = getOrCreateItem(message.getFile(), true);
 			item.setProgressState(ProgressState.SUCCESSFUL);
 			break;
 		case LOCAL_MOVE:
 			Path srcFile = message.getSourceFile().getPath();
+			Path dstFile = message.getFile().getPath();
 			removeTreeItemInUIThread(srcFile);
 			
-			item = getOrCreate(message.getFile(), true);		
+			item = getOrCreateItem(message.getFile(), true);		
 			item.setProgressState(ProgressState.SUCCESSFUL);
-			item.updateSelectedInUIThread(true);
+			updateIsSelectedInUIThread(item, message.getFile(), true);
 			break;
 		default:
-			item = getOrCreate(message.getFile(), true);
+			item = getOrCreateItem(message.getFile(), true);
 			item.setProgressState(ProgressState.SUCCESSFUL);
-			item.updateSelectedInUIThread(true);
+			updateIsSelectedInUIThread(item, message.getFile(), true);
 		}
 	}
 
@@ -317,10 +316,15 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 	public void onExecutionFails(FileExecutionFailedMessage message) {
 		logger.trace("onExecutionFails: {}", message.getFile().getPath());
 		
-		SyncTreeItem item = getOrCreate(message.getFile(), false);
+		SyncTreeItem item = getOrCreateItem(message.getFile(), false);
 		item.setProgressState(ProgressState.FAILED);
 		final SyncTreeItem item2 = item;
-		item.updateSelectedInUIThread(true);
+		javafx.application.Platform.runLater(new Runnable() {
+	        @Override
+	        public void run() {
+	        	item2.setSelected(true);
+	        }
+		});
 	}
 
 	/**
@@ -335,10 +339,16 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 	@Handler
 	public void onFileSoftDeleted(LocalFileDesyncMessage message) {
 		logger.trace("onFileSoftDeleted: {}", message.getFile().getPath());
-		SyncTreeItem item = getOrCreate(message.getFile(), false);
+		SyncTreeItem item = getOrCreateItem(message.getFile(), false);
 		
 		item.setProgressState(ProgressState.DEFAULT);
-		item.updateSelectedInUIThread(false);
+		final SyncTreeItem item2 = item;
+		javafx.application.Platform.runLater(new Runnable() {
+	        @Override
+	        public void run() {
+	        	item2.setSelected(false);
+	        }
+	   });
 	}
 	
 	@Override
@@ -346,7 +356,7 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 	public void onRemoteFolderShared(RemoteShareFolderMessage message) {
 		logger.trace("onRemoteFolderShared: {}", message.getFile().getPath());
 		
-		SyncTreeItem item = getOrCreate(message.getFile(), false);
+		SyncTreeItem item = getOrCreateItem(message.getFile(), false);
 		item.getValue().getPermissions().clear();
 		item.getValue().getPermissions().addAll(message.getUserPermissions());
 		item.setIsShared(true);
@@ -356,7 +366,7 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 	@Handler
 	public void onLocalFolderShared(LocalShareFolderMessage message) {
 		logger.trace("onLocalFolderShared: {}", message.getFile().getPath());
-		SyncTreeItem item = getOrCreate(message.getFile(), false);
+		SyncTreeItem item = getOrCreateItem(message.getFile(), false);
 		
 
 		item.getValue().getPermissions().add(message.getInvitedUserPermission());
@@ -372,26 +382,44 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 		});
 	}
 
-	private SyncTreeItem getOrCreate(FileHelper file, boolean isSynched) {
-		SyncTreeItem item = get(file.getPath());
-		if(item == null){
-			item = create(file.getPath(), true, file.isFile());
-			put(item);
+	private void updateIsSelectedInUIThread(SyncTreeItem item, FileHelper file,
+			boolean b) {
+		final SyncTreeItem item2 = item;
+		javafx.application.Platform.runLater(new Runnable() {
+	        @Override
+	        public void run() {
+	        	if(file.getPath().toFile().isDirectory()){
+	        		item2.setIndeterminate(b);
+	        	} else {
+	        		item2.setSelected(b);
+	        	}
+	        }
+		});
+	}
+
+	private SyncTreeItem getOrCreateItem(FileHelper file, boolean isSynched) {
+		SyncTreeItem item = getTreeItem(file.getPath());
+
+		if(item != null){
+			logger.trace("item != null for {}, change icon!", file.getPath());
+		} else {
+			item = createItem(file.getPath(), true, file.isFile());
+			putTreeItem(item);
+			logger.trace("item == null for {}", file.getPath());
 		}
 		return item;
 	}
 
-	private SyncTreeItem get(Path path){
+	private SyncTreeItem getTreeItem(Path path){
 		SyncTreeItem root = (SyncTreeItem)fileTreeView.getRoot();
 		return findTreeItem(root, path, false);
 	}
 
-	private void put(SyncTreeItem toPut){
+	private void putTreeItem(SyncTreeItem item){
 		SyncTreeItem root = (SyncTreeItem)fileTreeView.getRoot();
 		Path prefix = root.getValue().getPath();
-		Path pathLeft = prefix.relativize(toPut.getValue().getPath());
-		toPut.addEventHandler(CheckBoxTreeItem.checkBoxSelectionChangedEvent(), new ClickEventHandler(this));
-		putTreeItem(root, toPut, pathLeft);
+		Path pathLeft = prefix.relativize(item.getValue().getPath());
+		putTreeItem(root, item, pathLeft);
 		return;
 	}
 
@@ -428,21 +456,30 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 		Path wholePath = parentPath.resolve(pathLeft);
 
 		if(pathLeft.getNameCount() == 1){
-			parent.getChildren().removeIf(child -> child.getValue().getPath().equals(wholePath));
+			toPut.addEventHandler(CheckBoxTreeItem.checkBoxSelectionChangedEvent(), new ClickEventHandler(this));
+			Iterator<TreeItem<PathItem>> iter = parent.getChildren().iterator();
+			while(iter.hasNext()){
+				if(iter.next().getValue().getPath().equals(wholePath)){
+					iter.remove();
+				}
+			}
 			parent.getChildren().add(toPut);
 			toPut.bindTo(parent);
 			return;
 		} else {
-			Path pathToSearch = parentPath.resolve(pathLeft.getName(0));
-			
-			SyncTreeItem found = (SyncTreeItem)parent.getChildren().stream().
-					filter(child -> child.getValue().getPath().equals(pathToSearch)).
-					findFirst().get();
-			
-			putTreeItem(found, toPut, found.getValue().getPath().relativize(wholePath));
-//TODO : provide real user permissions
-			PathItem pathItem = new PathItem(pathToSearch, toPut.isSelected(), new HashSet<UserPermission>());
+			Iterator<TreeItem<PathItem>> iter = parent.getChildren().iterator();
+			Path nextLevel = pathLeft.getName(0);
+			Path pathToSearch = parentPath.resolve(nextLevel);
+			while(iter.hasNext()){
+				SyncTreeItem child = (SyncTreeItem)iter.next();
+				if(child.getValue().getPath().equals(pathToSearch)){
+					putTreeItem(child, toPut, child.getValue().getPath().relativize(wholePath));
+					return;
+				}
+			}
+			PathItem pathItem = new PathItem(pathToSearch, toPut.isSelected(), null);
 			SyncTreeItem created = new SyncTreeItem(pathItem);
+			toPut.addEventHandler(CheckBoxTreeItem.checkBoxSelectionChangedEvent(), new ClickEventHandler(this));
 			parent.getChildren().add(toPut);
 			toPut.bindTo(parent);
 			putTreeItem(created, toPut, toPut.getValue().getPath().relativize(wholePath));
@@ -473,7 +510,7 @@ public class Synchronization implements Initializable, IExecutionMessageListener
             public TreeCell<PathItem> call(TreeView<PathItem> p) {
                 return new CustomizedTreeCell(getFileEventManager(),
                 		recoverFileHandlerProvider,
-                		shareFolderHandlerProvider,
+                		shareFolderHandlerProvider, 
                 		forceSyncHandlerProvider);
             }
         });
@@ -503,7 +540,7 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 	        	if(sharedFolders.contains(path)){
 	        		item.setIsShared(true);
 	        	}
-	        	put(item);
+	        	putTreeItem(item);
 	        	item.setProgressState(stateToSet);
 				addChildrensToTreeView(topLevelNode);
 			}
@@ -518,14 +555,14 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 		return newItem;
 	}
 	
-	private SyncTreeItem create(Path path, boolean isSynched,
+	private SyncTreeItem createItem(Path path, boolean isSynched,
 			boolean isFile) {
 		Set<UserPermission> defaultPermissions = new HashSet<UserPermission>();
 		defaultPermissions.add(new UserPermission(userConfig.getUsername(), PermissionType.WRITE));
 		return createItem(path, isSynched, isFile, defaultPermissions);
 	}
 
-	private class FileHelperComparator implements Comparator<FileHelper> {
+	private class FileHelperComparator implements Comparator<FileHelper>{
 		@Override
 		public int compare(FileHelper o1, FileHelper o2) {
 			String path1 = o1.getPath().toString();
@@ -533,4 +570,5 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 			return path1.compareTo(path2);
 		}
 	}
+	
 }
