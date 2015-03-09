@@ -3,7 +3,7 @@ package org.peerbox.app;
 public class PeerWaspConfig implements IPeerWaspConfig {
 
 	/** Amount of time that an action has to be "stable" in order to be executed **/
-	public static final long ACTION_WAIT_TIME_MS = 10000;
+	public static final long ACTION_WAIT_TIME_MS = 2000;
 	public static final int ACTION_WAIT_TIME_SEC = (int)(ACTION_WAIT_TIME_MS / 1000);
 	
 	/** Maximal number of concurrent network transactions **/

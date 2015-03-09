@@ -125,6 +125,7 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 //			ConflictHandler.resolveConflict(path, true);
 //			return;
 //		}
+		
 		file.setIsSynchronized(true);
 
 		if (isFolder) {
@@ -324,7 +325,6 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 
 		final FileComponent file = fileTree.getOrCreateFileComponent(path, this);
 		file.getAction().handleRemoteUpdateEvent();
-
 	}
 
 	/**

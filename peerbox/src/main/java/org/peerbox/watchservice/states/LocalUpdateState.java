@@ -115,5 +115,4 @@ public class LocalUpdateState extends AbstractActionState {
 		return changeStateOnRemoteMove(sourcePath);
 	}
 
-
 }

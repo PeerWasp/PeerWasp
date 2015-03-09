@@ -191,14 +191,17 @@ public class FolderComposite extends AbstractFileComponent {
 		String nameHashInput = "";
 		String oldNamesHash = structureHash;
 		logger.trace("Before: structure hash of {} is {}", getPath(), oldNamesHash);
+		
 		for (Map.Entry<Path, FileComponent> child : children.entrySet()) {
 			if(child.getValue().isSynchronized()){
-//				logger.trace("Extend names hash of {} using {}", getParent(), child.getKey());
 				nameHashInput = nameHashInput.concat(child.getKey().toString());
 			}
-
 		}
 
+//		nameHashInput = nameHashInput.concat(children.entrySet().stream()
+//				.filter(child -> child.getValue().isSynchronized()).
+//				findFirst().get().getKey().toString());
+		
 		byte[] rawHash = HashUtil.hash(nameHashInput.getBytes());
 		structureHash = PathUtils.base64Encode(rawHash);
 		logger.trace("After: structure hash of {} is {}", getPath(), structureHash);

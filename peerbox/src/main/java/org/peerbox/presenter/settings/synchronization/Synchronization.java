@@ -9,6 +9,8 @@ import java.util.Iterator;
 import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javafx.util.Callback;
 import javafx.event.ActionEvent;
@@ -29,7 +31,6 @@ import org.hive2hive.core.model.UserPermission;
 import org.hive2hive.core.processes.files.list.FileNode;
 import org.hive2hive.processframework.exceptions.InvalidProcessStateException;
 import org.hive2hive.processframework.exceptions.ProcessExecutionException;
-
 import org.peerbox.app.config.UserConfig;
 import org.peerbox.app.manager.file.LocalFileDesyncMessage;
 import org.peerbox.app.manager.file.FileExecutionFailedMessage;
@@ -45,7 +46,6 @@ import org.peerbox.share.IShareFolderHandler;
 import org.peerbox.watchservice.FileEventManager;
 import org.peerbox.watchservice.IFileEventManager;
 import org.peerbox.watchservice.states.StateType;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -214,7 +214,7 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 	@Handler
 	public void onExecutionStarts(FileExecutionStartedMessage message) {
 		logger.trace("onExecutionStarts: {}", message.getFile().getPath());
-		SyncTreeItem item = getOrCreateItem(message.getFile(), false);
+		SyncTreeItem item = getOrCreate(message.getFile(), false);
 		item.setProgressState(ProgressState.IN_PROGRESS);
 	}
 
@@ -255,10 +255,10 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 
 		removeTreeItemInUIThread(srcFile);
 		
-		SyncTreeItem item = getOrCreateItem(message.getFile(), true);
+		SyncTreeItem item = getOrCreate(message.getFile(), true);
 		item.setProgressState(ProgressState.SUCCESSFUL);
 		
-		updateIsSelectedInUIThread(item, message.getFile(), true);
+		item.updateSelectedInUIThread(true);
 	}
 
 
@@ -280,22 +280,21 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 			removeTreeItemInUIThread(message.getFile().getPath());
 			break;
 		case INITIAL:
-			SyncTreeItem item = getOrCreateItem(message.getFile(), true);
+			SyncTreeItem item = getOrCreate(message.getFile(), true);
 			item.setProgressState(ProgressState.SUCCESSFUL);
 			break;
 		case LOCAL_MOVE:
 			Path srcFile = message.getSourceFile().getPath();
-			Path dstFile = message.getFile().getPath();
 			removeTreeItemInUIThread(srcFile);
 			
-			item = getOrCreateItem(message.getFile(), true);		
+			item = getOrCreate(message.getFile(), true);		
 			item.setProgressState(ProgressState.SUCCESSFUL);
-			updateIsSelectedInUIThread(item, message.getFile(), true);
+			item.updateSelectedInUIThread(true);
 			break;
 		default:
-			item = getOrCreateItem(message.getFile(), true);
+			item = getOrCreate(message.getFile(), true);
 			item.setProgressState(ProgressState.SUCCESSFUL);
-			updateIsSelectedInUIThread(item, message.getFile(), true);
+			item.updateSelectedInUIThread(true);
 		}
 	}
 
@@ -312,15 +311,10 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 	public void onExecutionFails(FileExecutionFailedMessage message) {
 		logger.trace("onExecutionFails: {}", message.getFile().getPath());
 		
-		SyncTreeItem item = getOrCreateItem(message.getFile(), false);
+		SyncTreeItem item = getOrCreate(message.getFile(), false);
 		item.setProgressState(ProgressState.FAILED);
 		final SyncTreeItem item2 = item;
-		javafx.application.Platform.runLater(new Runnable() {
-	        @Override
-	        public void run() {
-	        	item2.setSelected(true);
-	        }
-		});
+		item.updateSelectedInUIThread(true);
 	}
 
 	/**
@@ -335,16 +329,10 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 	@Handler
 	public void onFileSoftDeleted(LocalFileDesyncMessage message) {
 		logger.trace("onFileSoftDeleted: {}", message.getFile().getPath());
-		SyncTreeItem item = getOrCreateItem(message.getFile(), false);
+		SyncTreeItem item = getOrCreate(message.getFile(), false);
 		
 		item.setProgressState(ProgressState.DEFAULT);
-		final SyncTreeItem item2 = item;
-		javafx.application.Platform.runLater(new Runnable() {
-	        @Override
-	        public void run() {
-	        	item2.setSelected(false);
-	        }
-	   });
+		item.updateSelectedInUIThread(false);
 	}
 	
 	@Override
@@ -352,7 +340,7 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 	public void onRemoteFolderShared(RemoteShareFolderMessage message) {
 		logger.trace("onRemoteFolderShared: {}", message.getFile().getPath());
 		
-		SyncTreeItem item = getOrCreateItem(message.getFile(), false);
+		SyncTreeItem item = getOrCreate(message.getFile(), false);
 		item.getValue().getPermissions().clear();
 		item.getValue().getPermissions().addAll(message.getUserPermissions());
 		item.setIsShared(true);
@@ -362,7 +350,7 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 	@Handler
 	public void onLocalFolderShared(LocalShareFolderMessage message) {
 		logger.trace("onLocalFolderShared: {}", message.getFile().getPath());
-		SyncTreeItem item = getOrCreateItem(message.getFile(), false);
+		SyncTreeItem item = getOrCreate(message.getFile(), false);
 		
 
 		item.getValue().getPermissions().add(message.getInvitedUserPermission());
@@ -378,44 +366,26 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 		});
 	}
 
-	private void updateIsSelectedInUIThread(SyncTreeItem item, FileHelper file,
-			boolean b) {
-		final SyncTreeItem item2 = item;
-		javafx.application.Platform.runLater(new Runnable() {
-	        @Override
-	        public void run() {
-	        	if(file.getPath().toFile().isDirectory()){
-	        		item2.setIndeterminate(b);
-	        	} else {
-	        		item2.setSelected(b);
-	        	}
-	        }
-		});
-	}
-
-	private SyncTreeItem getOrCreateItem(FileHelper file, boolean isSynched) {
-		SyncTreeItem item = getTreeItem(file.getPath());
-
-		if(item != null){
-			logger.trace("item != null for {}, change icon!", file.getPath());
-		} else {
-			item = createItem(file.getPath(), true, file.isFile());
-			putTreeItem(item);
-			logger.trace("item == null for {}", file.getPath());
+	private SyncTreeItem getOrCreate(FileHelper file, boolean isSynched) {
+		SyncTreeItem item = get(file.getPath());
+		if(item == null){
+			item = create(file.getPath(), true, file.isFile());
+			put(item);
 		}
 		return item;
 	}
 
-	private SyncTreeItem getTreeItem(Path path){
+	private SyncTreeItem get(Path path){
 		SyncTreeItem root = (SyncTreeItem)fileTreeView.getRoot();
 		return findTreeItem(root, path, false);
 	}
 
-	private void putTreeItem(SyncTreeItem item){
+	private void put(SyncTreeItem toPut){
 		SyncTreeItem root = (SyncTreeItem)fileTreeView.getRoot();
 		Path prefix = root.getValue().getPath();
-		Path pathLeft = prefix.relativize(item.getValue().getPath());
-		putTreeItem(root, item, pathLeft);
+		Path pathLeft = prefix.relativize(toPut.getValue().getPath());
+		toPut.addEventHandler(CheckBoxTreeItem.checkBoxSelectionChangedEvent(), new ClickEventHandler(this));
+		putTreeItem(root, toPut, pathLeft);
 		return;
 	}
 
@@ -452,30 +422,21 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 		Path wholePath = parentPath.resolve(pathLeft);
 
 		if(pathLeft.getNameCount() == 1){
-			toPut.addEventHandler(CheckBoxTreeItem.checkBoxSelectionChangedEvent(), new ClickEventHandler(this));
-			Iterator<TreeItem<PathItem>> iter = parent.getChildren().iterator();
-			while(iter.hasNext()){
-				if(iter.next().getValue().getPath().equals(wholePath)){
-					iter.remove();
-				}
-			}
+			parent.getChildren().removeIf(child -> child.getValue().getPath().equals(wholePath));
 			parent.getChildren().add(toPut);
 			toPut.bindTo(parent);
 			return;
 		} else {
-			Iterator<TreeItem<PathItem>> iter = parent.getChildren().iterator();
-			Path nextLevel = pathLeft.getName(0);
-			Path pathToSearch = parentPath.resolve(nextLevel);
-			while(iter.hasNext()){
-				SyncTreeItem child = (SyncTreeItem)iter.next();
-				if(child.getValue().getPath().equals(pathToSearch)){
-					putTreeItem(child, toPut, child.getValue().getPath().relativize(wholePath));
-					return;
-				}
-			}
+			Path pathToSearch = parentPath.resolve(pathLeft.getName(0));
+			
+			SyncTreeItem found = (SyncTreeItem)parent.getChildren().stream().
+					filter(child -> child.getValue().getPath().equals(pathToSearch)).
+					findFirst().get();
+			
+			putTreeItem(found, toPut, found.getValue().getPath().relativize(wholePath));
+
 			PathItem pathItem = new PathItem(pathToSearch, toPut.isSelected(), null);
 			SyncTreeItem created = new SyncTreeItem(pathItem);
-			toPut.addEventHandler(CheckBoxTreeItem.checkBoxSelectionChangedEvent(), new ClickEventHandler(this));
 			parent.getChildren().add(toPut);
 			toPut.bindTo(parent);
 			putTreeItem(created, toPut, toPut.getValue().getPath().relativize(wholePath));
@@ -535,7 +496,7 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 	        	if(sharedFolders.contains(path)){
 	        		item.setIsShared(true);
 	        	}
-	        	putTreeItem(item);
+	        	put(item);
 	        	item.setProgressState(stateToSet);
 				addChildrensToTreeView(topLevelNode);
 			}
@@ -550,14 +511,14 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 		return newItem;
 	}
 	
-	private SyncTreeItem createItem(Path path, boolean isSynched,
+	private SyncTreeItem create(Path path, boolean isSynched,
 			boolean isFile) {
 		Set<UserPermission> defaultPermissions = new HashSet<UserPermission>();
 		defaultPermissions.add(new UserPermission(userConfig.getUsername(), PermissionType.WRITE));
 		return createItem(path, isSynched, isFile, defaultPermissions);
 	}
 
-	private class FileHelperComparator implements Comparator<FileHelper>{
+	private class FileHelperComparator implements Comparator<FileHelper> {
 		@Override
 		public int compare(FileHelper o1, FileHelper o2) {
 			String path1 = o1.getPath().toString();
@@ -565,5 +526,4 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 			return path1.compareTo(path2);
 		}
 	}
-	
 }

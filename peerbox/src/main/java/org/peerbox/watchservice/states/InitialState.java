@@ -112,7 +112,6 @@ public class InitialState extends AbstractActionState {
 		logger.warn("Execute is not defined in the initial state  ({})", action.getFile().getPath());
 		return null;
 	}
-
 	
 	private void addComponentToMoveTargetCandidates() {
 		if(action.getFile().isFile()){
@@ -131,7 +130,6 @@ public class InitialState extends AbstractActionState {
 		return changeStateOnLocalCreate();
 	}
 
-
 	private AbstractActionState updateSoftDeletedFileComponent() {
 		final FileComponent file = action.getFile();
 		logger.debug("File {} has been soft-deleted and recreated. This is regarded as a file update.", file.getPath());
@@ -146,7 +144,6 @@ public class InitialState extends AbstractActionState {
 			return changeStateOnLocalUpdate();
 		}
 	}
-
 
 	private AbstractActionState moveFile(FileLeaf source) {
 		final IFileTree fileTree = action.getFileEventManager().getFileTree();
