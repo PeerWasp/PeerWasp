@@ -20,6 +20,7 @@ public class ForceSync {
 
 	public void startForceSync(Path topLevel) {
 		try {
+			logger.trace("Start forced synchronization on {}", topLevel);
 			FileTreeInitializer fileTreeInitializer = new FileTreeInitializer(context);
 			fileTreeInitializer.initialize(topLevel);
 			Set<Path> pendingEvents = context.getFileEventManager().getPendingEvents();

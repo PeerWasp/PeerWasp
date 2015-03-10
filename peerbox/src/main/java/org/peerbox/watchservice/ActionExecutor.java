@@ -10,6 +10,8 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import net.engio.mbassy.listener.Handler;
+
 import org.hive2hive.core.exceptions.AbortModificationCode;
 import org.hive2hive.core.exceptions.ErrorCode;
 import org.hive2hive.core.exceptions.Hive2HiveException;
@@ -21,6 +23,8 @@ import org.peerbox.app.manager.ProcessHandle;
 import org.peerbox.app.manager.file.FileExecutionFailedMessage;
 import org.peerbox.app.manager.file.IFileManager;
 import org.peerbox.events.IMessage;
+import org.peerbox.forcesync.ForceSyncCompleteMessage;
+import org.peerbox.forcesync.ForceSyncMessage;
 import org.peerbox.notifications.InformationNotification;
 import org.peerbox.presenter.settings.synchronization.FileHelper;
 import org.peerbox.presenter.settings.synchronization.messages.FileExecutionStartedMessage;
@@ -78,6 +82,8 @@ public class ActionExecutor implements Runnable {
 	
 	private final Thread asyncHandlesThread;
 	private final Thread executorThread;
+
+	private boolean forceSyncRunning = false;
 
 	/**
 	 * @param eventManager determines the event handling
@@ -428,6 +434,23 @@ public class ActionExecutor implements Runnable {
 		}
 		return false; // error not handled
 	}
+	
+	@Handler
+	public void onForceSync(ForceSyncMessage message){
+		logger.trace("Force Synchronization on {}: Handle ongoing executions");
+		setForceSyncRunning(true);
+	}
+	
+	@Handler
+	public void onForceSyncComplete(ForceSyncCompleteMessage message){
+		logger.trace("Forced synchronization terminated.");
+		setForceSyncRunning(false);
+	}
+
+
+	private void setForceSyncRunning(boolean b) {
+		forceSyncRunning  = b;
+	}
 
 
 	private class ExecutingActionHandler implements Runnable {
@@ -444,7 +467,11 @@ public class ActionExecutor implements Runnable {
 					ExecutionHandle next = asyncHandles.take();
 
 					try {
-
+						if(forceSyncRunning){
+							logger.trace("FileComponent {} in state {} is discarded due to force sync!",
+									next.getAction().getFile().getPath(), next.getAction().getCurrentState().getStateType());
+							continue;
+						}
 						// check whether there is a process attached
 						ProcessHandle<Void> process = next.getProcessHandle();
 						if(process != null) {
