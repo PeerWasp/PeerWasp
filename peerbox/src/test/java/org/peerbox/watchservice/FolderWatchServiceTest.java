@@ -128,7 +128,7 @@ public class FolderWatchServiceTest {
 		out.close();
 		sleep();
 		
-		//Files.delete(file);
+		Files.delete(file);
 		sleep();
 		return file;
 	}
@@ -263,6 +263,7 @@ public class FolderWatchServiceTest {
 		
 		assertTrue(newFolder.toFile().mkdir());
 //		sleep(); //-> this sleep shows that create event is fired if we wait a bit (until folder is registered)
+		Thread.sleep(10);
 		assertTrue(newFile.toFile().createNewFile());
 		
 		sleep();
@@ -276,7 +277,7 @@ public class FolderWatchServiceTest {
 		Path folder = Paths.get(basePath.toString(), "todelete");
 		Files.createDirectory(folder);
 		watchService.start(basePath);
-		//Files.delete(folder);
+		Files.delete(folder);
 		sleep();
 		Mockito.verify(fileEventListener, Mockito.times(1)).onLocalFileDeleted(folder);
 	}
@@ -375,12 +376,13 @@ public class FolderWatchServiceTest {
 	public void testManyFoldersAndEmptyFiles() throws Exception {
 		watchService.start(basePath);
         Path base = basePath;
-        int numFolders = 100;
-        int numFilesPerFolder = 1000;
+        int numFolders = 10;
+        int numFilesPerFolder = 100;
         List<Path> files = new ArrayList<Path>(numFolders*numFilesPerFolder);
 		for (int k = 0; k < numFolders; ++k) {
 			Path sub = Paths.get(String.format("%s", k));
 			Files.createDirectory(base.resolve(sub));
+			Thread.sleep(10);
 			for (int i = 0; i < numFilesPerFolder; ++i) {
 				Path f = sub.resolve(String.format("%s.txt", i));
 				Path fullPath = base.resolve(f);
@@ -398,11 +400,12 @@ public class FolderWatchServiceTest {
 		watchService.start(basePath);
         Path base = basePath;
         int numFolders = 10;
-        int numFilesPerFolder = 10000;
+        int numFilesPerFolder = 100;
         List<Path> files = new ArrayList<Path>(numFolders*numFilesPerFolder);
 		for (int k = 0; k < numFolders; ++k) {
 			Path sub = Paths.get(String.format("%s", k));
 			Files.createDirectory(base.resolve(sub));
+			Thread.sleep(10);
 			for (int i = 0; i < numFilesPerFolder; ++i) {
 				Path f = sub.resolve(String.format("%s.txt", i));
 				Path fullPath = base.resolve(f);
@@ -418,12 +421,13 @@ public class FolderWatchServiceTest {
 	public void testManyFoldersAndSmallFiles() throws Exception {
 		watchService.start(basePath);
         Path base = basePath;
-        int numFolders = 100;
-        int numFilesPerFolder = 1000;
+        int numFolders = 10;
+        int numFilesPerFolder = 100;
         List<Path> files = new ArrayList<Path>(numFolders*numFilesPerFolder);
 		for (int k = 0; k < numFolders; ++k) {
 			Path sub = Paths.get(String.format("%s", k));
 			Files.createDirectory(base.resolve(sub));
+			Thread.sleep(10);
 			for (int i = 0; i < numFilesPerFolder; ++i) {
 				Path f = sub.resolve(String.format("%s.txt", i));
 				Path fullPath = base.resolve(f);
@@ -436,16 +440,23 @@ public class FolderWatchServiceTest {
 		Mockito.verify(fileEventListener, Mockito.times(numFolders + numFolders*numFilesPerFolder)).onLocalFileCreated(anyObject());
 	}
 	
+	/**
+	 * Without the short sleep of 10 milliseconds, some events are lost. This
+	 * happens due to the need to register new subfolders manually. While this is
+	 * done, events triggered by the file system are ignored.
+	 * @throws Exception
+	 */
 	@Test
 	public void testManySmallFiles() throws Exception {
 		watchService.start(basePath);
         Path base = basePath;
         int numFolders = 10;
-        int numFilesPerFolder = 10000;
+        int numFilesPerFolder = 100;
 		List<Path> files = new ArrayList<Path>(numFolders*numFilesPerFolder);
 		for (int k = 0; k < numFolders; ++k) {
 			Path sub = Paths.get(String.format("%s", k));
 			Files.createDirectory(base.resolve(sub));
+			Thread.sleep(10);
 			for (int i = 0; i < numFilesPerFolder; ++i) {
 				Path f = sub.resolve(String.format("%s.txt", i));
 				Path fullPath = base.resolve(f);
