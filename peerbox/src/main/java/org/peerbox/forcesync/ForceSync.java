@@ -54,9 +54,6 @@ public class ForceSync {
 		try {
 			logger.trace("Start forced synchronization on {}", topLevel);
 
-
-
-
 			FileTreeInitializer fileTreeInitializer = new FileTreeInitializer(context);
 			fileTreeInitializer.initialize(topLevel);
 

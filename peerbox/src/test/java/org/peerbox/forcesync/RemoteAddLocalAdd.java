@@ -19,25 +19,25 @@ public class RemoteAddLocalAdd extends ListSyncTest{
 	public void localAndRemoteVersionEqual() throws Exception{
 		local.put(filePath, file1);
 		remote.put(filePath, file1);
-		
+
 		listSync.sync(local, localDatabase, remote, remoteDatabase);
-		
+
 		Mockito.verifyNoMoreInteractions(fileEventManager);
 	}
-	
+
 	@Test
 	public void localAndRemoteVersionNotEqual() throws Exception {
 		PowerMockito.mockStatic(ConflictHandler.class);
 
 		local.put(filePath, file1);
 		remote.put(filePath, file2);
-		
+
 		listSync.sync(local, localDatabase, remote, remoteDatabase);
 
 		PowerMockito.stub(PowerMockito.method(ConflictHandler.class, "rename"));
 		PowerMockito.verifyStatic();
-		ConflictHandler.rename(Matchers.any(Path.class));
-		
+		ConflictHandler.resolveConflict(Matchers.any(Path.class));
+
 		Mockito.verifyNoMoreInteractions(fileEventManager);
 	}
 }

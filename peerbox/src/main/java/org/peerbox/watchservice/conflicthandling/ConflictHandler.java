@@ -25,11 +25,12 @@ public class ConflictHandler {
 	 * Generate the conflict name of a file with help of the
 	 * current time and the conflict-suffix. Consider the example
 	 * hello_world.txt
+	 *
 	 * @param path to be renamed
 	 * @return The renamed version of the provided path. Example:
-	 * hello_world_CONFLICT_2015-03-02_18-03-17.txt
+	 *         hello_world_CONFLICT_2015-03-02_18-03-17.txt
 	 */
-	public static Path rename(Path path){
+	public static Path rename(Path path) {
 		String pathString = path.toString();
 		String renamedFileString = null;
 		String conflictSuffix = "_CONFLICT_";
@@ -57,19 +58,21 @@ public class ConflictHandler {
 	/**
 	 * Resolves a file conflict. To do that, the file is copied
 	 * and renamed.
+	 *
 	 * @param file
 	 */
-	public static void resolveConflict(Path file){
+	public static void resolveConflict(Path file) {
 		resolveConflict(file, false);
 	}
-	
+
 	/**
 	 * Resolves a file conflict. To do that, the file is copied
 	 * and renamed or only renamed.
+	 *
 	 * @param path of file to be renamed.
 	 * @param moveFile true if the file should only be renamed and not copied.
 	 */
-	public static void resolveConflict(Path path, boolean moveFile){
+	public static void resolveConflict(Path path, boolean moveFile) {
 		resolveConflictAndNotifyGUI(path, moveFile, null);
 	}
 
@@ -77,26 +80,20 @@ public class ConflictHandler {
 	 * @param path of file on which a conflict should be resolved.
 	 * @param moveFile defines if the file is moved or copied before it is renamed.
 	 * @param bus the message bus on which a message about the occurred conflict can
-	 * be transmitted.
+	 *            be transmitted.
 	 */
-	public static void resolveConflictAndNotifyGUI(Path path, boolean moveFile, MessageBus bus){
+	public static void resolveConflictAndNotifyGUI(Path path, boolean moveFile, MessageBus bus) {
 		Path renamedFile = ConflictHandler.rename(path);
 		try {
-			if(moveFile){
+			if (moveFile) {
 				Files.move(path, renamedFile);
-				if(bus != null){
-					FileHelper fileHelper = new FileHelper(path, true);
-					bus.publish(new LocalFileConflictMessage(fileHelper));
-				}
 			} else {
 				Files.copy(path, renamedFile);
-				if(bus != null){
-					FileHelper fileHelper = new FileHelper(path, true);
-					bus.publish(new LocalFileConflictMessage(fileHelper));
-				}
-			if(bus != null){
+			}
 
-				}
+			if (bus != null) {
+				FileHelper fileHelper = new FileHelper(path, true);
+				bus.publish(new LocalFileConflictMessage(fileHelper));
 			}
 
 		} catch (IOException e) {

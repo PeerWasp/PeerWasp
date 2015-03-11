@@ -5,8 +5,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Matchers;
 import org.mockito.Mockito;
-import org.peerbox.watchservice.conflicthandling.ConflictHandler;
-import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
 @RunWith(PowerMockRunner.class)
@@ -16,9 +14,9 @@ public class RemoteAddLocalDelete extends ListSyncTest{
 	public void downloadFile() throws Exception {
 		localDatabase.put(filePath, file1);
 		remote.put(filePath, file1);
-		
+
 		listSync.sync(local, localDatabase, remote, remoteDatabase);
-		
+
 		Mockito.verify(fileEventManager).onFileUpdate(Matchers.any(IFileUpdateEvent.class));
 		Mockito.verifyNoMoreInteractions(fileEventManager);
 	}

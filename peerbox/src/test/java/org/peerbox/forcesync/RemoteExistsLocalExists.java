@@ -24,39 +24,39 @@ public class RemoteExistsLocalExists extends ListSyncTest {
 		localDatabase.put(filePath, file1);
 		remote.put(filePath, file1);
 		remoteDatabase.put(filePath, file1);
-		
+
 		listSync.sync(local, localDatabase, remote, remoteDatabase);
-		
+
 		Mockito.verifyNoMoreInteractions(fileEventManager);
 	}
-	
+
 	@Test
 	public void localFilesDifferentTest() throws Exception {
 		local.put(filePath, file2);
 		localDatabase.put(filePath, file1);
 		remote.put(filePath, file1);
 		remoteDatabase.put(filePath, file1);
-		
+
 		listSync.sync(local, localDatabase, remote, remoteDatabase);
-		
+
 		Mockito.verify(fileEventManager).onLocalFileModified(filePath);
 		Mockito.verifyNoMoreInteractions(fileEventManager);
 	}
-	
+
 	@Test
 	public void remoteFilesDifferentTest() throws Exception {
 		local.put(filePath, file1);
 		localDatabase.put(filePath, file1);
 		remote.put(filePath, file2);
 		remoteDatabase.put(filePath, file1);
-		
+
 		listSync.sync(local, localDatabase, remote, remoteDatabase);
-		
+
 		Mockito.verify(fileEventManager).onFileUpdate(Matchers.any(IFileUpdateEvent.class));
 		Mockito.verifyNoMoreInteractions(fileEventManager);
 	}
-	
-	
+
+
 	@Test
 	public void localAndRemoteFilesDifferentTest() throws Exception {
 		PowerMockito.mockStatic(ConflictHandler.class);
@@ -65,25 +65,25 @@ public class RemoteExistsLocalExists extends ListSyncTest {
 		localDatabase.put(filePath, file2);
 		remote.put(filePath, file3);
 		remoteDatabase.put(filePath, file4);
-		
+
 		listSync.sync(local, localDatabase, remote, remoteDatabase);
 
 		PowerMockito.stub(PowerMockito.method(ConflictHandler.class, "rename")).toReturn(Paths.get("asdf"));
 		PowerMockito.verifyStatic();
-		ConflictHandler.rename(Matchers.any(Path.class));
-		
+		ConflictHandler.resolveConflict(Matchers.any(Path.class));
+
 		Mockito.verifyNoMoreInteractions(fileEventManager);
 	}
-	
+
 	@Test
-	public void folderTest() throws Exception {	
+	public void folderTest() throws Exception {
 		local.put(filePath, file1);
 		localDatabase.put(filePath, file1);
 		remote.put(filePath, file1);
 		remoteDatabase.put(filePath, file1);
-		
+
 		listSync.sync(local, localDatabase, remote, remoteDatabase);
-		
+
 		Mockito.verifyNoMoreInteractions(fileEventManager);
 	}
 }

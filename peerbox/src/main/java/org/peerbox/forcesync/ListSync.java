@@ -7,8 +7,9 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-import org.apache.commons.io.FileUtils;
+import org.hive2hive.core.events.framework.interfaces.file.IFileDeleteEvent;
 import org.hive2hive.core.events.framework.interfaces.file.IFileUpdateEvent;
+import org.hive2hive.core.events.implementations.FileDeleteEvent;
 import org.hive2hive.core.events.implementations.FileUpdateEvent;
 import org.peerbox.watchservice.FileEventManager;
 import org.peerbox.watchservice.conflicthandling.ConflictHandler;
@@ -25,7 +26,9 @@ public class ListSync {
 	private Map<Path, FileInfo> remoteDb;
 	private Map<Path, FileInfo> remoteNetwork;
 
+	// folders to delete locally (due to a deleted folder in the network)
 	private final Set<Path> foldersToDelete;
+	// all files that are uploaded (either the file is new or updated)
 	private final Set<Path> newLocalFiles;
 
 	private final FileEventManager fileEventManager;
@@ -64,6 +67,7 @@ public class ListSync {
 
 		// delete folders if they do not have any descendants that are added
 		deleteFoldersToDelete();
+
 		cleanup();
 	}
 
@@ -201,12 +205,11 @@ public class ListSync {
 
 				if (fileDisk.isFile()) {
 					if (hashesMatch(fileDisk, fileLocalDb)) {
-						deleteLocalFile(file);
+						deleteLocalFile(file, true);
 					} else {
 						uploadFile(file);
 					}
 				} else {
-					deleteLocalFile(file);
 					// folders are deleted at the end separately because we want to prevent accidental
 					// deletion of new files in the folders that we may not have
 					// processed yet.
@@ -292,16 +295,19 @@ public class ListSync {
 				}
 			}
 			if (!hasNewDescendants) {
-				deleteLocalFile(folder);
+				deleteLocalFile(folder, false);
 			}
 		}
 	}
 
-	private void deleteLocalFile(Path file) {
-		FileUtils.deleteQuietly(file.toFile());
+	private void deleteLocalFile(Path file, boolean isFile) {
+		// delete the local file due to a remote delete
+		IFileDeleteEvent deleteEvent = new FileDeleteEvent(file.toFile(), isFile);
+		fileEventManager.onFileDelete(deleteEvent);
 	}
 
 	private void deleteRemoteFile(Path file) {
+		// soft delete due to a local delete
 		// no hard delete of files: only disable sync
 		fileEventManager.onFileDesynchronized(file);
 	}
@@ -324,8 +330,7 @@ public class ListSync {
 	}
 
 	private void conflict(Path file) {
-		// TODO: change conflict handler! wrong method!
-		ConflictHandler.rename(file);
+		ConflictHandler.resolveConflict(file);
 	}
 
 	private void removeFromLocalDb(Path file) {

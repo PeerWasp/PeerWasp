@@ -6,13 +6,24 @@ import org.hive2hive.core.processes.files.list.FileNode;
 import org.peerbox.watchservice.PathUtils;
 import org.peerbox.watchservice.filetree.composite.FileComponent;
 
+/**
+ * This class is used to represent files and folders as simple
+ * as possible using a limited set of properties. It is
+ * primarily used to transfer this information in PeerWasp as
+ * part of messages sent between components, e.g. over the {@link org.
+ * peerbox.events.MessageBus MessageBus}.
+ * It is further used as a wrapper for different interfaces (H2H interface
+ * and PeerWasp interface).
+ *
+ */
 public class FileInfo {
+
 	private Path path;
 	private boolean isFolder;
 	private String contentHash;
 
 	/**
-	 * Creates a new FileInfo instance with hash set to null.
+	 * Creates a new FileInfo instance with hash set to empty string.
 	 *
 	 * @param path
 	 * @param isFolder
@@ -22,19 +33,19 @@ public class FileInfo {
 		this.contentHash = "";
 		this.isFolder = isFolder;
 	}
-	
+
 	/**
-	 * Creates a new FileInfo instance with hash set to null.
+	 * Creates a new FileInfo instance with hash set.
 	 *
 	 * @param path
 	 * @param isFolder
+	 * @param hash the content hash
 	 */
 	public FileInfo(Path path, boolean isFolder, String hash) {
 		this.path = path;
 		this.contentHash = hash;
 		this.isFolder = isFolder;
 	}
-
 
 	/**
 	 * Creates a new FileInfo instance given a FileComponent.
@@ -55,10 +66,9 @@ public class FileInfo {
 	 * @param node
 	 */
 	public FileInfo(FileNode node) {
-		this.path = node.getFile().toPath();
-		this.isFolder = node.isFolder();
+		this(node.getFile().toPath(), node.isFolder());
+		// FileNode hash is null for folders!
 		if (node.isFile()) {
-			// FileNode hash is null for folders!
 			contentHash = (node.getMd5() != null) ? PathUtils.base64Encode(node.getMd5()) : "";
 		}
 	}
@@ -71,9 +81,8 @@ public class FileInfo {
 		return contentHash;
 	}
 
-	public FileInfo setContentHash(String contentHash) {
+	public void setContentHash(String contentHash) {
 		this.contentHash = contentHash;
-		return this;
 	}
 
 	public boolean isFile() {
