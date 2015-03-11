@@ -36,6 +36,7 @@ public class ForceSync {
 				context.getFileEventManager().setCleanupRunning(false);
 				ListSync listSync = context.getInjector().getInstance(ListSync.class);
 				listSync.sync();
+				context.getActionExecutor().setForceSyncRunning(false);
 			}
 			
 		} catch(Exception e) {

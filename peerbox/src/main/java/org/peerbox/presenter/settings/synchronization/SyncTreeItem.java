@@ -283,6 +283,19 @@ public class SyncTreeItem extends CheckBoxTreeItem<PathItem> implements Property
 	        }
 		});
 	}
+	
+	public void updateIsSelectedInUIThread(boolean b) {
+		javafx.application.Platform.runLater(new Runnable() {
+	        @Override
+	        public void run() {
+	        	if(getValue().getPath().toFile().isDirectory()){
+	        		setIndeterminate(b);
+	        	} else {
+	        		setSelected(b);
+	        	}
+	        }
+		});
+	}
 
 	
 }

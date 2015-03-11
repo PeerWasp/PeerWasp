@@ -448,7 +448,7 @@ public class ActionExecutor implements Runnable {
 	}
 
 
-	private void setForceSyncRunning(boolean b) {
+	public void setForceSyncRunning(boolean b) {
 		forceSyncRunning  = b;
 	}
 
