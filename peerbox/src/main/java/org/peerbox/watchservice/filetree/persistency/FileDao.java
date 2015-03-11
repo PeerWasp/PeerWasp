@@ -1,17 +1,11 @@
 package org.peerbox.watchservice.filetree.persistency;
 
 import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.List;
 
 import org.peerbox.app.DbContext;
 import org.peerbox.watchservice.filetree.composite.FileComponent;
-import org.peerbox.watchservice.filetree.composite.FileLeaf;
-import org.peerbox.watchservice.filetree.composite.FolderComposite;
 import org.sql2o.Connection;
-import org.sql2o.ResultSetHandler;
 import org.sql2o.Sql2o;
 
 import com.google.inject.Inject;
@@ -152,33 +146,6 @@ public class FileDao {
 			con.createQuery(deleteStale).executeUpdate();
 
 			con.commit();
-		}
-	}
-
-	private class FileComponentResultSetHandler implements ResultSetHandler<FileComponent> {
-
-		@Override
-		public FileComponent handle(ResultSet resultSet) throws SQLException {
-
-			FileComponent f = null;
-
-			final Path path = Paths.get(resultSet.getString("path"));
-			final boolean isFile = resultSet.getBoolean("is_file");
-			final String contentHash = resultSet.getString("content_hash");
-			final boolean isSynchronized = resultSet.getBoolean("is_synchronized");
-			final boolean isUploaded = resultSet.getBoolean("is_uploaded");
-
-			if (isFile) {
-				f = new FileLeaf(path, true);
-			} else {
-				f = new FolderComposite(path, true, true);
-			}
-
-			f.setContentHash(contentHash);
-			f.setIsSynchronized(isSynchronized);
-			f.setIsUploaded(isUploaded);
-
-			return f;
 		}
 	}
 

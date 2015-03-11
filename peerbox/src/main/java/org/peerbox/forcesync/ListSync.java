@@ -344,7 +344,7 @@ public class ListSync {
 	 * @return true if hashes are equals
 	 */
 	private boolean hashesMatch(FileInfo a, FileInfo b) {
-		boolean match = a.getHash().equals(b.getHash());
+		boolean match = a.getContentHash().equals(b.getContentHash());
 		return match;
 	}
 

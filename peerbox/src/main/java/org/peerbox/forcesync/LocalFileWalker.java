@@ -32,7 +32,7 @@ class LocalFileWalker extends SimpleFileVisitor<Path> {
 	public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
 		FileInfo a = new FileInfo(file, false);
 		String hash = hashFile(file);
-		a.setHash(hash);
+		a.setContentHash(hash);
 		local.put(a.getPath(), a);
 		return super.visitFile(file, attrs);
 	}

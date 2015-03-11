@@ -9,28 +9,49 @@ import org.peerbox.watchservice.filetree.composite.FileComponent;
 public class FileInfo {
 	private Path path;
 	private boolean isFolder;
-	private String hash;
+	private String contentHash;
 
-	public FileInfo(Path path, boolean isFolder, String hash) {
+	/**
+	 * Creates a new FileInfo instance with hash set to null.
+	 *
+	 * @param path
+	 * @param isFolder
+	 */
+	public FileInfo(Path path, boolean isFolder) {
 		this.path = path;
-		this.hash = hash;
+		this.contentHash = "";
 		this.isFolder = isFolder;
 	}
+	
+	/**
+	 * Creates a new FileInfo instance with hash set to null.
+	 *
+	 * @param path
+	 * @param isFolder
+	 */
+	public FileInfo(Path path, boolean isFolder, String hash) {
+		this.path = path;
+		this.contentHash = hash;
+		this.isFolder = isFolder;
+	}
+
 
 	/**
 	 * Creates a new FileInfo instance given a FileComponent.
 	 * All attributes are copied from the component.
+	 *
 	 * @param component
 	 */
 	public FileInfo(FileComponent component) {
 		this.path = component.getPath();
-		this.hash = component.getContentHash();
+		this.contentHash = component.getContentHash();
 		this.isFolder = component.isFolder();
 	}
 
 	/**
 	 * Creates a new FileInfo instance given a FileNode.
 	 * All attributes are copied from the node.
+	 *
 	 * @param node
 	 */
 	public FileInfo(FileNode node) {
@@ -38,7 +59,7 @@ public class FileInfo {
 		this.isFolder = node.isFolder();
 		if (node.isFile()) {
 			// FileNode hash is null for folders!
-			hash = (node.getMd5() != null) ? PathUtils.base64Encode(node.getMd5()) : "";
+			contentHash = (node.getMd5() != null) ? PathUtils.base64Encode(node.getMd5()) : "";
 		}
 	}
 
@@ -46,12 +67,12 @@ public class FileInfo {
 		return path;
 	}
 
-	public String getHash() {
-		return hash;
+	public String getContentHash() {
+		return contentHash;
 	}
 
-	public FileInfo setHash(String hash) {
-		this.hash = hash;
+	public FileInfo setContentHash(String contentHash) {
+		this.contentHash = contentHash;
 		return this;
 	}
 

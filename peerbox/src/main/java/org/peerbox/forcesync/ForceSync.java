@@ -21,7 +21,8 @@ import org.peerbox.app.ClientContext;
 import org.peerbox.watchservice.PathUtils;
 import org.peerbox.watchservice.filetree.FileTreeInitializer;
 import org.peerbox.watchservice.filetree.composite.FileComponent;
-import org.peerbox.watchservice.filetree.persistency.RemoteFileDao.FileNodeAttr;
+import org.peerbox.watchservice.filetree.persistency.FileDao;
+import org.peerbox.watchservice.filetree.persistency.RemoteFileDao;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,6 +30,9 @@ public class ForceSync {
 
 	private static final Logger logger = LoggerFactory.getLogger(ForceSync.class);
 	private ClientContext context;
+
+	private RemoteFileDao remoteFileDao;
+	private FileDao localFileDao;
 
 	public ForceSync(ClientContext currentClientContext) {
 		this.context = currentClientContext;
@@ -76,7 +80,7 @@ public class ForceSync {
 		return localDb;
 	}
 
-	private Map<Path, FileInfo> createRemoteViewDHT() {
+	private Map<Path, FileInfo> createRemoteViewNetwork() {
 		Map<Path, FileInfo> remoteNow = new HashMap<>();
 		FileNode root = context.getFileManager().listFiles().execute();
 		List<FileNode> nodes = FileNode.getNodeList(root, true, true);
@@ -89,11 +93,9 @@ public class ForceSync {
 
 	private Map<Path, FileInfo> createRemoteViewDb() {
 		Map<Path, FileInfo> remoteDb = new HashMap<>();
-		List<FileNodeAttr> nodeAttrs = remoteFileDao.getAllFileNodeAttributes();
-		for (FileNodeAttr attr : nodeAttrs) {
-			FileInfo a = new FileInfo(attr.getPath(), !attr.isFile());
-			a.setHash(attr.getContentHash());
-			remoteDb.put(a.getPath(), a);
+		List<FileInfo> nodeAttrs = remoteFileDao.getAllFileNodeAttributes();
+		for (FileInfo attr : nodeAttrs) {
+			remoteDb.put(attr.getPath(), attr);
 		}
 		return remoteDb;
 	}

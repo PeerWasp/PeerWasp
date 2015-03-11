@@ -1,11 +1,11 @@
 package org.peerbox.watchservice.filetree.persistency;
 
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 
 import org.hive2hive.core.processes.files.list.FileNode;
 import org.peerbox.app.DbContext;
+import org.peerbox.forcesync.FileInfo;
 import org.peerbox.watchservice.PathUtils;
 import org.sql2o.Connection;
 import org.sql2o.Sql2o;
@@ -26,6 +26,22 @@ public class RemoteFileDao {
 	public RemoteFileDao(DbContext dbContext) {
 		this.dbContext = dbContext;
 		this.sql2o = new Sql2o(this.dbContext.getDataSource());
+	}
+
+	public String getTableName() {
+		return REMOTE_FILE_TABLE;
+	}
+
+	public boolean tableExists() {
+		final String sql = String.format(
+				"SELECT tbl.cnt FROM "
+				+ "(SELECT count(*) cnt FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = UPPER('%s')) as tbl",
+				REMOTE_FILE_TABLE);
+
+		try (Connection con = sql2o.open()) {
+			int cnt = con.createQuery(sql).executeScalar(Integer.class);
+			return cnt > 0;
+		}
 	}
 
 	/**
@@ -103,12 +119,12 @@ public class RemoteFileDao {
 		}
 	}
 
-	public List<FileNodeAttr> getAllFileNodeAttributes() {
+	public List<FileInfo> getAllFileNodeAttributes() {
 		final String sql = String.format(
 				"SELECT %s FROM %s ORDER BY path ASC;", DEFAULT_COLUMNS, REMOTE_FILE_TABLE);
 
 		try (Connection con = sql2o.open()) {
-			return con.createQuery(sql).executeAndFetch(FileNodeAttr.class);
+			return con.createQuery(sql).executeAndFetch(new FileInfoResultSetHandler());
 		}
 	}
 
@@ -125,40 +141,6 @@ public class RemoteFileDao {
 
 	public void dumpCsv() {
 		DaoUtils.dumpTableToCsv(REMOTE_FILE_TABLE, sql2o);
-	}
-
-	public class FileNodeAttr {
-		private Path path;
-		private boolean isFile;
-		private String contentHash;
-
-		public Path getPath() {
-			return path;
-		}
-
-		public void setPath(String path) {
-			this.path = Paths.get(path);
-		}
-
-		public void setPath(Path path) {
-			this.path = path;
-		}
-
-		public boolean isFile() {
-			return isFile;
-		}
-
-		public void setFile(boolean isFile) {
-			this.isFile = isFile;
-		}
-
-		public String getContentHash() {
-			return contentHash;
-		}
-
-		public void setContentHash(String contentHash) {
-			this.contentHash = contentHash;
-		}
 	}
 
 }
