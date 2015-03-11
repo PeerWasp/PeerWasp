@@ -1,7 +1,6 @@
 package org.peerbox.watchservice.filetree;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -16,14 +15,13 @@ import org.apache.commons.lang3.RandomStringUtils;
 import org.hive2hive.core.processes.files.list.FileNode;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.peerbox.app.DbContext;
+import org.peerbox.forcesync.FileInfo;
 import org.peerbox.utils.UserDbUtils;
 import org.peerbox.watchservice.PathUtils;
 import org.peerbox.watchservice.filetree.persistency.RemoteFileDao;
-import org.peerbox.watchservice.filetree.persistency.RemoteFileDao.FileNodeAttr;
 
 public class RemoteFileDaoTest {
 
@@ -31,13 +29,15 @@ public class RemoteFileDaoTest {
 	private Path dbFile;
 	private RemoteFileDao dao;
 
+	private DbContext dbContext;
+
 	@Before
 	public void setUp() throws Exception {
 		basePath = Paths.get(FileUtils.getTempDirectoryPath(), RandomStringUtils.randomAlphabetic(12));
 		dbFile = Paths.get(FileUtils.getTempDirectoryPath(),
 				String.format("%s.testdb", RandomStringUtils.randomAlphabetic(12)));
 
-		DbContext dbContext = UserDbUtils.createDbContext(dbFile.toString());
+		dbContext = UserDbUtils.createDbContext(dbFile.toString());
 		dao = new RemoteFileDao(dbContext);
 	}
 
@@ -47,17 +47,28 @@ public class RemoteFileDaoTest {
 		Files.deleteIfExists(Paths.get(dbFile.toString() + ".mv.db"));
 	}
 
-	@Test @Ignore
-	public void testDao() {
+	@Test
+	public void testCreateTable() {
+		// check that table does not exist
+		assertFalse(dao.tableExists());
+		dao.createTable();
+		assertTrue(dao.tableExists());
+	}
+
+	@Test
+	public void testDao() throws InterruptedException {
 		dao.createTable();
 
-		List<FileNodeAttr> resultNodes = null;
+		// retrieved from db
+		List<FileInfo> resultNodes = null;
 
+		// nodes to store in DB
 		List<FileNode> nodes = createNodeList(10);
 
 		// store and retrieve
 		dao.persistAndReplaceFileNodes(nodes);
-//		resultNodes = dao.getFileNodeAttributes();
+		dao.dumpCsv();
+		resultNodes = dao.getAllFileNodeAttributes();
 
 		// check content
 		checkGivenAndPersisted(resultNodes, nodes);
@@ -73,9 +84,11 @@ public class RemoteFileDaoTest {
 		// change hash
 		Mockito.stub(nodes.get(0).getMd5()).toReturn("newhash".getBytes());
 
-		// store and retrieve
+		// store and retrieve again
+		Thread.sleep(1000);
 		dao.persistAndReplaceFileNodes(nodes);
-//		resultNodes = dao.getFileNodeAttributes();
+		dao.dumpCsv();
+		resultNodes = dao.getAllFileNodeAttributes();
 
 		// check content again
 		checkGivenAndPersisted(resultNodes, nodes);
@@ -86,7 +99,7 @@ public class RemoteFileDaoTest {
 	 * @param persistedNodes
 	 * @param givenNodes
 	 */
-	private void checkGivenAndPersisted(List<FileNodeAttr> persistedNodes, List<FileNode> givenNodes) {
+	private void checkGivenAndPersisted(List<FileInfo> persistedNodes, List<FileNode> givenNodes) {
 		// sort the arrays by path in order to compare the lists
 		Collections.sort(givenNodes, new Comparator<FileNode>() {
 			@Override
@@ -95,9 +108,9 @@ public class RemoteFileDaoTest {
 			}
 		});
 
-		Collections.sort(persistedNodes, new Comparator<FileNodeAttr>() {
+		Collections.sort(persistedNodes, new Comparator<FileInfo>() {
 			@Override
-			public int compare(FileNodeAttr o1, FileNodeAttr o2) {
+			public int compare(FileInfo o1, FileInfo o2) {
 				return o1.getPath().compareTo(o2.getPath());
 			}
 		});
@@ -106,7 +119,7 @@ public class RemoteFileDaoTest {
 		// compare retrieved and given information
 		assertTrue(persistedNodes.size() == givenNodes.size());
 		for(int i = 0; i < persistedNodes.size(); ++i) {
-			FileNodeAttr attr = persistedNodes.get(i);
+			FileInfo attr = persistedNodes.get(i);
 			FileNode node = givenNodes.get(i);
 			assertEquals(attr.getPath(), node.getFile().toPath());
 			assertEquals(attr.isFile(), node.isFile());
