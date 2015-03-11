@@ -62,7 +62,7 @@ public class FileEventManagerTest {
 	 */
 	@BeforeClass
 	public static void staticSetup(){
-		fileTree = new FileTree(Paths.get(parentPath), null, true);
+		fileTree = new FileTree(Paths.get(parentPath), true);
 		manager = new FileEventManager(fileTree, null);
 		fileManager = Mockito.mock(IFileManager.class);
 		actionExecutor = new ActionExecutor(manager, fileManager, new TestPeerWaspConfig());
@@ -371,12 +371,12 @@ public class FileEventManagerTest {
 		manager.onLocalFileDeleted(Paths.get(filePaths.get(2)));
 		sleepMillis(10);
 		System.out.println("size: " + actionsToCheck.size());
-		
+
 		Vector<FileComponent> actions = new Vector<FileComponent>(actionsToCheck);
 		for(int i = 0; i < actions.size(); i++){
 			System.out.println(i + ": " + actions.get(i).getPath() + " - " + actions.get(i).getAction().getCurrentState().getClass());
 		}
-		
+
 		assertTrue(actionsToCheck.size() == 3);
 		assertTrue(actionsToCheck.peek().getAction().getCurrentState() instanceof LocalCreateState);
 		assertTrue(actionsToCheck.peek().getPath().toString().equals(filePaths.get(1)));
@@ -456,11 +456,11 @@ public class FileEventManagerTest {
 		assertTrue(actionsToCheck.size() == 0);
 
 		manager.onLocalFileCreated(Paths.get(filePaths.get(4)));
-		
+
 		sleepMillis(10);
 
 		//move the file LOCALLY
-		
+
 		Paths.get(filePaths.get(4)).toFile().delete();
 		manager.onLocalFileDeleted(Paths.get(filePaths.get(4)));
 		sleepMillis(10);

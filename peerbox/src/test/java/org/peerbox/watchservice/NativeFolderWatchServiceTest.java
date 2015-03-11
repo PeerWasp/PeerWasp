@@ -64,7 +64,7 @@ public class NativeFolderWatchServiceTest {
 		MockitoAnnotations.initMocks(this);
 
 		watchService = new FolderWatchService();
-		fileTree = new FileTree(basePath, null, true);
+		fileTree = new FileTree(basePath, true);
 		eventManager = new FileEventManager(fileTree, null);
 		actionExecutor = new ActionExecutor(eventManager, fileManager, new TestPeerWaspConfig());
 		actionExecutor.start();

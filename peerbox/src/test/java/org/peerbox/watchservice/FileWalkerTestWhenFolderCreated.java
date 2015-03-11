@@ -29,7 +29,7 @@ public class FileWalkerTestWhenFolderCreated {
 	private static IFileManager fileManager;
 
 	private static ActionExecutor actionExecutor;
-	
+
 	private static TestPeerWaspConfig config = new TestPeerWaspConfig();
 
 	private static String parentPath = System.getProperty("user.home") + File.separator + "PeerBox_FileWalkerTest" + File.separator;
@@ -64,7 +64,7 @@ public class FileWalkerTestWhenFolderCreated {
 	public static void staticSetup(){
 		testDirectory = new File(parentPath);
 		testDirectory.mkdir();
-		fileTree = new FileTree(Paths.get(parentPath), null, false);
+		fileTree = new FileTree(Paths.get(parentPath), false);
 		manager = new FileEventManager(fileTree, null);
 		fileManager = Mockito.mock(IFileManager.class);
 		actionExecutor = new ActionExecutor(manager, fileManager, config);

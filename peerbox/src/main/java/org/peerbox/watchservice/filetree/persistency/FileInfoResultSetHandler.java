@@ -24,9 +24,7 @@ class FileInfoResultSetHandler implements ResultSetHandler<FileInfo> {
 		final boolean isFile = resultSet.getBoolean("is_file");
 		final String contentHash = resultSet.getString("content_hash");
 
-		FileInfo fileInfo = new FileInfo(path, !isFile);
-		fileInfo.setContentHash(contentHash);
-
+		FileInfo fileInfo = new FileInfo(path, !isFile, contentHash);
 		return fileInfo;
 	}
 

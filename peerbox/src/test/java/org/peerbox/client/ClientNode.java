@@ -77,7 +77,7 @@ public class ClientNode {
 		UserConfig userConfig = Mockito.mock(UserConfig.class);
 
 		fileManager = new FileManager(manager, userConfig, messageBus);
-		fileTree = new FileTree(rootPath, null, true);
+		fileTree = new FileTree(rootPath, true);
 		fileEventManager = new FileEventManager(fileTree, messageBus);
 		actionExecutor = new ActionExecutor(fileEventManager, fileManager, new TestPeerWaspConfig());
 		watchService = new FolderWatchService();

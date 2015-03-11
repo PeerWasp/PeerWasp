@@ -31,7 +31,7 @@ public class FileWalkerTest {
 	private static ArrayList<File> files = new ArrayList<File>();
 	private static FileEventManager manager;
 	private static FileTree fileTree;
-	
+
 	private TestPeerWaspConfig config = new TestPeerWaspConfig();
 
 	@Mock
@@ -51,7 +51,7 @@ public class FileWalkerTest {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		fileTree = new FileTree(Paths.get(parentPath), null, true);
+		fileTree = new FileTree(Paths.get(parentPath), true);
 		manager = new FileEventManager(fileTree, null);
 	}
 
