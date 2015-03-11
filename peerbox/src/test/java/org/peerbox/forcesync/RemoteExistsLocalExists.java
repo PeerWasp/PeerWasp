@@ -20,35 +20,8 @@ import org.powermock.modules.junit4.PowerMockRunner;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest(ConflictHandler.class)
-public class AllFilesExist extends ListSyncTest {
+public class RemoteExistsLocalExists extends ListSyncTest {
 
-	@Mock private FileEventManager fileEventManager;
-	
-	@Mock private ConflictHandler conflictHandler;
-	
-	private Map<Path, FileInfo> local;
-	private Map<Path, FileInfo> localDatabase;
-	private Map<Path, FileInfo> remote;
-	private Map<Path, FileInfo> remoteDatabase;
-	
-	private Path filePath = Paths.get("file.txt");
-	private FileInfo file1 = new FileInfo(filePath, false, "hash1");
-	private FileInfo file2 = new FileInfo(filePath, false, "hash2");
-	private FileInfo file3 = new FileInfo(filePath, false, "hash3");
-	private FileInfo file4 = new FileInfo(filePath, false, "hash4");
-	
-	private ListSync listSync;
-	
-	@Before
-	public void setup(){
-		local = new HashMap<Path, FileInfo>();
-		localDatabase = new HashMap<Path, FileInfo>();
-		remote = new HashMap<Path, FileInfo>();
-		remoteDatabase = new HashMap<Path, FileInfo>();
-		
-		listSync = new ListSync(fileEventManager);
-	}
-	
 	@Test
 	public void localAndRemoteVersionEqual() throws Exception{
 		local.put(filePath, file1);
