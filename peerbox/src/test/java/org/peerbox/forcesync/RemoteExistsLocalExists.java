@@ -2,17 +2,13 @@ package org.peerbox.forcesync;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.HashMap;
-import java.util.Map;
 
 import org.hive2hive.core.events.framework.interfaces.file.IFileUpdateEvent;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Matchers;
-import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.peerbox.watchservice.FileEventManager;
+
 import org.peerbox.watchservice.conflicthandling.ConflictHandler;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
