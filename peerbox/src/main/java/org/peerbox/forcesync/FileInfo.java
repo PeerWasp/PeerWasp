@@ -11,9 +11,9 @@ public class FileInfo {
 	private boolean isFolder;
 	private String hash;
 
-	public FileInfo(Path path, boolean isFolder) {
+	public FileInfo(Path path, boolean isFolder, String hash) {
 		this.path = path;
-		this.hash = null;
+		this.hash = hash;
 		this.isFolder = isFolder;
 	}
 

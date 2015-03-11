@@ -24,6 +24,7 @@ public class ForceSyncHandler implements IForceSyncHandler{
 		
 		ForceSync forceSync = new ForceSync(appContext.getCurrentClientContext());
 		forceSync.startForceSync(topLevel);
+		
 //		appContext.getMessageBus().publish(new ForceSyncCompleteMessage());
 	}
 

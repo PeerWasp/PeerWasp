@@ -456,9 +456,12 @@ public class FileEventManagerTest {
 		assertTrue(actionsToCheck.size() == 0);
 
 		manager.onLocalFileCreated(Paths.get(filePaths.get(4)));
+		
 		sleepMillis(10);
 
 		//move the file LOCALLY
+		
+		Paths.get(filePaths.get(4)).toFile().delete();
 		manager.onLocalFileDeleted(Paths.get(filePaths.get(4)));
 		sleepMillis(10);
 

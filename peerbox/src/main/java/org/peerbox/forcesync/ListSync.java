@@ -61,6 +61,9 @@ public class ListSync {
 
 		// delete folders if they do not have any descendants that are added
 		deleteFoldersToDelete();
+		
+		foldersToDelete.clear();
+		newLocalFiles.clear();
 	}
 
 	private void synchronize() throws Exception {
