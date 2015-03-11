@@ -1,4 +1,4 @@
-package org.peerbox.watchservice.filetree.persistency;
+package org.peerbox.forcesync;
 
 import java.io.File;
 import java.io.IOException;
@@ -29,6 +29,8 @@ import org.peerbox.watchservice.PathUtils;
 import org.peerbox.watchservice.conflicthandling.ConflictHandler;
 import org.peerbox.watchservice.filetree.FileTree;
 import org.peerbox.watchservice.filetree.composite.FileComponent;
+import org.peerbox.watchservice.filetree.persistency.FileDao;
+import org.peerbox.watchservice.filetree.persistency.RemoteFileDao;
 import org.peerbox.watchservice.filetree.persistency.RemoteFileDao.FileNodeAttr;
 
 import com.google.inject.Inject;
@@ -36,11 +38,11 @@ import com.google.inject.Inject;
 
 public class ListSync {
 
-	private final Map<Path, FileAttrs> localDb;
-	private final Map<Path, FileAttrs> localNow;
+	private final Map<Path, FileInfo> localDb;
+	private final Map<Path, FileInfo> localNow;
 
-	private final Map<Path, FileAttrs> remoteDb;
-	private final Map<Path, FileAttrs> remoteNow;
+	private final Map<Path, FileInfo> remoteDb;
+	private final Map<Path, FileInfo> remoteNow;
 
 	private final Set<Path> foldersToDelete;
 	private final Set<Path> newLocalFiles;
@@ -53,11 +55,11 @@ public class ListSync {
 
 	@Inject
 	public ListSync(ClientContext context, FileDao fileDao, RemoteFileDao remoteFileDao) {
-		localDb = new HashMap<Path, FileAttrs>();
-		localNow = new HashMap<Path, FileAttrs>();
+		localDb = new HashMap<Path, FileInfo>();
+		localNow = new HashMap<Path, FileInfo>();
 
-		remoteDb = new HashMap<Path, FileAttrs>();
-		remoteNow = new HashMap<Path, FileAttrs>();
+		remoteDb = new HashMap<Path, FileInfo>();
+		remoteNow = new HashMap<Path, FileInfo>();
 
 		foldersToDelete = new HashSet<>();
 		newLocalFiles = new HashSet<>();
@@ -98,11 +100,11 @@ public class ListSync {
 
 			// NOTE: may be null! Only use those where the flag is true.
 			// local
-			FileAttrs fileDisk = localNow.get(file);
-			FileAttrs fileLDb = localDb.get(file);
+			FileInfo fileDisk = localNow.get(file);
+			FileInfo fileLDb = localDb.get(file);
 			// remote
-			FileAttrs fileDHT = remoteNow.get(file);
-			FileAttrs fileRDb = remoteDb.get(file);
+			FileInfo fileDHT = remoteNow.get(file);
+			FileInfo fileRDb = remoteDb.get(file);
 
 			if (eRemoteNow && eRemoteDb && eLocalDb && eLocalNow) {
 				/* remote: exists - local: exists */
@@ -362,7 +364,7 @@ public class ListSync {
 	 * @param b another instance
 	 * @return true if hashes are equals
 	 */
-	private boolean hashesMatch(FileAttrs a, FileAttrs b) {
+	private boolean hashesMatch(FileInfo a, FileInfo b) {
 		boolean match = a.getHash().equals(b.getHash());
 		return match;
 	}
@@ -380,7 +382,7 @@ public class ListSync {
 		// DB
 		List<FileComponent> local = localFileDao.getAllFiles();
 		for (FileComponent c : local) {
-			FileAttrs a = new FileAttrs(c.getPath(), c.getContentHash(), c.isFolder());
+			FileInfo a = new FileInfo(c);
 			localDb.put(a.getPath(), a);
 		}
 	}
@@ -396,14 +398,16 @@ public class ListSync {
 				if(node.isFile()) {
 					hash = PathUtils.base64Encode(node.getMd5());
 				}
-				FileAttrs a = new FileAttrs(node.getFile().toPath(), hash, node.isFolder());
+				FileInfo a = new FileInfo(node.getFile().toPath(), node.isFolder());
+				a.setHash(hash);
 				remoteNow.put(a.getPath(), a);
 			}
 
 			// DB
 			List<FileNodeAttr> nodeAttrs = remoteFileDao.getAllFileNodeAttributes();
 			for (FileNodeAttr attr : nodeAttrs) {
-				FileAttrs a = new FileAttrs(attr.getPath(), attr.getContentHash(), !attr.isFile());
+				FileInfo a = new FileInfo(attr.getPath(), !attr.isFile());
+				a.setHash(attr.getContentHash());
 				remoteDb.put(a.getPath(), a);
 			}
 
@@ -416,7 +420,7 @@ public class ListSync {
 	private class TreeBuilder extends SimpleFileVisitor<Path> {
 		@Override
 		public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
-			FileAttrs a = new FileAttrs(dir, null, true);
+			FileInfo a = new FileInfo(dir, true);
 			localNow.put(a.getPath(), a);
 			return super.preVisitDirectory(dir, attrs);
 		}
@@ -424,37 +428,12 @@ public class ListSync {
 		@Override
 		public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
 			String hash = hashFile(file);
-			FileAttrs a = new FileAttrs(file, hash, false);
+			FileInfo a = new FileInfo(file, false);
+			a.setHash(hash);
 			localNow.put(a.getPath(), a);
 			return super.visitFile(file, attrs);
 		}
 	}
 
-	private class FileAttrs {
-		Path path;
-		String hash;
-		boolean isFolder;
 
-		public FileAttrs(Path path, String hash, boolean isFolder) {
-			this.path = path;
-			this.hash = hash;
-			this.isFolder = isFolder;
-		}
-
-		public Path getPath() {
-			return path;
-		}
-
-		public String getHash() {
-			return hash;
-		}
-
-		public boolean isFile() {
-			return !isFolder();
-		}
-
-		public boolean isFolder() {
-			return isFolder;
-		}
-	}
 }

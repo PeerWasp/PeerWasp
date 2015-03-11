@@ -38,6 +38,7 @@ import org.peerbox.app.ClientContextFactory;
 import org.peerbox.app.Constants;
 import org.peerbox.app.config.UserConfig;
 import org.peerbox.app.manager.user.IUserManager;
+import org.peerbox.forcesync.ListSync;
 import org.peerbox.presenter.validation.EmptyTextFieldValidator;
 import org.peerbox.presenter.validation.RootPathValidator;
 import org.peerbox.presenter.validation.SelectRootPathUtils;
@@ -45,7 +46,6 @@ import org.peerbox.presenter.validation.ValidationUtils.ValidationResult;
 import org.peerbox.utils.UserConfigUtils;
 import org.peerbox.view.ViewNames;
 import org.peerbox.view.controls.ErrorLabel;
-import org.peerbox.watchservice.filetree.persistency.ListSync;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

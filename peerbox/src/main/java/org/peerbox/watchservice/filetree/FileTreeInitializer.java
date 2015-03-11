@@ -43,7 +43,7 @@ public class FileTreeInitializer {
 		// add the files in the DHT to the tree
 		FileNode root = context.getFileManager().listFiles().execute();
 		List<FileNode> fileList = FileNode.getNodeList(root, true, true);
-		
+
 		fileList = fileList.stream().filter(node -> node.getFile().toPath().
 				startsWith(topLevel)).sorted(new Comparator<FileNode>() {
 					@Override
@@ -51,10 +51,10 @@ public class FileTreeInitializer {
 						return o1.getFile().compareTo(o2.getFile());
 					}
 				}).collect(Collectors.toList());
-		
+
 		fileList.forEach(node -> logger.trace("fileList: {}", node.getFile().getPath()));
-		
-		
+
+
 		for (FileNode node : fileList) {
 			if(node == root) {
 				continue; // root does not need to be added.
@@ -116,7 +116,7 @@ public class FileTreeInitializer {
 
 		// selective sync: use database to disable sync on some elements
 		final FileDao fileDao = context.getFileDao();
-		
+
 		List<FileComponent> subtreeList = tree.asList().stream().filter(node -> node.getPath().
 				startsWith(topLevel)).sorted(new Comparator<FileComponent>() {
 					@Override
@@ -124,8 +124,8 @@ public class FileTreeInitializer {
 						return o1.getPath().compareTo(o2.getPath());
 					}
 				}).collect(Collectors.toList());
-		
-		
+
+
 		for (FileComponent c : subtreeList) {
 			Boolean isSync = fileDao.isSynchronizedByPath(c.getPath());
 			if (isSync != null && !isSync.booleanValue()) {

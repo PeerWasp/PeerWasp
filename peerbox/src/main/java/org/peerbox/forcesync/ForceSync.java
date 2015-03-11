@@ -5,7 +5,6 @@ import java.util.Set;
 
 import org.peerbox.app.ClientContext;
 import org.peerbox.watchservice.filetree.FileTreeInitializer;
-import org.peerbox.watchservice.filetree.persistency.ListSync;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
