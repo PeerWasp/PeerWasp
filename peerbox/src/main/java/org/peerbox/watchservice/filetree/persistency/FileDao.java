@@ -26,6 +26,8 @@ public class FileDao {
 	public FileDao(DbContext dbContext) {
 		this.dbContext = dbContext;
 		this.sql2o = new Sql2o(this.dbContext.getDataSource());
+
+		createTable();
 	}
 
 	public void createTable() {
