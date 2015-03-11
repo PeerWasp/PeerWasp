@@ -17,14 +17,13 @@ import org.hive2hive.core.events.framework.interfaces.file.IFileUpdateEvent;
 import org.hive2hive.core.events.implementations.FileAddEvent;
 import org.hive2hive.core.model.PermissionType;
 import org.hive2hive.core.model.UserPermission;
-import org.peerbox.app.manager.file.LocalShareFolderMessage;
-import org.peerbox.app.manager.file.RemoteShareFolderMessage;
 import org.peerbox.app.manager.file.IFileMessage;
 import org.peerbox.app.manager.file.LocalFileDesyncMessage;
+import org.peerbox.app.manager.file.LocalShareFolderMessage;
 import org.peerbox.app.manager.file.RemoteFileDeletedMessage;
 import org.peerbox.app.manager.file.RemoteFileMovedMessage;
+import org.peerbox.app.manager.file.RemoteShareFolderMessage;
 import org.peerbox.events.MessageBus;
-import org.peerbox.forcesync.ForceSync;
 import org.peerbox.forcesync.ForceSyncCompleteMessage;
 import org.peerbox.forcesync.ForceSyncMessage;
 import org.peerbox.notifications.InformationNotification;
@@ -87,9 +86,9 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 	private final Set<Path> sharedFolders;
 
 	private boolean cleanupRunning;
-	
+
 	private Set<Path> pendingEvents = new ConcurrentHashSet<Path>();
-	
+
 	/**
 	 *
 	 * @param fileTree The file tree representation of PeerWasp
@@ -127,7 +126,7 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 			pendingEvents.add(path);
 			return;
 		}
-		
+
 		logger.debug("onLocalFileCreated: {} - Manager ID {}", path, hashCode());
 
 		final boolean isFolder = Files.isDirectory(path);
@@ -137,7 +136,7 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 //			ConflictHandler.resolveConflict(path, true);
 //			return;
 //		}
-		
+
 		file.setIsSynchronized(true);
 
 		if (isFolder) {
@@ -166,7 +165,7 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 			pendingEvents.add(path);
 			return;
 		}
-		
+
 		logger.debug("onLocalFileModified: {}", path);
 
 
@@ -202,7 +201,7 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 			pendingEvents.add(path);
 			return;
 		}
-		
+
 		logger.debug("onLocalFileDelete: {}", path);
 
 		final FileComponent file = fileTree.getOrCreateFileComponent(path, this);
@@ -225,7 +224,7 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 		if(cleanupRunning){
 			return;
 		}
-		
+
 		logger.debug("onLocalFileHardDelete: {} - Manager ID {}", path, hashCode());
 
 		final FileComponent file = fileTree.getOrCreateFileComponent(path, this);
@@ -239,17 +238,18 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 	 */
 	@Override
 	public void onFileDesynchronized(final Path path) {
-		if(cleanupRunning){
+		if (cleanupRunning) {
 			return;
 		}
-		
+
 		logger.debug("onFileDesynchronized: {}", path);
-
-		final FileComponent file = fileTree.getOrCreateFileComponent(path, this);
-		file.setIsSynchronized(false);
-		// fileTree.deleteFile(path);
-		FileUtils.deleteQuietly(path.toFile());
-
+		final FileComponent file = fileTree.getFile(path);
+		if (file != null) {
+			file.setIsSynchronized(false);
+			FileUtils.deleteQuietly(path.toFile());
+		} else {
+			logger.error("onFileDesynchronized: Did not find file component: {}", path);
+		}
 	}
 
 	/**
@@ -261,7 +261,7 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 		if(cleanupRunning){
 			return;
 		}
-		
+
 		logger.debug("onFileSynchronized: {}", path);
 
 		// TODO: need to specify whether it is a folder or not?
@@ -304,7 +304,7 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 			pendingEvents.add(fileEvent.getFile().toPath());
 			return;
 		}
-		
+
 		final Path path = fileEvent.getFile().toPath();
 		logger.debug("onFileAdd: {}", path);
 
@@ -344,7 +344,7 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 			pendingEvents.add(fileEvent.getFile().toPath());
 			return;
 		}
-		
+
 		final Path path = fileEvent.getFile().toPath();
 		logger.debug("onFileDelete: {}", path);
 
@@ -421,14 +421,14 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 		Set<UserPermission> permissions = fileEvent.getUserPermissions();
 		String invitedBy = fileEvent.getInvitedBy();
 		FileHelper file = new FileHelper(fileEvent.getFile().toPath(), fileEvent.getFile().isFile());
-		
+
 		StringBuilder sb = new StringBuilder();
 		sb.append("User ").append(invitedBy).append(" shared the folder ").
 		append(fileEvent.getFile().toPath()).append(" with you.");
 		getMessageBus().post(new InformationNotification("Shared folder", sb.toString())).now();
 		publishMessage(new RemoteShareFolderMessage(file, permissions, invitedBy));
 	}
-	
+
 	@Handler
 	public void onShareSuccessful(LocalShareFolderMessage message){
 		sharedFolders.add(message.getFile().getPath());
@@ -478,14 +478,14 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 	public Set<Path> getSharedFolders() {
 		return sharedFolders;
 	}
-	
+
 	@Handler
 	public void onForceSync(ForceSyncMessage message){
 		logger.trace("Forced synchronization: Block events and clear fileComponentQueue {}", message.getTopLevel());
 		setCleanupRunning(true);
 		fileComponentQueue.clear();
 	}
-	
+
 	@Handler
 	public void onForceSyncComplete(ForceSyncCompleteMessage message){
 		logger.trace("Forced synchronization: Event block removed.");
