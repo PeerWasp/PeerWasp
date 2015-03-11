@@ -16,16 +16,16 @@ class PersistLocalTree implements Runnable {
 
 	private static final Logger logger = LoggerFactory.getLogger(PersistLocalTree.class);
 
-	private final FileDao fileDao;
+	private final LocalFileDao localFileDao;
 	private final FileTree fileTree;
 
 	@Inject
-	public PersistLocalTree(FileTree fileTree, FileDao fileDao) {
+	public PersistLocalTree(FileTree fileTree, LocalFileDao localFileDao) {
 		this.fileTree = fileTree;
-		this.fileDao = fileDao;
+		this.localFileDao = localFileDao;
 
 		// make sure table exists
-		this.fileDao.createTable();
+		this.localFileDao.createTable();
 	}
 
 	@Override
@@ -34,7 +34,7 @@ class PersistLocalTree implements Runnable {
 			logger.info("Persist local file tree...");
 			if (fileTree != null) {
 				List<FileComponent> files = fileTree.asList();
-				fileDao.persistAndReplaceFileComponents(files);
+				localFileDao.persistAndReplaceFileComponents(files);
 			}
 		} catch (Exception e) {
 			logger.warn("Exception while persisting local file tree.", e);

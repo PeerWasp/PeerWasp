@@ -45,17 +45,17 @@ import com.google.common.collect.SetMultimap;
 import com.google.inject.Inject;
 
 /**
- * The ActionExecutor service conducts the aggregation of events for 
+ * The ActionExecutor service conducts the aggregation of events for
  * every file and folder and uses a {@link peerbox.src.main.java
  * .org.peerbox.watchservice.ActionQueue ActionQueue} for this purpose, which
  * runs in a separate thread. Ready actions, for which no new events
  * have been observed for a specified time span, are executed. The class
  * maintains asynchronous handles for ongoing executions to check whether
- * they conclude successfully or not and react accordingly. 
- * 
+ * they conclude successfully or not and react accordingly.
+ *
  * This class uses the {@link org.peerbox.events.MessageBus MessageBus} instance of the
  * injected {@link org.peerbox.watchservice.FileEventManager FileEventManager}
- * instance to publish {@link org.peerbox.view.tray.SynchronizationErrorsResolvedNotification SynchronizationErrorsResolvedNotification}, 
+ * instance to publish {@link org.peerbox.view.tray.SynchronizationErrorsResolvedNotification SynchronizationErrorsResolvedNotification},
  * {@link org.peerbox.presenter.settings.synchronization.messages.FileExecutionStartedMessage FileExecutionStartedMessage},
  * {@link org.peerbox.presenter.settings.synchronization.messages.FileExecutionSucceededMessage FileExecutionSucceededMessage},
  * {@link org.peerbox.app.manager.file.FileExecutionFailedMessage FileExecutionFailedMessage}, and
@@ -72,14 +72,14 @@ public class ActionExecutor implements Runnable {
 
 	private final IFileManager fileManager;
 	private final FileEventManager fileEventManager;
-	
+
 	/** Set to false if not interested in result of network transactions **/
 	private boolean waitForActionCompletion = true;
 
 	/** Queue to store the handles of executing transactions, ending
 	 * transactions are examined asynchronously **/
 	private final BlockingQueue<ExecutionHandle> asyncHandles;
-	
+
 	private final Thread asyncHandlesThread;
 	private final Thread executorThread;
 
@@ -93,21 +93,21 @@ public class ActionExecutor implements Runnable {
 	 * time span for events.
 	 */
 	@Inject
-	public ActionExecutor(final FileEventManager eventManager, 
-			final IFileManager fileManager, 
+	public ActionExecutor(final FileEventManager eventManager,
+			final IFileManager fileManager,
 			IPeerWaspConfig peerWaspConfig) {
-		
+
 		this.fileEventManager = eventManager;
 		this.fileManager = fileManager;
 		this.peerWaspConfig = peerWaspConfig;
 
 		asyncHandles = new LinkedBlockingQueue<ExecutionHandle>();
-		
+
 		asyncHandlesThread = new Thread(new ExecutingActionHandler(), "AsyncActionHandlerThread");
 		executorThread = new Thread(this, "ActionExecutorThread");
 	}
 
-	
+
 	public void start() {
 		executorThread.start();
 	}
@@ -126,11 +126,11 @@ public class ActionExecutor implements Runnable {
 	public IPeerWaspConfig getPeerWaspConfig(){
 		return peerWaspConfig;
 	}
-	
+
 	/**
 	 * Processes the actions in the action queue, one by one. For each action,
 	 * the thread checks if a slot is free (i.e. the upper bound of concurrent
-	 * executions is not reached) and if the timestamp (updated on every event) 
+	 * executions is not reached) and if the timestamp (updated on every event)
 	 * of the action is old enough to conclude the event aggregation for this
 	 * action. Besides that, the method checks if the ancestors of a file have
 	 * been uploaded to the network yet, to prevent a {@link org.hive2hive.core.
@@ -157,7 +157,7 @@ public class ActionExecutor implements Runnable {
 					removeFromDeleted(next);
 					removeFromCreated(next);
 					removeFromFailed(next.getPath());
-					
+
 					logger.debug("Start execution: {}", next.getPath());
 
 					ExecutionHandle ehandle = next.getAction().execute(fileManager);
@@ -173,7 +173,7 @@ public class ActionExecutor implements Runnable {
 							FileHelper file = new FileHelper(next.getPath(), next.isFile());
 							publishMessage(new FileExecutionSucceededMessage(file, next.getAction().getCurrentState().getStateType()));
 						}
-							
+
 						if(asyncHandles.size() != 0){
 							publishMessage(new SynchronizationStartsNotification());
 						}
@@ -202,7 +202,7 @@ public class ActionExecutor implements Runnable {
 
 	private void updateFileComponentQueueAndWait(FileComponent next) throws InterruptedException{
 		logger.debug("Component {} is not ready yet!", next.getPath());
-		
+
 		fileEventManager.getFileComponentQueue().remove(next);
 		next.getAction().updateTimestamp();
 		fileEventManager.getFileComponentQueue().add(next);
@@ -347,7 +347,7 @@ public class ActionExecutor implements Runnable {
 		} else {
 			publishMessage(new FileExecutionSucceededMessage(fileHelper, action.getCurrentState().getStateType()));
 		}
-		
+
 		boolean changedWhileExecuted = action.getChangedWhileExecuted();
 		file.setIsUploaded(true);
 		action.onSucceeded();
@@ -434,24 +434,22 @@ public class ActionExecutor implements Runnable {
 		}
 		return false; // error not handled
 	}
-	
+
 	@Handler
 	public void onForceSync(ForceSyncMessage message){
 		logger.trace("Force Synchronization on {}: Handle ongoing executions");
 		setForceSyncRunning(true);
 	}
-	
+
 	@Handler
 	public void onForceSyncComplete(ForceSyncCompleteMessage message){
 		logger.trace("Forced synchronization terminated.");
 		setForceSyncRunning(false);
 	}
 
-
-	public void setForceSyncRunning(boolean b) {
-		forceSyncRunning  = b;
+	public void setForceSyncRunning(boolean isRunning) {
+		forceSyncRunning  = isRunning;
 	}
-
 
 	private class ExecutingActionHandler implements Runnable {
 

@@ -12,7 +12,6 @@ import org.peerbox.utils.UserDbUtils;
 import org.peerbox.watchservice.FileEventManager;
 import org.peerbox.watchservice.IFileEventManager;
 import org.peerbox.watchservice.filetree.FileTree;
-import org.peerbox.watchservice.filetree.persistency.FileDao;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
@@ -37,8 +36,8 @@ public class UserModule extends AbstractModule {
 	}
 
 	@Provides @Singleton
-	FileTree provideFileTree(UserConfig cfg, FileDao fileDao){
-		return new FileTree(cfg.getRootPath(), fileDao);
+	FileTree provideFileTree(UserConfig cfg){
+		return new FileTree(cfg.getRootPath());
 	}
 
 	@Provides

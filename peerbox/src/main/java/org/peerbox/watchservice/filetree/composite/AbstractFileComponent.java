@@ -9,9 +9,9 @@ import org.peerbox.watchservice.IAction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**	
- * This abstract class is used to extract commonalities between files 
- * and folder in the {@link org.peerbox.watchservice.filetree.FileTree 
+/**
+ * This abstract class is used to extract commonalities between files
+ * and folder in the {@link org.peerbox.watchservice.filetree.FileTree
  * FileTree}
  * @author Claudio
  */
@@ -25,24 +25,24 @@ abstract class AbstractFileComponent implements FileComponent {
 	 */
 	private final IAction action;
 	private Path path;
-	
+
 	/**
 	 * A hash representing the objects content. This is defined for folders too.
 	 */
 	private String contentHash;
-	
+
 	/**
 	 * True if the object is synchronized (downloaded and existing in the file-system)
 	 * to the local machine.
 	 */
 	private boolean isSynchronized;
-	
+
 	/**
 	 * True if the object was uploaded to the network. Hence, this is false for
 	 * newly created objects.
 	 */
 	private boolean isUploaded;
-	
+
 	/**
 	 * True if content hash changes should be propagated to ascending nodes in
 	 * the {@link org.peerbox.watchservice.filetree.FileTree FileTree}. This is
@@ -139,7 +139,7 @@ abstract class AbstractFileComponent implements FileComponent {
 	/**
 	 * Sets the {@link #contentHash}. This is only public because it
 	 * has to be used in the {@link org.peerbox.watchservice.filetree.
-	 * persistency.FileDao FileDao} class. Be aware that this method
+	 * persistency.LocalFileDao FileDao} class. Be aware that this method
 	 * should not be used to set the {@link #contentHash} to arbitrary
 	 * values.
 	 */
@@ -154,7 +154,7 @@ abstract class AbstractFileComponent implements FileComponent {
 	 * peerbox.watchservice.filetree.composite.FolderComposite
 	 * FolderComposite}s in case it changed. If there was no change,
 	 * the handling concludes silently.
-	 * 
+	 *
 	 * @return True if the {@link #contentHash} changed.
 	 */
 	@Override

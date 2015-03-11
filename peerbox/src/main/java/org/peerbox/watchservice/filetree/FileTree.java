@@ -6,18 +6,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 
 import org.eclipse.jetty.util.ConcurrentHashSet;
-import org.peerbox.app.ClientContext;
 import org.peerbox.watchservice.FileEventManager;
 import org.peerbox.watchservice.FileWalker;
 import org.peerbox.watchservice.IFileEventManager;
 import org.peerbox.watchservice.filetree.composite.FileComponent;
 import org.peerbox.watchservice.filetree.composite.FileLeaf;
 import org.peerbox.watchservice.filetree.composite.FolderComposite;
-import org.peerbox.watchservice.filetree.persistency.FileDao;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,11 +35,9 @@ public class FileTree implements IFileTree {
 	private SetMultimap<String, FileComponent> createdByContentHash = Multimaps.synchronizedSetMultimap(HashMultimap.create());
     private boolean maintainContentHashes;
 
-    private final FileDao fileDao;
-	
 	@Inject
-	public FileTree(Path rootPath, FileDao fileDao) {
-		this(rootPath, fileDao, true);
+	public FileTree(Path rootPath) {
+		this(rootPath, true);
 	}
 
 	/**
@@ -51,14 +45,9 @@ public class FileTree implements IFileTree {
 	 * @param maintainContentHashes set to true if content hashes have to be maintained.
 	 *            Content hash changes are then propagated upwards to the parent directory.
 	 */
-	public FileTree(Path rootPath, FileDao fileDao, boolean maintainContentHashes) {
+	public FileTree(Path rootPath, boolean maintainContentHashes) {
 		this.maintainContentHashes = maintainContentHashes;
 		this.rootOfFileTree = new FolderComposite(rootPath, maintainContentHashes, true);
-		this.fileDao = fileDao;
-
-		if (this.fileDao != null) {
-			this.fileDao.createTable();
-		}
 	}
 
     public boolean getMaintainContentHashes(){
@@ -246,33 +235,6 @@ public class FileTree implements IFileTree {
 	public SetMultimap<String, FolderComposite> getCreatedByStructureHash() {
 		return createdByStructureHash;
 	}
-
-//	@Override
-//	public void persistFile(FileComponent file) {
-//		if (fileDao != null) {
-//			fileDao.persistFile(file);
-//		}
-//	}
-//
-//	@Override
-//	public void persistFileAndDescendants(FileComponent root) {
-//		if (fileDao == null) {
-//			return;
-//		}
-//
-//		Set<FileComponent> elements = new HashSet<>();
-//		elements.add(root);
-//
-//		while (!elements.isEmpty()) {
-//			FileComponent current = elements.iterator().next();
-//			persistFile(current);
-//			if (current.isFolder()) {
-//				FolderComposite folder = (FolderComposite) current;
-//				elements.addAll(folder.getChildren().values());
-//			}
-//		}
-//
-//	}
 
 	@Override
 	public List<FileComponent> asList() {

@@ -6,7 +6,7 @@ import java.nio.file.Paths;
 
 import org.peerbox.app.DbContext;
 import org.peerbox.utils.UserDbUtils;
-import org.peerbox.watchservice.filetree.persistency.FileDao;
+import org.peerbox.watchservice.filetree.persistency.LocalFileDao;
 import org.peerbox.watchservice.filetree.persistency.RemoteFileDao;
 
 public class DbDump {
@@ -16,7 +16,7 @@ public class DbDump {
 	public static void main(String[] args) {
 		DbContext dbContext = UserDbUtils.createDbContext(db.toString());
 
-		FileDao fileDao = new FileDao(dbContext);
+		LocalFileDao fileDao = new LocalFileDao(dbContext);
 		fileDao.dumpCsv();
 
 		RemoteFileDao remoteFileDao = new RemoteFileDao(dbContext);

@@ -15,7 +15,7 @@ import org.peerbox.app.ClientContext;
 import org.peerbox.watchservice.filetree.composite.FileComponent;
 import org.peerbox.watchservice.filetree.composite.FileLeaf;
 import org.peerbox.watchservice.filetree.composite.FolderComposite;
-import org.peerbox.watchservice.filetree.persistency.FileDao;
+import org.peerbox.watchservice.filetree.persistency.LocalFileDao;
 import org.peerbox.watchservice.states.EstablishedState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -114,7 +114,7 @@ public class FileTreeInitializer {
 		});
 
 		// selective sync: use database to disable sync on some elements
-		final FileDao fileDao = context.getFileDao();
+		final LocalFileDao localFileDao = context.getLocalFileDao();
 
 		List<FileComponent> subtreeList = tree.asList().stream().filter(node -> node.getPath().
 				startsWith(topLevel)).sorted(new Comparator<FileComponent>() {
@@ -126,7 +126,7 @@ public class FileTreeInitializer {
 
 
 		for (FileComponent c : subtreeList) {
-			Boolean isSync = fileDao.isSynchronizedByPath(c.getPath());
+			Boolean isSync = localFileDao.isSynchronizedByPath(c.getPath());
 			if (isSync != null && !isSync.booleanValue()) {
 				c.setIsSynchronized(false);
 			} else {

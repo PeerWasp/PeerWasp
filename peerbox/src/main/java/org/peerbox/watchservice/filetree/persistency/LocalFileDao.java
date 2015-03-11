@@ -11,7 +11,7 @@ import org.sql2o.Sql2o;
 import com.google.inject.Inject;
 
 
-public class FileDao {
+public class LocalFileDao {
 
 	private static final String FILE_TABLE = "files";
 
@@ -23,7 +23,7 @@ public class FileDao {
 	private final DbContext dbContext;
 
 	@Inject
-	public FileDao(DbContext dbContext) {
+	public LocalFileDao(DbContext dbContext) {
 		this.dbContext = dbContext;
 		this.sql2o = new Sql2o(this.dbContext.getDataSource());
 

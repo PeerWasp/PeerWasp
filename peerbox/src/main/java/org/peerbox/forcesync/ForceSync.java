@@ -18,7 +18,7 @@ import org.peerbox.app.manager.file.IFileManager;
 import org.peerbox.watchservice.FileEventManager;
 import org.peerbox.watchservice.filetree.FileTreeInitializer;
 import org.peerbox.watchservice.filetree.composite.FileComponent;
-import org.peerbox.watchservice.filetree.persistency.FileDao;
+import org.peerbox.watchservice.filetree.persistency.LocalFileDao;
 import org.peerbox.watchservice.filetree.persistency.RemoteFileDao;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,7 +31,7 @@ public class ForceSync {
 	private FileEventManager fileEventManager;
 	private IFileManager fileManager;
 
-	private FileDao localFileDao;
+	private LocalFileDao localFileDao;
 	private RemoteFileDao remoteFileDao;
 
 	private Path topLevel;
@@ -42,15 +42,21 @@ public class ForceSync {
 		fileEventManager = context.getFileEventManager();
 		fileManager = context.getFileManager();
 
-		localFileDao = context.getFileDao();
+		localFileDao = context.getLocalFileDao();
 		remoteFileDao = context.getRemoteFileDao();
 	}
 
 	public void forceSync(Path topLevel) {
 		this.topLevel = topLevel;
 
+
+
 		try {
 			logger.trace("Start forced synchronization on {}", topLevel);
+
+
+
+
 			FileTreeInitializer fileTreeInitializer = new FileTreeInitializer(context);
 			fileTreeInitializer.initialize(topLevel);
 

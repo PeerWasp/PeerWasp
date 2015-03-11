@@ -18,15 +18,15 @@ class PersistRemoteProfile implements Runnable {
 	private static final Logger logger = LoggerFactory.getLogger(PersistRemoteProfile.class);
 
 	private final IFileManager fileManager;
-	private final RemoteFileDao fileDao;
+	private final RemoteFileDao remoteFileDao;
 
 	@Inject
-	public PersistRemoteProfile(IFileManager fileManager, RemoteFileDao fileDao) {
+	public PersistRemoteProfile(IFileManager fileManager, RemoteFileDao remoteFileDao) {
 		this.fileManager = fileManager;
-		this.fileDao = fileDao;
+		this.remoteFileDao = remoteFileDao;
 
 		// make sure table exists
-		this.fileDao.createTable();
+		this.remoteFileDao.createTable();
 	}
 
 	@Override
@@ -36,7 +36,7 @@ class PersistRemoteProfile implements Runnable {
 			FileNode root = fileManager.listFiles().execute();
 			if (root != null) {
 				List<FileNode> files = FileNode.getNodeList(root, true, true);
-				fileDao.persistAndReplaceFileNodes(files);
+				remoteFileDao.persistAndReplaceFileNodes(files);
 			}
 		} catch (Exception e) {
 			logger.warn("Exception while persisting remote profile.", e);

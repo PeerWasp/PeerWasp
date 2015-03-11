@@ -10,7 +10,7 @@ import org.peerbox.watchservice.ActionExecutor;
 import org.peerbox.watchservice.FileEventManager;
 import org.peerbox.watchservice.FolderWatchService;
 import org.peerbox.watchservice.filetree.FileTree;
-import org.peerbox.watchservice.filetree.persistency.FileDao;
+import org.peerbox.watchservice.filetree.persistency.LocalFileDao;
 import org.peerbox.watchservice.filetree.persistency.PeriodicFileDataPersister;
 import org.peerbox.watchservice.filetree.persistency.RemoteFileDao;
 
@@ -36,7 +36,7 @@ public class ClientContext {
 	private FileEventAggregator fileEventAggregator;
 
 	private FileTree fileTree;
-	private FileDao fileDao;
+	private LocalFileDao localFileDao;
 	private RemoteFileDao remoteFileDao;
 
 	public ClientContext() {
@@ -133,13 +133,13 @@ public class ClientContext {
 		this.fileEventAggregator = fileEventAggregator;
 	}
 
-	public FileDao getFileDao() {
-		return fileDao;
+	public LocalFileDao getLocalFileDao() {
+		return localFileDao;
 	}
 
 	@Inject
-	public void setFileDao(FileDao fileDao) {
-		this.fileDao = fileDao;
+	public void setFileDao(LocalFileDao fileDao) {
+		this.localFileDao = fileDao;
 	}
 
 	public RemoteFileDao getRemoteFileDao() {
