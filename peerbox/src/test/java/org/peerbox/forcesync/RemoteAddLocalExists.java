@@ -3,7 +3,6 @@ package org.peerbox.forcesync;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import org.hive2hive.core.events.framework.interfaces.file.IFileUpdateEvent;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Matchers;
@@ -42,6 +41,8 @@ public class RemoteAddLocalExists extends ListSyncTest {
 	
 	@Test
 	public void conflict() throws Exception {
+		PowerMockito.mockStatic(ConflictHandler.class);
+		
 		local.put(filePath, file2);
 		localDatabase.put(filePath, file2);
 		remote.put(filePath, file1);

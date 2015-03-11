@@ -4,11 +4,16 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Matchers;
 import org.mockito.Mockito;
 import org.peerbox.watchservice.conflicthandling.ConflictHandler;
 import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
 
+@RunWith(PowerMockRunner.class)
+@PrepareForTest(ConflictHandler.class)
 public class RemoteExistsLocalAdd extends ListSyncTest{
 
 	@Test
