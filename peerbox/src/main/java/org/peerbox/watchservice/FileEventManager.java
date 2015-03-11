@@ -25,6 +25,7 @@ import org.peerbox.app.manager.file.RemoteFileDeletedMessage;
 import org.peerbox.app.manager.file.RemoteFileMovedMessage;
 import org.peerbox.events.MessageBus;
 import org.peerbox.forcesync.ForceSync;
+import org.peerbox.forcesync.ForceSyncCompleteMessage;
 import org.peerbox.forcesync.ForceSyncMessage;
 import org.peerbox.notifications.InformationNotification;
 import org.peerbox.presenter.settings.synchronization.FileHelper;
@@ -480,9 +481,15 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 	
 	@Handler
 	public void onForceSync(ForceSyncMessage message){
-		logger.trace("Received request to initiate forced synchronization on {}", message.getTopLevel());
+		logger.trace("Forced synchronization: Block events and clear fileComponentQueue {}", message.getTopLevel());
 		setCleanupRunning(true);
 		fileComponentQueue.clear();
+	}
+	
+	@Handler
+	public void onForceSyncComplete(ForceSyncCompleteMessage message){
+		logger.trace("Forced synchronization: Event block removed.");
+		setCleanupRunning(false);
 	}
 
 	public void setCleanupRunning(boolean b) {

@@ -262,7 +262,8 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 		SyncTreeItem item = getOrCreateItem(message.getFile(), true);
 		item.setProgressState(ProgressState.SUCCESSFUL);
 		
-		updateIsSelectedInUIThread(item, message.getFile(), true);
+//		updateIsSelectedInUIThread(item, message.getFile(), true);
+		item.updateIsSelectedInUIThread(true);
 	}
 
 
@@ -294,12 +295,14 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 			
 			item = getOrCreateItem(message.getFile(), true);		
 			item.setProgressState(ProgressState.SUCCESSFUL);
-			updateIsSelectedInUIThread(item, message.getFile(), true);
+			item.updateIsSelectedInUIThread(true);
+//			updateIsSelectedInUIThread(item, message.getFile(), true);
 			break;
 		default:
 			item = getOrCreateItem(message.getFile(), true);
 			item.setProgressState(ProgressState.SUCCESSFUL);
-			updateIsSelectedInUIThread(item, message.getFile(), true);
+//			updateIsSelectedInUIThread(item, message.getFile(), true);
+			item.updateIsSelectedInUIThread(true);
 		}
 	}
 
@@ -378,21 +381,6 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 	        @Override
 	        public void run() {
 	        	removeTreeItem(srcFile);
-	        }
-		});
-	}
-
-	private void updateIsSelectedInUIThread(SyncTreeItem item, FileHelper file,
-			boolean b) {
-		final SyncTreeItem item2 = item;
-		javafx.application.Platform.runLater(new Runnable() {
-	        @Override
-	        public void run() {
-	        	if(file.getPath().toFile().isDirectory()){
-	        		item2.setIndeterminate(b);
-	        	} else {
-	        		item2.setSelected(b);
-	        	}
 	        }
 		});
 	}

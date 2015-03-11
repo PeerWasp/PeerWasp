@@ -19,6 +19,7 @@ public class ForceSync {
 
 	public void startForceSync(Path topLevel) {
 		try {
+			logger.trace("Start forced synchronization on {}", topLevel);
 			FileTreeInitializer fileTreeInitializer = new FileTreeInitializer(context);
 			fileTreeInitializer.initialize(topLevel);
 			Set<Path> pendingEvents = context.getFileEventManager().getPendingEvents();
@@ -34,6 +35,7 @@ public class ForceSync {
 				context.getFileEventManager().setCleanupRunning(false);
 				ListSync listSync = context.getInjector().getInstance(ListSync.class);
 				listSync.sync();
+				context.getActionExecutor().setForceSyncRunning(false);
 			}
 			
 		} catch(Exception e) {
