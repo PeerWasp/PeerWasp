@@ -12,6 +12,7 @@ import org.peerbox.watchservice.FolderWatchService;
 import org.peerbox.watchservice.filetree.FileTree;
 import org.peerbox.watchservice.filetree.persistency.FileDao;
 import org.peerbox.watchservice.filetree.persistency.PeriodicFileDataPersister;
+import org.peerbox.watchservice.filetree.persistency.RemoteFileDao;
 
 import com.google.inject.Inject;
 import com.google.inject.Injector;
@@ -36,6 +37,7 @@ public class ClientContext {
 
 	private FileTree fileTree;
 	private FileDao fileDao;
+	private RemoteFileDao remoteFileDao;
 
 	public ClientContext() {
 
@@ -138,6 +140,15 @@ public class ClientContext {
 	@Inject
 	public void setFileDao(FileDao fileDao) {
 		this.fileDao = fileDao;
+	}
+
+	public RemoteFileDao getRemoteFileDao() {
+		return remoteFileDao;
+	}
+
+	@Inject
+	public void setRemoteFileDao(RemoteFileDao remoteFileDao) {
+		this.remoteFileDao = remoteFileDao;
 	}
 
 	public FileTree getFileTree() {

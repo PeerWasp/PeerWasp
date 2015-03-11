@@ -1,11 +1,8 @@
 package org.peerbox.forcesync;
 
 import java.io.IOException;
-import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.SimpleFileVisitor;
-import java.nio.file.attribute.BasicFileAttributes;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -14,11 +11,11 @@ import java.util.Set;
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.hive2hive.core.exceptions.NoSessionException;
 import org.hive2hive.core.processes.files.list.FileNode;
-import org.hive2hive.core.security.HashUtil;
 import org.hive2hive.processframework.exceptions.InvalidProcessStateException;
 import org.hive2hive.processframework.exceptions.ProcessExecutionException;
 import org.peerbox.app.ClientContext;
-import org.peerbox.watchservice.PathUtils;
+import org.peerbox.app.manager.file.IFileManager;
+import org.peerbox.watchservice.FileEventManager;
 import org.peerbox.watchservice.filetree.FileTreeInitializer;
 import org.peerbox.watchservice.filetree.composite.FileComponent;
 import org.peerbox.watchservice.filetree.persistency.FileDao;
@@ -29,33 +26,52 @@ import org.slf4j.LoggerFactory;
 public class ForceSync {
 
 	private static final Logger logger = LoggerFactory.getLogger(ForceSync.class);
-	private ClientContext context;
 
-	private RemoteFileDao remoteFileDao;
+	private ClientContext context;
+	private FileEventManager fileEventManager;
+	private IFileManager fileManager;
+
 	private FileDao localFileDao;
+	private RemoteFileDao remoteFileDao;
+
+	private Path topLevel;
 
 	public ForceSync(ClientContext currentClientContext) {
 		this.context = currentClientContext;
+
+		fileEventManager = context.getFileEventManager();
+		fileManager = context.getFileManager();
+
+		localFileDao = context.getFileDao();
+		remoteFileDao = context.getRemoteFileDao();
 	}
 
-	public void startForceSync(Path topLevel) {
+	public void forceSync(Path topLevel) {
+		this.topLevel = topLevel;
+
 		try {
 			logger.trace("Start forced synchronization on {}", topLevel);
 			FileTreeInitializer fileTreeInitializer = new FileTreeInitializer(context);
 			fileTreeInitializer.initialize(topLevel);
-			Set<Path> pendingEvents = context.getFileEventManager().getPendingEvents();
+
+			Set<Path> pendingEvents = fileEventManager.getPendingEvents();
 			if(pendingEvents.size() > 0){
 				logger.trace("New events happened during force sync. Redo.");
 				pendingEvents.clear();
-				startForceSync(topLevel);
+				forceSync(topLevel);
 //				Path topLevel = pendingEvents.
 //				for(Path path : pendingEvents){
 //					if(path.startsWith(other))
 //				}
 			} else {
-				context.getFileEventManager().setCleanupRunning(false);
-				ListSync listSync = context.getInjector().getInstance(ListSync.class);
-				listSync.sync();
+				fileEventManager.setCleanupRunning(false);
+
+				try {
+					synchronize();
+				} catch(Exception e) {
+					logger.warn("Could not complete forced sync due to exception.", e);
+				}
+
 				context.getActionExecutor().setForceSyncRunning(false);
 			}
 
@@ -64,9 +80,22 @@ public class ForceSync {
 		}
 	}
 
-	private Map<Path, FileInfo> createLocalViewDisk() {
+	private void synchronize() throws Exception {
+		// local view
+		Map<Path, FileInfo> localDisk = createLocalViewDisk();
+		Map<Path, FileInfo> localDb = createLocalViewDb();
+
+		// remote view
+		Map<Path, FileInfo> remoteNetwork = createRemoteViewNetwork();
+		Map<Path, FileInfo> remoteDb = createRemoteViewDb();
+
+		ListSync listSync = new ListSync(fileEventManager);
+		listSync.sync(localDisk, localDb, remoteNetwork, remoteDb);
+	}
+
+	private Map<Path, FileInfo> createLocalViewDisk() throws IOException {
 		Map<Path, FileInfo> local = new HashMap<>();
-		Files.walkFileTree(tree.getRootPath(), new LocalFileWalker(local));
+		Files.walkFileTree(topLevel, new LocalFileWalker(local));
 		return local;
 	}
 
@@ -80,9 +109,10 @@ public class ForceSync {
 		return localDb;
 	}
 
-	private Map<Path, FileInfo> createRemoteViewNetwork() {
+	private Map<Path, FileInfo> createRemoteViewNetwork()
+			throws InvalidProcessStateException, ProcessExecutionException, NoSessionException, NoPeerConnectionException {
 		Map<Path, FileInfo> remoteNow = new HashMap<>();
-		FileNode root = context.getFileManager().listFiles().execute();
+		FileNode root = fileManager.listFiles().execute();
 		List<FileNode> nodes = FileNode.getNodeList(root, true, true);
 		for (FileNode node : nodes) {
 			FileInfo a = new FileInfo(node);
@@ -93,9 +123,9 @@ public class ForceSync {
 
 	private Map<Path, FileInfo> createRemoteViewDb() {
 		Map<Path, FileInfo> remoteDb = new HashMap<>();
-		List<FileInfo> nodeAttrs = remoteFileDao.getAllFileNodeAttributes();
-		for (FileInfo attr : nodeAttrs) {
-			remoteDb.put(attr.getPath(), attr);
+		List<FileInfo> fileList = remoteFileDao.getAllFileNodeAttributes();
+		for (FileInfo a : fileList) {
+			remoteDb.put(a.getPath(), a);
 		}
 		return remoteDb;
 	}

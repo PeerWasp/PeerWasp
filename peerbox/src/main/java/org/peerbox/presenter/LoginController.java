@@ -38,6 +38,7 @@ import org.peerbox.app.ClientContextFactory;
 import org.peerbox.app.Constants;
 import org.peerbox.app.config.UserConfig;
 import org.peerbox.app.manager.user.IUserManager;
+import org.peerbox.forcesync.ForceSync;
 import org.peerbox.forcesync.ListSync;
 import org.peerbox.presenter.validation.EmptyTextFieldValidator;
 import org.peerbox.presenter.validation.RootPathValidator;
@@ -311,8 +312,10 @@ public class LoginController implements Initializable {
 
 			ctx.getActionExecutor().start();
 			ctx.getFolderWatchService().start(userConfig.getRootPath());
-			ListSync listSync = ctx.getInjector().getInstance(ListSync.class);
-			listSync.sync();
+
+			ForceSync forceSync = new ForceSync(ctx);
+			forceSync.forceSync(userConfig.getRootPath());
+
 			ctx.getRemoteProfilePersister().start();
 
 		} catch (Exception e) {

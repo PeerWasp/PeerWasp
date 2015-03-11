@@ -3,14 +3,13 @@ package org.peerbox.app;
 import org.peerbox.app.config.UserConfig;
 import org.peerbox.guice.UserModule;
 import org.peerbox.watchservice.FileEventManager;
-import org.peerbox.watchservice.filetree.FileTreeInitializer;
 
 import com.google.inject.Inject;
 import com.google.inject.Injector;
 
 public class ClientContextFactory {
 
-	private Injector injector;
+	private final Injector injector;
 
 	@Inject
 	public ClientContextFactory(Injector injector) {
@@ -25,9 +24,6 @@ public class ClientContextFactory {
 
 		// register for local/remote events
 		FileEventManager fileEventManager = context.getFileEventManager();
-
-		FileTreeInitializer treeInitializer = new FileTreeInitializer(context);
-		treeInitializer.initialize(userConfig.getRootPath());
 
 		context.getFolderWatchService().addFileEventListener(fileEventManager);
 		context.getNodeManager().getNode().getFileManager().subscribeFileEvents(fileEventManager);

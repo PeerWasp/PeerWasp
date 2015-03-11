@@ -56,11 +56,16 @@ public class ListSync {
 		this.remoteNetwork = remoteNetwork;
 		this.remoteDb = remoteDb;
 
+		foldersToDelete.clear();
+		newLocalFiles.clear();
+
 		// perform a list sync using the maps
 		synchronize();
 
 		// delete folders if they do not have any descendants that are added
 		deleteFoldersToDelete();
+
+		cleanup();
 	}
 
 	private void synchronize() throws Exception {
@@ -320,6 +325,7 @@ public class ListSync {
 	}
 
 	private void conflict(Path file) {
+		// TODO: change conflict handler! wrong method!
 		ConflictHandler.rename(file);
 	}
 
@@ -343,6 +349,15 @@ public class ListSync {
 	private boolean hashesMatch(FileInfo a, FileInfo b) {
 		boolean match = a.getContentHash().equals(b.getContentHash());
 		return match;
+	}
+
+	private void cleanup() {
+		localDb = null;
+		localDisk = null;
+		remoteDb = null;
+		remoteNetwork = null;
+		foldersToDelete.clear();
+		newLocalFiles.clear();
 	}
 
 }
