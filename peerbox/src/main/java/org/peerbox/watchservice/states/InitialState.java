@@ -64,7 +64,6 @@ public class InitialState extends AbstractActionState {
 		final FileComponent file = action.getFile();
 
 		fileTree.putFile(file.getPath(), file);
-		file.updateContentHash();
 
 		addComponentToMoveTargetCandidates();
 

@@ -10,9 +10,9 @@ public class FileLeaf extends AbstractFileComponent {
 	public FileLeaf(final Path path, boolean updateContentHash) {
 		super(path, updateContentHash);
 
-		if (updateContentHash) {
-			computeContentHash();
-		}
+//		if (updateContentHash) {
+//			computeContentHash();
+//		}
 	}
 
 	@Override
