@@ -18,6 +18,7 @@ public class FileLeaf extends AbstractFileComponent {
 	@Override
 	protected boolean computeContentHash() {
 		String newHash = PathUtils.computeFileContentHash(getPath());
+		System.out.println("new hash: " + newHash);
 		if (!getContentHash().equals(newHash)) {
 			setContentHash(newHash);
 			return true;

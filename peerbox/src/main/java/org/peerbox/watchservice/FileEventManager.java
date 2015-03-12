@@ -245,7 +245,7 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 		logger.debug("onFileDesynchronized: {}", path);
 		final FileComponent file = fileTree.getFile(path);
 		if (file != null) {
-			file.setIsSynchronized(false);
+			file.setIsSynchronized(false); //TODO: rec
 			FileUtils.deleteQuietly(path.toFile());
 		} else {
 			logger.error("onFileDesynchronized: Did not find file component: {}", path);

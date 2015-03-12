@@ -263,7 +263,7 @@ public class FolderWatchServiceTest {
 		
 		assertTrue(newFolder.toFile().mkdir());
 //		sleep(); //-> this sleep shows that create event is fired if we wait a bit (until folder is registered)
-		Thread.sleep(10);
+		Thread.sleep(100);
 		assertTrue(newFile.toFile().createNewFile());
 		
 		sleep();
@@ -382,7 +382,7 @@ public class FolderWatchServiceTest {
 		for (int k = 0; k < numFolders; ++k) {
 			Path sub = Paths.get(String.format("%s", k));
 			Files.createDirectory(base.resolve(sub));
-			Thread.sleep(10);
+			Thread.sleep(100);
 			for (int i = 0; i < numFilesPerFolder; ++i) {
 				Path f = sub.resolve(String.format("%s.txt", i));
 				Path fullPath = base.resolve(f);
@@ -405,7 +405,7 @@ public class FolderWatchServiceTest {
 		for (int k = 0; k < numFolders; ++k) {
 			Path sub = Paths.get(String.format("%s", k));
 			Files.createDirectory(base.resolve(sub));
-			Thread.sleep(10);
+			Thread.sleep(100);
 			for (int i = 0; i < numFilesPerFolder; ++i) {
 				Path f = sub.resolve(String.format("%s.txt", i));
 				Path fullPath = base.resolve(f);
@@ -427,7 +427,7 @@ public class FolderWatchServiceTest {
 		for (int k = 0; k < numFolders; ++k) {
 			Path sub = Paths.get(String.format("%s", k));
 			Files.createDirectory(base.resolve(sub));
-			Thread.sleep(10);
+			Thread.sleep(50);
 			for (int i = 0; i < numFilesPerFolder; ++i) {
 				Path f = sub.resolve(String.format("%s.txt", i));
 				Path fullPath = base.resolve(f);
@@ -456,7 +456,7 @@ public class FolderWatchServiceTest {
 		for (int k = 0; k < numFolders; ++k) {
 			Path sub = Paths.get(String.format("%s", k));
 			Files.createDirectory(base.resolve(sub));
-			Thread.sleep(10);
+			Thread.sleep(100);
 			for (int i = 0; i < numFilesPerFolder; ++i) {
 				Path f = sub.resolve(String.format("%s.txt", i));
 				Path fullPath = base.resolve(f);
