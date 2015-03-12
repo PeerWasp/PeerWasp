@@ -9,7 +9,7 @@ import org.peerbox.app.activity.ActivityItem;
 import org.peerbox.app.activity.ActivityLogger;
 import org.peerbox.app.activity.ActivityType;
 
-public class CollectorTestUtils extends BaseJUnitTest {
+class CollectorTestUtils extends BaseJUnitTest {
 
 	/**
 	 * captures and verifies addActivityItem argument

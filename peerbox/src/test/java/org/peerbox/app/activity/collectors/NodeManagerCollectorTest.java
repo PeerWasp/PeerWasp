@@ -1,15 +1,12 @@
 package org.peerbox.app.activity.collectors;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.times;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.peerbox.BaseJUnitTest;
-import org.peerbox.app.activity.ActivityItem;
 import org.peerbox.app.activity.ActivityLogger;
 import org.peerbox.app.activity.ActivityType;
 import org.peerbox.app.manager.node.NodeConnectMessage;
@@ -42,7 +39,7 @@ public class NodeManagerCollectorTest extends BaseJUnitTest {
 		NodeConnectMessage msg = new NodeConnectMessage("127.0.0.1");
 		collector.onNodeConnected(msg);
 
-		captureAddActivityItem(ActivityType.INFORMATION);
+		CollectorTestUtils.captureAddActivityItem(ActivityType.INFORMATION, activityLogger);
 	}
 
 	@Test
@@ -50,16 +47,7 @@ public class NodeManagerCollectorTest extends BaseJUnitTest {
 		NodeDisconnectMessage msg = new NodeDisconnectMessage();
 		collector.onNodeDisconnected(msg);
 
-		captureAddActivityItem(ActivityType.INFORMATION);
-	}
-
-	/**
-	 * captures and verifies addActivityItem argument
-	 */
-	private void captureAddActivityItem(ActivityType expectedType) {
-		ArgumentCaptor<ActivityItem> arg = ArgumentCaptor.forClass(ActivityItem.class);
-		Mockito.verify(activityLogger, times(1)).addActivityItem(arg.capture());
-		arg.getValue().getType().equals(expectedType);
+		CollectorTestUtils.captureAddActivityItem(ActivityType.INFORMATION, activityLogger);
 	}
 
 }

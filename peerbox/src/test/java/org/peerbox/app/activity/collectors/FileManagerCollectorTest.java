@@ -1,39 +1,28 @@
 package org.peerbox.app.activity.collectors;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 import java.nio.file.Paths;
 
 import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.peerbox.BaseJUnitTest;
 import org.peerbox.app.activity.ActivityLogger;
 import org.peerbox.app.activity.ActivityType;
-import org.peerbox.app.manager.file.LocalFileConflictMessage;
-import org.peerbox.app.manager.file.RemoteFileDeletedMessage;
-import org.peerbox.app.manager.file.LocalFileDesyncMessage;
-import org.peerbox.app.manager.file.RemoteFileMovedMessage;
 import org.peerbox.app.manager.file.FileExecutionFailedMessage;
+import org.peerbox.app.manager.file.LocalFileConflictMessage;
+import org.peerbox.app.manager.file.LocalFileDesyncMessage;
 import org.peerbox.app.manager.file.RemoteFileAddedMessage;
+import org.peerbox.app.manager.file.RemoteFileDeletedMessage;
+import org.peerbox.app.manager.file.RemoteFileMovedMessage;
 import org.peerbox.presenter.settings.synchronization.FileHelper;
 
 public class FileManagerCollectorTest extends BaseJUnitTest {
 
 	private FileManagerCollector collector;
 	private ActivityLogger activityLogger;
-	
-	@BeforeClass
-	public static void setUpBeforeClass() throws Exception {
-	}
-
-	@AfterClass
-	public static void tearDownAfterClass() throws Exception {
-	}
 
 	@Before
 	public void setUp() throws Exception {
@@ -47,9 +36,9 @@ public class FileManagerCollectorTest extends BaseJUnitTest {
 		collector = null;
 	}
 
-	@Test @Ignore
+	@Test
 	public void testFileManagerCollector() {
-		fail("Not yet implemented");
+		assertEquals(collector.getActivityLogger(), activityLogger);
 	}
 
 	@Test
@@ -57,7 +46,7 @@ public class FileManagerCollectorTest extends BaseJUnitTest {
 		FileHelper file = new FileHelper(Paths.get("this/is/a/path.txt"), true);
 		RemoteFileAddedMessage message = new RemoteFileAddedMessage(file);
 		collector.onRemoteFileAdded(message);
-		
+
 		CollectorTestUtils.captureAddActivityItem(ActivityType.INFORMATION, activityLogger);
 	}
 
@@ -67,7 +56,7 @@ public class FileManagerCollectorTest extends BaseJUnitTest {
 		FileHelper dstFile = new FileHelper(Paths.get("this/is/another/path.txt"), true);
 		RemoteFileMovedMessage message = new RemoteFileMovedMessage(file, dstFile);
 		collector.onRemoteFileMoved(message);
-		
+
 		CollectorTestUtils.captureAddActivityItem(ActivityType.INFORMATION, activityLogger);
 	}
 
@@ -76,7 +65,7 @@ public class FileManagerCollectorTest extends BaseJUnitTest {
 		FileHelper file = new FileHelper(Paths.get("this/is/a/path.txt"), true);
 		RemoteFileDeletedMessage message = new RemoteFileDeletedMessage(file);
 		collector.onRemoteFileDeleted(message);
-		
+
 		CollectorTestUtils.captureAddActivityItem(ActivityType.INFORMATION, activityLogger);
 	}
 
@@ -85,36 +74,26 @@ public class FileManagerCollectorTest extends BaseJUnitTest {
 		FileHelper file = new FileHelper(Paths.get("this/is/a/path.txt"), true);
 		LocalFileConflictMessage message = new LocalFileConflictMessage(file);
 		collector.onLocalFileConfilct(message);
-		
+
 		CollectorTestUtils.captureAddActivityItem(ActivityType.WARNING, activityLogger);
 	}
-	
+
 	@Test
 	public void testOnFileDesynchronized(){
 		FileHelper file = new FileHelper(Paths.get("this/is/a/path.txt"), true);
 		LocalFileDesyncMessage message = new LocalFileDesyncMessage(file);
 		collector.onLocalFileDesynchronized(message);
-		
+
 		CollectorTestUtils.captureAddActivityItem(ActivityType.INFORMATION, activityLogger);
 	}
-	
+
 	@Test
 	public void testOnFileExecutionFailed(){
 		FileHelper file = new FileHelper(Paths.get("this/is/a/path.txt"), true);
 		FileExecutionFailedMessage message = new FileExecutionFailedMessage(file);
 		collector.onFileExecutionFailed(message);
-		
-		CollectorTestUtils.captureAddActivityItem(ActivityType.ERROR, activityLogger);
-	}
-	
-	@Test @Ignore
-	public void testAbstractActivityCollector() {
-		fail("Not yet implemented");
-	}
 
-	@Test @Ignore
-	public void testGetActivityLogger() {
-		fail("Not yet implemented");
+		CollectorTestUtils.captureAddActivityItem(ActivityType.ERROR, activityLogger);
 	}
 
 }
