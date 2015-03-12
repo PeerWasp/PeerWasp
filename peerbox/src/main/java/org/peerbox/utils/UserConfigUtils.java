@@ -30,6 +30,13 @@ public class UserConfigUtils {
 		// prevent instances
 	}
 
+	/**
+	 * Creates a user config instance given a username.
+	 * The config file will be searched or created in the {@link AppData#getConfigFolder()} folder.
+	 *
+	 * @param username
+	 * @return user config
+	 */
 	public static UserConfig createUserConfig(String username) {
 		String filename = createFileName(username);
 		Path file = AppData.getConfigFolder().resolve(filename);
@@ -37,6 +44,12 @@ public class UserConfigUtils {
 		return cfg;
 	}
 
+	/**
+	 * Creates a user config instance given a path to a file.
+	 *
+	 * @param file
+	 * @return
+	 */
 	public static UserConfig createUserConfig(Path file) {
 		UserConfig cfg = new UserConfig(file);
 		return cfg;
@@ -53,6 +66,12 @@ public class UserConfigUtils {
 		return Hashing.sha256().hashString(str, Charsets.UTF_8).toString();
 	}
 
+	/**
+	 * Searches for user config files in the {@link AppData#getConfigFolder()} folder.
+	 * All found config files are loaded into a {@link UserConfig} instance and returned.
+	 *
+	 * @return map mapping username to the user config.
+	 */
 	public static Map<String, UserConfig> getAllConfigFiles() {
 		return getAllConfigFiles(AppData.getConfigFolder());
 	}

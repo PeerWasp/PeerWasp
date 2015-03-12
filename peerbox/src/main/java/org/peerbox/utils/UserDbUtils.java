@@ -1,6 +1,6 @@
 package org.peerbox.utils;
 
-import java.nio.file.Paths;
+import java.nio.file.Path;
 
 import javax.sql.DataSource;
 
@@ -23,23 +23,23 @@ public class UserDbUtils {
 	 * @param dbPath path to the db file
 	 * @return configured data source
 	 */
-	public static DbContext createDbContext(final String dbPath) {
+	public static DbContext createDbContext(final Path dbPath) {
 		DataSource dataSource = createDataSource(dbPath);
 		DbContext dbContext = new DbContext();
 		dbContext.setDataSource(dataSource);
-		dbContext.setDatabaseFile(Paths.get(dbPath));
+		dbContext.setDatabaseFile(dbPath);
 		return dbContext;
 	}
 
-	private static DataSource createDataSource(final String dbPath) {
+	private static DataSource createDataSource(final Path dbPath) {
 		HikariConfig hikariConfig = createConnectionPoolConfig(dbPath);
 		DataSource dataSource = new HikariDataSource(hikariConfig);
 		return dataSource;
 	}
 
-	private static HikariConfig createConnectionPoolConfig(final String dbPath) {
+	private static HikariConfig createConnectionPoolConfig(final Path dbPath) {
 		HikariConfig hikariConfig = new HikariConfig();
-		hikariConfig.setJdbcUrl(String.format("jdbc:h2:%s", dbPath));
+		hikariConfig.setJdbcUrl(String.format("jdbc:h2:%s", dbPath.toString()));
 		hikariConfig.setUsername("sa");
 		// hikariConfig.setPassword("");
 		hikariConfig.addDataSourceProperty("cachePrepStmts", "true");

@@ -3,7 +3,7 @@ package org.peerbox.watchservice.filetree.composite;
 import java.nio.file.Path;
 import java.util.Set;
 
-import org.peerbox.exceptions.NotImplException;
+import org.peerbox.utils.NotImplementedException;
 import org.peerbox.watchservice.Action;
 import org.peerbox.watchservice.IAction;
 import org.slf4j.Logger;
@@ -194,7 +194,7 @@ abstract class AbstractFileComponent implements FileComponent {
 				+ "This is probably a file. "
 				+ "(this=%s, parameter=%s)", getPath(), path);
 
-		throw new NotImplException(msg);
+		throw new NotImplementedException(msg);
 	}
 
 	@Override
@@ -203,7 +203,7 @@ abstract class AbstractFileComponent implements FileComponent {
 				+ "This is probably a file. "
 				+ "(this=%s, parameter=%s)", getPath(), path);
 
-		throw new NotImplException(msg);
+		throw new NotImplementedException(msg);
 	}
 
 	@Override
@@ -212,7 +212,7 @@ abstract class AbstractFileComponent implements FileComponent {
 				+ "This is probably a file. "
 				+ "(this=%s, parameter=%s)", getPath(), path);
 
-		throw new NotImplException(msg);
+		throw new NotImplementedException(msg);
 	}
 
 	@Override
@@ -221,7 +221,7 @@ abstract class AbstractFileComponent implements FileComponent {
 				+ "This is probably a file. "
 				+ "(this=%s)", getPath());
 
-		throw new NotImplException(msg);
+		throw new NotImplementedException(msg);
 	}
 
 	@Override
@@ -230,7 +230,7 @@ abstract class AbstractFileComponent implements FileComponent {
 				+ "This is probably a file. "
 				+ "(this=%s, hash=%s)", getPath(), hash);
 
-		throw new NotImplException(msg);
+		throw new NotImplementedException(msg);
 	}
 
 	@Override
