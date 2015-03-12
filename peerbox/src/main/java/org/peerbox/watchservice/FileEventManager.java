@@ -27,6 +27,7 @@ import org.peerbox.app.manager.file.messages.RemoteShareFolderMessage;
 import org.peerbox.events.MessageBus;
 import org.peerbox.forcesync.ForceSyncCompleteMessage;
 import org.peerbox.forcesync.ForceSyncMessage;
+import org.peerbox.forcesync.IForceSyncHandler;
 import org.peerbox.notifications.InformationNotification;
 import org.peerbox.presenter.settings.synchronization.FileHelper;
 import org.peerbox.watchservice.filetree.FileTree;
@@ -37,6 +38,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.inject.Inject;
+import com.google.inject.Provider;
 import com.google.inject.Singleton;
 
 /**
@@ -89,6 +91,8 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 
 	private Set<Path> pendingEvents = new ConcurrentHashSet<Path>();
 
+	private Provider<IForceSyncHandler> forceSyncHandlerProvider;
+	private IForceSyncHandler forceSyncHandler;
 	/**
 	 *
 	 * @param fileTree The file tree representation of PeerWasp
@@ -102,6 +106,19 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 		this.failedOperations = new ConcurrentHashSet<Path>();
 		this.sharedFolders = new ConcurrentHashSet<Path>();
 	}
+    
+    @Inject
+    public void setForceSyncHandlerProvider(Provider<IForceSyncHandler> forceSyncHandlerProvider){
+    	this.forceSyncHandlerProvider = forceSyncHandlerProvider;
+    	forceSyncHandlerProvider.get();
+    }
+    
+    public IForceSyncHandler getForceSyncHandler(){
+    	if(forceSyncHandler == null){
+    		forceSyncHandler = forceSyncHandlerProvider.get();
+    	}
+    	return forceSyncHandler;
+    }
 
     /**
 	 * Handles incoming create events. First of all, it gets or creates the
@@ -143,6 +160,7 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 			String structureHash = fileTree.discoverSubtreeStructure(path, this);
 			file.setStructureHash(structureHash);
 		}
+		file.updateContentHash();
 
 		file.getAction().handleLocalCreateEvent();
 

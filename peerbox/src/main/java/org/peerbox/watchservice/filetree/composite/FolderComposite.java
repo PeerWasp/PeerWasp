@@ -38,10 +38,10 @@ public class FolderComposite extends AbstractFileComponent {
 			setIsUploaded(true);
 			setIsSynchronized(true);
 		}
-
-		if (updateContentHash) {
-			computeContentHash();
-		}
+//
+//		if (updateContentHash) {
+//			computeContentHash();
+//		}
 	}
 
 	public FolderComposite(final Path path, boolean updateContentHash) {

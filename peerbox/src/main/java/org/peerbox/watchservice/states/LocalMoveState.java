@@ -8,6 +8,9 @@ import org.hive2hive.processframework.exceptions.InvalidProcessStateException;
 import org.hive2hive.processframework.exceptions.ProcessExecutionException;
 import org.peerbox.app.manager.file.IFileManager;
 import org.peerbox.exceptions.NotImplException;
+import org.peerbox.forcesync.ForceSyncMessage;
+import org.peerbox.forcesync.IForceSyncHandler;
+import org.peerbox.notifications.InformationNotification;
 import org.peerbox.presenter.settings.synchronization.FileHelper;
 import org.peerbox.watchservice.IAction;
 import org.peerbox.watchservice.conflicthandling.ConflictHandler;
@@ -110,13 +113,19 @@ public class LocalMoveState extends AbstractActionState {
 
 	@Override
 	public AbstractActionState handleRemoteCreate() {
-		logger.info("The file which was locally moved to a place where the "
-				+ "same file was remotely created. RemoteCreate at destination of local "
-				+ "move operation initiated to download the file: {}", action.getFile().getPath());
-		updateTimeAndQueue();
-		IFileTree fileTree = action.getFileEventManager().getFileTree();
-
-		ConflictHandler.resolveConflict(action.getFile().getPath(), true);
+//		logger.info("The file which was locally moved to a place where the "
+//				+ "same file was remotely created. RemoteCreate at destination of local "
+//				+ "move operation initiated to download the file: {}", action.getFile().getPath());
+//		updateTimeAndQueue();
+//		IFileTree fileTree = action.getFileEventManager().getFileTree();
+//
+//		ConflictHandler.resolveConflict(action.getFile().getPath(), true);
+		
+		IForceSyncHandler handler = action.getFileEventManager().getForceSyncHandler();
+		if(handler != null){
+			handler.forceSync(action.getFile().getPath().getParent());
+		}
+		action.getFileEventManager().getMessageBus().publish(new InformationNotification("Forced synchronization", "Try to restore consistency"));
 		return changeStateOnRemoteCreate();
 	}
 
