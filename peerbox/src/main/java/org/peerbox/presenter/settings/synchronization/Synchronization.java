@@ -492,7 +492,7 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 	private void createTreeView(FileNode fileNode){
 		PathItem pathItem = new PathItem(userConfig.getRootPath(), false, fileNode.getUserPermissions());
 		SyncTreeItem invisibleRoot = new SyncTreeItem(pathItem);
-		invisibleRoot.setIndependent(true);
+//		invisibleRoot.setIndependent(true);
 	    fileTreeView.setRoot(invisibleRoot);
         fileTreeView.setEditable(false);
         

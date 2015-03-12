@@ -39,7 +39,7 @@ public class RemoteDeleteLocalExists extends ListSyncTest {
 
 	@Test
 	public void testRemoteDeleteLocalExists_Folder_NoNewFile() throws Exception {
-		Path folderPath = Paths.get("folder");
+		Path folderPath = Paths.get(basePath.toString(), "folder");
 		FileInfo folderInfo = new FileInfo(folderPath, true);
 
 		Path filePath = folderPath.resolve("file.txt");
@@ -67,7 +67,7 @@ public class RemoteDeleteLocalExists extends ListSyncTest {
 		// expected result: new/updated file not deleted, but added. old unchanged file deleted.
 
 		// parent folder (deleted in network)
-		Path folderPath = Paths.get("folder");
+		Path folderPath = Paths.get(basePath.toString(),"folder");
 		FileInfo folderInfo = new FileInfo(folderPath, true);
 		remoteDatabase.put(folderPath, folderInfo);
 		local.put(folderPath, folderInfo);
