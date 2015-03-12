@@ -1,54 +1,69 @@
 package org.peerbox.app.manager;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
+import java.util.concurrent.Future;
+
+import org.hive2hive.processframework.exceptions.InvalidProcessStateException;
+import org.hive2hive.processframework.exceptions.ProcessExecutionException;
+import org.hive2hive.processframework.interfaces.IProcessComponent;
 import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
+import org.mockito.Mockito;
+import org.peerbox.BaseJUnitTest;
 
-public class ProcessHandleTest {
+public class ProcessHandleTest extends BaseJUnitTest {
 
-	@BeforeClass
-	public static void setUpBeforeClass() throws Exception {
-	}
+	private IProcessComponent<Void> process;
+	private ProcessHandle<Void> handle;
 
-	@AfterClass
-	public static void tearDownAfterClass() throws Exception {
-	}
-
+	@SuppressWarnings("unchecked")
 	@Before
 	public void setUp() throws Exception {
+		process = Mockito.mock(IProcessComponent.class);
+		handle = new ProcessHandle<Void>(process);
+
+		Mockito.stub(process.executeAsync()).toReturn(Mockito.mock(Future.class));
 	}
 
 	@After
 	public void tearDown() throws Exception {
+		process = null;
+		handle = null;
 	}
 
 	@Test
 	public void testProcessHandle() {
-		fail("Not yet implemented");
+		assertNull(handle.getFuture());
+		assertNotNull(handle.getProcess());
+		assertEquals(process, handle.getProcess());
+		Mockito.verifyZeroInteractions(process);
 	}
 
 	@Test
-	public void testGetProcess() {
-		fail("Not yet implemented");
+	public void testGetFuture() throws InvalidProcessStateException, ProcessExecutionException {
+		assertNull(handle.getFuture());
+
+		handle.executeAsync();
+
+		assertNotNull(handle.getFuture());
 	}
 
 	@Test
-	public void testGetFuture() {
-		fail("Not yet implemented");
+	public void testExecute() throws InvalidProcessStateException, ProcessExecutionException {
+		handle.execute();
+		Mockito.verify(process, Mockito.times(1)).execute();
+		Mockito.verifyNoMoreInteractions(process);
 	}
 
 	@Test
-	public void testExecute() {
-		fail("Not yet implemented");
-	}
-
-	@Test
-	public void testExecuteAsync() {
-		fail("Not yet implemented");
+	public void testExecuteAsync() throws InvalidProcessStateException, ProcessExecutionException {
+		handle.executeAsync();
+		Mockito.verify(process, Mockito.times(1)).executeAsync();
+		Mockito.verifyNoMoreInteractions(process);
 	}
 
 }

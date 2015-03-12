@@ -13,8 +13,9 @@ import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.peerbox.BaseJUnitTest;
 
-public class AppConfigTest {
+public class AppConfigTest extends BaseJUnitTest {
 
 	private Path configFile;
 	private AppConfig userConfig;

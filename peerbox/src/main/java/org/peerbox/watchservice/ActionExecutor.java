@@ -18,7 +18,7 @@ import org.hive2hive.core.exceptions.Hive2HiveException;
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.hive2hive.core.exceptions.NoSessionException;
 import org.hive2hive.processframework.exceptions.ProcessExecutionException;
-import org.peerbox.app.IPeerWaspConfig;
+import org.peerbox.app.config.IPeerWaspConfig;
 import org.peerbox.app.manager.ProcessHandle;
 import org.peerbox.app.manager.file.FileInfo;
 import org.peerbox.app.manager.file.IFileManager;

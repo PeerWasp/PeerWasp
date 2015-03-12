@@ -7,8 +7,9 @@ import java.io.IOException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.peerbox.BaseJUnitTest;
 
-public class BootstrappingNodesTest {
+public class BootstrappingNodesTest extends BaseJUnitTest {
 
 	private BootstrappingNodes nodes;
 

@@ -1,4 +1,4 @@
-package org.peerbox.app;
+package org.peerbox.app.config;
 
 public class PeerWaspConfig implements IPeerWaspConfig {
 

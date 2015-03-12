@@ -17,13 +17,14 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
+import org.peerbox.BaseJUnitTest;
 import org.peerbox.app.manager.node.INodeManager;
 import org.peerbox.app.manager.node.NodeConnectMessage;
 import org.peerbox.app.manager.node.NodeDisconnectMessage;
 import org.peerbox.app.manager.node.NodeManager;
 import org.peerbox.events.MessageBus;
 
-public class NodeManagerTest {
+public class NodeManagerTest extends BaseJUnitTest {
 
 	private INodeManager nodeManager;
 	private MessageBus messageBus;

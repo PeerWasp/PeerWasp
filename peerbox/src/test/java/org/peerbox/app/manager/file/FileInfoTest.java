@@ -15,12 +15,13 @@ import org.hive2hive.core.processes.files.list.FileNode;
 import org.hive2hive.core.security.HashUtil;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.peerbox.BaseJUnitTest;
 import org.peerbox.presenter.settings.synchronization.PathItem;
 import org.peerbox.watchservice.filetree.composite.FileComponent;
 import org.peerbox.watchservice.filetree.composite.FileLeaf;
 import org.peerbox.watchservice.filetree.composite.FolderComposite;
 
-public class FileInfoTest {
+public class FileInfoTest extends BaseJUnitTest {
 
 	@Test
 	public void testFileInfo_PathBoolean() {
@@ -68,10 +69,11 @@ public class FileInfoTest {
 		// folder
 		Path folder = Paths.get("/path/to/a/folder");
 		FileComponent folderComponent = new FolderComposite(folder, true);
+		folderComponent.setContentHash("hash2");
 		FileInfo folderInfo = new FileInfo(folderComponent);
 		assertEquals(folder, folderInfo.getPath());
 		assertTrue(folderInfo.isFolder());
-		assertEquals("1B2M2Y8AsgTpgAmY7PhCfg==", folderInfo.getContentHash()); // empty
+		assertEquals("hash2", folderInfo.getContentHash()); // empty
 	}
 
 	@Test
