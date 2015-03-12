@@ -120,7 +120,7 @@ public class LocalMoveState extends AbstractActionState {
 //
 //		ConflictHandler.resolveConflict(action.getFile().getPath(), true);
 		
-		action.getFileEventManager().initiateForceSync(action.getFile().getPath().getParent());
+//		action.getFileEventManager().initiateForceSync(action.getFile().getPath().getParent());
 		return changeStateOnRemoteCreate();
 	}
 

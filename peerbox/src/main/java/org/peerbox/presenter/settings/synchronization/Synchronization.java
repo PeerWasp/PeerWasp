@@ -486,8 +486,10 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 	private void createTreeView(FileNode fileNode){
 		PathItem pathItem = new PathItem(userConfig.getRootPath(), false, fileNode.getUserPermissions());
 		SyncTreeItem invisibleRoot = new SyncTreeItem(pathItem);
+		invisibleRoot.setIndependent(true);
 	    fileTreeView.setRoot(invisibleRoot);
         fileTreeView.setEditable(false);
+        
         fileTreeView.setCellFactory(new Callback<TreeView<PathItem>, TreeCell<PathItem>>(){
             @Override
             public TreeCell<PathItem> call(TreeView<PathItem> p) {
@@ -499,6 +501,7 @@ public class Synchronization implements Initializable, IExecutionMessageListener
         });
 
         fileTreeView.setShowRoot(false);
+        
 
         addChildrensToTreeView(fileNode);
 	}

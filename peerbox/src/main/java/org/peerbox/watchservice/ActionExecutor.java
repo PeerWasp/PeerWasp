@@ -401,6 +401,7 @@ public class ActionExecutor implements Runnable {
 			logger.error("To many attempts, action of {} has not been executed again.", path);
 			onActionExecuteSucceeded(action);
 			fileEventManager.getFailedOperations().add(action.getFile().getPath());
+			fileEventManager.initiateForceSync(action.getFile().getPath().getParent());
 		}
 	}
 

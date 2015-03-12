@@ -519,7 +519,7 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 	
 	
 	public void initiateForceSync(Path topLevel){
-		logger.trace("The State Machine initiates a force synchronization automatically on {}", topLevel);
+		logger.trace("PeerWasp initiated a force synchronization automatically on {}", topLevel);
 		IForceSyncHandler handler = getForceSyncHandler();
 		if(handler != null){
 			handler.forceSync( topLevel);
