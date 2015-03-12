@@ -130,7 +130,7 @@ public class InitialState extends AbstractActionState {
 		logger.debug("File {} has been soft-deleted and recreated. This is regarded as a file update.", file.getPath());
 		if(file.isFolder()){
 			logger.debug("Soft-deleted file {} is a folder. Ignore recreation", file.getPath());
-			FileInfo fileHelper = new FileInfo(file.getPath(), file.isFolder());
+			FileInfo fileHelper = new FileInfo(file);
 			action.getFileEventManager().getMessageBus().publish(new FileExecutionSucceededMessage(fileHelper, file.getAction().getCurrentState().getStateType()));
 			action.getFileEventManager().getFileComponentQueue().remove(action.getFile());
 			return this;

@@ -27,8 +27,9 @@ public class ClickEventHandler implements EventHandler<TreeModificationEvent<Pat
 	public void handle(TreeModificationEvent<PathItem> arg0) {
 		@SuppressWarnings("unchecked")
 		CheckBoxTreeItem<PathItem> source = (CheckBoxTreeItem<PathItem>) arg0.getSource();
-		Path path = source.getValue().getPath();
-		FileInfo file = new FileInfo(source.getValue().getPath(), source.getValue().isFolder());
+		PathItem pathItem = source.getValue();
+		Path path = pathItem.getPath();
+		FileInfo file = new FileInfo(pathItem);
 		if(source.isSelected()){
 			logger.trace("Add {} to SYNC", path);
 			getSynchronization().getToSynchronize().add(file);

@@ -209,7 +209,7 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 			logger.debug("onLocalFileDelete: structure hash of {} is '{}'",
 					path, file.getStructureHash());
 		}
-		publishMessage(new LocalFileDesyncMessage(new FileInfo(path, file.isFolder())));
+		publishMessage(new LocalFileDesyncMessage(new FileInfo(file)));
 		file.getAction().handleLocalDeleteEvent();
 
 	}
@@ -318,7 +318,7 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 			logger.debug("File {} is in folder that is not synchronized. Event ignored.", path);
 			// TODO: set isSynchronized = false?
 			file.setIsSynchronized(false);
-			getMessageBus().publish(new FileExecutionStartedMessage(new FileInfo(path, fileEvent.isFolder()), StateType.INITIAL));
+			getMessageBus().publish(new FileExecutionStartedMessage(new FileInfo(file), StateType.INITIAL));
 			//return;
 		} else {
 			logger.debug("File {} is in folder that is synchronized.", path);
@@ -351,7 +351,7 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 		final FileComponent file = fileTree.getOrCreateFileComponent(path, fileEvent.isFile(), this);
 		file.getAction().handleRemoteDeleteEvent();
 
-		FileInfo fileHelper = new FileInfo(path, file.isFolder());
+		FileInfo fileHelper = new FileInfo(file);
 		messageBus.publish(new RemoteFileDeletedMessage(fileHelper));
 	}
 
@@ -395,7 +395,7 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 		source.getAction().handleRemoteMoveEvent(dstPath);
 
 		FileInfo srcFile = new FileInfo(srcPath, fileEvent.isFolder());
-		FileInfo dstFile = new FileInfo(srcPath, fileEvent.isFolder());
+		FileInfo dstFile = new FileInfo(dstPath, fileEvent.isFolder());
 		messageBus.publish(new RemoteFileMovedMessage(srcFile, dstFile));
 	}
 
@@ -419,7 +419,7 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 		fileEvent.getInvitedBy();
 		Set<UserPermission> permissions = fileEvent.getUserPermissions();
 		String invitedBy = fileEvent.getInvitedBy();
-		FileInfo file = new FileInfo(fileEvent.getFile().toPath(), fileEvent.isFolder());
+		FileInfo file = new FileInfo(fileEvent);
 
 		StringBuilder sb = new StringBuilder();
 		sb.append("User ").append(invitedBy).append(" shared the folder ").

@@ -75,7 +75,7 @@ public class LocalCreateState extends AbstractActionState {
 
 		handle = fileManager.add(path);
 		if (handle != null && handle.getProcess() != null) {
-			FileInfo helper = new FileInfo(path, file.isFolder());
+			FileInfo helper = new FileInfo(file);
 			handle.getProcess().attachListener(new LocalFileAddListener(helper, messageBus));
 			handle.executeAsync();
 		} else {
