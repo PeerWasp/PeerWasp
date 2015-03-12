@@ -71,7 +71,7 @@ public class ForceSync {
 				fileEventManager.setCleanupRunning(false);
 
 				try {
-					synchronize();
+					synchronize(topLevel);
 				} catch(Exception e) {
 					logger.warn("Could not complete forced sync due to exception.", e);
 				}
@@ -84,7 +84,7 @@ public class ForceSync {
 		}
 	}
 
-	private void synchronize() throws Exception {
+	private void synchronize(Path topLevel) throws Exception {
 		// local view
 		Map<Path, FileInfo> localDisk = createLocalViewDisk();
 		Map<Path, FileInfo> localDb = createLocalViewDb();
@@ -93,7 +93,7 @@ public class ForceSync {
 		Map<Path, FileInfo> remoteNetwork = createRemoteViewNetwork();
 		Map<Path, FileInfo> remoteDb = createRemoteViewDb();
 
-		ListSync listSync = new ListSync(fileEventManager);
+		ListSync listSync = new ListSync(fileEventManager, topLevel);
 		listSync.sync(localDisk, localDb, remoteNetwork, remoteDb);
 	}
 

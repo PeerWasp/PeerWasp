@@ -6,9 +6,11 @@ import java.nio.file.Paths;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.stream.Collectors;
 
 import javafx.util.Callback;
 import javafx.event.ActionEvent;
@@ -49,6 +51,7 @@ import org.peerbox.watchservice.states.StateType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.io.Files;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 
@@ -337,7 +340,10 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 	@Handler
 	public void onFileSoftDeleted(LocalFileDesyncMessage message) {
 		logger.trace("onFileSoftDeleted: {}", message.getFile().getPath());
-		SyncTreeItem item = getOrCreateItem(message.getFile(), false);
+		SyncTreeItem item = getTreeItem(message.getFile().getPath());
+		if(item == null){
+			return;
+		}
 
 		item.setProgressState(ProgressState.DEFAULT);
 		final SyncTreeItem item2 = item;
@@ -508,7 +514,12 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 
 	private void addChildrensToTreeView(FileNode fileNode){
 		if(fileNode.getChildren() != null){
-	        for(FileNode topLevelNode : fileNode.getChildren()){
+
+			List<FileNode> sortedChildren = fileNode.getChildren().stream().
+					sorted((f1, f2) -> f1.getFile().compareTo(f2.getFile())).
+					collect(Collectors.<FileNode>toList());
+	       
+			for(FileNode topLevelNode : sortedChildren){
 	        	Path path = topLevelNode.getFile().toPath();
 	        	boolean isSynched = synchronizedFiles.contains(path);
 	        	ProgressState stateToSet = ProgressState.DEFAULT;

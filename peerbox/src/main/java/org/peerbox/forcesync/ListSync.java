@@ -6,14 +6,19 @@ import java.util.Map;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 import org.hive2hive.core.events.framework.interfaces.file.IFileDeleteEvent;
 import org.hive2hive.core.events.framework.interfaces.file.IFileUpdateEvent;
 import org.hive2hive.core.events.implementations.FileDeleteEvent;
 import org.hive2hive.core.events.implementations.FileUpdateEvent;
 import org.peerbox.app.manager.file.FileInfo;
+import org.peerbox.watchservice.ActionExecutor;
 import org.peerbox.watchservice.FileEventManager;
 import org.peerbox.watchservice.conflicthandling.ConflictHandler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Preconditions;
 import com.google.inject.Inject;
@@ -21,6 +26,8 @@ import com.google.inject.Inject;
 
 public class ListSync {
 
+	private static final Logger logger = LoggerFactory.getLogger(ListSync.class);
+	
 	private Map<Path, FileInfo> localDb;
 	private Map<Path, FileInfo> localDisk;
 
@@ -33,14 +40,17 @@ public class ListSync {
 	private final Set<Path> newLocalFiles;
 
 	private final FileEventManager fileEventManager;
+	private final Path topLevel;
 
 	@Inject
-	public ListSync(FileEventManager fileEventManager) {
+	public ListSync(FileEventManager fileEventManager, Path topLevel) {
 		this.fileEventManager = fileEventManager;
-
+		this.topLevel = topLevel;
 		foldersToDelete = new HashSet<>();
 		newLocalFiles = new HashSet<>();
 	}
+
+
 
 	public void sync(
 			Map<Path, FileInfo> localDisk,
@@ -64,7 +74,8 @@ public class ListSync {
 		newLocalFiles.clear();
 
 		// perform a list sync using the maps
-		synchronize();
+		synchronize();	
+
 
 		// delete folders if they do not have any descendants that are added
 		deleteFoldersToDelete();
@@ -75,6 +86,10 @@ public class ListSync {
 	private void synchronize() throws Exception {
 		// union of all possible files that we have to consider
 		SortedSet<Path> allFiles = allFiles();
+		allFiles = allFiles.stream().filter(file -> file.startsWith(topLevel))
+				.collect(Collectors.toCollection(() -> new TreeSet<Path>()));
+		
+		allFiles.forEach(file -> logger.trace("Use file {}", file));
 
 		for (Path file : allFiles) {
 			/*
@@ -302,6 +317,7 @@ public class ListSync {
 	}
 
 	private void deleteLocalFile(Path file, boolean isFile) {
+		logger.trace("OPERATION: Remote delete file {}", file);
 		// delete the local file due to a remote delete
 		IFileDeleteEvent deleteEvent = new FileDeleteEvent(file.toFile(), isFile);
 		fileEventManager.onFileDelete(deleteEvent);
@@ -310,16 +326,20 @@ public class ListSync {
 	private void deleteRemoteFile(Path file) {
 		// soft delete due to a local delete
 		// no hard delete of files: only disable sync
+		logger.trace("OPERATION: Soft-delete file {}", file);
 		fileEventManager.onFileDesynchronized(file);
 	}
 
 	private void uploadFile(Path file) {
+		
 		// used to prevent accidental removal of files
 		newLocalFiles.add(file);
 		// add or update file depending on whether it already exists in network
 		if (remoteNetwork.containsKey(file)) {
+			logger.trace("OPERATION: Local Update of file {}", file);
 			fileEventManager.onLocalFileModified(file);
 		} else {
+			logger.trace("OPERATION: Local Create of file {}", file);
 			fileEventManager.onLocalFileCreated(file);
 		}
 	}
@@ -327,10 +347,12 @@ public class ListSync {
 	private void downloadFile(Path file, boolean isFile) {
 		// file update event will trigger download
 		IFileUpdateEvent updateEvent = new FileUpdateEvent(file.toFile(), isFile);
+		logger.trace("OPERATION: Download of file {}", file);
 		fileEventManager.onFileUpdate(updateEvent);
 	}
 
 	private void conflict(Path file) {
+		logger.trace("OPERATION: Handle conflict of file {}", file);
 		ConflictHandler.resolveConflict(file);
 	}
 

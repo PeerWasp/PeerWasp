@@ -5,6 +5,8 @@ import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.junit.Before;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -26,7 +28,9 @@ public class ListSyncTest extends BaseJUnitTest{
 	protected Map<Path, FileInfo> remote;
 	protected Map<Path, FileInfo> remoteDatabase;
 	
-	protected Path filePath = Paths.get("file.txt");
+	
+	protected Path basePath = Paths.get(FileUtils.getTempDirectoryPath(), "ListSyncTest");
+	protected Path filePath = Paths.get(basePath.toString(), "file.txt");
 	protected FileInfo file1 = new FileInfo(filePath, false, "hash1");
 	protected FileInfo file2 = new FileInfo(filePath, false, "hash2");
 	protected FileInfo file3 = new FileInfo(filePath, false, "hash3");
@@ -41,7 +45,7 @@ public class ListSyncTest extends BaseJUnitTest{
 		remote = new HashMap<Path, FileInfo>();
 		remoteDatabase = new HashMap<Path, FileInfo>();
 		
-		listSync = new ListSync(fileEventManager);
+		listSync = new ListSync(fileEventManager, basePath);
 	}
 
 }
