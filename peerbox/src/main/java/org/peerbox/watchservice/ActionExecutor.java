@@ -166,11 +166,11 @@ public class ActionExecutor implements Runnable {
 						if (ehandle != null && ehandle.getProcessHandle() != null) {
 							logger.debug("Put into async handles!");
 							asyncHandles.put(ehandle);
-							FileInfo file = new FileInfo(next.getPath(), next.isFolder());
+							FileInfo file = new FileInfo(next);
 							publishMessage(new FileExecutionStartedMessage(file, next.getAction().getCurrentState().getStateType()));
 						} else {
 							//This happens with actions in InitialState/EstablishedState
-							FileInfo file = new FileInfo(next.getPath(), next.isFolder());
+							FileInfo file = new FileInfo(next);
 							publishMessage(new FileExecutionSucceededMessage(file, next.getAction().getCurrentState().getStateType()));
 						}
 
@@ -339,7 +339,7 @@ public class ActionExecutor implements Runnable {
 				file.getPath(), action.getCurrentStateName());
 
 		//inform GUI to adjust icon
-		FileInfo fileHelper = new FileInfo(file.getPath(), file.isFolder());
+		FileInfo fileHelper = new FileInfo(file);
 		if(action.getCurrentState().getStateType() == StateType.LOCAL_MOVE){
 			LocalMoveState state = (LocalMoveState)action.getCurrentState();
 			FileInfo source = new FileInfo(state.getSourcePath(), file.isFolder());
@@ -394,7 +394,7 @@ public class ActionExecutor implements Runnable {
 			action.updateTimestamp();
 			fileEventManager.getFileComponentQueue().add(action.getFile());
 		} else {
-			FileInfo file = new FileInfo(path, action.getFile().isFolder());
+			FileInfo file = new FileInfo(action.getFile());
 			publishMessage(new FileExecutionFailedMessage(file));
 			fileEventManager.getMessageBus().post(new InformationNotification("Synchronization error ",
 					"Operation on " + path + " failed")).now();
@@ -414,7 +414,7 @@ public class ActionExecutor implements Runnable {
 			if (notModified == null) {
 				logger.trace("FileComponent not found (null): {}", path);
 			}
-			FileInfo file = new FileInfo(action.getFile().getPath(), action.getFile().isFolder());
+			FileInfo file = new FileInfo(action.getFile());
 			publishMessage(new FileExecutionSucceededMessage(file, action.getCurrentState().getStateType()));
 			action.onSucceeded();
 			return true;

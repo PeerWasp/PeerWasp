@@ -2,7 +2,9 @@ package org.peerbox.app.manager.file;
 
 import java.nio.file.Path;
 
+import org.hive2hive.core.events.framework.interfaces.file.IFileEvent;
 import org.hive2hive.core.processes.files.list.FileNode;
+import org.peerbox.presenter.settings.synchronization.PathItem;
 import org.peerbox.watchservice.PathUtils;
 import org.peerbox.watchservice.filetree.composite.FileComponent;
 
@@ -29,9 +31,7 @@ public class FileInfo implements Comparable<FileInfo> {
 	 * @param isFolder
 	 */
 	public FileInfo(Path path, boolean isFolder) {
-		this.path = path;
-		this.contentHash = "";
-		this.isFolder = isFolder;
+		this(path, isFolder, "");
 	}
 
 	/**
@@ -39,12 +39,12 @@ public class FileInfo implements Comparable<FileInfo> {
 	 *
 	 * @param path
 	 * @param isFolder
-	 * @param hash the content hash
+	 * @param contentHash the content hash
 	 */
-	public FileInfo(Path path, boolean isFolder, String hash) {
+	public FileInfo(Path path, boolean isFolder, String contentHash) {
 		this.path = path;
-		this.contentHash = hash;
 		this.isFolder = isFolder;
+		this.contentHash = contentHash;
 	}
 
 	/**
@@ -54,9 +54,7 @@ public class FileInfo implements Comparable<FileInfo> {
 	 * @param component
 	 */
 	public FileInfo(FileComponent component) {
-		this.path = component.getPath();
-		this.contentHash = component.getContentHash();
-		this.isFolder = component.isFolder();
+		this(component.getPath(), component.isFolder(), component.getContentHash());
 	}
 
 	/**
@@ -68,9 +66,29 @@ public class FileInfo implements Comparable<FileInfo> {
 	public FileInfo(FileNode node) {
 		this(node.getFile().toPath(), node.isFolder());
 		// FileNode hash is null for folders!
-		if (node.isFile()) {
-			contentHash = (node.getMd5() != null) ? PathUtils.base64Encode(node.getMd5()) : "";
+		if (node.isFile() && node.getMd5() != null) {
+			contentHash = PathUtils.base64Encode(node.getMd5());
 		}
+	}
+
+	/**
+	 * Creates a new FileInfo instance given a FileEvent.
+	 * All attributes are copied from the node.
+	 *
+	 * @param fileEvent
+	 */
+	public FileInfo(IFileEvent fileEvent) {
+		this(fileEvent.getFile().toPath(), fileEvent.isFolder());
+	}
+
+	/**
+	 * Creates a new FileInfo instance given a PathItem.
+	 * All attributes are copied from the item.
+	 *
+	 * @param pathItem
+	 */
+	public FileInfo(PathItem pathItem) {
+		this(pathItem.getPath(), pathItem.isFolder());
 	}
 
 	public Path getPath() {

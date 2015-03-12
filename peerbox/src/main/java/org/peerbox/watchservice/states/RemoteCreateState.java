@@ -39,7 +39,7 @@ public class RemoteCreateState extends AbstractActionState {
 		logger.debug("Execute REMOTE ADD, download the file: {}", path);
 		handle = fileManager.download(path);
 		if (handle != null && handle.getProcess() != null) {
-			FileInfo file = new FileInfo(path, action.getFile().isFolder());
+			FileInfo file = new FileInfo(action.getFile());
 			handle.getProcess().attachListener(new RemoteFileAddListener(file, action.getFileEventManager().getMessageBus()));
 			handle.executeAsync();
 		} else {

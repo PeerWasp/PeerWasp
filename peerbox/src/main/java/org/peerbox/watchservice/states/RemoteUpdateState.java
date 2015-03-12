@@ -41,7 +41,7 @@ public class RemoteUpdateState extends AbstractActionState {
 
 		handle = fileManager.download(path);
 		if (handle != null && handle.getProcess() != null) {
-			FileInfo file = new FileInfo(path, action.getFile().isFolder());
+			FileInfo file = new FileInfo(action.getFile());
 			handle.getProcess().attachListener(new RemoteFileUpdateListener(file, action.getFileEventManager().getMessageBus()));
 			handle.executeAsync();
 		} else {
