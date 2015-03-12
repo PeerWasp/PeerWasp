@@ -1,30 +1,28 @@
 package org.peerbox.watchservice.states.listeners;
 
-import java.nio.file.Path;
-
 import org.hive2hive.processframework.interfaces.IProcessComponentListener;
 import org.hive2hive.processframework.interfaces.IProcessEventArgs;
-import org.peerbox.app.manager.file.FileManager;
+import org.peerbox.app.manager.file.FileInfo;
 import org.peerbox.events.MessageBus;
-import org.peerbox.presenter.settings.synchronization.FileHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class FileOperationListener implements IProcessComponentListener {
 
 	private static final Logger logger = LoggerFactory.getLogger(FileOperationListener.class);
-	private final FileHelper file;
+	private final FileInfo file;
 	private MessageBus messageBus;
-	FileOperationListener(final FileHelper file, MessageBus messageBus) {
+
+	FileOperationListener(final FileInfo file, MessageBus messageBus) {
 		this.file = file;
 		this.messageBus = messageBus;
 	}
 
-	public FileHelper getFile() {
+	public FileInfo getFile() {
 		return file;
 	}
-	
-	public MessageBus getMessageBus(){
+
+	public MessageBus getMessageBus() {
 		return messageBus;
 	}
 

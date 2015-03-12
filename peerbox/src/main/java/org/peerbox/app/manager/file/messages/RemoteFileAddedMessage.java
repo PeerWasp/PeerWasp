@@ -1,10 +1,10 @@
 package org.peerbox.app.manager.file.messages;
 
-import org.peerbox.presenter.settings.synchronization.FileHelper;
+import org.peerbox.app.manager.file.FileInfo;
 
 public final class RemoteFileAddedMessage extends AbstractFileMessage {
 
-	public RemoteFileAddedMessage(FileHelper file) {
+	public RemoteFileAddedMessage(FileInfo file) {
 		super(file);
 	}
 }

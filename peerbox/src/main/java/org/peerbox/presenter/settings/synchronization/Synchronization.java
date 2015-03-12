@@ -30,6 +30,7 @@ import org.hive2hive.core.processes.files.list.FileNode;
 import org.hive2hive.processframework.exceptions.InvalidProcessStateException;
 import org.hive2hive.processframework.exceptions.ProcessExecutionException;
 import org.peerbox.app.config.UserConfig;
+import org.peerbox.app.manager.file.FileInfo;
 import org.peerbox.app.manager.file.IFileManager;
 import org.peerbox.app.manager.file.messages.FileExecutionFailedMessage;
 import org.peerbox.app.manager.file.messages.FileExecutionStartedMessage;
@@ -75,8 +76,8 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 	 * and folder whose synchronization state has to be changed in the {@link
 	 * org.peerbox.watchservice.FileEventManager FileEventManager}
 	 */
-	private TreeSet<FileHelper> toSynchronize = new TreeSet<FileHelper>(new FileHelperComparator());
-	private TreeSet<FileHelper> toDesynchronize = new TreeSet<FileHelper>(new FileHelperComparator());
+	private TreeSet<FileInfo> toSynchronize = new TreeSet<FileInfo>(new FileInfoComparator());
+	private TreeSet<FileInfo> toDesynchronize = new TreeSet<FileInfo>(new FileInfoComparator());
 
 	private UserConfig userConfig;
 
@@ -93,13 +94,13 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 	private final Provider<IShareFolderHandler> shareFolderHandlerProvider;
 
 	private final Provider<IFileRecoveryHandler> recoverFileHandlerProvider;
-	
+
 	private final Provider<IForceSyncHandler> forceSyncHandlerProvider;
 
 
 	@Inject
 	public Synchronization(IFileManager fileManager, FileEventManager eventManager,
-			UserConfig userConfig, Provider<IFileRecoveryHandler> recoverFileHandlerProvider, 
+			UserConfig userConfig, Provider<IFileRecoveryHandler> recoverFileHandlerProvider,
 			Provider<IShareFolderHandler> shareFolderHandlerProvider,
 			Provider<IForceSyncHandler> forceSyncHandlerProvider) {
 		this.eventManager = eventManager;
@@ -110,11 +111,11 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 		this.forceSyncHandlerProvider = forceSyncHandlerProvider;
 	}
 
-	public Set<FileHelper> getToSynchronize(){
+	public Set<FileInfo> getToSynchronize(){
 		return toSynchronize;
 	}
 
-	public Set<FileHelper> getToDesynchronize(){
+	public Set<FileInfo> getToDesynchronize(){
 		return toDesynchronize;
 	}
 
@@ -137,18 +138,18 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 	public void acceptSyncAction(ActionEvent event) {
 		synchronizedFiles = eventManager.getFileTree().getSynchronizedPathsAsSet();
 
-		for(FileHelper node : toSynchronize){
+		for(FileInfo node : toSynchronize){
 			if(!synchronizedFiles.contains(node.getPath()))
 				eventManager.onFileSynchronized(node.getPath(), node.isFolder());
 		}
-		
-		for(FileHelper node: toDesynchronize.descendingSet()){
+
+		for(FileInfo node: toDesynchronize.descendingSet()){
 			eventManager.onFileDesynchronized(node.getPath());
 		}
 
 		toSynchronize.clear();
 		toDesynchronize.clear();
-		
+
 		if(event.getTarget() != null && event.getTarget() instanceof Button){
 			Button okButton = (Button)event.getTarget();
 			Window window = okButton.getScene().getWindow();
@@ -255,10 +256,10 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 		logger.trace("onFileRemotelyMoved: {} --> {}", srcFile, dstFile);
 
 		removeTreeItemInUIThread(srcFile);
-		
+
 		SyncTreeItem item = getOrCreateItem(message.getFile(), true);
 		item.setProgressState(ProgressState.SUCCESSFUL);
-		
+
 //		updateIsSelectedInUIThread(item, message.getFile(), true);
 		item.updateIsSelectedInUIThread(true);
 	}
@@ -286,10 +287,10 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 			break;
 		case LOCAL_MOVE:
 			Path srcFile = message.getSourceFile().getPath();
-			Path dstFile = message.getFile().getPath();
+//			Path dstFile = message.getFile().getPath();
 			removeTreeItemInUIThread(srcFile);
-			
-			item = getOrCreateItem(message.getFile(), true);		
+
+			item = getOrCreateItem(message.getFile(), true);
 			item.setProgressState(ProgressState.SUCCESSFUL);
 			item.updateIsSelectedInUIThread(true);
 //			updateIsSelectedInUIThread(item, message.getFile(), true);
@@ -313,7 +314,7 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 	@Handler
 	public void onExecutionFails(FileExecutionFailedMessage message) {
 		logger.trace("onExecutionFails: {}", message.getFile().getPath());
-		
+
 		SyncTreeItem item = getOrCreateItem(message.getFile(), false);
 		item.setProgressState(ProgressState.FAILED);
 		final SyncTreeItem item2 = item;
@@ -337,7 +338,7 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 	public void onFileSoftDeleted(LocalFileDesyncMessage message) {
 		logger.trace("onFileSoftDeleted: {}", message.getFile().getPath());
 		SyncTreeItem item = getOrCreateItem(message.getFile(), false);
-		
+
 		item.setProgressState(ProgressState.DEFAULT);
 		final SyncTreeItem item2 = item;
 		javafx.application.Platform.runLater(new Runnable() {
@@ -347,12 +348,12 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 	        }
 	   });
 	}
-	
+
 	@Override
 	@Handler
 	public void onRemoteFolderShared(RemoteShareFolderMessage message) {
 		logger.trace("onRemoteFolderShared: {}", message.getFile().getPath());
-		
+
 		SyncTreeItem item = getOrCreateItem(message.getFile(), false);
 		item.getValue().getPermissions().clear();
 		item.getValue().getPermissions().addAll(message.getUserPermissions());
@@ -364,7 +365,7 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 	public void onLocalFolderShared(LocalShareFolderMessage message) {
 		logger.trace("onLocalFolderShared: {}", message.getFile().getPath());
 		SyncTreeItem item = getOrCreateItem(message.getFile(), false);
-		
+
 
 		item.getValue().getPermissions().add(message.getInvitedUserPermission());
 		item.setIsShared(true);
@@ -379,7 +380,7 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 		});
 	}
 
-	private SyncTreeItem getOrCreateItem(FileHelper file, boolean isSynched) {
+	private SyncTreeItem getOrCreateItem(FileInfo file, boolean isSynched) {
 		SyncTreeItem item = getTreeItem(file.getPath());
 
 		if(item != null){
@@ -492,7 +493,7 @@ public class Synchronization implements Initializable, IExecutionMessageListener
             public TreeCell<PathItem> call(TreeView<PathItem> p) {
                 return new CustomizedTreeCell(getFileEventManager(),
                 		recoverFileHandlerProvider,
-                		shareFolderHandlerProvider, 
+                		shareFolderHandlerProvider,
                 		forceSyncHandlerProvider);
             }
         });
@@ -511,14 +512,14 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 	        	if(failedFiles.contains(path)){
 	        		stateToSet = ProgressState.FAILED;
 	        	} else if(executingFiles.contains(path)){
-	        		stateToSet = ProgressState.IN_PROGRESS;  	
+	        		stateToSet = ProgressState.IN_PROGRESS;
 	        	} else {
 	        		stateToSet = ProgressState.SUCCESSFUL;
 	        	}
 
 	        	SyncTreeItem item = createItem(topLevelNode.getFile().toPath(),
 	        			isSynched, topLevelNode.isFile(), topLevelNode.getUserPermissions());
-	        	
+
 	        	if(sharedFolders.contains(path)){
 	        		item.setIsShared(true);
 	        	}
@@ -536,7 +537,7 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 		newItem.setSelected(isSynched);
 		return newItem;
 	}
-	
+
 	private SyncTreeItem createItem(Path path, boolean isSynched,
 			boolean isFile) {
 		Set<UserPermission> defaultPermissions = new HashSet<UserPermission>();
@@ -544,13 +545,11 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 		return createItem(path, isSynched, isFile, defaultPermissions);
 	}
 
-	private class FileHelperComparator implements Comparator<FileHelper>{
+	private class FileInfoComparator implements Comparator<FileInfo> {
 		@Override
-		public int compare(FileHelper o1, FileHelper o2) {
-			String path1 = o1.getPath().toString();
-			String path2 = o2.getPath().toString();
-			return path1.compareTo(path2);
+		public int compare(FileInfo o1, FileInfo o2) {
+			return o1.getPath().compareTo(o2.getPath());
 		}
 	}
-	
+
 }

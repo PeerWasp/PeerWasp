@@ -1,21 +1,21 @@
 package org.peerbox.app.manager.file.messages;
 
-import org.peerbox.presenter.settings.synchronization.FileHelper;
+import org.peerbox.app.manager.file.FileInfo;
 
-public class LocalFileMovedMessage extends AbstractFileMessage {
+public final class LocalFileMovedMessage extends AbstractFileMessage {
 
-	private FileHelper srcFile;
-	
-	public LocalFileMovedMessage(FileHelper srcFile, FileHelper dstFile)  {
+	private FileInfo srcFile;
+
+	public LocalFileMovedMessage(FileInfo srcFile, FileInfo dstFile) {
 		super(dstFile);
 		this.srcFile = srcFile;
 	}
-	
-	public FileHelper getSourceFile(){
+
+	public FileInfo getSourceFile() {
 		return srcFile;
 	}
-	
-	public FileHelper getDestinationFile(){
+
+	public FileInfo getDestinationFile() {
 		return getFile();
 	}
 

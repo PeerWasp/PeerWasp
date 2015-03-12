@@ -8,9 +8,9 @@ import org.hive2hive.core.exceptions.NoSessionException;
 import org.hive2hive.processframework.exceptions.InvalidProcessStateException;
 import org.hive2hive.processframework.exceptions.ProcessExecutionException;
 import org.hive2hive.processframework.interfaces.IProcessEventArgs;
+import org.peerbox.app.manager.file.FileInfo;
 import org.peerbox.app.manager.file.IFileManager;
 import org.peerbox.events.MessageBus;
-import org.peerbox.presenter.settings.synchronization.FileHelper;
 import org.peerbox.watchservice.IAction;
 import org.peerbox.watchservice.conflicthandling.ConflictHandler;
 import org.peerbox.watchservice.filetree.IFileTree;
@@ -38,7 +38,7 @@ public class LocalCreateState extends AbstractActionState {
 		logStateTransition(getStateType(), EventType.LOCAL_UPDATE, StateType.LOCAL_CREATE);
 		return this;
 	}
-	
+
 	@Override
 	public AbstractActionState changeStateOnLocalHardDelete(){
 		logStateTransition(getStateType(), EventType.LOCAL_HARD_DELETE, StateType.INITIAL);
@@ -70,18 +70,18 @@ public class LocalCreateState extends AbstractActionState {
 		final FileComponent file = action.getFile();
 		final Path path = file.getPath();
 		final MessageBus messageBus = action.getFileEventManager().getMessageBus();
-		
+
 		logger.debug("Execute LOCAL CREATE: {}", path);
-		
+
 		handle = fileManager.add(path);
 		if (handle != null && handle.getProcess() != null) {
-			FileHelper helper = new FileHelper(path, file.isFile());
+			FileInfo helper = new FileInfo(path, file.isFolder());
 			handle.getProcess().attachListener(new LocalFileAddListener(helper, messageBus));
 			handle.executeAsync();
 		} else {
 			System.err.println("process or handle is null");
 		}
-		
+
 		String contentHash = action.getFile().getContentHash();
 		IFileTree fileTree = action.getFileEventManager().getFileTree();
 		fileTree.getCreatedByContentHash().get(contentHash).remove(action.getFile());

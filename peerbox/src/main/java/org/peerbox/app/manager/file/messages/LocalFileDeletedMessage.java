@@ -1,10 +1,10 @@
 package org.peerbox.app.manager.file.messages;
 
-import org.peerbox.presenter.settings.synchronization.FileHelper;
+import org.peerbox.app.manager.file.FileInfo;
 
-public class LocalFileDeletedMessage extends AbstractFileMessage{
+public final class LocalFileDeletedMessage extends AbstractFileMessage {
 
-	public LocalFileDeletedMessage(FileHelper file) {
+	public LocalFileDeletedMessage(FileInfo file) {
 		super(file);
 	}
 

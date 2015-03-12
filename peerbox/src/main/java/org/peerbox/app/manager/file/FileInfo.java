@@ -16,7 +16,7 @@ import org.peerbox.watchservice.filetree.composite.FileComponent;
  * and PeerWasp interface).
  *
  */
-public class FileInfo {
+public class FileInfo implements Comparable<FileInfo> {
 
 	private Path path;
 	private boolean isFolder;
@@ -91,5 +91,13 @@ public class FileInfo {
 
 	public boolean isFolder() {
 		return isFolder;
+	}
+
+	/**
+	 * Comparable interface implementation
+	 */
+	@Override
+	public int compareTo(FileInfo o) {
+		return this.getPath().compareTo(o.getPath());
 	}
 }

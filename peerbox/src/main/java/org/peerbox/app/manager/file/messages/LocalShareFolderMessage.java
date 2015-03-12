@@ -1,17 +1,18 @@
 package org.peerbox.app.manager.file.messages;
 
 import org.hive2hive.core.model.UserPermission;
-import org.peerbox.presenter.settings.synchronization.FileHelper;
+import org.peerbox.app.manager.file.FileInfo;
 
-public class LocalShareFolderMessage extends AbstractFileMessage {		
-	UserPermission newPermission;
-	public LocalShareFolderMessage(FileHelper file, UserPermission newPermission) {
+public final class LocalShareFolderMessage extends AbstractFileMessage {
+
+	private UserPermission newPermission;
+
+	public LocalShareFolderMessage(FileInfo file, UserPermission newPermission) {
 		super(file);
 		this.newPermission = newPermission;
-
 	}
-	
-	public UserPermission getInvitedUserPermission(){
+
+	public UserPermission getInvitedUserPermission() {
 		return newPermission;
 	}
 

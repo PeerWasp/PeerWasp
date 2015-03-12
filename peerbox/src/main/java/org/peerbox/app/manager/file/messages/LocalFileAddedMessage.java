@@ -1,12 +1,11 @@
 package org.peerbox.app.manager.file.messages;
 
-import org.peerbox.presenter.settings.synchronization.FileHelper;
+import org.peerbox.app.manager.file.FileInfo;
 
-public class LocalFileAddedMessage extends AbstractFileMessage{
+public final class LocalFileAddedMessage extends AbstractFileMessage {
 
-	public LocalFileAddedMessage(FileHelper file) {
+	public LocalFileAddedMessage(FileInfo file) {
 		super(file);
-
 	}
 
 }

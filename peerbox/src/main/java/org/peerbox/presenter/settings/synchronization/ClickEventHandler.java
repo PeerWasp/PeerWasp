@@ -2,6 +2,7 @@ package org.peerbox.presenter.settings.synchronization;
 
 import java.nio.file.Path;
 
+import org.peerbox.app.manager.file.FileInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -13,20 +14,21 @@ public class ClickEventHandler implements EventHandler<TreeModificationEvent<Pat
 
 	private static final Logger logger = LoggerFactory.getLogger(Synchronization.class);
 	private Synchronization synchronization;
-	
+
 	public ClickEventHandler(Synchronization synchronization){
 		this.synchronization = synchronization;
 	}
-	
+
 	public Synchronization getSynchronization(){
 		return synchronization;
 	}
-	
+
 	@Override
 	public void handle(TreeModificationEvent<PathItem> arg0) {
+		@SuppressWarnings("unchecked")
 		CheckBoxTreeItem<PathItem> source = (CheckBoxTreeItem<PathItem>) arg0.getSource();
 		Path path = source.getValue().getPath();
-		FileHelper file = new FileHelper(source.getValue().getPath(), source.getValue().isFile());
+		FileInfo file = new FileInfo(source.getValue().getPath(), source.getValue().isFolder());
 		if(source.isSelected()){
 			logger.trace("Add {} to SYNC", path);
 			getSynchronization().getToSynchronize().add(file);

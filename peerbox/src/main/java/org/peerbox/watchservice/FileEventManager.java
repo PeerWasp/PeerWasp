@@ -17,6 +17,7 @@ import org.hive2hive.core.events.framework.interfaces.file.IFileUpdateEvent;
 import org.hive2hive.core.events.implementations.FileAddEvent;
 import org.hive2hive.core.model.PermissionType;
 import org.hive2hive.core.model.UserPermission;
+import org.peerbox.app.manager.file.FileInfo;
 import org.peerbox.app.manager.file.IFileMessage;
 import org.peerbox.app.manager.file.messages.FileExecutionStartedMessage;
 import org.peerbox.app.manager.file.messages.LocalFileDesyncMessage;
@@ -28,7 +29,6 @@ import org.peerbox.events.MessageBus;
 import org.peerbox.forcesync.ForceSyncCompleteMessage;
 import org.peerbox.forcesync.ForceSyncMessage;
 import org.peerbox.notifications.InformationNotification;
-import org.peerbox.presenter.settings.synchronization.FileHelper;
 import org.peerbox.watchservice.filetree.FileTree;
 import org.peerbox.watchservice.filetree.IFileTree;
 import org.peerbox.watchservice.filetree.composite.FileComponent;
@@ -209,7 +209,7 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 			logger.debug("onLocalFileDelete: structure hash of {} is '{}'",
 					path, file.getStructureHash());
 		}
-		publishMessage(new LocalFileDesyncMessage(new FileHelper(path, file.isFile())));
+		publishMessage(new LocalFileDesyncMessage(new FileInfo(path, file.isFolder())));
 		file.getAction().handleLocalDeleteEvent();
 
 	}
@@ -318,7 +318,7 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 			logger.debug("File {} is in folder that is not synchronized. Event ignored.", path);
 			// TODO: set isSynchronized = false?
 			file.setIsSynchronized(false);
-			getMessageBus().publish(new FileExecutionStartedMessage(new FileHelper(path, fileEvent.isFile()), StateType.INITIAL));
+			getMessageBus().publish(new FileExecutionStartedMessage(new FileInfo(path, fileEvent.isFolder()), StateType.INITIAL));
 			//return;
 		} else {
 			logger.debug("File {} is in folder that is synchronized.", path);
@@ -351,8 +351,7 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 		final FileComponent file = fileTree.getOrCreateFileComponent(path, fileEvent.isFile(), this);
 		file.getAction().handleRemoteDeleteEvent();
 
-		FileHelper fileHelper = new FileHelper(path, file.isFile());
-
+		FileInfo fileHelper = new FileInfo(path, file.isFolder());
 		messageBus.publish(new RemoteFileDeletedMessage(fileHelper));
 	}
 
@@ -395,8 +394,8 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 		final FileComponent source = fileTree.getOrCreateFileComponent(srcPath, this);
 		source.getAction().handleRemoteMoveEvent(dstPath);
 
-		FileHelper srcFile = new FileHelper(srcPath, fileEvent.isFile());
-		FileHelper dstFile = new FileHelper(srcPath, fileEvent.isFile());
+		FileInfo srcFile = new FileInfo(srcPath, fileEvent.isFolder());
+		FileInfo dstFile = new FileInfo(srcPath, fileEvent.isFolder());
 		messageBus.publish(new RemoteFileMovedMessage(srcFile, dstFile));
 	}
 
@@ -420,7 +419,7 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 		fileEvent.getInvitedBy();
 		Set<UserPermission> permissions = fileEvent.getUserPermissions();
 		String invitedBy = fileEvent.getInvitedBy();
-		FileHelper file = new FileHelper(fileEvent.getFile().toPath(), fileEvent.getFile().isFile());
+		FileInfo file = new FileInfo(fileEvent.getFile().toPath(), fileEvent.isFolder());
 
 		StringBuilder sb = new StringBuilder();
 		sb.append("User ").append(invitedBy).append(" shared the folder ").
