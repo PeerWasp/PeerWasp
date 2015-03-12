@@ -227,6 +227,9 @@ public class FolderWatchService extends AbstractWatchService {
 		 */
 		private void handleEvent(Kind<Path> kind, Path source) {
 			try {
+				if(source.toFile().isHidden() || source.getFileName().startsWith("~")){
+					return;
+				}
 				if (kind.equals(ENTRY_CREATE)) {
 					addNotifyEvent(new NotifyFileCreated(source));
 				} else if (kind.equals(ENTRY_MODIFY)) {
