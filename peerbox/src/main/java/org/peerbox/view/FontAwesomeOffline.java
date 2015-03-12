@@ -34,4 +34,8 @@ public class FontAwesomeOffline {
 		// nothing to do
 	}
 
+	public static GlyphFont getGlyphFont() {
+		return font;
+	}
+
 }

@@ -12,22 +12,23 @@ import java.util.Collections;
 import java.util.Enumeration;
 
 import org.junit.Test;
+import org.peerbox.BaseJUnitTest;
 import org.peerbox.utils.OsUtils;
 import org.peerbox.utils.WinRegistryTest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ServerTest {
-	
-	private static final Logger logger = LoggerFactory.getLogger(ServerTest.class);
-	
+public class HttpServerTest extends BaseJUnitTest {
+
+	private static final Logger logger = LoggerFactory.getLogger(HttpServerTest.class);
+
 	@Test
 	public void testCreateServer() {
 		IServer srv = ServerFactory.createServer();
 		assertTrue(srv.getPort() >= 1);
-		assertTrue(srv.getPort() <= 65535);	
+		assertTrue(srv.getPort() <= 65535);
 	}
-	
+
 	@Test
 	public void testWinRegistryPortUpdate() {
 		if(OsUtils.isWindows()) {
@@ -37,19 +38,19 @@ public class ServerTest {
 			fail("Not on Windows.");
 		}
 	}
-	
+
 	@Test
 	public void testServerStart() throws IOException {
 		IServer srv = ServerFactory.createServer();
 		assertTrue(srv.start());
-		
+
 		boolean listen = checkListeningOnLocalhost(srv, true);
 		assertTrue(listen);
-		
+
 		assertTrue(srv.stop());
 	}
-	
-	@Test 
+
+	@Test
 	public void testServerStop() throws InterruptedException, IOException {
 		// assumes that starting works...
 		boolean listen = false;
@@ -58,17 +59,17 @@ public class ServerTest {
 
 		listen = checkListeningOnLocalhost(srv, true);
 		assertTrue(listen);
-		
+
 		assertTrue(srv.stop());
-		
+
 		listen = checkListeningOnLocalhost(srv, false);
 		assertFalse(listen);
-		
+
 	}
 
 	private boolean checkListeningOnLocalhost(IServer srv, boolean shouldListen) throws IOException {
 		boolean connectedToLocalhost = false;
-		
+
 		Enumeration<NetworkInterface> nets = NetworkInterface.getNetworkInterfaces();
 		for (NetworkInterface netint : Collections.list(nets)) {
 			Enumeration<InetAddress> inetAddresses = netint.getInetAddresses();
@@ -82,7 +83,7 @@ public class ServerTest {
 	        		logger.debug("{} - {}", inetAddress.toString(), ex.getMessage());
 	        		connected = false;
 	        	} finally {
-	        		
+
 	        		if(inetAddress.equals(InetAddress.getByName("localhost"))) {
 	        			logger.debug("{} - connected", inetAddress);
 	        			assertTrue(connected == shouldListen);
@@ -97,7 +98,7 @@ public class ServerTest {
 	        	}
 	        }
 		}
-		
+
 		return connectedToLocalhost;
 	}
 }

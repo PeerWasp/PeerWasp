@@ -6,6 +6,7 @@ import java.nio.file.Path;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
+import org.peerbox.BaseJUnitTest;
 import org.peerbox.guice.ApiServerModule;
 import org.peerbox.server.IServer;
 import org.peerbox.server.helper.ApiServerTestModule;
@@ -20,10 +21,11 @@ import com.jayway.restassured.RestAssured;
 import com.jayway.restassured.config.RestAssuredConfig;
 import com.jayway.restassured.mapper.factory.GsonObjectMapperFactory;
 
-public class ServletTest {
+public class ServletTest extends BaseJUnitTest {
 
 	protected static IServer server;
 	protected static String baseUrl;
+
 	@BeforeClass
 	public static void beforeClass() {
 
@@ -62,7 +64,6 @@ public class ServletTest {
 	protected String getBaseUrl() {
 		return baseUrl;
 	}
-
 
 	protected String getUrl(String path) {
 		return String.format("%s%s", getBaseUrl(), path);

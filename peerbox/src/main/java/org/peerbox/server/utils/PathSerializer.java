@@ -10,6 +10,7 @@ import com.google.gson.JsonSerializer;
 
 /**
  * PathSerializer helper that creates a String out of Path
+ *
  * @author albrecht
  *
  */
@@ -19,5 +20,5 @@ public class PathSerializer implements JsonSerializer<Path> {
 	public JsonElement serialize(Path src, Type typeOfSrc, JsonSerializationContext context) {
 		return new JsonPrimitive(src.toString());
 	}
-	
+
 }

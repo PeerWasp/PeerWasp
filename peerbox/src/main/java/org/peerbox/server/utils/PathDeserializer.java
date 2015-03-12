@@ -11,6 +11,7 @@ import com.google.gson.JsonParseException;
 
 /**
  * PathDeserializer helper that creates a Path instance out of a json string.
+ *
  * @author albrecht
  *
  */

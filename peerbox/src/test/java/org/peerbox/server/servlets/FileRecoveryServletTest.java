@@ -21,7 +21,6 @@ import org.peerbox.server.servlets.messages.ServerReturnCode;
 import com.jayway.restassured.http.ContentType;
 
 
-
 public class FileRecoveryServletTest extends ServletTest {
 
 	private String url;
