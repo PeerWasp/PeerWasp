@@ -8,16 +8,32 @@
 <?import javafx.scene.paint.*?>
 <?import javafx.scene.text.*?>
 
-<AnchorPane prefHeight="100.0" prefWidth="275.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1"
-	fx:controller="org.peerbox.presenter.NetworkSelectionController">
+<AnchorPane prefHeight="350.0" prefWidth="275.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.peerbox.presenter.NetworkSelectionController">
 	<children>
-		<VBox alignment="CENTER" layoutX="78.0" layoutY="324.0" spacing="10.0"
-			AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+		<VBox alignment="CENTER" layoutX="78.0" layoutY="324.0" spacing="20.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
 			<children>
-				<Button layoutX="77.0" layoutY="322.0" mnemonicParsing="false"
-					onAction="#createNetwork" prefWidth="120.0" text="Create network" />
-				<Button layoutX="74.0" layoutY="366.0" mnemonicParsing="false"
-					onAction="#joinNetwork" prefWidth="120.0" text="Join network" />
+            <VBox spacing="20.0">
+               <children>
+                  <Label styleClass="form-title" text="Create Network" />
+                  <Label text="Create a new and independent network. Note that the network must keep running in order to keep user data available. Your machine will be the first node of the network." wrapText="true" />
+                  <HBox alignment="CENTER">
+                     <children>
+            				<Button mnemonicParsing="false" onAction="#createNetwork" prefWidth="120.0" text="Create network" />
+                     </children>
+                  </HBox>
+               </children>
+            </VBox>
+            <VBox spacing="20.0">
+               <children>
+                  <Label styleClass="form-title" text="Join Network" />
+                  <Label text="Join an existing network that is already running. Your machine will participate in the P2P network." wrapText="true" />
+                  <HBox alignment="CENTER">
+                     <children>
+            				<Button mnemonicParsing="false" onAction="#joinNetwork" prefWidth="120.0" text="Join network" />
+                     </children>
+                  </HBox>
+               </children>
+            </VBox>
 			</children>
 		</VBox>
 	</children>
