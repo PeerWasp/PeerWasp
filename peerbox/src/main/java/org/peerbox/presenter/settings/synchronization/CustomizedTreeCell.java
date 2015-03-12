@@ -12,11 +12,14 @@ import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.CustomMenuItem;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.Tooltip;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.cell.CheckBoxTreeCell;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
@@ -28,6 +31,7 @@ import org.peerbox.filerecovery.IFileRecoveryHandler;
 import org.peerbox.forcesync.IForceSyncHandler;
 import org.peerbox.presenter.settings.Properties;
 import org.peerbox.share.IShareFolderHandler;
+import org.peerbox.utils.IconUtils;
 import org.peerbox.view.ViewNames;
 import org.peerbox.watchservice.IFileEventManager;
 import org.slf4j.Logger;
@@ -165,22 +169,24 @@ public class CustomizedTreeCell extends CheckBoxTreeCell<PathItem> {
 		});
 
 		deleteItem.setOnAction(new EventHandler<ActionEvent>() {
-			public void handle(ActionEvent t) {
-				Action response = Dialogs.create()
-		        .title("You're about to irreversibly hard-delete this file from the network!")
-		        .masthead(null)
-		        .message("Do you really want to hard-delete" + getItem().getPath() + "?" +
-		        		" The file is automatically deleted from all devices and cannot be "
-		        		+ "reconstructed.")
-		        .actions(Dialog.ACTION_OK, Dialog.ACTION_CANCEL)
-		        .showConfirm();
-				if(response == Dialog.ACTION_OK){
+			public void handle(ActionEvent t) {				
+				Alert hardDelete = new Alert(AlertType.WARNING);
+				IconUtils.decorateDialogWithIcon(hardDelete);
+				hardDelete.setTitle("Irreversibly delete file?");
+				hardDelete.setHeaderText("You're about to hard-delete " + getItem().getPath().getFileName());
+				hardDelete.setContentText("The file will be removed completely from the network and cannot be recovered."
+						+ " Proceed?");
+				hardDelete.getButtonTypes().clear();
+				hardDelete.getButtonTypes().addAll(ButtonType.YES, ButtonType.NO);
+
+				hardDelete.showAndWait();
+				
+				if(hardDelete.getResult() == ButtonType.YES){
 					fileEventManager.onLocalFileHardDelete(getItem().getPath());
-					Dialogs.create()
-					        .title("PeerWasp Information")
-					        .masthead(null)
-					        .message(getItem().getPath() + " has been hard-deleted.")
-					        .showInformation();
+					Alert confirm = new Alert(AlertType.CONFIRMATION);
+					confirm.setTitle("Hard-delete confirmation");
+					confirm.setContentText(getItem().getPath() + " has been hard-deleted.");
+					confirm.showAndWait();
 				}
 			}
 		});
