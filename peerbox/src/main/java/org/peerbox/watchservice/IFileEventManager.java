@@ -22,5 +22,5 @@ public interface IFileEventManager {
 	public Set<Path> getFailedOperations();
 	public Set<Path> getSharedFolders();
 	public IForceSyncHandler getForceSyncHandler();
-
+	public void initiateForceSync(Path topLevel);
 }

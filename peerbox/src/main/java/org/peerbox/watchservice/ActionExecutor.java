@@ -20,6 +20,7 @@ import org.hive2hive.core.exceptions.NoSessionException;
 import org.hive2hive.processframework.exceptions.ProcessExecutionException;
 import org.peerbox.app.IPeerWaspConfig;
 import org.peerbox.app.manager.ProcessHandle;
+import org.peerbox.app.manager.file.FileInfo;
 import org.peerbox.app.manager.file.IFileManager;
 import org.peerbox.app.manager.file.messages.FileExecutionFailedMessage;
 import org.peerbox.app.manager.file.messages.FileExecutionStartedMessage;
@@ -28,7 +29,6 @@ import org.peerbox.events.IMessage;
 import org.peerbox.forcesync.ForceSyncCompleteMessage;
 import org.peerbox.forcesync.ForceSyncMessage;
 import org.peerbox.notifications.InformationNotification;
-import org.peerbox.presenter.settings.synchronization.FileHelper;
 import org.peerbox.view.tray.SynchronizationCompleteNotification;
 import org.peerbox.view.tray.SynchronizationErrorsResolvedNotification;
 import org.peerbox.view.tray.SynchronizationStartsNotification;
@@ -166,11 +166,11 @@ public class ActionExecutor implements Runnable {
 						if (ehandle != null && ehandle.getProcessHandle() != null) {
 							logger.debug("Put into async handles!");
 							asyncHandles.put(ehandle);
-							FileHelper file = new FileHelper(next.getPath(), next.isFile());
+							FileInfo file = new FileInfo(next.getPath(), next.isFolder());
 							publishMessage(new FileExecutionStartedMessage(file, next.getAction().getCurrentState().getStateType()));
 						} else {
 							//This happens with actions in InitialState/EstablishedState
-							FileHelper file = new FileHelper(next.getPath(), next.isFile());
+							FileInfo file = new FileInfo(next.getPath(), next.isFolder());
 							publishMessage(new FileExecutionSucceededMessage(file, next.getAction().getCurrentState().getStateType()));
 						}
 
@@ -339,10 +339,10 @@ public class ActionExecutor implements Runnable {
 				file.getPath(), action.getCurrentStateName());
 
 		//inform GUI to adjust icon
-		FileHelper fileHelper = new FileHelper(file.getPath(), file.isFile());
+		FileInfo fileHelper = new FileInfo(file.getPath(), file.isFolder());
 		if(action.getCurrentState().getStateType() == StateType.LOCAL_MOVE){
 			LocalMoveState state = (LocalMoveState)action.getCurrentState();
-			FileHelper source = new FileHelper(state.getSourcePath(), file.isFile());
+			FileInfo source = new FileInfo(state.getSourcePath(), file.isFolder());
 			publishMessage(new FileExecutionSucceededMessage(source, fileHelper, action.getCurrentState().getStateType()));
 		} else {
 			publishMessage(new FileExecutionSucceededMessage(fileHelper, action.getCurrentState().getStateType()));
@@ -394,7 +394,7 @@ public class ActionExecutor implements Runnable {
 			action.updateTimestamp();
 			fileEventManager.getFileComponentQueue().add(action.getFile());
 		} else {
-			FileHelper file = new FileHelper(path, action.getFile().isFile());
+			FileInfo file = new FileInfo(path, action.getFile().isFolder());
 			publishMessage(new FileExecutionFailedMessage(file));
 			fileEventManager.getMessageBus().post(new InformationNotification("Synchronization error ",
 					"Operation on " + path + " failed")).now();
@@ -414,7 +414,7 @@ public class ActionExecutor implements Runnable {
 			if (notModified == null) {
 				logger.trace("FileComponent not found (null): {}", path);
 			}
-			FileHelper file = new FileHelper(action.getFile().getPath(), action.getFile().isFile());
+			FileInfo file = new FileInfo(action.getFile().getPath(), action.getFile().isFolder());
 			publishMessage(new FileExecutionSucceededMessage(file, action.getCurrentState().getStateType()));
 			action.onSucceeded();
 			return true;

@@ -2,7 +2,6 @@ package org.peerbox.share;
 
 import java.net.URL;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ResourceBundle;
 
 import javafx.application.Platform;
@@ -21,7 +20,6 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Label;
-import javafx.scene.control.RadioButton;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
@@ -36,11 +34,11 @@ import org.hive2hive.processframework.exceptions.InvalidProcessStateException;
 import org.hive2hive.processframework.exceptions.ProcessExecutionException;
 import org.peerbox.ResultStatus;
 import org.peerbox.app.manager.ProcessHandle;
+import org.peerbox.app.manager.file.FileInfo;
 import org.peerbox.app.manager.file.IFileManager;
 import org.peerbox.app.manager.file.messages.LocalShareFolderMessage;
 import org.peerbox.app.manager.user.IUserManager;
 import org.peerbox.events.MessageBus;
-import org.peerbox.presenter.settings.synchronization.FileHelper;
 import org.peerbox.presenter.validation.UsernameRegisteredValidator;
 import org.peerbox.presenter.validation.ValidationUtils.ValidationResult;
 import org.peerbox.utils.IconUtils;
@@ -244,7 +242,8 @@ public final class ShareFolderController implements Initializable {
 		} else {
 			Platform.runLater(succeeded);
 		}
-		FileHelper file = new FileHelper(Paths.get(folderToShareProperty.get()), false);
+
+		FileInfo file = new FileInfo(folderToShare, true);
 		UserPermission permission = new UserPermission(getUsername(), PermissionType.WRITE);
 		messageBus.publish(new LocalShareFolderMessage(file, permission));
 	}

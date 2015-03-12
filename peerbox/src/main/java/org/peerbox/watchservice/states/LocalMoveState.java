@@ -6,17 +6,16 @@ import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.hive2hive.core.exceptions.NoSessionException;
 import org.hive2hive.processframework.exceptions.InvalidProcessStateException;
 import org.hive2hive.processframework.exceptions.ProcessExecutionException;
+import org.peerbox.app.manager.file.FileInfo;
 import org.peerbox.app.manager.file.IFileManager;
 import org.peerbox.exceptions.NotImplException;
 import org.peerbox.forcesync.ForceSyncMessage;
 import org.peerbox.forcesync.IForceSyncHandler;
 import org.peerbox.notifications.InformationNotification;
-import org.peerbox.presenter.settings.synchronization.FileHelper;
 import org.peerbox.watchservice.IAction;
 import org.peerbox.watchservice.conflicthandling.ConflictHandler;
 import org.peerbox.watchservice.filetree.IFileTree;
 import org.peerbox.watchservice.filetree.composite.FileComponent;
-import org.peerbox.watchservice.states.listeners.LocalFileAddListener;
 import org.peerbox.watchservice.states.listeners.LocalFileMoveListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,15 +42,15 @@ public class LocalMoveState extends AbstractActionState {
 	public Path getSourcePath() {
 		return source;
 	}
-	
+
 	@Override
 	public ExecutionHandle execute(IFileManager fileManager) throws NoSessionException, NoPeerConnectionException, ProcessExecutionException, InvalidProcessStateException {
 
 		final Path path = action.getFile().getPath();
 		handle = fileManager.move(source, path);
 		if(handle != null){
-			FileHelper destFile = new FileHelper(path, action.getFile().isFile());
-			FileHelper sourceFile = new FileHelper(source, action.getFile().isFile());
+			FileInfo destFile = new FileInfo(path, action.getFile().isFolder());
+			FileInfo sourceFile = new FileInfo(source, action.getFile().isFolder());
 			handle.getProcess().attachListener(new LocalFileMoveListener(sourceFile, destFile, action.getFileEventManager().getMessageBus()));
 			handle.executeAsync();
 		}
@@ -62,7 +61,7 @@ public class LocalMoveState extends AbstractActionState {
 		boolean isRemoved = fileTree.getCreatedByContentHash().get(contentHash).remove(action.getFile());
 		logger.trace("IsRemoved for file {} with hash {}: {}", action.getFile().getPath(), contentHash, isRemoved);
 
-		
+
 		logger.debug("Task \"Move File\" executed from: " + source.toString()  + " to " + path.toString());
 		return new ExecutionHandle(action, handle);
 	}
@@ -121,11 +120,7 @@ public class LocalMoveState extends AbstractActionState {
 //
 //		ConflictHandler.resolveConflict(action.getFile().getPath(), true);
 		
-		IForceSyncHandler handler = action.getFileEventManager().getForceSyncHandler();
-		if(handler != null){
-			handler.forceSync(action.getFile().getPath().getParent());
-		}
-		action.getFileEventManager().getMessageBus().publish(new InformationNotification("Forced synchronization", "Try to restore consistency"));
+		action.getFileEventManager().initiateForceSync(action.getFile().getPath().getParent());
 		return changeStateOnRemoteCreate();
 	}
 

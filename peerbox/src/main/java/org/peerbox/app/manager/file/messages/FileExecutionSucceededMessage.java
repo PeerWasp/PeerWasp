@@ -1,29 +1,30 @@
 package org.peerbox.app.manager.file.messages;
 
-import org.peerbox.presenter.settings.synchronization.FileHelper;
+import org.peerbox.app.manager.file.FileInfo;
 import org.peerbox.watchservice.states.StateType;
 
-public class FileExecutionSucceededMessage extends AbstractFileMessage{
+public final class FileExecutionSucceededMessage extends AbstractFileMessage {
 
 	private StateType stateType;
-	private FileHelper srcFile = null;;
-	public FileExecutionSucceededMessage(FileHelper file, StateType stateType) {
+	private FileInfo srcFile = null;
+
+	public FileExecutionSucceededMessage(FileInfo file, StateType stateType) {
 		super(file);
 		this.stateType = stateType;
-//		this(file, null, stateType);
 	}
-	
-	public FileExecutionSucceededMessage(FileHelper srcFile, FileHelper dstFile, StateType stateType) {
+
+	public FileExecutionSucceededMessage(FileInfo srcFile, FileInfo dstFile, StateType stateType) {
 		super(dstFile);
 		this.srcFile = srcFile;
 		this.stateType = stateType;
 	}
-	
-	public StateType getStateType(){
+
+	public StateType getStateType() {
 		return stateType;
 	}
-	
-	public FileHelper getSourceFile(){
+
+	public FileInfo getSourceFile() {
 		return srcFile;
 	}
+
 }

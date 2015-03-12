@@ -8,8 +8,8 @@ import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.hive2hive.core.exceptions.NoSessionException;
 import org.hive2hive.processframework.exceptions.InvalidProcessStateException;
 import org.hive2hive.processframework.exceptions.ProcessExecutionException;
+import org.peerbox.app.manager.file.FileInfo;
 import org.peerbox.app.manager.file.IFileManager;
-import org.peerbox.presenter.settings.synchronization.FileHelper;
 import org.peerbox.watchservice.IAction;
 import org.peerbox.watchservice.IFileEventManager;
 import org.peerbox.watchservice.conflicthandling.ConflictHandler;
@@ -24,7 +24,7 @@ import org.slf4j.LoggerFactory;
  * the H2H network, but changed locally in the meantime. The change refers
  * always to the actual content of a file, and not to meta-data like timestamps, as
  * H2H only distinguishes between file versions if their content does not equal.
- * 
+ *
  * Since folders only have one version in H2H, the LocalUpdateState is not reasonable
  * for folders. If a folder ends up in the LocalUpdateState for some reason and tries
  * to upload a new version of itself, the network will reject the request.
@@ -38,14 +38,14 @@ public class LocalUpdateState extends AbstractActionState {
 	public LocalUpdateState(IAction action) {
 		super(action, StateType.LOCAL_UPDATE);
 	}
-	
+
 	@Override
 	public ExecutionHandle execute(IFileManager fileManager) throws NoSessionException, NoPeerConnectionException, InvalidProcessStateException, ProcessExecutionException {
 		final Path path = action.getFile().getPath();
 		logger.debug("Execute LOCAL UPDATE: {}", path);
 		handle = fileManager.update(path);
 		if (handle != null && handle.getProcess() != null) {
-			FileHelper file = new FileHelper(path, action.getFile().isFile());
+			FileInfo file = new FileInfo(path, action.getFile().isFolder());
 			handle.getProcess().attachListener(new LocalFileUpdateListener(file, action.getFileEventManager().getMessageBus()));
 			handle.executeAsync();
 		} else {
@@ -104,7 +104,7 @@ public class LocalUpdateState extends AbstractActionState {
 		final IFileEventManager eventManager = action.getFileEventManager();
 		final IFileTree fileTree = eventManager.getFileTree();
 		final FileComponent file = action.getFile();
-		
+
 		eventManager.getFileComponentQueue().remove(file);
 		Path sourcePath = file.getPath();
 

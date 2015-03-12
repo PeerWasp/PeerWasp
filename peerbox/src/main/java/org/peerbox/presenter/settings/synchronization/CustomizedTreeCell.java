@@ -6,48 +6,34 @@ package org.peerbox.presenter.settings.synchronization;
 import java.io.IOException;
 import java.nio.file.Path;
 
+import javafx.application.Platform;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.scene.control.ContextMenu;
+import javafx.scene.control.CustomMenuItem;
+import javafx.scene.control.Label;
+import javafx.scene.control.MenuItem;
+import javafx.scene.control.Tooltip;
+import javafx.scene.control.cell.CheckBoxTreeCell;
+import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
+
 import org.controlsfx.control.action.Action;
-import org.controlsfx.dialog.Dialogs;
 import org.controlsfx.dialog.Dialog;
-import org.peerbox.app.manager.file.IFileManager;
-import org.peerbox.app.manager.user.IUserManager;
+import org.controlsfx.dialog.Dialogs;
 import org.peerbox.filerecovery.IFileRecoveryHandler;
 import org.peerbox.forcesync.IForceSyncHandler;
-import org.peerbox.guice.IFxmlLoaderProvider;
 import org.peerbox.presenter.settings.Properties;
 import org.peerbox.share.IShareFolderHandler;
-import org.peerbox.share.ShareFolderController;
-import org.peerbox.share.ShareFolderHandler;
 import org.peerbox.view.ViewNames;
 import org.peerbox.watchservice.IFileEventManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.inject.Inject;
-import com.google.inject.Injector;
 import com.google.inject.Provider;
-
-import javafx.scene.Parent;
-import javafx.scene.Scene;
-import javafx.scene.shape.Rectangle;
-import javafx.scene.control.ContextMenu;
-import javafx.scene.control.cell.CheckBoxTreeCell;
-import javafx.application.Platform;
-import javafx.event.ActionEvent;
-import javafx.event.Event;
-import javafx.event.EventHandler;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Alert.AlertType;
-import javafx.scene.control.Label;
-import javafx.scene.control.MenuItem;
-import javafx.scene.control.Tooltip;
-import javafx.scene.control.CustomMenuItem;
-import javafx.scene.control.MenuItem;
-import javafx.scene.control.CheckBoxTreeItem;
-import javafx.stage.Stage;
-import javafx.stage.WindowEvent;
-import javafx.util.Callback;
 
 /**
  * This class is used as a template to produce the context menu of
@@ -68,7 +54,7 @@ public class CustomizedTreeCell extends CheckBoxTreeCell<PathItem> {
 
 
 	private Stage stage;
-	
+
 
 	private MenuItem recoverMenuItem;
 
@@ -80,7 +66,7 @@ public class CustomizedTreeCell extends CheckBoxTreeCell<PathItem> {
 		this.shareFolderHandlerProvider = shareFolderHandlerProvider;
 
 		this.recoverFileHandlerProvider = recoverFileHandlerProvider;
-		
+
 		this.forceSyncHandlerProvider = forceSyncHandlerProvider;
 
 		CustomMenuItem deleteItem = new CustomMenuItem(new Label("Delete from network"));
@@ -129,7 +115,7 @@ public class CustomizedTreeCell extends CheckBoxTreeCell<PathItem> {
 				}
 			}
 		});
-		
+
 		propertiesItem.setOnAction(new EventHandler<ActionEvent>() {
 
 			@Override
@@ -207,7 +193,7 @@ public class CustomizedTreeCell extends CheckBoxTreeCell<PathItem> {
 		menuItem.setOnAction(new RecoverFileAction());
 		return menuItem;
 	}
-	
+
 //	@Override
 //	public void updateItem(PathItem item, boolean empty){
 //		super.updateItem(item, empty);
@@ -243,7 +229,7 @@ public class CustomizedTreeCell extends CheckBoxTreeCell<PathItem> {
 			}
 		}
 	}
-	
+
 	private class ForceSyncAction implements EventHandler<ActionEvent> {
 
 		@Override
@@ -251,7 +237,7 @@ public class CustomizedTreeCell extends CheckBoxTreeCell<PathItem> {
 			IForceSyncHandler handler = forceSyncHandlerProvider.get();
 			handler.forceSync();
 		}
-		
+
 	}
-	
+
 }

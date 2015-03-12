@@ -1,18 +1,13 @@
 package org.peerbox.watchservice.states;
 
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Map;
 
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.hive2hive.core.exceptions.NoSessionException;
+import org.peerbox.app.manager.file.FileInfo;
 import org.peerbox.app.manager.file.IFileManager;
 import org.peerbox.app.manager.file.messages.FileExecutionSucceededMessage;
-import org.peerbox.exceptions.NotImplException;
-import org.peerbox.presenter.settings.synchronization.FileHelper;
 import org.peerbox.watchservice.IAction;
-import org.peerbox.watchservice.IFileEventManager;
-import org.peerbox.watchservice.conflicthandling.ConflictHandler;
 import org.peerbox.watchservice.filetree.IFileTree;
 import org.peerbox.watchservice.filetree.composite.FileComponent;
 import org.peerbox.watchservice.filetree.composite.FileLeaf;
@@ -23,7 +18,7 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.SetMultimap;
 
 /**
- * The Initial state is used when a file is considered as new, or known but 
+ * The Initial state is used when a file is considered as new, or known but
  * soft-deleted / de-synchronized.
  * @author winzenried
  */
@@ -38,7 +33,7 @@ public class InitialState extends AbstractActionState {
 	public AbstractActionState getDefaultState() {
 		return this;
 	}
-	
+
 	@Override
 	public AbstractActionState changeStateOnLocalMove(Path source) {
 		logStateTransition(getStateType(), EventType.LOCAL_MOVE, StateType.LOCAL_MOVE);
@@ -56,13 +51,13 @@ public class InitialState extends AbstractActionState {
 			return new LocalCreateState(action);
 		}
 	}
-	
+
 	@Override
 	public AbstractActionState changeStateOnRemoteMove(Path oldFilePath) {
 		logStateTransition(getStateType(), EventType.REMOTE_MOVE, StateType.ESTABLISHED);
 		return new EstablishedState(action);
 	}
- 
+
 	@Override
 	public AbstractActionState handleLocalCreate() {
 		final IFileTree fileTree = action.getFileEventManager().getFileTree();
@@ -71,7 +66,7 @@ public class InitialState extends AbstractActionState {
 		fileTree.putFile(file.getPath(), file);
 
 		addComponentToMoveTargetCandidates();
-		
+
 		if (file.isFolder()) {
 			FolderComposite moveSource = fileTree.findDeletedByStructure((FolderComposite)file);
 			if (moveSource != null) {
@@ -95,7 +90,7 @@ public class InitialState extends AbstractActionState {
 		logger.debug("Local Delete is ignored in InitialState for {}", action.getFile().getPath());
 		return this;
 	}
-	
+
 	@Override
 	public AbstractActionState handleRemoteCreate() {
 		FileComponent file = action.getFile();
@@ -111,7 +106,7 @@ public class InitialState extends AbstractActionState {
 		logger.warn("Execute is not defined in the initial state  ({})", action.getFile().getPath());
 		return null;
 	}
-	
+
 	private void addComponentToMoveTargetCandidates() {
 		if(action.getFile().isFile()){
 			SetMultimap<String, FileComponent> createdByContentHash = action.getFileEventManager().getFileTree().getCreatedByContentHash();
@@ -134,7 +129,7 @@ public class InitialState extends AbstractActionState {
 		logger.debug("File {} has been soft-deleted and recreated. This is regarded as a file update.", file.getPath());
 		if(file.isFolder()){
 			logger.debug("Soft-deleted file {} is a folder. Ignore recreation", file.getPath());
-			FileHelper fileHelper = new FileHelper(file.getPath(), file.isFile());
+			FileInfo fileHelper = new FileInfo(file.getPath(), file.isFolder());
 			action.getFileEventManager().getMessageBus().publish(new FileExecutionSucceededMessage(fileHelper, file.getAction().getCurrentState().getStateType()));
 			action.getFileEventManager().getFileComponentQueue().remove(action.getFile());
 			return this;
@@ -148,7 +143,7 @@ public class InitialState extends AbstractActionState {
 		final IFileTree fileTree = action.getFileEventManager().getFileTree();
 		final FileComponent file = action.getFile();
 		final Path filePath = file.getPath();
-		
+
 		fileTree.deleteFile(source.getPath());
 		action.getFileEventManager().getFileComponentQueue().remove(file);
 
@@ -174,7 +169,7 @@ public class InitialState extends AbstractActionState {
 		final IFileTree fileTree = action.getFileEventManager().getFileTree();
 		final FileComponent file = action.getFile();
 		final Path filePath = file.getPath();
-		
+
 		fileTree.deleteFile(source.getPath());
 		logger.trace("Folder move detected from {} to {}", source.getPath(), filePath);
 		source.getAction().handleLocalMoveEvent(filePath);
@@ -183,7 +178,7 @@ public class InitialState extends AbstractActionState {
 		SetMultimap<String, FolderComposite> createdByStructureHash = action.getFileEventManager().getFileTree().getCreatedByStructureHash();
 		boolean wasRemoved = createdByStructureHash.get(action.getFile().getStructureHash()).remove((FolderComposite)action.getFile());
 		// TODO: cleanup filecomponentqueue: remove children of folder if in localcreate state!
-		
+
 		if (source.isUploaded()) {
 			logger.trace("Handle move of {}, from {}.", filePath, source.getPath());
 			// eventManager.getFileTree().deleteFile(action.getFile().getPath());

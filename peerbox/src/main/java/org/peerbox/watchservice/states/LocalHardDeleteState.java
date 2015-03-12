@@ -6,9 +6,9 @@ import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.hive2hive.core.exceptions.NoSessionException;
 import org.hive2hive.processframework.exceptions.InvalidProcessStateException;
 import org.hive2hive.processframework.exceptions.ProcessExecutionException;
+import org.peerbox.app.manager.file.FileInfo;
 import org.peerbox.app.manager.file.IFileManager;
 import org.peerbox.exceptions.NotImplException;
-import org.peerbox.presenter.settings.synchronization.FileHelper;
 import org.peerbox.watchservice.IAction;
 import org.peerbox.watchservice.IFileEventManager;
 import org.peerbox.watchservice.filetree.IFileTree;
@@ -39,14 +39,14 @@ public class LocalHardDeleteState extends AbstractActionState{
 				action.getFile().getPath());
 		return new InitialState(action);
 	}
-	
+
 	@Override
 	public ExecutionHandle execute(IFileManager fileManager) throws InvalidProcessStateException, ProcessExecutionException, NoSessionException, NoPeerConnectionException {
 		final Path path = action.getFile().getPath();
 		logger.debug("Execute LOCAL DELETE: {}", path);
 		handle = fileManager.delete(path);
 		if (handle != null && handle.getProcess() != null) {
-			FileHelper file = new FileHelper(path, action.getFile().isFile());
+			FileInfo file = new FileInfo(path, action.getFile().isFolder());
 			handle.getProcess().attachListener(new LocalFileDeleteListener(file, action.getFileEventManager().getMessageBus()));
 			handle.executeAsync();
 		} else {
@@ -83,9 +83,9 @@ public class LocalHardDeleteState extends AbstractActionState{
 	public AbstractActionState handleLocalDelete(){
 		IFileEventManager eventManager = action.getFileEventManager();
 		IFileTree fileTree = eventManager.getFileTree();
-		
+
 		fileTree.deleteFile(action.getFile().getPath());
-		
+
 		updateTimeAndQueue();
 		return changeStateOnLocalDelete();
 	}

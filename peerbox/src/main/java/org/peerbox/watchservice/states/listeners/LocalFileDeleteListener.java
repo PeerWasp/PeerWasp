@@ -1,16 +1,13 @@
 package org.peerbox.watchservice.states.listeners;
 
-import java.nio.file.Path;
-
 import org.hive2hive.processframework.interfaces.IProcessEventArgs;
+import org.peerbox.app.manager.file.FileInfo;
 import org.peerbox.app.manager.file.messages.LocalFileDeletedMessage;
 import org.peerbox.events.MessageBus;
-import org.peerbox.presenter.settings.synchronization.FileHelper;
 
-public class LocalFileDeleteListener extends FileOperationListener{
+public class LocalFileDeleteListener extends FileOperationListener {
 
-
-	public LocalFileDeleteListener(final FileHelper file, final MessageBus messageBus) {
+	public LocalFileDeleteListener(final FileInfo file, final MessageBus messageBus) {
 		super(file, messageBus);
 	}
 
@@ -19,12 +16,11 @@ public class LocalFileDeleteListener extends FileOperationListener{
 		super.onExecutionSucceeded(args);
 		notifyLocalFileDelete(getFile());
 	}
-	
-	private void notifyLocalFileDelete(final FileHelper file){
+
+	private void notifyLocalFileDelete(final FileInfo file) {
 		if (getMessageBus() != null) {
 			getMessageBus().publish(new LocalFileDeletedMessage(file));
 		}
 	}
-
 
 }

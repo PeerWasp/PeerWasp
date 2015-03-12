@@ -193,9 +193,9 @@ public class UserConfig extends AbstractConfig {
 		setProperty(PROPERTY_AUTO_LOGIN, Boolean.toString(enabled));
 		saveProperties();
 	}
-	
+
 	/**
-	 * @return true if auto login is set, false otherwise.
+	 * @return true if notifications are enabled, false otherwise.
 	 */
 	public synchronized boolean isTrayNotificationEnabled() {
 		return Boolean.valueOf(getProperty(PROPERTY_TRAY_NOTIFICATION));
@@ -204,11 +204,11 @@ public class UserConfig extends AbstractConfig {
 	/**
 	 * Sets the tray notification property.
 	 *
-	 * @param status
+	 * @param enabled
 	 * @throws IOException
 	 */
-	public synchronized void setTrayNotification(boolean status) throws IOException {
-		setProperty(PROPERTY_TRAY_NOTIFICATION, Boolean.toString(status));
+	public synchronized void setTrayNotification(boolean enabled) throws IOException {
+		setProperty(PROPERTY_TRAY_NOTIFICATION, Boolean.toString(enabled));
 		saveProperties();
 	}
 

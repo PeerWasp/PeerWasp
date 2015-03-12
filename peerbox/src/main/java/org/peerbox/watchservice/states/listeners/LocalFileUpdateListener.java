@@ -1,15 +1,13 @@
 package org.peerbox.watchservice.states.listeners;
 
-import net.engio.mbassy.bus.common.IMessageBus;
-
 import org.hive2hive.processframework.interfaces.IProcessEventArgs;
+import org.peerbox.app.manager.file.FileInfo;
 import org.peerbox.app.manager.file.messages.LocalFileUpdatedMessage;
 import org.peerbox.events.MessageBus;
-import org.peerbox.presenter.settings.synchronization.FileHelper;
 
 public class LocalFileUpdateListener extends FileOperationListener {
 
-	public LocalFileUpdateListener(final FileHelper file, MessageBus messageBus) {
+	public LocalFileUpdateListener(final FileInfo file, MessageBus messageBus) {
 		super(file, messageBus);
 	}
 
@@ -18,8 +16,8 @@ public class LocalFileUpdateListener extends FileOperationListener {
 		super.onExecutionSucceeded(args);
 		notifyLocalFileUpdate(getFile());
 	}
-	
-	private void notifyLocalFileUpdate(FileHelper file){
+
+	private void notifyLocalFileUpdate(FileInfo file) {
 		if (getMessageBus() != null) {
 			getMessageBus().publish(new LocalFileUpdatedMessage(file));
 		}

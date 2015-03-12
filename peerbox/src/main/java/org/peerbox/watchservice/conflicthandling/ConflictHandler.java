@@ -8,9 +8,9 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import org.apache.commons.io.FilenameUtils;
+import org.peerbox.app.manager.file.FileInfo;
 import org.peerbox.app.manager.file.messages.LocalFileConflictMessage;
 import org.peerbox.events.MessageBus;
-import org.peerbox.presenter.settings.synchronization.FileHelper;
 
 /**
  * This class is used to resolve file conflicts. The remote version
@@ -92,7 +92,7 @@ public class ConflictHandler {
 			}
 
 			if (bus != null) {
-				FileHelper fileHelper = new FileHelper(path, true);
+				FileInfo fileHelper = new FileInfo(path, false);
 				bus.publish(new LocalFileConflictMessage(fileHelper));
 			}
 

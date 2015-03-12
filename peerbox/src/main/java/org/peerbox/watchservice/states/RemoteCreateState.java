@@ -6,8 +6,8 @@ import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.hive2hive.core.exceptions.NoSessionException;
 import org.hive2hive.processframework.exceptions.InvalidProcessStateException;
 import org.hive2hive.processframework.exceptions.ProcessExecutionException;
+import org.peerbox.app.manager.file.FileInfo;
 import org.peerbox.app.manager.file.IFileManager;
-import org.peerbox.presenter.settings.synchronization.FileHelper;
 import org.peerbox.watchservice.IAction;
 import org.peerbox.watchservice.conflicthandling.ConflictHandler;
 import org.peerbox.watchservice.filetree.IFileTree;
@@ -17,7 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Files in the RemoteCreateState have been remotely added. The H2H network 
+ * Files in the RemoteCreateState have been remotely added. The H2H network
  * already delivered a notification to announce the file's existence. If a file
  * is in the RemoteCreateState, it might be already downloading.
  * @author Claudio
@@ -31,7 +31,7 @@ public class RemoteCreateState extends AbstractActionState {
 	public RemoteCreateState(IAction action) {
 		super(action, StateType.REMOTE_CREATE);
 	}
-	
+
 	@Override
 	public ExecutionHandle execute(IFileManager fileManager) throws InvalidProcessStateException,
 			ProcessExecutionException, NoSessionException, NoPeerConnectionException {
@@ -39,7 +39,7 @@ public class RemoteCreateState extends AbstractActionState {
 		logger.debug("Execute REMOTE ADD, download the file: {}", path);
 		handle = fileManager.download(path);
 		if (handle != null && handle.getProcess() != null) {
-			FileHelper file = new FileHelper(path, action.getFile().isFile());
+			FileInfo file = new FileInfo(path, action.getFile().isFolder());
 			handle.getProcess().attachListener(new RemoteFileAddListener(file, action.getFileEventManager().getMessageBus()));
 			handle.executeAsync();
 		} else {
@@ -77,7 +77,7 @@ public class RemoteCreateState extends AbstractActionState {
 		updateTimeAndQueue();
 		return changeStateOnLocalUpdate();
 	}
-	
+
 	public AbstractActionState changeStateOnLocalUpdate(){
 		logStateTransition(getStateType(), EventType.LOCAL_UPDATE, StateType.REMOTE_CREATE);
 		return this;
@@ -99,7 +99,7 @@ public class RemoteCreateState extends AbstractActionState {
 
 		return changeStateOnRemoteMove(path);
 	}
-	
+
 	@Override
 	public AbstractActionState changeStateOnRemoteMove(Path oldFilePath) {
 		logStateTransition(getStateType(), EventType.REMOTE_MOVE, StateType.INITIAL);

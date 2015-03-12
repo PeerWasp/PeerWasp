@@ -6,9 +6,9 @@ import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.hive2hive.core.exceptions.NoSessionException;
 import org.hive2hive.processframework.exceptions.InvalidProcessStateException;
 import org.hive2hive.processframework.exceptions.ProcessExecutionException;
+import org.peerbox.app.manager.file.FileInfo;
 import org.peerbox.app.manager.file.IFileManager;
 import org.peerbox.exceptions.NotImplException;
-import org.peerbox.presenter.settings.synchronization.FileHelper;
 import org.peerbox.watchservice.IAction;
 import org.peerbox.watchservice.conflicthandling.ConflictHandler;
 import org.peerbox.watchservice.filetree.IFileTree;
@@ -18,9 +18,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Files in the RemoteUpdateState have been remotely updated. The H2H network 
+ * Files in the RemoteUpdateState have been remotely updated. The H2H network
  * already delivered a notification to announce the file's update. If a file
- * is in the RemoteUpdateState, it is existing on the disk, but it might be 
+ * is in the RemoteUpdateState, it is existing on the disk, but it might be
  * already downloading the newest version.
  * @author Claudio
  *
@@ -33,7 +33,7 @@ public class RemoteUpdateState extends AbstractActionState {
 	public RemoteUpdateState(IAction action) {
 		super(action, StateType.REMOTE_UPDATE);
 	}
-	
+
 	@Override
 	public ExecutionHandle execute(IFileManager fileManager) throws NoSessionException, NoPeerConnectionException, InvalidProcessStateException, ProcessExecutionException {
 		final Path path = action.getFile().getPath();
@@ -41,7 +41,7 @@ public class RemoteUpdateState extends AbstractActionState {
 
 		handle = fileManager.download(path);
 		if (handle != null && handle.getProcess() != null) {
-			FileHelper file = new FileHelper(path, action.getFile().isFile());
+			FileInfo file = new FileInfo(path, action.getFile().isFolder());
 			handle.getProcess().attachListener(new RemoteFileUpdateListener(file, action.getFileEventManager().getMessageBus()));
 			handle.executeAsync();
 		} else {
@@ -94,7 +94,7 @@ public class RemoteUpdateState extends AbstractActionState {
 		updateTimeAndQueue();
 		return changeStateOnLocalUpdate();
 	}
-	
+
 	public AbstractActionState changeStateOnLocalUpdate(){
 		logStateTransition(getStateType(), EventType.LOCAL_UPDATE, StateType.REMOTE_UPDATE);
 		return this;
@@ -120,17 +120,17 @@ public class RemoteUpdateState extends AbstractActionState {
 
 		return changeStateOnRemoteMove(path);
 	}
-	
+
 	@Override
 	public AbstractActionState changeStateOnRemoteMove(Path oldFilePath) {
 		logStateTransition(getStateType(), EventType.REMOTE_MOVE, StateType.ESTABLISHED);
 		return new InitialState(action);
 	}
-	
+
 	public void setLocalUpdateHappened(boolean b){
 		localUpdateHappened = b;
 	}
-	
+
 	public boolean getLocalUpdateHappened(){
 		return localUpdateHappened;
 	}

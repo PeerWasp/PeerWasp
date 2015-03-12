@@ -1,18 +1,18 @@
 package org.peerbox.app.manager.file.messages;
 
-import org.peerbox.presenter.settings.synchronization.FileHelper;
+import org.peerbox.app.manager.file.FileInfo;
 import org.peerbox.watchservice.states.StateType;
 
-public class FileExecutionStartedMessage extends AbstractFileMessage {
+public final class FileExecutionStartedMessage extends AbstractFileMessage {
 
-	private StateType stateType;
-	public FileExecutionStartedMessage(final FileHelper file, final StateType stateType) {
+	private final StateType stateType;
+
+	public FileExecutionStartedMessage(final FileInfo file, final StateType stateType) {
 		super(file);
 		this.stateType = stateType;
 	}
-	
-	
-	public StateType getStateType(){
+
+	public StateType getStateType() {
 		return stateType;
 	}
 
