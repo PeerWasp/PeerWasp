@@ -86,4 +86,29 @@ public class FileManagerTest {
 		fail("Not yet implemented");
 	}
 
+	@Test
+	public void testAbstractManager() {
+		fail("Not yet implemented");
+	}
+
+	@Test
+	public void testGetH2HFileManager() {
+		fail("Not yet implemented");
+	}
+
+	@Test
+	public void testGetH2HUserManager() {
+		fail("Not yet implemented");
+	}
+
+	@Test
+	public void testGetMessageBus() {
+		fail("Not yet implemented");
+	}
+
+	@Test
+	public void testGetFileConfiguration() {
+		fail("Not yet implemented");
+	}
+
 }

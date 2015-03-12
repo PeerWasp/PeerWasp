@@ -24,6 +24,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
+import org.peerbox.BaseJUnitTest;
 import org.peerbox.ResultStatus;
 import org.peerbox.app.manager.node.INodeManager;
 import org.peerbox.app.manager.user.IUserManager;
@@ -33,7 +34,7 @@ import org.peerbox.app.manager.user.RegisterMessage;
 import org.peerbox.app.manager.user.UserManager;
 import org.peerbox.events.MessageBus;
 
-public class UserManagerTest {
+public class UserManagerTest extends BaseJUnitTest {
 	private static final int NETWORK_SIZE = 15;
 	private static List<IH2HNode> network;
 

@@ -5,8 +5,8 @@ import javafx.stage.Stage;
 
 import org.peerbox.app.ExitHandler;
 import org.peerbox.app.IExitHandler;
-import org.peerbox.app.IPeerWaspConfig;
-import org.peerbox.app.PeerWaspConfig;
+import org.peerbox.app.config.IPeerWaspConfig;
+import org.peerbox.app.config.PeerWaspConfig;
 import org.peerbox.app.manager.node.INodeManager;
 import org.peerbox.app.manager.node.NodeManager;
 import org.peerbox.app.manager.user.IUserManager;

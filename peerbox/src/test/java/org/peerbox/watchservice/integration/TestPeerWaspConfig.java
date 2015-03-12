@@ -1,6 +1,6 @@
 package org.peerbox.watchservice.integration;
 
-import org.peerbox.app.IPeerWaspConfig;
+import org.peerbox.app.config.IPeerWaspConfig;
 
 public class TestPeerWaspConfig implements IPeerWaspConfig {
 	
