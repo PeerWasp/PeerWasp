@@ -2,10 +2,12 @@ package org.peerbox.presenter.settings.synchronization;
 
 import java.nio.file.Path;
 
+
+// TODO: Merge with FileInfo
 /**
  * This class is used to represent files and folders as simple
- * as possible using only two properties: The object's Path and a 
- * boolean denoting if the object is a file or a folder. It is 
+ * as possible using only two properties: The object's Path and a
+ * boolean denoting if the object is a file or a folder. It is
  * primarily used to transfer this information between PeerWasp as
  * part of messages sent between components over the {@link org.
  * peerbox.events.MessageBus MessageBus}.

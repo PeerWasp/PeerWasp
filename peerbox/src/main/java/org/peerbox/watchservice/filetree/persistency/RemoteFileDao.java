@@ -5,7 +5,7 @@ import java.util.List;
 
 import org.hive2hive.core.processes.files.list.FileNode;
 import org.peerbox.app.DbContext;
-import org.peerbox.forcesync.FileInfo;
+import org.peerbox.app.manager.file.FileInfo;
 import org.peerbox.watchservice.PathUtils;
 import org.sql2o.Connection;
 import org.sql2o.Sql2o;

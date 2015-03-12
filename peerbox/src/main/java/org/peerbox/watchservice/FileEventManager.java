@@ -18,17 +18,17 @@ import org.hive2hive.core.events.implementations.FileAddEvent;
 import org.hive2hive.core.model.PermissionType;
 import org.hive2hive.core.model.UserPermission;
 import org.peerbox.app.manager.file.IFileMessage;
-import org.peerbox.app.manager.file.LocalFileDesyncMessage;
-import org.peerbox.app.manager.file.LocalShareFolderMessage;
-import org.peerbox.app.manager.file.RemoteFileDeletedMessage;
-import org.peerbox.app.manager.file.RemoteFileMovedMessage;
-import org.peerbox.app.manager.file.RemoteShareFolderMessage;
+import org.peerbox.app.manager.file.messages.FileExecutionStartedMessage;
+import org.peerbox.app.manager.file.messages.LocalFileDesyncMessage;
+import org.peerbox.app.manager.file.messages.LocalShareFolderMessage;
+import org.peerbox.app.manager.file.messages.RemoteFileDeletedMessage;
+import org.peerbox.app.manager.file.messages.RemoteFileMovedMessage;
+import org.peerbox.app.manager.file.messages.RemoteShareFolderMessage;
 import org.peerbox.events.MessageBus;
 import org.peerbox.forcesync.ForceSyncCompleteMessage;
 import org.peerbox.forcesync.ForceSyncMessage;
 import org.peerbox.notifications.InformationNotification;
 import org.peerbox.presenter.settings.synchronization.FileHelper;
-import org.peerbox.presenter.settings.synchronization.messages.FileExecutionStartedMessage;
 import org.peerbox.watchservice.filetree.FileTree;
 import org.peerbox.watchservice.filetree.IFileTree;
 import org.peerbox.watchservice.filetree.composite.FileComponent;
@@ -192,7 +192,7 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 	//TODO: remove children from actionQueue as well!
 	/**
 	 * Forwards the local delete event to the core. Additionally, it publishes a {@link
-	 * org.peerbox.app.manager.file.LocalFileDesyncMessage LocalFileDesyncMessage} using
+	 * org.peerbox.app.manager.file.messages.LocalFileDesyncMessage LocalFileDesyncMessage} using
 	 * the {@link #messageBus} to inform GUI components.
 	 */
 	@Override
@@ -334,7 +334,7 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 	/**
 	 * This handler is for remote delete events and is called by the network when
 	 * a file has been definitely deleted. Besides forwarding the event to the core,
-	 * this method publishes a {@link org.peerbox.app.manager.file.RemoteFileDeletedMessage
+	 * this method publishes a {@link org.peerbox.app.manager.file.messages.RemoteFileDeletedMessage
 	 * RemoteFileDeletedMessage} to notify the GUI.
 	 */
 	@Override
@@ -377,7 +377,7 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 	/**
 	 * This handler is for remote move events and is called by the network when
 	 * a file has been moved remotely. This method forwards the event to the core and
-	 * publishes a {@link org.peerbox.app.manager.file.RemoteFileMovedMessage
+	 * publishes a {@link org.peerbox.app.manager.file.messages.RemoteFileMovedMessage
 	 * RemoteFileMovedMessage} to inform the GUI.
 	 */
 	@Override

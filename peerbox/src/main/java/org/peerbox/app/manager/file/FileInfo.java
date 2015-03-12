@@ -1,4 +1,4 @@
-package org.peerbox.forcesync;
+package org.peerbox.app.manager.file;
 
 import java.nio.file.Path;
 

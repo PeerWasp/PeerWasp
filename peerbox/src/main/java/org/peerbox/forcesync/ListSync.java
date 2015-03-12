@@ -11,6 +11,7 @@ import org.hive2hive.core.events.framework.interfaces.file.IFileDeleteEvent;
 import org.hive2hive.core.events.framework.interfaces.file.IFileUpdateEvent;
 import org.hive2hive.core.events.implementations.FileDeleteEvent;
 import org.hive2hive.core.events.implementations.FileUpdateEvent;
+import org.peerbox.app.manager.file.FileInfo;
 import org.peerbox.watchservice.FileEventManager;
 import org.peerbox.watchservice.conflicthandling.ConflictHandler;
 

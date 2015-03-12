@@ -6,10 +6,10 @@ import org.junit.runners.Suite.SuiteClasses;
 
 @RunWith(Suite.class)
 @SuiteClasses({
-	UserConfigTest.class,
 	AppConfigTest.class,
+	BootstrappingNodesFactoryTest.class,
 	BootstrappingNodesTest.class,
-	BootstrappingNodesFactoryTest.class
+	UserConfigTest.class
 })
 
 public class ConfigTestSuite {

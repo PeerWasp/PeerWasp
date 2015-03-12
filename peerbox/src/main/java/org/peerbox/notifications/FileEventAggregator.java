@@ -8,10 +8,10 @@ import java.util.TimerTask;
 
 import net.engio.mbassy.listener.Handler;
 
-import org.peerbox.app.manager.file.RemoteFileAddedMessage;
-import org.peerbox.app.manager.file.RemoteFileDeletedMessage;
-import org.peerbox.app.manager.file.RemoteFileMovedMessage;
-import org.peerbox.app.manager.file.RemoteFileUpdatedMessage;
+import org.peerbox.app.manager.file.messages.RemoteFileAddedMessage;
+import org.peerbox.app.manager.file.messages.RemoteFileDeletedMessage;
+import org.peerbox.app.manager.file.messages.RemoteFileMovedMessage;
+import org.peerbox.app.manager.file.messages.RemoteFileUpdatedMessage;
 import org.peerbox.events.IMessageListener;
 import org.peerbox.events.MessageBus;
 import org.slf4j.Logger;

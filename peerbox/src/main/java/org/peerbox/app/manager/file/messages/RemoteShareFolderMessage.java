@@ -1,4 +1,4 @@
-package org.peerbox.app.manager.file;
+package org.peerbox.app.manager.file.messages;
 
 import java.util.Set;
 

@@ -37,7 +37,7 @@ import org.hive2hive.processframework.exceptions.ProcessExecutionException;
 import org.peerbox.ResultStatus;
 import org.peerbox.app.manager.ProcessHandle;
 import org.peerbox.app.manager.file.IFileManager;
-import org.peerbox.app.manager.file.LocalShareFolderMessage;
+import org.peerbox.app.manager.file.messages.LocalShareFolderMessage;
 import org.peerbox.app.manager.user.IUserManager;
 import org.peerbox.events.MessageBus;
 import org.peerbox.presenter.settings.synchronization.FileHelper;

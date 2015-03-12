@@ -8,6 +8,7 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Map;
 
 import org.hive2hive.core.security.HashUtil;
+import org.peerbox.app.manager.file.FileInfo;
 import org.peerbox.watchservice.PathUtils;
 
 class LocalFileWalker extends SimpleFileVisitor<Path> {

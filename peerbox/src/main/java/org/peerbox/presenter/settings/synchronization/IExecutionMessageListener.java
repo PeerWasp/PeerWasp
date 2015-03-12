@@ -2,15 +2,15 @@ package org.peerbox.presenter.settings.synchronization;
 
 import net.engio.mbassy.listener.Handler;
 
-import org.peerbox.app.manager.file.LocalFileDesyncMessage;
-import org.peerbox.app.manager.file.FileExecutionFailedMessage;
-import org.peerbox.app.manager.file.LocalShareFolderMessage;
-import org.peerbox.app.manager.file.RemoteFileDeletedMessage;
-import org.peerbox.app.manager.file.RemoteFileMovedMessage;
-import org.peerbox.app.manager.file.RemoteShareFolderMessage;
+import org.peerbox.app.manager.file.messages.FileExecutionFailedMessage;
+import org.peerbox.app.manager.file.messages.FileExecutionStartedMessage;
+import org.peerbox.app.manager.file.messages.FileExecutionSucceededMessage;
+import org.peerbox.app.manager.file.messages.LocalFileDesyncMessage;
+import org.peerbox.app.manager.file.messages.LocalShareFolderMessage;
+import org.peerbox.app.manager.file.messages.RemoteFileDeletedMessage;
+import org.peerbox.app.manager.file.messages.RemoteFileMovedMessage;
+import org.peerbox.app.manager.file.messages.RemoteShareFolderMessage;
 import org.peerbox.events.IMessageListener;
-import org.peerbox.presenter.settings.synchronization.messages.FileExecutionStartedMessage;
-import org.peerbox.presenter.settings.synchronization.messages.FileExecutionSucceededMessage;
 
 public interface IExecutionMessageListener extends IMessageListener {
 

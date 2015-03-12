@@ -1,6 +1,5 @@
-package org.peerbox.presenter.settings.synchronization.messages;
+package org.peerbox.app.manager.file.messages;
 
-import org.peerbox.app.manager.file.AbstractFileMessage;
 import org.peerbox.presenter.settings.synchronization.FileHelper;
 import org.peerbox.watchservice.states.StateType;
 

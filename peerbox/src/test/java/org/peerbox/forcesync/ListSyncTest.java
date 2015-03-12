@@ -9,6 +9,7 @@ import org.junit.Before;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.peerbox.BaseJUnitTest;
+import org.peerbox.app.manager.file.FileInfo;
 import org.peerbox.watchservice.FileEventManager;
 import org.peerbox.watchservice.conflicthandling.ConflictHandler;
 import org.powermock.modules.junit4.PowerMockRunner;

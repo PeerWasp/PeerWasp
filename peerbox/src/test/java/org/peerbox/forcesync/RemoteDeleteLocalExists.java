@@ -7,6 +7,7 @@ import org.hive2hive.core.events.framework.interfaces.file.IFileDeleteEvent;
 import org.junit.Test;
 import org.mockito.Matchers;
 import org.mockito.Mockito;
+import org.peerbox.app.manager.file.FileInfo;
 
 public class RemoteDeleteLocalExists extends ListSyncTest {
 

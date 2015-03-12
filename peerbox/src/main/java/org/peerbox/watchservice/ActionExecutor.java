@@ -20,15 +20,15 @@ import org.hive2hive.core.exceptions.NoSessionException;
 import org.hive2hive.processframework.exceptions.ProcessExecutionException;
 import org.peerbox.app.IPeerWaspConfig;
 import org.peerbox.app.manager.ProcessHandle;
-import org.peerbox.app.manager.file.FileExecutionFailedMessage;
 import org.peerbox.app.manager.file.IFileManager;
+import org.peerbox.app.manager.file.messages.FileExecutionFailedMessage;
+import org.peerbox.app.manager.file.messages.FileExecutionStartedMessage;
+import org.peerbox.app.manager.file.messages.FileExecutionSucceededMessage;
 import org.peerbox.events.IMessage;
 import org.peerbox.forcesync.ForceSyncCompleteMessage;
 import org.peerbox.forcesync.ForceSyncMessage;
 import org.peerbox.notifications.InformationNotification;
 import org.peerbox.presenter.settings.synchronization.FileHelper;
-import org.peerbox.presenter.settings.synchronization.messages.FileExecutionStartedMessage;
-import org.peerbox.presenter.settings.synchronization.messages.FileExecutionSucceededMessage;
 import org.peerbox.view.tray.SynchronizationCompleteNotification;
 import org.peerbox.view.tray.SynchronizationErrorsResolvedNotification;
 import org.peerbox.view.tray.SynchronizationStartsNotification;
@@ -56,9 +56,9 @@ import com.google.inject.Inject;
  * This class uses the {@link org.peerbox.events.MessageBus MessageBus} instance of the
  * injected {@link org.peerbox.watchservice.FileEventManager FileEventManager}
  * instance to publish {@link org.peerbox.view.tray.SynchronizationErrorsResolvedNotification SynchronizationErrorsResolvedNotification},
- * {@link org.peerbox.presenter.settings.synchronization.messages.FileExecutionStartedMessage FileExecutionStartedMessage},
- * {@link org.peerbox.presenter.settings.synchronization.messages.FileExecutionSucceededMessage FileExecutionSucceededMessage},
- * {@link org.peerbox.app.manager.file.FileExecutionFailedMessage FileExecutionFailedMessage}, and
+ * {@link org.peerbox.app.manager.file.messages.FileExecutionStartedMessage FileExecutionStartedMessage},
+ * {@link org.peerbox.app.manager.file.messages.FileExecutionSucceededMessage FileExecutionSucceededMessage},
+ * {@link org.peerbox.app.manager.file.messages.FileExecutionFailedMessage FileExecutionFailedMessage}, and
  * {@link org.peerbox.view.tray.SynchronizationCompleteNotification SynchronizationCompleteNotification}.
 
  * @author albrecht

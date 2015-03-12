@@ -18,7 +18,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.peerbox.app.DbContext;
-import org.peerbox.forcesync.FileInfo;
+import org.peerbox.app.manager.file.FileInfo;
 import org.peerbox.utils.UserDbUtils;
 import org.peerbox.watchservice.PathUtils;
 import org.peerbox.watchservice.filetree.persistency.RemoteFileDao;

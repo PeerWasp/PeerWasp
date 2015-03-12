@@ -126,6 +126,7 @@ public class FileManager extends AbstractManager implements IFileManager {
 
 	/**
 	 * Searches a FileNode given a path.
+	 *
 	 * @param index the file index, e.g. the root node
 	 * @param path the path for which the node should be searched
 	 * @return the file node corresponding to the given path or null if none exists
@@ -161,6 +162,7 @@ public class FileManager extends AbstractManager implements IFileManager {
 
 	/**
 	 * Searches a child node in a list with a given name
+	 *
 	 * @param children list of child nodes
 	 * @param name the name to search
 	 * @return the FileNode or null if none exists
@@ -187,17 +189,4 @@ public class FileManager extends AbstractManager implements IFileManager {
 		return !isSmallFile(path);
 	}
 
-//	private class LocalFileDeleteListener extends FileOperationListener {
-//
-//		LocalFileDeleteListener(final Path path) {
-//			super(path);
-//		}
-//
-//		@Override
-//		public void onExecutionSucceeded(IProcessEventArgs args) {
-//			super.onExecutionSucceeded(args);
-//			notifyLocalFileDelete(getPath());
-//		}
-//
-//	}
 }

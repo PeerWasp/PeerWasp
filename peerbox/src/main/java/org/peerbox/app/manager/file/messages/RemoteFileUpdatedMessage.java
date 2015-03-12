@@ -1,6 +1,4 @@
-package org.peerbox.app.manager.file;
-
-import java.nio.file.Path;
+package org.peerbox.app.manager.file.messages;
 
 import org.peerbox.presenter.settings.synchronization.FileHelper;
 

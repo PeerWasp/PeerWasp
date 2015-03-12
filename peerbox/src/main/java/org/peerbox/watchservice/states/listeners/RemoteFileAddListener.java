@@ -1,8 +1,8 @@
 package org.peerbox.watchservice.states.listeners;
 
 import org.hive2hive.processframework.interfaces.IProcessEventArgs;
-import org.peerbox.app.manager.file.LocalFileDeletedMessage;
-import org.peerbox.app.manager.file.RemoteFileAddedMessage;
+import org.peerbox.app.manager.file.messages.LocalFileDeletedMessage;
+import org.peerbox.app.manager.file.messages.RemoteFileAddedMessage;
 import org.peerbox.events.MessageBus;
 import org.peerbox.presenter.settings.synchronization.FileHelper;
 

@@ -11,12 +11,12 @@ import org.mockito.Mockito;
 import org.peerbox.BaseJUnitTest;
 import org.peerbox.app.activity.ActivityLogger;
 import org.peerbox.app.activity.ActivityType;
-import org.peerbox.app.manager.file.FileExecutionFailedMessage;
-import org.peerbox.app.manager.file.LocalFileConflictMessage;
-import org.peerbox.app.manager.file.LocalFileDesyncMessage;
-import org.peerbox.app.manager.file.RemoteFileAddedMessage;
-import org.peerbox.app.manager.file.RemoteFileDeletedMessage;
-import org.peerbox.app.manager.file.RemoteFileMovedMessage;
+import org.peerbox.app.manager.file.messages.FileExecutionFailedMessage;
+import org.peerbox.app.manager.file.messages.LocalFileConflictMessage;
+import org.peerbox.app.manager.file.messages.LocalFileDesyncMessage;
+import org.peerbox.app.manager.file.messages.RemoteFileAddedMessage;
+import org.peerbox.app.manager.file.messages.RemoteFileDeletedMessage;
+import org.peerbox.app.manager.file.messages.RemoteFileMovedMessage;
 import org.peerbox.presenter.settings.synchronization.FileHelper;
 
 public class FileManagerCollectorTest extends BaseJUnitTest {

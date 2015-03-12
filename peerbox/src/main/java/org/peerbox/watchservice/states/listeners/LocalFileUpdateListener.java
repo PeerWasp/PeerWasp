@@ -3,7 +3,7 @@ package org.peerbox.watchservice.states.listeners;
 import net.engio.mbassy.bus.common.IMessageBus;
 
 import org.hive2hive.processframework.interfaces.IProcessEventArgs;
-import org.peerbox.app.manager.file.LocalFileUpdatedMessage;
+import org.peerbox.app.manager.file.messages.LocalFileUpdatedMessage;
 import org.peerbox.events.MessageBus;
 import org.peerbox.presenter.settings.synchronization.FileHelper;
 

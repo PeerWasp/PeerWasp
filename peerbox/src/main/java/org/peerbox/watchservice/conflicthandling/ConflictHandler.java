@@ -8,7 +8,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import org.apache.commons.io.FilenameUtils;
-import org.peerbox.app.manager.file.LocalFileConflictMessage;
+import org.peerbox.app.manager.file.messages.LocalFileConflictMessage;
 import org.peerbox.events.MessageBus;
 import org.peerbox.presenter.settings.synchronization.FileHelper;
 

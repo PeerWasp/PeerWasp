@@ -30,17 +30,17 @@ import org.hive2hive.core.processes.files.list.FileNode;
 import org.hive2hive.processframework.exceptions.InvalidProcessStateException;
 import org.hive2hive.processframework.exceptions.ProcessExecutionException;
 import org.peerbox.app.config.UserConfig;
-import org.peerbox.app.manager.file.LocalFileDesyncMessage;
-import org.peerbox.app.manager.file.FileExecutionFailedMessage;
 import org.peerbox.app.manager.file.IFileManager;
-import org.peerbox.app.manager.file.LocalShareFolderMessage;
-import org.peerbox.app.manager.file.RemoteFileDeletedMessage;
-import org.peerbox.app.manager.file.RemoteFileMovedMessage;
-import org.peerbox.app.manager.file.RemoteShareFolderMessage;
+import org.peerbox.app.manager.file.messages.FileExecutionFailedMessage;
+import org.peerbox.app.manager.file.messages.FileExecutionStartedMessage;
+import org.peerbox.app.manager.file.messages.FileExecutionSucceededMessage;
+import org.peerbox.app.manager.file.messages.LocalFileDesyncMessage;
+import org.peerbox.app.manager.file.messages.LocalShareFolderMessage;
+import org.peerbox.app.manager.file.messages.RemoteFileDeletedMessage;
+import org.peerbox.app.manager.file.messages.RemoteFileMovedMessage;
+import org.peerbox.app.manager.file.messages.RemoteShareFolderMessage;
 import org.peerbox.filerecovery.IFileRecoveryHandler;
 import org.peerbox.forcesync.IForceSyncHandler;
-import org.peerbox.presenter.settings.synchronization.messages.FileExecutionStartedMessage;
-import org.peerbox.presenter.settings.synchronization.messages.FileExecutionSucceededMessage;
 import org.peerbox.share.IShareFolderHandler;
 import org.peerbox.watchservice.FileEventManager;
 import org.peerbox.watchservice.IFileEventManager;
@@ -207,8 +207,7 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 	}
 
 	/**
-	 * This handler is automatically invoked when a {@link org.peerbox.
-	 * presenter.settings.synchronization.messages.FileExecutionStartedMessage
+	 * This handler is automatically invoked when a {@link org.peerbox.app.manager.file.messages.FileExecutionStartedMessage
 	 * FileExecutionStartedMessage} is published using the {@link org.peerbox.
 	 * events.MessageBus MessageBus}. This method changes the corresponding
 	 * {@link javafx.scene.control.CheckBoxTreeItem CheckBoxTreeItem} in the
@@ -223,8 +222,7 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 	}
 
 	/**
-	 * This handler is automatically invoked when a {@link org.peerbox.app.
-	 * manager.file.RemoteFileDeletedMessage RemoteFileDeletedMessage} is
+	 * This handler is automatically invoked when a {@link org.peerbox.app.manager.file.messages.RemoteFileDeletedMessage RemoteFileDeletedMessage} is
 	 * published using the {@link org.peerbox.events.MessageBus MessageBus}.
 	 * This method changes the corresponding {@link javafx.scene.control.
 	 * CheckBoxTreeItem CheckBoxTreeItem} in the {@link javafx.scene.control.
@@ -243,8 +241,7 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 	}
 
 	/**
-	 * This handler is automatically invoked when a {@link org.peerbox.app.
-	 * manager.file.RemoteFileMovedMessage RemoteFileMovedMessage} is
+	 * This handler is automatically invoked when a {@link org.peerbox.app.manager.file.messages.RemoteFileMovedMessage RemoteFileMovedMessage} is
 	 * published using the {@link org.peerbox.events.MessageBus MessageBus}.
 	 * This method changes the corresponding {@link javafx.scene.control.
 	 * CheckBoxTreeItem CheckBoxTreeItem} in the {@link javafx.scene.control.
@@ -268,8 +265,7 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 
 
 	/**
-	 * This handler is automatically invoked when a {@link org.peerbox.
-	 * presenter.settings.synchronization.messages.FileExecutionSucceededMessage
+	 * This handler is automatically invoked when a {@link org.peerbox.app.manager.file.messages.FileExecutionSucceededMessage
 	 * FileExecutionSucceededMessage} is published using the {@link org.peerbox.
 	 * events.MessageBus MessageBus}. This method changes the corresponding
 	 * {@link javafx.scene.control. CheckBoxTreeItem CheckBoxTreeItem} in the
@@ -307,8 +303,7 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 	}
 
 	/**
-	 * This handler is automatically invoked when a {@link org.peerbox.
-	 * presenter.settings.synchronization.messages.FileExecutionFailedMessage
+	 * This handler is automatically invoked when a {@link org.org.peerbox.app.manager.file.messages.FileExecutionFailedMessage
 	 * FileExecutionFailedMessage} is published using the {@link org.peerbox.
 	 * events.MessageBus MessageBus}. This method changes the corresponding
 	 * {@link javafx.scene.control. CheckBoxTreeItem CheckBoxTreeItem} in the
@@ -331,8 +326,7 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 	}
 
 	/**
-	 * This handler is automatically invoked when a {@link org.peerbox.app.
-	 * manager.file.LocalFileDesyncMessage LocalFileDesyncMessage} is published
+	 * This handler is automatically invoked when a {@link org.peerbox.app.manager.file.messages.LocalFileDesyncMessage LocalFileDesyncMessage} is published
 	 * using the {@link org.peerbox.events.MessageBus MessageBus}. This method
 	 * changes the corresponding {@link javafx.scene.control. CheckBoxTreeItem
 	 * CheckBoxTreeItem} in the {@link javafx.scene.control.TreeView TreeView}

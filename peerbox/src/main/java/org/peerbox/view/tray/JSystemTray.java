@@ -17,7 +17,7 @@ import org.peerbox.app.manager.user.IUserMessageListener;
 import org.peerbox.app.manager.user.LoginMessage;
 import org.peerbox.app.manager.user.LogoutMessage;
 import org.peerbox.app.manager.user.RegisterMessage;
-import org.peerbox.app.manager.file.FileExecutionFailedMessage;
+import org.peerbox.app.manager.file.messages.FileExecutionFailedMessage;
 import org.peerbox.events.IMessageListener;
 import org.peerbox.notifications.AggregatedFileEventStatus;
 import org.peerbox.notifications.ITrayNotifications;

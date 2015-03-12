@@ -5,7 +5,7 @@ import java.nio.file.Paths;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import org.peerbox.forcesync.FileInfo;
+import org.peerbox.app.manager.file.FileInfo;
 import org.sql2o.ResultSetHandler;
 
 /**

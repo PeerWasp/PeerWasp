@@ -1,10 +1,9 @@
-package org.peerbox.app.manager.file;
+package org.peerbox.app.manager.file.messages;
 
-import java.nio.file.Path;
-
+import org.peerbox.app.manager.file.IFileMessage;
 import org.peerbox.presenter.settings.synchronization.FileHelper;
 
-public class AbstractFileMessage implements IFileMessage {
+class AbstractFileMessage implements IFileMessage {
 
 	private final FileHelper file;
 
