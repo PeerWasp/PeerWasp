@@ -19,7 +19,7 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.peerbox.exceptions.NotImplException;
+import org.peerbox.utils.NotImplementedException;
 import org.peerbox.watchservice.PathUtils;
 import org.peerbox.watchservice.filetree.composite.FileLeaf;
 import org.peerbox.watchservice.filetree.composite.FolderComposite;
@@ -232,7 +232,7 @@ public class FileLeafTest {
 		assertFalse(leaf.isReady());
 	}
 
-	@Test(expected=NotImplException.class)
+	@Test(expected=NotImplementedException.class)
 	public void testGetAndSetStructureHash() {
 		assertNotNull(leaf.getStructureHash());
 		assertTrue(leaf.getStructureHash().isEmpty());
@@ -242,17 +242,17 @@ public class FileLeafTest {
 		assertEquals("abc", leaf.getStructureHash());
 	}
 
-	@Test(expected=NotImplException.class)
+	@Test(expected=NotImplementedException.class)
 	public void testGetComponent() {
 		assertNull(leaf.getComponent(Paths.get("aComponent")));
 	}
 
-	@Test(expected=NotImplException.class)
+	@Test(expected=NotImplementedException.class)
 	public void testPutComponent() {
 		leaf.putComponent(null, null);
 	}
 
-	@Test(expected=NotImplException.class)
+	@Test(expected=NotImplementedException.class)
 	public void testDeleteComponent() {
 		assertNull(leaf.deleteComponent(Paths.get("aComponent")));
 	}

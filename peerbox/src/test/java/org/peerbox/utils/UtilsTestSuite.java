@@ -6,11 +6,14 @@ import org.junit.runners.Suite.SuiteClasses;
 
 @RunWith(Suite.class)
 @SuiteClasses({
-	WinRegistryTest.class,
-	OsUtilsTest.class,
-	NetUtilsTest.class,
+	AppDataTest.class,
 	ExecuteProcessUtilsTest.class,
-	AppDataTest.class
+	IconUtilsTest.class,
+	NetUtilsTest.class,
+	OsUtilsTest.class,
+	UserConfigUtilsTest.class,
+	UserDbUtilsTest.class,
+	WinRegistryTest.class
 })
 public class UtilsTestSuite {
 

@@ -5,10 +5,6 @@ import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 import org.peerbox.app.AppTestSuite;
 import org.peerbox.app.config.ConfigTestSuite;
-import org.peerbox.app.config.UserConfigTest;
-import org.peerbox.app.manager.node.NodeManagerTest;
-import org.peerbox.app.manager.user.FileAgentTest;
-import org.peerbox.app.manager.user.UserManagerTest;
 import org.peerbox.guice.GuiceFxmlLoaderTest;
 import org.peerbox.notifications.FileEventAggregatorTest;
 import org.peerbox.presenter.NavigationServiceTest;
@@ -18,6 +14,7 @@ import org.peerbox.utils.UtilsTestSuite;
 @RunWith(Suite.class)
 @SuiteClasses({
 	AppTestSuite.class,
+	UtilsTestSuite.class,
 
 	NavigationServiceTest.class,
 	GuiceFxmlLoaderTest.class,
@@ -26,7 +23,7 @@ import org.peerbox.utils.UtilsTestSuite;
 	ConfigTestSuite.class,
 
 	ServerTestSuite.class,
-	UtilsTestSuite.class
+
 })
 
 

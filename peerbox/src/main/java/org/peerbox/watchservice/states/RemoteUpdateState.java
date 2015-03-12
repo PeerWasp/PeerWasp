@@ -8,7 +8,7 @@ import org.hive2hive.processframework.exceptions.InvalidProcessStateException;
 import org.hive2hive.processframework.exceptions.ProcessExecutionException;
 import org.peerbox.app.manager.file.FileInfo;
 import org.peerbox.app.manager.file.IFileManager;
-import org.peerbox.exceptions.NotImplException;
+import org.peerbox.utils.NotImplementedException;
 import org.peerbox.watchservice.IAction;
 import org.peerbox.watchservice.conflicthandling.ConflictHandler;
 import org.peerbox.watchservice.filetree.IFileTree;
@@ -72,7 +72,7 @@ public class RemoteUpdateState extends AbstractActionState {
 	@Override
 	public AbstractActionState changeStateOnRemoteDelete() {
 		logger.debug("Remote Delete Event:  ({})", action.getFile().getPath());
-		throw new NotImplException("RemoteUpdate.remoteDelete");
+		throw new NotImplementedException("RemoteUpdate.remoteDelete");
 	}
 
 	@Override
