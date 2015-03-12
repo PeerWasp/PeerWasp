@@ -36,8 +36,7 @@ public class JSystemTray extends AbstractSystemTray implements ITrayNotification
 	private String tooltip;
 	private java.awt.TrayIcon trayIcon;
 	private final JTrayIcons iconProvider;
-	
-	private UserConfig userConfig;
+
 
 	private boolean hasFailedOperations = false;
 
@@ -168,10 +167,10 @@ public class JSystemTray extends AbstractSystemTray implements ITrayNotification
                 trayIcon.removeActionListener(this);
             }
         });
-		logger.info("TrayNotification Status: \n[{}]", userConfig.isTrayNotificationEnabled());
-	//	if(userConfig.isTrayNotificationEnabled()){
-		trayIcon.displayMessage("File Synchronization", msg, MessageType.INFO);
-	//	}
+//		logger.info("TrayNotification Status: \n[{}]", userConfig.isTrayNotificationEnabled());
+//		if(userConfig.isTrayNotificationEnabled()){
+			trayIcon.displayMessage("File Synchronization", msg, MessageType.INFO);
+//		}
 	}
 
 	private String generateAggregatedFileEventStatusMessage(AggregatedFileEventStatus e) {
