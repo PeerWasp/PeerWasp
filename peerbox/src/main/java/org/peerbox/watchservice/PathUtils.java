@@ -46,13 +46,25 @@ public class PathUtils {
 		return newHash;
 	}
 
+	/**
+	 * Encodes the specified byte array into a String using the Base64 encoding scheme
+	 *
+	 * @param bytes
+	 * @return base64 string
+	 */
 	public static String base64Encode(byte[] bytes) {
 		String hashString = Base64.getEncoder().encodeToString(bytes);
 		return hashString;
 	}
 
+	/**
+	 * Decodes the specified String into a byte array assuming that the string is Base64 encoded.
+	 *
+	 * @param data
+	 * @return decoded byte
+	 */
 	public static byte[] base64Decode(String data) {
-		byte[] d = Base64.getDecoder().decode(data);
+		byte[] d = Base64.getDecoder().decode(data.getBytes());
 		return d;
 	}
 }
