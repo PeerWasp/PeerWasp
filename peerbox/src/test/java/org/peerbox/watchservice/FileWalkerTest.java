@@ -25,7 +25,7 @@
 //public class FileWalkerTest {
 //
 //	private static int nrFiles = 3;
-//	private static String parentPath = System.getProperty("user.home") + File.separator + "PeerBox_FileWalkerTest" + File.separator;
+//	private static String parentPath = Syste§m.getProperty("user.home") + File.separator + "PeerBox_FileWalkerTest" + File.separator;
 //	private static File testDirectory;
 //	private static ArrayList<String> filePaths = new ArrayList<String>();
 //	private static ArrayList<File> files = new ArrayList<File>();

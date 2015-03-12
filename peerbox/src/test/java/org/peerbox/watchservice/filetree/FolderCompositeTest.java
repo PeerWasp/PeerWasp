@@ -399,7 +399,7 @@ public class FolderCompositeTest {
 		assertTrue(rootFolder.isSynchronized());
 		assertFalse(fA.isSynchronized());
 		assertTrue(fB.isSynchronized());
-		assertTrue(fC.isSynchronized());
+		assertFalse(fC.isSynchronized());
 
 		fB.setIsSynchronized(false);
 		assertTrue(rootFolder.isSynchronized());
@@ -411,8 +411,8 @@ public class FolderCompositeTest {
 		fA.setIsSynchronized(true);
 		assertTrue(rootFolder.isSynchronized());
 		assertTrue(fA.isSynchronized());
-		assertTrue(fB.isSynchronized());
-		assertTrue(fC.isSynchronized());
+		assertFalse(fB.isSynchronized());
+		assertFalse(fC.isSynchronized());
 
 		fA.setIsSynchronized(false);
 		assertTrue(rootFolder.isSynchronized());
