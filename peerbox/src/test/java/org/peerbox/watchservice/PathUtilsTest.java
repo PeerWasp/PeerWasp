@@ -2,6 +2,7 @@ package org.peerbox.watchservice;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -75,6 +76,14 @@ public class PathUtilsTest extends BaseJUnitTest {
 		byte[] decoded = PathUtils.base64Decode(encoded);
 		String content = new String(decoded);
 		assertTrue(content.equals(expected));
+	}
+	
+	@Test
+	public void isFileHiddenTest(){
+		assertTrue(PathUtils.isFileHidden(Paths.get(".file")));
+		assertTrue(PathUtils.isFileHidden(Paths.get("~file")));
+		assertTrue(PathUtils.isFileHidden(Paths.get("$file")));
+		assertFalse(PathUtils.isFileHidden(Paths.get("file")));
 	}
 
 

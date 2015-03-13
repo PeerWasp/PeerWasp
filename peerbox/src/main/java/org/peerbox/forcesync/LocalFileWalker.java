@@ -31,6 +31,10 @@ class LocalFileWalker extends SimpleFileVisitor<Path> {
 
 	@Override
 	public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+		if(PathUtils.isFileHidden(file)){
+			return FileVisitResult.CONTINUE;
+		}
+		
 		FileInfo a = new FileInfo(file, false);
 		String hash = hashFile(file);
 		a.setContentHash(hash);
