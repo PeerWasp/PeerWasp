@@ -102,6 +102,10 @@ public final class ShareFolderController implements Initializable {
 
 		grdForm.disableProperty().bind(busyProperty);
 		txtFolderPath.textProperty().bind(folderToShareProperty);
+
+		Platform.runLater(() -> {
+			txtUsername.requestFocus();
+		});
 	}
 
 	private void initializeValidations() {
