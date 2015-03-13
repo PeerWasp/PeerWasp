@@ -51,7 +51,6 @@ import org.peerbox.watchservice.states.StateType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.io.Files;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 
@@ -92,7 +91,6 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 	private Set<Path> synchronizedFiles;
 	private Set<Path> failedFiles = new HashSet<Path>();
 	private Set<Path> executingFiles = new HashSet<Path>();
-	private Set<Path> sharedFolders = new HashSet<Path>();
 
 	private final Provider<IShareFolderHandler> shareFolderHandlerProvider;
 
@@ -206,7 +204,6 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 	public void refreshAction(ActionEvent event){
 		synchronizedFiles = getFileEventManager().getFileTree().getSynchronizedPathsAsSet();
 		failedFiles = getFileEventManager().getFailedOperations();
-		sharedFolders = getFileEventManager().getSharedFolders();
 		createTreeViewFromNetwork();
 	}
 
@@ -534,7 +531,7 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 	        	SyncTreeItem item = createItem(topLevelNode.getFile().toPath(),
 	        			isSynched, topLevelNode.isFile(), topLevelNode.getUserPermissions());
 
-	        	if(sharedFolders.contains(path)){
+	        	if(topLevelNode.isShared()){
 	        		item.setIsShared(true);
 	        	}
 	        	putTreeItem(item);
