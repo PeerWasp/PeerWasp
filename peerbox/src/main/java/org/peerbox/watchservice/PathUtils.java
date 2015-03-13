@@ -2,7 +2,9 @@ package org.peerbox.watchservice;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Base64;
+import java.util.List;
 
 import org.hive2hive.core.security.HashUtil;
 
@@ -66,5 +68,16 @@ public class PathUtils {
 	public static byte[] base64Decode(String data) {
 		byte[] d = Base64.getDecoder().decode(data.getBytes());
 		return d;
+	}
+	
+	public static boolean isFileHidden(Path file){
+
+		List<String> illegal = new ArrayList<String>();
+		illegal.add("$");
+		illegal.add(".");
+		illegal.add("~");
+		
+		return illegal.stream().anyMatch(pattern -> file.getFileName().toString().startsWith(pattern));
+		
 	}
 }

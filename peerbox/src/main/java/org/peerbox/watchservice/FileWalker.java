@@ -101,6 +101,9 @@ public class FileWalker {
 
 		@Override
 		public FileVisitResult visitFile(Path path, BasicFileAttributes attr) throws IOException {
+			if(PathUtils.isFileHidden(path)){
+				return FileVisitResult.CONTINUE;
+			}
 			if (throwCreates) {
 				eventManager.onLocalFileCreated(path);
 			} else {
