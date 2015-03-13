@@ -5,7 +5,6 @@
 - [Inno Setup 5] (http://www.jrsoftware.org/isinfo.php): install the *QuickStart Pack*.
 - [ant] (https://ant.apache.org/): extract and include /bin folder in PATH variable.
 - [maven] (https://maven.apache.org/): extract and include /bin folder in PATH variable.
-- [maven ant tasks] (http://maven.apache.org/ant-tasks/): copy jar into the /lib folder of ant.
 - [launch4j] (http://launch4j.sourceforge.net/): install the Launch4j Executable Wrapper.
 - [Visual C++] (http://www.visualstudio.com/): Microsoft Visual Studio environment with Visual C++ 2013 compiler.
 
