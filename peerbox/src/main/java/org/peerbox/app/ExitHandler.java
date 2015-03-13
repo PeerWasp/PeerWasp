@@ -29,15 +29,22 @@ public class ExitHandler implements IExitHandler {
 	}
 
 	private void exit(int status) {
-		if (appContext != null) {
-			if (appContext.getCurrentClientContext() != null) {
-				shutdownClient();
+		try {
+			if (appContext != null) {
+				if (appContext.getCurrentClientContext() != null) {
+					shutdownClient();
+				}
+
+				shutdownApp();
 			}
-
-			shutdownApp();
+		} catch (Throwable t) {
+			logger.warn("Exception occurred during exit handler.", t);
+			if (t instanceof Exception) {
+				logger.warn("Exception: ", t);
+			}
+		} finally {
+			shutdown(status);
 		}
-
-		shutdown(status);
 	}
 
 	/**
