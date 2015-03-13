@@ -113,6 +113,8 @@ public class CustomizedTreeCell extends CheckBoxTreeCell<PathItem> {
 		public void handle(WindowEvent arg0) {
 
 			if(getItem() != null) {
+				// first enable all and then decide depending on file/folder
+				enableAllMenuItems();
 
 				if (getItem().isFile()) {
 					shareItem.setVisible(false);
@@ -131,7 +133,18 @@ public class CustomizedTreeCell extends CheckBoxTreeCell<PathItem> {
 
 				boolean disableRecoverMenu = getItem().isFolder();
 				recoverMenuItem.setDisable(disableRecoverMenu);
+			} else {
+				// disable menu
+				disableAllMenuItems();
 			}
+		}
+
+		private void disableAllMenuItems() {
+			menu.getItems().forEach(item -> item.setDisable(true));
+		}
+
+		private void enableAllMenuItems() {
+			menu.getItems().forEach(item -> item.setDisable(false));
 		}
 	}
 
