@@ -1,5 +1,7 @@
 package org.peerbox.filerecovery;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -19,6 +21,7 @@ public final class FileVersionSelector implements IVersionSelector {
 	private final AtomicBoolean gotAvailableVersions = new AtomicBoolean();
 	private final AtomicBoolean isCancelled = new AtomicBoolean();
 	private final AtomicBoolean hasSelected = new AtomicBoolean();
+	private Path fileToRecover;
 
 	public FileVersionSelector(final IFileVersionSelectorListener listener) {
 		if(listener == null) {
@@ -43,7 +46,9 @@ public final class FileVersionSelector implements IVersionSelector {
 		return isCancelled.get();
 	}
 
-	public void selectVersion(IFileVersion selectedVersion)  {
+	public void selectVersion(IFileVersion selectedVersion, Path fileToRecover)  {
+		this.fileToRecover = fileToRecover;
+
 		try {
 			if(hasSelected.get()) {
 				throw new IllegalStateException("Calling selectVersion multiple times is not allowed.");
@@ -103,10 +108,31 @@ public final class FileVersionSelector implements IVersionSelector {
 		Date versionDate = new Date(selectedVersion.getDate());
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy_MM_dd-HH_mm_ss");
 
-		String newFileName = String.format("%s-%s", name, sdf.format(versionDate));
-		if(extension!=null && extension.length() > 0) {
-			newFileName = String.format("%s.%s", newFileName, extension);
-		}
+		/*
+		 * Search new name for file and make sure that we do not overwrite an existing file:
+		 * 1. try pattern oldfilename-date.extension
+		 * 2. if file already exists, extend pattern to: oldfilename-date-i.extension where i is
+		 * 		a counter until a file is found that does not exist.
+		 */
+		String newFileName = null;
+		String postfix = ""; // set this postfix if file already exists
+		int iteration = 0;
+		do {
+			if(iteration > 0) {
+				// file seems to exists - add "-x" to the filename"
+				postfix = String.format("-%d", iteration);
+			}
+
+			newFileName = String.format("%s-%s%s", name, sdf.format(versionDate), postfix);
+			if(extension!=null && extension.length() > 0) {
+				newFileName = String.format("%s.%s", newFileName, extension);
+			}
+
+			++iteration;
+		} while(Files.exists(fileToRecover.getParent().resolve(newFileName)));
+
+
+
 		recoveredFileName = newFileName;
 		return newFileName;
 	}

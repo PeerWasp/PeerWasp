@@ -263,7 +263,7 @@ public final class RecoverFileController  implements Initializable, IFileVersion
 
 			setBusy(true);
 			setStatus("Downloading file...");
-			versionSelector.selectVersion(selectedVersion);
+			versionSelector.selectVersion(selectedVersion, fileToRecover);
 		}
 	}
 

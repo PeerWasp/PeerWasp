@@ -1,5 +1,6 @@
 package org.peerbox;
 
+import org.hive2hive.core.utils.TestFileConfiguration;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.internal.AssumptionViolatedException;
@@ -12,6 +13,10 @@ import org.slf4j.LoggerFactory;
 public class BaseJUnitTest {
 
 	private final static Logger logger = LoggerFactory.getLogger(BaseJUnitTest.class);
+
+	static {
+		TestFileConfiguration.CHUNK_SIZE = 1024*1024; // 1MB
+	}
 
 	/* global time out rule */
 	// @Rule
