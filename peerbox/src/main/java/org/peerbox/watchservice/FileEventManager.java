@@ -85,7 +85,7 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 	 */
 	private final Set<Path> failedOperations;
 
-	private final Set<Path> sharedFolders;
+//	private final Set<Path> sharedFolders;
 
 	private boolean cleanupRunning;
 
@@ -104,7 +104,6 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 		this.fileTree = fileTree;
 		this.messageBus = messageBus;
 		this.failedOperations = new ConcurrentHashSet<Path>();
-		this.sharedFolders = new ConcurrentHashSet<Path>();
 	}
     
     @Inject
@@ -423,7 +422,6 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 	@Override
 	@Handler
 	public void onFileShare(IFileShareEvent fileEvent) {
-		sharedFolders.add(fileEvent.getFile().toPath());
 		String permissionStr = "";
 		for (UserPermission p : fileEvent.getUserPermissions()) {
 			permissionStr = permissionStr.concat(p.getUserId() + " ");
@@ -444,11 +442,6 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 		append(fileEvent.getFile().toPath()).append(" with you.");
 		getMessageBus().post(new InformationNotification("Shared folder", sb.toString())).now();
 		publishMessage(new RemoteShareFolderMessage(file, permissions, invitedBy));
-	}
-
-	@Handler
-	public void onShareSuccessful(LocalShareFolderMessage message){
-		sharedFolders.add(message.getFile().getPath());
 	}
 
 	/**
@@ -489,11 +482,6 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 		} else {
 			logger.warn("No message sent, as message bus is null!");
 		}
-	}
-
-	@Override
-	public Set<Path> getSharedFolders() {
-		return sharedFolders;
 	}
 
 	@Handler
