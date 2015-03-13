@@ -1,10 +1,73 @@
 <?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.text.*?>
 <?import javafx.scene.control.*?>
 <?import java.lang.*?>
 <?import javafx.scene.layout.*?>
 
+<VBox xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.peerbox.presenter.settings.AboutPeerWasp">
+	<children>
+		 <VBox spacing="10.0" GridPane.rowIndex="0">
+			<children>
+				<Label text="About PeerWasp">
+					<font>
+						<Font name="System Bold" size="13.0" />
+					</font>
+					<VBox.margin>
+						<Insets />
+					</VBox.margin>
+				</Label>
+            <HBox>
+               <children>
+      				<Label text="PeerWasp started in 2014 as a graduate student project at the Communication System Group at the University of Zurich, Switzerland. Its goal is to provide  a fully decentralized file synchronization and sharing solution based on peer-to-peer technology." wrapText="true" />
+                  <Hyperlink text="Hyperlink" />
+               </children>
+            </HBox>
+			</children>
+		</VBox>
+      <Label text="As an open-source project developed in Java, PeerWasp is always looking for contributors and invites everyone to interact with its codebase at GitHub." wrapText="true" GridPane.rowIndex="1" />
+      <HBox alignment="CENTER_LEFT">
+         <children>
+            <Label text="GitHub Repository: " wrapText="true" GridPane.rowIndex="2" />
+            <Hyperlink fx:id="github" onAction="#opengithub" text="github.com/Hive2Hive/PeerBox" />
+         </children>
+      </HBox>
+      <HBox alignment="CENTER_LEFT">
+         <children>
+            <Label text="PeerWasp Homepage: " wrapText="true" GridPane.rowIndex="3" />
+            <Hyperlink fx:id="peerwasp" onAction="#openpeerwasp" text="www.peerwasp.com" />
+         </children>
+      </HBox>
+      <HBox alignment="CENTER_LEFT">
+         <children>
+            <Label text="Found a bug or have a question? Reach out to" wrapText="true" GridPane.rowIndex="4" />
+            <Hyperlink fx:id="mailpeerwasp" onAction="#mailtopeerwasp" text=" info@peerwasp.com" />
+         </children>
+      </HBox>
+      <Label />
+      <Separator prefWidth="200.0" GridPane.rowIndex="5" />
+      <Label />
+      <Label text="If you are interested in the underlying technologies, we encourage you to check out following projects:" wrapText="true" GridPane.rowIndex="6" />
+      <HBox alignment="CENTER_LEFT">
+         <children>
+            <Hyperlink fx:id="hive2hive" onAction="#openh2h" text="Hive2Hive" />
+            <Label text="- an Open-Source Library for P2P-based File Synchronization and Sharing " wrapText="true" GridPane.rowIndex="7" />
+         </children>
+      </HBox>
+      <HBox alignment="CENTER_LEFT">
+         <children>
+            <Hyperlink fx:id="tomp2p" onAction="#opentomp2p" text="TomP2P" />
+            <Label text="- a P2P-based high performance key-value pair storage library" wrapText="true" GridPane.rowIndex="8" />
+         </children>
+      </HBox>
+      <Label />
+      <Separator prefWidth="200.0" GridPane.rowIndex="9" />
+      <Label />
+      <Label text="Disclamer: PeerWasp is not responsible for direct, indirect, incidental or consequential loss of data or any other damage resulting from any defect, error, failure or misuse." wrapText="true" GridPane.rowIndex="12" />
+	</children>
+	<padding>
+		<Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+	</padding>
 
-<AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0"
-	prefWidth="200.0" />
-
-
+</VBox>
