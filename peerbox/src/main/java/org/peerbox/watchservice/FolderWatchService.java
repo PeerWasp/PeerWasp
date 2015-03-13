@@ -60,6 +60,12 @@ public class FolderWatchService extends AbstractWatchService {
 	}
 
 	protected void onStopped() throws Exception {
+		
+		watchKeyToPath.entrySet().forEach(entry -> {
+			entry.getKey().cancel(); 
+			logger.trace("Canceled watchkey {}", entry.getValue());
+		});
+		
 		// event processor thread
 		if (fileEventProcessor != null) {
 			fileEventProcessor.interrupt();
