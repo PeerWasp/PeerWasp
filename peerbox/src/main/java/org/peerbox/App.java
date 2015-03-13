@@ -86,10 +86,10 @@ public class App extends Application
 			launchInForeground();
 		}
 
-		appContext.getMessageBus().publish(new InformationMessage("PeerBox started", "Hello..."));
-		appContext.getMessageBus().publish(new WarningMessage("PeerBox started", "Hello..."));
+		appContext.getMessageBus().publish(new InformationMessage("PeerWasp started", "Hello..."));
+		appContext.getMessageBus().publish(new WarningMessage("PeerWasp started", "Hello..."));
 
-		appContext.getMessageBus().publish(new InformationNotification("PeerBox started", "Hello!"));
+		appContext.getMessageBus().publish(new InformationNotification("PeerWasp started", "Hello!"));
 
     }
 
