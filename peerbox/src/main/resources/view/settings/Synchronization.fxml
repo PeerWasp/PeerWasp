@@ -6,9 +6,9 @@
 <?import java.lang.*?>
 <?import javafx.scene.layout.*?>
 
-<GridPane hgap="10.0" minHeight="200.0" minWidth="200.0" prefHeight="450.0" prefWidth="600.0" vgap="10.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.peerbox.presenter.settings.synchronization.Synchronization">
+<GridPane hgap="10.0" minHeight="200.0" minWidth="200.0" vgap="10.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.peerbox.presenter.settings.synchronization.Synchronization">
 	<children>
-		 <VBox spacing="10.0" GridPane.rowIndex="0">
+		 <VBox spacing="10.0" GridPane.hgrow="SOMETIMES" GridPane.rowIndex="0" GridPane.vgrow="SOMETIMES">
 			<children>
 				<Label text="Synchronization">
 					<font>
@@ -19,7 +19,7 @@
 					</VBox.margin>
 				</Label>
 				<Label text="Only marked files are synchronized to this device. Changes are only applied if you push &quot;OK.&quot;" wrapText="true" />
-      		<TreeView fx:id="fileTreeView" />
+      		<TreeView fx:id="fileTreeView" VBox.vgrow="SOMETIMES" />
             <HBox alignment="CENTER_LEFT" spacing="10.0">
                <children>
                   <Button fx:id="selectAllButton" onAction="#selectAllAction" prefHeight="25.0" text="Select all" />
