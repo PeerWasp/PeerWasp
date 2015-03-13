@@ -25,20 +25,29 @@ public class ClickEventHandler implements EventHandler<TreeModificationEvent<Pat
 
 	@Override
 	public void handle(TreeModificationEvent<PathItem> arg0) {
-		@SuppressWarnings("unchecked")
-		CheckBoxTreeItem<PathItem> source = (CheckBoxTreeItem<PathItem>) arg0.getSource();
-		PathItem pathItem = source.getValue();
-		Path path = pathItem.getPath();
-		FileInfo file = new FileInfo(pathItem);
-		if(source.isSelected()){
-			logger.trace("Add {} to SYNC", path);
-			getSynchronization().getToSynchronize().add(file);
-			getSynchronization().getToDesynchronize().remove(file);
-		} else if(!source.isIndeterminate()){
-			logger.trace("Remove {} from SYNC", path);
-			getSynchronization().getToSynchronize().remove(file);
-			getSynchronization().getToDesynchronize().add(file);
+		if (arg0 != null && arg0.getSource() != null) {
+			if (arg0.getSource() instanceof CheckBoxTreeItem) {
+
+				@SuppressWarnings("unchecked")
+				CheckBoxTreeItem<PathItem> source = (CheckBoxTreeItem<PathItem>) arg0.getSource();
+				PathItem pathItem = source.getValue();
+
+				if (pathItem != null) {
+					Path path = pathItem.getPath();
+					FileInfo file = new FileInfo(pathItem);
+					if (source.isSelected()) {
+						logger.trace("Add {} to SYNC", path);
+						getSynchronization().getToSynchronize().add(file);
+						getSynchronization().getToDesynchronize().remove(file);
+					} else if (!source.isIndeterminate()) {
+						logger.trace("Remove {} from SYNC", path);
+						getSynchronization().getToSynchronize().remove(file);
+						getSynchronization().getToDesynchronize().add(file);
+					}
+
+					arg0.consume();
+				}
+			}
 		}
-		arg0.consume();
 	}
 }
