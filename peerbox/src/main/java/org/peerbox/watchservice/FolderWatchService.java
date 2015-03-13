@@ -60,17 +60,18 @@ public class FolderWatchService extends AbstractWatchService {
 	}
 
 	protected void onStopped() throws Exception {
-		
-		watchKeyToPath.entrySet().forEach(entry -> {
-			entry.getKey().cancel(); 
-			logger.trace("Canceled watchkey {}", entry.getValue());
-		});
-		
 		// event processor thread
 		if (fileEventProcessor != null) {
 			fileEventProcessor.interrupt();
 			fileEventProcessor = null;
 		}
+
+		// cancel all watch keys and clear key map
+		watchKeyToPath.entrySet().forEach(entry -> {
+			entry.getKey().cancel();
+			logger.trace("Canceled watchkey: '{}'", entry.getValue());
+		});
+		watchKeyToPath.clear();
 
 		// Java watch service
 		if (watcher != null) {
@@ -83,9 +84,6 @@ public class FolderWatchService extends AbstractWatchService {
 			timer.cancel();
 			timer = null;
 		}
-
-		// key map
-		watchKeyToPath.clear();
 
 		logger.info("Watch Service stopped.");
 	}

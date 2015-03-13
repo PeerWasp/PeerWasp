@@ -14,8 +14,8 @@ import org.peerbox.utils.UtilsTestSuite;
 @RunWith(Suite.class)
 @SuiteClasses({
 	AppTestSuite.class,
-	UtilsTestSuite.class,
 	ServerTestSuite.class,
+	UtilsTestSuite.class,
 
 	NavigationServiceTest.class,
 	GuiceFxmlLoaderTest.class,
