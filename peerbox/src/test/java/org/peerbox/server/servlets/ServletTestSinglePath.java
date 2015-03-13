@@ -1,8 +1,6 @@
 package org.peerbox.server.servlets;
 
-import static com.jayway.restassured.RestAssured.get;
 import static com.jayway.restassured.RestAssured.given;
-import static com.jayway.restassured.RestAssured.post;
 import static org.hamcrest.Matchers.equalTo;
 
 import java.nio.file.Path;
@@ -29,57 +27,6 @@ import com.jayway.restassured.http.ContentType;
  *
  */
 public class ServletTestSinglePath extends ServletTest {
-
-	protected String url;
-
-	@Test
-	public void testGet() {
-		// GET not supported
-		get(url).then().assertThat().statusCode(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
-	}
-
-	@Test
-	public void testPostNoContentType() {
-		post(url).
-		then().
-			assertThat().statusCode(HttpServletResponse.SC_BAD_REQUEST).
-			assertThat().contentType(ContentType.JSON).
-			assertThat().body("returnCode", equalTo(ServerReturnCode.WRONG_CONTENT_TYPE.ordinal()));
-	}
-
-	@Test
-	public void testPostTextContentType() {
-		given().
-			contentType(ContentType.TEXT).
-		post(url).
-		then().
-			assertThat().statusCode(HttpServletResponse.SC_BAD_REQUEST).
-			assertThat().contentType(ContentType.JSON).
-			assertThat().body("returnCode", equalTo(ServerReturnCode.WRONG_CONTENT_TYPE.ordinal()));
-	}
-
-	@Test
-	public void testPostEmpty() {
-		given().
-			contentType(ContentType.JSON).
-		post(url).
-		then().
-			assertThat().statusCode(HttpServletResponse.SC_BAD_REQUEST).
-			assertThat().contentType(ContentType.JSON).
-			assertThat().body("returnCode", equalTo(ServerReturnCode.EMPTY_REQUEST.ordinal()));
-	}
-
-	@Test
-	public void testPostEmptyJson() {
-		given().
-			contentType(ContentType.JSON).
-			content("{}").
-		post(url).
-		then().
-			assertThat().statusCode(HttpServletResponse.SC_BAD_REQUEST).
-			assertThat().contentType(ContentType.JSON).
-			assertThat().body("returnCode", equalTo(ServerReturnCode.REQUEST_EXCEPTION.ordinal()));
-	}
 
 	@Test
 	public void testCollectionOfUrls() {
@@ -113,7 +60,7 @@ public class ServletTestSinglePath extends ServletTest {
 
 	@Test
 	public void testPostWrongMsg() {
-		// send a wrong message
+		// send a wrong message, i.e. one with more than 1 url (list of urls)
 		DeleteMessage msg = new DeleteMessage();
 		List<Path> paths = new ArrayList<Path>();
 		paths.add(Paths.get("/tmp/PeerBox_test/f1"));
