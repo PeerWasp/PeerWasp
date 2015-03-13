@@ -13,20 +13,17 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.CustomMenuItem;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.Tooltip;
-import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.cell.CheckBoxTreeCell;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 
-import org.controlsfx.control.action.Action;
-import org.controlsfx.dialog.Dialog;
-import org.controlsfx.dialog.Dialogs;
 import org.peerbox.filerecovery.IFileRecoveryHandler;
 import org.peerbox.forcesync.IForceSyncHandler;
 import org.peerbox.presenter.settings.Properties;
@@ -50,8 +47,10 @@ import com.google.inject.Provider;
 public class CustomizedTreeCell extends CheckBoxTreeCell<PathItem> {
 
 	private static final Logger logger = LoggerFactory.getLogger(CustomizedTreeCell.class);
-	private ContextMenu menu = new ContextMenu();
 
+	private ContextMenu menu;
+
+	private IFileEventManager fileEventManager;
 	private Provider<IFileRecoveryHandler> recoverFileHandlerProvider;
 	private Provider<IShareFolderHandler> shareFolderHandlerProvider;
 	private Provider<IForceSyncHandler> forceSyncHandlerProvider;
@@ -61,135 +60,44 @@ public class CustomizedTreeCell extends CheckBoxTreeCell<PathItem> {
 
 
 	private MenuItem recoverMenuItem;
+	private CustomMenuItem deleteItem;
+	private CustomMenuItem shareItem;
+	private MenuItem propertiesItem;
+	private MenuItem forceSyncItem;
+
 
 	public CustomizedTreeCell(IFileEventManager fileEventManager,
 			Provider<IFileRecoveryHandler> recoverFileHandlerProvider,
 			Provider<IShareFolderHandler> shareFolderHandlerProvider,
 			Provider<IForceSyncHandler> forceSyncHandlerProvider){
 
+		this.fileEventManager = fileEventManager;
 		this.shareFolderHandlerProvider = shareFolderHandlerProvider;
-
 		this.recoverFileHandlerProvider = recoverFileHandlerProvider;
-
 		this.forceSyncHandlerProvider = forceSyncHandlerProvider;
 
-		CustomMenuItem deleteItem = new CustomMenuItem(new Label("Delete from network"));
-		Label shareLabel = new Label("Share");
-		CustomMenuItem shareItem = new CustomMenuItem(shareLabel);
-		MenuItem propertiesItem = new MenuItem("Properties");
-		MenuItem forceSyncItem = new MenuItem("Force synchronization");
+		menu = new ContextMenu();
 
-		shareItem.setOnAction(new ShareFolderAction());
-		forceSyncItem.setOnAction(new ForceSyncAction());
-
-		recoverMenuItem = createRecoveMenuItem();
-
+		deleteItem = new CustomMenuItem(new Label("Delete from network"));
+		deleteItem.setOnAction(new DeleteAction());
 		menu.getItems().add(deleteItem);
-		menu.getItems().add(recoverMenuItem);
+
+		shareItem = new CustomMenuItem(new Label("Share"));
+		shareItem.setOnAction(new ShareFolderAction());
 		menu.getItems().add(shareItem);
+
+		propertiesItem = new MenuItem("Properties");
+		propertiesItem.setOnAction(new ShowPropertiesAction());
 		menu.getItems().add(propertiesItem);
+
+		forceSyncItem = new MenuItem("Force synchronization");
+		forceSyncItem.setOnAction(new ForceSyncAction());
 		menu.getItems().add(forceSyncItem);
 
-		menu.setOnShowing(new EventHandler<WindowEvent>() {
-			@Override
-			public void handle(WindowEvent arg0) {
-				if(getItem().isFile()){
-					shareItem.setVisible(false);
-					propertiesItem.setVisible(true);
-				} else if(!getItem().getPath().toFile().exists()){
-					shareItem.setDisable(true);
-					Label label = (Label)shareItem.getContent();
-					label.setTooltip(new Tooltip("You cannot share this folder as it is not synchronized."));
-				} else {
-					shareItem.setDisable(false);
-					shareItem.setVisible(true);
-//					Rectangle rect = new Rectangle();
-//					rect.setWidth(200);
-//					rect.setHeight(100);
+		recoverMenuItem = createRecoveMenuItem();
+		menu.getItems().add(recoverMenuItem);
 
-					Label label = (Label)shareItem.getContent();
-					label.setTooltip(new Tooltip("Right-click to share this folder with a friend."));
-				}
-
-
-				if (getItem() != null && getItem().isFile()) {
-					recoverMenuItem.setDisable(false);
-				} else {
-					recoverMenuItem.setDisable(true);
-				}
-			}
-		});
-
-		propertiesItem.setOnAction(new EventHandler<ActionEvent>() {
-
-			@Override
-			public void handle(ActionEvent arg0) {
-				showProperties(getItem());
-			}
-
-			private void showProperties(PathItem item) {
-				try {
-					FXMLLoader loader = new FXMLLoader();
-					loader.setLocation(getClass().getResource(
-							ViewNames.PROPERTIES_VIEW));
-
-					loader.setController(new Properties(getItem()));
-
-					Parent root = loader.load();
-
-					// load UI on Application thread and show window
-					Runnable showStage = new Runnable() {
-						@Override
-						public void run() {
-							Scene scene = new Scene(root);
-							stage = new Stage();
-							stage.setTitle("Properties of "
-									+ getItem().getPath().getFileName());
-							stage.setScene(scene);
-							stage.setOnCloseRequest(new EventHandler<WindowEvent>() {
-								@Override
-								public void handle(WindowEvent event) {
-									stage = null;
-								}
-							});
-
-							stage.show();
-						}
-					};
-
-					if (Platform.isFxApplicationThread()) {
-						showStage.run();
-					} else {
-						Platform.runLater(showStage);
-					}
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			}
-		});
-
-		deleteItem.setOnAction(new EventHandler<ActionEvent>() {
-			public void handle(ActionEvent t) {				
-				Alert hardDelete = new Alert(AlertType.WARNING);
-				IconUtils.decorateDialogWithIcon(hardDelete);
-				hardDelete.setTitle("Irreversibly delete file?");
-				hardDelete.setHeaderText("You're about to hard-delete " + getItem().getPath().getFileName());
-				hardDelete.setContentText("The file will be removed completely from the network and cannot be recovered."
-						+ " Proceed?");
-				hardDelete.getButtonTypes().clear();
-				hardDelete.getButtonTypes().addAll(ButtonType.YES, ButtonType.NO);
-
-				hardDelete.showAndWait();
-				
-				if(hardDelete.getResult() == ButtonType.YES){
-					fileEventManager.onLocalFileHardDelete(getItem().getPath());
-					Alert confirm = new Alert(AlertType.CONFIRMATION);
-					confirm.setTitle("Hard-delete confirmation");
-					confirm.setContentText(getItem().getPath() + " has been hard-deleted.");
-					confirm.showAndWait();
-				}
-			}
-		});
+		menu.setOnShowing(new ShowMenuHandler());
         setContextMenu(menu);
 	}
 
@@ -200,19 +108,105 @@ public class CustomizedTreeCell extends CheckBoxTreeCell<PathItem> {
 		return menuItem;
 	}
 
-//	@Override
-//	public void updateItem(PathItem item, boolean empty){
-//		super.updateItem(item, empty);
-//
-//		if(empty){
-//			setText(null);
-//			setGraphic(null);
-//
-//		} else {
-//			setText(getItem() == null ? "" : getItem().toString());
-//			setGraphic(getTree);
-//		}
-//	}
+	private class ShowMenuHandler implements EventHandler<WindowEvent> {
+		@Override
+		public void handle(WindowEvent arg0) {
+
+			if(getItem() != null) {
+
+				if (getItem().isFile()) {
+					shareItem.setVisible(false);
+					propertiesItem.setVisible(true);
+				} else if (!getItem().getPath().toFile().exists()) {
+					shareItem.setDisable(true);
+					Label label = (Label) shareItem.getContent();
+					label.setTooltip(new Tooltip("You cannot share this folder as it is not synchronized."));
+				} else {
+					shareItem.setDisable(false);
+					shareItem.setVisible(true);
+
+					Label label = (Label) shareItem.getContent();
+					label.setTooltip(new Tooltip("Right-click to share this folder with a friend."));
+				}
+
+				boolean disableRecoverMenu = getItem().isFolder();
+				recoverMenuItem.setDisable(disableRecoverMenu);
+			}
+		}
+	}
+
+	private class ShowPropertiesAction implements EventHandler<ActionEvent> {
+
+		@Override
+		public void handle(ActionEvent arg0) {
+			if (getItem() != null) {
+				showProperties(getItem());
+			}
+		}
+
+		private void showProperties(PathItem item) {
+			try {
+				FXMLLoader loader = new FXMLLoader();
+				loader.setLocation(getClass().getResource(ViewNames.PROPERTIES_VIEW));
+				loader.setController(new Properties(getItem()));
+
+				Parent root = loader.load();
+
+				// load UI on Application thread and show window
+				Runnable showStage = new Runnable() {
+					@Override
+					public void run() {
+						Scene scene = new Scene(root);
+						stage = new Stage();
+						stage.setTitle("Properties of "
+								+ getItem().getPath().getFileName());
+						stage.setScene(scene);
+						stage.setOnCloseRequest(new EventHandler<WindowEvent>() {
+							@Override
+							public void handle(WindowEvent event) {
+								stage = null;
+							}
+						});
+
+						stage.show();
+					}
+				};
+
+				if (Platform.isFxApplicationThread()) {
+					showStage.run();
+				} else {
+					Platform.runLater(showStage);
+				}
+			} catch (IOException e) {
+				logger.warn("Exception while showing properties.", e);
+			}
+		}
+	}
+
+	private class DeleteAction implements EventHandler<ActionEvent> {
+		public void handle(ActionEvent t) {
+			if (getItem() != null) {
+				Alert hardDelete = new Alert(AlertType.WARNING);
+				IconUtils.decorateDialogWithIcon(hardDelete);
+				hardDelete.setTitle("Irreversibly delete file?");
+				hardDelete.setHeaderText("You're about to hard-delete " + getItem().getPath().getFileName());
+				hardDelete.setContentText("The file will be removed completely from the network and cannot be recovered."
+						+ " Proceed?");
+				hardDelete.getButtonTypes().clear();
+				hardDelete.getButtonTypes().addAll(ButtonType.YES, ButtonType.NO);
+
+				hardDelete.showAndWait();
+
+				if(hardDelete.getResult() == ButtonType.YES){
+					fileEventManager.onLocalFileHardDelete(getItem().getPath());
+					Alert confirm = new Alert(AlertType.CONFIRMATION);
+					confirm.setTitle("Hard-delete confirmation");
+					confirm.setContentText(getItem().getPath() + " has been hard-deleted.");
+					confirm.showAndWait();
+				}
+			}
+		}
+	}
 
 	private class RecoverFileAction implements EventHandler<ActionEvent> {
 		@Override
@@ -237,13 +231,11 @@ public class CustomizedTreeCell extends CheckBoxTreeCell<PathItem> {
 	}
 
 	private class ForceSyncAction implements EventHandler<ActionEvent> {
-
 		@Override
 		public void handle(ActionEvent arg0) {
 			IForceSyncHandler handler = forceSyncHandlerProvider.get();
 			handler.forceSync();
 		}
-
 	}
 
 }
