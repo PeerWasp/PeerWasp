@@ -28,6 +28,7 @@ VersionInfoVersion={#MyAppVersion}
 DefaultDirName={pf}\{#MyAppName}
 DefaultGroupName={#MyAppName}
 LicenseFile={#BaseDir}\License.rtf
+InfoBeforeFile={#BaseDir}\ReadmeBeforeInstall.rtf
 OutputDir=.
 OutputBaseFilename={#OutputFilename}
 SetupIconFile={#BaseDir}\icon_multisize.ico
