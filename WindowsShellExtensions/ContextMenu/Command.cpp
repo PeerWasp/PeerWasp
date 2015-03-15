@@ -30,15 +30,12 @@ std::map<CommandId, CommandInfo> Command::CreateCommandMap()
 	cmdVersions.bitmapResourceId = NO_ICON;
 	commands[CMD_VERSIONS] = cmdVersions;
 
-	// currently not available
-	/*
 	struct CommandInfo cmdShare;
 	cmdShare.id = CMD_SHARE;
 	cmdShare.menuText = L"&Share";
 	cmdShare.helpText = L"Share the selected folder with other users.";
 	cmdShare.bitmapResourceId = NO_ICON;
 	commands[CMD_SHARE] = cmdShare;
-	*/
 
 	return commands;
 }
