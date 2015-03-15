@@ -12,6 +12,7 @@ import java.io.IOException;
 import net.engio.mbassy.listener.Handler;
 
 import org.peerbox.app.Constants;
+import org.peerbox.app.config.AppConfig;
 import org.peerbox.app.manager.file.messages.FileExecutionFailedMessage;
 import org.peerbox.app.manager.user.IUserMessageListener;
 import org.peerbox.app.manager.user.LoginMessage;
@@ -36,13 +37,15 @@ public class JSystemTray extends AbstractSystemTray implements ITrayNotification
 	private java.awt.TrayIcon trayIcon;
 	private final JTrayIcons iconProvider;
 
+	private AppConfig appConfig;
 
 	private boolean hasFailedOperations = false;
 
 
 	@Inject
-	public JSystemTray(TrayActionHandler actionHandler) {
+	public JSystemTray(AppConfig appConfig, TrayActionHandler actionHandler) {
 		super(actionHandler);
+		this.appConfig = appConfig;
 		this.iconProvider = new JTrayIcons();
 		setTooltip(Constants.APP_NAME);
 	}
@@ -131,6 +134,10 @@ public class JSystemTray extends AbstractSystemTray implements ITrayNotification
 	}
 
 	private void showMessage(String title, String message, MessageType type) {
+		if (!appConfig.isTrayNotificationEnabled()) {
+			return;
+		}
+
 		if (title == null) {
 			title = "";
 		}
@@ -142,6 +149,7 @@ public class JSystemTray extends AbstractSystemTray implements ITrayNotification
 		if (trayIcon != null) {
 			trayIcon.displayMessage(title, message, type);
 		}
+
 	}
 
 	/**

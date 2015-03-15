@@ -18,69 +18,81 @@ import org.peerbox.BaseJUnitTest;
 public class AppConfigTest extends BaseJUnitTest {
 
 	private Path configFile;
-	private AppConfig userConfig;
+	private AppConfig appConfig;
 
 	@Before
 	public void setUp() throws IOException {
-		configFile = Paths.get(FileUtils.getTempDirectoryPath(), "testconfig.conf");
-		userConfig = new AppConfig(configFile);
-		userConfig.load();
+		configFile = Paths.get(FileUtils.getTempDirectoryPath(), "testappconfig.conf");
+		appConfig = new AppConfig(configFile);
+		appConfig.load();
 	}
 
 	@After
 	public void tearDown() throws IOException {
 		Files.deleteIfExists(configFile);
-		userConfig = null;
+		appConfig = null;
 	}
 
 	@Test
 	public void testHasApiServerPort() throws IOException {
-		userConfig.setApiServerPort(0);
-		assertFalse(userConfig.hasApiServerPort());
+		appConfig.setApiServerPort(0);
+		assertFalse(appConfig.hasApiServerPort());
 
-		userConfig.setApiServerPort(-1);
-		assertFalse(userConfig.hasApiServerPort());
+		appConfig.setApiServerPort(-1);
+		assertFalse(appConfig.hasApiServerPort());
 
-		userConfig.setApiServerPort(65536);
-		assertFalse(userConfig.hasApiServerPort());
+		appConfig.setApiServerPort(65536);
+		assertFalse(appConfig.hasApiServerPort());
 
-		userConfig.setApiServerPort(1);
-		assertTrue(userConfig.hasApiServerPort());
+		appConfig.setApiServerPort(1);
+		assertTrue(appConfig.hasApiServerPort());
 
-		userConfig.setApiServerPort(47325);
-		assertTrue(userConfig.hasApiServerPort());
+		appConfig.setApiServerPort(47325);
+		assertTrue(appConfig.hasApiServerPort());
 
-		userConfig.setApiServerPort(65535);
-		assertTrue(userConfig.hasApiServerPort());
+		appConfig.setApiServerPort(65535);
+		assertTrue(appConfig.hasApiServerPort());
 	}
 
 	@Test
 	public void testSetApiServerPort() throws IOException {
 		// invalid ports
-		userConfig.setApiServerPort(0);
-		assertEquals(userConfig.getApiServerPort(), -1);
-		userConfigAssertPersistence(userConfig, configFile);
+		appConfig.setApiServerPort(0);
+		assertEquals(appConfig.getApiServerPort(), -1);
+		userConfigAssertPersistence(appConfig, configFile);
 
-		userConfig.setApiServerPort(-1);
-		assertEquals(userConfig.getApiServerPort(), -1);
-		userConfigAssertPersistence(userConfig, configFile);
+		appConfig.setApiServerPort(-1);
+		assertEquals(appConfig.getApiServerPort(), -1);
+		userConfigAssertPersistence(appConfig, configFile);
 
-		userConfig.setApiServerPort(65536);
-		assertEquals(userConfig.getApiServerPort(), -1);
-		userConfigAssertPersistence(userConfig, configFile);
+		appConfig.setApiServerPort(65536);
+		assertEquals(appConfig.getApiServerPort(), -1);
+		userConfigAssertPersistence(appConfig, configFile);
 
 		// valid ports
-		userConfig.setApiServerPort(1);
-		assertEquals(userConfig.getApiServerPort(), 1);
-		userConfigAssertPersistence(userConfig, configFile);
+		appConfig.setApiServerPort(1);
+		assertEquals(appConfig.getApiServerPort(), 1);
+		userConfigAssertPersistence(appConfig, configFile);
 
-		userConfig.setApiServerPort(37824);
-		assertEquals(userConfig.getApiServerPort(), 37824);
-		userConfigAssertPersistence(userConfig, configFile);
+		appConfig.setApiServerPort(37824);
+		assertEquals(appConfig.getApiServerPort(), 37824);
+		userConfigAssertPersistence(appConfig, configFile);
 
-		userConfig.setApiServerPort(65535);
-		assertEquals(userConfig.getApiServerPort(), 65535);
-		userConfigAssertPersistence(userConfig, configFile);
+		appConfig.setApiServerPort(65535);
+		assertEquals(appConfig.getApiServerPort(), 65535);
+		userConfigAssertPersistence(appConfig, configFile);
+	}
+
+	@Test
+	public void testSetTrayNotification() throws IOException {
+		appConfig.setTrayNotification(true);
+		assertTrue(appConfig.isTrayNotificationEnabled());
+
+		appConfig.setTrayNotification(false);
+		assertFalse(appConfig.isTrayNotificationEnabled());
+
+		appConfig.setTrayNotification(true);
+		assertTrue(appConfig.isTrayNotificationEnabled());
 	}
 
 	/**
@@ -101,6 +113,8 @@ public class AppConfigTest extends BaseJUnitTest {
 
 		assertEquals(a.getApiServerPort(), b.getApiServerPort());
 		assertTrue(a.hasApiServerPort() == b.hasApiServerPort());
+
+		assertEquals(a.isTrayNotificationEnabled(), b.isTrayNotificationEnabled());
 
 		assertEquals(a.getConfigFile(), b.getConfigFile());
 	}

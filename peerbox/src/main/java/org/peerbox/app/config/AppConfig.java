@@ -31,6 +31,7 @@ public class AppConfig extends AbstractConfig {
 	 * Property names
 	 */
 	private static final String PROPERTY_API_SERVER_PORT = "api_server_port";
+	private static final String PROPERTY_TRAY_NOTIFICATION = "trayNotification";
 
 
 	public AppConfig(Path file) {
@@ -76,6 +77,24 @@ public class AppConfig extends AbstractConfig {
 		} else {
 			removeProperty(PROPERTY_API_SERVER_PORT);
 		}
+		saveProperties();
+	}
+
+	/**
+	 * @return true if notifications are enabled, false otherwise.
+	 */
+	public synchronized boolean isTrayNotificationEnabled() {
+		return Boolean.valueOf(getProperty(PROPERTY_TRAY_NOTIFICATION));
+	}
+
+	/**
+	 * Sets the tray notification property.
+	 *
+	 * @param enabled
+	 * @throws IOException
+	 */
+	public synchronized void setTrayNotification(boolean enabled) throws IOException {
+		setProperty(PROPERTY_TRAY_NOTIFICATION, Boolean.toString(enabled));
 		saveProperties();
 	}
 
