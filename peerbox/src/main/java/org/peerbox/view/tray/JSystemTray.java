@@ -12,12 +12,11 @@ import java.io.IOException;
 import net.engio.mbassy.listener.Handler;
 
 import org.peerbox.app.Constants;
-import org.peerbox.app.config.UserConfig;
+import org.peerbox.app.manager.file.messages.FileExecutionFailedMessage;
 import org.peerbox.app.manager.user.IUserMessageListener;
 import org.peerbox.app.manager.user.LoginMessage;
 import org.peerbox.app.manager.user.LogoutMessage;
 import org.peerbox.app.manager.user.RegisterMessage;
-import org.peerbox.app.manager.file.messages.FileExecutionFailedMessage;
 import org.peerbox.events.IMessageListener;
 import org.peerbox.notifications.AggregatedFileEventStatus;
 import org.peerbox.notifications.ITrayNotifications;
@@ -86,8 +85,6 @@ public class JSystemTray extends AbstractSystemTray implements ITrayNotification
 			trayIcon.setToolTip(this.tooltip);
 		}
 	}
-	
-
 
 	@Override
 	public void showDefaultIcon() throws TrayException {
@@ -129,9 +126,21 @@ public class JSystemTray extends AbstractSystemTray implements ITrayNotification
 
 	@Override
 	public void showInformationMessage(String title, String message) {
-		System.out.println(title);
-		if(trayIcon != null) {
-			trayIcon.displayMessage(title, message, MessageType.INFO);
+		setNewMessageActionListener(null);
+		showMessage(title, message, MessageType.INFO);
+	}
+
+	private void showMessage(String title, String message, MessageType type) {
+		if (title == null) {
+			title = "";
+		}
+		if (message == null) {
+			message = "";
+		}
+
+		logger.info("{} Message: \n{}\n{}", type.toString(), title, message);
+		if (trayIcon != null) {
+			trayIcon.displayMessage(title, message, type);
 		}
 	}
 
@@ -142,35 +151,55 @@ public class JSystemTray extends AbstractSystemTray implements ITrayNotification
 	@Override
 	@Handler
 	public void showInformation(InformationNotification in) {
-		logger.debug("Information: [{}] - [{}]", in.getTitle(), in.getMessage());
-		if(trayIcon != null) {
-			trayIcon.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent e) {
-                	trayActionHandler.showActivity();
-                    System.out.println("Message Clicked");
-                    trayIcon.removeActionListener(this);
-                }
-            });
-			trayIcon.displayMessage(in.getTitle(), in.getMessage(), MessageType.INFO);
-		}
+		ActionListener listener = new ShowActivityActionListener();
+		setNewMessageActionListener(listener);
+		showMessage(in.getTitle(), in.getMessage(), MessageType.INFO);
 	}
 
 	@Override
 	@Handler
 	public void showFileEvents(AggregatedFileEventStatus event) {
 		String msg = generateAggregatedFileEventStatusMessage(event);
-		logger.debug("Message received: \n[{}]", msg);
-		trayIcon.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-            	trayActionHandler.showSettings();
-                System.out.println("Message Clicked");
-                trayIcon.removeActionListener(this);
-            }
-        });
-//		logger.info("TrayNotification Status: \n[{}]", userConfig.isTrayNotificationEnabled());
-//		if(userConfig.isTrayNotificationEnabled()){
-			trayIcon.displayMessage("File Synchronization", msg, MessageType.INFO);
-//		}
+		ActionListener listener = new ShowSettingsActionListener();
+		setNewMessageActionListener(listener);
+		showMessage("File Synchronization", msg, MessageType.INFO);
+	}
+
+	/**
+	 * Removes all action listeners from the tray icon and adds the given listener.
+	 *
+	 * @param listener to add. If null, listeners are only and no listener is added.
+	 */
+	private void setNewMessageActionListener(ActionListener listener) {
+		// remove all and add given action listener
+		if (trayIcon != null) {
+			for (ActionListener l : trayIcon.getActionListeners()) {
+				trayIcon.removeActionListener(l);
+			}
+			if (listener != null) {
+				trayIcon.addActionListener(listener);
+			}
+		}
+	}
+
+	/**
+	 * Action listener that opens the activity window
+	 */
+	private class ShowActivityActionListener implements ActionListener {
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			trayActionHandler.showActivity();
+		}
+	}
+
+	/**
+	 * Action listener that opens the settings window
+	 */
+	private class ShowSettingsActionListener implements ActionListener {
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			trayActionHandler.showSettings();
+		}
 	}
 
 	private String generateAggregatedFileEventStatusMessage(AggregatedFileEventStatus e) {

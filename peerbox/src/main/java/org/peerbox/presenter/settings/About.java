@@ -11,9 +11,9 @@ import org.peerbox.utils.BrowserUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class AboutPeerWasp implements Initializable {
+public class About implements Initializable {
 
-	private static final Logger logger = LoggerFactory.getLogger(AboutPeerWasp.class);
+	private static final Logger logger = LoggerFactory.getLogger(About.class);
 
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {

@@ -6,20 +6,15 @@
 <?import java.lang.*?>
 <?import javafx.scene.layout.*?>
 
-<VBox prefHeight="450.0" prefWidth="600.0" spacing="10.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1"
-	fx:controller="org.peerbox.presenter.settings.AboutPeerWasp">
+<VBox prefHeight="450.0" prefWidth="600.0" spacing="6.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.peerbox.presenter.settings.About">
 	<children>
 		<Label text="About PeerWasp">
 			<font>
 				<Font name="System Bold" size="13.0" />
 			</font>
 		</Label>
-		<Label
-			text="PeerWasp started in 2014 as a graduate student project at the Communication System Group at the University of Zurich, Switzerland. Its goal is to provide  a fully decentralized file synchronization and sharing solution based on peer-to-peer technology."
-			wrapText="true" />
-		<Label
-			text="As an open-source project developed in Java, PeerWasp is always looking for contributors and invites everyone to interact with its codebase at GitHub."
-			wrapText="true" />
+		<Label text="PeerWasp started in 2014 as a graduate student project at the Communication System Group at the University of Zurich, Switzerland. Its goal is to provide  a fully decentralized file synchronization and sharing solution based on peer-to-peer technology." wrapText="true" />
+		<Label text="As an open-source project developed in Java, PeerWasp is always looking for contributors and invites everyone to interact with its codebase at GitHub." wrapText="true" />
 		<HBox alignment="CENTER_LEFT">
 			<children>
 				<Label text="GitHub Repository: " wrapText="true" />
@@ -39,8 +34,7 @@
 			</children>
 		</HBox>
 		<Separator prefWidth="200.0" />
-		<Label text="If you are interested in the underlying technologies, we encourage you to check out following projects:"
-			wrapText="true" />
+		<Label text="If you are interested in the underlying technologies, we encourage you to check out following projects:" wrapText="true" />
 		<HBox alignment="CENTER_LEFT">
 			<children>
 				<Hyperlink onAction="#openh2h" text="Hive2Hive" />
@@ -54,9 +48,7 @@
 			</children>
 		</HBox>
 		<Separator prefWidth="200.0" />
-		<Label
-			text="Disclamer: PeerWasp is not responsible for direct, indirect, incidental or consequential loss of data or any other damage resulting from any defect, error, failure or misuse."
-			wrapText="true" />
+		<Label text="Disclamer: PeerWasp is not responsible for direct, indirect, incidental or consequential loss of data or any other damage resulting from any defect, error, failure or misuse." wrapText="true" />
 	</children>
 
 	<padding>

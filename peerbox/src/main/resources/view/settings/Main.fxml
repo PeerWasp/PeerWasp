@@ -12,11 +12,12 @@
 <AnchorPane stylesheets="css/theme.css" maxHeight="-Infinity" maxWidth="-Infinity"
 	minHeight="-Infinity" minWidth="-Infinity" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.peerbox.presenter.settings.Settings">
 	<children>
-		<TabPane  styleClass="settings" tabClosingPolicy="UNAVAILABLE"
+		<TabPane tabClosingPolicy="UNAVAILABLE"
 			AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
 			AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
 			<tabs>
-				<Tab styleClass="settings-account" text="Account">
+
+				<Tab text="Account">
 					<graphic>
 			        	<Glyph fontFamily="FontAwesome" icon="USER"/>
 			    	</graphic>
@@ -25,7 +26,7 @@
 					</content>
 				</Tab>
 
-				<Tab styleClass="settings-network" text="Network">
+				<Tab text="Network">
 					<graphic>
 			        	<Glyph fontFamily="FontAwesome" icon="GLOBE"/>
 			    	</graphic>
@@ -34,7 +35,7 @@
 					</content>
 				</Tab>
 
-				<Tab styleClass="settings-sync" text="Synchronization">
+				<Tab text="Synchronization">
 					<graphic>
 			        	<Glyph fontFamily="FontAwesome" icon="REFRESH"/>
 			    	</graphic>
@@ -42,14 +43,16 @@
 						<fx:include fx:id="synchronization" source="Synchronization.fxml" />
 					</content>
 				</Tab>
-				<Tab styleClass="settings-aboutpeerwasp" text="About PeerWasp">
+
+				<Tab text="About PeerWasp">
 					<graphic>
-			        	<Glyph fontFamily="FontAwesome" icon="INFO" />
-			    	</graphic>
+						<Glyph fontFamily="FontAwesome" icon="INFO" />
+					</graphic>
 					<content>
-						<fx:include fx:id="general" source="AboutPeerWasp.fxml" />
+						<fx:include fx:id="general" source="About.fxml" />
 					</content>
 				</Tab>
+
 			</tabs>
 		</TabPane>
 	</children>
