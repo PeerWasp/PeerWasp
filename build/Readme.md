@@ -3,13 +3,13 @@
 ## Requirements
 - Note: build script is taylored to Windows x64 
 - [Inno Setup 5] (http://www.jrsoftware.org/isinfo.php): install the *QuickStart Pack*.
-- [ant] (https://ant.apache.org/): extract and include /bin folder in PATH variable.
-- [maven] (https://maven.apache.org/): extract and include /bin folder in PATH variable.
+- [ant] (https://ant.apache.org/): extract and include ```/bin``` folder in ```PATH``` variable.
+- [maven] (https://maven.apache.org/): extract and include ```/bin``` folder in ```PATH``` variable.
 - [launch4j] (http://launch4j.sourceforge.net/): install the Launch4j Executable Wrapper.
 - [Visual C++] (http://www.visualstudio.com/): Microsoft Visual Studio environment with Visual C++ 2013 compiler.
 
 ## Build Windows installer
-Creating the installer works as follows. In general, the ant build script is responsible for the coordination of all subtasks. First, the Java code is compiled and a jar package is created (using *maven*). Furthermore, all Java dependencies are copied into an external folder (lib/).
+Creating the installer works as follows. In general, the ant build script is responsible for the coordination of all subtasks. First, the Java code is compiled and a jar package is created (using *maven*). Furthermore, all Java dependencies are copied into an external folder (```lib/```).
 Second, the shell extension is compiled (using the *Visual C++ Compiler*) and packaged in a DLL. Two versions are created: x86 and x64 DLL. The DLLs and their dependencies are copied as well.
 Next, an exe launcher for the Java application respectively the jar is created (using *launch4j*). The launcher is responsible for launching the Java VM with the correct parameter. 
 Finally, everything is wrapped in an installer (using *Inno Setup*).
@@ -18,7 +18,7 @@ Finally, everything is wrapped in an installer (using *Inno Setup*).
 #### Property files and preparations
 - Open ```App.properties``` and set the property ```app.version``` to the current version (same as in the ```pom.xml``` file). It should have the form ```x.x.x``` (integers only).
 - Paths to helper applications (e.g. Visual Studio) are specified in *.properties files. It is probably not required to adapt these files if default locations are used (such as C:\Program Files\\...)
-- Make sure that the JAVA_HOME variable is set and points to the JDK (e.g. ```C:\Program Files\Java\jdk1.8.0\```). Maven will use the JDK specified by the JAVA_HOME variable to package the application.
+- Make sure that the ```JAVA_HOME``` variable is set and points to the JDK (e.g. ```C:\Program Files\Java\jdk1.8.0\```). Maven will use the JDK specified by the ```JAVA_HOME``` variable to package the application.
 - If it is the first time you build the installer, an additional step is required because Visual Studio respectively [NuGet](https://www.nuget.org/) must download some dependencies first. Thus, open the Visual Studio solution ```.\WindowsShellExtensions\ContextMenu.sln``` and wait until nuget finishes downloading the required dependencies. Afterwards, build the project and make sure that building succeeds.
  
 #### Building and Packaging
