@@ -18,10 +18,12 @@ Finally, everything is wrapped in an installer (using *Inno Setup*).
 #### Property files and preparations
 - Open ```App.properties``` and set the property ```app.version``` to the current version (same as in the ```pom.xml``` file). It should have the form ```x.x.x``` (integers only).
 - Paths to helper applications (e.g. Visual Studio) are specified in *.properties files. It is probably not required to adapt these files if default locations are used (such as C:\Program Files\\...)
+- Make sure that the JAVA_HOME variable is set and points to the JDK (e.g. ```C:\Program Files\Java\jdk1.8.0\```). Maven will use the JDK specified by the JAVA_HOME variable to package the application.
+- If it is the first time you build the installer, an additional step is required because Visual Studio respectively [NuGet](https://www.nuget.org/) must download some dependencies first. Thus, open the Visual Studio solution ```.\WindowsShellExtensions\ContextMenu.sln``` and wait until nuget finishes downloading the required dependencies. Afterwards, build the project and make sure that building succeeds.
  
-#### Build
+#### Building and Packaging
 - ```cd``` into the ```build``` folder.
-- run ```ant win_package``` in order to package and create an installer.
+- run ```ant win_package``` in order to package the application and create an installer.
 - Note: the installer works with Windows x64 and x86 and contains all files required to run on either platform. Hence, packaging must be done on a Windows x64 machine due to 64-bit compilation.
 
 
