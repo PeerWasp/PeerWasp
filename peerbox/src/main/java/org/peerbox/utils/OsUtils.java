@@ -36,7 +36,7 @@ public final class OsUtils {
 	/**
 	 * @return true if current OS is OS X
 	 */
-//	public static boolean isOSX() {
-//		return getOsName().equalsIgnoreCase("Mac OS X");
-//	}
+	public static boolean isOSX() {
+		return getOsName().startsWith("Mac OS");
+	}
 }

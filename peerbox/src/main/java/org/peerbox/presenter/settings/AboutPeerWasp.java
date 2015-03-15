@@ -1,78 +1,73 @@
 package org.peerbox.presenter.settings;
 
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ResourceBundle;
-
-import javax.swing.SwingUtilities;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 
+import org.peerbox.utils.BrowserUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class AboutPeerWasp implements Initializable {
-	
-	@FXML
-    private void opengithub(ActionEvent event) throws URISyntaxException {
-		URI github = new URI("https://github.com/Hive2Hive/PeerBox");
-		SwingUtilities.invokeLater(() -> {
-			try {
-				java.awt.Desktop.getDesktop().browse(github);
-			} catch (Exception e) {
-			}
-		});
-    }
-	
-	@FXML
-    private void openpeerwasp(ActionEvent event) throws URISyntaxException {
-		URI peerwasp = new URI("http://www.peerwasp.com");
-		SwingUtilities.invokeLater(() -> {
-			try {
-				java.awt.Desktop.getDesktop().browse(peerwasp);
-			} catch (Exception e) {
-			}
-		});
-    }
-	
-	@FXML
-    private void mailtopeerwasp(ActionEvent event) throws URISyntaxException {
-		URI peerwaspmail = new URI("mailto:info@peerwasp.com");
-		SwingUtilities.invokeLater(() -> {
-			try {
-				java.awt.Desktop.getDesktop().browse(peerwaspmail);
-			} catch (Exception e) {
-			}
-		});
-    }
-	
-	@FXML
-    private void openh2h(ActionEvent event) throws URISyntaxException {
-		URI hive2hive = new URI("http://www.hive2hive.com");
-		SwingUtilities.invokeLater(() -> {
-			try {
-				java.awt.Desktop.getDesktop().browse(hive2hive);
-			} catch (Exception e) {
-			}
-		});
-    }
-	
-	@FXML
-    private void opentomp2p(ActionEvent event) throws URISyntaxException {
-		URI tomp2p = new URI("http://tomp2p.net/");
-		SwingUtilities.invokeLater(() -> {
-			try {
-				java.awt.Desktop.getDesktop().browse(tomp2p);
-			} catch (Exception e) {
-			}
-		});
-    }
 
-
+	private static final Logger logger = LoggerFactory.getLogger(AboutPeerWasp.class);
 
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
 
 	}
+
+	@FXML
+    private void opengithub(ActionEvent event) {
+		String github = "https://github.com/Hive2Hive/PeerBox";
+		try {
+			BrowserUtils.openURL(github);
+		} catch (Exception e) {
+			logger.warn("Could not open Github URL: '{}'", github, e);
+		}
+    }
+
+	@FXML
+    private void openpeerwasp(ActionEvent event) {
+		String peerwasp = "http://www.peerwasp.com";
+		try {
+			BrowserUtils.openURL(peerwasp);
+		} catch (Exception e) {
+			logger.warn("Could not open PeerWasp URL: '{}'", peerwasp, e);
+		}
+    }
+
+	@FXML
+    private void mailtopeerwasp(ActionEvent event) {
+		String peerwaspmail = "mailto:info@peerwasp.com";
+		try {
+			BrowserUtils.openURL(peerwaspmail);
+		} catch (Exception e) {
+			logger.warn("Could not open PeerWasp Mail: '{}'", peerwaspmail, e);
+		}
+    }
+
+	@FXML
+    private void openh2h(ActionEvent event) {
+		String hive2hive = "http://www.hive2hive.com";
+		try {
+			BrowserUtils.openURL(hive2hive);
+		} catch (Exception e) {
+			logger.warn("Could not open Hive2Hive URL: '{}'", hive2hive, e);
+		}
+    }
+
+	@FXML
+    private void opentomp2p(ActionEvent event) {
+		String tomp2p = "http://tomp2p.net/";
+		try {
+			BrowserUtils.openURL(tomp2p);
+		} catch (Exception e) {
+			logger.warn("Could not open TomP2P URL: '{}'", tomp2p, e);
+		}
+    }
 
 }

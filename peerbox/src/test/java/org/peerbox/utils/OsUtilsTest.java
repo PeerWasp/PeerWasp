@@ -17,9 +17,10 @@ public class OsUtilsTest extends BaseJUnitTest {
 	}
 
 	@Test
-	public void testWindowsIsNotLinux() {
+	public void testWindowsBooleans() {
 		if (OsUtils.isWindows()) {
 			assertFalse(OsUtils.isLinux());
+			assertFalse(OsUtils.isOSX());
 		}
 	}
 
@@ -32,9 +33,26 @@ public class OsUtilsTest extends BaseJUnitTest {
 	}
 
 	@Test
-	public void testLinuxIsNotWindows() {
+	public void testLinuxBooleans() {
 		if (OsUtils.isLinux()) {
 			assertFalse(OsUtils.isWindows());
+			assertFalse(OsUtils.isOSX());
+		}
+	}
+
+	@Test
+	public void testOSX() {
+		if (OsUtils.isOSX()) {
+			boolean contains = OsUtils.getOsName().toLowerCase().contains("mac os");
+			assertTrue(contains);
+		}
+	}
+
+	@Test
+	public void testOSXBooleans() {
+		if (OsUtils.isOSX()) {
+			assertFalse(OsUtils.isWindows());
+			assertFalse(OsUtils.isLinux());
 		}
 	}
 }
