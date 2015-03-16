@@ -221,7 +221,11 @@ public class ActionExecutor implements Runnable {
 	 */
 	private boolean isTimerReady(IAction action) {
 		long ageMs = getActionAge(action);
-		return ageMs >= peerWaspConfig.getAggregationIntervalInMillis();
+		if(action.getCurrentState().getStateType() == StateType.LOCAL_CREATE){
+			return ageMs >= peerWaspConfig.getLongAggregationIntervalInMillis();
+		} else {
+			return ageMs >= peerWaspConfig.getAggregationIntervalInMillis();
+		}
 	}
 
 	/**
@@ -496,7 +500,14 @@ public class ActionExecutor implements Runnable {
 						logger.debug("Could not get result of failed item, timed out. {}",
 								next.getAction().getFile().getPath());
 						// add it again and try later
-						asyncHandles.put(next);
+						if(next.getTimeouts() > 3){
+							next.incrementTimeouts();
+							asyncHandles.put(next);
+						} else {
+							fileEventManager.getFailedOperations().add(next.getAction().getFile().getPath());
+							fileEventManager.initiateForceSync(next.getAction().getFile().getPath().getParent());
+						}
+	
 					}
 
 				} catch (Exception e) {
