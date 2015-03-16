@@ -38,6 +38,11 @@ SolidCompression=yes
 ArchitecturesAllowed=x86 x64
 ArchitecturesInstallIn64BitMode=x64
 
+UninstallDisplayIcon={app}\icon_multisize.ico
+
+WizardSmallImageFile=peerwasp-icon-55x55.bmp
+WizardImageFile=installer_sidebar.bmp
+
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"
 
