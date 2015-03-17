@@ -10,6 +10,13 @@ import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.Singleton;
 
+/**
+ * The app context contains application-wide ("global") services and dependencies such
+ * as the message bus or the HTTP server.
+ *
+ * @author albrecht
+ *
+ */
 @Singleton
 public class AppContext {
 

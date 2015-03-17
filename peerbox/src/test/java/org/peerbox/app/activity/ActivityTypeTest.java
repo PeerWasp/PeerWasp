@@ -20,8 +20,6 @@ public class ActivityTypeTest extends BaseJUnitTest {
 					break;
 				case WARNING:
 					break;
-				case ERROR:
-					break;
 				default:
 					fail("ActivityType enum has more elements than expected. Missed: "
 							+ t.toString());
@@ -30,3 +28,4 @@ public class ActivityTypeTest extends BaseJUnitTest {
 	}
 
 }
+

@@ -25,7 +25,7 @@ public class ManyNodesStarter {
 	private static final Logger logger = LoggerFactory
 			.getLogger(ManyNodesStarter.class);
 
-	private static int NUM_NODES = 6;
+	private static int NUM_NODES = 5;
 
 	public static void main(String[] args) {
 

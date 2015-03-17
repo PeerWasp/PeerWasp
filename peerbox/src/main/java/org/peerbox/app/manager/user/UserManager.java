@@ -23,6 +23,7 @@ public final class UserManager extends AbstractManager implements IUserManager {
 
 	private static final Logger logger = LoggerFactory.getLogger(UserManager.class);
 
+	/* user credentials of last successful login */
 	private UserCredentials userCredentials;
 
 	@Inject

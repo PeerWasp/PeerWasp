@@ -4,6 +4,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 import org.peerbox.app.manager.file.FileInfoTest;
+import org.peerbox.app.manager.file.FileManagerNetworkTest;
 import org.peerbox.app.manager.file.FileManagerTest;
 import org.peerbox.app.manager.node.NodeManagerTest;
 import org.peerbox.app.manager.user.FileAgentTest;
@@ -14,6 +15,7 @@ import org.peerbox.app.manager.user.UserManagerTest;
 	// File package
 	FileInfoTest.class,
 	FileManagerTest.class,
+	FileManagerNetworkTest.class,
 
 	// Node package
 	NodeManagerTest.class,
@@ -28,3 +30,4 @@ import org.peerbox.app.manager.user.UserManagerTest;
 public class ManagerTestSuite {
 
 }
+

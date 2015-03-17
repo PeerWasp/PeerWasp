@@ -96,7 +96,7 @@ public class FileRecoveryStarter extends Application {
 	}
 
 	private void uploadFileVersions() throws IOException, NoSessionException, NoPeerConnectionException, InvalidProcessStateException, ProcessExecutionException, IllegalArgumentException, InterruptedException {
-		fileManager = new FileManager(nodeManager, userConfig, messageBus);
+		fileManager = new FileManager(nodeManager, userConfig);
 
 		content = new ArrayList<String>();
 

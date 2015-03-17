@@ -11,6 +11,12 @@ import org.peerbox.events.WarningMessage;
 
 import com.google.inject.Inject;
 
+/**
+ * General information and warning messages for the user (not related to file, user, node).
+ *
+ * @author albrecht
+ *
+ */
 final class GeneralMessageCollector extends AbstractActivityCollector implements IGeneralMessageListener {
 
 	@Inject

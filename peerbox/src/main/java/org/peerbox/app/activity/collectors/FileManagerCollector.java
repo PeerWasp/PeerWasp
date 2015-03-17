@@ -23,6 +23,12 @@ import org.peerbox.app.manager.file.messages.RemoteShareFolderMessage;
 
 import com.google.inject.Inject;
 
+/**
+ * File events collector (added, updated, ... files)
+ *
+ * @author albrecht
+ *
+ */
 class FileManagerCollector extends AbstractActivityCollector implements IFileMessageListener {
 
 	@Inject
@@ -125,7 +131,7 @@ class FileManagerCollector extends AbstractActivityCollector implements IFileMes
 	@Override
 	public void onFileExecutionFailed(FileExecutionFailedMessage failure) {
 		ActivityItem item = ActivityItem.create()
-				.setType(ActivityType.ERROR)
+				.setType(ActivityType.WARNING)
 				.setTitle("All attempts to handle events failed.")
 				.setDescription(formatDescription(failure));
 		getActivityLogger().addActivityItem(item);
@@ -138,10 +144,10 @@ class FileManagerCollector extends AbstractActivityCollector implements IFileMes
 	@Handler
 	@Override
 	public void onRemoteShareFolder(RemoteShareFolderMessage message) {
-		String description = "Received an invite for folder \"" + 
+		String description = "Received an invite for folder \"" +
 				message.getFile().getPath() + " by user \"" +
 				message.getInvitedBy() + "\"";
-		
+
 		ActivityItem item = ActivityItem.create()
 				.setType(ActivityType.INFORMATION)
 				.setTitle("Folder sharing.")
@@ -152,10 +158,10 @@ class FileManagerCollector extends AbstractActivityCollector implements IFileMes
 	@Handler
 	@Override
 	public void onLocalShareFolder(LocalShareFolderMessage message) {
-		String description = "Successful sharing of own folder" + 
+		String description = "Successful sharing of own folder" +
 				message.getFile().getPath() + " with user \""+
 				message.getInvitedUserPermission().getUserId();
-		
+
 		ActivityItem item = ActivityItem.create()
 				.setType(ActivityType.INFORMATION)
 				.setTitle("Sharing complete.")

@@ -14,7 +14,7 @@ import javafx.scene.layout.Priority;
 
 import org.controlsfx.glyphfont.FontAwesome;
 import org.controlsfx.glyphfont.GlyphFont;
-import org.controlsfx.glyphfont.GlyphFontRegistry;
+import org.peerbox.view.FontAwesomeOffline;
 
 /**
  * UI representation of an ActivityItem in a ListView.
@@ -25,9 +25,6 @@ import org.controlsfx.glyphfont.GlyphFontRegistry;
  */
 class ActivityItemCell extends ListCell<ActivityItem> {
 
-	/* name of font providing icons */
-	private static final String ICON_FONT = "FontAwesome";
-
 	/* CSS style class for the title */
 	private static final String STYLE_CLASS_ITEM_TITLE = "activity-item-title";
 
@@ -37,17 +34,21 @@ class ActivityItemCell extends ListCell<ActivityItem> {
 	/* formatting of timestamp */
 	private static final String DATE_TIME_PATTERN = "yyyy-MM-dd HH:mm:ss";
 
+	/* controls of this cell */
 	private final GridPane grid;
     private final Label icon;
     private final Label title;
     private final Label dateTime;
     private final Label description;
 
+    /* font that provides icons */
     private final GlyphFont fontAwesome;
 
 	public ActivityItemCell() {
 		super();
-		fontAwesome = GlyphFontRegistry.font(ICON_FONT);
+
+		fontAwesome = FontAwesomeOffline.getGlyphFont();
+
 		grid = new GridPane();
 		icon = new Label();
 		title = new Label();
@@ -115,10 +116,14 @@ class ActivityItemCell extends ListCell<ActivityItem> {
 
 		icon.setGraphic(getIconByType(item.getType()));
 
-		if(item.getType() == ActivityType.WARNING) {
-			grid.getStyleClass().add(STYLE_CLASS_ITEM_WARNING);
-		} else {
-			grid.getStyleClass().removeAll(STYLE_CLASS_ITEM_WARNING);
+		switch(item.getType()) {
+			case WARNING:
+				grid.getStyleClass().add(STYLE_CLASS_ITEM_WARNING);
+				break;
+			default:
+				// remove all style classes of other types
+				grid.getStyleClass().removeAll(STYLE_CLASS_ITEM_WARNING);
+				break;
 		}
 
 		setGraphic(grid);
