@@ -9,6 +9,7 @@ import org.junit.runners.Suite.SuiteClasses;
 	AppConfigTest.class,
 	BootstrappingNodesFactoryTest.class,
 	BootstrappingNodesTest.class,
+	PeerWaspConfigTest.class,
 	UserConfigTest.class
 })
 
