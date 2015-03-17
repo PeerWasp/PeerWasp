@@ -479,6 +479,11 @@ public class ActionExecutor implements Runnable {
 
 					ExecutionHandle next = asyncHandles.take();
 
+					if(next.getAction().getFile().getParent() == null){
+						logger.trace("File {} is not attached to the filetree anymore. Ignore response from network.",
+								next.getAction().getFile().getPath());
+//						continue;
+					}
 
 					try {
 						if(forceSyncRunning){

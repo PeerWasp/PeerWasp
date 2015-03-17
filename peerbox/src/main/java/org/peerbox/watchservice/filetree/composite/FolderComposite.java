@@ -172,6 +172,7 @@ public class FolderComposite extends AbstractFileComponent {
 					removeBottomUp((FolderComposite)toRemove);
 				}
 				removed = children.remove(nextLevelPath);
+//				removed.setParent(null);
 			}
 			if (updateContentHash) {
 				updateContentHash();
@@ -193,7 +194,7 @@ public class FolderComposite extends AbstractFileComponent {
 				removeBottomUp((FolderComposite)child);
 			}
 			boolean removed = this.getAction().getFileEventManager().getFileComponentQueue().remove(child);
-			logger.trace("REMOVEDBOTTOMUP: {} : {}", child.getPath(), removed);
+//			logger.trace("REMOVEDBOTTOMUP: {} : {}", child.getPath(), removed);
 		}
 	}
 
@@ -211,7 +212,7 @@ public class FolderComposite extends AbstractFileComponent {
 	private boolean computeStructureHash() {
 		String nameHashInput = "";
 		String oldNamesHash = structureHash;
-		logger.trace("Before: structure hash of {} is {}", getPath(), oldNamesHash);
+//		logger.trace("Before: structure hash of {} is {}", getPath(), oldNamesHash);
 		
 		for (Map.Entry<Path, FileComponent> child : children.entrySet()) {
 			if(child.getValue().isSynchronized()){
@@ -225,7 +226,7 @@ public class FolderComposite extends AbstractFileComponent {
 		
 		byte[] rawHash = HashUtil.hash(nameHashInput.getBytes());
 		structureHash = PathUtils.base64Encode(rawHash);
-		logger.trace("After: structure hash of {} is {}", getPath(), structureHash);
+//		logger.trace("After: structure hash of {} is {}", getPath(), structureHash);
 
 		boolean hasChanged = !structureHash.equals(oldNamesHash);
 		return hasChanged;
@@ -253,7 +254,7 @@ public class FolderComposite extends AbstractFileComponent {
 
 		if (!getContentHash().equals(newHash)) {
 			setContentHash(newHash);
-			logger.trace("Content hash is {}", newHash);
+//			logger.trace("Content hash is {}", newHash);
 			return true;
 		} else {
 			return false;
@@ -287,12 +288,12 @@ public class FolderComposite extends AbstractFileComponent {
 	@Override
 	public void getSynchronizedChildrenPaths(Set<Path> synchronizedPaths) {
 		if (isSynchronized()) {
-			logger.debug("Add {} to synchronized files.", getPath());
+//			logger.debug("Add {} to synchronized files.", getPath());
 			synchronizedPaths.add(getPath());
 		}
 		for (Map.Entry<Path, FileComponent> entry : children.entrySet()) {
 			if (entry.getValue().isSynchronized()) {
-				logger.debug("--Add {} with ID {} to synchronized files.", entry.getValue().getPath(), entry.getValue().hashCode());
+//				logger.debug("--Add {} with ID {} to synchronized files.", entry.getValue().getPath(), entry.getValue().hashCode());
 				synchronizedPaths.add(entry.getValue().getPath());
 				entry.getValue().getSynchronizedChildrenPaths(synchronizedPaths);
 			}

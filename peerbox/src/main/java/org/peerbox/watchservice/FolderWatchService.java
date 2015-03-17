@@ -234,7 +234,6 @@ public class FolderWatchService extends AbstractWatchService {
 				if(PathUtils.isFileHidden(source)){
 					return;
 				}
-				logger.trace("handle event for {}", source);
 				if (kind.equals(ENTRY_CREATE)) {
 					addNotifyEvent(new NotifyFileCreated(source));
 				} else if (kind.equals(ENTRY_MODIFY)) {
