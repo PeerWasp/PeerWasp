@@ -94,6 +94,7 @@ public class FolderComposite extends AbstractFileComponent {
 
 		// if we are at the last recursion, perform the add, else recursively continue
 		if (remainingPath.getNameCount() == 1) {
+			deleteComponent(nextLevelPath);
 			addComponentToChildren(nextLevelPath, component);
 		} else {
 			FileComponent nextLevel = children.get(nextLevelPath);
@@ -101,6 +102,7 @@ public class FolderComposite extends AbstractFileComponent {
 				// next level does not exist yet, create it
 				Path childPath = constructFullPath(nextLevelPath);
 				nextLevel = new FolderComposite(childPath, updateContentHash);
+				nextLevel.getAction().setFileEventManager(getAction().getFileEventManager());
 				addComponentToChildren(nextLevelPath, nextLevel);
 			}
 			Path newRemainingPath = remainingPath.subpath(1, remainingPath.getNameCount());
@@ -162,7 +164,15 @@ public class FolderComposite extends AbstractFileComponent {
 
 		FileComponent removed = null;
 		if (remainingPath.getNameCount() == 1) {
-			removed = children.remove(nextLevelPath);
+
+			children.get(nextLevelPath);
+			FileComponent toRemove = children.get(nextLevelPath);
+			if(toRemove != null){
+				if(toRemove instanceof FolderComposite){
+					removeBottomUp((FolderComposite)toRemove);
+				}
+				removed = children.remove(nextLevelPath);
+			}
 			if (updateContentHash) {
 				updateContentHash();
 			}
@@ -175,6 +185,16 @@ public class FolderComposite extends AbstractFileComponent {
 			}
 		}
 		return removed;
+	}
+	
+	private void removeBottomUp(FolderComposite folder){
+		for(FileComponent child : folder.getChildren().values()){
+			if(child instanceof FolderComposite){
+				removeBottomUp((FolderComposite)child);
+			}
+			boolean removed = this.getAction().getFileEventManager().getFileComponentQueue().remove(child);
+			logger.trace("REMOVEDBOTTOMUP: {} : {}", child.getPath(), removed);
+		}
 	}
 
 	protected Path constructFullPath(final Path name) {
@@ -307,9 +327,9 @@ public class FolderComposite extends AbstractFileComponent {
 		if (isRoot) {
 			return true;
 		} else {
-			if(getAction().getCurrentState().getStateType() == StateType.LOCAL_DELETE){
-				return !getChildren().values().stream().anyMatch(child -> !child.isReady());
-			}
+//			if(getAction().getCurrentState().getStateType() == StateType.LOCAL_DELETE){
+//				return !getChildren().values().stream().anyMatch(child -> !child.isReady());
+//			}
 			logger.trace("Path: {}", getPath());
 			boolean parentIsUploaded = getParent().isUploaded();
 			return parentIsUploaded;

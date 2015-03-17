@@ -79,6 +79,7 @@ public class ClientNode {
 		fileManager = new FileManager(manager, userConfig, messageBus);
 		fileTree = new FileTree(rootPath, true);
 		fileEventManager = new FileEventManager(fileTree, messageBus);
+		fileTree.getRootOfFileTree().getAction().setFileEventManager(fileEventManager);
 		actionExecutor = new ActionExecutor(fileEventManager, fileManager, new TestPeerWaspConfig());
 		watchService = new FolderWatchService();
 		watchService.addFileEventListener(fileEventManager);

@@ -28,6 +28,7 @@ VersionInfoVersion={#MyAppVersion}
 DefaultDirName={pf}\{#MyAppName}
 DefaultGroupName={#MyAppName}
 LicenseFile={#BaseDir}\License.rtf
+InfoBeforeFile={#BaseDir}\ReadmeBeforeInstall.rtf
 OutputDir=.
 OutputBaseFilename={#OutputFilename}
 SetupIconFile={#BaseDir}\icon_multisize.ico
@@ -36,6 +37,11 @@ SolidCompression=yes
 
 ArchitecturesAllowed=x86 x64
 ArchitecturesInstallIn64BitMode=x64
+
+UninstallDisplayIcon={app}\icon_multisize.ico
+
+WizardSmallImageFile=peerwasp-icon-55x55.bmp
+WizardImageFile=installer_sidebar.bmp
 
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"

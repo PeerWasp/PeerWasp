@@ -6,12 +6,21 @@ import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.hive2hive.core.exceptions.NoSessionException;
 import org.peerbox.app.manager.node.INodeManager;
 import org.peerbox.app.manager.user.IUserManager;
+import org.peerbox.events.MessageBus;
 import org.peerbox.server.IServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.inject.Inject;
 
+/**
+ * The ExitHandler is responsible for shutting down the application in a controlled way.
+ * All services should be stopped and the client should do a graceful leave (logout and
+ * disconnect from the network).
+ *
+ * @author albrecht
+ *
+ */
 public class ExitHandler implements IExitHandler {
 
 	private static final Logger logger = LoggerFactory.getLogger(ExitHandler.class);
@@ -29,30 +38,41 @@ public class ExitHandler implements IExitHandler {
 	}
 
 	private void exit(int status) {
-		if (appContext != null) {
-			if (appContext.getCurrentClientContext() != null) {
-				shutdownClient();
+		try {
+			if (appContext != null) {
+				ClientContext clientContext = appContext.getCurrentClientContext();
+				if (clientContext != null) {
+					shutdownClient(clientContext);
+				}
+
+				shutdownApp(appContext);
 			}
-
-			shutdownApp();
+		} catch (Throwable t) {
+			logger.warn("Exception occurred during exit handler.", t);
+			if (t instanceof Exception) {
+				logger.warn("Exception: ", t);
+			}
+		} finally {
+			shutdown(status);
 		}
-
-		shutdown(status);
 	}
 
 	/**
 	 * Shutdown of application-wide services
+	 * @param appContext2
 	 */
-	private void shutdownApp() {
-		stopServer();
+	private void shutdownApp(AppContext context) {
+		stopMessageBus(context);
+		stopServer(context);
 	}
 
 	/**
 	 * Shutdown of user-specific services
+	 * @param clientContext
 	 */
-	private void shutdownClient() {
-		logout();
-		disconnect();
+	private void shutdownClient(ClientContext context) {
+		logout(context);
+		disconnect(context);
 	}
 
 	/**
@@ -66,37 +86,65 @@ public class ExitHandler implements IExitHandler {
 		System.exit(status);
 	}
 
-	private void stopServer() {
-		if (appContext.getServer() != null) {
-			IServer server = appContext.getServer();
-			boolean success = server.stop();
-			if (!success) {
-				logger.error("Could not stop API server properly.");
+	/**
+	 * Shutdown the message bus
+	 * @param context
+	 */
+	private void stopMessageBus(AppContext context) {
+		try {
+			MessageBus messageBus = context.getMessageBus();
+			if (messageBus != null) {
+				messageBus.shutdown();
 			}
+		} catch (Exception e) {
+			logger.warn("Could not shutdown message bus.", e);
 		}
 	}
 
-	private void logout() {
+	/**
+	 * Stop the HTTP server
+	 * @param context
+	 */
+	private void stopServer(AppContext context) {
 		try {
-			IUserManager userManager = appContext.getCurrentClientContext().getUserManager();
+			IServer server = context.getServer();
+			if (server != null) {
+				boolean success = server.stop();
+				if (!success) {
+					logger.error("Could not stop API server properly.");
+				}
+			}
+		} catch (Exception e) {
+			logger.warn("Could not shutdown server.", e);
+		}
+	}
+
+	private void logout(ClientContext context) {
+		try {
+			IUserManager userManager = context.getUserManager();
 			if (userManager != null && userManager.isLoggedIn()) {
 				userManager.logoutUser();
 			}
-
 		} catch (NoPeerConnectionException npc) {
 			logger.error("Cannot logout - no peer connection. ", npc);
 		} catch (NoSessionException nse) {
 			logger.error("Cannot logout - no session. ", nse);
+		} catch (Exception e) {
+			logger.warn("Could not logout.", e);
 		}
 	}
 
-	private void disconnect() {
-		INodeManager nodeManager = appContext.getCurrentClientContext().getNodeManager();
-		if (nodeManager != null && nodeManager.isConnected()) {
-			boolean success = nodeManager.leaveNetwork();
-			if (!success) {
-				logger.error("Could not disconnect from network properly.");
+	private void disconnect(ClientContext context) {
+		try {
+			INodeManager nodeManager = context.getNodeManager();
+			if (nodeManager != null && nodeManager.isConnected()) {
+				boolean success = nodeManager.leaveNetwork();
+				if (!success) {
+					logger.error("Could not disconnect from network properly.");
+				}
 			}
+		} catch (Exception e) {
+			logger.warn("Could not disconnect.", e);
 		}
 	}
 

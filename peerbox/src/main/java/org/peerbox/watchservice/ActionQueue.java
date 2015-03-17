@@ -32,8 +32,8 @@ public class ActionQueue {
 		queue.add(element);
 	}
 
-	public void remove(FileComponent element) {
-		queue.remove(element);
+	public boolean remove(FileComponent element) {
+		return queue.remove(element);
 	}
 
 	public Iterator<FileComponent> iterator() {

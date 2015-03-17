@@ -6,7 +6,13 @@ import javax.sql.DataSource;
 
 /**
  * The DbContext class provides a data source to use by JDBC and a filename
- * for the database.
+ * to the database. The data source offers connections to the physical database
+ * as specified by the file name.
+ *
+ * The DbContext should be passed around to data access objects (DAO) and other
+ * components that need access to the database. In particular, the data source should
+ * give access to the database respectively establish connections.
+ * For efficiency, a connection pooling can be used.
  *
  * @author albrecht
  *

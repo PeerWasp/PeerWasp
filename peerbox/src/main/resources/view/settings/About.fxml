@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.text.*?>
+<?import javafx.scene.control.*?>
+<?import java.lang.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox prefHeight="450.0" prefWidth="600.0" spacing="6.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.peerbox.presenter.settings.About">
+	<children>
+		<Label text="About PeerWasp">
+			<font>
+				<Font name="System Bold" size="13.0" />
+			</font>
+		</Label>
+		<Label text="PeerWasp started in 2014 as a graduate student project at the Communication System Group at the University of Zurich, Switzerland. Its goal is to provide  a fully decentralized file synchronization and sharing solution based on peer-to-peer technology." wrapText="true" />
+		<Label text="As an open-source project developed in Java, PeerWasp is always looking for contributors and invites everyone to interact with its codebase at GitHub." wrapText="true" />
+		<HBox alignment="CENTER_LEFT">
+			<children>
+				<Label text="GitHub Repository: " wrapText="true" />
+				<Hyperlink onAction="#opengithub" text="github.com/Hive2Hive/PeerBox" />
+			</children>
+		</HBox>
+		<HBox alignment="CENTER_LEFT">
+			<children>
+				<Label text="PeerWasp Homepage: " wrapText="true" />
+				<Hyperlink onAction="#openpeerwasp" text="www.peerwasp.com" />
+			</children>
+		</HBox>
+		<HBox alignment="CENTER_LEFT">
+			<children>
+				<Label text="Found a bug or have a question? Reach out to" wrapText="true" />
+				<Hyperlink onAction="#mailtopeerwasp" text=" info@peerwasp.com" />
+			</children>
+		</HBox>
+		<Separator prefWidth="200.0" />
+		<Label text="If you are interested in the underlying technologies, we encourage you to check out following projects:" wrapText="true" />
+		<HBox alignment="CENTER_LEFT">
+			<children>
+				<Hyperlink onAction="#openh2h" text="Hive2Hive" />
+				<Label text="- an Open-Source Library for P2P-based File Synchronization and Sharing " wrapText="true" />
+			</children>
+		</HBox>
+		<HBox alignment="CENTER_LEFT">
+			<children>
+				<Hyperlink onAction="#opentomp2p" text="TomP2P" />
+				<Label text="- a P2P-based high performance key-value pair storage library" wrapText="true" />
+			</children>
+		</HBox>
+		<Separator prefWidth="200.0" />
+		<Label text="Disclamer: PeerWasp is not responsible for direct, indirect, incidental or consequential loss of data or any other damage resulting from any defect, error, failure or misuse." wrapText="true" />
+	</children>
+
+	<padding>
+		<Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+	</padding>
+
+</VBox>
