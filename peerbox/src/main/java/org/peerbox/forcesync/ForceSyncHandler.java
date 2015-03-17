@@ -3,6 +3,7 @@ package org.peerbox.forcesync;
 import java.nio.file.Path;
 
 import org.peerbox.app.AppContext;
+import org.peerbox.notifications.InformationNotification;
 import org.peerbox.view.tray.SynchronizationCompleteNotification;
 import org.peerbox.view.tray.SynchronizationStartsNotification;
 
@@ -25,6 +26,8 @@ public class ForceSyncHandler implements IForceSyncHandler{
 		appContext.getMessageBus().publish(new SynchronizationStartsNotification());
 		forceSync.forceSync(topLevel);
 		appContext.getMessageBus().publish(new SynchronizationCompleteNotification());
+		appContext.getMessageBus().publish(new InformationNotification("Forced synchronization complete",
+				"Possible inconsistencies should be resolved now."));
 	}
 
 	@Override

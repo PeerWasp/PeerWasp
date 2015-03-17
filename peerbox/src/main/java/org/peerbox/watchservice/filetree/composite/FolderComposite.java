@@ -10,6 +10,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import org.hive2hive.core.security.HashUtil;
 import org.peerbox.watchservice.PathUtils;
+import org.peerbox.watchservice.states.StateType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -306,6 +307,9 @@ public class FolderComposite extends AbstractFileComponent {
 		if (isRoot) {
 			return true;
 		} else {
+			if(getAction().getCurrentState().getStateType() == StateType.LOCAL_DELETE){
+				return !getChildren().values().stream().anyMatch(child -> !child.isReady());
+			}
 			logger.trace("Path: {}", getPath());
 			boolean parentIsUploaded = getParent().isUploaded();
 			return parentIsUploaded;

@@ -158,6 +158,7 @@ public class InitialState extends AbstractActionState {
 			return this; //changeStateOnLocalMove(filePath);
 		} else {
 			logger.trace("No move of {}, as it was not uploaded.", source.getPath());
+//			action.getFileEventManager().getFileComponentQueue().remove(source);
 			fileTree.putFile(filePath, file);
 			updateTimeAndQueue();
 			return changeStateOnLocalCreate();

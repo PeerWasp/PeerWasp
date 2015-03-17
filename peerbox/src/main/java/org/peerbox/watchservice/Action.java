@@ -575,17 +575,17 @@ public class Action implements IAction {
 	}
 
 	private void acquireLock() {
-		logger.trace("File {}: Wait for own lock at t={} in State {}",
-				getFile().getPath(), System.currentTimeMillis(), getCurrentState().getStateType());
+		logger.trace("File {} with ID {}: Wait for own lock at t={} in State {}",
+				getFile().getPath(), getFile().hashCode(), System.currentTimeMillis(), getCurrentState().getStateType());
 		lock.lock();
-		logger.trace("File {}: Received own lock at t={} in State {}",
-				getFile().getPath(), System.currentTimeMillis(), getCurrentState().getStateType());
+		logger.trace("File {} with ID {}: Received own lock at t={} in State {}",
+				getFile().getPath(), getFile().hashCode(), System.currentTimeMillis(), getCurrentState().getStateType());
 	}
 
 	private void releaseLock() {
 		lock.unlock();
-		logger.trace("File {}: Released own lock at t={} in State {}",
-				getFile().getPath(), System.currentTimeMillis(), getCurrentState().getStateType());
+		logger.trace("File {} with ID {}: Released own lock at t={} in State {}",
+				getFile().getPath(), getFile().hashCode(), System.currentTimeMillis(), getCurrentState().getStateType());
 	}
 
 

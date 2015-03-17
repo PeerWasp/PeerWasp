@@ -15,10 +15,10 @@ public class RepeatedAddDelete extends FileIntegrationTest{
 
     @Parameterized.Parameters
     public static List<Object[]> data() {
-        return Arrays.asList(new Object[10][0]);
+        return Arrays.asList(new Object[20][0]);
     }
     
-	@Test @Ignore
+	@Test
 	public void singleFileInManyFoldersTest() throws IOException{
 		int nrFolders = 100;
 		List<Path> allPathsInOne = addSingleFileInManyFolders(nrFolders);
@@ -28,7 +28,7 @@ public class RepeatedAddDelete extends FileIntegrationTest{
 		assertCleanedUpState(0);
 	}
 	
-	@Test
+	@Test @Ignore
 	public void manyFilesInManyFoldersTest() throws IOException {
 		int nrFolders = 10;
 		int nrFilesPerFolder = 10;
