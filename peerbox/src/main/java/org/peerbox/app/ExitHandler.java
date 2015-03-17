@@ -119,6 +119,10 @@ public class ExitHandler implements IExitHandler {
 		}
 	}
 
+	/**
+	 * Logout H2H user profile
+	 * @param context
+	 */
 	private void logout(ClientContext context) {
 		try {
 			IUserManager userManager = context.getUserManager();
@@ -134,6 +138,10 @@ public class ExitHandler implements IExitHandler {
 		}
 	}
 
+	/**
+	 * Disconnect from H2H network (graceful leave)
+	 * @param context
+	 */
 	private void disconnect(ClientContext context) {
 		try {
 			INodeManager nodeManager = context.getNodeManager();

@@ -3,6 +3,13 @@ package org.peerbox.app.config;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+/**
+ * Bootstrapping nodes contains information about nodes that can be used to join a network.
+ * An instance can be stored on disk or loaded from disk using the {@link BootstrappingNodesFactory}.
+ *
+ * @author albrecht
+ *
+ */
 public class BootstrappingNodes {
 
 	private String lastNode;

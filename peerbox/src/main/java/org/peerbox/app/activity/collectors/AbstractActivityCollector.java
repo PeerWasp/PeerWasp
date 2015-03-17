@@ -12,6 +12,7 @@ import org.peerbox.app.activity.ActivityLogger;
  */
 abstract class AbstractActivityCollector implements IActivityCollector {
 
+	/* the "central" activity logger - this is the sink of the actvitiy events */
 	private ActivityLogger activityLogger;
 
 	protected AbstractActivityCollector(ActivityLogger activityLogger) {

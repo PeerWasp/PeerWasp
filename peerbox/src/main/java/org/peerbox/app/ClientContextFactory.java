@@ -9,6 +9,7 @@ import com.google.inject.Injector;
 
 public class ClientContextFactory {
 
+	/* should be the root injector from which child is derived for specific user */
 	private final Injector injector;
 
 	@Inject
@@ -16,7 +17,13 @@ public class ClientContextFactory {
 		this.injector = injector;
 	}
 
-	public ClientContext create(UserConfig userConfig) throws Exception {
+	/**
+	 * Creates a new client context given the user information in the user config.
+	 *
+	 * @param userConfig
+	 * @return client context.
+	 */
+	public ClientContext create(UserConfig userConfig) {
 		// create a child injector. this allows us to have instances and singletons associated with
 		// a specific user (logged in user account)
 		Injector clientInjector = injector.createChildInjector(new UserModule(userConfig));
@@ -24,7 +31,6 @@ public class ClientContextFactory {
 
 		// register for local/remote events
 		FileEventManager fileEventManager = context.getFileEventManager();
-
 		context.getFolderWatchService().addFileEventListener(fileEventManager);
 		context.getNodeManager().getNode().getFileManager().subscribeFileEvents(fileEventManager);
 

@@ -6,6 +6,13 @@ import org.hive2hive.core.api.interfaces.IUserManager;
 import org.peerbox.app.manager.node.INodeManager;
 import org.peerbox.events.MessageBus;
 
+/**
+ * The abstract manager wraps the node manager and controls access to the H2H managers.
+ * It is used mainly by the File Manager and the User Manager.
+ *
+ * @author albrecht
+ *
+ */
 public class AbstractManager {
 
 	private final INodeManager nodeManager;

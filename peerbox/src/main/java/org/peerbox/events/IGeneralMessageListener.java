@@ -9,4 +9,5 @@ public interface IGeneralMessageListener extends IMessageListener {
 
 	@Handler
 	void onWarningMessage(WarningMessage message);
+
 }

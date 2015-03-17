@@ -18,6 +18,14 @@ import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.Singleton;
 
+/**
+ * The client context contains services and dependencies that are specific to a user.
+ * Thus, it is created during the login procedure since the user details are not known
+ * before login.
+ *
+ * @author albrecht
+ *
+ */
 @Singleton
 public class ClientContext {
 

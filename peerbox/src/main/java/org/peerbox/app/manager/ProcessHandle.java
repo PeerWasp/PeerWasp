@@ -20,7 +20,9 @@ import org.hive2hive.processframework.interfaces.IProcessComponent;
  */
 public class ProcessHandle<T> {
 
+	/* process as returned by H2H */
 	private IProcessComponent<T> process;
+	/* future of async operation - set if executeAsync is called. */
 	private Future<T> future;
 
 	/**

@@ -20,14 +20,20 @@ import org.peerbox.app.config.UserConfig;
 import org.peerbox.app.manager.AbstractManager;
 import org.peerbox.app.manager.ProcessHandle;
 import org.peerbox.app.manager.node.INodeManager;
-import org.peerbox.events.MessageBus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
-
+/**
+ * The file manager wraps the H2H file manager (see {@link org.hive2hive.core.api.interfaces.IFileManager}).
+ * In general, process handles are returned containing the process component returned by H2H.
+ * The process, however, is not started yet. Thus, clients must either call execute or executeAsync.
+ *
+ * @author albrecht
+ *
+ */
 @Singleton
 public class FileManager extends AbstractManager implements IFileManager {
 
@@ -36,8 +42,8 @@ public class FileManager extends AbstractManager implements IFileManager {
 	private final UserConfig userConfig;
 
 	@Inject
-	public FileManager(final INodeManager nodeManager, final UserConfig userConfig, final MessageBus messageBus) {
-		super(nodeManager, messageBus);
+	public FileManager(final INodeManager nodeManager, final UserConfig userConfig) {
+		super(nodeManager, null);
 		this.userConfig = userConfig;
 	}
 

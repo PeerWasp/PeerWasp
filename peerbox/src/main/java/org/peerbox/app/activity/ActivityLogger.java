@@ -18,8 +18,10 @@ import com.google.inject.Singleton;
 @Singleton
 public class ActivityLogger {
 
+	/* upper bound for the activityItems list */
 	private final int MAX_ITEMS = 100;
 
+	/* list of items to display */
 	private final ObservableList<ActivityItem> activityItems;
 
 	public ActivityLogger() {

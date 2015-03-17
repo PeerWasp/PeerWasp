@@ -93,7 +93,7 @@ public class FileManagerCollectorTest extends BaseJUnitTest {
 		FileExecutionFailedMessage message = new FileExecutionFailedMessage(file);
 		collector.onFileExecutionFailed(message);
 
-		CollectorTestUtils.captureAddActivityItem(ActivityType.ERROR, activityLogger);
+		CollectorTestUtils.captureAddActivityItem(ActivityType.WARNING, activityLogger);
 	}
 
 }

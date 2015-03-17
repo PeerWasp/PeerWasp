@@ -9,19 +9,42 @@ import java.util.List;
 import com.google.common.base.Charsets;
 import com.google.common.io.Resources;
 
+/**
+ * Factory for the bootstrapping nodes (addresses to nodes).
+ * The factory is responsible for reading and writing the content of a
+ * {@link BootstrappingNodes} instance from and to text files.
+ *
+ * @author albrecht
+ *
+ */
 public final class BootstrappingNodesFactory {
 
+	/* single last node that was used (connected to) */
 	private Path lastNodeFile;
+	/* url to resource containing default node addresses */
 	private URL nodesDefaultUrl;
+	/* file with nodes - user specific */
 	private Path nodesFile;
 
+	/* nodes instance */
 	private BootstrappingNodes bn;
 
+	/**
+	 * Creates a new instance.
+	 *
+	 * @return new instance
+	 */
 	public BootstrappingNodes create() {
 		bn = new BootstrappingNodes();
 		return bn;
 	}
 
+	/**
+	 * Loads stored content from files.
+	 * Note: lastNodeFile, nodesFile and nodesDefaultUrl must be set!
+	 *
+	 * @throws IOException if reading from files fails.
+	 */
 	public void load() throws IOException {
 		clear();
 
@@ -76,6 +99,11 @@ public final class BootstrappingNodesFactory {
 		}
 	}
 
+	/**
+	 * Stores the content of the instance to files.
+	 *
+	 * @throws IOException if writing fails.
+	 */
 	public void save() throws IOException {
 		// Note: default nodes are not changed! they are static and fixed.
 		if (lastNodeFile != null) {
@@ -98,6 +126,11 @@ public final class BootstrappingNodesFactory {
 		Files.write(nodesFile, sb.toString().getBytes());
 	}
 
+	/**
+	 * File where the last node that was used is stored.
+	 *
+	 * @return path
+	 */
 	public Path getLastNodeFile() {
 		return lastNodeFile;
 	}
@@ -106,6 +139,11 @@ public final class BootstrappingNodesFactory {
 		this.lastNodeFile = lastNodeFile;
 	}
 
+	/**
+	 * Url pointing to a resource where default nodes are stored (in JAR package)
+	 *
+	 * @return resource url
+	 */
 	public URL getNodesDefaultFile() {
 		return nodesDefaultUrl;
 	}
@@ -114,6 +152,11 @@ public final class BootstrappingNodesFactory {
 		this.nodesDefaultUrl = nodesDefaultUrl;
 	}
 
+	/**
+	 * File where a list of node addresses is stored.
+	 *
+	 * @return path
+	 */
 	public Path getNodesFile() {
 		return nodesFile;
 	}
