@@ -221,7 +221,11 @@ public class ActionExecutor implements Runnable {
 	 */
 	private boolean isTimerReady(IAction action) {
 		long ageMs = getActionAge(action);
-		return ageMs >= peerWaspConfig.getAggregationIntervalInMillis();
+		if(action.getCurrentState().getStateType() == StateType.LOCAL_CREATE){
+			return ageMs >= peerWaspConfig.getLongAggregationIntervalInMillis();
+		} else {
+			return ageMs >= peerWaspConfig.getAggregationIntervalInMillis();
+		}
 	}
 
 	/**
@@ -313,10 +317,20 @@ public class ActionExecutor implements Runnable {
 						componentIterator.remove();
 						break;
 					}
-					if(System.currentTimeMillis() - candidate.getAction().getTimestamp() > peerWaspConfig.getAggregationIntervalInMillis()){
-						logger.trace("Remove old entry: {}", candidate.getPath());
-						componentIterator.remove();
+					if(candidate.getAction().getCurrentState().getStateType() == StateType.LOCAL_CREATE){
+						if(System.currentTimeMillis() - candidate.getAction().getTimestamp() 
+								> peerWaspConfig.getLongAggregationIntervalInMillis()){
+							logger.trace("Remove old entry: {}", candidate.getPath());
+							componentIterator.remove();
+						}
+					} else {
+						if(System.currentTimeMillis() - candidate.getAction().getTimestamp() 
+								> peerWaspConfig.getAggregationIntervalInMillis()){
+							logger.trace("Remove old entry: {}", candidate.getPath());
+							componentIterator.remove();
+						}
 					}
+
 				}
 			}
 		} else {
@@ -465,6 +479,12 @@ public class ActionExecutor implements Runnable {
 
 					ExecutionHandle next = asyncHandles.take();
 
+					if(next.getAction().getFile().getParent() == null){
+						logger.trace("File {} is not attached to the filetree anymore. Ignore response from network.",
+								next.getAction().getFile().getPath());
+//						continue;
+					}
+
 					try {
 						if(forceSyncRunning){
 							logger.trace("FileComponent {} in state {} is discarded due to force sync!",
@@ -482,6 +502,7 @@ public class ActionExecutor implements Runnable {
 						if(asyncHandles.size() == 0){
 							publishMessage(new SynchronizationCompleteNotification());
 						}
+						next.setTimeouts(0);
 					} catch (ExecutionException eex) {
 
 						ProcessExecutionException pex = null;
@@ -489,14 +510,21 @@ public class ActionExecutor implements Runnable {
 							pex = (ProcessExecutionException) eex.getCause();
 						}
 						handleExecutionError(next.getAction(), pex);
-
+						next.setTimeouts(0);
 					} catch (CancellationException | InterruptedException e) {
 						logger.warn("Exception while getting future result: {}", e.getMessage());
 					} catch (TimeoutException tex) {
 						logger.debug("Could not get result of failed item, timed out. {}",
 								next.getAction().getFile().getPath());
 						// add it again and try later
-						asyncHandles.put(next);
+						if(next.getTimeouts() < 10){
+							next.incrementTimeouts();
+							asyncHandles.put(next);
+						} else {
+							fileEventManager.getFailedOperations().add(next.getAction().getFile().getPath());
+							fileEventManager.initiateForceSync(next.getAction().getFile().getPath().getParent());
+						}
+	
 					}
 
 				} catch (Exception e) {

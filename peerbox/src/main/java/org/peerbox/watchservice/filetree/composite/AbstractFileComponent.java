@@ -175,7 +175,7 @@ abstract class AbstractFileComponent implements FileComponent {
 
 	@Override
 	public void setIsSynchronized(boolean isSynchronized) {
-		logger.trace("setIsSynchronized of {} with ID {} to {}", getPath(), hashCode(), isSynchronized);
+//		logger.trace("setIsSynchronized of {} with ID {} to {}", getPath(), hashCode(), isSynchronized);
 		this.isSynchronized = isSynchronized;
 	}
 

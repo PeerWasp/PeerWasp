@@ -2,9 +2,12 @@ package org.peerbox.app.config;
 
 public interface IPeerWaspConfig {
 
-	int getAggregationIntervalInSeconds();
-	long getAggregationIntervalInMillis();
-
-	int getNumberOfExecutionSlots();
-	int getMaximalExecutionAttempts();
+	public int getAggregationIntervalInSeconds();
+	public long getAggregationIntervalInMillis();
+	
+	public long getLongAggregationIntervalInMillis();
+	public long getLongAggregationIntervalInSeconds();
+	
+	public int getNumberOfExecutionSlots();
+	public int getMaximalExecutionAttempts();	
 }

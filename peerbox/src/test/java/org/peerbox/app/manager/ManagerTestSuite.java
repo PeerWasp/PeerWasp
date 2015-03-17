@@ -30,3 +30,4 @@ import org.peerbox.app.manager.user.UserManagerTest;
 public class ManagerTestSuite {
 
 }
+

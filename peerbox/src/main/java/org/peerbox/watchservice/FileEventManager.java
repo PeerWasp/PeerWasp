@@ -203,7 +203,6 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 		}
 
 		file.getAction().handleLocalUpdateEvent();
-
 	}
 
 	//TODO: remove children from actionQueue as well!
@@ -299,10 +298,10 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 		// TODO: maybe stop when rootPath is reached...!
 		FileComponent file = fileTree.getFile(path);
 		if (file == null) {
-			logger.trace("checkForSynchronizedAncestor: Did not find {}", path);
+//			logger.trace("checkForSynchronizedAncestor: Did not find {}", path);
 			return hasSynchronizedAncestor(path.getParent());
 		} else {
-			logger.trace("checkForSynchronizedAncestor: {} isSynchronized({})", path, file.isSynchronized());
+//			logger.trace("checkForSynchronizedAncestor: {} isSynchronized({})", path, file.isSynchronized());
 //			return hasSynchronizedAncestor(path.getParent());
 			return file.isSynchronized();
 		}
@@ -486,7 +485,7 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 
 	@Handler
 	public void onForceSync(ForceSyncMessage message){
-		logger.trace("Forced synchronization: Block events and clear fileComponentQueue {}", message.getTopLevel());
+		logger.trace("onForceSync: Block events and clear fileComponentQueue {}", message.getTopLevel());
 		setCleanupRunning(true);
 		fileComponentQueue.clear();
 	}

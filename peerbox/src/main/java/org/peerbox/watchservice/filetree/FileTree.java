@@ -53,6 +53,10 @@ public class FileTree implements IFileTree {
     public boolean getMaintainContentHashes(){
     	return maintainContentHashes;
     }
+    
+    public FolderComposite getRootOfFileTree(){
+    	return rootOfFileTree;
+    }
 
 	@Override
 	public void putFile(Path dstPath, FileComponent fileToPut) {

@@ -338,9 +338,6 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 	public void onFileSoftDeleted(LocalFileDesyncMessage message) {
 		logger.trace("onFileSoftDeleted: {}", message.getFile().getPath());
 		SyncTreeItem item = getTreeItem(message.getFile().getPath());
-		if(item == null){
-			return;
-		}
 
 		item.setProgressState(ProgressState.DEFAULT);
 		final SyncTreeItem item2 = item;

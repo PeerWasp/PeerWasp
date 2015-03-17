@@ -10,6 +10,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import org.hive2hive.core.security.HashUtil;
 import org.peerbox.watchservice.PathUtils;
+import org.peerbox.watchservice.states.StateType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -93,6 +94,7 @@ public class FolderComposite extends AbstractFileComponent {
 
 		// if we are at the last recursion, perform the add, else recursively continue
 		if (remainingPath.getNameCount() == 1) {
+			deleteComponent(nextLevelPath);
 			addComponentToChildren(nextLevelPath, component);
 		} else {
 			FileComponent nextLevel = children.get(nextLevelPath);
@@ -100,6 +102,7 @@ public class FolderComposite extends AbstractFileComponent {
 				// next level does not exist yet, create it
 				Path childPath = constructFullPath(nextLevelPath);
 				nextLevel = new FolderComposite(childPath, updateContentHash);
+				nextLevel.getAction().setFileEventManager(getAction().getFileEventManager());
 				addComponentToChildren(nextLevelPath, nextLevel);
 			}
 			Path newRemainingPath = remainingPath.subpath(1, remainingPath.getNameCount());
@@ -161,7 +164,16 @@ public class FolderComposite extends AbstractFileComponent {
 
 		FileComponent removed = null;
 		if (remainingPath.getNameCount() == 1) {
-			removed = children.remove(nextLevelPath);
+
+			children.get(nextLevelPath);
+			FileComponent toRemove = children.get(nextLevelPath);
+			if(toRemove != null){
+				if(toRemove instanceof FolderComposite){
+					removeBottomUp((FolderComposite)toRemove);
+				}
+				removed = children.remove(nextLevelPath);
+//				removed.setParent(null);
+			}
 			if (updateContentHash) {
 				updateContentHash();
 			}
@@ -174,6 +186,16 @@ public class FolderComposite extends AbstractFileComponent {
 			}
 		}
 		return removed;
+	}
+	
+	private void removeBottomUp(FolderComposite folder){
+		for(FileComponent child : folder.getChildren().values()){
+			if(child instanceof FolderComposite){
+				removeBottomUp((FolderComposite)child);
+			}
+			boolean removed = this.getAction().getFileEventManager().getFileComponentQueue().remove(child);
+//			logger.trace("REMOVEDBOTTOMUP: {} : {}", child.getPath(), removed);
+		}
 	}
 
 	protected Path constructFullPath(final Path name) {
@@ -190,7 +212,7 @@ public class FolderComposite extends AbstractFileComponent {
 	private boolean computeStructureHash() {
 		String nameHashInput = "";
 		String oldNamesHash = structureHash;
-		logger.trace("Before: structure hash of {} is {}", getPath(), oldNamesHash);
+//		logger.trace("Before: structure hash of {} is {}", getPath(), oldNamesHash);
 		
 		for (Map.Entry<Path, FileComponent> child : children.entrySet()) {
 			if(child.getValue().isSynchronized()){
@@ -204,7 +226,7 @@ public class FolderComposite extends AbstractFileComponent {
 		
 		byte[] rawHash = HashUtil.hash(nameHashInput.getBytes());
 		structureHash = PathUtils.base64Encode(rawHash);
-		logger.trace("After: structure hash of {} is {}", getPath(), structureHash);
+//		logger.trace("After: structure hash of {} is {}", getPath(), structureHash);
 
 		boolean hasChanged = !structureHash.equals(oldNamesHash);
 		return hasChanged;
@@ -232,7 +254,7 @@ public class FolderComposite extends AbstractFileComponent {
 
 		if (!getContentHash().equals(newHash)) {
 			setContentHash(newHash);
-			logger.trace("Content hash is {}", newHash);
+//			logger.trace("Content hash is {}", newHash);
 			return true;
 		} else {
 			return false;
@@ -266,12 +288,12 @@ public class FolderComposite extends AbstractFileComponent {
 	@Override
 	public void getSynchronizedChildrenPaths(Set<Path> synchronizedPaths) {
 		if (isSynchronized()) {
-			logger.debug("Add {} to synchronized files.", getPath());
+//			logger.debug("Add {} to synchronized files.", getPath());
 			synchronizedPaths.add(getPath());
 		}
 		for (Map.Entry<Path, FileComponent> entry : children.entrySet()) {
 			if (entry.getValue().isSynchronized()) {
-				logger.debug("--Add {} with ID {} to synchronized files.", entry.getValue().getPath(), entry.getValue().hashCode());
+//				logger.debug("--Add {} with ID {} to synchronized files.", entry.getValue().getPath(), entry.getValue().hashCode());
 				synchronizedPaths.add(entry.getValue().getPath());
 				entry.getValue().getSynchronizedChildrenPaths(synchronizedPaths);
 			}
@@ -306,6 +328,9 @@ public class FolderComposite extends AbstractFileComponent {
 		if (isRoot) {
 			return true;
 		} else {
+//			if(getAction().getCurrentState().getStateType() == StateType.LOCAL_DELETE){
+//				return !getChildren().values().stream().anyMatch(child -> !child.isReady());
+//			}
 			logger.trace("Path: {}", getPath());
 			boolean parentIsUploaded = getParent().isUploaded();
 			return parentIsUploaded;

@@ -131,14 +131,14 @@ public abstract class AbstractActionState {
 		if(file.isFile()){
 			FileLeaf moveTarget = fileTree.findCreatedByContent((FileLeaf)file);
 			if(moveTargetIsValid(moveTarget)){
-				return performSwappedFolderMove(moveTarget);
+				return performSwappedMove(moveTarget);
 			} else {
 				putToFileMoveSources((FileLeaf)file);
 			}
 		} else {
 			FileComponent moveTarget = fileTree.findCreatedByStructure((FolderComposite)file);
 			if(moveTargetIsValid(moveTarget)){
-				return performSwappedFolderMove(moveTarget);
+				return performSwappedMove(moveTarget);
 			} else {
 				putToFolderMoveSources((FolderComposite)file);
 			}
@@ -223,7 +223,8 @@ public abstract class AbstractActionState {
 		logger.debug("Put deleted file {} with hash {} to SetMultimap<String, FileComponent>", file.getPath(), file.getContentHash());
 	}
 
-	private AbstractActionState performSwappedFolderMove(
+	
+	private AbstractActionState performSwappedMove(
 			FileComponent moveTarget) {
 		final IFileEventManager eventManager = action.getFileEventManager();
 		logger.trace("We observed a swapped folder move (deletion of source file "
