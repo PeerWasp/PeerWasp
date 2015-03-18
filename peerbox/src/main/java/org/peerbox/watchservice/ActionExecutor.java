@@ -45,28 +45,36 @@ import com.google.common.collect.SetMultimap;
 import com.google.inject.Inject;
 
 /**
- * The ActionExecutor service conducts the aggregation of events for
- * every file and folder and uses a {@link peerbox.src.main.java
- * .org.peerbox.watchservice.ActionQueue ActionQueue} for this purpose, which
- * runs in a separate thread. Ready actions, for which no new events
- * have been observed for a specified time span, are executed. The class
- * maintains asynchronous handles for ongoing executions to check whether
- * they conclude successfully or not and react accordingly.
+ * The ActionExecutor service conducts the aggregation of events for every file
+ * and folder and uses a
+ * {@link peerbox.src.main.java .org.peerbox.watchservice.ActionQueue
+ * ActionQueue} for this purpose, which runs in a separate thread. Ready
+ * actions, for which no new events have been observed for a specified time
+ * span, are executed. The class maintains asynchronous handles for ongoing
+ * executions to check whether they conclude successfully or not and react
+ * accordingly.
  *
- * This class uses the {@link org.peerbox.events.MessageBus MessageBus} instance of the
- * injected {@link org.peerbox.watchservice.FileEventManager FileEventManager}
- * instance to publish {@link org.peerbox.view.tray.SynchronizationErrorsResolvedNotification SynchronizationErrorsResolvedNotification},
- * {@link org.peerbox.app.manager.file.messages.FileExecutionStartedMessage FileExecutionStartedMessage},
- * {@link org.peerbox.app.manager.file.messages.FileExecutionSucceededMessage FileExecutionSucceededMessage},
- * {@link org.peerbox.app.manager.file.messages.FileExecutionFailedMessage FileExecutionFailedMessage}, and
- * {@link org.peerbox.view.tray.SynchronizationCompleteNotification SynchronizationCompleteNotification}.
-
+ * This class uses the {@link org.peerbox.events.MessageBus MessageBus} instance
+ * of the injected {@link org.peerbox.watchservice.FileEventManager
+ * FileEventManager} instance to publish
+ * {@link org.peerbox.view.tray.SynchronizationErrorsResolvedNotification
+ * SynchronizationErrorsResolvedNotification},
+ * {@link org.peerbox.app.manager.file.messages.FileExecutionStartedMessage
+ * FileExecutionStartedMessage},
+ * {@link org.peerbox.app.manager.file.messages.FileExecutionSucceededMessage
+ * FileExecutionSucceededMessage},
+ * {@link org.peerbox.app.manager.file.messages.FileExecutionFailedMessage
+ * FileExecutionFailedMessage}, and
+ * {@link org.peerbox.view.tray.SynchronizationCompleteNotification
+ * SynchronizationCompleteNotification}.
+ * 
  * @author albrecht
  *
  */
 public class ActionExecutor implements Runnable {
 
-	private static final Logger logger = LoggerFactory.getLogger(ActionExecutor.class);
+	private static final Logger logger = LoggerFactory
+			.getLogger(ActionExecutor.class);
 
 	private IPeerWaspConfig peerWaspConfig;
 
@@ -76,8 +84,10 @@ public class ActionExecutor implements Runnable {
 	/** Set to false if not interested in result of network transactions **/
 	private boolean waitForActionCompletion = true;
 
-	/** Queue to store the handles of executing transactions, ending
-	 * transactions are examined asynchronously **/
+	/**
+	 * Queue to store the handles of executing transactions, ending transactions
+	 * are examined asynchronously
+	 **/
 	private final BlockingQueue<ExecutionHandle> asyncHandles;
 
 	private final Thread asyncHandlesThread;
@@ -86,16 +96,18 @@ public class ActionExecutor implements Runnable {
 	private boolean forceSyncRunning = false;
 
 	/**
-	 * @param eventManager determines the event handling
-	 * @param fileManager is passed when actions are executed to access the H2H API.
-	 * @param peerWaspConfig defines important runtime parameters like
-	 * the number of concurrently executed actions or the aggregation
-	 * time span for events.
+	 * @param eventManager
+	 *            determines the event handling
+	 * @param fileManager
+	 *            is passed when actions are executed to access the H2H API.
+	 * @param peerWaspConfig
+	 *            defines important runtime parameters like the number of
+	 *            concurrently executed actions or the aggregation time span for
+	 *            events.
 	 */
 	@Inject
 	public ActionExecutor(final FileEventManager eventManager,
-			final IFileManager fileManager,
-			IPeerWaspConfig peerWaspConfig) {
+			final IFileManager fileManager, IPeerWaspConfig peerWaspConfig) {
 
 		this.fileEventManager = eventManager;
 		this.fileManager = fileManager;
@@ -103,17 +115,18 @@ public class ActionExecutor implements Runnable {
 
 		asyncHandles = new LinkedBlockingQueue<ExecutionHandle>();
 
-		asyncHandlesThread = new Thread(new ExecutingActionHandler(), "AsyncActionHandlerThread");
+		asyncHandlesThread = new Thread(new ExecutingActionHandler(),
+				"AsyncActionHandlerThread");
 		executorThread = new Thread(this, "ActionExecutorThread");
 	}
-
 
 	public void start() {
 		executorThread.start();
 	}
 
 	public void stop() {
-		// TODO: change stop to something that is not deprecated and recommended.
+		// TODO: change stop to something that is not deprecated and
+		// recommended.
 		executorThread.stop();
 	}
 
@@ -123,7 +136,7 @@ public class ActionExecutor implements Runnable {
 		processActions();
 	}
 
-	public IPeerWaspConfig getPeerWaspConfig(){
+	public IPeerWaspConfig getPeerWaspConfig() {
 		return peerWaspConfig;
 	}
 
@@ -133,8 +146,9 @@ public class ActionExecutor implements Runnable {
 	 * executions is not reached) and if the timestamp (updated on every event)
 	 * of the action is old enough to conclude the event aggregation for this
 	 * action. Besides that, the method checks if the ancestors of a file have
-	 * been uploaded to the network yet, to prevent a {@link org.hive2hive.core.
-	 * src.main.java.org.hive2hive.core.exceptions.ParentInUserProfileNotFoundException}
+	 * been uploaded to the network yet, to prevent a
+	 * {@link org.hive2hive.core. src.main.java.org.hive2hive.core.exceptions.ParentInUserProfileNotFoundException}
+	 * 
 	 * @throws IllegalFileLocation
 	 * @throws NoPeerConnectionException
 	 * @throws NoSessionException
@@ -160,21 +174,28 @@ public class ActionExecutor implements Runnable {
 
 					logger.debug("Start execution: {}", next.getPath());
 
-					ExecutionHandle ehandle = next.getAction().execute(fileManager);
+					ExecutionHandle ehandle = next.getAction().execute(
+							fileManager);
 					if (waitForActionCompletion) {
 
-						if (ehandle != null && ehandle.getProcessHandle() != null) {
+						if (ehandle != null
+								&& ehandle.getProcessHandle() != null) {
 							logger.debug("Put into async handles!");
 							asyncHandles.put(ehandle);
 							FileInfo file = new FileInfo(next);
-							publishMessage(new FileExecutionStartedMessage(file, next.getAction().getCurrentState().getStateType()));
+							publishMessage(new FileExecutionStartedMessage(
+									file, next.getAction().getCurrentState()
+											.getStateType()));
 						} else {
-							//This happens with actions in InitialState/EstablishedState
+							// This happens with actions in
+							// InitialState/EstablishedState
 							FileInfo file = new FileInfo(next);
-							publishMessage(new FileExecutionSucceededMessage(file, next.getAction().getCurrentState().getStateType()));
+							publishMessage(new FileExecutionSucceededMessage(
+									file, next.getAction().getCurrentState()
+											.getStateType()));
 						}
 
-						if(asyncHandles.size() != 0){
+						if (asyncHandles.size() != 0) {
 							publishMessage(new SynchronizationStartsNotification());
 						}
 					} else {
@@ -192,15 +213,18 @@ public class ActionExecutor implements Runnable {
 				logger.error("Exception occurred: {}", iex.getMessage(), iex);
 			} catch (NoSessionException nse) {
 				logger.warn("No session - cannot execute pending actions.", nse);
-			} catch(NoPeerConnectionException npc) {
-				logger.warn("No peer connection - cannot execute pending actions.", npc);
+			} catch (NoPeerConnectionException npc) {
+				logger.warn(
+						"No peer connection - cannot execute pending actions.",
+						npc);
 			} catch (Exception e) {
 				logger.error("Exception occurred: {}", e.getMessage(), e);
 			}
 		}
 	}
 
-	private void updateFileComponentQueueAndWait(FileComponent next) throws InterruptedException{
+	private void updateFileComponentQueueAndWait(FileComponent next)
+			throws InterruptedException {
 		logger.debug("Component {} is not ready yet!", next.getPath());
 
 		fileEventManager.getFileComponentQueue().remove(next);
@@ -216,12 +240,14 @@ public class ActionExecutor implements Runnable {
 
 	/**
 	 * Checks whether an action is ready to be executed
-	 * @param action Action to be executed
+	 * 
+	 * @param action
+	 *            Action to be executed
 	 * @return true if ready to be executed, false otherwise
 	 */
 	private boolean isTimerReady(IAction action) {
 		long ageMs = getActionAge(action);
-		if(action.getCurrentState().getStateType() == StateType.LOCAL_CREATE){
+		if (action.getCurrentState().getStateType() == StateType.LOCAL_CREATE) {
 			return ageMs >= peerWaspConfig.getLongAggregationIntervalInMillis();
 		} else {
 			return ageMs >= peerWaspConfig.getAggregationIntervalInMillis();
@@ -230,6 +256,7 @@ public class ActionExecutor implements Runnable {
 
 	/**
 	 * Computes the age of an action
+	 * 
 	 * @param action
 	 * @return age in ms
 	 */
@@ -238,7 +265,8 @@ public class ActionExecutor implements Runnable {
 	}
 
 	private long calculateWaitTime(FileComponent action) {
-		long timeToWait = peerWaspConfig.getAggregationIntervalInMillis() - getActionAge(action.getAction()) + 1L;
+		long timeToWait = peerWaspConfig.getAggregationIntervalInMillis()
+				- getActionAge(action.getAction()) + 1L;
 		if (timeToWait < 500L) {
 			// wait at least some time
 			timeToWait = 500L;
@@ -272,22 +300,28 @@ public class ActionExecutor implements Runnable {
 			ExecutionHandle next = it.next();
 			IAction tmpAction = next.getAction();
 			logger.trace("[{}] {} - {}", index,
-					tmpAction.getCurrentStateName(),
-					tmpAction.getFile().getPath());
+					tmpAction.getCurrentStateName(), tmpAction.getFile()
+							.getPath());
 			++index;
 		}
 	}
 
 	private void removeFromDeleted(FileComponent next) {
-		SetMultimap<String, FileComponent> deletedByContent = getFileTree().getDeletedByContentHash();
-		SetMultimap<String, FolderComposite> deletedByStructure = getFileTree().getDeletedByStructureHash();
-		removeComponentFromSetMultimap(next, deletedByContent, deletedByStructure);
+		SetMultimap<String, FileComponent> deletedByContent = getFileTree()
+				.getDeletedByContentHash();
+		SetMultimap<String, FolderComposite> deletedByStructure = getFileTree()
+				.getDeletedByStructureHash();
+		removeComponentFromSetMultimap(next, deletedByContent,
+				deletedByStructure);
 	}
 
-	private void removeFromCreated(FileComponent next){
-		SetMultimap<String, FileComponent> createdByContent = getFileTree().getCreatedByContentHash();
-		SetMultimap<String, FolderComposite> createdByStructure = getFileTree().getCreatedByStructureHash();
-		removeComponentFromSetMultimap(next, createdByContent, createdByStructure);
+	private void removeFromCreated(FileComponent next) {
+		SetMultimap<String, FileComponent> createdByContent = getFileTree()
+				.getCreatedByContentHash();
+		SetMultimap<String, FolderComposite> createdByStructure = getFileTree()
+				.getCreatedByStructureHash();
+		removeComponentFromSetMultimap(next, createdByContent,
+				createdByStructure);
 	}
 
 	private void removeFromFailed(Path failedOperation) {
@@ -306,27 +340,34 @@ public class ActionExecutor implements Runnable {
 
 	private void removeComponentFromSetMultimap(FileComponent toRemove,
 			SetMultimap<String, FileComponent> byContent,
-			SetMultimap<String, FolderComposite> byStructure){
-		Iterator<Map.Entry<String, FileComponent>> componentIterator = byContent.entries().iterator(); //.sameHashes.iterator();
+			SetMultimap<String, FolderComposite> byStructure) {
+		Iterator<Map.Entry<String, FileComponent>> componentIterator = byContent
+				.entries().iterator(); // .sameHashes.iterator();
 
-		if(toRemove.isFile()){
-			synchronized(byContent){
-				while(componentIterator.hasNext()){
-					FileComponent candidate = componentIterator.next().getValue();
-					if(candidate.getPath().toString().equals(toRemove.getPath().toString())){
+		if (toRemove.isFile()) {
+			synchronized (byContent) {
+				while (componentIterator.hasNext()) {
+					FileComponent candidate = componentIterator.next()
+							.getValue();
+					if (candidate.getPath().toString()
+							.equals(toRemove.getPath().toString())) {
 						componentIterator.remove();
 						break;
 					}
-					if(candidate.getAction().getCurrentState().getStateType() == StateType.LOCAL_CREATE){
-						if(System.currentTimeMillis() - candidate.getAction().getTimestamp() 
-								> peerWaspConfig.getLongAggregationIntervalInMillis()){
-							logger.trace("Remove old entry: {}", candidate.getPath());
+					if (candidate.getAction().getCurrentState().getStateType() == StateType.LOCAL_CREATE) {
+						if (System.currentTimeMillis()
+								- candidate.getAction().getTimestamp() > peerWaspConfig
+									.getLongAggregationIntervalInMillis()) {
+							logger.trace("Remove old entry: {}",
+									candidate.getPath());
 							componentIterator.remove();
 						}
 					} else {
-						if(System.currentTimeMillis() - candidate.getAction().getTimestamp() 
-								> peerWaspConfig.getAggregationIntervalInMillis()){
-							logger.trace("Remove old entry: {}", candidate.getPath());
+						if (System.currentTimeMillis()
+								- candidate.getAction().getTimestamp() > peerWaspConfig
+									.getAggregationIntervalInMillis()) {
+							logger.trace("Remove old entry: {}",
+									candidate.getPath());
 							componentIterator.remove();
 						}
 					}
@@ -334,11 +375,14 @@ public class ActionExecutor implements Runnable {
 				}
 			}
 		} else {
-			Iterator<Map.Entry<String, FolderComposite>> folderIterator = byStructure.entries().iterator();
-			synchronized(byStructure){
-				while(folderIterator.hasNext()){
-					Map.Entry<String, FolderComposite> candidate = folderIterator.next();
-					if(candidate.getValue().getPath().toString().equals(toRemove.getPath().toString())){
+			Iterator<Map.Entry<String, FolderComposite>> folderIterator = byStructure
+					.entries().iterator();
+			synchronized (byStructure) {
+				while (folderIterator.hasNext()) {
+					Map.Entry<String, FolderComposite> candidate = folderIterator
+							.next();
+					if (candidate.getValue().getPath().toString()
+							.equals(toRemove.getPath().toString())) {
 						folderIterator.remove();
 						break;
 					}
@@ -349,17 +393,20 @@ public class ActionExecutor implements Runnable {
 
 	private void onActionExecuteSucceeded(final IAction action) {
 		final FileComponent file = action.getFile();
-		logger.debug("Action succeeded: {} {}.",
-				file.getPath(), action.getCurrentStateName());
+		logger.debug("Action succeeded: {} {}.", file.getPath(),
+				action.getCurrentStateName());
 
-		//inform GUI to adjust icon
+		// inform GUI to adjust icon
 		FileInfo fileHelper = new FileInfo(file);
-		if(action.getCurrentState().getStateType() == StateType.LOCAL_MOVE){
-			LocalMoveState state = (LocalMoveState)action.getCurrentState();
-			FileInfo source = new FileInfo(state.getSourcePath(), file.isFolder());
-			publishMessage(new FileExecutionSucceededMessage(source, fileHelper, action.getCurrentState().getStateType()));
+		if (action.getCurrentState().getStateType() == StateType.LOCAL_MOVE) {
+			LocalMoveState state = (LocalMoveState) action.getCurrentState();
+			FileInfo source = new FileInfo(state.getSourcePath(),
+					file.isFolder());
+			publishMessage(new FileExecutionSucceededMessage(source,
+					fileHelper, action.getCurrentState().getStateType()));
 		} else {
-			publishMessage(new FileExecutionSucceededMessage(fileHelper, action.getCurrentState().getStateType()));
+			publishMessage(new FileExecutionSucceededMessage(fileHelper, action
+					.getCurrentState().getStateType()));
 		}
 
 		boolean changedWhileExecuted = action.getChangedWhileExecuted();
@@ -367,17 +414,17 @@ public class ActionExecutor implements Runnable {
 		action.onSucceeded();
 
 		if (changedWhileExecuted) {
-			logger.trace("File: {} changed during the execution process to state {}. "
-					+ "Put back into the queue",
-					file.getPath(),
+			logger.trace(
+					"File: {} changed during the execution process to state {}. "
+							+ "Put back into the queue", file.getPath(),
 					action.getCurrentStateName());
 			action.updateTimestamp();
 			fileEventManager.getFileComponentQueue().add(file);
 		}
 	}
 
-
-	private void handleExecutionError(IAction action, ProcessExecutionException pex) {
+	private void handleExecutionError(IAction action,
+			ProcessExecutionException pex) {
 		final FileComponent file = action.getFile();
 		logger.error("Action failed: {}", file.getPath(), pex);
 
@@ -398,24 +445,32 @@ public class ActionExecutor implements Runnable {
 		}
 	}
 
-
 	private void handleErrorDefault(IAction action) {
 		final Path path = action.getFile().getPath();
-		logger.trace("Default Error Handling: Re-initiate execution - {} - {} - attempt({}).",
-				path, action.getCurrentStateName(), action.getExecutionAttempts());
+		logger.trace(
+				"Default Error Handling: Re-initiate execution - {} - {} - attempt({}).",
+				path, action.getCurrentStateName(),
+				action.getExecutionAttempts());
 
-		if (action.getExecutionAttempts() <= peerWaspConfig.getMaximalExecutionAttempts()) {
+		if (action.getExecutionAttempts() <= peerWaspConfig
+				.getMaximalExecutionAttempts()) {
 			action.updateTimestamp();
 			fileEventManager.getFileComponentQueue().add(action.getFile());
 		} else {
 			FileInfo file = new FileInfo(action.getFile());
 			publishMessage(new FileExecutionFailedMessage(file));
-			fileEventManager.getMessageBus().post(new InformationNotification("Synchronization error ",
-					"Operation on " + path + " failed")).now();
-			logger.error("To many attempts, action of {} has not been executed again.", path);
+			fileEventManager
+					.getMessageBus()
+					.post(new InformationNotification("Synchronization error ",
+							"Operation on " + path + " failed")).now();
+			logger.error(
+					"To many attempts, action of {} has not been executed again.",
+					path);
 			onActionExecuteSucceeded(action);
-			fileEventManager.getFailedOperations().add(action.getFile().getPath());
-			fileEventManager.initiateForceSync(action.getFile().getPath().getParent());
+			fileEventManager.getFailedOperations().add(
+					action.getFile().getPath());
+			fileEventManager.initiateForceSync(action.getFile().getPath()
+					.getParent());
 		}
 	}
 
@@ -424,46 +479,55 @@ public class ActionExecutor implements Runnable {
 
 		if (error == AbortModificationCode.SAME_CONTENT) {
 
-			logger.debug("Update of file {} failed, content hash did not change", path);
+			logger.debug(
+					"Update of file {} failed, content hash did not change",
+					path);
 			FileComponent notModified = getFileTree().getFile(path);
 			if (notModified == null) {
 				logger.trace("FileComponent not found (null): {}", path);
 			}
 			FileInfo file = new FileInfo(action.getFile());
-			publishMessage(new FileExecutionSucceededMessage(file, action.getCurrentState().getStateType()));
+			publishMessage(new FileExecutionSucceededMessage(file, action
+					.getCurrentState().getStateType()));
 			action.onSucceeded();
 			return true;
 
 		} else if (error == AbortModificationCode.FOLDER_UPDATE) {
-			logger.debug("Attempt to update folder {} failed as folder cannot be updated.", path);
+			logger.debug(
+					"Attempt to update folder {} failed as folder cannot be updated.",
+					path);
 			return true;
 
 		} else if (error == AbortModificationCode.ROOT_DELETE_ATTEMPT) {
-			logger.debug("Attempt to delete the root folder {} failed (operation not allowed)", path);
+			logger.debug(
+					"Attempt to delete the root folder {} failed (operation not allowed)",
+					path);
 			return true;
 
 		} else if (error == AbortModificationCode.NO_WRITE_PERM) {
-			//This happens when a user creates a file in a read-only folder.
-			logger.debug("Attempt to delete or write to {} failed. No write-permissions.", path);
+			// This happens when a user creates a file in a read-only folder.
+			logger.debug(
+					"Attempt to delete or write to {} failed. No write-permissions.",
+					path);
 			return true;
 		}
 		return false; // error not handled
 	}
 
 	@Handler
-	public void onForceSync(ForceSyncMessage message){
+	public void onForceSync(ForceSyncMessage message) {
 		logger.trace("Force Synchronization on {}: Handle ongoing executions");
 		setForceSyncRunning(true);
 	}
 
 	@Handler
-	public void onForceSyncComplete(ForceSyncCompleteMessage message){
+	public void onForceSyncComplete(ForceSyncCompleteMessage message) {
 		logger.trace("Forced synchronization terminated.");
 		setForceSyncRunning(false);
 	}
 
 	public void setForceSyncRunning(boolean isRunning) {
-		forceSyncRunning  = isRunning;
+		forceSyncRunning = isRunning;
 	}
 
 	private class ExecutingActionHandler implements Runnable {
@@ -474,32 +538,36 @@ public class ActionExecutor implements Runnable {
 		}
 
 		private void processExecutingActions() {
-			while(true) {
+			while (true) {
 				try {
 
 					ExecutionHandle next = asyncHandles.take();
 
-					if(next.getAction().getFile().getParent() == null){
-						logger.trace("File {} is not attached to the filetree anymore. Ignore response from network.",
-								next.getAction().getFile().getPath());
+//					if (next.getAction().getFile().getParent() == null) {
+//						logger.trace(
+//								"File {} is not attached to the filetree anymore. Ignore response from network.",
+//								next.getAction().getFile().getPath());
 //						continue;
-					}
+//					}
 
 					try {
-						if(forceSyncRunning){
-							logger.trace("FileComponent {} in state {} is discarded due to force sync!",
-									next.getAction().getFile().getPath(), next.getAction().getCurrentState().getStateType());
+						if (forceSyncRunning) {
+							logger.trace(
+									"FileComponent {} in state {} is discarded due to force sync!",
+									next.getAction().getFile().getPath(), next
+											.getAction().getCurrentState()
+											.getStateType());
 							continue;
 						}
 						// check whether there is a process attached
 						ProcessHandle<Void> process = next.getProcessHandle();
-						if(process != null) {
+						if (process != null) {
 							process.getFuture().get(5, TimeUnit.SECONDS);
 						}
 
 						onActionExecuteSucceeded(next.getAction());
 
-						if(asyncHandles.size() == 0){
+						if (asyncHandles.size() == 0) {
 							publishMessage(new SynchronizationCompleteNotification());
 						}
 						next.setTimeouts(0);
@@ -512,19 +580,24 @@ public class ActionExecutor implements Runnable {
 						handleExecutionError(next.getAction(), pex);
 						next.setTimeouts(0);
 					} catch (CancellationException | InterruptedException e) {
-						logger.warn("Exception while getting future result: {}", e.getMessage());
+						logger.warn(
+								"Exception while getting future result: {}",
+								e.getMessage());
 					} catch (TimeoutException tex) {
-						logger.debug("Could not get result of failed item, timed out. {}",
+						logger.debug(
+								"Could not get result of failed item, timed out. {}",
 								next.getAction().getFile().getPath());
 						// add it again and try later
-						if(next.getTimeouts() < 10){
+						if (next.getTimeouts() < 10) {
 							next.incrementTimeouts();
 							asyncHandles.put(next);
 						} else {
-							fileEventManager.getFailedOperations().add(next.getAction().getFile().getPath());
-							fileEventManager.initiateForceSync(next.getAction().getFile().getPath().getParent());
+							fileEventManager.getFailedOperations().add(
+									next.getAction().getFile().getPath());
+							fileEventManager.initiateForceSync(next.getAction()
+									.getFile().getPath().getParent());
 						}
-	
+
 					}
 
 				} catch (Exception e) {
