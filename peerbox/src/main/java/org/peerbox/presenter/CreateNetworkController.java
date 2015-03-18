@@ -20,7 +20,7 @@ import javafx.scene.control.TextField;
 import javafx.stage.Window;
 
 import org.peerbox.app.manager.node.INodeManager;
-import org.peerbox.utils.IconUtils;
+import org.peerbox.utils.AlertUtils;
 import org.peerbox.view.ViewNames;
 import org.peerbox.view.controls.ErrorLabel;
 import org.slf4j.Logger;
@@ -107,8 +107,7 @@ public class CreateNetworkController implements Initializable {
 		boolean yes = false;
 
 		Window owner = txtIPAddress.getScene().getWindow();
-		Alert dlg = new Alert(AlertType.CONFIRMATION);
-		IconUtils.decorateDialogWithIcon(dlg);
+		Alert dlg = AlertUtils.create(AlertType.CONFIRMATION);
 		dlg.initOwner(owner);
 		dlg.setTitle("Delete Network");
 		dlg.setHeaderText("Delete the network?");

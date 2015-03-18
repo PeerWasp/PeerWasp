@@ -41,7 +41,7 @@ import org.peerbox.app.manager.user.IUserManager;
 import org.peerbox.events.MessageBus;
 import org.peerbox.presenter.validation.UsernameRegisteredValidator;
 import org.peerbox.presenter.validation.ValidationUtils.ValidationResult;
-import org.peerbox.utils.IconUtils;
+import org.peerbox.utils.AlertUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -231,8 +231,7 @@ public final class ShareFolderController implements Initializable {
 				setStatus("Sharing succeeded.");
 				setBusy(false);
 
-				Alert dlg = new Alert(AlertType.INFORMATION);
-				IconUtils.decorateDialogWithIcon(dlg);
+				Alert dlg = AlertUtils.create(AlertType.INFORMATION);
 				dlg.setTitle("Folder Sharing");
 				dlg.setHeaderText("Folder sharing finished");
 				dlg.setContentText("The user is granted access to the folder.");
@@ -259,8 +258,7 @@ public final class ShareFolderController implements Initializable {
 				setStatus("Sharing failed.");
 				setBusy(false);
 
-				Alert dlg = new Alert(AlertType.ERROR);
-				IconUtils.decorateDialogWithIcon(dlg);
+				Alert dlg = AlertUtils.create(AlertType.ERROR);
 				dlg.setTitle("Folder Sharing");
 				dlg.setHeaderText("Folder sharing failed.");
 				dlg.setContentText(status.getErrorMessage());

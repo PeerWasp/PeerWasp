@@ -15,15 +15,14 @@ import javafx.stage.Window;
 
 import org.apache.commons.io.FileUtils;
 import org.peerbox.presenter.validation.ValidationUtils.ValidationResult;
-import org.peerbox.utils.IconUtils;
+import org.peerbox.utils.AlertUtils;
 
 public class SelectRootPathUtils {
 
 	public static boolean confirmMoveDirectoryDialog(File newPath) {
 		boolean yes = false;
 
-		Alert dlg = new Alert(AlertType.CONFIRMATION);
-		IconUtils.decorateDialogWithIcon(dlg);
+		Alert dlg = AlertUtils.create(AlertType.CONFIRMATION);
 		dlg.setTitle("Move Directory");
 		dlg.setHeaderText("Move the directory?");
 		dlg.setContentText(String.format("This will move the directory to a new location: %s.",
@@ -71,8 +70,7 @@ public class SelectRootPathUtils {
 
 		boolean yes = false;
 
-		Alert dlg = new Alert(AlertType.CONFIRMATION);
-		IconUtils.decorateDialogWithIcon(dlg);
+		Alert dlg = AlertUtils.create(AlertType.CONFIRMATION);
 		dlg.setTitle("Create Directory");
 		dlg.setHeaderText("Create the directory?");
 		dlg.setContentText("The directory does not exist yet. Do you want to create it?");
@@ -127,8 +125,7 @@ public class SelectRootPathUtils {
 	}
 
 	private static void showInvalidDirectoryChooserEntryInformation() {
-		Alert dlg = new Alert(AlertType.ERROR);
-		IconUtils.decorateDialogWithIcon(dlg);
+		Alert dlg = AlertUtils.create(AlertType.ERROR);
 		dlg.setTitle("Error");
 		dlg.setHeaderText("Cannot open the directory");
 		dlg.setContentText("The selected directory or its parent directory does not exist.");

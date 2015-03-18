@@ -21,8 +21,9 @@ import org.peerbox.guice.AppModule;
 import org.peerbox.notifications.InformationNotification;
 import org.peerbox.presenter.tray.TrayException;
 import org.peerbox.server.IServer;
+import org.peerbox.utils.AlertUtils;
 import org.peerbox.utils.AppData;
-import org.peerbox.view.FontAwesomeOffline;
+import org.peerbox.utils.IconUtils;
 import org.peerbox.view.tray.AbstractSystemTray;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -211,7 +212,7 @@ public class App extends Application
 	 */
 	private void initializeFonts() {
 		// just static initialization of the font awesome provider lib
-		FontAwesomeOffline.init();
+		IconUtils.initFontAwesomeOffline();
 	}
 
 	/**
@@ -254,8 +255,8 @@ public class App extends Application
 	 * @param message
 	 */
 	private void showErrorAlert(String title, String message) {
-		Alert dlg = new Alert(AlertType.ERROR);
-		dlg.setTitle("Error");
+		Alert dlg = AlertUtils.create(AlertType.ERROR);
+		dlg.setTitle("Error - Initialization");
 		dlg.setHeaderText(title);
 		dlg.setContentText(message);
 		dlg.showAndWait();

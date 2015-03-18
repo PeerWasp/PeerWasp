@@ -14,7 +14,7 @@ import javafx.scene.layout.Priority;
 
 import org.controlsfx.glyphfont.FontAwesome;
 import org.controlsfx.glyphfont.GlyphFont;
-import org.peerbox.view.FontAwesomeOffline;
+import org.peerbox.utils.IconUtils;
 
 /**
  * UI representation of an ActivityItem in a ListView.
@@ -47,7 +47,7 @@ class ActivityItemCell extends ListCell<ActivityItem> {
 	public ActivityItemCell() {
 		super();
 
-		fontAwesome = FontAwesomeOffline.getGlyphFont();
+		fontAwesome = IconUtils.getFontAwesome();
 
 		grid = new GridPane();
 		icon = new Label();

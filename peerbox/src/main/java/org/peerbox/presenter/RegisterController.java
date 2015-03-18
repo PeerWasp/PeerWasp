@@ -157,6 +157,16 @@ public class RegisterController implements Initializable {
 	}
 
 	/**
+	 * Navigate to the login page.
+	 * @param event
+	 */
+	@FXML
+	public void loginAction(ActionEvent event) {
+		logger.debug("Navigate to Login page.");
+		fNavigationService.navigate(ViewNames.LOGIN_VIEW);
+	}
+
+	/**
 	 * Registers a new user given the credentials.
 	 * All checks regarding the input should happen before (e.g. is registered, password not empty, ...)
 	 * @param username
