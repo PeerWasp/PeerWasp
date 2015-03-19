@@ -44,6 +44,8 @@ public interface IAction {
 	void handleRemoteUpdateEvent();
 	void handleRemoteDeleteEvent();
 	void handleRemoteMoveEvent(Path srcPath);
+	
+	void updateTimeAndQueue();
 
 	void onSucceeded();
 	void onFailed();

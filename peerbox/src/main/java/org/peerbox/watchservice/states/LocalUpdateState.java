@@ -81,20 +81,20 @@ public class LocalUpdateState extends AbstractActionState {
 	@Override
 	public AbstractActionState handleRemoteCreate() {
 		ConflictHandler.resolveConflict(action.getFile().getPath());
-		updateTimeAndQueue();
+		action.updateTimeAndQueue();
 		return changeStateOnRemoteCreate();
 	}
 
 	@Override
 	public AbstractActionState handleRemoteDelete() {
-		updateTimeAndQueue();
+		action.updateTimeAndQueue();
 		return changeStateOnRemoteDelete();
 	}
 
 	@Override
 	public AbstractActionState handleRemoteUpdate() {
 		ConflictHandler.resolveConflict(action.getFile().getPath());
-		updateTimeAndQueue();
+		action.updateTimeAndQueue();
 		return changeStateOnRemoteUpdate();
 	}
 
@@ -111,7 +111,7 @@ public class LocalUpdateState extends AbstractActionState {
 		fileTree.deleteFile(file.getPath());
 		//TODO set path of file to path
 		fileTree.putFile(path, file);
-		updateTimeAndQueue();
+		action.updateTimeAndQueue();
 		return changeStateOnRemoteMove(sourcePath);
 	}
 

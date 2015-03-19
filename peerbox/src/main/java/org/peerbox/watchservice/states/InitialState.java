@@ -96,7 +96,7 @@ public class InitialState extends AbstractActionState {
 		FileComponent file = action.getFile();
 		action.getFileEventManager().getFileTree().putFile(file.getPath(), file);
 		logger.trace("put file {} to tree", file.getPath());
-		updateTimeAndQueue();
+		action.updateTimeAndQueue();
 		return changeStateOnRemoteCreate();
 	}
 
@@ -120,7 +120,7 @@ public class InitialState extends AbstractActionState {
 
 	private AbstractActionState localCreateDefaultHandling() {
 		logger.trace("Handle regular create of {}, no move source has been found.", action.getFile().getPath());
-		updateTimeAndQueue();
+		action.updateTimeAndQueue();
 		return changeStateOnLocalCreate();
 	}
 
@@ -134,7 +134,7 @@ public class InitialState extends AbstractActionState {
 			action.getFileEventManager().getFileComponentQueue().remove(action.getFile());
 			return this;
 		} else {
-			updateTimeAndQueue();
+			action.updateTimeAndQueue();
 			return changeStateOnLocalUpdate();
 		}
 	}
@@ -160,7 +160,7 @@ public class InitialState extends AbstractActionState {
 			logger.trace("No move of {}, as it was not uploaded.", source.getPath());
 //			action.getFileEventManager().getFileComponentQueue().remove(source);
 			fileTree.putFile(filePath, file);
-			updateTimeAndQueue();
+			action.updateTimeAndQueue();
 			return changeStateOnLocalCreate();
 		}
 	}
@@ -188,7 +188,7 @@ public class InitialState extends AbstractActionState {
 		} else {
 			logger.trace("No move of {}, as it was not uploaded.", source.getPath());
 			fileTree.putFile(filePath, file);
-			updateTimeAndQueue();
+			action.updateTimeAndQueue();
 			return changeStateOnLocalCreate();
 		}
 	}

@@ -44,14 +44,14 @@ public class EstablishedState extends AbstractActionState{
 
 	@Override
 	public AbstractActionState handleLocalCreate() {
-		updateTimeAndQueue();
+		action.updateTimeAndQueue();
 //		action.getFile().updateContentHash();
 		return changeStateOnLocalCreate();
 	}
 
 	@Override
 	public AbstractActionState handleRemoteCreate() {
-		updateTimeAndQueue();
+		action.updateTimeAndQueue();
 		return changeStateOnRemoteCreate();
 	}
 

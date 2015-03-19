@@ -86,7 +86,7 @@ public class LocalHardDeleteState extends AbstractActionState{
 
 		fileTree.deleteFile(action.getFile().getPath());
 
-		updateTimeAndQueue();
+		action.updateTimeAndQueue();
 		return changeStateOnLocalDelete();
 	}
 
@@ -100,7 +100,7 @@ public class LocalHardDeleteState extends AbstractActionState{
 	public AbstractActionState handleRemoteMove(Path path) {
 		logger.info("The file which was locally deleted has been moved remotely. RemoteCreate at destination"
 				+ "of move operation initiated to download the file: {}", path);
-		updateTimeAndQueue();
+		action.updateTimeAndQueue();
 		IFileTree fileTree = action.getFileEventManager().getFileTree();
 		FileComponent moveDest = fileTree.getOrCreateFileComponent(path, action.getFileEventManager());
 		//TODO set Path of moveDest to path

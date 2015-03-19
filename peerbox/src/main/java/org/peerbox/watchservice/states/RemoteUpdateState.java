@@ -83,7 +83,7 @@ public class RemoteUpdateState extends AbstractActionState {
 	@Override
 	public AbstractActionState handleLocalCreate() {
 		ConflictHandler.resolveConflict(action.getFile().getPath());
-		updateTimeAndQueue();
+		action.updateTimeAndQueue();
 		return changeStateOnLocalCreate();
 	}
 
@@ -91,7 +91,7 @@ public class RemoteUpdateState extends AbstractActionState {
 	public AbstractActionState handleLocalUpdate() {
 		action.getFile().updateContentHash();
 		ConflictHandler.resolveConflict(action.getFile().getPath());
-		updateTimeAndQueue();
+		action.updateTimeAndQueue();
 		return changeStateOnLocalUpdate();
 	}
 
@@ -110,7 +110,7 @@ public class RemoteUpdateState extends AbstractActionState {
 		logger.info("The file which was remotely moved after it has been "
 				+ "remotely updated. RemoteUpdate at destination"
 				+ "of move operation initiated to download the file: {}", path);
-		updateTimeAndQueue();
+		action.updateTimeAndQueue();
 		IFileTree fileTree = action.getFileEventManager().getFileTree();
 		fileTree.deleteFile(action.getFile().getPath());
 		action.getFileEventManager().getFileComponentQueue().remove(action.getFile());

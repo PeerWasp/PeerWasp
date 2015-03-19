@@ -126,7 +126,7 @@ public class LocalMoveState extends AbstractActionState {
 
 	@Override
 	public AbstractActionState handleRemoteDelete() {
-		updateTimeAndQueue();
+		action.updateTimeAndQueue();
 		return changeStateOnRemoteDelete();
 	}
 
@@ -135,7 +135,7 @@ public class LocalMoveState extends AbstractActionState {
 		logger.info("The file which was locally moved to a place where the "
 				+ "same file was remotely updated. RemoteUpdate at destination of local "
 				+ "move operation initiated to download the file: {}", action.getFile().getPath());
-		updateTimeAndQueue();
+		action.updateTimeAndQueue();
 		IFileTree fileTree = action.getFileEventManager().getFileTree();
 
 		ConflictHandler.resolveConflict(action.getFile().getPath(), true);
@@ -147,7 +147,7 @@ public class LocalMoveState extends AbstractActionState {
 		logger.info("The file which was locally moved after it has been "
 				+ "remotely moved. RemoteCreate at destination of remote "
 				+ "move operation initiated to download the file: {}", path);
-		updateTimeAndQueue();
+		action.updateTimeAndQueue();
 		IFileTree fileTree = action.getFileEventManager().getFileTree();
 
 		FileComponent moveDest = fileTree.getOrCreateFileComponent(path, action.getFileEventManager());

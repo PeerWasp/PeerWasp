@@ -21,7 +21,7 @@ public class FileComponentQueue {
 	private final BlockingQueue<FileComponent> queue;
 
 	public FileComponentQueue() {
-		queue = new PriorityBlockingQueue<>(QUEUE_CAPACITY, new FileActionTimeComparator());
+		queue = new PriorityBlockingQueue<FileComponent>(QUEUE_CAPACITY, new FileActionTimeComparator());
 	}
 
 	public FileComponent take() throws InterruptedException {

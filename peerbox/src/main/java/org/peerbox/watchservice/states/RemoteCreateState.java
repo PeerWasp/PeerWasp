@@ -74,7 +74,7 @@ public class RemoteCreateState extends AbstractActionState {
 	@Override
 	public AbstractActionState handleLocalUpdate() {
 		ConflictHandler.resolveConflict(action.getFile().getPath());
-		updateTimeAndQueue();
+		action.updateTimeAndQueue();
 		return changeStateOnLocalUpdate();
 	}
 
@@ -88,7 +88,7 @@ public class RemoteCreateState extends AbstractActionState {
 		logger.info("The file which was remotely moved after it has been "
 				+ "remotely created. RemoteCreate at destination"
 				+ "of move operation initiated to download the file: {}", path);
-		updateTimeAndQueue();
+		action.updateTimeAndQueue();
 		IFileTree fileTree = action.getFileEventManager().getFileTree();
 		fileTree.deleteFile(action.getFile().getPath());
 		action.getFileEventManager().getFileComponentQueue().remove(action.getFile());

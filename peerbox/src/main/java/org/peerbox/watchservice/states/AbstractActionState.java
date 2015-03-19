@@ -53,12 +53,6 @@ public abstract class AbstractActionState {
 		return new EstablishedState(action);
 	}
 
-	public void updateTimeAndQueue(){
-		action.getFileEventManager().getFileComponentQueue().remove(action.getFile());
-		action.updateTimestamp();
-		action.getFileEventManager().getFileComponentQueue().add(action.getFile());
-	}
-
 	/*
 	 * LOCAL state changers
 	 */
@@ -112,12 +106,12 @@ public abstract class AbstractActionState {
 
 
 	public AbstractActionState handleLocalCreate() {
-		updateTimeAndQueue();
+		action.updateTimeAndQueue();
 		return changeStateOnLocalCreate();
 	}
 
 	public AbstractActionState handleLocalHardDelete(){
-		updateTimeAndQueue();
+		action.updateTimeAndQueue();
 		return changeStateOnLocalHardDelete();
 	}
 	
@@ -125,7 +119,7 @@ public abstract class AbstractActionState {
 		IFileTree fileTree = action.getFileEventManager().getFileTree();
 		FileComponent file = action.getFile();
 		
-		updateTimeAndQueue();
+		action.updateTimeAndQueue();
 		file.setIsSynchronized(false);
 		
 		if(file.isFile()){
@@ -151,7 +145,7 @@ public abstract class AbstractActionState {
 	}
 
 	public AbstractActionState handleLocalUpdate() {
-		updateTimeAndQueue();
+		action.updateTimeAndQueue();
 		return changeStateOnLocalUpdate();
 	}
 	
@@ -159,7 +153,7 @@ public abstract class AbstractActionState {
 		Path oldPath = Paths.get(action.getFile().getPath().toString());
 		action.getFile().setIsSynchronizedRecursively(true);
 		action.getFileEventManager().getFileTree().putFile(newPath, action.getFile());
-		updateTimeAndQueue();
+		action.updateTimeAndQueue();
 		return changeStateOnLocalMove(oldPath);
 	}
 
@@ -168,7 +162,7 @@ public abstract class AbstractActionState {
 	 */
 
 	public AbstractActionState handleRemoteCreate(){
-		updateTimeAndQueue();
+		action.updateTimeAndQueue();
 		return changeStateOnRemoteCreate();
 	}
 
@@ -187,7 +181,7 @@ public abstract class AbstractActionState {
 	}
 
 	public AbstractActionState handleRemoteUpdate() {
-		updateTimeAndQueue();
+		action.updateTimeAndQueue();
 		return changeStateOnRemoteUpdate();
 	}
 

@@ -667,6 +667,13 @@ public class Action implements IAction {
 	public void updateTimestamp() {
 		timestamp.set(System.currentTimeMillis());
 	}
+	
+	@Override
+	public void updateTimeAndQueue(){
+		getFileEventManager().getFileComponentQueue().remove(getFile());
+		updateTimestamp();
+		getFileEventManager().getFileComponentQueue().add(getFile());
+	}
 
 	/**
 	 * @returns The {@link #fileEventManager}.
