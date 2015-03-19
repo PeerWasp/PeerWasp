@@ -17,7 +17,7 @@ public class RemoteExistsLocalDelete extends ListSyncTest {
 		
 		listSync.sync(local, localDatabase, remote, remoteDatabase);
 		
-		Mockito.verify(fileEventManager).onFileDesynchronized(Matchers.any(Path.class));
+		Mockito.verify(fileEventManager).onFileSoftDeleted(Matchers.any(Path.class));
 		Mockito.verifyNoMoreInteractions(fileEventManager);
 	}
 }

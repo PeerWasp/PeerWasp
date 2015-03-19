@@ -204,7 +204,7 @@ public class Action implements IAction {
 	 * check {@link #handleLocalCreateEvent()}.
 	 */
 	@Override
-	public void handleLocalDeleteEvent() {
+	public void handleLocalSoftDeleteEvent() {
 		logger.trace("handleLocalDeleteEvent - File: {}, isExecuting({})",
 				getFile().getPath(), isExecuting());
 		try {

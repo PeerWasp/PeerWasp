@@ -11,7 +11,7 @@ import org.peerbox.app.manager.file.messages.FileExecutionFailedMessage;
 import org.peerbox.app.manager.file.messages.LocalFileAddedMessage;
 import org.peerbox.app.manager.file.messages.LocalFileConflictMessage;
 import org.peerbox.app.manager.file.messages.LocalFileDeletedMessage;
-import org.peerbox.app.manager.file.messages.LocalFileDesyncMessage;
+import org.peerbox.app.manager.file.messages.LocalFileSoftDeleteMessage;
 import org.peerbox.app.manager.file.messages.LocalFileMovedMessage;
 import org.peerbox.app.manager.file.messages.LocalFileUpdatedMessage;
 import org.peerbox.app.manager.file.messages.LocalShareFolderMessage;
@@ -74,7 +74,7 @@ class FileManagerCollector extends AbstractActivityCollector implements IFileMes
 
 	@Handler
 	@Override
-	public void onLocalFileDesynchronized(LocalFileDesyncMessage desync){
+	public void onLocalFileDesynchronized(LocalFileSoftDeleteMessage desync){
 		ActivityItem item = ActivityItem.create()
 				.setTitle("Soft-delete finished. File has been locally deleted.")
 				.setDescription(formatDescription(desync));

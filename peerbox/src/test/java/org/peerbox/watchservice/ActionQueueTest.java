@@ -16,11 +16,11 @@ import org.peerbox.watchservice.filetree.composite.FileComponent;
 
 public class ActionQueueTest {
 
-	private ActionQueue queue;
+	private FileComponentQueue queue;
 
 	@Before
 	public void setUp() throws Exception {
-		queue = new ActionQueue();
+		queue = new FileComponentQueue();
 	}
 
 	@After

@@ -5,7 +5,7 @@ import net.engio.mbassy.listener.Handler;
 import org.peerbox.app.manager.file.messages.FileExecutionFailedMessage;
 import org.peerbox.app.manager.file.messages.FileExecutionStartedMessage;
 import org.peerbox.app.manager.file.messages.FileExecutionSucceededMessage;
-import org.peerbox.app.manager.file.messages.LocalFileDesyncMessage;
+import org.peerbox.app.manager.file.messages.LocalFileSoftDeleteMessage;
 import org.peerbox.app.manager.file.messages.LocalShareFolderMessage;
 import org.peerbox.app.manager.file.messages.RemoteFileDeletedMessage;
 import org.peerbox.app.manager.file.messages.RemoteFileMovedMessage;
@@ -24,7 +24,7 @@ public interface IExecutionMessageListener extends IMessageListener {
 	void onExecutionFails(FileExecutionFailedMessage message);
 	
 	@Handler
-	void onFileSoftDeleted(LocalFileDesyncMessage message);
+	void onFileSoftDeleted(LocalFileSoftDeleteMessage message);
 	
 	@Handler
 	void onFileRemotelyDeleted(RemoteFileDeletedMessage message);

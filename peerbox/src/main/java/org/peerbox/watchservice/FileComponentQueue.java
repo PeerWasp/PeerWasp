@@ -15,12 +15,12 @@ import org.peerbox.watchservice.filetree.composite.FileComponent;
  * @author Andreas
  *
  */
-public class ActionQueue {
+public class FileComponentQueue {
 
 	private static final int QUEUE_CAPACITY = 100;
 	private final BlockingQueue<FileComponent> queue;
 
-	public ActionQueue() {
+	public FileComponentQueue() {
 		queue = new PriorityBlockingQueue<>(QUEUE_CAPACITY, new FileActionTimeComparator());
 	}
 

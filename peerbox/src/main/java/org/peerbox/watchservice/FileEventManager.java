@@ -20,7 +20,7 @@ import org.hive2hive.core.model.UserPermission;
 import org.peerbox.app.manager.file.FileInfo;
 import org.peerbox.app.manager.file.IFileMessage;
 import org.peerbox.app.manager.file.messages.FileExecutionStartedMessage;
-import org.peerbox.app.manager.file.messages.LocalFileDesyncMessage;
+import org.peerbox.app.manager.file.messages.LocalFileSoftDeleteMessage;
 import org.peerbox.app.manager.file.messages.LocalShareFolderMessage;
 import org.peerbox.app.manager.file.messages.RemoteFileDeletedMessage;
 import org.peerbox.app.manager.file.messages.RemoteFileMovedMessage;
@@ -62,9 +62,9 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 	/**
 	 * This queue contains FileComponents on which local or remote events happened that require
 	 * some kind of network operation. The objects can be picked from the queu when no new events
-	 * occured for a specified time. Check {@link org.peerbox.watchservice.ActionQueue}
+	 * occured for a specified time. Check {@link org.peerbox.watchservice.FileComponentQueue}
 	 */
-	private final ActionQueue fileComponentQueue;
+	private final FileComponentQueue fileComponentQueue;
 
 	/**
 	 * Represents the file system view from the perspective
@@ -100,7 +100,7 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 	 */
     @Inject
 	public FileEventManager(final FileTree fileTree, MessageBus messageBus) {
-    	this.fileComponentQueue = new ActionQueue();
+    	this.fileComponentQueue = new FileComponentQueue();
 		this.fileTree = fileTree;
 		this.messageBus = messageBus;
 		this.failedOperations = new ConcurrentHashSet<Path>();
@@ -171,7 +171,7 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 	}
 
 	/**
-	 * Used to handdle local update events. The event is ignored if at least one of the
+	 * Used to handle local update events. The event is ignored if at least one of the
 	 * following requirements is met: The object does not exist on disk, the object is
 	 * a folder, or the objects content hash did not change. Otherwise, the event is forwarded
 	 * to the core.
@@ -208,7 +208,7 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 	//TODO: remove children from actionQueue as well!
 	/**
 	 * Forwards the local delete event to the core. Additionally, it publishes a {@link
-	 * org.peerbox.app.manager.file.messages.LocalFileDesyncMessage LocalFileDesyncMessage} using
+	 * org.peerbox.app.manager.file.messages.LocalFileSoftDeleteMessage LocalFileDesyncMessage} using
 	 * the {@link #messageBus} to inform GUI components.
 	 */
 	@Override
@@ -225,8 +225,8 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 			logger.debug("onLocalFileDelete: structure hash of {} is '{}'",
 					path, file.getStructureHash());
 		}
-		publishMessage(new LocalFileDesyncMessage(new FileInfo(file)));
-		file.getAction().handleLocalDeleteEvent();
+		publishMessage(new LocalFileSoftDeleteMessage(new FileInfo(file)));
+		file.getAction().handleLocalSoftDeleteEvent();
 
 	}
 
@@ -253,7 +253,7 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 	 * corresponding file or folder recursively.
 	 */
 	@Override
-	public void onFileDesynchronized(final Path path) {
+	public void onFileSoftDeleted(final Path path) {
 		if (cleanupRunning) {
 			return;
 		}
@@ -415,9 +415,7 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 		messageBus.publish(new RemoteFileMovedMessage(srcFile, dstFile));
 	}
 
-	/**
-	 * Sharing is not supported in the first version of PeerWasp.
-	 */
+
 	@Override
 	@Handler
 	public void onFileShare(IFileShareEvent fileEvent) {
@@ -447,7 +445,7 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 	 * @return The {@link #fileComponentQueue}.
 	 */
 	@Override
-	public ActionQueue getFileComponentQueue() {
+	public FileComponentQueue getFileComponentQueue() {
 		return fileComponentQueue;
 	}
 

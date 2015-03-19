@@ -47,7 +47,7 @@ import com.google.inject.Inject;
 /**
  * The ActionExecutor service conducts the aggregation of events for every file
  * and folder and uses a
- * {@link peerbox.src.main.java .org.peerbox.watchservice.ActionQueue
+ * {@link FileComponentQueue.src.main.java .org.peerbox.watchservice.ActionQueue
  * ActionQueue} for this purpose, which runs in a separate thread. Ready
  * actions, for which no new events have been observed for a specified time
  * span, are executed. The class maintains asynchronous handles for ongoing

@@ -128,7 +128,7 @@ public class Move extends FileIntegrationTest{
 		Path fileToDesync = addFileToDestination(folders.get(0));
 		assertCleanedUpState(4);
 		FileEventManager eventManager = getNetwork().getClients().get(0).getFileEventManager();
-		eventManager.onFileDesynchronized(fileToDesync);
+		eventManager.onFileSoftDeleted(fileToDesync);
 		
 		waitForSynchronized(fileToDesync, WAIT_TIME_SHORT, false);
 		waitForNotExistsLocally(fileToDesync, WAIT_TIME_VERY_SHORT);
