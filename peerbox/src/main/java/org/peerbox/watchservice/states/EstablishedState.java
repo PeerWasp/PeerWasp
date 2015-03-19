@@ -24,7 +24,7 @@ public class EstablishedState extends AbstractActionState{
 	@Override
 	public ExecutionHandle execute(IFileManager fileManager) throws NoSessionException,
 			NoPeerConnectionException, InvalidProcessStateException {
-		logger.error("Execute in the ESTABLISHED state is only called due to wrong behaviour! {}", action.getFile().getPath());
+//		logger.error("Execute in the ESTABLISHED state is only called due to wrong behaviour! {}", action.getFile().getPath());
 		return null;
 	}
 
@@ -45,7 +45,7 @@ public class EstablishedState extends AbstractActionState{
 	@Override
 	public AbstractActionState handleLocalCreate() {
 		updateTimeAndQueue();
-		action.getFile().updateContentHash();
+//		action.getFile().updateContentHash();
 		return changeStateOnLocalCreate();
 	}
 

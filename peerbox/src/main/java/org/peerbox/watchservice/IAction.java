@@ -36,7 +36,7 @@ public interface IAction {
 
 	void handleLocalCreateEvent();
 	void handleLocalUpdateEvent();
-	void handleLocalDeleteEvent();
+	void handleLocalSoftDeleteEvent();
 	void handleLocalHardDeleteEvent();
 	void handleLocalMoveEvent(Path filePath);
 

@@ -327,7 +327,7 @@ public class ListSync {
 		// soft delete due to a local delete
 		// no hard delete of files: only disable sync
 		logger.trace("OPERATION: Soft-delete file {}", file);
-		fileEventManager.onFileDesynchronized(file);
+		fileEventManager.onFileSoftDeleted(file);
 	}
 
 	private void uploadFile(Path file) {

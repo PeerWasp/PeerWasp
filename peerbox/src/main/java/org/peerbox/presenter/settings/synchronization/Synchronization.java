@@ -37,7 +37,7 @@ import org.peerbox.app.manager.file.IFileManager;
 import org.peerbox.app.manager.file.messages.FileExecutionFailedMessage;
 import org.peerbox.app.manager.file.messages.FileExecutionStartedMessage;
 import org.peerbox.app.manager.file.messages.FileExecutionSucceededMessage;
-import org.peerbox.app.manager.file.messages.LocalFileDesyncMessage;
+import org.peerbox.app.manager.file.messages.LocalFileSoftDeleteMessage;
 import org.peerbox.app.manager.file.messages.LocalShareFolderMessage;
 import org.peerbox.app.manager.file.messages.RemoteFileDeletedMessage;
 import org.peerbox.app.manager.file.messages.RemoteFileMovedMessage;
@@ -145,7 +145,7 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 		}
 
 		for(FileInfo node: toDesynchronize.descendingSet()){
-			eventManager.onFileDesynchronized(node.getPath());
+			eventManager.onFileSoftDeleted(node.getPath());
 		}
 
 		toSynchronize.clear();
@@ -327,7 +327,7 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 	}
 
 	/**
-	 * This handler is automatically invoked when a {@link org.peerbox.app.manager.file.messages.LocalFileDesyncMessage LocalFileDesyncMessage} is published
+	 * This handler is automatically invoked when a {@link org.peerbox.app.manager.file.messages.LocalFileSoftDeleteMessage LocalFileDesyncMessage} is published
 	 * using the {@link org.peerbox.events.MessageBus MessageBus}. This method
 	 * changes the corresponding {@link javafx.scene.control. CheckBoxTreeItem
 	 * CheckBoxTreeItem} in the {@link javafx.scene.control.TreeView TreeView}
@@ -335,7 +335,7 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 	 */
 	@Override
 	@Handler
-	public void onFileSoftDeleted(LocalFileDesyncMessage message) {
+	public void onFileSoftDeleted(LocalFileSoftDeleteMessage message) {
 		logger.trace("onFileSoftDeleted: {}", message.getFile().getPath());
 		SyncTreeItem item = getTreeItem(message.getFile().getPath());
 

@@ -6,7 +6,7 @@ import org.peerbox.app.manager.file.messages.FileExecutionFailedMessage;
 import org.peerbox.app.manager.file.messages.LocalFileAddedMessage;
 import org.peerbox.app.manager.file.messages.LocalFileConflictMessage;
 import org.peerbox.app.manager.file.messages.LocalFileDeletedMessage;
-import org.peerbox.app.manager.file.messages.LocalFileDesyncMessage;
+import org.peerbox.app.manager.file.messages.LocalFileSoftDeleteMessage;
 import org.peerbox.app.manager.file.messages.LocalFileMovedMessage;
 import org.peerbox.app.manager.file.messages.LocalFileUpdatedMessage;
 import org.peerbox.app.manager.file.messages.LocalShareFolderMessage;
@@ -35,7 +35,7 @@ public interface IFileMessageListener extends IMessageListener {
 	void onLocalFileConfilct(LocalFileConflictMessage message);
 
 	@Handler
-	void onLocalFileDesynchronized(LocalFileDesyncMessage message);
+	void onLocalFileDesynchronized(LocalFileSoftDeleteMessage message);
 
 	@Handler
 	void onRemoteFileAdded(RemoteFileAddedMessage message);

@@ -14,7 +14,7 @@ import org.peerbox.app.activity.ActivityType;
 import org.peerbox.app.manager.file.FileInfo;
 import org.peerbox.app.manager.file.messages.FileExecutionFailedMessage;
 import org.peerbox.app.manager.file.messages.LocalFileConflictMessage;
-import org.peerbox.app.manager.file.messages.LocalFileDesyncMessage;
+import org.peerbox.app.manager.file.messages.LocalFileSoftDeleteMessage;
 import org.peerbox.app.manager.file.messages.RemoteFileAddedMessage;
 import org.peerbox.app.manager.file.messages.RemoteFileDeletedMessage;
 import org.peerbox.app.manager.file.messages.RemoteFileMovedMessage;
@@ -81,7 +81,7 @@ public class FileManagerCollectorTest extends BaseJUnitTest {
 	@Test
 	public void testOnFileDesynchronized(){
 		FileInfo file = new FileInfo(Paths.get("this/is/a/path.txt"), false);
-		LocalFileDesyncMessage message = new LocalFileDesyncMessage(file);
+		LocalFileSoftDeleteMessage message = new LocalFileSoftDeleteMessage(file);
 		collector.onLocalFileDesynchronized(message);
 
 		CollectorTestUtils.captureAddActivityItem(ActivityType.INFORMATION, activityLogger);

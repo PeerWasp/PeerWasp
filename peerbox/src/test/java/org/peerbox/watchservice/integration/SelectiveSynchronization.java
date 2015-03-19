@@ -38,7 +38,7 @@ public class SelectiveSynchronization extends FileIntegrationTest{
 		assertCleanedUpState(1);
 		
 		FileEventManager eventManager = getNetwork().getClients().get(0).getFileEventManager();
-		eventManager.onFileDesynchronized(path);
+		eventManager.onFileSoftDeleted(path);
 		List<Path> toSync = new ArrayList<Path>();
 		toSync.add(path);
 		waitForSynchronized(toSync, WAIT_TIME_SHORT, false);
@@ -52,7 +52,7 @@ public class SelectiveSynchronization extends FileIntegrationTest{
 		assertCleanedUpState(1);
 		
 		FileEventManager eventManager = getNetwork().getClients().get(0).getFileEventManager();
-		eventManager.onFileDesynchronized(path);
+		eventManager.onFileSoftDeleted(path);
 		List<Path> toSync = new ArrayList<Path>();
 		toSync.add(path);
 		waitForSynchronized(toSync, WAIT_TIME_SHORT, false);
@@ -75,7 +75,7 @@ public class SelectiveSynchronization extends FileIntegrationTest{
 		assertCleanedUpState(1);
 		
 		FileEventManager eventManager = getNetwork().getClients().get(0).getFileEventManager();
-		eventManager.onFileDesynchronized(path);
+		eventManager.onFileSoftDeleted(path);
 		List<Path> toSync = new ArrayList<Path>();
 		toSync.add(path);
 		waitForSynchronized(toSync, WAIT_TIME_SHORT, false);
@@ -88,7 +88,7 @@ public class SelectiveSynchronization extends FileIntegrationTest{
 		assertCleanedUpState(1);
 		
 		FileEventManager eventManager = getNetwork().getClients().get(0).getFileEventManager();
-		eventManager.onFileDesynchronized(path);
+		eventManager.onFileSoftDeleted(path);
 		List<Path> toSync = new ArrayList<Path>();
 		toSync.add(path);
 		waitForSynchronized(toSync, WAIT_TIME_SHORT, false);
@@ -115,7 +115,7 @@ public class SelectiveSynchronization extends FileIntegrationTest{
 		assertCleanedUpState(paths.size());
 		waitForSynchronized(paths, WAIT_TIME_VERY_SHORT, true);
 		FileEventManager eventManager = getNetwork().getClients().get(0).getFileEventManager();
-		eventManager.onFileDesynchronized(paths.get(0));
+		eventManager.onFileSoftDeleted(paths.get(0));
 
 		waitForSynchronized(paths, WAIT_TIME_SHORT, false);
 		waitForNotExistsLocally(paths, WAIT_TIME_VERY_SHORT);
@@ -129,7 +129,7 @@ public class SelectiveSynchronization extends FileIntegrationTest{
 		assertCleanedUpState(paths.size());
 		waitForSynchronized(paths, WAIT_TIME_VERY_SHORT, true);
 		FileEventManager eventManager = getNetwork().getClients().get(0).getFileEventManager();
-		eventManager.onFileDesynchronized(paths.get(0));
+		eventManager.onFileSoftDeleted(paths.get(0));
 
 		waitForSynchronized(paths, WAIT_TIME_SHORT, false);
 		waitForNotExistsLocally(paths, WAIT_TIME_VERY_SHORT);
