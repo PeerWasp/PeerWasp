@@ -5,6 +5,7 @@ import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 import org.peerbox.app.AppTestSuite;
 import org.peerbox.app.config.ConfigTestSuite;
+import org.peerbox.events.MessageBusTest;
 import org.peerbox.guice.GuiceFxmlLoaderTest;
 import org.peerbox.notifications.FileEventAggregatorTest;
 import org.peerbox.presenter.NavigationServiceTest;
@@ -14,6 +15,7 @@ import org.peerbox.utils.UtilsTestSuite;
 @RunWith(Suite.class)
 @SuiteClasses({
 	AppTestSuite.class,
+	MessageBusTest.class,
 	ServerTestSuite.class,
 	UtilsTestSuite.class,
 
