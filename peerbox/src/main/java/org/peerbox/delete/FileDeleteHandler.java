@@ -23,7 +23,8 @@ public class FileDeleteHandler implements IFileDeleteHandler {
 
 	private Path fileToDelete;
 
-	private AppContext appContext;
+	private final AppContext appContext;
+	private ClientContext clientContext;
 
 	@Inject
 	public FileDeleteHandler(AppContext appContext) {
@@ -34,9 +35,10 @@ public class FileDeleteHandler implements IFileDeleteHandler {
 	public void deleteFile(final Path fileToDelete) {
 		this.fileToDelete = fileToDelete;
 
+		clientContext = appContext.getCurrentClientContext();
+
 		ResultStatus res = checkPreconditions();
 		if (res.isOk()) {
-			ClientContext clientContext = appContext.getCurrentClientContext();
 			IFileEventManager fileEventManager = clientContext.getFileEventManager();
 			fileEventManager.onLocalFileHardDelete(fileToDelete);
 		} else {
@@ -69,7 +71,6 @@ public class FileDeleteHandler implements IFileDeleteHandler {
 
 	private ResultStatus checkPreconditions() {
 
-		ClientContext clientContext = appContext.getCurrentClientContext();
 		INodeManager nodeManager = null;
 		IUserManager userManager = null;
 		UserConfig userConfig = null;
