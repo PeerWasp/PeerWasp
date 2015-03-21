@@ -229,7 +229,7 @@ public abstract class AbstractActionState {
 	}
 
 	protected void logStateTransition(StateType stateBefore, EventType event, StateType stateAfter){
-		logger.debug("File {}: {} + {}  --> {}", action.getFile().getPath(),
+		logger.debug("STATE_TRANSITION for file {}: {} + {} --> {}", action.getFile().getPath(),
 				stateBefore.getName(), event.getString(), stateAfter.getName());
 	}
 }

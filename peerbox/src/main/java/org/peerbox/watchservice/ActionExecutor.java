@@ -410,7 +410,11 @@ public class ActionExecutor implements Runnable {
 		}
 
 		boolean changedWhileExecuted = action.getChangedWhileExecuted();
-		file.setIsUploaded(true);
+		if(action.getCurrentState().getStateType() != StateType.LOCAL_HARD_DELETE){
+			file.setIsUploaded(true);
+		} else {
+			file.setIsUploaded(false);
+		}
 		action.onSucceeded();
 
 		if (changedWhileExecuted) {

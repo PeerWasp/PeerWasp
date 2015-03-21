@@ -65,18 +65,21 @@ public class RemoteUpdateState extends AbstractActionState {
 
 	@Override
 	public AbstractActionState changeStateOnLocalMove(Path newPath) {
-		logStateTransition(getStateType(), EventType.LOCAL_MOVE, getStateType());
+		logStateTransition(getStateType(), EventType.LOCAL_MOVE, StateType.LOCAL_MOVE);
 		return new LocalMoveState(action, newPath);
 	}
 
 	@Override
 	public AbstractActionState changeStateOnRemoteDelete() {
 		logger.debug("Remote Delete Event:  ({})", action.getFile().getPath());
-		throw new NotImplementedException("RemoteUpdate.remoteDelete");
+		logStateTransition(getStateType(), EventType.REMOTE_DELETE, StateType.INITIAL);
+		return new InitialState(action);
+		//throw new NotImplementedException("RemoteUpdate.remoteDelete");
 	}
 
 	@Override
 	public AbstractActionState changeStateOnRemoteCreate() {
+		logStateTransition(getStateType(), EventType.REMOTE_CREATE, StateType.REMOTE_UPDATE);
 		return this;
 	}
 
@@ -123,7 +126,7 @@ public class RemoteUpdateState extends AbstractActionState {
 
 	@Override
 	public AbstractActionState changeStateOnRemoteMove(Path oldFilePath) {
-		logStateTransition(getStateType(), EventType.REMOTE_MOVE, StateType.ESTABLISHED);
+		logStateTransition(getStateType(), EventType.REMOTE_MOVE, StateType.INITIAL);
 		return new InitialState(action);
 	}
 

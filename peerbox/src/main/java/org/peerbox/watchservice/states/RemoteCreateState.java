@@ -83,6 +83,7 @@ public class RemoteCreateState extends AbstractActionState {
 		return this;
 	}
 
+	//this should be replaced by a force sync!
 	@Override
 	public AbstractActionState handleRemoteMove(Path path) {
 		logger.info("The file which was remotely moved after it has been "

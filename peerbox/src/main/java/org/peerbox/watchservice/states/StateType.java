@@ -10,17 +10,14 @@ public enum StateType {
 	ABSTRACT("Abstract"),
 	INITIAL("Initial"),
 	ESTABLISHED("Established"),
-	CONFLICT("Conflict"),
 
 	LOCAL_CREATE("LocalCreate"),
-	LOCAL_DELETE("LocalDelete"),
 	LOCAL_UPDATE("LocalUpdate"),
 	LOCAL_MOVE("LocalMove"),
 	LOCAL_HARD_DELETE("LocalHardDelete"),
 
 	REMOTE_CREATE("RemoteCreate"),
-	REMOTE_UPDATE("RemoteUpdate"),
-	REMOTE_MOVE("RemoteMove");
+	REMOTE_UPDATE("RemoteUpdate");
 
 
 	private final String name;

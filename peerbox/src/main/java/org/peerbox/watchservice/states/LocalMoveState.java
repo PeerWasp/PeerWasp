@@ -76,7 +76,7 @@ public class LocalMoveState extends AbstractActionState {
 	@Override
 	public AbstractActionState changeStateOnLocalUpdate() {
 		logger.trace("This state transition should not happe: {}.", action.getFile().getPath());
-		logStateTransition(getStateType(), EventType.LOCAL_UPDATE, StateType.LOCAL_UPDATE);
+		logStateTransition(getStateType(), EventType.LOCAL_UPDATE, StateType.LOCAL_MOVE);
 		return this; //new LocalMoveState(action);
 	}
 

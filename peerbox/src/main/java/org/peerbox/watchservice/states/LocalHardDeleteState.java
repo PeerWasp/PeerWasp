@@ -70,7 +70,7 @@ public class LocalHardDeleteState extends AbstractActionState{
 
 	@Override
 	public AbstractActionState changeStateOnRemoteUpdate() {
-		logStateTransition(getStateType(), EventType.REMOTE_UPDATE, StateType.REMOTE_UPDATE);
+		logStateTransition(getStateType(), EventType.REMOTE_UPDATE, StateType.REMOTE_CREATE);
 		return new RemoteCreateState(action); // The network wins
 	}
 
