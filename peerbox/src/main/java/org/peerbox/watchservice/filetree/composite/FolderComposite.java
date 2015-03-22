@@ -69,7 +69,7 @@ public class FolderComposite extends AbstractFileComponent {
 			Path newRemainingPath = remainingPath.subpath(1, remainingPath.getNameCount());
 			return ((FolderComposite)nextLevel).getComponent(newRemainingPath);
 		} else {
-			// not possible to recurse further.
+			// not possible to contintue recursion.
 			return null;
 		}
 	}
