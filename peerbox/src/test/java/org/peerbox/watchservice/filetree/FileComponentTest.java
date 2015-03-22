@@ -8,6 +8,8 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -16,6 +18,7 @@ import org.apache.commons.io.FileUtils;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.peerbox.watchservice.filetree.composite.AbstractFileComponent;
 import org.peerbox.watchservice.filetree.composite.FileComponent;
 import org.peerbox.watchservice.filetree.composite.FileLeaf;
 import org.peerbox.watchservice.filetree.composite.FolderComposite;
@@ -159,6 +162,21 @@ public class FileComponentTest {
 
 	public void bubbleStructureHashUpdateTest(){
 
+	}
+	
+	
+	public static void setContentHashByReflection(FileComponent f, String contentHash) {
+		try {
+			Method setContentHashMethod = AbstractFileComponent.class.getDeclaredMethod("setContentHash", String.class);
+			setContentHashMethod.setAccessible(true);
+
+			setContentHashMethod.invoke(f, contentHash);
+		
+		} catch (NoSuchMethodException | SecurityException | IllegalAccessException
+				| IllegalArgumentException | InvocationTargetException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 

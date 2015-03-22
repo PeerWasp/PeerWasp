@@ -15,7 +15,7 @@ import org.slf4j.LoggerFactory;
  * FileTree}
  * @author Claudio
  */
-abstract class AbstractFileComponent implements FileComponent {
+public abstract class AbstractFileComponent implements FileComponent {
 	private static final Logger logger = LoggerFactory.getLogger(AbstractFileComponent.class);
 	private long id;
 
@@ -61,16 +61,6 @@ abstract class AbstractFileComponent implements FileComponent {
 		this.updateContentHash = updateContentHash;
 		this.isUploaded = false;
 		this.isSynchronized = false;
-	}
-
-	@Override
-	public long getId() {
-		return id;
-	}
-
-	@Override
-	public void setId(long id) {
-		this.id = id;
 	}
 
 	/**
@@ -143,8 +133,7 @@ abstract class AbstractFileComponent implements FileComponent {
 	 * should not be used to set the {@link #contentHash} to arbitrary
 	 * values.
 	 */
-	@Override
-	public final void setContentHash(final String contentHash) {
+	protected final void setContentHash(final String contentHash) {
 		this.contentHash = contentHash;
 	}
 
@@ -188,59 +177,32 @@ abstract class AbstractFileComponent implements FileComponent {
 		return !isFile();
 	}
 
-	@Override
-	public void putComponent(Path path, FileComponent component) {
-		String msg = String.format("putComponent not implemented. "
-				+ "This is probably a file. "
-				+ "(this=%s, parameter=%s)", getPath(), path);
+//	@Override
+//	public String getStructureHash() {
+//		String msg = String.format("getStructureHash not implemented. "
+//				+ "This is probably a file. "
+//				+ "(this=%s)", getPath());
+//
+//		throw new NotImplementedException(msg);
+//	}
+//
+//	@Override
+//	public void setStructureHash(String hash) {
+//		String msg = String.format("setStructureHash not implemented. "
+//				+ "This is probably a file. "
+//				+ "(this=%s, hash=%s)", getPath(), hash);
+//
+//		throw new NotImplementedException(msg);
+//	}
 
-		throw new NotImplementedException(msg);
-	}
-
-	@Override
-	public FileComponent deleteComponent(Path path) {
-		String msg = String.format("deleteComponent not implemented. "
-				+ "This is probably a file. "
-				+ "(this=%s, parameter=%s)", getPath(), path);
-
-		throw new NotImplementedException(msg);
-	}
-
-	@Override
-	public FileComponent getComponent(Path path) {
-		String msg = String.format("getComponent not implemented. "
-				+ "This is probably a file. "
-				+ "(this=%s, parameter=%s)", getPath(), path);
-
-		throw new NotImplementedException(msg);
-	}
-
-	@Override
-	public String getStructureHash() {
-		String msg = String.format("getStructureHash not implemented. "
-				+ "This is probably a file. "
-				+ "(this=%s)", getPath());
-
-		throw new NotImplementedException(msg);
-	}
-
-	@Override
-	public void setStructureHash(String hash) {
-		String msg = String.format("setStructureHash not implemented. "
-				+ "This is probably a file. "
-				+ "(this=%s, hash=%s)", getPath(), hash);
-
-		throw new NotImplementedException(msg);
-	}
-
-	@Override
-	public void getSynchronizedChildrenPaths(Set<Path> synchronizedPaths) {
-		String msg = String.format("getSynchronizedChildrenPaths not implemented. "
-				+ "This is probably a file. "
-						+ "(this=%s)", getPath());
-
-//		throw new NotImplException(msg);
-	}
+//	@Override
+//	public void getSynchronizedChildrenPaths(Set<Path> synchronizedPaths) {
+//		String msg = String.format("getSynchronizedChildrenPaths not implemented. "
+//				+ "This is probably a file. "
+//						+ "(this=%s)", getPath());
+//
+////		throw new NotImplException(msg);
+//	}
 
 	@Override
 	public abstract String toString();

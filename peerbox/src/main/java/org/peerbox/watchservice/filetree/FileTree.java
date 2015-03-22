@@ -157,14 +157,13 @@ public class FileTree implements IFileTree {
 
 
 	private FileComponent findComponentInSetMultimap(FileComponent toSearch,
-			SetMultimap<String, ? extends FileComponent> filesByContent,
-			boolean checkContent){
+			SetMultimap<String, ? extends FileComponent> filesByContent){
 		FileComponent result = null;
 		String hash = "";
-		if(checkContent){
+		if(toSearch.isFile()){
 			hash = toSearch.getContentHash();
 		} else {
-			hash = toSearch.getStructureHash();
+			hash = ((FolderComposite)toSearch).getStructureHash();
 		}
 
 		logger.trace("Contenthash to search for: {}", hash);
@@ -191,7 +190,7 @@ public class FileTree implements IFileTree {
 
 	@Override
 	public FileLeaf findCreatedByContent(FileLeaf deletedComponent) {
-		return (FileLeaf)findComponentInSetMultimap(deletedComponent, getCreatedByContentHash(), true);
+		return (FileLeaf)findComponentInSetMultimap(deletedComponent, getCreatedByContentHash());
 	}
 
 	/**
@@ -204,19 +203,19 @@ public class FileTree implements IFileTree {
 	 */
 	@Override
 	public FileLeaf findDeletedByContent(FileLeaf createdComponent){
-		return (FileLeaf)findComponentInSetMultimap(createdComponent, getDeletedByContentHash(), true);
+		return (FileLeaf)findComponentInSetMultimap(createdComponent, getDeletedByContentHash());
 	}
 
 	@Override
 	public FolderComposite findCreatedByStructure(FolderComposite toSearch) {
 		return (FolderComposite) findComponentInSetMultimap((FileComponent) toSearch,
-				getCreatedByStructureHash(), false);
+				getCreatedByStructureHash());
 	}
 
 	@Override
 	public FolderComposite findDeletedByStructure(FolderComposite toSearch) {
 		return (FolderComposite) findComponentInSetMultimap((FileComponent) toSearch,
-				getDeletedByStructureHash(), false);
+				getDeletedByStructureHash());
 	}
 
 	public Path getRootPath() {

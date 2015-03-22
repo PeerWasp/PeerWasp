@@ -7,16 +7,6 @@ import org.peerbox.watchservice.IAction;
 
 public interface FileComponent {
 
-	long getId();
-
-	void setId(long id);
-
-	FileComponent getComponent(Path path);
-
-	void putComponent(Path path, FileComponent component);
-
-	FileComponent deleteComponent(Path path);
-
 	IAction getAction();
 
 	Path getPath();
@@ -33,13 +23,7 @@ public interface FileComponent {
 
 	String getContentHash();
 
-	void setContentHash(String contentHash);
-
 	boolean updateContentHash();
-
-	String getStructureHash();
-
-	void setStructureHash(String hash);
 
 	boolean isSynchronized();
 
@@ -51,13 +35,6 @@ public interface FileComponent {
 
 	boolean isReady();
 
-	void getSynchronizedChildrenPaths(Set<Path> synchronizedPaths);
-
-	void updateStateOnLocalDelete();
-
 	@Override
 	String toString();
-
-	void setIsSynchronizedRecursively(boolean b);
-
 }

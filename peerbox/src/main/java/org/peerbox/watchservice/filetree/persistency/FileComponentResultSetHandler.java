@@ -1,13 +1,17 @@
 package org.peerbox.watchservice.filetree.persistency;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import org.peerbox.watchservice.filetree.FileComponentTest;
 import org.peerbox.watchservice.filetree.composite.FileComponent;
 import org.peerbox.watchservice.filetree.composite.FileLeaf;
 import org.peerbox.watchservice.filetree.composite.FolderComposite;
+import org.peerbox.watchservice.filetree.composite.AbstractFileComponent;
 import org.sql2o.ResultSetHandler;
 
 /**
@@ -36,10 +40,14 @@ class FileComponentResultSetHandler implements ResultSetHandler<FileComponent> {
 			f = new FolderComposite(path, true, true);
 		}
 
-		f.setContentHash(contentHash);
+		FileComponentTest.setContentHashByReflection(f, contentHash);
+		
+
 		f.setIsSynchronized(isSynchronized);
 		f.setIsUploaded(isUploaded);
 
 		return f;
 	}
+
+
 }

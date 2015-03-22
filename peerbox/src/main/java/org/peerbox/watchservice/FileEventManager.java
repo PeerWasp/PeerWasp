@@ -33,6 +33,7 @@ import org.peerbox.notifications.InformationNotification;
 import org.peerbox.watchservice.filetree.FileTree;
 import org.peerbox.watchservice.filetree.IFileTree;
 import org.peerbox.watchservice.filetree.composite.FileComponent;
+import org.peerbox.watchservice.filetree.composite.FolderComposite;
 import org.peerbox.watchservice.states.StateType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -157,7 +158,7 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 
 		if (isFolder) {
 			String structureHash = fileTree.discoverSubtreeStructure(path, this);
-			file.setStructureHash(structureHash);
+			((FolderComposite)file).setStructureHash(structureHash);
 		}
 		file.updateContentHash();
 
@@ -223,7 +224,7 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 		final FileComponent file = fileTree.getOrCreateFileComponent(path, this);
 		if (file.isFolder()) {
 			logger.debug("onLocalFileDelete: structure hash of {} is '{}'",
-					path, file.getStructureHash());
+					path, ((FolderComposite)file).getStructureHash());
 		}
 		publishMessage(new LocalFileSoftDeleteMessage(new FileInfo(file)));
 		file.getAction().handleLocalSoftDeleteEvent();

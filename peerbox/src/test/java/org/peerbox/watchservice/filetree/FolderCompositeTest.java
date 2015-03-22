@@ -217,7 +217,7 @@ public class FolderCompositeTest {
 
 			// check name hash
 			String structureHash = computeHashOfString(current.getPath().getFileName().toString());
-			assertEquals(previous.getStructureHash(), structureHash);
+			assertEquals(((FolderComposite)previous).getStructureHash(), structureHash);
 
 			previous = current;
 		}

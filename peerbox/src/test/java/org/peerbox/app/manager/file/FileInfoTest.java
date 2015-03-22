@@ -17,6 +17,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.peerbox.BaseJUnitTest;
 import org.peerbox.presenter.settings.synchronization.PathItem;
+import org.peerbox.watchservice.filetree.FileComponentTest;
 import org.peerbox.watchservice.filetree.composite.FileComponent;
 import org.peerbox.watchservice.filetree.composite.FileLeaf;
 import org.peerbox.watchservice.filetree.composite.FolderComposite;
@@ -60,7 +61,7 @@ public class FileInfoTest extends BaseJUnitTest {
 		// file
 		Path file = Paths.get("/path/to/a/file.txt");
 		FileComponent fileComponent = new FileLeaf(file, true);
-		fileComponent.setContentHash("hash1");
+		FileComponentTest.setContentHashByReflection(fileComponent, "hash1");
 		FileInfo fileInfo = new FileInfo(fileComponent);
 		assertEquals(file, fileInfo.getPath());
 		assertTrue(fileInfo.isFile());
@@ -69,7 +70,7 @@ public class FileInfoTest extends BaseJUnitTest {
 		// folder
 		Path folder = Paths.get("/path/to/a/folder");
 		FileComponent folderComponent = new FolderComposite(folder, true);
-		folderComponent.setContentHash("hash2");
+		FileComponentTest.setContentHashByReflection(fileComponent, "hash1");
 		FileInfo folderInfo = new FileInfo(folderComponent);
 		assertEquals(folder, folderInfo.getPath());
 		assertTrue(folderInfo.isFolder());

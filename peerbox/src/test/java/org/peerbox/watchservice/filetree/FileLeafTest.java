@@ -232,29 +232,29 @@ public class FileLeafTest {
 		assertFalse(leaf.isReady());
 	}
 
-	@Test(expected=NotImplementedException.class)
-	public void testGetAndSetStructureHash() {
-		assertNotNull(leaf.getStructureHash());
-		assertTrue(leaf.getStructureHash().isEmpty());
+//	@Test(expected=NotImplementedException.class)
+//	public void testGetAndSetStructureHash() {
+//		assertNotNull(leaf.getStructureHash());
+//		assertTrue(leaf.getStructureHash().isEmpty());
+//
+//		leaf.setStructureHash("abc");
+//		assertNotNull(leaf.getStructureHash());
+//		assertEquals("abc", leaf.getStructureHash());
+//	}
 
-		leaf.setStructureHash("abc");
-		assertNotNull(leaf.getStructureHash());
-		assertEquals("abc", leaf.getStructureHash());
-	}
+//	@Test(expected=NotImplementedException.class)
+//	public void testGetComponent() {
+//		assertNull(leaf.getComponent(Paths.get("aComponent")));
+//	}
 
-	@Test(expected=NotImplementedException.class)
-	public void testGetComponent() {
-		assertNull(leaf.getComponent(Paths.get("aComponent")));
-	}
-
-	@Test(expected=NotImplementedException.class)
-	public void testPutComponent() {
-		leaf.putComponent(null, null);
-	}
-
-	@Test(expected=NotImplementedException.class)
-	public void testDeleteComponent() {
-		assertNull(leaf.deleteComponent(Paths.get("aComponent")));
-	}
+//	@Test(expected=NotImplementedException.class)
+//	public void testPutComponent() {
+//		leaf.putComponent(null, null);
+//	}
+//
+//	@Test(expected=NotImplementedException.class)
+//	public void testDeleteComponent() {
+//		assertNull(leaf.deleteComponent(Paths.get("aComponent")));
+//	}
 
 }

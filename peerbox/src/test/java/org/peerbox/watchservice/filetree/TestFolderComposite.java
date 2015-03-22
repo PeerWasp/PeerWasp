@@ -39,7 +39,7 @@ public class TestFolderComposite extends FolderComposite{
 				addComponentToChildren(nextLevelPath, nextLevel);
 			}
 			Path newRemainingPath = remainingPath.subpath(1, remainingPath.getNameCount());
-			nextLevel.putComponent(newRemainingPath, component);
+			((FolderComposite)nextLevel).putComponent(newRemainingPath, component);
 		}
 	}
 

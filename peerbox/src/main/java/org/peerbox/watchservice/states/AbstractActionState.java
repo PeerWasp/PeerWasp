@@ -140,7 +140,10 @@ public abstract class AbstractActionState {
 		
 		file.getParent().updateContentHash();
 		file.getParent().updateStructureHash();
-		file.updateStateOnLocalDelete();
+		if(file.isFolder()){
+			((FolderComposite)file).updateStateOnLocalDelete();
+		}
+
 		return this.changeStateOnLocalDelete();
 	}
 
@@ -151,7 +154,12 @@ public abstract class AbstractActionState {
 	
 	public AbstractActionState handleLocalMove(Path newPath) {
 		Path oldPath = Paths.get(action.getFile().getPath().toString());
-		action.getFile().setIsSynchronizedRecursively(true);
+		
+		if(action.getFile().isFolder()){
+			((FolderComposite)action.getFile()).setIsSynchronizedRecursively(true);
+		} else {
+			((FileLeaf)action.getFile()).setIsSynchronized(true);
+		}
 		action.getFileEventManager().getFileTree().putFile(newPath, action.getFile());
 		action.updateTimeAndQueue();
 		return changeStateOnLocalMove(oldPath);

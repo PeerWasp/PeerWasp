@@ -115,7 +115,7 @@ public class InitialState extends AbstractActionState {
 			createdByContentHash.put(action.getFile().getContentHash(), action.getFile());
 		} else {
 			SetMultimap<String, FolderComposite> createdByStructureHash = action.getFileEventManager().getFileTree().getCreatedByStructureHash();
-			createdByStructureHash.put(action.getFile().getStructureHash(), (FolderComposite)action.getFile());
+			createdByStructureHash.put(((FolderComposite)action.getFile()).getStructureHash(), (FolderComposite)action.getFile());
 		}
 	}
 
@@ -178,7 +178,7 @@ public class InitialState extends AbstractActionState {
 		action.getFileEventManager().getFileComponentQueue().remove(file);
 
 		SetMultimap<String, FolderComposite> createdByStructureHash = action.getFileEventManager().getFileTree().getCreatedByStructureHash();
-		boolean wasRemoved = createdByStructureHash.get(action.getFile().getStructureHash()).remove((FolderComposite)action.getFile());
+		boolean wasRemoved = createdByStructureHash.get(((FolderComposite)action.getFile()).getStructureHash()).remove((FolderComposite)action.getFile());
 		// TODO: cleanup filecomponentqueue: remove children of folder if in localcreate state!
 
 		if (source.isUploaded()) {

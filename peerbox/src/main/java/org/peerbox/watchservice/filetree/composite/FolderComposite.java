@@ -49,7 +49,6 @@ public class FolderComposite extends AbstractFileComponent {
 		this(path, updateContentHash, false);
 	}
 
-	@Override
 	public synchronized FileComponent getComponent(Path remainingPath) {
 		if (remainingPath.equals(getPath())) {
 			return this;
@@ -68,7 +67,7 @@ public class FolderComposite extends AbstractFileComponent {
 		} else if (nextLevel.isFolder()) {
 			// go to next level if it is a folder
 			Path newRemainingPath = remainingPath.subpath(1, remainingPath.getNameCount());
-			return nextLevel.getComponent(newRemainingPath);
+			return ((FolderComposite)nextLevel).getComponent(newRemainingPath);
 		} else {
 			// not possible to recurse further.
 			return null;
@@ -86,7 +85,6 @@ public class FolderComposite extends AbstractFileComponent {
 	 * Appends a new component to the FolderComposite. Inexistent folders are added on the
 	 * fly. Existing items are replaced. Triggers updates of content and name hashes.
 	 */
-	@Override
 	public synchronized void putComponent(Path remainingPath, FileComponent component) {
 		remainingPath = stripOffPrefix(remainingPath, getPath());
 
@@ -106,7 +104,7 @@ public class FolderComposite extends AbstractFileComponent {
 				addComponentToChildren(nextLevelPath, nextLevel);
 			}
 			Path newRemainingPath = remainingPath.subpath(1, remainingPath.getNameCount());
-			nextLevel.putComponent(newRemainingPath, component);
+			((FolderComposite) nextLevel).putComponent(newRemainingPath, component);
 		}
 	}
 
@@ -156,7 +154,6 @@ public class FolderComposite extends AbstractFileComponent {
 	 *
 	 * @return The deleted component. If it does not exist, null is returned
 	 */
-	@Override
 	public synchronized FileComponent deleteComponent(Path remainingPath) {
 		remainingPath = stripOffPrefix(remainingPath, getPath());
 
@@ -182,7 +179,7 @@ public class FolderComposite extends AbstractFileComponent {
 			FileComponent nextLevel = children.get(nextLevelPath);
 			if (nextLevel != null && nextLevel.isFolder()) {
 				Path newRemainingPath = remainingPath.subpath(1, remainingPath.getNameCount());
-				removed = nextLevel.deleteComponent(newRemainingPath);
+				removed = ((FolderComposite)nextLevel).deleteComponent(newRemainingPath);
 			}
 		}
 		return removed;
@@ -279,13 +276,17 @@ public class FolderComposite extends AbstractFileComponent {
 	}
 
 	public void updateStateOnLocalDelete(){
-		getAction().getCurrentState().changeStateOnLocalDelete();
+		getAction().setCurrentState(getAction().getCurrentState().changeStateOnLocalDelete());
 		for(FileComponent child : children.values()){
-			child.updateStateOnLocalDelete();
+			if(child.isFolder()){
+				((FolderComposite)child).updateStateOnLocalDelete();
+			} else {
+				getAction().setCurrentState(getAction().getCurrentState().changeStateOnLocalDelete());
+			}
 		}
 	}
 
-	@Override
+//	@Override
 	public void getSynchronizedChildrenPaths(Set<Path> synchronizedPaths) {
 		if (isSynchronized()) {
 //			logger.debug("Add {} to synchronized files.", getPath());
@@ -295,17 +296,17 @@ public class FolderComposite extends AbstractFileComponent {
 			if (entry.getValue().isSynchronized()) {
 //				logger.debug("--Add {} with ID {} to synchronized files.", entry.getValue().getPath(), entry.getValue().hashCode());
 				synchronizedPaths.add(entry.getValue().getPath());
-				entry.getValue().getSynchronizedChildrenPaths(synchronizedPaths);
+				if(entry.getValue().isFolder()){
+					((FolderComposite)entry.getValue()).getSynchronizedChildrenPaths(synchronizedPaths);
+				}
 			}
 		}
 	}
 
-	@Override
 	public String getStructureHash() {
 		return structureHash;
 	}
 
-	@Override
 	public void setStructureHash(String structureHash) {
 		this.structureHash = structureHash;
 	}
@@ -352,11 +353,14 @@ public class FolderComposite extends AbstractFileComponent {
 		return s;
 	}
 	
-	@Override
 	public void setIsSynchronizedRecursively(boolean b) {
 		setIsSynchronized(b);
 		for(FileComponent comp : children.values()){
-			comp.setIsSynchronizedRecursively(b);
+			if(comp.isFolder()){
+				((FolderComposite)comp).setIsSynchronizedRecursively(b);
+			} else {
+				((FileLeaf)comp).setIsSynchronized(b);
+			}
 		}
 	}
 }
