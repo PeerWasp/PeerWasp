@@ -11,7 +11,21 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.hive2hive.core.model.IFileVersion;
 import org.hive2hive.core.processes.files.recover.IVersionSelector;
 
-public final class FileVersionSelector implements IVersionSelector {
+/**
+ * File version selector for H2H.
+ * It works as follows:
+ * - Available versions are received from H2H ({@link #selectVersion(List)}).
+ * - This triggers a notification of the listener
+ * (forward available versions, {@link IFileVersionSelectorListener#onAvailableVersionsReceived(List)}.
+ * - The thread is blocked in {@link #selectVersion(List)} until a version is selected.
+ * - The version selector waits using the count down latch until the listener chooses a version by
+ * calling {@link #selectVersion(IFileVersion, Path)}.
+ * - The selected version is returned (unblock, {@link #selectVersion(List)} continues).
+ *
+ * @author albrecht
+ *
+ */
+final class FileVersionSelector implements IVersionSelector {
 
 	private final CountDownLatch doneSignal;
 	private final IFileVersionSelectorListener listener;
@@ -36,6 +50,10 @@ public final class FileVersionSelector implements IVersionSelector {
 		this.listener = listener;
 	}
 
+	/**
+	 * Cancel version selection.
+	 * Unblocks waiting thread in {@link #selectVersion(List)} (will return null).
+	 */
 	public void cancel() {
 		isCancelled.set(true);
 		selectedVersion = null;
@@ -46,6 +64,13 @@ public final class FileVersionSelector implements IVersionSelector {
 		return isCancelled.get();
 	}
 
+	/**
+	 * Select a specific version of a file.
+	 * Unblocks the waiting thread in {@link #selectVersion(List)}.
+	 *
+	 * @param selectedVersion the version to recover
+	 * @param fileToRecover the path to the file to recover (original, not the new name!)
+	 */
 	public void selectVersion(IFileVersion selectedVersion, Path fileToRecover)  {
 		this.fileToRecover = fileToRecover;
 
@@ -70,6 +95,10 @@ public final class FileVersionSelector implements IVersionSelector {
 
 	}
 
+	/**
+	 * This is called by H2H - receive available versions.
+	 * Notifies listener and blocks until version is selected and returns version.
+	 */
 	@Override
 	public IFileVersion selectVersion(List<IFileVersion> availableVersions) {
 		if(isCancelled.get()) {

@@ -48,6 +48,34 @@ import org.slf4j.LoggerFactory;
 
 import com.google.inject.Inject;
 
+/**
+ * This controller is associated with the file recovery view.
+ *
+ * After setting {@link #setFileToRecover(Path)}, calling {@link #loadVersions()} starts
+ * the recovery procedure. The overall procedure looks as follows:
+ *
+ *			            +----------+----------+
+ *			            |          |CONTROLLER|
+ *			            |   +----->+----------+-----------+
+ *			(4) select  |   |                             |(1) start process
+ *			    version |   |(3) versions                 |
+ *			            v   |             (2) available   v
+ *			     +------+---+----+            versions  +---+
+ *			     |VERSIONSELECTOR+<---------------------+H2H|
+ *			     +------+--------+                      +-+-+
+ *			            |                                 ^
+ *			            |                                 |
+ *			            +---------------------+-----------+
+ *			                     (5) selected version
+ *
+ *
+ * The version selector receives available versions from H2H and waits (blocks) until the user
+ * selects a version, which is then returned to H2H.
+ *
+ *
+ * @author albrecht
+ *
+ */
 public final class RecoverFileController  implements Initializable, IFileVersionSelectorListener {
 
 	private static final Logger logger = LoggerFactory.getLogger(RecoverFileController.class);
@@ -66,7 +94,7 @@ public final class RecoverFileController  implements Initializable, IFileVersion
 	private Button btnRecover;
 	@FXML
 	private AnchorPane pane;
-	// JavaFX Control, but @FXML is not supported
+	// JavaFX Control from ControlsFX, but @FXML is not supported
 	private StatusBar statusBar;
 
 	private final BooleanProperty busyProperty;
@@ -213,7 +241,8 @@ public final class RecoverFileController  implements Initializable, IFileVersion
 				Alert dlg = AlertUtils.create(AlertType.INFORMATION);
 				dlg.setTitle("File Recovered");
 				dlg.setHeaderText("File recovery finished");
-				dlg.setContentText(String.format("The name of the recovered file is: %s", versionSelector.getRecoveredFileName()));
+				dlg.setContentText(String.format("The name of the recovered file is: %s",
+						versionSelector.getRecoveredFileName()));
 				dlg.showAndWait();
 				getStage().close();
 			}
@@ -349,7 +378,6 @@ public final class RecoverFileController  implements Initializable, IFileVersion
 				process.execute();
 
 			} catch (Exception e) {
-				// FIXME: maybe get specific reason of exception for user?
 				logger.warn("Exception while recovering file: {}", e.getMessage(), e);
 				throw e;
 			}
