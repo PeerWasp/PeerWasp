@@ -6,8 +6,10 @@
 <?import javafx.scene.control.*?>
 <?import java.lang.*?>
 <?import javafx.scene.layout.*?>
+<?import org.controlsfx.glyphfont.*?>
 
-<GridPane hgap="10.0" prefHeight="450.0" prefWidth="600.0" vgap="10.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.peerbox.presenter.settings.Network">
+<GridPane hgap="10.0" prefHeight="450.0" prefWidth="600.0" vgap="10.0" xmlns="http://javafx.com/javafx/8"
+	xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.peerbox.presenter.settings.Network">
 	<columnConstraints>
 		<ColumnConstraints hgrow="ALWAYS" minWidth="60.0" />
 	</columnConstraints>
@@ -27,7 +29,9 @@
 						<Insets />
 					</VBox.margin>
 				</Label>
-				<Label text="The following list is used to join the network when the application starts. (Note: the preconfigured default nodes cannot be removed)" wrapText="true" />
+				<Label
+					text="The following list of addresses may be used to join the network when the application starts. (Note: the preconfigured default nodes cannot be removed)"
+					wrapText="true" />
 			</children>
 		</VBox>
 		<GridPane hgap="10.0" vgap="10.0" GridPane.rowIndex="1">
@@ -39,41 +43,48 @@
 				<RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
 			</rowConstraints>
 			<children>
-				<ListView fx:id="lwBootstrappingNodes" editable="true" />
-				<VBox GridPane.columnIndex="1">
+				<ListView fx:id="lwBootstrappingNodes" />
+				<VBox spacing="10.0" GridPane.columnIndex="1">
 					<children>
-						<Button mnemonicParsing="false" onAction="#addAction" prefWidth="100.0" text="Add">
-							<VBox.margin>
-								<Insets />
-							</VBox.margin>
+						<Button alignment="CENTER_LEFT" fx:id="btnAdd" prefWidth="100.0"
+							onAction="#addAction" text="_Add">
+							<graphic>
+								<Glyph fontFamily="FontAwesome" icon="PLUS" />
+							</graphic>
 						</Button>
-						<Button mnemonicParsing="false" onAction="#removeAction" prefWidth="100.0" text="Remove">
-							<VBox.margin>
-								<Insets top="10.0" />
-							</VBox.margin>
+						<Button alignment="CENTER_LEFT" fx:id="btnEdit" prefWidth="100.0"
+							onAction="#editAction"  text="_Edit">
+							<graphic>
+								<Glyph fontFamily="FontAwesome" icon="PENCIL" />
+							</graphic>
 						</Button>
-						<Button mnemonicParsing="false" onAction="#upAction" prefWidth="100.0" text="Up">
-							<VBox.margin>
-								<Insets top="10.0" />
-							</VBox.margin>
+						<Button alignment="CENTER_LEFT" fx:id="btnRemove" prefWidth="100.0"
+							onAction="#removeAction" text="Re_move">
+							<graphic>
+								<Glyph fontFamily="FontAwesome" icon="MINUS" />
+							</graphic>
 						</Button>
-						<Button mnemonicParsing="false" onAction="#downAction" prefWidth="100.0" text="Down">
-							<VBox.margin>
-								<Insets top="10.0" />
-							</VBox.margin>
+						<Button alignment="CENTER_LEFT" fx:id="btnUp" prefWidth="100.0"
+							onAction="#upAction" text="_Up">
+							<graphic>
+								<Glyph fontFamily="FontAwesome" icon="CHEVRON_UP" />
+							</graphic>
+						</Button>
+						<Button alignment="CENTER_LEFT" fx:id="btnDown" prefWidth="100.0"
+							onAction="#downAction" text="_Down">
+							<graphic>
+								<Glyph fontFamily="FontAwesome" icon="CHEVRON_DOWN" />
+							</graphic>
 						</Button>
 					</children>
 				</VBox>
 			</children>
 		</GridPane>
-		<HBox alignment="CENTER_LEFT" GridPane.rowIndex="2">
+
+		<HBox alignment="CENTER_LEFT" GridPane.rowIndex="2" spacing="10">
 			<children>
-				<Button defaultButton="true" onAction="#saveAction" text="_Save" />
-				<Button cancelButton="true" onAction="#resetAction" text="_Reset">
-					<HBox.margin>
-						<Insets left="10.0" />
-					</HBox.margin>
-				</Button>
+				<Button defaultButton="true" prefWidth="100.0" onAction="#saveAction" text="_Save" />
+				<Button cancelButton="true" prefWidth="100.0" onAction="#resetAction" text="_Reset" />
 			</children>
 			<padding>
 				<Insets top="20.0" />
