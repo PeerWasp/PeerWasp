@@ -25,11 +25,11 @@
 				<TextField fx:id="txtFilter" promptText="Filter" GridPane.columnIndex="1" />
 				<ListView fx:id="lstActivityLog" prefHeight="200.0" prefWidth="200.0"
 					GridPane.columnSpan="2" GridPane.rowIndex="1" />
-				<Button minWidth="100.0" mnemonicParsing="false"
-					onAction="#openLogAction" text="Open Log"
+				<Button minWidth="100.0"
+					onAction="#openLogAction" text="Open _Log"
 					GridPane.columnIndex="1" GridPane.halignment="RIGHT" GridPane.rowIndex="2" />
-				<Button minWidth="100.0" mnemonicParsing="false"
-					onAction="#clearAction" text="Clear" GridPane.rowIndex="2" />
+				<Button minWidth="100.0"
+					onAction="#clearAction" text="_Clear" GridPane.rowIndex="2" />
 			</children>
 		</GridPane>
 	</children>

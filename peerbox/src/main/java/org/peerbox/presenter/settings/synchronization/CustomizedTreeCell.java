@@ -26,7 +26,6 @@ import javafx.stage.WindowEvent;
 
 import org.peerbox.filerecovery.IFileRecoveryHandler;
 import org.peerbox.forcesync.IForceSyncHandler;
-import org.peerbox.presenter.settings.Properties;
 import org.peerbox.share.IShareFolderHandler;
 import org.peerbox.utils.DialogUtils;
 import org.peerbox.view.ViewNames;

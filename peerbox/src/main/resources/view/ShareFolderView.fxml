@@ -46,8 +46,8 @@
 
 						<HBox alignment="CENTER_LEFT" spacing="10.0" GridPane.rowIndex="4">
 							<children>
-								<Button fx:id="btnShare" defaultButton="true" mnemonicParsing="false" onAction="#shareAction" text="Share" />
-								<Button fx:id="btnCancel" cancelButton="true" mnemonicParsing="false" onAction="#cancelAction" text="Cancel" />
+								<Button fx:id="btnShare" defaultButton="true" onAction="#shareAction" text="_Share" />
+								<Button fx:id="btnCancel" cancelButton="true" onAction="#cancelAction" text="_Cancel" />
 							</children>
 							<GridPane.margin>
 								<Insets top="20.0" />

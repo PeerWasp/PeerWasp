@@ -18,7 +18,7 @@
                   <Label text="Create a new and independent network. Note that the network must keep running in order to keep user data available. Your machine will be the first node of the network." wrapText="true" />
                   <HBox alignment="CENTER">
                      <children>
-            				<Button mnemonicParsing="false" onAction="#createNetwork" prefWidth="120.0" text="Create network" />
+            				<Button onAction="#createNetwork" prefWidth="120.0" text="_Create network" />
                      </children>
                   </HBox>
                </children>
@@ -29,7 +29,7 @@
                   <Label text="Join an existing network that is already running. Your machine will participate in the P2P network." wrapText="true" />
                   <HBox alignment="CENTER">
                      <children>
-            				<Button mnemonicParsing="false" onAction="#joinNetwork" prefWidth="120.0" text="Join network" />
+            				<Button onAction="#joinNetwork" prefWidth="120.0" text="_Join network" />
                      </children>
                   </HBox>
                </children>

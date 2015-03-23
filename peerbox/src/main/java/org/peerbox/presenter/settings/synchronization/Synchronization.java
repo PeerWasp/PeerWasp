@@ -136,6 +136,7 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 	 * by clicks on the "Accept" button.
 	 * @param event
 	 */
+	@FXML
 	public void acceptSyncAction(ActionEvent event) {
 		synchronizedFiles = eventManager.getFileTree().getSynchronizedPathsAsSet();
 
@@ -489,7 +490,7 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 //		invisibleRoot.setIndependent(true);
 	    fileTreeView.setRoot(invisibleRoot);
         fileTreeView.setEditable(false);
-        
+
         fileTreeView.setCellFactory(new Callback<TreeView<PathItem>, TreeCell<PathItem>>(){
             @Override
             public TreeCell<PathItem> call(TreeView<PathItem> p) {
@@ -501,7 +502,7 @@ public class Synchronization implements Initializable, IExecutionMessageListener
         });
 
         fileTreeView.setShowRoot(false);
-        
+
 
         addChildrensToTreeView(fileNode);
 	}
@@ -512,7 +513,7 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 			List<FileNode> sortedChildren = fileNode.getChildren().stream().
 					sorted((f1, f2) -> f1.getFile().compareTo(f2.getFile())).
 					collect(Collectors.<FileNode>toList());
-	       
+
 			for(FileNode topLevelNode : sortedChildren){
 	        	Path path = topLevelNode.getFile().toPath();
 	        	boolean isSynched = synchronizedFiles.contains(path);
