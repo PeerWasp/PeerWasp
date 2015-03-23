@@ -49,7 +49,7 @@ public class LocalUpdateState extends AbstractActionState {
 			handle.getProcess().attachListener(new LocalFileUpdateListener(file, action.getFileEventManager().getMessageBus()));
 			handle.executeAsync();
 		} else {
-			System.err.println("Process or handle is null.");
+			logger.warn("Process or handle is null.");
 		}
 		return new ExecutionHandle(action, handle);
 	}
