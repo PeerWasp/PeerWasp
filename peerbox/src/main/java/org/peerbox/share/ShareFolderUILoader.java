@@ -16,7 +16,7 @@ import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 
 import org.peerbox.ResultStatus;
-import org.peerbox.utils.AlertUtils;
+import org.peerbox.utils.DialogUtils;
 import org.peerbox.utils.IconUtils;
 import org.peerbox.view.ViewNames;
 import org.slf4j.Logger;
@@ -107,7 +107,7 @@ public class ShareFolderUILoader {
 		Runnable dialog = new Runnable() {
 			@Override
 			public void run() {
-				Alert dlg = AlertUtils.create(AlertType.ERROR);
+				Alert dlg = DialogUtils.createAlert(AlertType.ERROR);
 				dlg.setTitle("Error Share Folder.");
 				dlg.setHeaderText("Could not share folder.");
 				dlg.setContentText(message);

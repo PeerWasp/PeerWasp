@@ -22,6 +22,7 @@ import javafx.scene.control.TextInputDialog;
 
 import org.peerbox.app.config.BootstrappingNodes;
 import org.peerbox.app.config.BootstrappingNodesFactory;
+import org.peerbox.utils.DialogUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -95,6 +96,7 @@ public class Network implements Initializable {
 	public void addAction(ActionEvent event) {
 		// request node address from user and add
 		TextInputDialog input = new TextInputDialog();
+		DialogUtils.decorateDialogWithIcon(input);
 		input.getEditor().setPromptText("Enter address");
 		input.setTitle("New Node Address");
 		input.setHeaderText("Enter new node address");
@@ -113,6 +115,7 @@ public class Network implements Initializable {
 		String nodeAddress = lwBootstrappingNodes.getSelectionModel().getSelectedItem();
 
 		TextInputDialog input = new TextInputDialog();
+		DialogUtils.decorateDialogWithIcon(input);
 		input.getEditor().setText(nodeAddress);
 		input.setTitle("Edit Node Address");
 		input.setHeaderText("Enter node address");

@@ -14,7 +14,7 @@ import org.peerbox.app.ClientContext;
 import org.peerbox.app.config.UserConfig;
 import org.peerbox.app.manager.node.INodeManager;
 import org.peerbox.app.manager.user.IUserManager;
-import org.peerbox.utils.AlertUtils;
+import org.peerbox.utils.DialogUtils;
 import org.peerbox.watchservice.IFileEventManager;
 
 import com.google.inject.Inject;
@@ -54,7 +54,7 @@ public class FileDeleteHandler implements IFileDeleteHandler {
 		Runnable dialog = new Runnable() {
 			@Override
 			public void run() {
-				Alert dlg = AlertUtils.create(AlertType.ERROR);
+				Alert dlg = DialogUtils.createAlert(AlertType.ERROR);
 				dlg.setTitle("Error - Delete.");
 				dlg.setHeaderText("Could not delete file(s).");
 				dlg.setContentText(message);

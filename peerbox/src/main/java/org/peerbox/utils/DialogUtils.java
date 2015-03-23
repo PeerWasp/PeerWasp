@@ -4,19 +4,20 @@ import java.util.Collection;
 
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.Dialog;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 
 /**
- * Utilities for {@link Alert} dialogs.
+ * Utilities for JavaFX dialogs.
  *
  * @author albrecht
  *
  */
-public final class AlertUtils {
+public final class DialogUtils {
 
-	private AlertUtils() {
+	private DialogUtils() {
 		// prevent instance
 	}
 
@@ -27,7 +28,7 @@ public final class AlertUtils {
 	 * @param type
 	 * @return alert dialog
 	 */
-	public static Alert create(AlertType type) {
+	public static Alert createAlert(AlertType type) {
 		Alert dlg = new Alert(type);
 		decorateDialogWithIcon(dlg);
 
@@ -49,12 +50,12 @@ public final class AlertUtils {
 	}
 
 	/**
-	 * Decorates an Alert dialog with window icons.
+	 * Decorates a dialog with window icons.
 	 * Note: this may not be required anymore with newer Java versions.
 	 *
-	 * @param dlg the Alert dialog to decorate
+	 * @param dlg the dialog to decorate
 	 */
-	public static void decorateDialogWithIcon(Alert dlg) {
+	public static void decorateDialogWithIcon(Dialog<?> dlg) {
 		Window window = dlg.getDialogPane().getScene().getWindow();
 		if (window instanceof Stage) {
 			Stage stage = (Stage) dlg.getDialogPane().getScene().getWindow();

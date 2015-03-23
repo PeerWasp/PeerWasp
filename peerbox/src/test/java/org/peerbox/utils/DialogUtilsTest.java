@@ -14,29 +14,29 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.peerbox.helper.JavaFXThreadingRule;
 
-public class AlertUtilsTest {
+public class DialogUtilsTest {
 
 	@Rule
 	public JavaFXThreadingRule jfxRule = new JavaFXThreadingRule();
 
 	@Test
-	public void testCreate() {
-		Alert dlg = AlertUtils.create(AlertType.WARNING);
-		assertNotNull(dlg);
-		assertEquals(AlertType.WARNING, dlg.getAlertType());
-		assertTrue(alertHasIcons(dlg));
-
-		Alert dlg_info = AlertUtils.create(AlertType.INFORMATION);
-		assertNotNull(dlg_info);
-		assertEquals(AlertType.INFORMATION, dlg_info.getAlertType());
-		assertTrue(alertHasIcons(dlg));
-	}
+		public void testCreateAlert() {
+			Alert dlg = DialogUtils.createAlert(AlertType.WARNING);
+			assertNotNull(dlg);
+			assertEquals(AlertType.WARNING, dlg.getAlertType());
+			assertTrue(alertHasIcons(dlg));
+	
+			Alert dlg_info = DialogUtils.createAlert(AlertType.INFORMATION);
+			assertNotNull(dlg_info);
+			assertEquals(AlertType.INFORMATION, dlg_info.getAlertType());
+			assertTrue(alertHasIcons(dlg));
+		}
 
 	@Test
 	public void testDecorateDialogWithIcon() {
 		Alert dlg = new Alert(AlertType.ERROR);
 		assertFalse(alertHasIcons(dlg));
-		AlertUtils.decorateDialogWithIcon(dlg);
+		DialogUtils.decorateDialogWithIcon(dlg);
 		assertTrue(alertHasIcons(dlg));
 	}
 
