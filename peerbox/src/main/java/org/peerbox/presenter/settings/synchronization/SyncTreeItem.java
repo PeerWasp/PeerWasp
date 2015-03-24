@@ -289,11 +289,20 @@ public class SyncTreeItem extends CheckBoxTreeItem<PathItem> implements Property
 	        @Override
 	        public void run() {
 	        	if(getValue().getPath().toFile().isDirectory()){
-	        		setIndeterminate(b);
+	        		if(b && allChildrenSynchronized()){
+			        		setSelected(b);
+	        		} else {
+	        			setIndeterminate(b);	
+	        		}
 	        	} else {
 	        		setSelected(b);
 	        	}
 	        }
+
+			private boolean allChildrenSynchronized() {
+				return getChildren().stream().filter(
+						item -> !((SyncTreeItem)item).isSelected()).count() == 0;
+			}
 		});
 	}
 

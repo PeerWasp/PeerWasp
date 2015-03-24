@@ -1,6 +1,7 @@
 package org.peerbox.presenter.settings.synchronization;
 
 import java.net.URL;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Comparator;
@@ -88,7 +89,7 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 	 * watchservice.FileEventManager FileEventManager} to correctly
 	 * populate the TreeView
 	 */
-	private Set<Path> synchronizedFiles;
+//	private Set<Path> synchronizedFiles;
 	private Set<Path> failedFiles = new HashSet<Path>();
 	private Set<Path> executingFiles = new HashSet<Path>();
 
@@ -127,7 +128,7 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 	@Override
 	public void initialize(URL arg0, ResourceBundle arg1) {
 		logger.debug("Initialize Synchronization!");
-		synchronizedFiles = getFileEventManager().getFileTree().getSynchronizedPathsAsSet();
+//		synchronizedFiles = getFileEventManager().getFileTree().getSynchronizedPathsAsSet();
 		createTreeViewFromNetwork();
 	}
 
@@ -138,10 +139,10 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 	 */
 	@FXML
 	public void acceptSyncAction(ActionEvent event) {
-		synchronizedFiles = eventManager.getFileTree().getSynchronizedPathsAsSet();
+//		synchronizedFiles = eventManager.getFileTree().getSynchronizedPathsAsSet();
 
 		for(FileInfo node : toSynchronize){
-			if(!synchronizedFiles.contains(node.getPath()))
+			if(!Files.exists(node.getPath()))
 				eventManager.onFileSynchronized(node.getPath(), node.isFolder());
 		}
 
@@ -203,7 +204,7 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 	 */
 	@FXML
 	public void refreshAction(ActionEvent event){
-		synchronizedFiles = getFileEventManager().getFileTree().getSynchronizedPathsAsSet();
+//		synchronizedFiles = getFileEventManager().getFileTree().getSynchronizedPathsAsSet();
 		failedFiles = getFileEventManager().getFailedOperations();
 		createTreeViewFromNetwork();
 	}
@@ -448,6 +449,9 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 				}
 			}
 			parent.getChildren().add(toPut);
+			if(!toPut.isSelected() || !toPut.isIndeterminate()){
+				parent.updateIsSelectedInUIThread(true);
+			}
 			toPut.bindTo(parent);
 			return;
 		} else {
@@ -516,7 +520,7 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 
 			for(FileNode topLevelNode : sortedChildren){
 	        	Path path = topLevelNode.getFile().toPath();
-	        	boolean isSynched = synchronizedFiles.contains(path);
+	        	boolean isSynched = Files.exists(path); //synchronizedFiles.contains(path);
 	        	ProgressState stateToSet = ProgressState.DEFAULT;
 	        	if(failedFiles.contains(path)){
 	        		stateToSet = ProgressState.FAILED;
@@ -543,6 +547,7 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 			boolean isFile, Set<UserPermission> permissions) {
 		PathItem pathItem = new PathItem(path, isFile, permissions);
 		SyncTreeItem newItem = new SyncTreeItem(pathItem);
+		newItem.updateIsSelectedInUIThread(isSynched);
 		newItem.setSelected(isSynched);
 		return newItem;
 	}
