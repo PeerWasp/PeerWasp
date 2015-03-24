@@ -18,21 +18,21 @@ std::map<CommandId, CommandInfo> Command::CreateCommandMap()
 
 	struct CommandInfo cmdDelete;
 	cmdDelete.id = CMD_DELETE;
-	cmdDelete.menuText = L"&Delete";
-	cmdDelete.helpText = L"Delete the selected files and folders.";
+	cmdDelete.menuText = L"Hard &Delete";
+	cmdDelete.helpText = L"Delete the selected files and folders permanently.";
 	cmdDelete.bitmapResourceId = NO_ICON;
 	commands[CMD_DELETE] = cmdDelete;
 
 	struct CommandInfo cmdVersions;
 	cmdVersions.id = CMD_VERSIONS;
-	cmdVersions.menuText = L"&Versions";
+	cmdVersions.menuText = L"&Recover File Version";
 	cmdVersions.helpText = L"Show and restore previous versions of this file.";
 	cmdVersions.bitmapResourceId = NO_ICON;
 	commands[CMD_VERSIONS] = cmdVersions;
 
 	struct CommandInfo cmdShare;
 	cmdShare.id = CMD_SHARE;
-	cmdShare.menuText = L"&Share";
+	cmdShare.menuText = L"&Share Folder";
 	cmdShare.helpText = L"Share the selected folder with other users.";
 	cmdShare.bitmapResourceId = NO_ICON;
 	commands[CMD_SHARE] = cmdShare;
