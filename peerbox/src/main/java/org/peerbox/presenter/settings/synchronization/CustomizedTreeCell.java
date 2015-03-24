@@ -26,9 +26,8 @@ import javafx.stage.WindowEvent;
 
 import org.peerbox.filerecovery.IFileRecoveryHandler;
 import org.peerbox.forcesync.IForceSyncHandler;
-import org.peerbox.presenter.settings.Properties;
 import org.peerbox.share.IShareFolderHandler;
-import org.peerbox.utils.AlertUtils;
+import org.peerbox.utils.DialogUtils;
 import org.peerbox.view.ViewNames;
 import org.peerbox.watchservice.IFileEventManager;
 import org.slf4j.Logger;
@@ -199,7 +198,7 @@ public class CustomizedTreeCell extends CheckBoxTreeCell<PathItem> {
 	private class DeleteAction implements EventHandler<ActionEvent> {
 		public void handle(ActionEvent t) {
 			if (getItem() != null) {
-				Alert hardDelete = AlertUtils.create(AlertType.WARNING);
+				Alert hardDelete = DialogUtils.createAlert(AlertType.WARNING);
 				hardDelete.setTitle("Irreversibly delete file?");
 				hardDelete.setHeaderText("You're about to hard-delete " + getItem().getPath().getFileName());
 				hardDelete.setContentText("The file will be removed completely from the network and cannot be recovered."
@@ -211,7 +210,7 @@ public class CustomizedTreeCell extends CheckBoxTreeCell<PathItem> {
 
 				if(hardDelete.getResult() == ButtonType.YES){
 					fileEventManager.onLocalFileHardDelete(getItem().getPath());
-					Alert confirm = AlertUtils.create(AlertType.INFORMATION);
+					Alert confirm = DialogUtils.createAlert(AlertType.INFORMATION);
 					confirm.setTitle("Hard-delete confirmation");
 					confirm.setContentText(getItem().getPath() + " has been hard-deleted.");
 					confirm.showAndWait();

@@ -50,7 +50,7 @@ public class LocalHardDeleteState extends AbstractActionState{
 			handle.getProcess().attachListener(new LocalFileDeleteListener(file, action.getFileEventManager().getMessageBus()));
 			handle.executeAsync();
 		} else {
-			System.err.println("handle or process is null.");
+			logger.warn("handle or process is null.");
 		}
 
 		return new ExecutionHandle(action, handle);

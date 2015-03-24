@@ -88,7 +88,7 @@ public final class BrowserUtils {
 				}
 
 			} catch (Exception e) {
-				Alert dlg = AlertUtils.create(AlertType.WARNING);
+				Alert dlg = DialogUtils.createAlert(AlertType.WARNING);
 				dlg.setHeaderText(errMsg);
 				dlg.setTitle(errMsg);
 				dlg.setContentText(e.getMessage());

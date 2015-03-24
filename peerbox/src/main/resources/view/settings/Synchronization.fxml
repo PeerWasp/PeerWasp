@@ -22,9 +22,9 @@
       		<TreeView fx:id="fileTreeView" VBox.vgrow="SOMETIMES" />
             <HBox alignment="CENTER_LEFT" spacing="10.0">
                <children>
-                  <Button fx:id="selectAllButton" onAction="#selectAllAction" prefHeight="25.0" text="Select all" />
-                  <Button fx:id="unselectAllButton" onAction="#unselectAllAction" text="Unselect all" />
-                  <Button fx:id="refreshButton" onAction="#refreshAction" prefHeight="25.0" text="Refresh" />
+                  <Button fx:id="selectAllButton" onAction="#selectAllAction" prefHeight="25.0" text="_Select all" />
+                  <Button fx:id="unselectAllButton" onAction="#unselectAllAction" text="_Unselect all" />
+                  <Button fx:id="refreshButton" onAction="#refreshAction" prefHeight="25.0" text="_Refresh" />
                </children>
                <padding>
                   <Insets top="10.0" />
@@ -32,8 +32,8 @@
             </HBox>
       		<HBox alignment="CENTER_LEFT">
       			<children>
-            				<Button fx:id="okButton" defaultButton="true" onAction="#acceptSyncAction" text="Accept" />
-      				<Button fx:id="cancelButton" cancelButton="true" onAction="#cancelAction" text="Discard">
+          			<Button fx:id="okButton" defaultButton="true" onAction="#acceptSyncAction" text="_Accept" />
+      				<Button fx:id="cancelButton" cancelButton="true" onAction="#cancelAction" text="_Discard">
       					<HBox.margin>
       						<Insets left="10.0" />
       					</HBox.margin>

@@ -79,7 +79,7 @@ public class LocalCreateState extends AbstractActionState {
 			handle.getProcess().attachListener(new LocalFileAddListener(helper, messageBus));
 			handle.executeAsync();
 		} else {
-			System.err.println("process or handle is null");
+			logger.warn("process or handle is null");
 		}
 
 		String contentHash = action.getFile().getContentHash();

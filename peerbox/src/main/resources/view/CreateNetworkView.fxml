@@ -28,10 +28,10 @@
 				<TextField fx:id="txtIPAddress" editable="false" />
 				<HBox prefWidth="200.0" spacing="10.0">
 					<children>
-						<Button cancelButton="true" mnemonicParsing="false"
-							onAction="#navigateBackAction" prefWidth="120.0" text="Back" />
-						<Button fx:id="btnCreate" defaultButton="true" mnemonicParsing="false"
-							onAction="#createNetworkAction" prefWidth="120.0" text="Create" />
+						<Button cancelButton="true"
+							onAction="#navigateBackAction" prefWidth="120.0" text="_Back" />
+						<Button fx:id="btnCreate" defaultButton="true"
+							onAction="#createNetworkAction" prefWidth="120.0" text="_Create" />
 					</children>
 				</HBox>
 			</children>

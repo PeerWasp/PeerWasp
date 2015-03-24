@@ -42,7 +42,7 @@ import org.hive2hive.processframework.exceptions.InvalidProcessStateException;
 import org.hive2hive.processframework.exceptions.ProcessRollbackException;
 import org.peerbox.app.manager.ProcessHandle;
 import org.peerbox.app.manager.file.IFileManager;
-import org.peerbox.utils.AlertUtils;
+import org.peerbox.utils.DialogUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -238,7 +238,7 @@ public final class RecoverFileController  implements Initializable, IFileVersion
 				setBusy(false);
 				setStatus("");
 
-				Alert dlg = AlertUtils.create(AlertType.INFORMATION);
+				Alert dlg = DialogUtils.createAlert(AlertType.INFORMATION);
 				dlg.setTitle("File Recovered");
 				dlg.setHeaderText("File recovery finished");
 				dlg.setContentText(String.format("The name of the recovered file is: %s",
@@ -264,7 +264,7 @@ public final class RecoverFileController  implements Initializable, IFileVersion
 
 				if(!versionSelector.isCancelled()) {
 					// show error if user did not initiate cancel action
-					Alert dlg = AlertUtils.create(AlertType.ERROR);
+					Alert dlg = DialogUtils.createAlert(AlertType.ERROR);
 					dlg.setTitle("File Recovery Failed");
 					dlg.setHeaderText("File recovery did not succeed.");
 					dlg.setContentText(message);

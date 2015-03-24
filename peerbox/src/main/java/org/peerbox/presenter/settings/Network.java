@@ -1,34 +1,37 @@
 package org.peerbox.presenter.settings;
 
 
+
 import java.io.IOException;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.List;
+import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.Set;
 
-import javafx.animation.KeyFrame;
-import javafx.animation.Timeline;
+import javafx.beans.binding.BooleanBinding;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.control.Button;
 import javafx.scene.control.ListView;
 import javafx.scene.control.SelectionMode;
-import javafx.scene.control.cell.TextFieldListCell;
-import javafx.util.Duration;
+import javafx.scene.control.TextInputDialog;
 
 import org.peerbox.app.config.BootstrappingNodes;
 import org.peerbox.app.config.BootstrappingNodesFactory;
+import org.peerbox.utils.DialogUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.inject.Inject;
 
 /**
- * Network settings
+ * Network settings tab controller.
+ * Allows adding, editing and removing the set of bootstrapping nodes.
+ *
  * @author albrecht
  *
  */
@@ -36,30 +39,42 @@ public class Network implements Initializable {
 
 	private static final Logger logger = LoggerFactory.getLogger(Network.class);
 
+
+	@FXML
+	private Button btnAdd;
+	@FXML
+	private Button btnEdit;
+	@FXML
+	private Button btnRemove;
+	@FXML
+	private Button btnUp;
+	@FXML
+	private Button btnDown;
 	@FXML
 	private ListView<String> lwBootstrappingNodes;
-
-	private final Timeline editLastSelection;
 
 	private BootstrappingNodes bootstrappingNodes;
 	private BootstrappingNodesFactory bootstrappingNodesFactory;
 
-	public Network() {
-		editLastSelection = new Timeline(new KeyFrame(Duration.seconds(.1), new EventHandler<ActionEvent>() {
-			@Override
-			public void handle(ActionEvent actionEvent) {
-				lwBootstrappingNodes.getSelectionModel().clearSelection();
-				lwBootstrappingNodes.getSelectionModel().selectLast();
-				lwBootstrappingNodes.edit(lwBootstrappingNodes.getSelectionModel().getSelectedIndex());
-			}
-		}));
-		editLastSelection.setCycleCount(1);
+	private ObservableList<String> addresses;
+
+	@Inject
+	public Network(BootstrappingNodesFactory bootstrappingNodesFactory) {
+		this.bootstrappingNodesFactory = bootstrappingNodesFactory;
 	}
 
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
-		lwBootstrappingNodes.setCellFactory(TextFieldListCell.forListView());
-		lwBootstrappingNodes.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
+		lwBootstrappingNodes.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
+
+		addresses = lwBootstrappingNodes.getItems();
+
+		// disable buttons if no item selected
+		BooleanBinding isNoItemSelected = lwBootstrappingNodes.getSelectionModel().selectedItemProperty().isNull();
+		btnEdit.disableProperty().bind(isNoItemSelected);
+		btnRemove.disableProperty().bind(isNoItemSelected);
+		btnUp.disableProperty().bind(isNoItemSelected);
+		btnDown.disableProperty().bind(isNoItemSelected);
 
 		reset();
 	}
@@ -70,8 +85,8 @@ public class Network implements Initializable {
 			bootstrappingNodes = bootstrappingNodesFactory.create();
 			bootstrappingNodesFactory.load();
 			Set<String> nodes = bootstrappingNodes.getBootstrappingNodes();
-			lwBootstrappingNodes.getItems().clear();
-			lwBootstrappingNodes.getItems().addAll(nodes);
+			addresses.clear();
+			nodes.forEach(item -> addItemIgnoreDuplicate(item));
 		} catch (IOException ioex) {
 			logger.warn("Could not load settings.");
 		}
@@ -79,8 +94,40 @@ public class Network implements Initializable {
 
 	@FXML
 	public void addAction(ActionEvent event) {
-		lwBootstrappingNodes.getItems().add("");
-		editLastSelection.play();
+		// request node address from user and add
+		TextInputDialog input = new TextInputDialog();
+		DialogUtils.decorateDialogWithIcon(input);
+		input.getEditor().setPromptText("Enter address");
+		input.setTitle("New Node Address");
+		input.setHeaderText("Enter new node address");
+		Optional<String> result = input.showAndWait();
+
+		if (result.isPresent()) {
+			String nodeAddress = result.get().trim();
+			addItemIgnoreDuplicate(nodeAddress);
+		}
+	}
+
+	@FXML
+	public void editAction(ActionEvent event) {
+		// load current selection and allow user to change value
+		int index = lwBootstrappingNodes.getSelectionModel().getSelectedIndex();
+		String nodeAddress = lwBootstrappingNodes.getSelectionModel().getSelectedItem();
+
+		TextInputDialog input = new TextInputDialog();
+		DialogUtils.decorateDialogWithIcon(input);
+		input.getEditor().setText(nodeAddress);
+		input.setTitle("Edit Node Address");
+		input.setHeaderText("Enter node address");
+		Optional<String> result = input.showAndWait();
+
+		if(result.isPresent()) {
+			String newNodeAddress = result.get().trim();
+			if (!newNodeAddress.isEmpty() && !containsAddress(newNodeAddress)) {
+				addresses.add(index, newNodeAddress);
+				addresses.remove(nodeAddress);
+			}
+		}
 	}
 
 	@FXML
@@ -90,7 +137,7 @@ public class Network implements Initializable {
 				.getSelectedIndices().toArray(new Integer[0]);
 		Arrays.sort(indices);
 		for(int i = indices.length - 1; i >= 0; --i) {
-			lwBootstrappingNodes.getItems().remove(indices[i].intValue());
+			addresses.remove(indices[i].intValue());
 		}
 	}
 
@@ -107,9 +154,9 @@ public class Network implements Initializable {
 	}
 
 	private void swapBootstrapingNodes(int indexCurrent, int indexNew) {
-		if(indexCurrent >= 0 && indexCurrent < lwBootstrappingNodes.getItems().size() &&
-				indexNew >= 0 && indexNew < lwBootstrappingNodes.getItems().size()) {
-			Collections.swap(lwBootstrappingNodes.getItems(), indexCurrent, indexNew);
+		int size = addresses.size();
+		if(indexCurrent >= 0 && indexCurrent < size && indexNew >= 0 && indexNew < size) {
+			Collections.swap(addresses, indexCurrent, indexNew);
 			lwBootstrappingNodes.getSelectionModel().clearAndSelect(indexNew);
 			lwBootstrappingNodes.requestFocus();
 		}
@@ -119,9 +166,8 @@ public class Network implements Initializable {
 	public void saveAction(ActionEvent event) {
 		try {
 			// update config
-			List<String> nodes = lwBootstrappingNodes.getItems();
 			bootstrappingNodes.clearNodes();
-			for (String n : nodes) {
+			for (String n : addresses) {
 				bootstrappingNodes.addNode(n);
 			}
 			bootstrappingNodesFactory.save();
@@ -140,8 +186,34 @@ public class Network implements Initializable {
 		reset();
 	}
 
-	@Inject
-	public void setBootstrappingNodesFactory(BootstrappingNodesFactory bootstrappingNodesFactory) {
-		this.bootstrappingNodesFactory = bootstrappingNodesFactory;
+	/**
+	 * Adds an item to the list view collection.
+	 * Check that there are no duplicates (ignore case!)
+	 *
+	 * @param toAdd
+	 */
+	private void addItemIgnoreDuplicate(String toAdd) {
+		if (!containsAddress(toAdd)) {
+			addresses.add(toAdd);
+		}
 	}
+
+	/**
+	 * Checks whether the given address is in the list of addresses.
+	 * Note: ignore case!
+	 *
+	 * @param address
+	 * @return true if element is present, otherwise false.
+	 */
+	private boolean containsAddress(String address) {
+		boolean contains = false;
+		for (String item : addresses) {
+			if (item.equalsIgnoreCase(address)) {
+				contains = true;
+				break;
+			}
+		}
+		return contains;
+	}
+
 }

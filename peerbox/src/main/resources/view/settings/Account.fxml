@@ -41,7 +41,7 @@
 				<TextField fx:id="txtRootPath" editable="false" GridPane.columnIndex="1" GridPane.hgrow="SOMETIMES" GridPane.rowIndex="3" />
 
 				<Label text="Show Notifications" GridPane.rowIndex="4" />
-				<CheckBox fx:id="chbTrayNotification" mnemonicParsing="false" onAction="#trayNotificationAction" selected="true" text="Enabled" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+				<CheckBox fx:id="chbTrayNotification" onAction="#trayNotificationAction" selected="true" text="Enable _Notifications" GridPane.columnIndex="1" GridPane.rowIndex="4" />
 
 			</children>
 		</GridPane>

@@ -85,18 +85,18 @@
 
 				<HBox alignment="CENTER_LEFT" spacing="10.0" GridPane.rowIndex="11">
 					<children>
-						<Button cancelButton="true" mnemonicParsing="false"
-							onAction="#navigateBackAction" prefWidth="100.0" text="Back" />
-						<Button fx:id="btnLogin" defaultButton="true" mnemonicParsing="false"
-							onAction="#loginAction" prefWidth="100.0" text="Login" />
+						<Button cancelButton="true"
+							onAction="#navigateBackAction" prefWidth="100.0" text="_Back" />
+						<Button fx:id="btnLogin" defaultButton="true"
+							onAction="#loginAction" prefWidth="100.0" text="_Login" />
 					</children>
 				</HBox>
 
 				<HBox alignment="CENTER_RIGHT" spacing="10.0" GridPane.rowIndex="12">
 					<children>
 						<Label text="Don't have an account?" />
-						<Button fx:id="btnRegister" mnemonicParsing="false"
-							onAction="#registerAction" prefWidth="100.0" text="Register" />
+						<Button fx:id="btnRegister"
+							onAction="#registerAction" prefWidth="100.0" text="_Register" />
 					</children>
 				</HBox>
 			</children>

@@ -21,7 +21,7 @@ import org.peerbox.guice.AppModule;
 import org.peerbox.notifications.InformationNotification;
 import org.peerbox.presenter.tray.TrayException;
 import org.peerbox.server.IServer;
-import org.peerbox.utils.AlertUtils;
+import org.peerbox.utils.DialogUtils;
 import org.peerbox.utils.AppData;
 import org.peerbox.utils.IconUtils;
 import org.peerbox.view.tray.AbstractSystemTray;
@@ -255,7 +255,7 @@ public class App extends Application
 	 * @param message
 	 */
 	private void showErrorAlert(String title, String message) {
-		Alert dlg = AlertUtils.create(AlertType.ERROR);
+		Alert dlg = DialogUtils.createAlert(AlertType.ERROR);
 		dlg.setTitle("Error - Initialization");
 		dlg.setHeaderText(title);
 		dlg.setContentText(message);

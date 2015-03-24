@@ -2,16 +2,14 @@ package org.peerbox.watchservice.filetree.composite;
 
 import java.nio.file.Path;
 
-import org.peerbox.watchservice.Action;
 import org.peerbox.watchservice.PathUtils;
-import org.peerbox.watchservice.states.AbstractActionState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class FileLeaf extends AbstractFileComponent {
 
 	private final static Logger logger = LoggerFactory.getLogger(FileLeaf.class);
-	
+
 	public FileLeaf(final Path path, boolean updateContentHash) {
 		super(path, updateContentHash);
 
@@ -23,7 +21,7 @@ public class FileLeaf extends AbstractFileComponent {
 	@Override
 	protected boolean computeContentHash() {
 		String newHash = PathUtils.computeFileContentHash(getPath());
-		System.out.println("new hash: " + newHash);
+		logger.trace("New content hash: '{}'", newHash);
 		if (!getContentHash().equals(newHash)) {
 			setContentHash(newHash);
 			return true;

@@ -6,7 +6,7 @@ import org.junit.runners.Suite.SuiteClasses;
 
 @RunWith(Suite.class)
 @SuiteClasses({
-	AlertUtilsTest.class,
+	DialogUtilsTest.class,
 	AppDataTest.class,
 	ExecuteProcessUtilsTest.class,
 	IconUtilsTest.class,

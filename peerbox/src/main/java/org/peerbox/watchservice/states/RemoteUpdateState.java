@@ -45,7 +45,7 @@ public class RemoteUpdateState extends AbstractActionState {
 			handle.getProcess().attachListener(new RemoteFileUpdateListener(file, action.getFileEventManager().getMessageBus()));
 			handle.executeAsync();
 		} else {
-			System.err.println("process or handle is null");
+			logger.warn("process or handle is null");
 		}
 
 		return new ExecutionHandle(action, handle);

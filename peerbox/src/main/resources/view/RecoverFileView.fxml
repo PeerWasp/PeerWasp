@@ -40,10 +40,10 @@
 				</HBox>
 				<HBox alignment="CENTER_LEFT" spacing="10.0">
 					<children>
-						<Button cancelButton="true" mnemonicParsing="false"
-							onAction="#cancelAction" text="Cancel" />
-						<Button fx:id="btnRecover" defaultButton="true" mnemonicParsing="false"
-							onAction="#recoverAction" text="Recover" />
+						<Button fx:id="btnRecover" defaultButton="true"
+							onAction="#recoverAction" text="_Recover" />
+						<Button cancelButton="true"
+							onAction="#cancelAction" text="_Cancel" />
 					</children>
 				</HBox>
 			</children>
