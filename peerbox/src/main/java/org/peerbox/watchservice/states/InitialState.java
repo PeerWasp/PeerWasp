@@ -51,6 +51,11 @@ public class InitialState extends AbstractActionState {
 			return new LocalCreateState(action);
 		}
 	}
+	
+	public AbstractActionState changeStateOnRemoteMove(Path oldFilePath) {
+		logStateTransition(getStateType(), EventType.REMOTE_MOVE, StateType.INITIAL);
+		return new InitialState(action);
+	}
 
 //	@Override
 //	public AbstractActionState changeStateOnRemoteMove(Path oldFilePath) {
@@ -79,7 +84,6 @@ public class InitialState extends AbstractActionState {
 			}
 		}
 		if (file.isUploaded() && file.isSynchronized()) {
-			logger.trace("Does this happen at all? {}", file.getPath());
 			return updateSoftDeletedFileComponent();
 		} else {
 			return localCreateDefaultHandling();
