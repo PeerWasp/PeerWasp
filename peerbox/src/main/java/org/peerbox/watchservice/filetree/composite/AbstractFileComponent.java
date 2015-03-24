@@ -1,9 +1,7 @@
 package org.peerbox.watchservice.filetree.composite;
 
 import java.nio.file.Path;
-import java.util.Set;
 
-import org.peerbox.utils.NotImplementedException;
 import org.peerbox.watchservice.Action;
 import org.peerbox.watchservice.IAction;
 import org.slf4j.Logger;
@@ -17,7 +15,6 @@ import org.slf4j.LoggerFactory;
  */
 public abstract class AbstractFileComponent implements FileComponent {
 	private static final Logger logger = LoggerFactory.getLogger(AbstractFileComponent.class);
-	private long id;
 
 	/**
 	 * Used to maintain the state of the file and handle incoming
@@ -54,7 +51,6 @@ public abstract class AbstractFileComponent implements FileComponent {
 	private FolderComposite parent;
 
 	protected AbstractFileComponent(final Path path, final boolean updateContentHash) {
-		this.id = Long.MIN_VALUE;
 		this.action = new Action();
 		this.path = path;
 		this.contentHash = "";

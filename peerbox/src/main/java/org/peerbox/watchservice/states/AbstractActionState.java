@@ -10,7 +10,6 @@ import org.hive2hive.processframework.exceptions.InvalidProcessStateException;
 import org.hive2hive.processframework.exceptions.ProcessExecutionException;
 import org.peerbox.app.manager.ProcessHandle;
 import org.peerbox.app.manager.file.IFileManager;
-import org.peerbox.utils.NotImplementedException;
 import org.peerbox.watchservice.IAction;
 import org.peerbox.watchservice.IFileEventManager;
 import org.peerbox.watchservice.filetree.IFileTree;
@@ -39,7 +38,7 @@ public abstract class AbstractActionState {
 	 */
 	public abstract ExecutionHandle execute(IFileManager fileManager) throws NoSessionException,
 			NoPeerConnectionException, InvalidProcessStateException, ProcessExecutionException;
-	
+
 	public AbstractActionState(IAction action, StateType type) {
 		this.action = action;
 		this.type = type;
@@ -114,14 +113,14 @@ public abstract class AbstractActionState {
 		action.updateTimeAndQueue();
 		return changeStateOnLocalHardDelete();
 	}
-	
+
 	public AbstractActionState handleLocalDelete(){
 		IFileTree fileTree = action.getFileEventManager().getFileTree();
 		FileComponent file = action.getFile();
-		
+
 		action.updateTimeAndQueue();
 		file.setIsSynchronized(false);
-		
+
 		if(file.isFile()){
 			FileLeaf moveTarget = fileTree.findCreatedByContent((FileLeaf)file);
 			if(moveTargetIsValid(moveTarget)){
@@ -137,7 +136,7 @@ public abstract class AbstractActionState {
 				putToFolderMoveSources((FolderComposite)file);
 			}
 		}
-		
+
 		file.getParent().updateContentHash();
 		file.getParent().updateStructureHash();
 		if(file.isFolder()){
@@ -151,10 +150,10 @@ public abstract class AbstractActionState {
 		action.updateTimeAndQueue();
 		return changeStateOnLocalUpdate();
 	}
-	
+
 	public AbstractActionState handleLocalMove(Path newPath) {
 		Path oldPath = Paths.get(action.getFile().getPath().toString());
-		
+
 		if(action.getFile().isFolder()){
 			((FolderComposite)action.getFile()).setIsSynchronizedRecursively(true);
 		} else {
@@ -197,7 +196,7 @@ public abstract class AbstractActionState {
 		final IFileEventManager eventManager = action.getFileEventManager();
 		final IFileTree fileTree = eventManager.getFileTree();
 		final FileComponent file = action.getFile();
-		
+
 		eventManager.getFileComponentQueue().remove(file);
 		Path sourcePath = file.getPath();
 
@@ -225,7 +224,7 @@ public abstract class AbstractActionState {
 		logger.debug("Put deleted file {} with hash {} to SetMultimap<String, FileComponent>", file.getPath(), file.getContentHash());
 	}
 
-	
+
 	private AbstractActionState performSwappedMove(
 			FileComponent moveTarget) {
 		final IFileEventManager eventManager = action.getFileEventManager();

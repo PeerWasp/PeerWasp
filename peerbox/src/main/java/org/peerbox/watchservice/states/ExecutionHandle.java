@@ -1,7 +1,6 @@
 package org.peerbox.watchservice.states;
 
 import org.peerbox.app.manager.ProcessHandle;
-import org.peerbox.watchservice.Action;
 import org.peerbox.watchservice.IAction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,7 +16,7 @@ public class ExecutionHandle {
 		this.action = action;
 		this.processHandle = processHandle;
 	}
-	
+
 	public IAction getAction() {
 		return action;
 	}
@@ -25,20 +24,18 @@ public class ExecutionHandle {
 	public ProcessHandle<Void> getProcessHandle() {
 		return processHandle;
 	}
-	
-	public void incrementTimeouts(){
 
+	public void incrementTimeouts() {
 		timeouts++;
 		logger.trace("Incremented timeout to {}", timeouts);
 	}
-	
-	public int getTimeouts(){
+
+	public int getTimeouts() {
 		return timeouts;
 	}
 
 	public void setTimeouts(int i) {
 		logger.trace("set timeout to {}", i);
-		timeouts = i;// TODO Auto-generated method stub
-		
+		timeouts = i;
 	}
 }

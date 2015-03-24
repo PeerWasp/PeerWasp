@@ -1,7 +1,6 @@
 package org.peerbox.watchservice.filetree.composite;
 
 import java.nio.file.Path;
-import java.util.Set;
 
 import org.peerbox.watchservice.IAction;
 

@@ -21,7 +21,6 @@ import org.peerbox.app.manager.file.FileInfo;
 import org.peerbox.app.manager.file.IFileMessage;
 import org.peerbox.app.manager.file.messages.FileExecutionStartedMessage;
 import org.peerbox.app.manager.file.messages.LocalFileSoftDeleteMessage;
-import org.peerbox.app.manager.file.messages.LocalShareFolderMessage;
 import org.peerbox.app.manager.file.messages.RemoteFileDeletedMessage;
 import org.peerbox.app.manager.file.messages.RemoteFileMovedMessage;
 import org.peerbox.app.manager.file.messages.RemoteShareFolderMessage;
@@ -106,13 +105,13 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 		this.messageBus = messageBus;
 		this.failedOperations = new ConcurrentHashSet<Path>();
 	}
-    
+
     @Inject
     public void setForceSyncHandlerProvider(Provider<IForceSyncHandler> forceSyncHandlerProvider){
     	this.forceSyncHandlerProvider = forceSyncHandlerProvider;
     	forceSyncHandlerProvider.get();
     }
-    
+
     public IForceSyncHandler getForceSyncHandler(){
     	if(forceSyncHandler == null){
     		forceSyncHandler = forceSyncHandlerProvider.get();
@@ -502,8 +501,8 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 	public Set<Path> getPendingEvents() {
 		return pendingEvents;
 	}
-	
-	
+
+
 	public void initiateForceSync(Path topLevel){
 		logger.trace("PeerWasp initiated a force synchronization automatically on {}", topLevel);
 		IForceSyncHandler handler = getForceSyncHandler();
