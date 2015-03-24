@@ -3,7 +3,9 @@ package org.peerbox.forcesync;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -17,6 +19,7 @@ import org.peerbox.app.ClientContext;
 import org.peerbox.app.manager.file.FileInfo;
 import org.peerbox.app.manager.file.IFileManager;
 import org.peerbox.watchservice.FileEventManager;
+import org.peerbox.watchservice.PathUtils;
 import org.peerbox.watchservice.filetree.FileTreeInitializer;
 import org.peerbox.watchservice.filetree.composite.FileComponent;
 import org.peerbox.watchservice.filetree.persistency.LocalFileDao;
@@ -62,7 +65,15 @@ public class ForceSync {
 			if(pendingEvents.size() > 0){
 				logger.trace("New events happened during force sync. Redo.");
 				pendingEvents.clear();
-				forceSync(topLevel);
+				Path newTopLevel = null;
+				for(Path next : pendingEvents){
+					if(newTopLevel == null){
+						newTopLevel = next;
+					} else {
+						newTopLevel = PathUtils.getCommonPath(newTopLevel, next);
+					}
+				}
+				forceSync(newTopLevel);
 //				Path topLevel = pendingEvents.
 //				for(Path path : pendingEvents){
 //					if(path.startsWith(other))
@@ -133,5 +144,6 @@ public class ForceSync {
 		}
 		return remoteDb;
 	}
+	
 
 }
