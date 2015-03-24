@@ -24,6 +24,12 @@ import org.slf4j.LoggerFactory;
 
 import com.google.inject.Inject;
 
+/**
+ * Initializes and loads the recover file view in a window.
+ *
+ * @author albrecht
+ *
+ */
 public class FileRecoveryUILoader {
 
 	private static final Logger logger = LoggerFactory.getLogger(FileRecoveryUILoader.class);
