@@ -2,8 +2,10 @@ package org.peerbox.watchservice;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Base64;
+import java.util.Iterator;
 import java.util.List;
 
 import org.hive2hive.core.security.HashUtil;
@@ -79,5 +81,26 @@ public class PathUtils {
 		
 		return illegal.stream().anyMatch(pattern -> file.getFileName().toString().startsWith(pattern));
 		
+	}
+	
+    public static Path getCommonPath(Path path1, Path path2){
+		Path commonPath = Paths.get("");
+    	if(path1 == null || path2 == null){
+    		return commonPath;
+    	}
+		Iterator<Path> iterPath1 = path1.iterator();
+		Iterator<Path> iterPath2 = path2.iterator();
+
+		while(iterPath1.hasNext() && iterPath2.hasNext()){
+			Path next1 = iterPath1.next();
+			
+			if(next1.equals(iterPath2.next())){
+				commonPath = commonPath.resolve(next1);
+			} else {
+				break;
+			}			
+		}
+		
+		return commonPath;
 	}
 }
