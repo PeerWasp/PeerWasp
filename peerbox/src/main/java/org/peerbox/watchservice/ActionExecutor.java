@@ -298,7 +298,7 @@ public class ActionExecutor implements Runnable {
 		this.waitForActionCompletion = wait;
 	}
 
-	public BlockingQueue<ExecutionHandle> getFailedJobs() {
+	public BlockingQueue<ExecutionHandle> getRunningJobs() {
 		return asyncHandles;
 	}
 
