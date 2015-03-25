@@ -22,7 +22,7 @@ public class About implements Initializable {
 
 	@FXML
     private void opengithub(ActionEvent event) {
-		String github = "https://github.com/Hive2Hive/PeerBox";
+		String github = "https://github.com/PeerWasp/PeerWasp";
 		try {
 			BrowserUtils.openURL(github);
 		} catch (Exception e) {
