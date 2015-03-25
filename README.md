@@ -13,5 +13,5 @@ We released PeerWasp under the [MIT License](http://opensource.org/licenses/MIT)
 
 **Documentation**: [User Guide](http://www.peerwasp.com/userguide.html), [Development Wiki](https://github.com/Hive2Hive/PeerBox/wiki)
 
-**Contact:** [Leave a Message](http://www.peerwasp.com/#Contact), [Issue Tracking](https://github.com/Hive2Hive/PeerBox/issues)
+**Contact:** [Leave a Message](http://www.peerwasp.com/#Contact), [Issue Tracking](https://github.com/PeerWasp/PeerWasp/issues)
 
