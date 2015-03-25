@@ -48,6 +48,11 @@ public class FolderComposite extends AbstractFileComponent {
 	public FolderComposite(final Path path, boolean updateContentHash) {
 		this(path, updateContentHash, false);
 	}
+	
+	public FolderComposite(final Path path, boolean updateContentHash, String contentHash){
+		this(path, updateContentHash, false);
+		setContentHash(contentHash);
+	}
 
 	public synchronized FileComponent getComponent(Path remainingPath) {
 		if (remainingPath.equals(getPath())) {

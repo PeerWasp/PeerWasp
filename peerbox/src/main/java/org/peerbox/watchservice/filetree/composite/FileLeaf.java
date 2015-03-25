@@ -17,6 +17,11 @@ public class FileLeaf extends AbstractFileComponent {
 //			computeContentHash();
 //		}
 	}
+	
+	public FileLeaf(final Path path, boolean updateContentHash, String contentHash){
+		super(path, updateContentHash);
+		setContentHash(contentHash);
+	}
 
 	@Override
 	protected boolean computeContentHash() {

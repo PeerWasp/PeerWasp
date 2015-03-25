@@ -35,13 +35,12 @@ class FileComponentResultSetHandler implements ResultSetHandler<FileComponent> {
 		final boolean isUploaded = resultSet.getBoolean("is_uploaded");
 
 		if (isFile) {
-			f = new FileLeaf(path, true);
+			f = new FileLeaf(path, true, contentHash);
 		} else {
-			f = new FolderComposite(path, true, true);
+			f = new FolderComposite(path, true, contentHash);
 		}
 
-		FileComponentTest.setContentHashByReflection(f, contentHash);
-		
+//		FileComponentTest.setContentHashByReflection(f, contentHash);
 
 		f.setIsSynchronized(isSynchronized);
 		f.setIsUploaded(isUploaded);
