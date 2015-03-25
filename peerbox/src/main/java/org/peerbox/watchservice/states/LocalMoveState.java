@@ -8,14 +8,8 @@ import org.hive2hive.processframework.exceptions.InvalidProcessStateException;
 import org.hive2hive.processframework.exceptions.ProcessExecutionException;
 import org.peerbox.app.manager.file.FileInfo;
 import org.peerbox.app.manager.file.IFileManager;
-import org.peerbox.forcesync.ForceSyncMessage;
-import org.peerbox.forcesync.IForceSyncHandler;
-import org.peerbox.notifications.InformationNotification;
-import org.peerbox.utils.NotImplementedException;
 import org.peerbox.watchservice.IAction;
-import org.peerbox.watchservice.conflicthandling.ConflictHandler;
 import org.peerbox.watchservice.filetree.IFileTree;
-import org.peerbox.watchservice.filetree.composite.FileComponent;
 import org.peerbox.watchservice.states.listeners.LocalFileMoveListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,7 +50,7 @@ public class LocalMoveState extends AbstractActionState {
 		}
 
 		String contentHash = action.getFile().getContentHash();
-		Path pathToRemove = action.getFile().getPath();
+//		Path pathToRemove = action.getFile().getPath();
 		IFileTree fileTree = action.getFileEventManager().getFileTree();
 		boolean isRemoved = fileTree.getCreatedByContentHash().get(contentHash).remove(action.getFile());
 		logger.trace("IsRemoved for file {} with hash {}: {}", action.getFile().getPath(), contentHash, isRemoved);
@@ -119,7 +113,7 @@ public class LocalMoveState extends AbstractActionState {
 //		IFileTree fileTree = action.getFileEventManager().getFileTree();
 //
 //		ConflictHandler.resolveConflict(action.getFile().getPath(), true);
-		
+
 //		action.getFileEventManager().initiateForceSync(action.getFile().getPath().getParent());
 		action.getFileEventManager().initiateForceSync(action.getFile().getPath()
 				.getParent());

@@ -5,12 +5,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.concurrent.ConcurrentSkipListMap;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 
 import org.hive2hive.core.security.HashUtil;
 import org.peerbox.watchservice.PathUtils;
-import org.peerbox.watchservice.states.StateType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -189,13 +186,13 @@ public class FolderComposite extends AbstractFileComponent {
 		}
 		return removed;
 	}
-	
+
 	private void removeBottomUp(FolderComposite folder){
 		for(FileComponent child : folder.getChildren().values()){
 			if(child instanceof FolderComposite){
 				removeBottomUp((FolderComposite)child);
 			}
-			boolean removed = this.getAction().getFileEventManager().getFileComponentQueue().remove(child);
+			this.getAction().getFileEventManager().getFileComponentQueue().remove(child);
 //			logger.trace("REMOVEDBOTTOMUP: {} : {}", child.getPath(), removed);
 		}
 	}
@@ -215,7 +212,7 @@ public class FolderComposite extends AbstractFileComponent {
 		String nameHashInput = "";
 		String oldNamesHash = structureHash;
 //		logger.trace("Before: structure hash of {} is {}", getPath(), oldNamesHash);
-		
+
 		for (Map.Entry<Path, FileComponent> child : children.entrySet()) {
 			if(child.getValue().isSynchronized()){
 				nameHashInput = nameHashInput.concat(child.getKey().toString());
@@ -225,7 +222,7 @@ public class FolderComposite extends AbstractFileComponent {
 //		nameHashInput = nameHashInput.concat(children.entrySet().stream()
 //				.filter(child -> child.getValue().isSynchronized()).
 //				findFirst().get().getKey().toString());
-		
+
 		byte[] rawHash = HashUtil.hash(nameHashInput.getBytes());
 		structureHash = PathUtils.base64Encode(rawHash);
 //		logger.trace("After: structure hash of {} is {}", getPath(), structureHash);
@@ -357,7 +354,7 @@ public class FolderComposite extends AbstractFileComponent {
 				getPath(), getContentHash(), getStructureHash(), isUploaded(), isSynchronized(), children);
 		return s;
 	}
-	
+
 	public void setIsSynchronizedRecursively(boolean b) {
 		setIsSynchronized(b);
 		for(FileComponent comp : children.values()){

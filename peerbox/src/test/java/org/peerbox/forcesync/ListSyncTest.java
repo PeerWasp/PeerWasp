@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.FilenameUtils;
 import org.junit.Before;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -20,31 +19,31 @@ import org.powermock.modules.junit4.PowerMockRunner;
 public class ListSyncTest extends BaseJUnitTest{
 
 	@Mock protected FileEventManager fileEventManager;
-	
+
 	@Mock protected ConflictHandler conflictHandler;
-	
+
 	protected Map<Path, FileInfo> local;
 	protected Map<Path, FileInfo> localDatabase;
 	protected Map<Path, FileInfo> remote;
 	protected Map<Path, FileInfo> remoteDatabase;
-	
-	
+
+
 	protected Path basePath = Paths.get(FileUtils.getTempDirectoryPath(), "ListSyncTest");
 	protected Path filePath = Paths.get(basePath.toString(), "file.txt");
 	protected FileInfo file1 = new FileInfo(filePath, false, "hash1");
 	protected FileInfo file2 = new FileInfo(filePath, false, "hash2");
 	protected FileInfo file3 = new FileInfo(filePath, false, "hash3");
 	protected FileInfo file4 = new FileInfo(filePath, false, "hash4");
-	
+
 	protected ListSync listSync;
-	
+
 	@Before
 	public void setup(){
 		local = new HashMap<Path, FileInfo>();
 		localDatabase = new HashMap<Path, FileInfo>();
 		remote = new HashMap<Path, FileInfo>();
 		remoteDatabase = new HashMap<Path, FileInfo>();
-		
+
 		listSync = new ListSync(fileEventManager, basePath);
 	}
 

@@ -6,7 +6,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 import org.hive2hive.core.events.framework.interfaces.file.IFileDeleteEvent;
@@ -14,7 +13,6 @@ import org.hive2hive.core.events.framework.interfaces.file.IFileUpdateEvent;
 import org.hive2hive.core.events.implementations.FileDeleteEvent;
 import org.hive2hive.core.events.implementations.FileUpdateEvent;
 import org.peerbox.app.manager.file.FileInfo;
-import org.peerbox.watchservice.ActionExecutor;
 import org.peerbox.watchservice.FileEventManager;
 import org.peerbox.watchservice.conflicthandling.ConflictHandler;
 import org.slf4j.Logger;
@@ -27,7 +25,7 @@ import com.google.inject.Inject;
 public class ListSync {
 
 	private static final Logger logger = LoggerFactory.getLogger(ListSync.class);
-	
+
 	private Map<Path, FileInfo> localDb;
 	private Map<Path, FileInfo> localDisk;
 
@@ -74,7 +72,7 @@ public class ListSync {
 		newLocalFiles.clear();
 
 		// perform a list sync using the maps
-		synchronize();	
+		synchronize();
 
 
 		// delete folders if they do not have any descendants that are added
@@ -88,7 +86,7 @@ public class ListSync {
 		SortedSet<Path> allFiles = allFiles();
 		allFiles = allFiles.stream().filter(file -> file.startsWith(topLevel))
 				.collect(Collectors.toCollection(() -> new TreeSet<Path>()));
-		
+
 		allFiles.forEach(file -> logger.trace("Use file {}", file));
 
 		for (Path file : allFiles) {
@@ -331,7 +329,7 @@ public class ListSync {
 	}
 
 	private void uploadFile(Path file) {
-		
+
 		// used to prevent accidental removal of files
 		newLocalFiles.add(file);
 		// add or update file depending on whether it already exists in network

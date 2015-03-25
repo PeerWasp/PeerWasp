@@ -111,8 +111,7 @@ public class NavigationService {
 			fController.setContent(content);
 			pages.add(content);
 		} catch (IOException e) {
-			logger.error(String.format("Could not load fxml file (%s).", e.getMessage(), e));
-			e.printStackTrace();
+			logger.warn("Could not load fxml file ({}).", e.getMessage(), e);
 		}
 	}
 

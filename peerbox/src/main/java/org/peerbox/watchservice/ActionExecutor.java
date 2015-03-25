@@ -67,14 +67,13 @@ import com.google.inject.Inject;
  * FileExecutionFailedMessage}, and
  * {@link org.peerbox.view.tray.SynchronizationCompleteNotification
  * SynchronizationCompleteNotification}.
- * 
+ *
  * @author albrecht
  *
  */
 public class ActionExecutor implements Runnable {
 
-	private static final Logger logger = LoggerFactory
-			.getLogger(ActionExecutor.class);
+	private static final Logger logger = LoggerFactory.getLogger(ActionExecutor.class);
 
 	private IPeerWaspConfig peerWaspConfig;
 
@@ -90,8 +89,8 @@ public class ActionExecutor implements Runnable {
 	 **/
 	private final BlockingQueue<ExecutionHandle> asyncHandles;
 
-	private final Thread asyncHandlesThread;
-	private final Thread executorThread;
+	private Thread asyncHandlesThread;
+	private Thread executorThread;
 
 	private boolean forceSyncRunning = false;
 
@@ -106,38 +105,48 @@ public class ActionExecutor implements Runnable {
 	 *            events.
 	 */
 	@Inject
-	public ActionExecutor(final FileEventManager eventManager,
-			final IFileManager fileManager, IPeerWaspConfig peerWaspConfig) {
+	public ActionExecutor(final FileEventManager eventManager, final IFileManager fileManager,
+			IPeerWaspConfig peerWaspConfig) {
 
 		this.fileEventManager = eventManager;
 		this.fileManager = fileManager;
 		this.peerWaspConfig = peerWaspConfig;
 
-		asyncHandles = new LinkedBlockingQueue<ExecutionHandle>();
-
-		asyncHandlesThread = new Thread(new ExecutingActionHandler(),
-				"AsyncActionHandlerThread");
-		executorThread = new Thread(this, "ActionExecutorThread");
+		this.asyncHandles = new LinkedBlockingQueue<ExecutionHandle>();
 	}
 
 	public void start() {
+		// executor / asyncHandles thread must not exist already
+		if (executorThread != null || asyncHandlesThread != null) {
+			throw new IllegalStateException(String.format(
+					"Calling start() is not allowed when action executor is already running "
+					+ "(executorThread=%s, asyncHandlesThread=%s)",
+					executorThread, asyncHandlesThread));
+		}
+
+		executorThread = new Thread(this, "ActionExecutorThread");
 		executorThread.start();
+
+		asyncHandlesThread = new Thread(new ExecutingActionHandler(), "AsyncActionHandlerThread");
+		asyncHandlesThread.start();
 	}
 
 	public void stop() {
-		// TODO: change stop to something that is not deprecated and
-		// recommended.
-		executorThread.stop();
+		if (executorThread != null) {
+			executorThread.interrupt();
+			executorThread = null;
+		}
+
+		if (asyncHandlesThread != null) {
+			asyncHandlesThread.interrupt();
+			asyncHandlesThread = null;
+		}
+		asyncHandles.clear();
 	}
 
 	@Override
 	public void run() {
-		asyncHandlesThread.start();
 		processActions();
-	}
-
-	public IPeerWaspConfig getPeerWaspConfig() {
-		return peerWaspConfig;
 	}
 
 	/**
@@ -148,13 +157,18 @@ public class ActionExecutor implements Runnable {
 	 * action. Besides that, the method checks if the ancestors of a file have
 	 * been uploaded to the network yet, to prevent a
 	 * {@link org.hive2hive.core. src.main.java.org.hive2hive.core.exceptions.ParentInUserProfileNotFoundException}
-	 * 
+	 *
 	 * @throws IllegalFileLocation
 	 * @throws NoPeerConnectionException
 	 * @throws NoSessionException
 	 */
 	private synchronized void processActions() {
 		while (true) {
+
+			if (Thread.currentThread().isInterrupted()) {
+				// quit processing loop if thread was interrupted
+				return;
+			}
 
 			FileComponent next = null;
 
@@ -210,7 +224,9 @@ public class ActionExecutor implements Runnable {
 					wait(calculateWaitTime(next));
 				}
 			} catch (InterruptedException iex) {
-				logger.error("Exception occurred: {}", iex.getMessage(), iex);
+				// happens if interrupted during blocking wait on queue
+				logger.error("Thead interrup occurred: {}", iex.getMessage(), iex);
+				return;
 			} catch (NoSessionException nse) {
 				logger.warn("No session - cannot execute pending actions.", nse);
 			} catch (NoPeerConnectionException npc) {
@@ -240,7 +256,7 @@ public class ActionExecutor implements Runnable {
 
 	/**
 	 * Checks whether an action is ready to be executed
-	 * 
+	 *
 	 * @param action
 	 *            Action to be executed
 	 * @return true if ready to be executed, false otherwise
@@ -256,7 +272,7 @@ public class ActionExecutor implements Runnable {
 
 	/**
 	 * Computes the age of an action
-	 * 
+	 *
 	 * @param action
 	 * @return age in ms
 	 */
@@ -282,8 +298,12 @@ public class ActionExecutor implements Runnable {
 		this.waitForActionCompletion = wait;
 	}
 
-	public BlockingQueue<ExecutionHandle> getFailedJobs() {
+	public BlockingQueue<ExecutionHandle> getRunningJobs() {
 		return asyncHandles;
+	}
+
+	public IPeerWaspConfig getPeerWaspConfig() {
+		return peerWaspConfig;
 	}
 
 	/**
@@ -544,6 +564,10 @@ public class ActionExecutor implements Runnable {
 		private void processExecutingActions() {
 			while (true) {
 				try {
+					// did someone call stop()? return if so.
+					if (Thread.currentThread().isInterrupted()) {
+						return;
+					}
 
 					ExecutionHandle next = asyncHandles.take();
 
@@ -603,7 +627,10 @@ public class ActionExecutor implements Runnable {
 						}
 
 					}
-
+				} catch (InterruptedException iex) {
+					// happens if stop() is called and waiting thread is interrupted
+					logger.warn("ExecutingActionHandler interruped.");
+					return;
 				} catch (Exception e) {
 					logger.warn("Exception in processFailedActions: ", e);
 				}

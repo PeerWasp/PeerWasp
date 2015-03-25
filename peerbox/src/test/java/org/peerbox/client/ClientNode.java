@@ -114,9 +114,10 @@ public class ClientNode {
 
 	public void stop() {
 		try {
-			logger.debug("Stop watchservice {}", credentials.getUserId());
+			logger.debug("Stop action executor {}", credentials.getUserId());
+			actionExecutor.stop();
 
-//			fileEventManager.stopExecutor();
+			logger.debug("Stop watchservice {}", credentials.getUserId());
 			watchService.stop();
 		} catch (Exception e) {
 			// ignore

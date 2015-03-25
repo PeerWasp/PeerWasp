@@ -22,18 +22,18 @@ import javafx.scene.image.ImageView;
 public class SyncTreeItem extends CheckBoxTreeItem<PathItem> implements PropertyChangeListener {
 
 	private static final Logger logger = LoggerFactory.getLogger(SyncTreeItem.class);
-	
+
 	private ImageView defaultIcon;
 	private ImageView successIcon;
 	private ImageView inProgressIcon;
 	private ImageView errorIcon;
-	
+
 	private String sharingTooltip = "";
 
 	private PropertyChangeSupport mPcs = new PropertyChangeSupport(this);
 	private BooleanProperty isShared = new SimpleBooleanProperty(false);
     private ObjectProperty<ProgressState> progressState  = new SimpleObjectProperty<ProgressState>();
-	
+
 	public SyncTreeItem(PathItem pathItem){
 		super(pathItem);
 		Label label = new Label(pathItem.getPath().getFileName().toString());
@@ -41,12 +41,12 @@ public class SyncTreeItem extends CheckBoxTreeItem<PathItem> implements Property
 		pathItem.setLabel(label);
 		initializeProgressStateProperty();
 		initializeIsSharedProperty();
-		
+
 		initializeIcons();
-		
+
 		setProgressState(ProgressState.DEFAULT);
 	}
-	
+
     public final boolean getIsShared(){
     	return isShared.get();
     }
@@ -54,42 +54,43 @@ public class SyncTreeItem extends CheckBoxTreeItem<PathItem> implements Property
 	public BooleanProperty isSharedProperty() {
 		return isShared;
 	}
-	
+
 	public final void setIsShared(Boolean newValue) {
 		isShared.set(newValue);
 	}
 
-    
+
     public final ProgressState getProgressState(){
     	return progressState.get();
     }
-    
+
     public final void setProgressState(ProgressState newValue){
    	 	ProgressState oldProgressState = getProgressState();
    	 	progressState.set(newValue);
    	 	mPcs.firePropertyChange("progressState", oldProgressState, progressState);
     }
-    
+
     public ObjectProperty<ProgressState> progressStateProperty() {
     	return progressState;
     }
-    
-	
+
+
 	public void bindTo(SyncTreeItem other){
 		addPropertyChangeListener("progressState", other);
 		getValue().bindPermissionsTo(other.getValue().getPermissionsSetProperty());
 	}
-	
+
 	public void unbind(){
 		mPcs = null;
 		setValue(null);
 	}
-	
+
 	@Override
 	public void propertyChange(PropertyChangeEvent event) {
     	logger.trace("{}: Changed property {} to {}", getValue().getPath(), event.getPropertyName(), event.getNewValue());
         if (event.getPropertyName().equals("progressState")) {
-        	ProgressState eventState = ((ObjectProperty<ProgressState>)event.getNewValue()).get();
+        	@SuppressWarnings("unchecked")
+			ProgressState eventState = ((ObjectProperty<ProgressState>)event.getNewValue()).get();
         	switch(getProgressState()){
 	        	case IN_PROGRESS:
 	        		handleWhenInProgress(eventState);
@@ -104,7 +105,7 @@ public class SyncTreeItem extends CheckBoxTreeItem<PathItem> implements Property
         	}
         }
 	}
-	
+
 	private void initializeIsSharedProperty() {
 	    isShared.addListener(new ChangeListener<Boolean>(){
 			@Override
@@ -125,7 +126,7 @@ public class SyncTreeItem extends CheckBoxTreeItem<PathItem> implements Property
 			}
 	    });
 	}
-	
+
 	private void setDefaultFolderIcons() {
 		defaultIcon = SynchronizationUtils.getFolderStandardIcon();
 		errorIcon = SynchronizationUtils.getFolderErrorIcon();
@@ -139,7 +140,7 @@ public class SyncTreeItem extends CheckBoxTreeItem<PathItem> implements Property
 		successIcon = SynchronizationUtils.getSharedFolderSuccessIcon();
 		inProgressIcon = SynchronizationUtils.getSharedFolderInProgressIcon();
 	}
-    
+
     private void initializeProgressStateProperty() {
 		progressState.addListener(new ChangeListener<ProgressState>() {
 			@Override
@@ -165,11 +166,11 @@ public class SyncTreeItem extends CheckBoxTreeItem<PathItem> implements Property
 		successIcon = SynchronizationUtils.getFileSuccessIcon();
 		inProgressIcon = SynchronizationUtils.getFileInProgressIcon();
 	}
-    
+
     public void addPropertyChangeListener(String property, PropertyChangeListener listener) {
         mPcs.addPropertyChangeListener(property, listener);
     }
-    
+
     private void handleProgressStateChange(ProgressState oldValue, ProgressState newValue){
     	logger.trace("{} : Changed progressState from {} to {} ", getValue().getPath(), oldValue, newValue);
     	if(oldValue == newValue){
@@ -230,7 +231,7 @@ public class SyncTreeItem extends CheckBoxTreeItem<PathItem> implements Property
 				//ignore
 		}
 	}
-	
+
 	private void updateIconInUIThread(ImageView icon){
 		javafx.application.Platform.runLater(new Runnable() {
 	        @Override
@@ -247,12 +248,12 @@ public class SyncTreeItem extends CheckBoxTreeItem<PathItem> implements Property
 	        }
 		});
 	}
-	
+
 	private void updateIconInUIThread(){
 		ImageView iconToUse = getIconByProgressState();
 		updateIconInUIThread(iconToUse);
 	}
-	
+
 	private ImageView getIconByProgressState() {
 		switch(getProgressState()){
 			case IN_PROGRESS:
@@ -283,7 +284,7 @@ public class SyncTreeItem extends CheckBoxTreeItem<PathItem> implements Property
 	        }
 		});
 	}
-	
+
 	public void updateIsSelectedInUIThread(boolean b) {
 		javafx.application.Platform.runLater(new Runnable() {
 	        @Override
@@ -292,7 +293,7 @@ public class SyncTreeItem extends CheckBoxTreeItem<PathItem> implements Property
 	        		if(b && allChildrenSynchronized()){
 			        		setSelected(b);
 	        		} else {
-	        			setIndeterminate(b);	
+	        			setIndeterminate(b);
 	        		}
 	        	} else {
 	        		setSelected(b);
@@ -306,5 +307,5 @@ public class SyncTreeItem extends CheckBoxTreeItem<PathItem> implements Property
 		});
 	}
 
-	
+
 }

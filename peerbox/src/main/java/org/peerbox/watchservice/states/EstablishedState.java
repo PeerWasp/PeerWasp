@@ -1,15 +1,10 @@
 package org.peerbox.watchservice.states;
 
-import java.nio.file.Path;
-
 import org.hive2hive.core.exceptions.NoPeerConnectionException;
 import org.hive2hive.core.exceptions.NoSessionException;
 import org.hive2hive.processframework.exceptions.InvalidProcessStateException;
 import org.peerbox.app.manager.file.IFileManager;
 import org.peerbox.watchservice.IAction;
-import org.peerbox.watchservice.IFileEventManager;
-import org.peerbox.watchservice.filetree.IFileTree;
-import org.peerbox.watchservice.filetree.composite.FileComponent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,11 +15,11 @@ public class EstablishedState extends AbstractActionState{
 	public EstablishedState(IAction action) {
 		super(action, StateType.ESTABLISHED);
 	}
-	
+
 	@Override
 	public ExecutionHandle execute(IFileManager fileManager) throws NoSessionException,
 			NoPeerConnectionException, InvalidProcessStateException {
-//		logger.error("Execute in the ESTABLISHED state is only called due to wrong behaviour! {}", action.getFile().getPath());
+		logger.trace("Execute in the ESTABLISHED state: {}", action.getFile().getPath());
 		return null;
 	}
 

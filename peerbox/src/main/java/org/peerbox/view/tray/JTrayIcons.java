@@ -53,12 +53,15 @@ class JTrayIcons {
 	 * Resize the image to the size of the tray using traySize.width
 	 *
 	 * @param icon to scale
-	 * @return scaled instance
+	 * @return scaled instance. null if provided icon is null.
 	 */
 	private Image resize(BufferedImage icon) {
-		int width = (int) traySize.getWidth();
-		Image resizedIcon = icon.getScaledInstance(width, -1, Image.SCALE_SMOOTH);
-		return resizedIcon;
+		if (icon != null) {
+			int width = (int) traySize.getWidth();
+			Image resizedIcon = icon.getScaledInstance(width, -1, Image.SCALE_SMOOTH);
+			return resizedIcon;
+		}
+		return null;
 	}
 
 	public Image getDefaultIcon() throws IOException {

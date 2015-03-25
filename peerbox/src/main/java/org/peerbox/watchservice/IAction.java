@@ -7,7 +7,6 @@ import org.hive2hive.core.exceptions.NoSessionException;
 import org.hive2hive.processframework.exceptions.InvalidProcessStateException;
 import org.hive2hive.processframework.exceptions.ProcessExecutionException;
 import org.peerbox.app.manager.file.IFileManager;
-import org.peerbox.forcesync.IForceSyncHandler;
 import org.peerbox.watchservice.filetree.composite.FileComponent;
 import org.peerbox.watchservice.states.AbstractActionState;
 import org.peerbox.watchservice.states.ExecutionHandle;
@@ -44,7 +43,7 @@ public interface IAction {
 	void handleRemoteUpdateEvent();
 	void handleRemoteDeleteEvent();
 	void handleRemoteMoveEvent(Path srcPath);
-	
+
 	void updateTimeAndQueue();
 
 	void onSucceeded();

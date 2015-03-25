@@ -1,5 +1,6 @@
 package org.peerbox.utils;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -12,6 +13,8 @@ import org.controlsfx.glyphfont.FontAwesome;
 import org.controlsfx.glyphfont.Glyph;
 import org.controlsfx.glyphfont.GlyphFont;
 import org.controlsfx.glyphfont.GlyphFontRegistry;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Utility class for application icons.
@@ -20,6 +23,16 @@ import org.controlsfx.glyphfont.GlyphFontRegistry;
  *
  */
 public class IconUtils {
+
+	private static final Logger logger = LoggerFactory.getLogger(IconUtils.class);
+
+	// application icons - resource names. shown e.g. in tray or window corner.
+	private static final String[] applicationIcons = new String[] {
+			"/images/peerwasp-icon-16x16.png",
+			"/images/peerwasp-icon-32x32.png",
+			"/images/peerwasp-icon-48x48.png",
+			"/images/peerwasp-icon-64x64.png"
+	};
 
 	private IconUtils() {
 		// prevent instance
@@ -33,10 +46,15 @@ public class IconUtils {
 	 */
 	public static List<Image> createWindowIcons() {
 		List<Image> icons = new ArrayList<>();
-		icons.add(new Image(IconUtils.class.getResourceAsStream("/images/peerwasp-icon-16x16.png")));
-		icons.add(new Image(IconUtils.class.getResourceAsStream("/images/peerwasp-icon-32x32.png")));
-		icons.add(new Image(IconUtils.class.getResourceAsStream("/images/peerwasp-icon-48x48.png")));
-		icons.add(new Image(IconUtils.class.getResourceAsStream("/images/peerwasp-icon-64x64.png")));
+		for (String icon : applicationIcons) {
+			try (InputStream in = IconUtils.class.getResourceAsStream(icon)) {
+				if (in != null) {
+					icons.add(new Image(in));
+				}
+			} catch (IOException e) {
+				logger.warn("Could not open icon resource for icon '{}'.", icon, e);
+			}
+		}
 		return icons;
 	}
 
@@ -84,8 +102,13 @@ public class IconUtils {
 
 		public static void init() {
 			InputStream input = FontAwesomeOffline.class.getResourceAsStream(fontLocation);
-			font = new FontAwesome(input);
-			GlyphFontRegistry.register(font);
+			if (input != null) {
+				font = new FontAwesome(input);
+				GlyphFontRegistry.register(font);
+				// Note: if we would close the input stream, icons would not be displayed anymore!
+			} else {
+				logger.warn("Could not initialize font awesome: ''.", fontLocation);
+			}
 		}
 
 		public static GlyphFont getGlyphFont() {

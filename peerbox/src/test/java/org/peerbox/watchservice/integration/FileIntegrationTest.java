@@ -460,7 +460,7 @@ public abstract class FileIntegrationTest extends BaseJUnitTest {
 		List<ClientNode> clients = network.getClients();
 		for(ClientNode client : clients){
 			BlockingQueue<FileComponent> queue = client.getFileEventManager().getFileComponentQueue().getQueue();
-			BlockingQueue<ExecutionHandle> execs = client.getActionExecutor().getFailedJobs();
+			BlockingQueue<ExecutionHandle> execs = client.getActionExecutor().getRunningJobs();
 			
 			waitForActionQueueEmpty(queue, WAIT_TIME_LONG);
 			waitForAsyncHandlesEmpty(execs, WAIT_TIME_LONG);

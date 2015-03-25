@@ -27,7 +27,7 @@ public class RemoteCreateState extends AbstractActionState {
 
 	private static final Logger logger = LoggerFactory.getLogger(RemoteCreateState.class);
 
-	private boolean localCreateHappened = false;
+//	private boolean localCreateHappened = false;
 	public RemoteCreateState(IAction action) {
 		super(action, StateType.REMOTE_CREATE);
 	}
