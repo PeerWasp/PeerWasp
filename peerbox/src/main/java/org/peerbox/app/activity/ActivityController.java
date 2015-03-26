@@ -90,7 +90,7 @@ public class ActivityController implements Initializable {
 	/**
 	 * Clears the activity list view by clearing the underlying list.
 	 *
-	 * @param event
+	 * @param event that was fired
 	 */
 	@FXML
 	public void clearAction(ActionEvent event) {
@@ -104,7 +104,7 @@ public class ActivityController implements Initializable {
 	/**
 	 * Opens the folder in the file browser where the log files are stored.
 	 *
-	 * @param event
+	 * @param event that was fired
 	 */
 	@FXML
 	public void openLogAction(ActionEvent event) {

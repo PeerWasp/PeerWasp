@@ -95,7 +95,7 @@ public class SynchronizationUtils {
 
 	/**
 	 * Loads the given resource and returns a new ImageView instance.
-	 * @param resourceName
+	 * @param resourceName specifying image
 	 * @return image view with associated resource.
 	 */
 	private static ImageView getImageByName(String resourceName) {

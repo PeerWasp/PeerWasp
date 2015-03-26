@@ -17,9 +17,9 @@ public interface IUserManager {
 	/**
 	 * See {@link org.hive2hive.core.api.interfaces.IUserManager#createRegisterProcess(org.hive2hive.core.security.UserCredentials)}.
 	 *
-	 * @param username
-	 * @param password
-	 * @param pin
+	 * @param username to register
+	 * @param password in plaintext
+	 * @param pin in plaintext
 	 * @return result status
 	 * @throws NoPeerConnectionException
 	 */
@@ -29,7 +29,7 @@ public interface IUserManager {
 	/**
 	 * Checks whether a user name is already taken / registered.
 	 *
-	 * @param userName
+	 * @param userName to check
 	 * @return true if user already registered. False otherwise.
 	 * @throws NoPeerConnectionException
 	 */
@@ -39,10 +39,10 @@ public interface IUserManager {
 	 * See {@link org.hive2hive.core.api.interfaces.IUserManager#createLoginProcess(
 	 * org.hive2hive.core.security.UserCredentials, org.hive2hive.core.file.IFileAgent)}
 	 *
-	 * @param username
-	 * @param password
-	 * @param pin
-	 * @param rootPath
+	 * @param username to login
+	 * @param password in plaintext
+	 * @param pin in plaintext
+	 * @param rootPath to local folder
 	 * @return result status
 	 * @throws NoPeerConnectionException
 	 */

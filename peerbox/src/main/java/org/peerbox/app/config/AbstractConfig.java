@@ -60,8 +60,8 @@ abstract class AbstractConfig {
 	/**
 	 * Returns the value of a property
 	 *
-	 * @param key
-	 * @return value
+	 * @param key of the property
+	 * @return value associated with key. May return null if key not available.
 	 */
 	protected String getProperty(String key) {
 		checkLoaded();
@@ -71,8 +71,8 @@ abstract class AbstractConfig {
 	/**
 	 * Sets the value of a property
 	 *
-	 * @param key
-	 * @param value
+	 * @param key of the property
+	 * @param value associated with key
 	 */
 	protected void setProperty(String key, String value) {
 		checkLoaded();
@@ -82,7 +82,7 @@ abstract class AbstractConfig {
 	/**
 	 * Removes a property
 	 *
-	 * @param key
+	 * @param key of property to clear
 	 */
 	protected void removeProperty(String key) {
 		checkLoaded();
@@ -117,7 +117,7 @@ abstract class AbstractConfig {
 	/**
 	 * Stores the current properties on disk
 	 *
-	 * @throws IOException
+	 * @throws IOException if saving property file fails.
 	 */
 	protected synchronized void saveProperties() throws IOException {
 		checkLoaded();
@@ -130,7 +130,7 @@ abstract class AbstractConfig {
 	 * Loads the default properties
 	 *
 	 * @return default properties instance
-	 * @throws IOException
+	 * @throws IOException if loading default properties fails.
 	 */
 	private Properties loadDefaultProperties() throws IOException {
 		try (InputStream in = getClass().getResourceAsStream(getDefaultPropertiesResource())) {
@@ -145,7 +145,7 @@ abstract class AbstractConfig {
 	 *
 	 * @param defaultProp default properties for merging config
 	 * @return user properties instance
-	 * @throws IOException
+	 * @throws IOException if loading user properties fails.
 	 */
 	private Properties loadUserProperties(final Properties defaultProp) throws IOException {
 		try (InputStream in = new FileInputStream(propertyFile.toFile())) {

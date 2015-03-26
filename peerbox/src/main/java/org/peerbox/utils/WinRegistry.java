@@ -22,7 +22,7 @@ public final class WinRegistry {
 	/**
 	 * Set the api_server_port in the registry
 	 *
-	 * @param port
+	 * @param port on which server is listening
 	 * @return true if successful
 	 */
 	public static boolean setApiServerPort(int port) {
@@ -54,7 +54,7 @@ public final class WinRegistry {
 	/**
 	 * Set the rootpath in the registry
 	 *
-	 * @param rootpath
+	 * @param rootPath of the user
 	 * @return true if successful
 	 */
 	public static boolean setRootPath(Path rootPath) {

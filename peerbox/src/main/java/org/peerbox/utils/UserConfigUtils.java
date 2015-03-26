@@ -34,7 +34,7 @@ public class UserConfigUtils {
 	 * Creates a user config instance given a username.
 	 * The config file will be searched or created in the {@link AppData#getConfigFolder()} folder.
 	 *
-	 * @param username
+	 * @param username for which config is created
 	 * @return user config
 	 */
 	public static UserConfig createUserConfig(String username) {
@@ -47,8 +47,8 @@ public class UserConfigUtils {
 	/**
 	 * Creates a user config instance given a path to a file.
 	 *
-	 * @param file
-	 * @return
+	 * @param file path to user config
+	 * @return user config
 	 */
 	public static UserConfig createUserConfig(Path file) {
 		UserConfig cfg = new UserConfig(file);

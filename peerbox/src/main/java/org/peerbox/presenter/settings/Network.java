@@ -190,7 +190,7 @@ public class Network implements Initializable {
 	 * Adds an item to the list view collection.
 	 * Check that there are no duplicates (ignore case!)
 	 *
-	 * @param toAdd
+	 * @param toAdd address
 	 */
 	private void addItemIgnoreDuplicate(String toAdd) {
 		if (!containsAddress(toAdd)) {
@@ -202,7 +202,7 @@ public class Network implements Initializable {
 	 * Checks whether the given address is in the list of addresses.
 	 * Note: ignore case!
 	 *
-	 * @param address
+	 * @param address to check
 	 * @return true if element is present, otherwise false.
 	 */
 	private boolean containsAddress(String address) {

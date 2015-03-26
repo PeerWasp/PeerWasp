@@ -36,7 +36,7 @@ public interface INodeManager {
 	/**
 	 * Join a network by connecting to the given address.
 	 *
-	 * @param address
+	 * @param address of node
 	 * @return true if join succeeds. False otherwise.
 	 * @throws UnknownHostException If address cannot be resolved.
 	 */
@@ -59,7 +59,7 @@ public interface INodeManager {
 	/**
 	 * Check whether node is connected. See {@link IH2HNode#isConnected()}.
 	 *
-	 * @return
+	 * @return true if connected. false otherwise.
 	 */
 	boolean isConnected();
 

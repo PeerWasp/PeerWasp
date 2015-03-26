@@ -63,7 +63,7 @@ public class AppConfig extends AbstractConfig {
 	 * Sets the api server port.
 	 *
 	 * @param port if not in valid range, the port is removed from the config.
-	 * @throws IOException
+	 * @throws IOException if saving fails.
 	 */
 	public synchronized void setApiServerPort(final int port) throws IOException {
 		if(NetUtils.isValidPort(port)) {
@@ -90,8 +90,8 @@ public class AppConfig extends AbstractConfig {
 	/**
 	 * Sets the tray notification property.
 	 *
-	 * @param enabled
-	 * @throws IOException
+	 * @param enabled true if notifications should be enabled. false otherwise.
+	 * @throws IOException if saving fails.
 	 */
 	public synchronized void setTrayNotification(boolean enabled) throws IOException {
 		setProperty(PROPERTY_TRAY_NOTIFICATION, Boolean.toString(enabled));

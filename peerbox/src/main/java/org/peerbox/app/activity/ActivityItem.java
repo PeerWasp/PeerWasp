@@ -28,7 +28,7 @@ public final class ActivityItem {
 	/**
 	 * Creates a new ActivityItem to use and configure.
 	 *
-	 * @return
+	 * @return new activity item
 	 */
 	public static ActivityItem create() {
 		return new ActivityItem();

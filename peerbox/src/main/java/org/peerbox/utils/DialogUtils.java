@@ -25,7 +25,7 @@ public final class DialogUtils {
 	 * Creates an Alert dialog of given alert type.
 	 * In addition, the dialog is decorated and configured (icons, ...).
 	 *
-	 * @param type
+	 * @param type of the alert
 	 * @return alert dialog
 	 */
 	public static Alert createAlert(AlertType type) {

@@ -34,7 +34,7 @@ public class DbContext {
 	/**
 	 * Sets the data source.
 	 *
-	 * @param dataSource
+	 * @param dataSource associated with database
 	 */
 	public void setDataSource(DataSource dataSource) {
 		this.dataSource = dataSource;
@@ -43,7 +43,7 @@ public class DbContext {
 	/**
 	 * Returns the filename of the database
 	 *
-	 * @return
+	 * @return path to database
 	 */
 	public Path getDatabaseFile() {
 		return databaseFile;
@@ -52,7 +52,7 @@ public class DbContext {
 	/**
 	 * Sets the database filename
 	 *
-	 * @param databaseFile
+	 * @param databaseFile path to database
 	 */
 	public void setDatabaseFile(Path databaseFile) {
 		this.databaseFile = databaseFile;

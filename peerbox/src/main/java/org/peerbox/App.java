@@ -240,7 +240,7 @@ public class App extends Application
 	/**
 	 * Force quit application with exit code.
 	 *
-	 * @param exitCode
+	 * @param exitCode indicating status.
 	 */
 	private void fatalExit(int exitCode) {
 		logger.warn("Exiting... (ExitCode: {})", exitCode);
@@ -251,8 +251,8 @@ public class App extends Application
 	 * Shows an alert dialog with an error message.
 	 * Blocks until dialog closed.
 	 *
-	 * @param title
-	 * @param message
+	 * @param title of dialog
+	 * @param message of error
 	 */
 	private void showErrorAlert(String title, String message) {
 		Alert dlg = DialogUtils.createAlert(AlertType.ERROR);

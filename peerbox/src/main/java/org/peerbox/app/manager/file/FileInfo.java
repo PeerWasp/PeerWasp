@@ -27,8 +27,8 @@ public class FileInfo implements Comparable<FileInfo> {
 	/**
 	 * Creates a new FileInfo instance with hash set to empty string.
 	 *
-	 * @param path
-	 * @param isFolder
+	 * @param path to the file
+	 * @param isFolder true if path points to folder. False otherwise.
 	 */
 	public FileInfo(Path path, boolean isFolder) {
 		this(path, isFolder, "");
@@ -37,8 +37,8 @@ public class FileInfo implements Comparable<FileInfo> {
 	/**
 	 * Creates a new FileInfo instance with hash set.
 	 *
-	 * @param path
-	 * @param isFolder
+	 * @param path to the file
+	 * @param isFolder true if path points to folder. False otherwise.
 	 * @param contentHash the content hash
 	 */
 	public FileInfo(Path path, boolean isFolder, String contentHash) {
@@ -51,7 +51,7 @@ public class FileInfo implements Comparable<FileInfo> {
 	 * Creates a new FileInfo instance given a FileComponent.
 	 * All attributes are copied from the component.
 	 *
-	 * @param component
+	 * @param component from which infos should be extracted.
 	 */
 	public FileInfo(FileComponent component) {
 		this(component.getPath(), component.isFolder(), component.getContentHash());
@@ -61,7 +61,7 @@ public class FileInfo implements Comparable<FileInfo> {
 	 * Creates a new FileInfo instance given a FileNode.
 	 * All attributes are copied from the node.
 	 *
-	 * @param node
+	 * @param node from which infos should be extracted
 	 */
 	public FileInfo(FileNode node) {
 		this(node.getFile().toPath(), node.isFolder());
@@ -75,7 +75,7 @@ public class FileInfo implements Comparable<FileInfo> {
 	 * Creates a new FileInfo instance given a FileEvent.
 	 * All attributes are copied from the node.
 	 *
-	 * @param fileEvent
+	 * @param fileEvent from which infos should be extracted
 	 */
 	public FileInfo(IFileEvent fileEvent) {
 		this(fileEvent.getFile().toPath(), fileEvent.isFolder());
@@ -85,7 +85,7 @@ public class FileInfo implements Comparable<FileInfo> {
 	 * Creates a new FileInfo instance given a PathItem.
 	 * All attributes are copied from the item.
 	 *
-	 * @param pathItem
+	 * @param pathItem from which infos should be extracted.
 	 */
 	public FileInfo(PathItem pathItem) {
 		this(pathItem.getPath(), pathItem.isFolder());

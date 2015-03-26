@@ -59,7 +59,8 @@ public class ExitHandler implements IExitHandler {
 
 	/**
 	 * Shutdown of application-wide services
-	 * @param appContext2
+	 *
+	 * @param context of application
 	 */
 	private void shutdownApp(AppContext context) {
 		stopMessageBus(context);
@@ -68,7 +69,8 @@ public class ExitHandler implements IExitHandler {
 
 	/**
 	 * Shutdown of user-specific services
-	 * @param clientContext
+	 *
+	 * @param context of client
 	 */
 	private void shutdownClient(ClientContext context) {
 		logout(context);
@@ -77,7 +79,8 @@ public class ExitHandler implements IExitHandler {
 
 	/**
 	 * Framework shutdown and final exit
-	 * @param status
+	 *
+	 * @param status exit code
 	 */
 	private void shutdown(int status) {
 		logger.debug("Shutdown with status code = {}", status);
@@ -88,7 +91,8 @@ public class ExitHandler implements IExitHandler {
 
 	/**
 	 * Shutdown the message bus
-	 * @param context
+	 *
+	 * @param context of application
 	 */
 	private void stopMessageBus(AppContext context) {
 		try {
@@ -103,7 +107,8 @@ public class ExitHandler implements IExitHandler {
 
 	/**
 	 * Stop the HTTP server
-	 * @param context
+	 *
+	 * @param context of application
 	 */
 	private void stopServer(AppContext context) {
 		try {
@@ -121,7 +126,8 @@ public class ExitHandler implements IExitHandler {
 
 	/**
 	 * Logout H2H user profile
-	 * @param context
+	 *
+	 * @param context of client
 	 */
 	private void logout(ClientContext context) {
 		try {
@@ -140,7 +146,8 @@ public class ExitHandler implements IExitHandler {
 
 	/**
 	 * Disconnect from H2H network (graceful leave)
-	 * @param context
+	 *
+	 * @param context of client
 	 */
 	private void disconnect(ClientContext context) {
 		try {

@@ -24,7 +24,7 @@ public class PathUtils {
 	 * process), then the method makes three consecutive tries
 	 * after waiting 3 seconds.
 	 *
-	 * @param path
+	 * @param path to file on disk
 	 * @return the hash as base64 encoded string
 	 */
 	public static String computeFileContentHash(Path path) {
@@ -53,7 +53,7 @@ public class PathUtils {
 	/**
 	 * Encodes the specified byte array into a String using the Base64 encoding scheme
 	 *
-	 * @param bytes
+	 * @param bytes to encode
 	 * @return base64 string
 	 */
 	public static String base64Encode(byte[] bytes) {
@@ -64,25 +64,25 @@ public class PathUtils {
 	/**
 	 * Decodes the specified String into a byte array assuming that the string is Base64 encoded.
 	 *
-	 * @param data
+	 * @param data to decode
 	 * @return decoded byte
 	 */
 	public static byte[] base64Decode(String data) {
 		byte[] d = Base64.getDecoder().decode(data.getBytes());
 		return d;
 	}
-	
+
 	public static boolean isFileHidden(Path file){
 
 		List<String> illegal = new ArrayList<String>();
 		illegal.add("$");
 		illegal.add(".");
 		illegal.add("~");
-		
+
 		return illegal.stream().anyMatch(pattern -> file.getFileName().toString().startsWith(pattern));
-		
+
 	}
-	
+
     public static Path getCommonPath(Path path1, Path path2){
 		Path commonPath = Paths.get("");
     	if(path1 == null || path2 == null){
@@ -93,14 +93,14 @@ public class PathUtils {
 
 		while(iterPath1.hasNext() && iterPath2.hasNext()){
 			Path next1 = iterPath1.next();
-			
+
 			if(next1.equals(iterPath2.next())){
 				commonPath = commonPath.resolve(next1);
 			} else {
 				break;
-			}			
+			}
 		}
-		
+
 		return commonPath;
 	}
 }

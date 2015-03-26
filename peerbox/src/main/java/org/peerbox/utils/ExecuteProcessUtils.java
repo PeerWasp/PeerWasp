@@ -28,7 +28,7 @@ public final class ExecuteProcessUtils {
 	 *
 	 * @param builder process command to execute
 	 * @param output process output, pass null to not read output
-	 * @return
+	 * @return true if running succeeds. False otherwise.
 	 */
 	public static boolean executeCommand(ProcessBuilder builder, StringBuilder output) {
 		boolean success = false;
@@ -58,9 +58,8 @@ public final class ExecuteProcessUtils {
 	 * buffers std out and std err of a process and returns the string.
 	 *
 	 * @param p process to observe
-	 * @param output
-	 * @return string of output and error
-	 * @throws IOException
+	 * @param output buffer where output will be written to
+	 * @throws IOException if reading output fails.
 	 */
 	private static void readOutput(Process p, StringBuilder output) throws IOException {
 		BufferedReader err = new BufferedReader(new InputStreamReader(p.getErrorStream()));

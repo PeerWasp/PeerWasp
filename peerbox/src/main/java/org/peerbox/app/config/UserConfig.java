@@ -40,7 +40,7 @@ public class UserConfig extends AbstractConfig {
 	/**
 	 * Creates a new user configuration using the given file name.
 	 *
-	 * @param filename the filename of the property file
+	 * @param file pointing to the property file
 	 */
 	public UserConfig(final Path file) {
 		super(file);
@@ -70,7 +70,7 @@ public class UserConfig extends AbstractConfig {
 	 * Sets the root path.
 	 *
 	 * @param path if null or empty, the root path is removed from the config.
-	 * @throws IOException
+	 * @throws IOException if saving fails.
 	 */
 	public synchronized void setRootPath(final Path path) throws IOException {
 		if (path != null && !path.toString().isEmpty()) {
@@ -106,7 +106,7 @@ public class UserConfig extends AbstractConfig {
 	 * Sets the username. Username is trimmed.
 	 *
 	 * @param username if null or empty, the username is removed from the config.
-	 * @throws IOException
+	 * @throws IOException if saving fails.
 	 */
 	public synchronized void setUsername(final String username) throws IOException {
 		if(username != null && !username.isEmpty()) {
@@ -135,7 +135,7 @@ public class UserConfig extends AbstractConfig {
 	 * Sets the password.
 	 *
 	 * @param password if null or empty, the password is removed from the config.
-	 * @throws IOException
+	 * @throws IOException if saving fails.
 	 */
 	public synchronized void setPassword(final String password) throws IOException {
 		if (password != null && !password.isEmpty()) {
@@ -164,7 +164,7 @@ public class UserConfig extends AbstractConfig {
 	 * Sets the pin.
 	 *
 	 * @param pin if null or empty, the password is removed from the config.
-	 * @throws IOException
+	 * @throws IOException if saving fails.
 	 */
 	public synchronized void setPin(final String pin) throws IOException {
 		if(pin != null && !pin.isEmpty()) {
@@ -185,8 +185,8 @@ public class UserConfig extends AbstractConfig {
 	/**
 	 * Sets the tray notification property.
 	 *
-	 * @param enabled
-	 * @throws IOException
+	 * @param enabled true if auto login should be enabled. False otherwise.
+	 * @throws IOException if saving fails.
 	 */
 	public synchronized void setAutoLogin(boolean enabled) throws IOException {
 		setProperty(PROPERTY_AUTO_LOGIN, Boolean.toString(enabled));

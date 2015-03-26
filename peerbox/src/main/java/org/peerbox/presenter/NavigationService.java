@@ -87,7 +87,7 @@ public class NavigationService {
 	 *
 	 * @param fxmlFile the name of the resource to load
 	 * @return an FXML loader instance, ready to be used by calling the load() method
-	 * @throws IOException
+	 * @throws IOException if loading fxml file fails.
 	 */
 	public FXMLLoader createLoader(final String fxmlFile) throws IOException {
 		return fxmlLoader.create(fxmlFile);

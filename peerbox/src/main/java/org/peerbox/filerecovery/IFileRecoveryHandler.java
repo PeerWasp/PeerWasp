@@ -15,7 +15,7 @@ public interface IFileRecoveryHandler {
 	 * Start recovery procedure. The available versions need to be queried first from
 	 * which a version can be selected.
 	 *
-	 * @param fileToRecover
+	 * @param fileToRecover path to the file that should be recovered
 	 */
 	void recoverFile(Path fileToRecover);
 

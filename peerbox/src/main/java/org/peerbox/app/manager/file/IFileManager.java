@@ -25,7 +25,7 @@ public interface IFileManager {
 	 * The returned process is not not started yet. Call {@link ProcessHandle#execute()} or
 	 * {@link ProcessHandle#executeAsync()}.
 	 *
-	 * @param file
+	 * @param file to add
 	 * @return Process handle.
 	 * @throws NoSessionException
 	 * @throws NoPeerConnectionException
@@ -37,7 +37,7 @@ public interface IFileManager {
 	 * The returned process is not not started yet. Call {@link ProcessHandle#execute()} or
      * {@link ProcessHandle#executeAsync()}.
      *
-	 * @param file
+	 * @param file to updated
 	 * @return Process handle
 	 * @throws NoSessionException
 	 * @throws NoPeerConnectionException
@@ -49,7 +49,7 @@ public interface IFileManager {
 	 * The returned process is not not started yet. Call {@link ProcessHandle#execute()} or
 	 * {@link ProcessHandle#executeAsync()}.
 	 *
-	 * @param file
+	 * @param file to delete
 	 * @return process handle
 	 * @throws NoSessionException
 	 * @throws NoPeerConnectionException
@@ -61,8 +61,8 @@ public interface IFileManager {
 	 * The returned process is not not started yet. Call {@link ProcessHandle#execute()} or
 	 * {@link ProcessHandle#executeAsync()}.
 	 *
-	 * @param source
-	 * @param destination
+	 * @param source of move
+	 * @param destination of move
 	 * @return process handle
 	 * @throws NoSessionException
 	 * @throws NoPeerConnectionException
@@ -74,7 +74,7 @@ public interface IFileManager {
 	 * The returned process is not not started yet. Call {@link ProcessHandle#execute()} or
 	 * {@link ProcessHandle#executeAsync()}.
 	 *
-	 * @param file
+	 * @param file to download
 	 * @return process handle
 	 * @throws NoSessionException
 	 * @throws NoPeerConnectionException
@@ -86,8 +86,8 @@ public interface IFileManager {
 	 * The returned process is not not started yet. Call {@link ProcessHandle#execute()} or
 	 * {@link ProcessHandle#executeAsync()}.
 	 *
-	 * @param file
-	 * @param versionSelector
+	 * @param file to recover
+	 * @param versionSelector selects version
 	 * @return process handle
 	 * @throws NoSessionException
 	 * @throws NoPeerConnectionException
@@ -99,9 +99,9 @@ public interface IFileManager {
 	 * The returned process is not not started yet. Call {@link ProcessHandle#execute()} or
 	 * {@link ProcessHandle#executeAsync()}.
 	 *
-	 * @param folder
-	 * @param userId
-	 * @param permission
+	 * @param folder to share
+	 * @param userId of other user
+	 * @param permission to grant to other user
 	 * @return process handle
 	 * @throws NoSessionException
 	 * @throws NoPeerConnectionException
@@ -125,7 +125,7 @@ public interface IFileManager {
 	/**
 	 * Checks whether given file is available in the network (remote user profile).
 	 *
-	 * @param path
+	 * @param path to check
 	 * @return true if file exists. False otherwise.
 	 */
 	boolean existsRemote(final Path path);
@@ -133,7 +133,7 @@ public interface IFileManager {
 	/**
 	 * Checks whether given file is a small file.
 	 *
-	 * @param path
+	 * @param path to check
 	 * @return true if it is a small file. False otherwise.
 	 */
 	boolean isSmallFile(final Path path);
@@ -141,7 +141,7 @@ public interface IFileManager {
 	/**
 	 * Checks whether given file is a large file.
 	 *
-	 * @param path
+	 * @param path to check
 	 * @return true if it is a large file. False otherwise.
 	 */
 	boolean isLargeFile(final Path path);

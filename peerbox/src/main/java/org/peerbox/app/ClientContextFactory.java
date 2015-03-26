@@ -20,7 +20,7 @@ public class ClientContextFactory {
 	/**
 	 * Creates a new client context given the user information in the user config.
 	 *
-	 * @param userConfig
+	 * @param userConfig with user data for which client context should be created
 	 * @return client context.
 	 */
 	public ClientContext create(UserConfig userConfig) {

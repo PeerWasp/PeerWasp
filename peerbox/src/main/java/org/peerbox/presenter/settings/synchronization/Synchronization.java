@@ -135,7 +135,7 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 	/**
 	 * This method is bound to the fxml of the view and is invoked
 	 * by clicks on the "Accept" button.
-	 * @param event
+	 * @param event that was fired.
 	 */
 	@FXML
 	public void acceptSyncAction(ActionEvent event) {
@@ -163,7 +163,7 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 	/**
 	 * This method is bound to the fxml of the view and is invoked
 	 * by clicks on the "Select All" button.
-	 * @param event
+	 * @param event that was fired.
 	 */
 	@FXML
 	public void selectAllAction(ActionEvent event) {
@@ -174,7 +174,7 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 	/**
 	 * This method is bound to the fxml of the view and is invoked
 	 * by clicks on the "Unselect all" button.
-	 * @param event
+	 * @param event that was fired.
 	 */
 	@FXML
 	public void unselectAllAction(ActionEvent event) {
@@ -186,7 +186,7 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 	/**
 	 * This method is bound to the fxml of the view and is invoked
 	 * by clicks on the "Cancel" button.
-	 * @param event
+	 * @param event that was fired.
 	 */
 	@FXML
 	public void cancelAction(ActionEvent event) {
@@ -200,7 +200,7 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 	/**
 	 * This method is bound to the fxml of the view and is invoked
 	 * by clicks on the "Refresh" button.
-	 * @param event
+	 * @param event that was fired.
 	 */
 	@FXML
 	public void refreshAction(ActionEvent event){
@@ -306,7 +306,7 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 	}
 
 	/**
-	 * This handler is automatically invoked when a {@link org.org.peerbox.app.manager.file.messages.FileExecutionFailedMessage
+	 * This handler is automatically invoked when a {@link org.peerbox.app.manager.file.messages.FileExecutionFailedMessage
 	 * FileExecutionFailedMessage} is published using the {@link org.peerbox.
 	 * events.MessageBus MessageBus}. This method changes the corresponding
 	 * {@link javafx.scene.control. CheckBoxTreeItem CheckBoxTreeItem} in the

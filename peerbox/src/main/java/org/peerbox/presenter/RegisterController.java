@@ -120,7 +120,7 @@ public class RegisterController implements Initializable {
 
 	/**
 	 * Register new user action. Validates user input (on demand) first
-	 * @param event
+	 * @param event that was fired.
 	 */
 	@FXML
 	public void registerAction(ActionEvent event) {
@@ -133,7 +133,7 @@ public class RegisterController implements Initializable {
 
 	/**
 	 * Complete validation of all input fields AND'ed
-	 * @return
+	 * @return ANDed validation result
 	 */
 	private ValidationResult validateAll() {
 		// note, we want to evaluate ALL fields, regardless whether one validation fails or not.
@@ -148,7 +148,7 @@ public class RegisterController implements Initializable {
 
 	/**
 	 * Go back to previous page
-	 * @param event
+	 * @param event that was fired.
 	 */
 	@FXML
 	public void navigateBackAction(ActionEvent event) {
@@ -158,7 +158,7 @@ public class RegisterController implements Initializable {
 
 	/**
 	 * Navigate to the login page.
-	 * @param event
+	 * @param event that was fired.
 	 */
 	@FXML
 	public void loginAction(ActionEvent event) {
@@ -169,9 +169,9 @@ public class RegisterController implements Initializable {
 	/**
 	 * Registers a new user given the credentials.
 	 * All checks regarding the input should happen before (e.g. is registered, password not empty, ...)
-	 * @param username
-	 * @param password
-	 * @param pin
+	 * @param username the user id
+	 * @param password the password
+	 * @param pin the pin
 	 * @return status of the operation
 	 */
 	public ResultStatus registerUser(final String username, final String password, final String pin) {
@@ -241,7 +241,7 @@ public class RegisterController implements Initializable {
 
 	/**
 	 * Callback for the async register task
-	 * @param result
+	 * @param result of the task
 	 */
 	private void onRegisterFailed(ResultStatus result) {
 		logger.error("Registration task failed: {}", result.getErrorMessage());
@@ -280,7 +280,7 @@ public class RegisterController implements Initializable {
 
 	/**
 	 * Set an error text
-	 * @param error
+	 * @param error message
 	 */
 	private void setError(String error) {
 		lblError.setText(error);
@@ -294,8 +294,8 @@ public class RegisterController implements Initializable {
 	}
 
 	/**
-	 * Trimmed username
-	 * @return
+	 * Trimmed username of the text field
+	 * @return username
 	 */
 	private String getUsername() {
 		return txtUsername.getText().trim();

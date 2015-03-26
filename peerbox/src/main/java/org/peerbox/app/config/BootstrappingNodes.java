@@ -20,6 +20,11 @@ public class BootstrappingNodes {
 		this.bootstrappingNodes = new LinkedHashSet<String>();
 	}
 
+	/**
+	 * Last node to which client was connected in previous session.
+	 *
+	 * @return address to node
+	 */
 	public String getLastNode() {
 		return lastNode;
 	}
@@ -32,6 +37,10 @@ public class BootstrappingNodes {
 		return lastNode != null && !lastNode.trim().isEmpty();
 	}
 
+	/**
+	 * List of addresses to nodes.
+	 * @return addresses
+	 */
 	public Set<String> getBootstrappingNodes() {
 		return bootstrappingNodes;
 	}
