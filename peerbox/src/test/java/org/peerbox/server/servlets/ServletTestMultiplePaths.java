@@ -49,8 +49,8 @@ public class ServletTestMultiplePaths extends ServletTest {
 		// files instead of paths
 		String msg = String.format(
 				"{files:[\"%s\", \"%s\"]",
-					"/tmp/PeerBox_test/f1",
-					"/tmp/PeerBox_test/f2");
+					"/tmp/PeerWasp_test/f1",
+					"/tmp/PeerWasp_test/f2");
 		given().
 			contentType(ContentType.JSON).
 			content(msg).
@@ -65,7 +65,7 @@ public class ServletTestMultiplePaths extends ServletTest {
 	public void testPostWrongMsg() {
 		// send a wrong message, i.e. one with 1 url
 		ShareMessage msg = new ShareMessage();
-		Path folder = Paths.get("/tmp/PeerBox_test/f1");
+		Path folder = Paths.get("/tmp/PeerWasp_test/f1");
 		msg.setPath(folder);
 
 		given().

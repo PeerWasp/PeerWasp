@@ -49,7 +49,7 @@ public class FileEventManagerTest {
 	private static ActionExecutor actionExecutor;
 	private static IFileManager fileManager;
 
-	private static String parentPath = System.getProperty("user.home") + File.separator + "PeerBox_FileEventManagerTest" + File.separator;
+	private static String parentPath = System.getProperty("user.home") + File.separator + "PeerWasp_FileEventManagerTest" + File.separator;
 	private static File testDirectory;
 	private static ArrayList<String> filePaths = new ArrayList<String>();
 	private static ArrayList<File> files = new ArrayList<File>();

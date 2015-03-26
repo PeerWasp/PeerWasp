@@ -25,7 +25,7 @@ import org.peerbox.watchservice.filetree.composite.FolderComposite;
 
 public class FileComponentTest {
 
-	private static Path parentPath = Paths.get(FileUtils.getTempDirectoryPath(), "PeerBox_FolderCompositeTest");
+	private static Path parentPath = Paths.get(FileUtils.getTempDirectoryPath(), "PeerWasp_FolderCompositeTest");
 
 	private static Path fileOnRootPath = parentPath.resolve("file.txt");
 	private static Path dirOnRootPath = parentPath.resolve("dir");
@@ -163,15 +163,15 @@ public class FileComponentTest {
 	public void bubbleStructureHashUpdateTest(){
 
 	}
-	
-	
+
+
 	public static void setContentHashByReflection(FileComponent f, String contentHash) {
 		try {
 			Method setContentHashMethod = AbstractFileComponent.class.getDeclaredMethod("setContentHash", String.class);
 			setContentHashMethod.setAccessible(true);
 
 			setContentHashMethod.invoke(f, contentHash);
-		
+
 		} catch (NoSuchMethodException | SecurityException | IllegalAccessException
 				| IllegalArgumentException | InvocationTargetException e) {
 			// TODO Auto-generated catch block

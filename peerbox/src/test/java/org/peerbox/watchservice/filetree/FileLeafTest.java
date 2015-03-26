@@ -45,7 +45,7 @@ public class FileLeafTest {
 
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
-		basePath = Paths.get(FileUtils.getTempDirectoryPath(), "PeerBox_Test_Tree");
+		basePath = Paths.get(FileUtils.getTempDirectoryPath(), "PeerWasp_Test_Tree");
 		if(!Files.exists(basePath)) {
 			Files.createDirectory(basePath);
 		}

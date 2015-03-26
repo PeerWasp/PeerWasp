@@ -42,7 +42,7 @@ public class FolderWatchServiceTest {
 	
 	@BeforeClass
 	public static void setup() {
-		basePath = Paths.get(FileUtils.getTempDirectoryPath(), "PeerBox_FolderWatchServiceTest");
+		basePath = Paths.get(FileUtils.getTempDirectoryPath(), "PeerWasp_FolderWatchServiceTest");
 		basePath.toFile().mkdir();
 		logger.info("Path: {}", basePath);
 	}

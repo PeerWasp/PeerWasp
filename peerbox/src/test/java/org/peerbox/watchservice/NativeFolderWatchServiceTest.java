@@ -51,7 +51,7 @@ public class NativeFolderWatchServiceTest {
 
 	@BeforeClass
 	public static void setup() throws Exception {
-		basePath = Paths.get(FileUtils.getTempDirectoryPath(), "PeerBox_FolderWatchServiceTest");
+		basePath = Paths.get(FileUtils.getTempDirectoryPath(), "PeerWasp_FolderWatchServiceTest");
 		basePath.toFile().mkdir();
 		logger.info("Path: {}", basePath);
 
