@@ -1,11 +1,14 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
+
 	<groupId>com.peerwasp</groupId>
-	<artifactId>bootstrap-node</artifactId>
+	<artifactId>peerwasp-node</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>bootstrap-node</name>
-	<description>bootstrap node</description>
+
+	<name>PeerWasp Bootstrapping Node</name>
+	<description>Bootstrapping node which does not include any GUI or login functionality. It runs a simple H2H node and allows connecting a new node to an existing network. </description>
+	<url>http://www.peerwasp.com/</url>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -22,6 +25,7 @@
 
 
 	<dependencies>
+
 		<!-- Hive2Hive https://github.com/Hive2Hive/Hive2Hive -->
 		<dependency>
 			<groupId>org.hive2hive</groupId>
@@ -47,10 +51,9 @@
 
 	</dependencies>
 
-
-
 	<build>
 		<plugins>
+
 			<!-- java compiler version level -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -84,6 +87,7 @@
 					</execution>
 				</executions>
 			</plugin>
+
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-jar-plugin</artifactId>
@@ -93,7 +97,7 @@
 						<manifest>
 							<addClasspath>true</addClasspath>
 							<classpathPrefix>lib/</classpathPrefix>
-							<mainClass>com.peerwasp.bootstrapnode.Starter</mainClass>
+							<mainClass>com.peerwasp.node.Starter</mainClass>
 						</manifest>
 					</archive>
 				</configuration>
@@ -106,6 +110,9 @@
 					</execution>
 				</executions>
 			</plugin>
+
 		</plugins>
+
 	</build>
+
 </project>

@@ -1,4 +1,4 @@
-package com.peerwasp.bootstrapnode;
+package com.peerwasp.node;
 
 import java.util.ArrayList;
 import java.util.List;
