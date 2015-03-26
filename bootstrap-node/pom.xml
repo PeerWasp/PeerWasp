@@ -97,7 +97,7 @@
 						<manifest>
 							<addClasspath>true</addClasspath>
 							<classpathPrefix>lib/</classpathPrefix>
-							<mainClass>com.peerwasp.node.Starter</mainClass>
+							<mainClass>com.peerwasp.node.NodeStarter</mainClass>
 						</manifest>
 					</archive>
 				</configuration>
