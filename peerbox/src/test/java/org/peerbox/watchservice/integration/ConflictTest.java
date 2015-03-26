@@ -10,12 +10,9 @@ import java.util.List;
 import org.apache.commons.io.FileUtils;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.peerbox.watchservice.ActionExecutor;
 import org.peerbox.watchservice.conflicthandling.ConflictHandler;
 
 public class ConflictTest extends FileIntegrationTest{
-
-	private String homeDir = System.getProperty("user.home");
 
 	@Test
 	public void localCreateRemoteCreateTest() throws IOException, InterruptedException{

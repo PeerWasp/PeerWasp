@@ -12,7 +12,6 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.peerbox.testutils.FileTestUtils;
 import org.peerbox.watchservice.FileEventManager;
-import org.peerbox.watchservice.conflicthandling.ConflictHandler;
 import org.peerbox.watchservice.filetree.IFileTree;
 import org.peerbox.watchservice.filetree.composite.FileComponent;
 
@@ -27,16 +26,16 @@ public class SelectiveSynchronization extends FileIntegrationTest{
 		FileEventManager eventManager = getNetwork().getClients().get(0).getFileEventManager();
 		FileComponent file = eventManager.getFileTree().getFile(path);
 		assertTrue(file.isSynchronized());
-		
+
 		deleteSingleFile(path, true);
 		assertCleanedUpState(0);
 	}
-	
+
 	@Test
 	public void isFileUnsynchedOnDemandTest() throws IOException{
 		Path path = addFile();
 		assertCleanedUpState(1);
-		
+
 		FileEventManager eventManager = getNetwork().getClients().get(0).getFileEventManager();
 		eventManager.onFileSoftDeleted(path);
 		List<Path> toSync = new ArrayList<Path>();
@@ -45,35 +44,35 @@ public class SelectiveSynchronization extends FileIntegrationTest{
 		waitForNotExistsLocally(path, WAIT_TIME_VERY_SHORT);
 		assertQueuesAreEmpty();
 	}
-	
+
 	@Test
 	public void createUnsyncedFileTest() throws IOException{
 		Path path = addFile();
 		assertCleanedUpState(1);
-		
+
 		FileEventManager eventManager = getNetwork().getClients().get(0).getFileEventManager();
 		eventManager.onFileSoftDeleted(path);
 		List<Path> toSync = new ArrayList<Path>();
 		toSync.add(path);
 		waitForSynchronized(toSync, WAIT_TIME_SHORT, false);
 		waitForNotExistsLocally(path, WAIT_TIME_VERY_SHORT);
-		
+
 		FileTestUtils.recreateRandomFile(path);
 
 //		Path renamedFile = ConflictHandler.rename(path);
 //		toSync.add(renamedFile);
 		waitForUpdate(toSync, WAIT_TIME_SHORT);
 		waitForExists(toSync, WAIT_TIME_SHORT);
-		
+
 		eventManager.onFileSynchronized(path, false);
 		assertCleanedUpState(1);
 	}
-	
+
 	@Test
 	public void isFolderUnsynchedOnDemandTest() throws IOException{
 		Path path = addFolder();
 		assertCleanedUpState(1);
-		
+
 		FileEventManager eventManager = getNetwork().getClients().get(0).getFileEventManager();
 		eventManager.onFileSoftDeleted(path);
 		List<Path> toSync = new ArrayList<Path>();
@@ -81,12 +80,12 @@ public class SelectiveSynchronization extends FileIntegrationTest{
 		waitForSynchronized(toSync, WAIT_TIME_SHORT, false);
 		waitForNotExistsLocally(path, WAIT_TIME_VERY_SHORT);
 	}
-	
+
 	@Test
 	public void isFolderResynchedOnDemandTest() throws IOException{
 		Path path = addFolder();
 		assertCleanedUpState(1);
-		
+
 		FileEventManager eventManager = getNetwork().getClients().get(0).getFileEventManager();
 		eventManager.onFileSoftDeleted(path);
 		List<Path> toSync = new ArrayList<Path>();
@@ -97,17 +96,17 @@ public class SelectiveSynchronization extends FileIntegrationTest{
 		waitForSynchronized(toSync, WAIT_TIME_SHORT, true);
 		waitForExists(path, WAIT_TIME_SHORT);
 	}
-	
+
 	@Test
 	public void isFolderSynchedByDefaultTest() throws IOException{
 		Path path = addFolder();
 		assertCleanedUpState(1);
-		
+
 		FileEventManager eventManager = getNetwork().getClients().get(0).getFileEventManager();
 		FileComponent file = eventManager.getFileTree().getFile(path);
 		assertTrue(file.isSynchronized());
 	}
-	
+
 	@Test
 	public void isFileInUnsyncedFolderUnsyncedByDefaultTest() throws IOException{
 		//onFileDesync -> check if unsynced recursively
@@ -119,9 +118,9 @@ public class SelectiveSynchronization extends FileIntegrationTest{
 
 		waitForSynchronized(paths, WAIT_TIME_SHORT, false);
 		waitForNotExistsLocally(paths, WAIT_TIME_VERY_SHORT);
-		
+
 	}
-	
+
 	@Test @Ignore
 	public void isFileInResyncedFolderResyncedByDefaultTest() throws IOException{
 		//onFileDesync -> check if unsynced recursively
@@ -133,7 +132,7 @@ public class SelectiveSynchronization extends FileIntegrationTest{
 
 		waitForSynchronized(paths, WAIT_TIME_SHORT, false);
 		waitForNotExistsLocally(paths, WAIT_TIME_VERY_SHORT);
-		
+
 		eventManager.onFileSynchronized(paths.get(0), true);
 		assertSyncClientPaths();
 		assertQueuesAreEmpty();
@@ -141,7 +140,7 @@ public class SelectiveSynchronization extends FileIntegrationTest{
 		waitForSynchronized(paths, WAIT_TIME_VERY_SHORT, true);
 
 	}
-	
+
 	protected void waitForSynchronized(List<Path> paths, int seconds, boolean sync) {
 		H2HWaiter waiter = new H2HWaiter(seconds);
 		do {

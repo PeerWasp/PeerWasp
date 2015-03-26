@@ -1,21 +1,15 @@
 package org.peerbox.watchservice;
 
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
 import java.io.File;
 import java.io.FileWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 
 import org.apache.commons.io.FileUtils;
-import org.hive2hive.core.processes.notify.GetAllLocationsStep;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -47,7 +41,7 @@ public class NativeFolderWatchServiceTest {
 
 	private static final int NUM_CHARS_SMALL_FILE = 50*1024;
 	private static final int NUM_CHARS_BIG_FILE = 50*1024*1024;
-	private static final int SLEEP_TIME = 4000;
+//	private static final int SLEEP_TIME = 4000;
 
 	@BeforeClass
 	public static void setup() throws Exception {
@@ -428,7 +422,7 @@ public class NativeFolderWatchServiceTest {
 			WatchServiceTestHelpers.writeRandomData(out, NUM_CHARS_SMALL_FILE);
 			out.close();
 			files.add(Paths.get(copy.toString(), f.getFileName().toString()));
-			
+
 		}
 
 		watchService.start(basePath);
@@ -451,9 +445,9 @@ public class NativeFolderWatchServiceTest {
 		//}
 		// TODO: test not implemented correctly yet
 		//fail();
-		
-		
-		final int nrElements = files.size();
+
+
+//		final int nrElements = files.size();
 		final ArgumentCaptor<Path> captor = ArgumentCaptor.forClass(Path.class);
 //
 		Mockito.verify(fileManager).add(captor.capture());

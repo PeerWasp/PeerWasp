@@ -28,7 +28,6 @@ import org.peerbox.watchservice.states.LocalCreateState;
 import org.peerbox.watchservice.states.LocalHardDeleteState;
 import org.peerbox.watchservice.states.LocalMoveState;
 import org.peerbox.watchservice.states.LocalUpdateState;
-import org.sql2o.logging.SysOutLogger;
 
 import com.google.common.collect.SetMultimap;
 import com.google.common.io.Files;

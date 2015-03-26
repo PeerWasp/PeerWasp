@@ -19,7 +19,6 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.peerbox.utils.NotImplementedException;
 import org.peerbox.watchservice.PathUtils;
 import org.peerbox.watchservice.filetree.composite.FileLeaf;
 import org.peerbox.watchservice.filetree.composite.FolderComposite;
