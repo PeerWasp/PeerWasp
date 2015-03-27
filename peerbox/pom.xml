@@ -2,12 +2,14 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
-	<groupId>org</groupId>
-	<artifactId>peerbox</artifactId>
+	<groupId>com.peerwasp</groupId>
+	<artifactId>peerwasp</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 
-	<name>peerbox</name>
-	<url>http://maven.apache.org</url>
+	<!-- Project Information -->
+	<name>PeerWasp</name>
+	<description>P2P File Synchronization and Sharing Solution</description>
+	<url>http://www.peerwasp.com/</url>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -173,29 +175,32 @@
 			<scope>test</scope>
 		</dependency>
 
+		<!-- PowerMock test library: https://code.google.com/p/powermock/ -->
 		<dependency>
 			<groupId>org.powermock</groupId>
 			<artifactId>powermock-module-junit4</artifactId>
 			<version>1.6.1</version>
 			<scope>test</scope>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>org.powermock</groupId>
 			<artifactId>powermock-api-mockito</artifactId>
 			<version>1.6.1</version>
 			<scope>test</scope>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>org.powermock</groupId>
 			<artifactId>powermock-core</artifactId>
 			<version>1.6.1</version>
 			<scope>test</scope>
 		</dependency>
+
 	</dependencies>
 
 	<build>
+
 		<plugins>
 			<!--  java compiler version level  -->
 			<plugin>
@@ -208,6 +213,7 @@
 				</configuration>
 			</plugin>
 
+			<!-- make copy of all dependencies in lib/ folder -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-dependency-plugin</artifactId>
@@ -230,6 +236,8 @@
 					</execution>
 				</executions>
 			</plugin>
+
+			<!-- jar packaging and Main class definition -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-jar-plugin</artifactId>
@@ -252,7 +260,9 @@
 					</execution>
 				</executions>
 			</plugin>
+
 		</plugins>
+
 	</build>
 
 </project>

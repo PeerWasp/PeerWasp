@@ -13,7 +13,7 @@ public class InteractiveFolderWatchServiceTest {
 	private static final Logger logger = LoggerFactory.getLogger(InteractiveFolderWatchServiceTest.class);
 	
 	public static void main(String[] args) throws Exception {
-		Path path = Paths.get(FileUtils.getTempDirectoryPath(), "PeerBox_FolderWatchServiceTest");
+		Path path = Paths.get(FileUtils.getTempDirectoryPath(), "PeerWasp_FolderWatchServiceTest");
 		if (!Files.exists(path)) {
 			Files.createDirectories(path);
 		}

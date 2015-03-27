@@ -31,7 +31,7 @@ public class BootstrappingNodesFactoryTest extends BaseJUnitTest {
 	public void beforeTest() throws IOException {
 		factory = new BootstrappingNodesFactory();
 
-		basePath = Paths.get(FileUtils.getTempDirectoryPath(), "PeerBox_BootstrappingNodesTest");
+		basePath = Paths.get(FileUtils.getTempDirectoryPath(), "PeerWasp_BootstrappingNodesTest");
 		if (!Files.exists(basePath)) {
 			Files.createDirectories(basePath);
 		}

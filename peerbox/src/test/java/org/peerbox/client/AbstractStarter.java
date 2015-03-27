@@ -18,7 +18,7 @@ public abstract class AbstractStarter {
 
 	private static final Logger logger = LoggerFactory.getLogger(AbstractStarter.class);
 
-	protected static final Path BASE_PATH = Paths.get(FileUtils.getUserDirectory().getAbsolutePath(), "PeerBox_Test");
+	protected static final Path BASE_PATH = Paths.get(FileUtils.getUserDirectory().getAbsolutePath(), "PeerWasp_Test");
 
 	protected UserCredentials credentials;
 

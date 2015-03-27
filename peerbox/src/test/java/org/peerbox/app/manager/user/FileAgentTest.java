@@ -30,7 +30,7 @@ public class FileAgentTest extends BaseJUnitTest {
 
 	@Before
 	public void before() {
-		base = Paths.get(FileUtils.getTempDirectoryPath(), "PeerBox_Test");
+		base = Paths.get(FileUtils.getTempDirectoryPath(), "PeerWasp_Test");
 		root = base.resolve("root");
 		cache = base.resolve("cache");
 

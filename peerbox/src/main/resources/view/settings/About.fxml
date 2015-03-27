@@ -18,7 +18,7 @@
 		<HBox alignment="CENTER_LEFT">
 			<children>
 				<Label text="GitHub Repository: " wrapText="true" />
-				<Hyperlink onAction="#opengithub" text="github.com/Hive2Hive/PeerBox" />
+				<Hyperlink onAction="#opengithub" text="github.com/PeerWasp/PeerWasp" />
 			</children>
 		</HBox>
 		<HBox alignment="CENTER_LEFT">

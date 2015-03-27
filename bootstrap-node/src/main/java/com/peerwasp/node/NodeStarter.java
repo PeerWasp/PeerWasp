@@ -1,4 +1,4 @@
-package com.peerwasp.bootstrapnode;
+package com.peerwasp.node;
 
 import java.net.InetAddress;
 import java.util.UUID;

@@ -37,7 +37,7 @@ public class FolderCompositeTest {
 
 	@BeforeClass
 	public static void beforeClass() throws Exception {
-		basePath = Paths.get(FileUtils.getTempDirectoryPath(), "PeerBox_Test_Tree");
+		basePath = Paths.get(FileUtils.getTempDirectoryPath(), "PeerWasp_Test_Tree");
 		createDirectoryIfNotExists(basePath);
 	}
 

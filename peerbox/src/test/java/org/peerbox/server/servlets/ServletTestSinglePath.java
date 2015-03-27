@@ -50,7 +50,7 @@ public class ServletTestSinglePath extends ServletTest {
 	public void testPostWrongJson() {
 		given().
 			contentType(ContentType.JSON).
-			content("{file:\"/tmp/PeerBox_test/f\"").
+			content("{file:\"/tmp/PeerWasp_test/f\"").
 		post(url).
 		then().
 			assertThat().statusCode(HttpServletResponse.SC_BAD_REQUEST).
@@ -63,8 +63,8 @@ public class ServletTestSinglePath extends ServletTest {
 		// send a wrong message, i.e. one with more than 1 url (list of urls)
 		DeleteMessage msg = new DeleteMessage();
 		List<Path> paths = new ArrayList<Path>();
-		paths.add(Paths.get("/tmp/PeerBox_test/f1"));
-		paths.add(Paths.get("/tmp/PeerBox_test/f2"));
+		paths.add(Paths.get("/tmp/PeerWasp_test/f1"));
+		paths.add(Paths.get("/tmp/PeerWasp_test/f2"));
 		msg.setPaths(paths);
 
 		given().
@@ -80,7 +80,7 @@ public class ServletTestSinglePath extends ServletTest {
 	@Test
 	public void testPostFile() {
 		FileRecoveryMessage msg = new FileRecoveryMessage();
-		msg.setPath(Paths.get("/tmp/PeerBox_test/file"));
+		msg.setPath(Paths.get("/tmp/PeerWasp_test/file"));
 
 		given().
 			contentType(ContentType.JSON).

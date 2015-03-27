@@ -1,3 +1,3 @@
 ShellExtension
 ==============
-See Wiki: [Context Menu](https://github.com/Hive2Hive/PeerBox/wiki/Context-Menu-(Windows-Explorer))
+See Wiki: [[Context Menu|Context-Menu-(Windows-Explorer)]]

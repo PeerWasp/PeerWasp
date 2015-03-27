@@ -32,7 +32,7 @@
 //
 //	private static TestPeerWaspConfig config = new TestPeerWaspConfig();
 //
-//	private static String parentPath = System.getProperty("user.home") + File.separator + "PeerBox_FileWalkerTest" + File.separator;
+//	private static String parentPath = System.getProperty("user.home") + File.separator + "PeerWasp_FileWalkerTest" + File.separator;
 //
 //	private static String dir1Str = parentPath + "dir1" + File.separator;
 //	private static String dir2Str = parentPath + "dir2" + File.separator;
