@@ -66,7 +66,7 @@
 		<replace file="${app.winbuild}/${launch4j.configname}">
 			<replacefilter token="@APP_JAR@" value="${app.jarname}" />
 			<replacefilter token="@APP_VERSION@" value="${app.version}" />
-            <replacefilter token="@JAVA_VERSION_MIN@" value="${launch4.java_version_min}" />
+            <replacefilter token="@JAVA_VERSION_MIN@" value="${launch4j.java_version_min}" />
 		</replace>
 
 		<exec executable="${launch4j.exe}" failonerror="true">
