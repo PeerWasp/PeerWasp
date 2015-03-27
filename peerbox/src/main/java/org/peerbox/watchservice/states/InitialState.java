@@ -113,6 +113,11 @@ public class InitialState extends AbstractActionState {
 	}
 
 	private void addComponentToMoveTargetCandidates() {
+		if(action.getFile().getPath().toString().contains("CONFLICT")){
+			logger.trace("Workaround: Don't add conflict file {} to move target candidates",
+					action.getFile().getPath());
+			return;
+		}
 		if(action.getFile().isFile()){
 			SetMultimap<String, FileComponent> createdByContentHash = action.getFileEventManager().getFileTree().getCreatedByContentHash();
 			logger.trace("Put file {} with content hash {}", action.getFile().getPath(), action.getFile().getContentHash());
