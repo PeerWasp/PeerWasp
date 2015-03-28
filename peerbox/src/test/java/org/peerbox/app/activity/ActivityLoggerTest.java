@@ -16,7 +16,7 @@ public class ActivityLoggerTest extends BaseJUnitTest {
 	@Rule
 	public JavaFXThreadingRule jfxRule = new JavaFXThreadingRule();
 
-	private final int MAX_ITEMS = 100;
+	private final int MAX_ITEMS = 500;
 	private ActivityLogger logger;
 
 	@Before

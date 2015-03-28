@@ -19,7 +19,7 @@ import com.google.inject.Singleton;
 public class ActivityLogger {
 
 	/* upper bound for the activityItems list */
-	private final int MAX_ITEMS = 100;
+	private final int MAX_ITEMS = 500;
 
 	/* list of items to display */
 	private final ObservableList<ActivityItem> activityItems;
