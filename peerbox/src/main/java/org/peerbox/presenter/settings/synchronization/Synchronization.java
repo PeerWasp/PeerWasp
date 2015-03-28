@@ -284,8 +284,10 @@ public class Synchronization implements Initializable, IExecutionMessageListener
 			removeTreeItemInUIThread(message.getFile().getPath());
 			break;
 		case INITIAL:
-			SyncTreeItem item = getOrCreateItem(message.getFile(), true);
-			item.setProgressState(ProgressState.SUCCESSFUL);
+			SyncTreeItem item = getTreeItem(message.getFile().getPath());
+			if(item != null){
+				item.setProgressState(ProgressState.SUCCESSFUL);
+			}
 			break;
 		case LOCAL_MOVE:
 			Path srcFile = message.getSourceFile().getPath();

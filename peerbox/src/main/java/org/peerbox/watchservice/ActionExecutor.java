@@ -569,6 +569,9 @@ public class ActionExecutor implements Runnable {
 						return;
 					}
 
+					if(asyncHandles.isEmpty()){
+						publishMessage(new SynchronizationCompleteNotification());
+					}
 					ExecutionHandle next = asyncHandles.take();
 
 //					if (next.getAction().getFile().getParent() == null) {
