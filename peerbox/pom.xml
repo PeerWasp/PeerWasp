@@ -245,9 +245,14 @@
 				<configuration>
 					<archive>
 						<manifest>
+							<!-- Run configuration -->
+							<mainClass>org.peerbox.App</mainClass>
 							<addClasspath>true</addClasspath>
 							<classpathPrefix>lib/</classpathPrefix>
-							<mainClass>org.peerbox.App</mainClass>
+
+							<!-- adds some properties to the manifest such as the version -->
+							<addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+							<addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
 						</manifest>
 					</archive>
 				</configuration>
