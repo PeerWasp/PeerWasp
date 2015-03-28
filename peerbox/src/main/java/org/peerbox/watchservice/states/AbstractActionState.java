@@ -125,14 +125,14 @@ public abstract class AbstractActionState {
 			FileLeaf moveTarget = fileTree.findCreatedByContent((FileLeaf)file);
 			if(moveTargetIsValid(moveTarget)){
 				return performSwappedMove(moveTarget);
-			} else {
+			} else if(file.isUploaded()){
 				putToFileMoveSources((FileLeaf)file);
 			}
 		} else {
 			FileComponent moveTarget = fileTree.findCreatedByStructure((FolderComposite)file);
 			if(moveTargetIsValid(moveTarget)){
 				return performSwappedMove(moveTarget);
-			} else {
+			} else if(file.isUploaded()){
 				putToFolderMoveSources((FolderComposite)file);
 			}
 		}
