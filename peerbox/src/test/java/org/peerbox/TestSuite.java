@@ -6,6 +6,7 @@ import org.junit.runners.Suite.SuiteClasses;
 import org.peerbox.app.AppTestSuite;
 import org.peerbox.app.config.ConfigTestSuite;
 import org.peerbox.events.MessageBusTest;
+import org.peerbox.filerecovery.FileVersionSelectorTest;
 import org.peerbox.guice.GuiceFxmlLoaderTest;
 import org.peerbox.notifications.FileEventAggregatorTest;
 import org.peerbox.presenter.NavigationServiceTest;
@@ -18,6 +19,8 @@ import org.peerbox.utils.UtilsTestSuite;
 	MessageBusTest.class,
 	ServerTestSuite.class,
 	UtilsTestSuite.class,
+
+	FileVersionSelectorTest.class,
 
 	NavigationServiceTest.class,
 	GuiceFxmlLoaderTest.class,

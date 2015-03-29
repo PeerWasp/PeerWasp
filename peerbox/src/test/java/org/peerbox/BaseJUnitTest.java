@@ -14,9 +14,9 @@ public class BaseJUnitTest {
 
 	private final static Logger logger = LoggerFactory.getLogger(BaseJUnitTest.class);
 
-//	static {
-//		TestFileConfiguration.CHUNK_SIZE = 1024*1024; // 1MB
-//	}
+	static {
+		TestFileConfiguration.CHUNK_SIZE = 1024*1024; // 1MB
+	}
 
 	/* global time out rule */
 	// @Rule
