@@ -6,7 +6,7 @@ import org.junit.runners.Suite.SuiteClasses;
 
 
 @RunWith(Suite.class)
-@SuiteClasses({ 
+@SuiteClasses({
 	RemoteAddLocalAdd.class,
 	RemoteAddLocalDelete.class,
 	RemoteAddLocalExists.class,

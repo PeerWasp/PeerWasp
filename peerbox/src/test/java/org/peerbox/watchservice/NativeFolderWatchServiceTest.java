@@ -22,6 +22,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.peerbox.app.manager.file.IFileManager;
+import org.peerbox.testutils.WatchServiceTestHelpers;
 import org.peerbox.watchservice.filetree.FileTree;
 import org.peerbox.watchservice.integration.TestPeerWaspConfig;
 import org.slf4j.Logger;

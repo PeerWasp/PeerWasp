@@ -6,10 +6,10 @@ import org.junit.runners.Suite.SuiteClasses;
 
 @RunWith(Suite.class)
 @SuiteClasses({
+	FileComponentTest.class,
  	FileLeafTest.class,
  	FolderCompositeTest.class,
- 	FileComponentTest.class,
- 	//PathUtilsTest.class,
+ 	RemoteFileDaoTest.class,
  })
 
 public class FileTreeTestSuite {
