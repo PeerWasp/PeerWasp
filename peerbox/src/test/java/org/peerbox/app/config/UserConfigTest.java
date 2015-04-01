@@ -16,6 +16,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.peerbox.BaseJUnitTest;
+import org.peerbox.utils.OsUtils;
 
 public class UserConfigTest extends BaseJUnitTest {
 
@@ -58,9 +59,12 @@ public class UserConfigTest extends BaseJUnitTest {
 		userConfig.setRootPath(Paths.get(""));
 		assertFalse(userConfig.hasRootPath());
 
-		userConfig.setRootPath(Paths.get(" "));
-		assertTrue(userConfig.hasRootPath());
-
+		if (!OsUtils.isWindows()) {
+			// trailing space is not supported on windows. throws exception.
+			userConfig.setRootPath(Paths.get(" "));
+			assertTrue(userConfig.hasRootPath());
+		}
+		
 		userConfig.setRootPath(Paths.get("/this/is/a/path"));
 		assertTrue(userConfig.hasRootPath());
 
@@ -75,14 +79,15 @@ public class UserConfigTest extends BaseJUnitTest {
 		userConfigAssertPersistence(userConfig, configFile);
 
 		userConfig.setRootPath(Paths.get("/this/is/a/Path"));
-		assertEquals(userConfig.getRootPath().toString(), "/this/is/a/Path");
-		assertNotEquals(userConfig.getRootPath(), "/this/is/a/Path".toLowerCase());
+		assertEquals(userConfig.getRootPath(), Paths.get("/this/is/a/Path"));
 		userConfigAssertPersistence(userConfig, configFile);
 
-		userConfig.setRootPath(Paths.get("/this/is/a/Path/John Doe "));
-		assertEquals(userConfig.getRootPath().toString(), "/this/is/a/Path/John Doe ");
-		userConfigAssertPersistence(userConfig, configFile);
-
+		if (!OsUtils.isWindows()) {
+			userConfig.setRootPath(Paths.get("/this/is/a/Path/John Doe "));
+			assertEquals(userConfig.getRootPath(), Paths.get("/this/is/a/Path/John Doe "));
+			userConfigAssertPersistence(userConfig, configFile);
+		}
+		
 		userConfig.setRootPath(null);
 		assertNull(userConfig.getRootPath());
 		userConfigAssertPersistence(userConfig, configFile);

@@ -35,6 +35,7 @@ public class IconUtilsTest {
 
 	@Test
 	public void testInitFontAwesomeOffline() {
+		// this test may fail if already initialized due to other tests.
 		assertNull(IconUtils.getFontAwesome());
 
 		IconUtils.initFontAwesomeOffline();
