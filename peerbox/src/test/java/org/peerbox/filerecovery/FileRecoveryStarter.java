@@ -100,7 +100,7 @@ public class FileRecoveryStarter extends Application {
 
 		content = new ArrayList<String>();
 
-		// add an intial file to the network
+		// add an initial file to the network
 		file = new File(root, fileName);
 		String fileContent = RandomStringUtils.randomAscii(FILE_SIZE);
 		content.add(fileContent);

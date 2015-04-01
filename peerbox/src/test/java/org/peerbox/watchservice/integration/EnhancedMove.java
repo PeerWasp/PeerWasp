@@ -26,11 +26,10 @@ public class EnhancedMove extends FileIntegrationTest{
 		try {
 			Thread.sleep(10000);
 		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
-	
+
 	private void manyNonEmptyFolderMoveTestFunc() throws IOException{
 		logger.debug("--------------------START------------");
 		int nrFolders = 10;
@@ -39,7 +38,7 @@ public class EnhancedMove extends FileIntegrationTest{
 		List<Path> paths = addManyFilesInManyFolders(10, 10);
 		List<Path> destinationPaths = new ArrayList<Path>();
 		int totalFiles = nrFolders + nrFolders * nrFilesPerFolder + 1;
-		
+
 		assertCleanedUpState(totalFiles);
 		Path lastDestination = null;
 		for(Path path: paths){
@@ -51,11 +50,11 @@ public class EnhancedMove extends FileIntegrationTest{
 					destinationPaths.add(lastDestination);
 				}
 			}
-			
+
 		}
 		waitForExists(destinationPaths, WAIT_TIME_SHORT);
 		assertCleanedUpState(totalFiles);
 		logger.debug("--------------------END------------");
 	}
-	
+
 }

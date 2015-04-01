@@ -30,9 +30,6 @@ public class TrayActionHandler {
 	@Inject
 	private Provider<IExitHandler> exitHandler;
 
-	// TODO(AA) actions and menu should depende on logged in status etc.
-	// dependency managemen
-
 	public void openRootFolder() {
 		ClientContext clientContext = appContext.getCurrentClientContext();
 		if (clientContext != null) {
@@ -57,7 +54,6 @@ public class TrayActionHandler {
 	}
 
 	public void showSettings() {
-		// TODO: only possible if user is logged in
 		settingsStage.show();
 	}
 

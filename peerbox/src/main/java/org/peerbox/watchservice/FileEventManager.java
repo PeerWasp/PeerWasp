@@ -205,7 +205,6 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 		file.getAction().handleLocalUpdateEvent();
 	}
 
-	//TODO: remove children from actionQueue as well!
 	/**
 	 * Forwards the local delete event to the core. Additionally, it publishes a {@link
 	 * org.peerbox.app.manager.file.messages.LocalFileSoftDeleteMessage LocalFileDesyncMessage} using
@@ -261,7 +260,7 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 		logger.debug("onFileDesynchronized: {}", path);
 		final FileComponent file = fileTree.getFile(path);
 		if (file != null) {
-			file.setIsSynchronized(false); //TODO: rec
+			file.setIsSynchronized(false);
 			FileUtils.deleteQuietly(path.toFile());
 		} else {
 			logger.error("onFileDesynchronized: Did not find file component: {}", path);
@@ -280,7 +279,6 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 
 		logger.debug("onFileSynchronized: {}", path);
 
-		// TODO: need to specify whether it is a folder or not?
 		// is this even required if we do onFileAdd later?
 		final FileComponent file = fileTree.getOrCreateFileComponent(path, !isFolder, this);
 //		if (file.isSynchronized()) {
@@ -295,7 +293,7 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 	}
 
 	private boolean hasSynchronizedAncestor(final Path path) {
-		// TODO: maybe stop when rootPath is reached...!
+		// FIXME: maybe stop when rootPath is reached...!
 		FileComponent file = fileTree.getFile(path);
 		if (file == null) {
 //			logger.trace("checkForSynchronizedAncestor: Did not find {}", path);
@@ -332,7 +330,6 @@ public class FileEventManager implements IFileEventManager, ILocalFileEventListe
 		logger.trace("file {} has ID {}", path, file.hashCode());
 		if (!hasSynchronizedAncestor(path)) {
 			logger.debug("File {} is in folder that is not synchronized. Event ignored.", path);
-			// TODO: set isSynchronized = false?
 			file.setIsSynchronized(false);
 			getMessageBus().publish(new FileExecutionStartedMessage(new FileInfo(file), StateType.INITIAL));
 			//return;

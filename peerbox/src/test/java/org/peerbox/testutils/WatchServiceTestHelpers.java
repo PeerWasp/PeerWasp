@@ -1,4 +1,4 @@
-package org.peerbox.watchservice;
+package org.peerbox.testutils;
 
 import java.io.FileWriter;
 import java.io.IOException;

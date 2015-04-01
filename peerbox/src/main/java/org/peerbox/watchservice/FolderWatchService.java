@@ -241,7 +241,8 @@ public class FolderWatchService extends AbstractWatchService {
 				} else if (kind.equals(ENTRY_DELETE)) {
 					addNotifyEvent(new NotifyFileDeleted(source));
 				} else if (kind.equals(OVERFLOW)) {
-					// TODO: error - overflow... should not happen here (continue if such an event occurs)
+					// error - overflow... should not happen here (continue if such an event occurs).
+					// handled already
 					logger.warn("Overflow event from watch service. Too many events?");
 				} else {
 					logger.warn("Unknown event received");

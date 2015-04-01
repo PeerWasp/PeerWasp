@@ -109,9 +109,6 @@ public class UserConfigTest extends BaseJUnitTest {
 		assertNull(userConfig.getUsername());
 		userConfigAssertPersistence(userConfig, configFile);
 
-		// TODO: Design decision: username may be not case sensitive but rather
-		// (holds for registration, login, ... not necessarily config)
-
 		userConfig.setUsername("TestUser123");
 		assertEquals(userConfig.getUsername(), "TestUser123");
 		userConfigAssertPersistence(userConfig, configFile);
@@ -218,7 +215,7 @@ public class UserConfigTest extends BaseJUnitTest {
 	 * Usage: given an instance a, create a new instance b that reads the config again and compare.
 	 *
 	 * @param a an instance
-	 * @param b another instance
+	 * @param file path to other config file.
 	 * @throws IOException if loading fails
 	 */
 	private void userConfigAssertPersistence(UserConfig a, Path file) throws IOException {

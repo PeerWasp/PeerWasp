@@ -20,7 +20,7 @@ final class JTrayMenu {
 
 		if (isUserLoggedIn) {
 			root.add(createRootFolderMenu());
-			// root.add(createRecentFilesMenu()); // TODO implement it...
+			// root.add(createRecentFilesMenu()); // TODO: implement additional feature.
 			root.addSeparator();
 			root.add(createSettingsMenu());
 			root.addSeparator();

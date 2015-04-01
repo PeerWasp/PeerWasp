@@ -123,7 +123,6 @@ public class SelectiveSynchronization extends FileIntegrationTest{
 	}
 
 	private boolean allPathsAreSynchronized(List<Path> paths, boolean sync) {
-		// TODO Auto-generated method stub
 		IFileTree fileTree = getNetwork().getClients().get(0).getFileEventManager().getFileTree();
 		for(Path path : paths){
 			if(sync){
