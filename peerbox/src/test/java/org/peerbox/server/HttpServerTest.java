@@ -8,11 +8,15 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.Socket;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.Enumeration;
 
+import org.apache.commons.io.FileUtils;
 import org.junit.Test;
 import org.peerbox.BaseJUnitTest;
+import org.peerbox.app.config.AppConfig;
 import org.peerbox.utils.OsUtils;
 import org.peerbox.utils.WinRegistryTest;
 import org.slf4j.Logger;
@@ -30,9 +34,13 @@ public class HttpServerTest extends BaseJUnitTest {
 	}
 
 	@Test
-	public void testWinRegistryPortUpdate() {
-		if(OsUtils.isWindows()) {
+	public void testWinRegistryPortUpdate() throws IOException {
+		if (OsUtils.isWindows()) {
 			IServer srv = ServerFactory.createServer();
+			Path configFile = Paths.get(FileUtils.getTempDirectoryPath(), "PeerWasp-TestAppConfig.conf");
+			AppConfig appConfig = new AppConfig(configFile);
+			appConfig.load();
+			appConfig.setApiServerPort(srv.getPort());
 			WinRegistryTest.assertPort(srv.getPort());
 		} else {
 			fail("Not on Windows.");
