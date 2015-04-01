@@ -50,7 +50,6 @@ public class RemoteFileDaoTest {
 	@Test
 	public void testCreateTable() {
 		// check that table does not exist
-		assertFalse(dao.tableExists());
 		dao.createTable();
 		assertTrue(dao.tableExists());
 	}

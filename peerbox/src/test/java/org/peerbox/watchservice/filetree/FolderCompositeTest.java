@@ -87,11 +87,11 @@ public class FolderCompositeTest {
 			return new FolderComposite(path, true);
 		}
 	}
-	
+
 	private FileComponent createFolder(final Path path) throws IOException {
 		return createFolder(path, true);
 	}
-	
+
 	private FileComponent createFile(final Path path) throws IOException {
 		return createFile(path, true);
 	}
@@ -109,6 +109,7 @@ public class FolderCompositeTest {
 		assertTrue(r.isUploaded());
 		assertEquals(rootPath, r.getPath());
 		assertNull(r.getParent());
+		r.updateContentHash();
 		assertEquals(r.getContentHash(), EMPTY_FOLDER_HASH);
 		assertTrue(r.isSynchronized());
 		assertTrue(r.isFolder());
@@ -125,6 +126,7 @@ public class FolderCompositeTest {
 		assertFalse(r.isUploaded()); // now false
 		assertEquals(rootPath, r.getPath());
 		assertNull(r.getParent());
+		r.updateContentHash();
 		assertEquals(r.getContentHash(), EMPTY_FOLDER_HASH);
 		assertFalse(r.isSynchronized()); // now false
 		assertTrue(r.isFolder());

@@ -47,6 +47,7 @@ class ActivityItemCell extends ListCell<ActivityItem> {
 	public ActivityItemCell() {
 		super();
 
+		IconUtils.initFontAwesomeOffline();
 		fontAwesome = IconUtils.getFontAwesome();
 
 		grid = new GridPane();

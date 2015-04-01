@@ -13,9 +13,10 @@ import org.hive2hive.core.events.framework.interfaces.file.IFileEvent;
 import org.hive2hive.core.events.implementations.FileAddEvent;
 import org.hive2hive.core.processes.files.list.FileNode;
 import org.hive2hive.core.security.HashUtil;
-import org.junit.Ignore;
+import org.junit.Rule;
 import org.junit.Test;
 import org.peerbox.BaseJUnitTest;
+import org.peerbox.helper.JavaFXThreadingRule;
 import org.peerbox.presenter.settings.synchronization.PathItem;
 import org.peerbox.watchservice.filetree.FileComponentTest;
 import org.peerbox.watchservice.filetree.composite.FileComponent;
@@ -23,6 +24,9 @@ import org.peerbox.watchservice.filetree.composite.FileLeaf;
 import org.peerbox.watchservice.filetree.composite.FolderComposite;
 
 public class FileInfoTest extends BaseJUnitTest {
+
+	@Rule
+	public JavaFXThreadingRule jfxRule = new JavaFXThreadingRule();
 
 	@Test
 	public void testFileInfo_PathBoolean() {
@@ -70,7 +74,7 @@ public class FileInfoTest extends BaseJUnitTest {
 		// folder
 		Path folder = Paths.get("/path/to/a/folder");
 		FileComponent folderComponent = new FolderComposite(folder, true);
-		FileComponentTest.setContentHashByReflection(fileComponent, "hash1");
+		FileComponentTest.setContentHashByReflection(folderComponent, "hash2");
 		FileInfo folderInfo = new FileInfo(folderComponent);
 		assertEquals(folder, folderInfo.getPath());
 		assertTrue(folderInfo.isFolder());
@@ -118,7 +122,7 @@ public class FileInfoTest extends BaseJUnitTest {
 		assertEquals("", folderInfo.getContentHash()); // file event does not have conent hash
 	}
 
-	@Test @Ignore // requires initialization of javafx
+	@Test // requires initialization of javafx
 	public void testFileInfo_PathItem() {
 		Path file = Paths.get("/path/to/a/file.txt");
 		PathItem fileItem = new PathItem(file, true, new HashSet<>());
@@ -131,7 +135,7 @@ public class FileInfoTest extends BaseJUnitTest {
 		Path folder = Paths.get("/path/to/a/folder");
 		PathItem folderItem = new PathItem(folder, false, new HashSet<>());
 		FileInfo folderInfo = new FileInfo(folderItem);
-		assertEquals(fileItem.getPath(), folderInfo.getPath());
+		assertEquals(folderItem.getPath(), folderInfo.getPath());
 		assertTrue(folderInfo.isFolder());
 		assertEquals("", folderInfo.getContentHash()); // path item does not have conent hash
 	}
