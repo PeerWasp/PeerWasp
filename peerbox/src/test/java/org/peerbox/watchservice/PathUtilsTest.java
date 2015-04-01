@@ -77,7 +77,7 @@ public class PathUtilsTest extends BaseJUnitTest {
 		String content = new String(decoded);
 		assertTrue(content.equals(expected));
 	}
-	
+
 	@Test
 	public void isFileHiddenTest(){
 		assertTrue(PathUtils.isFileHidden(Paths.get(".file")));
@@ -85,7 +85,7 @@ public class PathUtilsTest extends BaseJUnitTest {
 		assertTrue(PathUtils.isFileHidden(Paths.get("$file")));
 		assertFalse(PathUtils.isFileHidden(Paths.get("file")));
 	}
-	
+
 	@Test
 	public void getCommonPathTest(){
 		Path emptyPath = Paths.get("");
@@ -93,21 +93,21 @@ public class PathUtilsTest extends BaseJUnitTest {
 		Path dir1dir2file1 = Paths.get("dir1/dir2/file1");
 		Path dir1dir2file2 = Paths.get("dir1/dir2/file2");
 		Path dir1dir3 = Paths.get("dir1/dir3");
-		
+
 		Path result = PathUtils.getCommonPath(null, dir1file1);
 		assertEquals(result.toString(), "");
-		
+
 		result = PathUtils.getCommonPath(emptyPath, dir1file1);
 		assertEquals(result.toString(), "");
-		
+
 		result = PathUtils.getCommonPath(dir1file1, dir1dir2file1);
 		assertEquals(result.toString(), "dir1");
-		
+
 		result = PathUtils.getCommonPath(dir1file1, dir1dir3);
 		assertEquals(result.toString(), "dir1");
-		
+
 		result =  PathUtils.getCommonPath(dir1dir2file1, dir1dir2file2);
-		assertEquals(result.toString(), "dir1\\dir2");
+		assertEquals(result, Paths.get("dir1", "dir2"));
 	}
 
 

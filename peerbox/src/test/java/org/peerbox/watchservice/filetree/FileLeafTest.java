@@ -76,6 +76,7 @@ public class FileLeafTest {
 		content = RandomStringUtils.randomAlphanumeric(1000);
 		Files.write(file, content.getBytes());
 		leaf = new TestFileLeaf(file, true);
+		leaf.updateContentHash();
 
 
 		rootBase = new TestFolderComposite(basePath, true, true); // root
@@ -107,6 +108,7 @@ public class FileLeafTest {
 		assertFalse(hash.isEmpty());
 
 		FileLeaf leafA = new FileLeaf(file, true);
+		leafA.updateContentHash();
 		assertEquals(hash, leafA.getContentHash());
 
 		FileLeaf leafB = new FileLeaf(file, false);
