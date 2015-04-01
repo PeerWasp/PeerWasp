@@ -355,13 +355,11 @@ public class ListSync {
 	}
 
 	private void removeFromLocalDb(Path file) {
-		// TODO(AA): either delete it here or perform persistence task after sync
-		// localFileDao.deleteByPath(file);
+		// the entry is removed with the next persistence iteration
 	}
 
 	private void removeFromRemoteDb(Path file) {
-		// TODO(AA): either delete it here or perform persistence task after sync
-		// remoteFileDao.deleteByPath(file);
+		// the entry is removed with the next persistence iteration
 	}
 
 	/**

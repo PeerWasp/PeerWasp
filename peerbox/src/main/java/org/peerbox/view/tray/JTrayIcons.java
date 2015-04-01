@@ -21,7 +21,7 @@ class JTrayIcons {
 	private static final String SUCCESS_ICON = "/images/trayicon_success.png";
 	private static final String SYNCING_ICON = "/images/trayicon_sync.png";
 	private static final String ERROR_ICON = "/images/trayicon_error.png";
-	// TODO: add more icons here, e.g. when error icon, sync icon, ... ->
+	// add more icons here, e.g. when error icon, sync icon, ... ->
 
 	// size of the tray icons (as read from SystemTray)
 	private final Dimension traySize;

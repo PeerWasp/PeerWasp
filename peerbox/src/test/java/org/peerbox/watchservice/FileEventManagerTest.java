@@ -494,7 +494,6 @@ public class FileEventManagerTest {
 		try {
 			Thread.sleep(millisToSleep);
 		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}

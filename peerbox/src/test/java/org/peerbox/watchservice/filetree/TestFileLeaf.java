@@ -9,7 +9,6 @@ public class TestFileLeaf extends FileLeaf{
 	public TestFileLeaf(Path path, boolean updateContentHash) {
 		super(path, updateContentHash);
 		setIsSynchronized(true);
-		// TODO Auto-generated constructor stub
 	}
 
 }

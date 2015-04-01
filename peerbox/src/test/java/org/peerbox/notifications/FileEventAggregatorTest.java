@@ -180,7 +180,6 @@ public class FileEventAggregatorTest  {
 
 		@Override
 		public void showSuccessIcon() throws TrayException {
-			// TODO Auto-generated method stub
 
 		}
 	}

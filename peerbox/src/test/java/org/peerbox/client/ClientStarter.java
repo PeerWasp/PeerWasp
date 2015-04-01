@@ -100,7 +100,6 @@ public class ClientStarter extends AbstractStarter {
 			// teardown();
 
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}

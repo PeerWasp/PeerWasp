@@ -53,7 +53,7 @@ public class FileTree implements IFileTree {
     public boolean getMaintainContentHashes(){
     	return maintainContentHashes;
     }
-    
+
     public FolderComposite getRootOfFileTree(){
     	return rootOfFileTree;
     }
@@ -74,7 +74,6 @@ public class FileTree implements IFileTree {
 			logger.trace("FileComponent {} is new and now created.", path);
 			if(isFile == null){
 				logger.trace("FileComponent {} has no fileevent.", path);
-				//TODO check for directory wrong if it does not exist yet!
 				file = createFileComponent(path, Files.isRegularFile(path));
 			} else {
 				logger.trace("FileComponent {} has a fileevent isfile= {}", path, isFile);
