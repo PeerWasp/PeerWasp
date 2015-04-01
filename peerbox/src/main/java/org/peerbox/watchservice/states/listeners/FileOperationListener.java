@@ -7,6 +7,13 @@ import org.peerbox.events.MessageBus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/** 
+ * This is a base class for many listeners implementing Hive2Hive's IProcessComponentListener. Sub classes 
+ * of this class can be registered at IProcessComponent instances. When events occur, a corresponding message
+ * is published on the message bus.
+ * @author Claudio
+ *
+ */
 public class FileOperationListener implements IProcessComponentListener {
 
 	private static final Logger logger = LoggerFactory.getLogger(FileOperationListener.class);
