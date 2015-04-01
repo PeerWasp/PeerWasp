@@ -10,6 +10,11 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
+/**
+ * These tests are currently ignored. They only repeat other tests for special purposes.
+ * @author Claudio
+ *
+ */
 @RunWith(Parameterized.class)
 public class RepeatedAddDelete extends FileIntegrationTest{
 
@@ -18,7 +23,7 @@ public class RepeatedAddDelete extends FileIntegrationTest{
         return Arrays.asList(new Object[20][0]);
     }
     
-	@Test
+	@Test @Ignore
 	public void singleFileInManyFoldersTest() throws IOException{
 		int nrFolders = 100;
 		List<Path> allPathsInOne = addSingleFileInManyFolders(nrFolders);

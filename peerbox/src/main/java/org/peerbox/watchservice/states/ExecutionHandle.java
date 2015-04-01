@@ -5,6 +5,11 @@ import org.peerbox.watchservice.IAction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Encapsulation class for the ProcessHandles in Hive2Hive.
+ * @author Claudio
+ *
+ */
 public class ExecutionHandle {
 
 	private final static Logger logger = LoggerFactory.getLogger(ExecutionHandle.class);

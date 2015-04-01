@@ -22,7 +22,7 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.SetMultimap;
 
 /**
- * Interface for different states of implemented state pattern
+ * Base class for the concrete states of the state pattern.
  *
  * @author winzenried
  *

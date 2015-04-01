@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.hive2hive.core.utils.H2HWaiter;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.peerbox.testutils.FileTestUtils;
 import org.peerbox.watchservice.FileEventManager;
@@ -20,8 +19,6 @@ public class SelectiveSynchronization extends FileIntegrationTest{
 	@Test
 	public void isFileSynchedByDefaultTest() throws IOException {
 		Path path = addFile();
-//		assertSyncClientPaths();
-//		assertQueuesAreEmpty();
 		assertCleanedUpState(1);
 		FileEventManager eventManager = getNetwork().getClients().get(0).getFileEventManager();
 		FileComponent file = eventManager.getFileTree().getFile(path);
@@ -58,9 +55,6 @@ public class SelectiveSynchronization extends FileIntegrationTest{
 		waitForNotExistsLocally(path, WAIT_TIME_VERY_SHORT);
 
 		FileTestUtils.recreateRandomFile(path);
-
-//		Path renamedFile = ConflictHandler.rename(path);
-//		toSync.add(renamedFile);
 		waitForUpdate(toSync, WAIT_TIME_SHORT);
 		waitForExists(toSync, WAIT_TIME_SHORT);
 
@@ -118,26 +112,6 @@ public class SelectiveSynchronization extends FileIntegrationTest{
 
 		waitForSynchronized(paths, WAIT_TIME_SHORT, false);
 		waitForNotExistsLocally(paths, WAIT_TIME_VERY_SHORT);
-
-	}
-
-	@Test @Ignore
-	public void isFileInResyncedFolderResyncedByDefaultTest() throws IOException{
-		//onFileDesync -> check if unsynced recursively
-		List<Path> paths = addSingleFileInFolder();
-		assertCleanedUpState(paths.size());
-		waitForSynchronized(paths, WAIT_TIME_VERY_SHORT, true);
-		FileEventManager eventManager = getNetwork().getClients().get(0).getFileEventManager();
-		eventManager.onFileSoftDeleted(paths.get(0));
-
-		waitForSynchronized(paths, WAIT_TIME_SHORT, false);
-		waitForNotExistsLocally(paths, WAIT_TIME_VERY_SHORT);
-
-		eventManager.onFileSynchronized(paths.get(0), true);
-		assertSyncClientPaths();
-		assertQueuesAreEmpty();
-		waitForExists(paths, WAIT_TIME_VERY_SHORT);
-		waitForSynchronized(paths, WAIT_TIME_VERY_SHORT, true);
 
 	}
 

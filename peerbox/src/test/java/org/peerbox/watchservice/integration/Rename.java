@@ -31,7 +31,4 @@ public class Rename extends FileIntegrationTest{
 	    return Files.move(oldName, oldName.resolveSibling(newNameString));
 	}
 
-
-
-
 }

@@ -166,25 +166,6 @@ public class Move extends FileIntegrationTest{
 		manyNonEmptyFolderMoveTestFunc();
 	}
 
-	@Test @Ignore
-	public void simultaneousSingleFileMoveTest() throws IOException{
-		Path folder = addFolder();
-		Path srcFile = addFile();
-		Path srcFile2 = addFile();
-		Path otherRoot = getNetwork().getRootPaths().get(1);
-		Path otherFolder = otherRoot.resolve(folder.getFileName());
-		Path resolvedSrc = otherRoot.resolve(srcFile2.getFileName());
-		Path resolvedDest = otherFolder.resolve(srcFile.getFileName());
-		logger.trace("1. Move from {} to {}", resolvedSrc, resolvedDest);
-		logger.trace("2. Move from {} to {}", srcFile, folder.resolve(srcFile.getFileName()));
-
-		assertCleanedUpState(3);
-		moveFileOrFolder(resolvedSrc, resolvedDest);
-		sleepMillis(2 * config.getAggregationIntervalInMillis() / 3);
-		moveFileOrFolder(srcFile, folder.resolve(srcFile.getFileName()));
-		assertCleanedUpState(3);
-	}
-
 	private void manyNonEmptyFolderMoveTestFunc() throws IOException{
 		int nrFolders = 10;
 		int nrFilesPerFolder = 10;
@@ -236,38 +217,6 @@ public class Move extends FileIntegrationTest{
 		waitForUpdate(dstFile, WAIT_TIME_SHORT);
 	}
 
-	@Test @Ignore
-	public void localMoveOnRemoteUpdateTest() throws IOException{
-		Path folder = addFolder();
-		Path srcFile = addFile();
-//		Path srcFile = FileTestUtils.createRandomFile(masterRootPath, NUMBER_OF_CHARS);
-		waitForExists(srcFile, WAIT_TIME_SHORT);
-//		assertSyncClientPaths();
-//		assertQueuesAreEmpty();
-		assertCleanedUpState(1);
-
-//		updateSingleFile(srcFile);
-		sleepMillis(2 * config.getAggregationIntervalInMillis());
-		Path srcOnClient = Paths.get(clientRootPath + File.separator + srcFile.getFileName());
-		Path dstOnClient = Paths.get(clientRootPath + File.separator + folder.getFileName() + File.separator + srcFile.getFileName());
-//		tryToMoveFile(srcOnClient, dstOnClient);
-
-		updateSingleFile(srcOnClient, false);
-		sleepMillis(2 * config.getAggregationIntervalInMillis() / 3);
-		waitForNotExists(srcOnClient, WAIT_TIME_SHORT);
-		waitForExists(dstOnClient, WAIT_TIME_SHORT);
-
-
-		//waitForNotExists(srcFile, WAIT_TIME_SHORT);
-//		assertSyncClientPaths();
-//		assertQueuesAreEmpty();
-		assertCleanedUpState(1);
-	}
-
-//	private void tryToMoveFile(Path srcFile, Path dstFile) throws IOException {
-//		System.out.println("Move " + srcFile + " to " + dstFile);
-//		Files.move(srcFile.toFile(), dstFile.toFile());
-//	}
 	private void moveFileOrFolder(Path srcFile, Path dstFile) throws IOException {
 		moveFileOrFolder(srcFile, dstFile, true);
 	}

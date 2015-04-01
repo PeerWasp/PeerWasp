@@ -173,33 +173,6 @@ public abstract class AbstractFileComponent implements FileComponent {
 		return !isFile();
 	}
 
-//	@Override
-//	public String getStructureHash() {
-//		String msg = String.format("getStructureHash not implemented. "
-//				+ "This is probably a file. "
-//				+ "(this=%s)", getPath());
-//
-//		throw new NotImplementedException(msg);
-//	}
-//
-//	@Override
-//	public void setStructureHash(String hash) {
-//		String msg = String.format("setStructureHash not implemented. "
-//				+ "This is probably a file. "
-//				+ "(this=%s, hash=%s)", getPath(), hash);
-//
-//		throw new NotImplementedException(msg);
-//	}
-
-//	@Override
-//	public void getSynchronizedChildrenPaths(Set<Path> synchronizedPaths) {
-//		String msg = String.format("getSynchronizedChildrenPaths not implemented. "
-//				+ "This is probably a file. "
-//						+ "(this=%s)", getPath());
-//
-////		throw new NotImplException(msg);
-//	}
-
 	@Override
 	public abstract String toString();
 

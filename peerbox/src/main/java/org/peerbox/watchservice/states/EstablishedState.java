@@ -35,19 +35,4 @@ public class EstablishedState extends AbstractActionState{
 		return new RemoteUpdateState(action);
 	}
 
-
-
-//	@Override
-//	public AbstractActionState handleLocalCreate() {
-//		action.updateTimeAndQueue();
-////		action.getFile().updateContentHash();
-//		return changeStateOnLocalCreate();
-//	}
-
-//	@Override
-//	public AbstractActionState handleRemoteCreate() {
-//		action.updateTimeAndQueue();
-//		return changeStateOnRemoteCreate();
-//	}
-
 }

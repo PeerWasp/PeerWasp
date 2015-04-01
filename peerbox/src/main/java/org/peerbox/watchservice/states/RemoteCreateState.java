@@ -27,7 +27,6 @@ public class RemoteCreateState extends AbstractActionState {
 
 	private static final Logger logger = LoggerFactory.getLogger(RemoteCreateState.class);
 
-//	private boolean localCreateHappened = false;
 	public RemoteCreateState(IAction action) {
 		super(action, StateType.REMOTE_CREATE);
 	}
@@ -83,7 +82,6 @@ public class RemoteCreateState extends AbstractActionState {
 		return this;
 	}
 
-	//this should be replaced by a force sync!
 	@Override
 	public AbstractActionState handleRemoteMove(Path path) {
 		logger.info("The file which was remotely moved after it has been "
@@ -94,7 +92,6 @@ public class RemoteCreateState extends AbstractActionState {
 		fileTree.deleteFile(action.getFile().getPath());
 		action.getFileEventManager().getFileComponentQueue().remove(action.getFile());
 		FileComponent moveDest = fileTree.getOrCreateFileComponent(path, action.getFileEventManager());
-		//TODO set path of moveDest to path
 		fileTree.putFile(path, moveDest);
 		moveDest.getAction().handleRemoteCreateEvent();
 

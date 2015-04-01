@@ -64,7 +64,6 @@ public class Update extends FileIntegrationTest {
 		assertCleanedUpState(101);
 	}
 	
-	//TODO: this test fails only in conjunction with others: check!
 	@Test
 	public void manyFilesInManyFoldersTest() throws IOException {
 		int nrFolders = 10;
@@ -87,7 +86,7 @@ public class Update extends FileIntegrationTest {
 				continue;
 			}
 			
-			// modify with probability 0.5
+			
 			boolean modify = true; //(RandomUtils.nextInt(0, 100) % 2) == 0;
 			if (modify) {
 				updateSingleFile(f, false);

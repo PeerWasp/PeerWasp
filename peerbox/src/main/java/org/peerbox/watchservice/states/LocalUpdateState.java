@@ -96,7 +96,6 @@ public class LocalUpdateState extends AbstractActionState {
 		return changeStateOnRemoteUpdate();
 	}
 
-	//TODO write test-case for this!
 	@Override
 	public AbstractActionState handleRemoteMove(Path path) {
 		final IFileEventManager eventManager = action.getFileEventManager();
@@ -107,7 +106,6 @@ public class LocalUpdateState extends AbstractActionState {
 		Path sourcePath = file.getPath();
 
 		fileTree.deleteFile(file.getPath());
-		//TODO set path of file to path
 		fileTree.putFile(path, file);
 		action.updateTimeAndQueue();
 		return changeStateOnRemoteMove(sourcePath);

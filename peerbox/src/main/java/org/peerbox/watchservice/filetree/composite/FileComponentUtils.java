@@ -3,8 +3,6 @@ package org.peerbox.watchservice.filetree.composite;
 public class FileComponentUtils {
 
 	private FileComponentUtils() {
-		// prevent instantiation
-		// only static methods
 	}
 
 	/**

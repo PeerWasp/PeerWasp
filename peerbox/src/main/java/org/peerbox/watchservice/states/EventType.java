@@ -1,5 +1,6 @@
 package org.peerbox.watchservice.states;
 
+/** Utility enumeration, mainly used for logging **/
 enum EventType {
 	LOCAL_CREATE("LocalCreate"),
 	LOCAL_DELETE("LocalDelete"),

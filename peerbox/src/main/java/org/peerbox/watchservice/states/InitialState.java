@@ -34,12 +34,6 @@ public class InitialState extends AbstractActionState {
 		return this;
 	}
 
-//	@Override
-//	public AbstractActionState changeStateOnLocalMove(Path source) {
-//		logStateTransition(getStateType(), EventType.LOCAL_MOVE, StateType.LOCAL_MOVE);
-//		return new LocalMoveState(action, source);
-//	}
-
 	@Override
 	public AbstractActionState changeStateOnLocalCreate(){
 		if(action.getFile().isUploaded()){
@@ -56,12 +50,6 @@ public class InitialState extends AbstractActionState {
 		logStateTransition(getStateType(), EventType.REMOTE_MOVE, StateType.INITIAL);
 		return new InitialState(action);
 	}
-
-//	@Override
-//	public AbstractActionState changeStateOnRemoteMove(Path oldFilePath) {
-//		logStateTransition(getStateType(), EventType.REMOTE_MOVE, StateType.ESTABLISHED);
-//		return new EstablishedState(action);
-//	}
 
 	@Override
 	public AbstractActionState handleLocalCreate() {
@@ -188,7 +176,6 @@ public class InitialState extends AbstractActionState {
 
 		SetMultimap<String, FolderComposite> createdByStructureHash = action.getFileEventManager().getFileTree().getCreatedByStructureHash();
 		createdByStructureHash.get(((FolderComposite)action.getFile()).getStructureHash()).remove((FolderComposite)action.getFile());
-		// TODO: cleanup filecomponentqueue: remove children of folder if in localcreate state!
 
 		if (source.isUploaded()) {
 			logger.trace("Handle move of {}, from {}.", filePath, source.getPath());
