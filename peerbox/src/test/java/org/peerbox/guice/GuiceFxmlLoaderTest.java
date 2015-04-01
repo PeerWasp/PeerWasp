@@ -10,24 +10,21 @@ import java.lang.reflect.Field;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
+import javafx.stage.Stage;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.Mockito;
-import org.peerbox.app.config.UserConfig;
-import org.peerbox.app.manager.node.INodeManager;
+import org.peerbox.app.AppContext;
 import org.peerbox.app.manager.user.IUserManager;
-import org.peerbox.app.manager.user.UserManager;
 import org.peerbox.helper.JavaFxNoOpApp;
 import org.peerbox.presenter.LoginController;
 import org.peerbox.presenter.MainController;
 import org.peerbox.presenter.NavigationService;
 import org.peerbox.view.ViewNames;
 
-import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import com.google.inject.Provides;
 
 public class GuiceFxmlLoaderTest {
 
@@ -51,21 +48,13 @@ public class GuiceFxmlLoaderTest {
 
 
 	@Test
-	public void testCreateLoginViewDependencies() throws IOException, NoSuchFieldException,
-			SecurityException, IllegalArgumentException, IllegalAccessException {
+	public void testCreateLoginViewDependencies() throws Exception {
 		/* simple injector */
-		Injector injector = Guice.createInjector(new AbstractModule() {
-			@Override
-			protected void configure() {
-				// not used
-			}
-
-			@Provides
-			IUserManager providesUserManager(INodeManager manager) {
-				// do not need the instances here
-				return new UserManager(null, null);
-			}
-		});
+		Injector injector = Guice.createInjector(
+				new AppModule(Mockito.mock(Stage.class)),
+				new AppConfigModule(),
+				new ApiServerModule()
+		);
 
 		IFxmlLoaderProvider fxmlLoaderProvider = new GuiceFxmlLoader(injector);
 
@@ -81,12 +70,12 @@ public class GuiceFxmlLoaderTest {
 		 * resolve dependencies
 		 */
 		Class<?> ctrl = loginController.getClass();
-		/* user config */
-		Field userConfigField = ctrl.getDeclaredField("userConfig");
-		userConfigField.setAccessible(true);
-		Object userConfig = userConfigField.get(loginController);
-		assertNotNull(userConfig);
-		assertTrue(userConfig instanceof UserConfig);
+		/* context */
+		Field appContextField = ctrl.getDeclaredField("appContext");
+		appContextField.setAccessible(true);
+		Object appContext = appContextField.get(loginController);
+		assertNotNull(appContext);
+		assertTrue(appContext instanceof AppContext);
 
 		/* user manager */
 		Field userManagerField = ctrl.getDeclaredField("userManager");
