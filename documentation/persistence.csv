@@ -1,35 +1,35 @@
 Case Name,Network,DB remote,DB local,Disk,Result,Description
 RemoteExistsLocalExists,T,T,T,T,"upload, download, conflict, OK","Check hashes:
-- if (network - disk) match: OK
-- if (network - db remote) match, but (disk - db local) mismatch: local version updated, upload new version
-- if (disk - db local) match, but (network - db remote) mismatch: remote version updated, download new version
-- else: local and remote version updated, conflict."
-RemoteExistsLocalDelete,T,T,T,F,"delete, download","Local delete - check hashes: 
-- if (db local - network) match: file was not updated, delete.
-- else: download"
-RemoteExistsLocalAdd,T,T,F,T,"conflict, OK","Local add, but network version already exists - check hashes: 
-- if (network - disk) match: OK
-- else: conflict"
+(1) if (network - disk) match: OK.
+(2) if (network - db remote) match, but (disk - db local) mismatch: local version updated, upload new version.
+(3) if (disk - db local) match, but (network - db remote) mismatch: remote version updated, download new version.
+(4) else: local and remote version updated, conflict."
+RemoteExistsLocalDelete,T,T,T,F,"delete, download","Local delete. Check hashes: 
+(1) if (db local - network) match: file was not updated, delete.
+(2) else: download."
+RemoteExistsLocalAdd,T,T,F,T,"conflict, OK","Local add, but network version already exists. Check hashes: 
+(1) if (network - disk) match: OK.
+(2) else: conflict."
 "RemoteExistsLocalUnknown
-",T,T,F,F,download,Unknown remote file: file was not downloaded yet
+",T,T,F,F,download,Unknown remote file: file was not downloaded yet.
 "RemoteAddLocalExists
-",T,F,T,T,"upload, conflict, OK","Remote add, but file already exists on disk (DB not updated yet?) - check hashes:
-- if (disk - network) match: OK
-- if (network - local db) match: file updated locally, upload new version
-- else: conflict"
+",T,F,T,T,"upload, conflict, OK","Remote add, but file already exists on disk (DB not updated yet?). Check hashes:
+(1) if (disk - network) match: OK.
+(2) if (network - local db) match: file updated locally, upload new version.
+(3) else: conflict."
 "RemoteAddLocalDelete
-",T,F,T,F,download,Local delete and remote add: download again
-RemoteAddLocalAdd,T,F,F,T,"conflict, OK","Remote add and local add - check hashes:
-- if (network - disk) match: OK, update DB
-- else: conflict"
-RemoteAddLocalUnknown,T,F,F,F,download,New remote file: download
-RemoteDeleteLocalExists,F,T,T,T,"upload, delete","Remote delete - check hashes:
-- if (disk - local db) mismatch: file was updated, add it again
-- else: delete local file"
-RemoteDeleteLocalDelete,F,T,T,F,remove from db,Remote delete and local delete: delete
-RemoteDeleteLocalAdd,F,T,F,T,upload,Remote delete and local add: add again
+",T,F,T,F,download,Local delete and remote add: download again.
+RemoteAddLocalAdd,T,F,F,T,"conflict, OK","Remote add and local add. Check hashes:
+(1) if (network - disk) match: OK, update DB.
+(2) else: conflict."
+RemoteAddLocalUnknown,T,F,F,F,download,New remote file: download.
+RemoteDeleteLocalExists,F,T,T,T,"upload, delete","Remote delete. Check hashes:
+(1) if (disk - local db) mismatch: file was updated, add it again.
+(2) else: delete local file."
+RemoteDeleteLocalDelete,F,T,T,F,remove from db,Remote delete and local delete: delete.
+RemoteDeleteLocalAdd,F,T,F,T,upload,Remote delete and local add: add again.
 RemoteDeleteLocalUnknown,F,T,F,F,remove from db,"Remote file deleted, but unknown to client."
 RemoteUnknownLocalExists,F,F,T,T,upload,"Existing file, but unknown to network."
 RemoteUnknownLocalDelete,F,F,T,F,remove from db,"Local file deleted, but unknown to network. "
-RemoteUnknownLocalAdd,F,F,F,T,upload,New local file
+RemoteUnknownLocalAdd,F,F,F,T,upload,New local file.
 --,F,F,F,F,--,--
